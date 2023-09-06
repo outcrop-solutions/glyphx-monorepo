@@ -16,18 +16,13 @@ describe('#services/user', () => {
   });
   context('getUser', () => {
     it('should get a user by id', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
 
       const getUserFromModelStub = sandbox.stub();
       getUserFromModelStub.resolves({
         _id: userId,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'getUserById',
-        getUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'getUserById', getUserFromModelStub);
 
       const user = await userService.getUser(userId);
       assert.isOk(user);
@@ -36,18 +31,13 @@ describe('#services/user', () => {
       assert.isTrue(getUserFromModelStub.calledOnce);
     });
     it('should get a user by id when id is a string', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
 
       const getUserFromModelStub = sandbox.stub();
       getUserFromModelStub.resolves({
         _id: userId,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'getUserById',
-        getUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'getUserById', getUserFromModelStub);
 
       const user = await userService.getUser(userId.toString());
       assert.isOk(user);
@@ -56,17 +46,12 @@ describe('#services/user', () => {
       assert.isTrue(getUserFromModelStub.calledOnce);
     });
     it('will log the failure and return null if the user cannot be found', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const errMessage = 'Cannot find the user';
       const err = new error.DataNotFoundError(errMessage, 'userId', userId);
       const getUserFromModelStub = sandbox.stub();
       getUserFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'getUserById',
-        getUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'getUserById', getUserFromModelStub);
       function fakePublish(this: any) {
         assert.instanceOf(this, error.DataNotFoundError);
         assert.strictEqual(this.message, errMessage);
@@ -84,23 +69,13 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const errMessage = 'Something Bad has happened';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongoDb',
-        'getUserById'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongoDb', 'getUserById');
       const getUserFromModelStub = sandbox.stub();
       getUserFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'getUserById',
-        getUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'getUserById', getUserFromModelStub);
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -126,35 +101,22 @@ describe('#services/user', () => {
   });
   context('deactivate', () => {
     it('will deactivate a user', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const deletedAt = new Date();
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.resolves({
         _id: userId,
         deletedAt: deletedAt,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'updateWorkspaceByFilter',
-        updateWorkspaceFromModelStub
-      );
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'updateWorkspaceByFilter', updateWorkspaceFromModelStub);
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'updateMemberWithFilter',
-        updateMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
 
       const updateCustomerPaymentFromModelStub = sandbox.stub();
       updateCustomerPaymentFromModelStub.resolves();
@@ -171,35 +133,22 @@ describe('#services/user', () => {
       assert.isTrue(updateUserFromModelStub.calledOnce);
     });
     it('will deactivate the user when the id is a string', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const deletedAt = new Date();
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.resolves({
         _id: userId,
         deletedAt: deletedAt,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'updateWorkspaceByFilter',
-        updateWorkspaceFromModelStub
-      );
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'updateWorkspaceByFilter', updateWorkspaceFromModelStub);
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'updateMemberWithFilter',
-        updateMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
 
       const updateCustomerPaymentFromModelStub = sandbox.stub();
       updateCustomerPaymentFromModelStub.resolves();
@@ -219,24 +168,14 @@ describe('#services/user', () => {
 
     // user model fails
     it('will publish and rethrow an InvalidArgumentError when user model throws it ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument';
-      const err = new error.InvalidArgumentError(
-        errMessage,
-        'emailVerified',
-        true
-      );
+      const err = new error.InvalidArgumentError(errMessage, 'emailVerified', true);
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
         //@ts-ignore
@@ -261,20 +200,14 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when user model throws it ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidOperationError);
         //@ts-ignore
@@ -299,24 +232,14 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when user model throws a DataOperationError ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const errMessage = 'A DataOperationError has occurred';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongodDb',
-        'updateUserById'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateUserById');
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -343,36 +266,22 @@ describe('#services/user', () => {
 
     // workspace model fails
     it('will publish and rethrow an InvalidArgumentError when workspace model throws it ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const deletedAt = new Date();
       const errMessage = 'You have an invalid argument';
-      const err = new error.InvalidArgumentError(
-        errMessage,
-        'emailVerified',
-        true
-      );
+      const err = new error.InvalidArgumentError(errMessage, 'emailVerified', true);
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.resolves({
         _id: userId,
         deletedAt: deletedAt,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'updateWorkspaceByFilter',
-        updateWorkspaceFromModelStub
-      );
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'updateWorkspaceByFilter', updateWorkspaceFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
         //@ts-ignore
@@ -398,8 +307,7 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when workspace model throws it ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
       const deletedAt = new Date();
@@ -408,22 +316,13 @@ describe('#services/user', () => {
         _id: userId,
         deletedAt: deletedAt,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'updateWorkspaceByFilter',
-        updateWorkspaceFromModelStub
-      );
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'updateWorkspaceByFilter', updateWorkspaceFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidOperationError);
         //@ts-ignore
@@ -449,36 +348,22 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when workspace model throws a DataOperationError ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const deletedAt = new Date();
       const errMessage = 'A DataOperationError has occurred';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongodDb',
-        'updateUserById'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateUserById');
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.resolves({
         _id: userId,
         deletedAt: deletedAt,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'updateWorkspaceByFilter',
-        updateWorkspaceFromModelStub
-      );
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'updateWorkspaceByFilter', updateWorkspaceFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -506,44 +391,26 @@ describe('#services/user', () => {
 
     // member model fails
     it('will publish and rethrow an InvalidArgumentError when Member model throws it ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument';
-      const err = new error.InvalidArgumentError(
-        errMessage,
-        'emailVerified',
-        true
-      );
+      const err = new error.InvalidArgumentError(errMessage, 'emailVerified', true);
       const deletedAt = new Date();
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.resolves({
         _id: userId,
         deletedAt: deletedAt,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'updateWorkspaceByFilter',
-        updateWorkspaceFromModelStub
-      );
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'updateWorkspaceByFilter', updateWorkspaceFromModelStub);
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'updateMemberWithFilter',
-        updateMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
         //@ts-ignore
@@ -570,8 +437,7 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when Member model throws it ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const deletedAt = new Date();
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
@@ -580,30 +446,17 @@ describe('#services/user', () => {
         _id: userId,
         deletedAt: deletedAt,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'updateWorkspaceByFilter',
-        updateWorkspaceFromModelStub
-      );
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'updateWorkspaceByFilter', updateWorkspaceFromModelStub);
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'updateMemberWithFilter',
-        updateMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidOperationError);
         //@ts-ignore
@@ -630,44 +483,26 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when Member model throws a DataOperationError ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const errMessage = 'A DataOperationError has occurred';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongodDb',
-        'updateUserById'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateUserById');
       const deletedAt = new Date();
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.resolves({
         _id: userId,
         deletedAt: deletedAt,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'updateWorkspaceByFilter',
-        updateWorkspaceFromModelStub
-      );
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'updateWorkspaceByFilter', updateWorkspaceFromModelStub);
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'updateMemberWithFilter',
-        updateMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -696,41 +531,24 @@ describe('#services/user', () => {
 
     // customer payment model fails
     it('will publish and rethrow an InvalidArgumentError when Customer Payment model throws it ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument';
-      const err = new error.InvalidArgumentError(
-        errMessage,
-        'emailVerified',
-        true
-      );
+      const err = new error.InvalidArgumentError(errMessage, 'emailVerified', true);
       const deletedAt = new Date();
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.resolves({
         _id: userId,
         deletedAt: deletedAt,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'updateWorkspaceByFilter',
-        updateWorkspaceFromModelStub
-      );
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'updateWorkspaceByFilter', updateWorkspaceFromModelStub);
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'updateMemberWithFilter',
-        updateMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
 
       const updateCustomerPaymentFromModelStub = sandbox.stub();
       updateCustomerPaymentFromModelStub.rejects(err);
@@ -741,7 +559,6 @@ describe('#services/user', () => {
       );
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
         //@ts-ignore
@@ -769,8 +586,7 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when Customer Payment model throws it ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
       const deletedAt = new Date();
@@ -779,27 +595,15 @@ describe('#services/user', () => {
         _id: userId,
         deletedAt: deletedAt,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'updateWorkspaceByFilter',
-        updateWorkspaceFromModelStub
-      );
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'updateWorkspaceByFilter', updateWorkspaceFromModelStub);
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'updateMemberWithFilter',
-        updateMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
 
       const updateCustomerPaymentFromModelStub = sandbox.stub();
       updateCustomerPaymentFromModelStub.rejects(err);
@@ -810,7 +614,6 @@ describe('#services/user', () => {
       );
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidOperationError);
         //@ts-ignore
@@ -838,41 +641,24 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when Customer Payment throws a DataOperationError ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const errMessage = 'A DataOperationError has occurred';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongodDb',
-        'updateUserById'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateUserById');
       const deletedAt = new Date();
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.resolves({
         _id: userId,
         deletedAt: deletedAt,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'updateWorkspaceByFilter',
-        updateWorkspaceFromModelStub
-      );
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'updateWorkspaceByFilter', updateWorkspaceFromModelStub);
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'updateMemberWithFilter',
-        updateMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
 
       const updateCustomerPaymentFromModelStub = sandbox.stub();
       updateCustomerPaymentFromModelStub.rejects(err);
@@ -883,7 +669,6 @@ describe('#services/user', () => {
       );
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -913,8 +698,7 @@ describe('#services/user', () => {
   });
   context('updateEmail', () => {
     it('will update a users email', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testprevious@gmail.com';
 
@@ -924,11 +708,7 @@ describe('#services/user', () => {
         email: email,
         emailVerified: undefined,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const sendStub = sandbox.stub();
       sendStub.resolves();
@@ -936,11 +716,7 @@ describe('#services/user', () => {
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'updateMemberWithFilter',
-        updateMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
 
       const updateCustomerPaymentFromModelStub = sandbox.stub();
       updateCustomerPaymentFromModelStub.resolves();
@@ -961,8 +737,7 @@ describe('#services/user', () => {
       assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
     });
     it('will update a users email when the id is a string', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testprevious@gmail.com';
       const updateUserFromModelStub = sandbox.stub();
@@ -971,11 +746,7 @@ describe('#services/user', () => {
         email: email,
         emailVerified: undefined,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const sendStub = sandbox.stub();
       sendStub.resolves();
@@ -983,11 +754,7 @@ describe('#services/user', () => {
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'updateMemberWithFilter',
-        updateMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
 
       const updateCustomerPaymentFromModelStub = sandbox.stub();
       updateCustomerPaymentFromModelStub.resolves();
@@ -997,11 +764,7 @@ describe('#services/user', () => {
         updateCustomerPaymentFromModelStub
       );
 
-      const user = await userService.updateEmail(
-        userId.toString(),
-        email,
-        previousEmail
-      );
+      const user = await userService.updateEmail(userId.toString(), email, previousEmail);
       assert.isOk(user);
       assert.strictEqual(user._id, userId);
       assert.strictEqual(user.email, email);
@@ -1012,26 +775,16 @@ describe('#services/user', () => {
       assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when user model throws it ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testpreviousemail@gmail.com';
       const errMessage = 'You have an invalid argument';
-      const err = new error.InvalidArgumentError(
-        errMessage,
-        'emailVerified',
-        true
-      );
+      const err = new error.InvalidArgumentError(errMessage, 'emailVerified', true);
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
         //@ts-ignore
@@ -1056,22 +809,16 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when user model throws it ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testprevious@gmail.com';
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidOperationError);
         //@ts-ignore
@@ -1096,26 +843,16 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when user model throws a DataOperationError ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testprevious@gmail.com';
       const errMessage = 'A DataOperationError has occurred';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongodDb',
-        'updateUserById'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateUserById');
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -1141,27 +878,18 @@ describe('#services/user', () => {
     });
     // TODO: fix these tests
     it('will publish and rethrow an InvalidArgumentError when member model throws it ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testpreviousemail@gmail.com';
       const errMessage = 'You have an invalid argument';
-      const err = new error.InvalidArgumentError(
-        errMessage,
-        'emailVerified',
-        true
-      );
+      const err = new error.InvalidArgumentError(errMessage, 'emailVerified', true);
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.resolves({
         _id: userId,
         email: email,
         emailVerified: undefined,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const sendStub = sandbox.stub();
       sendStub.resolves();
@@ -1169,14 +897,9 @@ describe('#services/user', () => {
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'updateMemberWithFilter',
-        updateMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
         //@ts-ignore
@@ -1203,8 +926,7 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when member model throws it ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testprevious@gmail.com';
       const errMessage = 'You tried to perform an invalid operation';
@@ -1215,11 +937,7 @@ describe('#services/user', () => {
         email: email,
         emailVerified: undefined,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const sendStub = sandbox.stub();
       sendStub.resolves();
@@ -1227,14 +945,9 @@ describe('#services/user', () => {
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'updateMemberWithFilter',
-        updateMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidOperationError);
         //@ts-ignore
@@ -1261,27 +974,18 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when member model throws a DataOperationError ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testprevious@gmail.com';
       const errMessage = 'A DataOperationError has occurred';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongodDb',
-        'updateUserById'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateUserById');
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.resolves({
         _id: userId,
         email: email,
         emailVerified: undefined,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const sendStub = sandbox.stub();
       sendStub.resolves();
@@ -1289,14 +993,9 @@ describe('#services/user', () => {
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'updateMemberWithFilter',
-        updateMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -1323,27 +1022,18 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when customerPayment model throws it ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testpreviousemail@gmail.com';
       const errMessage = 'You have an invalid argument';
-      const err = new error.InvalidArgumentError(
-        errMessage,
-        'emailVerified',
-        true
-      );
+      const err = new error.InvalidArgumentError(errMessage, 'emailVerified', true);
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.resolves({
         _id: userId,
         email: email,
         emailVerified: undefined,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const sendStub = sandbox.stub();
       sendStub.resolves();
@@ -1351,11 +1041,7 @@ describe('#services/user', () => {
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'updateMemberWithFilter',
-        updateMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
 
       const updateCustomerPaymentFromModelStub = sandbox.stub();
       updateCustomerPaymentFromModelStub.rejects(err);
@@ -1366,7 +1052,6 @@ describe('#services/user', () => {
       );
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
         //@ts-ignore
@@ -1394,8 +1079,7 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when customerPayment model throws it ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testprevious@gmail.com';
       const errMessage = 'You tried to perform an invalid operation';
@@ -1406,11 +1090,7 @@ describe('#services/user', () => {
         email: email,
         emailVerified: undefined,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const sendStub = sandbox.stub();
       sendStub.resolves();
@@ -1418,11 +1098,7 @@ describe('#services/user', () => {
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'updateMemberWithFilter',
-        updateMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
 
       const updateCustomerPaymentFromModelStub = sandbox.stub();
       updateCustomerPaymentFromModelStub.rejects(err);
@@ -1433,7 +1109,6 @@ describe('#services/user', () => {
       );
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidOperationError);
         //@ts-ignore
@@ -1461,27 +1136,18 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when customerPayment model throws a DataOperationError ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const email = 'testemail@gmail.com';
       const previousEmail = 'testprevious@gmail.com';
       const errMessage = 'A DataOperationError has occurred';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongodDb',
-        'updateUserById'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateUserById');
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.resolves({
         _id: userId,
         email: email,
         emailVerified: undefined,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const sendStub = sandbox.stub();
       sendStub.resolves();
@@ -1489,11 +1155,7 @@ describe('#services/user', () => {
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.resolves();
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'updateMemberWithFilter',
-        updateMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
 
       const updateCustomerPaymentFromModelStub = sandbox.stub();
       updateCustomerPaymentFromModelStub.rejects(err);
@@ -1504,7 +1166,6 @@ describe('#services/user', () => {
       );
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -1534,19 +1195,14 @@ describe('#services/user', () => {
   });
   context('updateName', () => {
     it('will update a users name', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const name = 'testName';
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.resolves({
         _id: userId,
         name: name,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const user = await userService.updateName(userId, name);
       assert.isOk(user);
@@ -1556,19 +1212,14 @@ describe('#services/user', () => {
       assert.isTrue(updateUserFromModelStub.calledOnce);
     });
     it('will update a users name when the id is a string', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const name = 'testName';
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.resolves({
         _id: userId,
         name: name,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       const user = await userService.updateName(userId.toString(), name);
       assert.isOk(user);
@@ -1578,25 +1229,15 @@ describe('#services/user', () => {
       assert.isTrue(updateUserFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when user model throws it ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const name = 'testName';
       const errMessage = 'You have an invalid argument';
-      const err = new error.InvalidArgumentError(
-        errMessage,
-        'emailVerified',
-        true
-      );
+      const err = new error.InvalidArgumentError(errMessage, 'emailVerified', true);
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
         //@ts-ignore
@@ -1621,21 +1262,15 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when user model throws it ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const name = 'testName';
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidOperationError);
         //@ts-ignore
@@ -1660,25 +1295,15 @@ describe('#services/user', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when user model throws a DataOperationError ', async () => {
-      const userId = 
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
       const name = 'testName';
       const errMessage = 'A DataOperationError has occurred';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongodDb',
-        'updateUserById'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateUserById');
       const updateUserFromModelStub = sandbox.stub();
       updateUserFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserFromModelStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore

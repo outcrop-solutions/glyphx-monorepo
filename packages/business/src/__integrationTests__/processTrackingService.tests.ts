@@ -30,11 +30,10 @@ describe('#ProcessTrackingService', () => {
     });
 
     it('will crete a new process tracking document', async () => {
-      const {processId: processTrackingProcessId} =
-        await processTrackingService.createProcessTracking(
-          PROCESS_ID,
-          PROCESS_NAME
-        );
+      const {processId: processTrackingProcessId} = await processTrackingService.createProcessTracking(
+        PROCESS_ID,
+        PROCESS_NAME
+      );
 
       const savedDocument = await processTrackingModel.findOne({
         processId: processTrackingProcessId,
@@ -53,14 +52,9 @@ describe('#ProcessTrackingService', () => {
         message
       );
 
-      const status = await processTrackingService.getProcessStatus(
-        processTrackingId
-      );
+      const status = await processTrackingService.getProcessStatus(processTrackingId);
 
-      assert.strictEqual(
-        status?.processStatus,
-        databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS
-      );
+      assert.strictEqual(status?.processStatus, databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS);
       assert.strictEqual(status?.processMessages.length, 1);
       assert.strictEqual(status?.processMessages[0], message);
     });
@@ -68,9 +62,7 @@ describe('#ProcessTrackingService', () => {
     it('will set a heartbeat', async () => {
       assert.isOk(processTrackingId);
       await processTrackingService.setHeartbeat(processTrackingId);
-      const processTracking = await processTrackingService.getProcessTracking(
-        processTrackingId
-      );
+      const processTracking = await processTrackingService.getProcessTracking(processTrackingId);
       assert.isOk(processTracking?.processHeartbeat);
       assert.isAbove(
         processTracking?.processHeartbeat?.getTime() ?? 0,
@@ -82,14 +74,9 @@ describe('#ProcessTrackingService', () => {
       assert.isOk(processTrackingId);
       const message = 'continuing the process';
 
-      await processTrackingService.addProcessMessage(
-        processTrackingId,
-        message
-      );
+      await processTrackingService.addProcessMessage(processTrackingId, message);
 
-      const messages = await processTrackingService.getProcessMessages(
-        processTrackingId
-      );
+      const messages = await processTrackingService.getProcessMessages(processTrackingId);
 
       assert.strictEqual(messages?.processMessages.length, 2);
       assert.strictEqual(messages?.processMessages[0], message);
@@ -99,51 +86,32 @@ describe('#ProcessTrackingService', () => {
       assert.isOk(processTrackingId);
       const errorObject = new error.GlyphxError('An Error has Occurred', 999);
 
-      await processTrackingService.addProcessError(
-        processTrackingId,
-        errorObject
-      );
+      await processTrackingService.addProcessError(processTrackingId, errorObject);
 
-      const messages = await processTrackingService.getProcessError(
-        processTrackingId
-      );
+      const messages = await processTrackingService.getProcessError(processTrackingId);
 
       assert.strictEqual(messages?.processError.length, 1);
-      assert.strictEqual(
-        messages?.processError[0].message,
-        errorObject.message
-      );
+      assert.strictEqual(messages?.processError[0].message, errorObject.message);
     });
 
     it('will complete the process', async () => {
       assert.isOk(processTrackingId);
       const resultObject = {result: 'success'};
-      await processTrackingService.completeProcess(
-        processTrackingId,
-        resultObject
-      );
+      await processTrackingService.completeProcess(processTrackingId, resultObject);
 
-      const result = await processTrackingService.getProcessResult(
-        processTrackingId
-      );
+      const result = await processTrackingService.getProcessResult(processTrackingId);
       assert.strictEqual(result?.processResult?.result, resultObject.result);
 
-      const document = await processTrackingService.getProcessTracking(
-        processTrackingId
-      );
+      const document = await processTrackingService.getProcessTracking(processTrackingId);
       assert.isOk(document);
       assert.isOk(document?.processEndTime);
     });
 
     it('will remove the process', async () => {
       assert.isOk(processTrackingId);
-      await processTrackingService.removeProcessTrackingDocument(
-        processTrackingId
-      );
+      await processTrackingService.removeProcessTrackingDocument(processTrackingId);
 
-      const document = await processTrackingService.getProcessTracking(
-        processTrackingId
-      );
+      const document = await processTrackingService.getProcessTracking(processTrackingId);
       assert.isNotOk(document);
     });
   });

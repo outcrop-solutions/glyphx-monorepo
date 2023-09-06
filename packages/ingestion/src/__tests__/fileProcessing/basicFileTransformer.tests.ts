@@ -35,42 +35,24 @@ describe('#fileProcessing/basicFileTransformer', () => {
           assert.strictEqual(info.outputFileDirecotry, outputDirectory);
           assert.strictEqual(info.numberOfRows, numberOfRows);
           assert.strictEqual(info.numberOfColumns, 3);
-          assert.strictEqual(
-            info.fileOperationType,
-            fileIngestionTypes.constants.FILE_OPERATION.ADD
-          );
+          assert.strictEqual(info.fileOperationType, fileIngestionTypes.constants.FILE_OPERATION.ADD);
 
           assert.strictEqual(info.columns[0].name, GLYPHX_ID_COLUMN_NAME);
-          assert.strictEqual(
-            info.columns[0].origionalName,
-            GLYPHX_ID_COLUMN_NAME
-          );
-          assert.strictEqual(
-            info.columns[0].fieldType,
-            fileIngestionTypes.constants.FIELD_TYPE.INTEGER
-          );
+          assert.strictEqual(info.columns[0].origionalName, GLYPHX_ID_COLUMN_NAME);
+          assert.strictEqual(info.columns[0].fieldType, fileIngestionTypes.constants.FIELD_TYPE.INTEGER);
 
           assert.strictEqual(info.columns[1].name, 'name');
           assert.strictEqual(info.columns[1].origionalName, 'name');
-          assert.strictEqual(
-            info.columns[1].fieldType,
-            fileIngestionTypes.constants.FIELD_TYPE.STRING
-          );
+          assert.strictEqual(info.columns[1].fieldType, fileIngestionTypes.constants.FIELD_TYPE.STRING);
           assert.strictEqual(info.columns[1].longestString, 8);
 
           assert.strictEqual(info.columns[2].name, 'value');
           assert.strictEqual(info.columns[2].origionalName, 'value');
-          assert.strictEqual(
-            info.columns[2].fieldType,
-            fileIngestionTypes.constants.FIELD_TYPE.NUMBER
-          );
+          assert.strictEqual(info.columns[2].fieldType, fileIngestionTypes.constants.FIELD_TYPE.NUMBER);
           //Column name cleaner will lcase the name
           assert.strictEqual(info.columns[3].name, 'somedate');
           assert.strictEqual(info.columns[3].origionalName, 'someDate');
-          assert.strictEqual(
-            info.columns[3].fieldType,
-            fileIngestionTypes.constants.FIELD_TYPE.DATE
-          );
+          assert.strictEqual(info.columns[3].fieldType, fileIngestionTypes.constants.FIELD_TYPE.DATE);
           done = true;
         },
 
@@ -105,10 +87,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
             if (firstRow) {
               assert.isDefined(chunk[GLYPHX_ID_COLUMN_NAME]);
               assert.strictEqual(chunk[GLYPHX_ID_COLUMN_NAME].type, 'INT64');
-              assert.strictEqual(
-                chunk[GLYPHX_ID_COLUMN_NAME].encoding,
-                'PLAIN'
-              );
+              assert.strictEqual(chunk[GLYPHX_ID_COLUMN_NAME].encoding, 'PLAIN');
               assert.isDefined(chunk.name);
               assert.strictEqual(chunk.name.type, 'UTF8');
               assert.strictEqual(chunk.name.encoding, 'PLAIN');
@@ -180,8 +159,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
         new Writable({
           objectMode: true,
           write: (chunk, encoding, callback) => {
-            if (seenRows >= 0)
-              assert.strictEqual(chunk[GLYPHX_ID_COLUMN_NAME], seenRows);
+            if (seenRows >= 0) assert.strictEqual(chunk[GLYPHX_ID_COLUMN_NAME], seenRows);
             seenRows++;
             callback();
           },
@@ -234,8 +212,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
         new Writable({
           objectMode: true,
           write: (chunk, encoding, callback) => {
-            if (seenRows >= 0)
-              assert.strictEqual(chunk[GLYPHX_ID_COLUMN_NAME], 63 + seenRows);
+            if (seenRows >= 0) assert.strictEqual(chunk[GLYPHX_ID_COLUMN_NAME], 63 + seenRows);
             seenRows++;
             callback();
           },
@@ -288,8 +265,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
         new Writable({
           objectMode: true,
           write: (chunk, encoding, callback) => {
-            if (seenRows >= 0)
-              assert.strictEqual(chunk[GLYPHX_ID_COLUMN_NAME], seenRows);
+            if (seenRows >= 0) assert.strictEqual(chunk[GLYPHX_ID_COLUMN_NAME], seenRows);
             seenRows++;
             callback();
           },
@@ -328,10 +304,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
             numberOfErrors++;
             assert.strictEqual(err.columnIndex, 1);
             assert.strictEqual(err.columnName, 'value');
-            assert.strictEqual(
-              err.errorType,
-              FILE_PROCESSING_ERROR_TYPES.INVALID_FIELD_VALUE
-            );
+            assert.strictEqual(err.errorType, FILE_PROCESSING_ERROR_TYPES.INVALID_FIELD_VALUE);
             assert.isAtLeast(err.rowIndex ?? -1, 10);
             assert.isAtMost(err.rowIndex ?? -1, 60);
           },
@@ -344,8 +317,7 @@ describe('#fileProcessing/basicFileTransformer', () => {
           objectMode: true,
           read: () => {
             for (let i = 0; i < numberOfRows; i++) {
-              if (i < 10 || i >= 60)
-                readStream.push({name: `field${i}`, value: i.toString()});
+              if (i < 10 || i >= 60) readStream.push({name: `field${i}`, value: i.toString()});
               else
                 readStream.push({
                   name: `field${i}`,

@@ -111,11 +111,9 @@ const Billing = () => {
                       addSuffix: true,
                     })}
                   </td>
-                  {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
                   {/* @ts-ignore */}
                   <td className="py-5">{invoice.status}</td>
                   <td className="py-5">
-                    {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
                     {/* @ts-ignore */}
                     <Link href={invoice.hosted_invoice_url as Route}>
                       <a className="text-blue-600" target="_blank">

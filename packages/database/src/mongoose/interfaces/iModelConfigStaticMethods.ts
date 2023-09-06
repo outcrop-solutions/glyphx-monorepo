@@ -5,18 +5,11 @@ import {IQueryResult} from 'types';
 import {IModelConfigMethods} from './iModelConfigMethods';
 import {IModelConfigCreateInput} from './iModelConfigCreateInput';
 
-export interface IModelConfigStaticMethods
-  extends Model<databaseTypes.IModelConfig, {}, IModelConfigMethods> {
+export interface IModelConfigStaticMethods extends Model<databaseTypes.IModelConfig, {}, IModelConfigMethods> {
   modelConfigIdExists(modelConfigId: mongooseTypes.ObjectId): Promise<boolean>;
-  allModelConfigIdsExist(
-    modelConfigIds: mongooseTypes.ObjectId[]
-  ): Promise<boolean>;
-  createModelConfig(
-    input: IModelConfigCreateInput
-  ): Promise<databaseTypes.IModelConfig>;
-  getModelConfigById(
-    modelConfigId: mongooseTypes.ObjectId
-  ): Promise<databaseTypes.IModelConfig>;
+  allModelConfigIdsExist(modelConfigIds: mongooseTypes.ObjectId[]): Promise<boolean>;
+  createModelConfig(input: IModelConfigCreateInput): Promise<databaseTypes.IModelConfig>;
+  getModelConfigById(modelConfigId: mongooseTypes.ObjectId): Promise<databaseTypes.IModelConfig>;
   queryModelConfigs(
     filter?: Record<string, unknown>,
     page?: number,
@@ -31,7 +24,5 @@ export interface IModelConfigStaticMethods
     modelConfig: Omit<Partial<databaseTypes.IModelConfig>, '_id'>
   ): Promise<databaseTypes.IModelConfig>;
   deleteModelConfigById(modelConfigId: mongooseTypes.ObjectId): Promise<void>;
-  validateUpdateObject(
-    modelConfig: Omit<Partial<databaseTypes.IModelConfig>, '_id'>
-  ): Promise<void>;
+  validateUpdateObject(modelConfig: Omit<Partial<databaseTypes.IModelConfig>, '_id'>): Promise<void>;
 }

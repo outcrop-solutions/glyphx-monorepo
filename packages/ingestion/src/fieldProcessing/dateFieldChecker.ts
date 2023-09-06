@@ -1,9 +1,7 @@
 import * as fieldProcessingInterfaces from '../interfaces/fieldProcessing';
 import {error} from 'core';
 
-export class DateFieldChecker
-  implements fieldProcessingInterfaces.IFieldChecker<Date>
-{
+export class DateFieldChecker implements fieldProcessingInterfaces.IFieldChecker<Date> {
   checkField(input: string): boolean {
     const trimmedInput = input.trim();
     if (isNaN(Number(trimmedInput))) {
@@ -17,11 +15,7 @@ export class DateFieldChecker
   convertField(input: string): Date {
     const tempString = input.trim();
     if (!this.checkField(tempString)) {
-      throw new error.InvalidArgumentError(
-        `The input value of : ${input} is not a Date`,
-        'input',
-        input
-      );
+      throw new error.InvalidArgumentError(`The input value of : ${input} is not a Date`, 'input', input);
     }
     const retval = new Date(tempString);
     return retval;

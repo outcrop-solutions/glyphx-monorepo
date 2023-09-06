@@ -1,19 +1,13 @@
 import {BasicHiveQueryPlanner} from './basicHiveQueryPlanner';
 
-import {
-  IViewQueryPlanner,
-  IJoinTableDefinition,
-} from '../interfaces/fileProcessing';
+import {IViewQueryPlanner, IJoinTableDefinition} from '../interfaces/fileProcessing';
 
 /**
  * This class will create a string which can be used to create a view
  * based on a set of {@link interfaces/fileProcessing/iJoinTableDefinition!IJoinTableDefinition | IJoinTableDefinitions}
  *
  */
-export class BasicHiveViewQueryPlanner
-  extends BasicHiveQueryPlanner
-  implements IViewQueryPlanner
-{
+export class BasicHiveViewQueryPlanner extends BasicHiveQueryPlanner implements IViewQueryPlanner {
   private viewField: string;
 
   /**

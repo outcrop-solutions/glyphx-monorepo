@@ -85,9 +85,7 @@ describe('#memberModel', () => {
 
       await userModel.createUser(INPUT_USER as databaseTypes.IUser);
 
-      const savedUserDocument = await userModel
-        .findOne({email: INPUT_USER.email})
-        .lean();
+      const savedUserDocument = await userModel.findOne({email: INPUT_USER.email}).lean();
       userId = savedUserDocument?._id as mongooseTypes.ObjectId;
 
       userDocument = savedUserDocument;
@@ -96,13 +94,9 @@ describe('#memberModel', () => {
       const inputWorkspace = JSON.parse(JSON.stringify(INPUT_WORKSPACE));
       inputWorkspace.creator = userDocument;
 
-      await workspaceModel.createWorkspace(
-        inputWorkspace as unknown as databaseTypes.IWorkspace
-      );
+      await workspaceModel.createWorkspace(inputWorkspace as unknown as databaseTypes.IWorkspace);
 
-      const savedWorkspaceDocument = await workspaceModel
-        .findOne({slug: INPUT_WORKSPACE.slug})
-        .lean();
+      const savedWorkspaceDocument = await workspaceModel.findOne({slug: INPUT_WORKSPACE.slug}).lean();
       workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
 
       workspaceDocument = savedWorkspaceDocument;
@@ -129,24 +123,13 @@ describe('#memberModel', () => {
       memberInput.member = userDocument;
       memberInput.invitedBy = userDocument;
       memberInput.workspace = workspaceDocument;
-      const memberDocument = await memberModel.createWorkspaceMember(
-        memberInput
-      );
+      const memberDocument = await memberModel.createWorkspaceMember(memberInput);
 
       assert.isOk(memberDocument);
       assert.strictEqual(memberDocument.email, memberInput.email);
-      assert.strictEqual(
-        memberDocument.member._id?.toString(),
-        userId.toString()
-      );
-      assert.strictEqual(
-        memberDocument.invitedBy._id?.toString(),
-        userId.toString()
-      );
-      assert.strictEqual(
-        memberDocument.workspace._id?.toString(),
-        workspaceId.toString()
-      );
+      assert.strictEqual(memberDocument.member._id?.toString(), userId.toString());
+      assert.strictEqual(memberDocument.invitedBy._id?.toString(), userId.toString());
+      assert.strictEqual(memberDocument.workspace._id?.toString(), workspaceId.toString());
 
       memberId = memberDocument._id as mongooseTypes.ObjectId;
     });
@@ -165,9 +148,7 @@ describe('#memberModel', () => {
       memberInput.member = userDocument;
       memberInput.invitedBy = userDocument;
       memberInput.workspace = workspaceDocument;
-      const memberDocument = await memberModel.createWorkspaceMember(
-        memberInput
-      );
+      const memberDocument = await memberModel.createWorkspaceMember(memberInput);
 
       assert.isOk(memberDocument);
       memberId2 = memberDocument._id as mongooseTypes.ObjectId;
@@ -176,9 +157,7 @@ describe('#memberModel', () => {
       assert.isArray(members.results);
       assert.isAtLeast(members.numberOfItems, 2);
       const expectedDocumentCount =
-        members.numberOfItems <= members.itemsPerPage
-          ? members.numberOfItems
-          : members.itemsPerPage;
+        members.numberOfItems <= members.itemsPerPage ? members.numberOfItems : members.itemsPerPage;
       assert.strictEqual(members.results.length, expectedDocumentCount);
     });
 
@@ -201,19 +180,13 @@ describe('#memberModel', () => {
       const results2 = await memberModel.queryMembers({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(
-        results2.results[0]?._id?.toString(),
-        lastId?.toString()
-      );
+      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
     });
 
     it('modify a Member', async () => {
       assert.isOk(memberId);
       const input = {email: 'example@gmail.com'};
-      const updatedDocument = await memberModel.updateMemberById(
-        memberId,
-        input
-      );
+      const updatedDocument = await memberModel.updateMemberById(memberId, input);
       assert.strictEqual(updatedDocument.email, input.email);
     });
 

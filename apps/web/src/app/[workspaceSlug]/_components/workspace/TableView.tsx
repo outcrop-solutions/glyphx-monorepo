@@ -1,9 +1,9 @@
 'use client';
 import dayjs from 'dayjs';
-import {useRouter,useParams} from 'next/navigation';
+import {useRouter, useParams} from 'next/navigation';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import {fileIngestionTypes,webTypes} from 'types';
+import {fileIngestionTypes, webTypes} from 'types';
 import {modalsAtom, rightSidebarControlAtom, workspaceAtom} from 'state';
 import TableItemInfoIcon from 'public/svg/table-item-info.svg';
 import DeleteProjectIcon from 'public/svg/delete-project-icon.svg';

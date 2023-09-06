@@ -69,11 +69,7 @@ describe('#fileProcessing/TableArchiver', () => {
     it('should throw an exception because it is not safe', () => {
       const s3Manager = new MockS3Manger();
       s3Manager.inited = false;
-      const tableArchiver = new TableArchiver(
-        clientId,
-        modelId,
-        s3Manager as unknown as aws.S3Manager
-      );
+      const tableArchiver = new TableArchiver(clientId, modelId, s3Manager as unknown as aws.S3Manager);
 
       let errored = false;
       try {
@@ -127,11 +123,7 @@ describe('#fileProcessing/TableArchiver', () => {
     it('should throw an exception when s3 manager throws an exception', async () => {
       const tableName = 'testTable';
       const s3Manager = new MockS3Manger() as unknown as aws.S3Manager;
-      sandbox.replace(
-        s3Manager,
-        'listObjects',
-        sandbox.fake.rejects('oops I did it again')
-      );
+      sandbox.replace(s3Manager, 'listObjects', sandbox.fake.rejects('oops I did it again'));
       const tableArchiver = new TableArchiver(clientId, modelId, s3Manager);
 
       let errored = false;
@@ -139,11 +131,7 @@ describe('#fileProcessing/TableArchiver', () => {
         await tableArchiver.archiveTable(tableName);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
-        assert.strictEqual(
-          (err as any).data.additionalInfo.processingInformation.affectedFiles
-            .length,
-          0
-        );
+        assert.strictEqual((err as any).data.additionalInfo.processingInformation.affectedFiles.length, 0);
         errored = true;
       }
 
@@ -165,11 +153,7 @@ describe('#fileProcessing/TableArchiver', () => {
         await tableArchiver.archiveTable(tableName);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
-        assert.strictEqual(
-          (err as any).data.additionalInfo.processingInformation.affectedFiles
-            .length,
-          4
-        );
+        assert.strictEqual((err as any).data.additionalInfo.processingInformation.affectedFiles.length, 4);
         errored = true;
       }
 
@@ -179,22 +163,14 @@ describe('#fileProcessing/TableArchiver', () => {
       const tableName = 'testTable';
 
       const s3Manager = new MockS3Manger() as unknown as aws.S3Manager;
-      sandbox.replace(
-        s3Manager,
-        'removeObject',
-        sandbox.fake.rejects('Opps I did it again')
-      );
+      sandbox.replace(s3Manager, 'removeObject', sandbox.fake.rejects('Opps I did it again'));
       const tableArchiver = new TableArchiver(clientId, modelId, s3Manager);
       let errored = false;
       try {
         await tableArchiver.archiveTable(tableName);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
-        assert.strictEqual(
-          (err as any).data.additionalInfo.processingInformation.affectedFiles
-            .length,
-          0
-        );
+        assert.strictEqual((err as any).data.additionalInfo.processingInformation.affectedFiles.length, 0);
         errored = true;
       }
 

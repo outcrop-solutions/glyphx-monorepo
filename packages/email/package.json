@@ -9,7 +9,9 @@
     "coverage": "TS_NODE_FILES=true nyc mocha -r ts-node/register -r tsconfig-paths/register --timeout 999999 --exit --recursive \"src/__tests__/**/*.tests.ts\"",
     "build": "tsup",
     "lint": "eslint .",
-    "fix": "gts fix",
+    "fix": "eslint . --fix",
+    "format:write": "prettier --write \"**/*.{js,json,jsx,ts,tsx}\"",
+    "format": "prettier \"**/*.{js,json,jsx,ts,tsx}\"",
     "start:dev": "ts-node src/index.ts",
     "docs": "npx typedoc",
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs"

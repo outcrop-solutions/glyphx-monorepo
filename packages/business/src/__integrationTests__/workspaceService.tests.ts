@@ -12,7 +12,6 @@ const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const USER_EMAIL = 'testEmail' + UNIQUE_KEY + '@email.com';
 const INPUT_USER: Partial<databaseTypes.IUser> = {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   _id:
     // @ts-ignore
     new mongooseTypes.ObjectId(),
@@ -99,28 +98,19 @@ describe('#WorkspaceService', () => {
       // create user
       await userModel.create(INPUT_USER as databaseTypes.IUser);
 
-      const savedUserDocument = await userModel
-        .findOne({username: INPUT_USER.username})
-        .lean();
+      const savedUserDocument = await userModel.findOne({username: INPUT_USER.username}).lean();
       userId = savedUserDocument?._id as mongooseTypes.ObjectId;
       assert.isOk(userId);
 
       // create members
-      await memberModel.create([
-        INPUT_MEMBER_1,
-        INPUT_MEMBER_2,
-      ] as databaseTypes.IMember[]);
+      await memberModel.create([INPUT_MEMBER_1, INPUT_MEMBER_2] as databaseTypes.IMember[]);
 
-      const savedMemberDocument1 = await memberModel
-        .findOne({inviter: INPUT_MEMBER_1.inviter})
-        .lean();
+      const savedMemberDocument1 = await memberModel.findOne({inviter: INPUT_MEMBER_1.inviter}).lean();
 
       memberId = savedMemberDocument1?._id as mongooseTypes.ObjectId;
       assert.isOk(memberId);
 
-      const savedMemberDocument2 = await memberModel
-        .findOne({inviter: INPUT_MEMBER_1.inviter})
-        .lean();
+      const savedMemberDocument2 = await memberModel.findOne({inviter: INPUT_MEMBER_1.inviter}).lean();
 
       memberId = savedMemberDocument2?._id as mongooseTypes.ObjectId;
       assert.isOk(member2Id);
@@ -135,15 +125,12 @@ describe('#WorkspaceService', () => {
       assert.isOk(workspaceId);
 
       // create customerPayment
-      await customerPaymentModel.create(
-        INPUT_CUSTOMER_PAYMENT as databaseTypes.ICustomerPayment
-      );
+      await customerPaymentModel.create(INPUT_CUSTOMER_PAYMENT as databaseTypes.ICustomerPayment);
 
       const savedCustomerPaymentDocument = await customerPaymentModel
         .findOne({paymentId: INPUT_CUSTOMER_PAYMENT.paymentId})
         .lean();
-      customerPaymentId =
-        savedCustomerPaymentDocument?._id as mongooseTypes.ObjectId;
+      customerPaymentId = savedCustomerPaymentDocument?._id as mongooseTypes.ObjectId;
       assert.isOk(customerPaymentId);
     });
 
@@ -188,9 +175,7 @@ describe('#WorkspaceService', () => {
     });
 
     it('will count the workspaces in the database', async () => {
-      const count = await workspaceService.countWorkspaces(
-        INPUT_WORKSPACE.slug!
-      );
+      const count = await workspaceService.countWorkspaces(INPUT_WORKSPACE.slug!);
       assert.isOk(count);
       assert.strictEqual(count, 0);
     });
@@ -205,40 +190,24 @@ describe('#WorkspaceService', () => {
       workspaceId = workspace._id;
     });
     it('will delete a workspace', async () => {
-      const workspace = await workspaceService.deleteWorkspace(
-        userId,
-        INPUT_USER.email!,
-        INPUT_WORKSPACE.slug!
-      );
+      const workspace = await workspaceService.deleteWorkspace(userId, INPUT_USER.email!, INPUT_WORKSPACE.slug!);
       assert.isOk(workspace);
       assert.isOk(workspace.deletedAt);
     });
     it('will retreive a workspace via getOwnWorkspace', async () => {
-      const workspace = await workspaceService.getOwnWorkspace(
-        userId,
-        INPUT_USER.email!,
-        INPUT_WORKSPACE.slug!
-      );
+      const workspace = await workspaceService.getOwnWorkspace(userId, INPUT_USER.email!, INPUT_WORKSPACE.slug!);
       assert.isOk(workspace);
     });
     it('will retreive workspace invitations', async () => {
-      const workspace = await workspaceService.getInvitation(
-        INPUT_WORKSPACE.inviteCode!
-      );
+      const workspace = await workspaceService.getInvitation(INPUT_WORKSPACE.inviteCode!);
       assert.isOk(workspace);
     });
     it('will retreive a workspace via getSiteWorkspace', async () => {
-      const workspace = await workspaceService.getSiteWorkspace(
-        INPUT_WORKSPACE.slug!
-      );
+      const workspace = await workspaceService.getSiteWorkspace(INPUT_WORKSPACE.slug!);
       assert.isOk(workspace);
     });
     it('will retreive workspaces', async () => {
-      const workspace = await workspaceService.getWorkspace(
-        userId,
-        INPUT_USER.email!,
-        INPUT_WORKSPACE.slug!
-      );
+      const workspace = await workspaceService.getWorkspace(userId, INPUT_USER.email!, INPUT_WORKSPACE.slug!);
       assert.isOk(workspace);
     });
     it('will get workspace paths', async () => {
@@ -255,10 +224,7 @@ describe('#WorkspaceService', () => {
       assert.isOk(result);
     });
     it('will join a user to a workspace', async () => {
-      const user = await workspaceService.joinWorkspace(
-        INPUT_WORKSPACE.workspaceCode!,
-        INPUT_USER.email!
-      );
+      const user = await workspaceService.joinWorkspace(INPUT_WORKSPACE.workspaceCode!, INPUT_USER.email!);
       assert.isOk(user);
     });
     it('will update a workspace name', async () => {

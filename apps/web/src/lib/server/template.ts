@@ -1,6 +1,6 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
 import type {Session} from 'next-auth';
-import {projectTemplateService, activityLogService,projectService} from 'business';
+import {projectTemplateService, activityLogService, projectService} from 'business';
 import {databaseTypes} from 'types';
 import {formatUserAgent} from 'lib/utils';
 /**

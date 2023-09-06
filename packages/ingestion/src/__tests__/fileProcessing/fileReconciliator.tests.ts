@@ -125,32 +125,18 @@ describe('#fileProcessing/FileReconciliator', () => {
       );
       //file1.csv, file1-1.csv, file2.csv, file3-1.csv, file3-csv
       assert.strictEqual(reconciledResults.allFiles.length, 5);
-      assert.isOk(
-        reconciledResults.allFiles.find(f => (f.fileName = 'file1.csv'))
-      );
-      assert.isOk(
-        reconciledResults.allFiles.find(f => (f.fileName = 'file1-1.csv'))
-      );
-      assert.isOk(
-        reconciledResults.allFiles.find(f => (f.fileName = 'file2.csv'))
-      );
-      assert.isOk(
-        reconciledResults.allFiles.find(f => (f.fileName = 'file3.csv'))
-      );
-      assert.isOk(
-        reconciledResults.allFiles.find(f => (f.fileName = 'file3-1.csv'))
-      );
+      assert.isOk(reconciledResults.allFiles.find((f) => (f.fileName = 'file1.csv')));
+      assert.isOk(reconciledResults.allFiles.find((f) => (f.fileName = 'file1-1.csv')));
+      assert.isOk(reconciledResults.allFiles.find((f) => (f.fileName = 'file2.csv')));
+      assert.isOk(reconciledResults.allFiles.find((f) => (f.fileName = 'file3.csv')));
+      assert.isOk(reconciledResults.allFiles.find((f) => (f.fileName = 'file3-1.csv')));
 
       //table1, table2, table3
       assert.strictEqual(reconciledResults.accumFiles.length, 3);
       const table1Name = `glyphx_${clientId}_${modelId}_table1`.toLowerCase();
-      const table1 = reconciledResults.accumFiles.find(
-        f => f.tableName === table1Name
-      );
+      const table1 = reconciledResults.accumFiles.find((f) => f.tableName === table1Name);
 
-      const processedTable1 = PROCESSED_FILES.filter(
-        t => t.tableName === 'table1'
-      );
+      const processedTable1 = PROCESSED_FILES.filter((t) => t.tableName === 'table1');
       const numberOfRows1 =
         processedTable1?.reduce((accum, t) => {
           return (accum += t.numberOfRows);
@@ -165,12 +151,8 @@ describe('#fileProcessing/FileReconciliator', () => {
       assert.strictEqual(table1?.fileSize, fileSize1);
 
       const table2Name = `glyphx_${clientId}_${modelId}_table2`.toLowerCase();
-      const table2 = reconciledResults.accumFiles.find(
-        f => f.tableName === table2Name
-      );
-      const processedTable2 = PROCESSED_FILES.filter(
-        t => t.tableName === 'table2'
-      );
+      const table2 = reconciledResults.accumFiles.find((f) => f.tableName === table2Name);
+      const processedTable2 = PROCESSED_FILES.filter((t) => t.tableName === 'table2');
       const numberOfRows2 =
         processedTable2?.reduce((accum, t) => {
           return (accum += t.numberOfRows);
@@ -184,16 +166,10 @@ describe('#fileProcessing/FileReconciliator', () => {
       assert.strictEqual(table2?.fileSize, fileSize2);
 
       const table3Name = `glyphx_${clientId}_${modelId}_table3`.toLowerCase();
-      const table3 = reconciledResults.accumFiles.find(
-        f => f.tableName === table3Name
-      );
-      const processedTable3 = PROCESSED_FILES.filter(
-        t => t.tableName === 'table3'
-      );
+      const table3 = reconciledResults.accumFiles.find((f) => f.tableName === table3Name);
+      const processedTable3 = PROCESSED_FILES.filter((t) => t.tableName === 'table3');
 
-      const existingTable3 = EXISTING_FILES.filter(
-        t => t.tableName === 'table3'
-      );
+      const existingTable3 = EXISTING_FILES.filter((t) => t.tableName === 'table3');
       const numberOfRows3 =
         (processedTable3?.reduce((accum, t) => {
           return (accum += t.numberOfRows);

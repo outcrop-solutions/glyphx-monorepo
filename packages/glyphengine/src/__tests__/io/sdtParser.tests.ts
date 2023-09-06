@@ -86,12 +86,7 @@ describe('SdtParser', () => {
 
     before(async () => {
       stringTemplate = await helperFunctions.getMockTemplate();
-      glyphEngine = new GlyphEngine(
-        inputBucketName,
-        outputBucketName,
-        databaseName,
-        processId
-      );
+      glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
       stringSdt = (glyphEngine as any).updateSdt(stringTemplate, data);
     });
 
@@ -102,33 +97,17 @@ describe('SdtParser', () => {
     it('will parse our template and return a SdtParser object', async () => {
       const textToNumberLoadStub = sandbox.stub();
       textToNumberLoadStub.resolves();
-      sandbox.replace(
-        TextColumnToNumberConverter.prototype,
-        'load',
-        textToNumberLoadStub
-      );
+      sandbox.replace(TextColumnToNumberConverter.prototype, 'load', textToNumberLoadStub);
 
-      sandbox.replaceGetter(
-        TextColumnToNumberConverter.prototype,
-        'size',
-        () => textToNumberResults.size
-      );
+      sandbox.replaceGetter(TextColumnToNumberConverter.prototype, 'size', () => textToNumberResults.size);
 
       const minMaxoadStub = sandbox.stub();
       minMaxoadStub.resolves();
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
-      sandbox.replaceGetter(
-        MinMaxCalculator.prototype,
-        'minMax',
-        () => minMaxData
-      );
+      sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
 
-      const sdtParser = (await SdtParser.parseSdtString(
-        stringSdt,
-        viewName,
-        data
-      )) as any;
+      const sdtParser = (await SdtParser.parseSdtString(stringSdt, viewName, data)) as any;
 
       assert.instanceOf(sdtParser, SdtParser);
       assert.equal((sdtParser as any).viewName, viewName);
@@ -157,12 +136,7 @@ describe('SdtParser', () => {
 
     before(async () => {
       stringTemplate = await helperFunctions.getMockTemplate();
-      glyphEngine = new GlyphEngine(
-        inputBucketName,
-        outputBucketName,
-        databaseName,
-        processId
-      );
+      glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
       stringSdt = (glyphEngine as any).updateSdt(stringTemplate, data);
     });
     afterEach(() => {
@@ -172,32 +146,16 @@ describe('SdtParser', () => {
     it('will return the datasource', async () => {
       const textToNumberLoadStub = sandbox.stub();
       textToNumberLoadStub.resolves();
-      sandbox.replace(
-        TextColumnToNumberConverter.prototype,
-        'load',
-        textToNumberLoadStub
-      );
+      sandbox.replace(TextColumnToNumberConverter.prototype, 'load', textToNumberLoadStub);
 
-      sandbox.replaceGetter(
-        TextColumnToNumberConverter.prototype,
-        'size',
-        () => textToNumberResults.size
-      );
+      sandbox.replaceGetter(TextColumnToNumberConverter.prototype, 'size', () => textToNumberResults.size);
 
       const minMaxoadStub = sandbox.stub();
       minMaxoadStub.resolves();
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
-      sandbox.replaceGetter(
-        MinMaxCalculator.prototype,
-        'minMax',
-        () => minMaxData
-      );
-      const sdtParser = await SdtParser.parseSdtString(
-        stringSdt,
-        viewName,
-        data
-      );
+      sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
+      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data);
       const dataSource = sdtParser.getDataSource();
 
       assert.strictEqual(dataSource.tableName, viewName);
@@ -211,12 +169,7 @@ describe('SdtParser', () => {
     let stringSdt: string;
     before(async () => {
       stringTemplate = await helperFunctions.getMockTemplate();
-      glyphEngine = new GlyphEngine(
-        inputBucketName,
-        outputBucketName,
-        databaseName,
-        processId
-      );
+      glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
       stringSdt = (glyphEngine as any).updateSdt(stringTemplate, data);
     });
 
@@ -227,32 +180,16 @@ describe('SdtParser', () => {
     it('will return the Position Properties', async () => {
       const textToNumberLoadStub = sandbox.stub();
       textToNumberLoadStub.resolves();
-      sandbox.replace(
-        TextColumnToNumberConverter.prototype,
-        'load',
-        textToNumberLoadStub
-      );
+      sandbox.replace(TextColumnToNumberConverter.prototype, 'load', textToNumberLoadStub);
 
-      sandbox.replaceGetter(
-        TextColumnToNumberConverter.prototype,
-        'size',
-        () => textToNumberResults.size
-      );
+      sandbox.replaceGetter(TextColumnToNumberConverter.prototype, 'size', () => textToNumberResults.size);
 
       const minMaxoadStub = sandbox.stub();
       minMaxoadStub.resolves();
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
-      sandbox.replaceGetter(
-        MinMaxCalculator.prototype,
-        'minMax',
-        () => minMaxData
-      );
-      const sdtParser = await SdtParser.parseSdtString(
-        stringSdt,
-        viewName,
-        data
-      );
+      sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
+      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data);
       const positionX = sdtParser.getGlyphProperty('Position', 'X');
       assert.strictEqual(positionX?.function, FUNCTION.TEXT_INTERPOLATION);
       assert.strictEqual(positionX?.min, 205);
@@ -261,10 +198,7 @@ describe('SdtParser', () => {
       assert.isEmpty(positionX?.maxRgb);
 
       const positionY = sdtParser.getGlyphProperty('Position', 'Y');
-      assert.strictEqual(
-        positionY?.function,
-        FUNCTION.LOGARITHMIC_INTERPOLATION
-      );
+      assert.strictEqual(positionY?.function, FUNCTION.LOGARITHMIC_INTERPOLATION);
       assert.strictEqual(positionY?.min, 205);
       assert.strictEqual(positionY?.max, -205);
       assert.isEmpty(positionY?.minRgb);
@@ -281,32 +215,16 @@ describe('SdtParser', () => {
     it('will return the Scale Properties', async () => {
       const textToNumberLoadStub = sandbox.stub();
       textToNumberLoadStub.resolves();
-      sandbox.replace(
-        TextColumnToNumberConverter.prototype,
-        'load',
-        textToNumberLoadStub
-      );
+      sandbox.replace(TextColumnToNumberConverter.prototype, 'load', textToNumberLoadStub);
 
-      sandbox.replaceGetter(
-        TextColumnToNumberConverter.prototype,
-        'size',
-        () => textToNumberResults.size
-      );
+      sandbox.replaceGetter(TextColumnToNumberConverter.prototype, 'size', () => textToNumberResults.size);
 
       const minMaxoadStub = sandbox.stub();
       minMaxoadStub.resolves();
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
-      sandbox.replaceGetter(
-        MinMaxCalculator.prototype,
-        'minMax',
-        () => minMaxData
-      );
-      const sdtParser = await SdtParser.parseSdtString(
-        stringSdt,
-        viewName,
-        data
-      );
+      sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
+      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data);
       const positionX = sdtParser.getGlyphProperty('Scale', 'X');
       assert.strictEqual(positionX?.function, FUNCTION.LINEAR_INTERPOLATION);
       assert.strictEqual(positionX?.min, 1);
@@ -332,32 +250,16 @@ describe('SdtParser', () => {
     it('will return the Transparency Properties', async () => {
       const textToNumberLoadStub = sandbox.stub();
       textToNumberLoadStub.resolves();
-      sandbox.replace(
-        TextColumnToNumberConverter.prototype,
-        'load',
-        textToNumberLoadStub
-      );
+      sandbox.replace(TextColumnToNumberConverter.prototype, 'load', textToNumberLoadStub);
 
-      sandbox.replaceGetter(
-        TextColumnToNumberConverter.prototype,
-        'size',
-        () => textToNumberResults.size
-      );
+      sandbox.replaceGetter(TextColumnToNumberConverter.prototype, 'size', () => textToNumberResults.size);
 
       const minMaxoadStub = sandbox.stub();
       minMaxoadStub.resolves();
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
-      sandbox.replaceGetter(
-        MinMaxCalculator.prototype,
-        'minMax',
-        () => minMaxData
-      );
-      const sdtParser = await SdtParser.parseSdtString(
-        stringSdt,
-        viewName,
-        data
-      );
+      sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
+      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data);
       const transparency = sdtParser.getGlyphProperty('Color', 'Transparency');
       assert.strictEqual(transparency?.function, FUNCTION.LINEAR_INTERPOLATION);
       assert.strictEqual(transparency?.min, 0);
@@ -369,32 +271,16 @@ describe('SdtParser', () => {
     it('will return the Rgb Property', async () => {
       const textToNumberLoadStub = sandbox.stub();
       textToNumberLoadStub.resolves();
-      sandbox.replace(
-        TextColumnToNumberConverter.prototype,
-        'load',
-        textToNumberLoadStub
-      );
+      sandbox.replace(TextColumnToNumberConverter.prototype, 'load', textToNumberLoadStub);
 
-      sandbox.replaceGetter(
-        TextColumnToNumberConverter.prototype,
-        'size',
-        () => textToNumberResults.size
-      );
+      sandbox.replaceGetter(TextColumnToNumberConverter.prototype, 'size', () => textToNumberResults.size);
 
       const minMaxoadStub = sandbox.stub();
       minMaxoadStub.resolves();
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
-      sandbox.replaceGetter(
-        MinMaxCalculator.prototype,
-        'minMax',
-        () => minMaxData
-      );
-      const sdtParser = await SdtParser.parseSdtString(
-        stringSdt,
-        viewName,
-        data
-      );
+      sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
+      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data);
       const rgb = sdtParser.getGlyphProperty('Color', 'RGB');
       assert.strictEqual(rgb?.function, FUNCTION.LINEAR_INTERPOLATION);
       assert.strictEqual(rgb?.min, 0);
@@ -406,32 +292,16 @@ describe('SdtParser', () => {
     it('will return null if the property does not exist', async () => {
       const textToNumberLoadStub = sandbox.stub();
       textToNumberLoadStub.resolves();
-      sandbox.replace(
-        TextColumnToNumberConverter.prototype,
-        'load',
-        textToNumberLoadStub
-      );
+      sandbox.replace(TextColumnToNumberConverter.prototype, 'load', textToNumberLoadStub);
 
-      sandbox.replaceGetter(
-        TextColumnToNumberConverter.prototype,
-        'size',
-        () => textToNumberResults.size
-      );
+      sandbox.replaceGetter(TextColumnToNumberConverter.prototype, 'size', () => textToNumberResults.size);
 
       const minMaxoadStub = sandbox.stub();
       minMaxoadStub.resolves();
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
-      sandbox.replaceGetter(
-        MinMaxCalculator.prototype,
-        'minMax',
-        () => minMaxData
-      );
-      const sdtParser = await SdtParser.parseSdtString(
-        stringSdt,
-        viewName,
-        data
-      );
+      sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
+      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data);
 
       delete (sdtParser as any).sdtAsJson.Transform.Glyphs.Glyph.Color;
 
@@ -442,32 +312,16 @@ describe('SdtParser', () => {
     it('will return null if the sub property does not exist', async () => {
       const textToNumberLoadStub = sandbox.stub();
       textToNumberLoadStub.resolves();
-      sandbox.replace(
-        TextColumnToNumberConverter.prototype,
-        'load',
-        textToNumberLoadStub
-      );
+      sandbox.replace(TextColumnToNumberConverter.prototype, 'load', textToNumberLoadStub);
 
-      sandbox.replaceGetter(
-        TextColumnToNumberConverter.prototype,
-        'size',
-        () => textToNumberResults.size
-      );
+      sandbox.replaceGetter(TextColumnToNumberConverter.prototype, 'size', () => textToNumberResults.size);
 
       const minMaxoadStub = sandbox.stub();
       minMaxoadStub.resolves();
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
-      sandbox.replaceGetter(
-        MinMaxCalculator.prototype,
-        'minMax',
-        () => minMaxData
-      );
-      const sdtParser = await SdtParser.parseSdtString(
-        stringSdt,
-        viewName,
-        data
-      );
+      sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
+      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data);
 
       delete (sdtParser as any).sdtAsJson.Transform.Glyphs.Glyph.Color.RGB;
 
@@ -482,12 +336,7 @@ describe('SdtParser', () => {
 
     before(async () => {
       stringTemplate = await helperFunctions.getMockTemplate();
-      glyphEngine = new GlyphEngine(
-        inputBucketName,
-        outputBucketName,
-        databaseName,
-        processId
-      );
+      glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
       stringSdt = (glyphEngine as any).updateSdt(stringTemplate, data);
     });
     afterEach(() => {
@@ -496,43 +345,24 @@ describe('SdtParser', () => {
     it('will return the input fields', async () => {
       const textToNumberLoadStub = sandbox.stub();
       textToNumberLoadStub.resolves();
-      sandbox.replace(
-        TextColumnToNumberConverter.prototype,
-        'load',
-        textToNumberLoadStub
-      );
+      sandbox.replace(TextColumnToNumberConverter.prototype, 'load', textToNumberLoadStub);
 
-      sandbox.replaceGetter(
-        TextColumnToNumberConverter.prototype,
-        'size',
-        () => textToNumberResults.size
-      );
+      sandbox.replaceGetter(TextColumnToNumberConverter.prototype, 'size', () => textToNumberResults.size);
 
       const minMaxoadStub = sandbox.stub();
       minMaxoadStub.resolves();
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
-      sandbox.replaceGetter(
-        MinMaxCalculator.prototype,
-        'minMax',
-        () => minMaxData
-      );
+      sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
 
-      const sdtParser = (await SdtParser.parseSdtString(
-        stringSdt,
-        viewName,
-        data
-      )) as any;
+      const sdtParser = (await SdtParser.parseSdtString(stringSdt, viewName, data)) as any;
 
       const inputFields = sdtParser.getInputFields();
       assert.strictEqual(inputFields.x.field, data.get('x_axis'));
       assert.strictEqual(inputFields.x.min, 0);
       assert.strictEqual(inputFields.x.max, textToNumberResults.size - 1);
       assert.isOk(inputFields.x.text_to_num);
-      assert.strictEqual(
-        inputFields.x.text_to_num.size,
-        textToNumberResults.size
-      );
+      assert.strictEqual(inputFields.x.text_to_num.size, textToNumberResults.size);
       assert.strictEqual(inputFields.x.type, TYPE.TEXT);
 
       assert.strictEqual(inputFields.y.field, data.get('y_axis'));

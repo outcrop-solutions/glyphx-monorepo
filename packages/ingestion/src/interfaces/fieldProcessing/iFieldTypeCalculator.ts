@@ -92,9 +92,5 @@ export interface IConstructableFieldTypeCalculator {
    * @param fieldIndex -- the external index number of the field attached to this instance of {@link interfaces/fieldProcessing/iFieldTypeCalculator!IFieldTypeCalulator}
    * @param sampleRate-- a number between 0.01 and 1 that is used by {@link interfaces/fieldProcessing/iFieldTypeCalculator!IFieldTypeCalulator.processItems} to choose items on which to caluclate our {@link utils/constants/fieldType!FIELD_TYPE}.  Early implementations should set this to 1 or near 1.
    */
-  new (
-    fieldName: string,
-    fieldIndex: number,
-    sampleRate: number
-  ): IFieldTypeCalulator;
+  new (fieldName: string, fieldIndex: number, sampleRate: number): IFieldTypeCalulator;
 }

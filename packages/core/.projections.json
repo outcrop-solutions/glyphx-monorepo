@@ -1,40 +1,38 @@
 {
-	"src/error/*.ts" : {
-		"type" : "source",
-		"alternate" : "src/__tests__/error/{}.tests.ts"
-	},
+  "src/error/*.ts": {
+    "type": "source",
+    "alternate": "src/__tests__/error/{}.tests.ts"
+  },
 
-	"src/__tests__/error/*.tests.ts" : {
-		"type" : "test",
-		"alternate": "src/error/{}.ts"
-	},
-	"src/generalPurposeFunctions/*.ts" : {
-		"type" : "source",
-		"alternate" : "src/__tests__/generalPurposeFunctions/{}.tests.ts"
-	},
+  "src/__tests__/error/*.tests.ts": {
+    "type": "test",
+    "alternate": "src/error/{}.ts"
+  },
+  "src/generalPurposeFunctions/*.ts": {
+    "type": "source",
+    "alternate": "src/__tests__/generalPurposeFunctions/{}.tests.ts"
+  },
 
-	"src/__tests__/generalPurposeFunctions/*.tests.ts" : {
-		"type" : "test",
-		"alternate": "src/generalPurposeFunctions/{}.ts"
-	},
-	"src/aws/*.ts" : {
-		"type" : "source",
-		"alternate" : "src/__tests__/aws/{}.tests.ts"
-	},
+  "src/__tests__/generalPurposeFunctions/*.tests.ts": {
+    "type": "test",
+    "alternate": "src/generalPurposeFunctions/{}.ts"
+  },
+  "src/aws/*.ts": {
+    "type": "source",
+    "alternate": "src/__tests__/aws/{}.tests.ts"
+  },
 
-	"src/__tests__/aws/*.tests.ts" : {
-		"type" : "test",
-		"alternate": "src/aws/{}.ts"
-	},
-	"src/streams/*.ts" : {
-		"type" : "source",
-		"alternate" : "src/__tests__/streams/{}.tests.ts"
-	},
+  "src/__tests__/aws/*.tests.ts": {
+    "type": "test",
+    "alternate": "src/aws/{}.ts"
+  },
+  "src/streams/*.ts": {
+    "type": "source",
+    "alternate": "src/__tests__/streams/{}.tests.ts"
+  },
 
-	"src/__tests__/streams/*.tests.ts" : {
-		"type" : "test",
-		"alternate": "src/streams/{}.ts"
-	}
-
-
+  "src/__tests__/streams/*.tests.ts": {
+    "type": "test",
+    "alternate": "src/streams/{}.ts"
+  }
 }

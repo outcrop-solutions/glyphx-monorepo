@@ -36,7 +36,6 @@ export const GridContainer = () => {
   return (
     <div className="relative h-full w-full border-r border-gray">
       <ModelFooter />
-      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
       {/* @ts-ignore */}
       <SplitPane
         style={{overflow: 'scroll', height: `${getPaneHeight()}px`}}

@@ -15,7 +15,7 @@ describe('#services/project', () => {
   });
   context('getProject', () => {
     it('should get a project by id', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
 
@@ -23,11 +23,7 @@ describe('#services/project', () => {
       getProjectFromModelStub.resolves({
         _id: projectId,
       } as unknown as databaseTypes.IProject);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'getProjectById',
-        getProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'getProjectById', getProjectFromModelStub);
 
       const project = await projectService.getProject(projectId);
       assert.isOk(project);
@@ -37,7 +33,7 @@ describe('#services/project', () => {
     });
 
     it('should get a project by id when id is a string', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
 
@@ -45,11 +41,7 @@ describe('#services/project', () => {
       getProjectFromModelStub.resolves({
         _id: projectId,
       } as unknown as databaseTypes.IProject);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'getProjectById',
-        getProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'getProjectById', getProjectFromModelStub);
 
       const project = await projectService.getProject(projectId.toString());
       assert.isOk(project);
@@ -58,27 +50,18 @@ describe('#services/project', () => {
       assert.isTrue(getProjectFromModelStub.calledOnce);
     });
     it('will log the failure and return null if the project cannot be found', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const errMessage = 'Cannot find the psoject';
-      const err = new error.DataNotFoundError(
-        errMessage,
-        'projectId',
-        projectId
-      );
+      const err = new error.DataNotFoundError(errMessage, 'projectId', projectId);
       const getProjectFromModelStub = sandbox.stub();
       getProjectFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'getProjectById',
-        getProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'getProjectById', getProjectFromModelStub);
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DataNotFoundError);
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+
         //@ts-ignore
         assert.strictEqual(this.message, errMessage);
       }
@@ -96,24 +79,15 @@ describe('#services/project', () => {
     });
 
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const errMessage = 'Something Bad has happened';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongoDb',
-        'getProjectById'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongoDb', 'getProjectById');
       const getProjectFromModelStub = sandbox.stub();
       getProjectFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'getProjectById',
-        getProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'getProjectById', getProjectFromModelStub);
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -139,18 +113,18 @@ describe('#services/project', () => {
   });
   context('createProject', () => {
     it('will create a Project, attach to workspace models, and create project membership', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const memberEmail = 'tetsinguseremail@gmail.com';
-      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const userId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const workspaceId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
 
@@ -168,11 +142,7 @@ describe('#services/project', () => {
         },
       } as unknown as databaseTypes.IProject);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'createProject',
-        createProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'createProject', createProjectFromModelStub);
 
       // createProjectMember
       const createProjectMemberFromModelStub = sandbox.stub();
@@ -182,11 +152,7 @@ describe('#services/project', () => {
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IMember);
 
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'createProjectMember',
-        createProjectMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'createProjectMember', createProjectMemberFromModelStub);
 
       // Project.addMembers
       const updateProjectStub = sandbox.stub();
@@ -195,11 +161,7 @@ describe('#services/project', () => {
         members: [{_id: memberId}],
       } as unknown as databaseTypes.IProject);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'addMembers',
-        updateProjectStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'addMembers', updateProjectStub);
 
       // user.addMembership
       const updateUserStub = sandbox.stub();
@@ -208,11 +170,7 @@ describe('#services/project', () => {
         members: [{_id: memberId}],
       } as unknown as databaseTypes.IUser);
 
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'addMembership',
-        updateUserStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'addMembership', updateUserStub);
 
       // workspace.addProjects
       const updateWorkspaceStub = sandbox.stub();
@@ -221,18 +179,9 @@ describe('#services/project', () => {
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IWorkspace);
 
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'addProjects',
-        updateWorkspaceStub
-      );
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'addProjects', updateWorkspaceStub);
 
-      const doc = await projectService.createProject(
-        projectName,
-        workspaceId,
-        memberId.toString(),
-        memberEmail
-      );
+      const doc = await projectService.createProject(projectName, workspaceId, memberId.toString(), memberEmail);
 
       assert.isTrue(createProjectFromModelStub.calledOnce);
       assert.isTrue(createProjectMemberFromModelStub.calledOnce);
@@ -241,18 +190,18 @@ describe('#services/project', () => {
       assert.isTrue(updateWorkspaceStub.calledOnce);
     });
     it('will create a Project, attach to workspace models, and create project membership when workspaceId is a string', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const userId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const workspaceId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
 
@@ -270,11 +219,7 @@ describe('#services/project', () => {
         },
       } as unknown as databaseTypes.IProject);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'createProject',
-        createProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'createProject', createProjectFromModelStub);
 
       // createProjectMember
       const createProjectMemberFromModelStub = sandbox.stub();
@@ -284,11 +229,7 @@ describe('#services/project', () => {
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IMember);
 
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'createProjectMember',
-        createProjectMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'createProjectMember', createProjectMemberFromModelStub);
 
       // Project.addMembers
       const updateProjectStub = sandbox.stub();
@@ -297,11 +238,7 @@ describe('#services/project', () => {
         members: [{_id: memberId}],
       } as unknown as databaseTypes.IProject);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'addMembers',
-        updateProjectStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'addMembers', updateProjectStub);
 
       // user.addMembership
       const updateUserStub = sandbox.stub();
@@ -310,11 +247,7 @@ describe('#services/project', () => {
         members: [{_id: memberId}],
       } as unknown as databaseTypes.IUser);
 
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'addMembership',
-        updateUserStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'addMembership', updateUserStub);
 
       // workspace.addProjects
       const updateWorkspaceStub = sandbox.stub();
@@ -323,18 +256,9 @@ describe('#services/project', () => {
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IWorkspace);
 
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'addProjects',
-        updateWorkspaceStub
-      );
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'addProjects', updateWorkspaceStub);
 
-      const doc = await projectService.createProject(
-        projectName,
-        workspaceId.toString(),
-        userId,
-        userEmail
-      );
+      const doc = await projectService.createProject(projectName, workspaceId.toString(), userId, userEmail);
 
       assert.isTrue(createProjectFromModelStub.calledOnce);
       assert.isTrue(updateUserStub.calledOnce);
@@ -342,18 +266,18 @@ describe('#services/project', () => {
       // assert.isOk(doc.workspace.projects);
     });
     it('will create a Project, attach to workspace models, and create project membership when userId is a string', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const userId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const workspaceId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
 
@@ -371,11 +295,7 @@ describe('#services/project', () => {
         },
       } as unknown as databaseTypes.IProject);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'createProject',
-        createProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'createProject', createProjectFromModelStub);
 
       // createProjectMember
       const createProjectMemberFromModelStub = sandbox.stub();
@@ -385,11 +305,7 @@ describe('#services/project', () => {
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IMember);
 
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'createProjectMember',
-        createProjectMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'createProjectMember', createProjectMemberFromModelStub);
 
       // Project.addMembers
       const updateProjectStub = sandbox.stub();
@@ -398,11 +314,7 @@ describe('#services/project', () => {
         members: [{_id: memberId}],
       } as unknown as databaseTypes.IProject);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'addMembers',
-        updateProjectStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'addMembers', updateProjectStub);
 
       // user.addMembership
       const updateUserStub = sandbox.stub();
@@ -411,11 +323,7 @@ describe('#services/project', () => {
         members: [{_id: memberId}],
       } as unknown as databaseTypes.IUser);
 
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'addMembership',
-        updateUserStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'addMembership', updateUserStub);
 
       // workspace.addProjects
       const updateWorkspaceStub = sandbox.stub();
@@ -424,18 +332,9 @@ describe('#services/project', () => {
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IWorkspace);
 
-      sandbox.replace(
-        dbConnection.models.WorkspaceModel,
-        'addProjects',
-        updateWorkspaceStub
-      );
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'addProjects', updateWorkspaceStub);
 
-      const doc = await projectService.createProject(
-        projectName,
-        userId.toString(),
-        workspaceId,
-        userEmail
-      );
+      const doc = await projectService.createProject(projectName, userId.toString(), workspaceId, userEmail);
 
       assert.isTrue(createProjectFromModelStub.calledOnce);
       assert.isTrue(updateUserStub.calledOnce);
@@ -446,11 +345,11 @@ describe('#services/project', () => {
     // project model fails
     it('will publish and rethrow an DataValidationError when project model throws it', async () => {
       const projectName = 'projectName1';
-      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const userId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const userEmail = 'tetsinguseremail@gmail.com';
-      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const workspaceId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
 
@@ -460,14 +359,9 @@ describe('#services/project', () => {
 
       createProjectFromModelStub.rejects(err);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'createProject',
-        createProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'createProject', createProjectFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DataValidationError);
         //@ts-ignore
@@ -481,12 +375,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(
-          projectName,
-          userId,
-          workspaceId,
-          userEmail
-        );
+        await projectService.createProject(projectName, userId, workspaceId, userEmail);
       } catch (e) {
         assert.instanceOf(e, error.DataValidationError);
         errored = true;
@@ -497,32 +386,23 @@ describe('#services/project', () => {
     });
     it('will publish and throw an DataServiceError when project model throws a DataOperationError', async () => {
       const projectName = 'projectName1';
-      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const userId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const userEmail = 'tetsinguseremail@gmail.com';
-      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const workspaceId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
 
       const createProjectFromModelStub = sandbox.stub();
       const errMessage = 'A DataOperationError has occurred';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongodDb',
-        'updateCustomerPaymentById'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateCustomerPaymentById');
 
       createProjectFromModelStub.rejects(err);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'createProject',
-        createProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'createProject', createProjectFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -536,12 +416,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(
-          projectName,
-          userId,
-          workspaceId.toString(),
-          userEmail
-        );
+        await projectService.createProject(projectName, userId, workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -552,32 +427,23 @@ describe('#services/project', () => {
     });
     it('will publish and throw an DataServiceError when project model throws a UnexpectedError', async () => {
       const projectName = 'projectName1';
-      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const userId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const userEmail = 'tetsinguseremail@gmail.com';
-      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const workspaceId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
 
       const createProjectFromModelStub = sandbox.stub();
       const errMessage = 'A DataOperationError has occurred';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongodDb',
-        'updateCustomerPaymentById'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateCustomerPaymentById');
 
       createProjectFromModelStub.rejects(err);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'createProject',
-        createProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'createProject', createProjectFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -591,12 +457,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(
-          projectName,
-          userId,
-          workspaceId.toString(),
-          userEmail
-        );
+        await projectService.createProject(projectName, userId, workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -608,18 +469,18 @@ describe('#services/project', () => {
 
     // member model fails
     it('will publish and rethrow an InvalidArgumentError when member model throws it', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const userId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const workspaceId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
@@ -639,24 +500,15 @@ describe('#services/project', () => {
         },
       } as unknown as databaseTypes.IProject);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'createProject',
-        createProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'createProject', createProjectFromModelStub);
 
       // createProjectMember
       const createProjectMemberFromModelStub = sandbox.stub();
       createProjectMemberFromModelStub.rejects(err);
 
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'createProjectMember',
-        createProjectMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'createProjectMember', createProjectMemberFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
         //@ts-ignore
@@ -670,12 +522,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(
-          projectName,
-          userId,
-          workspaceId,
-          userEmail
-        );
+        await projectService.createProject(projectName, userId, workspaceId, userEmail);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -686,18 +533,18 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when member model throws it', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
-      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const userId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const userEmail = 'tetsinguseremail@gmail.com';
-      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const workspaceId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
@@ -717,24 +564,15 @@ describe('#services/project', () => {
         },
       } as unknown as databaseTypes.IProject);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'createProject',
-        createProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'createProject', createProjectFromModelStub);
 
       // createProjectMember
       const createProjectMemberFromModelStub = sandbox.stub();
       createProjectMemberFromModelStub.rejects(err);
 
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'createProjectMember',
-        createProjectMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'createProjectMember', createProjectMemberFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidOperationError);
         //@ts-ignore
@@ -748,12 +586,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(
-          projectName,
-          userId,
-          workspaceId.toString(),
-          userEmail
-        );
+        await projectService.createProject(projectName, userId, workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -764,18 +597,18 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when member model throws a DataOperationError', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const userId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const workspaceId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
@@ -795,24 +628,15 @@ describe('#services/project', () => {
         },
       } as unknown as databaseTypes.IProject);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'createProject',
-        createProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'createProject', createProjectFromModelStub);
 
       // createProjectMember
       const createProjectMemberFromModelStub = sandbox.stub();
       createProjectMemberFromModelStub.rejects(err);
 
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'createProjectMember',
-        createProjectMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'createProjectMember', createProjectMemberFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -826,12 +650,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(
-          projectName,
-          userId,
-          workspaceId.toString(),
-          userEmail
-        );
+        await projectService.createProject(projectName, userId, workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -844,18 +663,18 @@ describe('#services/project', () => {
 
     // project model fails
     it('will publish and rethrow an InvalidArgumentError when pr model throws it', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const userId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const workspaceId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
@@ -875,11 +694,7 @@ describe('#services/project', () => {
         },
       } as unknown as databaseTypes.IProject);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'createProject',
-        createProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'createProject', createProjectFromModelStub);
 
       // createProjectMember
       const createProjectMemberFromModelStub = sandbox.stub();
@@ -889,24 +704,15 @@ describe('#services/project', () => {
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IMember);
 
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'createProjectMember',
-        createProjectMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'createProjectMember', createProjectMemberFromModelStub);
 
       // Project.addMembers
       const updateProjectStub = sandbox.stub();
       updateProjectStub.rejects(err);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'addMembers',
-        updateProjectStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'addMembers', updateProjectStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
         //@ts-ignore
@@ -920,12 +726,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(
-          projectName,
-          userId,
-          workspaceId,
-          userEmail
-        );
+        await projectService.createProject(projectName, userId, workspaceId, userEmail);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -937,18 +738,18 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when workspace model throws it', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const userId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const workspaceId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
@@ -968,11 +769,7 @@ describe('#services/project', () => {
         },
       } as unknown as databaseTypes.IProject);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'createProject',
-        createProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'createProject', createProjectFromModelStub);
 
       // createProjectMember
       const createProjectMemberFromModelStub = sandbox.stub();
@@ -982,24 +779,15 @@ describe('#services/project', () => {
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IMember);
 
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'createProjectMember',
-        createProjectMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'createProjectMember', createProjectMemberFromModelStub);
 
       // Project.addMembers
       const updateProjectStub = sandbox.stub();
       updateProjectStub.rejects(err);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'addMembers',
-        updateProjectStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'addMembers', updateProjectStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidOperationError);
         //@ts-ignore
@@ -1013,12 +801,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(
-          projectName,
-          userId,
-          workspaceId.toString(),
-          userEmail
-        );
+        await projectService.createProject(projectName, userId, workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -1030,18 +813,18 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when workspace model throws a DataOperationError', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const userId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const workspaceId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
@@ -1061,11 +844,7 @@ describe('#services/project', () => {
         },
       } as unknown as databaseTypes.IProject);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'createProject',
-        createProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'createProject', createProjectFromModelStub);
 
       // createProjectMember
       const createProjectMemberFromModelStub = sandbox.stub();
@@ -1075,24 +854,15 @@ describe('#services/project', () => {
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IMember);
 
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'createProjectMember',
-        createProjectMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'createProjectMember', createProjectMemberFromModelStub);
 
       // Project.addMembers
       const updateProjectStub = sandbox.stub();
       updateProjectStub.rejects(err);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'addMembers',
-        updateProjectStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'addMembers', updateProjectStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -1106,12 +876,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(
-          projectName,
-          userId,
-          workspaceId.toString(),
-          userEmail
-        );
+        await projectService.createProject(projectName, userId, workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -1124,18 +889,18 @@ describe('#services/project', () => {
 
     // user model fails
     it('will publish and rethrow an InvalidArgumentError when pr model throws it', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const userId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const workspaceId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
@@ -1155,11 +920,7 @@ describe('#services/project', () => {
         },
       } as unknown as databaseTypes.IProject);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'createProject',
-        createProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'createProject', createProjectFromModelStub);
 
       // createProjectMember
       const createProjectMemberFromModelStub = sandbox.stub();
@@ -1169,11 +930,7 @@ describe('#services/project', () => {
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IMember);
 
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'createProjectMember',
-        createProjectMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'createProjectMember', createProjectMemberFromModelStub);
 
       // Project.addMembers
       const updateProjectStub = sandbox.stub();
@@ -1182,24 +939,15 @@ describe('#services/project', () => {
         members: [{_id: memberId}],
       } as unknown as databaseTypes.IProject);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'addMembers',
-        updateProjectStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'addMembers', updateProjectStub);
 
       // user.addMembership
       const updateUserStub = sandbox.stub();
       updateUserStub.rejects(err);
 
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'addMembership',
-        updateUserStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'addMembership', updateUserStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
         //@ts-ignore
@@ -1213,12 +961,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(
-          projectName,
-          userId,
-          workspaceId,
-          userEmail
-        );
+        await projectService.createProject(projectName, userId, workspaceId, userEmail);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -1231,18 +974,18 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow an InvalidOperationError when workspace model throws it', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const userId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const workspaceId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
@@ -1262,11 +1005,7 @@ describe('#services/project', () => {
         },
       } as unknown as databaseTypes.IProject);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'createProject',
-        createProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'createProject', createProjectFromModelStub);
 
       // createProjectMember
       const createProjectMemberFromModelStub = sandbox.stub();
@@ -1276,11 +1015,7 @@ describe('#services/project', () => {
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IMember);
 
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'createProjectMember',
-        createProjectMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'createProjectMember', createProjectMemberFromModelStub);
 
       // Project.addMembers
       const updateProjectStub = sandbox.stub();
@@ -1289,24 +1024,15 @@ describe('#services/project', () => {
         members: [{_id: memberId}],
       } as unknown as databaseTypes.IProject);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'addMembers',
-        updateProjectStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'addMembers', updateProjectStub);
 
       // user.addMembership
       const updateUserStub = sandbox.stub();
       updateUserStub.rejects(err);
 
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'addMembership',
-        updateUserStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'addMembership', updateUserStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidOperationError);
         //@ts-ignore
@@ -1320,12 +1046,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(
-          projectName,
-          userId,
-          workspaceId.toString(),
-          userEmail
-        );
+        await projectService.createProject(projectName, userId, workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -1338,18 +1059,18 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when workspace model throws a DataOperationError', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const projectName = 'projectName1';
       const userEmail = 'tetsinguseremail@gmail.com';
-      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const userId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const memberId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const workspaceId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const workspaceId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument error';
@@ -1369,11 +1090,7 @@ describe('#services/project', () => {
         },
       } as unknown as databaseTypes.IProject);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'createProject',
-        createProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'createProject', createProjectFromModelStub);
 
       // createProjectMember
       const createProjectMemberFromModelStub = sandbox.stub();
@@ -1383,11 +1100,7 @@ describe('#services/project', () => {
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IMember);
 
-      sandbox.replace(
-        dbConnection.models.MemberModel,
-        'createProjectMember',
-        createProjectMemberFromModelStub
-      );
+      sandbox.replace(dbConnection.models.MemberModel, 'createProjectMember', createProjectMemberFromModelStub);
 
       // Project.addMembers
       const updateProjectStub = sandbox.stub();
@@ -1396,24 +1109,15 @@ describe('#services/project', () => {
         members: [{_id: memberId}],
       } as unknown as databaseTypes.IProject);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'addMembers',
-        updateProjectStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'addMembers', updateProjectStub);
 
       // user.addMembership
       const updateUserStub = sandbox.stub();
       updateUserStub.rejects(err);
 
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'addMembership',
-        updateUserStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'addMembership', updateUserStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -1427,12 +1131,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(
-          projectName,
-          userId,
-          workspaceId.toString(),
-          userEmail
-        );
+        await projectService.createProject(projectName, userId, workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -1447,7 +1146,7 @@ describe('#services/project', () => {
   });
   context('getProjects', () => {
     it('should get projects by filter', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const projectName = 'project1';
@@ -1463,11 +1162,7 @@ describe('#services/project', () => {
         ],
       } as unknown as databaseTypes.IProject[]);
 
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'queryProjects',
-        queryProjectsFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'queryProjects', queryProjectsFromModelStub);
 
       const projects = await projectService.getProjects(projectFilter);
       assert.isOk(projects![0]);
@@ -1478,23 +1173,14 @@ describe('#services/project', () => {
       const projectName = 'projectName1';
       const projectFilter = {name: projectName};
       const errMessage = 'Cannot find the project';
-      const err = new error.DataNotFoundError(
-        errMessage,
-        'name',
-        projectFilter
-      );
+      const err = new error.DataNotFoundError(errMessage, 'name', projectFilter);
       const getProjectFromModelStub = sandbox.stub();
       getProjectFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'queryProjects',
-        getProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'queryProjects', getProjectFromModelStub);
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DataNotFoundError);
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+
         //@ts-ignore
         assert.strictEqual(this.message, errMessage);
       }
@@ -1514,20 +1200,11 @@ describe('#services/project', () => {
       const projectName = 'projectName1';
       const projectFilter = {name: projectName};
       const errMessage = 'Something Bad has happened';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongoDb',
-        'getProjectByEmail'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongoDb', 'getProjectByEmail');
       const getProjectFromModelStub = sandbox.stub();
       getProjectFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'queryProjects',
-        getProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'queryProjects', getProjectFromModelStub);
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -1553,7 +1230,7 @@ describe('#services/project', () => {
   });
   context('getProjectFileStats', () => {
     it("should get a project's file stats by id", async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const fileStats: fileIngestionTypes.IFileStats = {
@@ -1569,37 +1246,25 @@ describe('#services/project', () => {
         _id: projectId,
         files: [fileStats],
       } as unknown as databaseTypes.IProject);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'getProjectById',
-        getProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'getProjectById', getProjectFromModelStub);
 
-      const projectFileStats = await projectService.getProjectFileStats(
-        projectId
-      );
+      const projectFileStats = await projectService.getProjectFileStats(projectId);
       assert.isOk(projectFileStats);
       assert.strictEqual(projectFileStats[0].fileName, fileStats.fileName);
 
       assert.isTrue(getProjectFromModelStub.calledOnce);
     });
     it("should get a project's file stats returning an empty array if the stats do not exist", async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const getProjectFromModelStub = sandbox.stub();
       getProjectFromModelStub.resolves({
         _id: projectId,
       } as unknown as databaseTypes.IProject);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'getProjectById',
-        getProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'getProjectById', getProjectFromModelStub);
 
-      const projectFileStats = await projectService.getProjectFileStats(
-        projectId
-      );
+      const projectFileStats = await projectService.getProjectFileStats(projectId);
       assert.isOk(projectFileStats);
       assert.isArray(projectFileStats);
       assert.strictEqual(projectFileStats.length, 0);
@@ -1609,7 +1274,7 @@ describe('#services/project', () => {
   });
   context('getProjectViewName', () => {
     it("should get a project's viewName by id", async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const viewName = 'testViewName';
@@ -1618,33 +1283,23 @@ describe('#services/project', () => {
         _id: projectId,
         viewName: viewName,
       } as unknown as databaseTypes.IProject);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'getProjectById',
-        getProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'getProjectById', getProjectFromModelStub);
 
-      const projectViewName = await projectService.getProjectViewName(
-        projectId
-      );
+      const projectViewName = await projectService.getProjectViewName(projectId);
       assert.isOk(projectViewName);
       assert.strictEqual(projectViewName, viewName);
 
       assert.isTrue(getProjectFromModelStub.calledOnce);
     });
     it("should get a project's viewName returning an empty string if the viewName does not exist", async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const getProjectFromModelStub = sandbox.stub();
       getProjectFromModelStub.resolves({
         _id: projectId,
       } as unknown as databaseTypes.IProject);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'getProjectById',
-        getProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'getProjectById', getProjectFromModelStub);
 
       const viewName = await projectService.getProjectViewName(projectId);
       assert.isString(viewName);
@@ -1655,7 +1310,7 @@ describe('#services/project', () => {
   });
   context('updateProjectFileStats', () => {
     it('will update a projects file stats', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const fileStats: fileIngestionTypes.IFileStats = {
@@ -1671,15 +1326,9 @@ describe('#services/project', () => {
         _id: projectId,
         files: [fileStats],
       } as unknown as databaseTypes.IProject);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectById',
-        updateProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
-      const project = await projectService.updateProjectFileStats(projectId, [
-        fileStats,
-      ]);
+      const project = await projectService.updateProjectFileStats(projectId, [fileStats]);
       assert.isOk(project);
       assert.strictEqual(project._id, projectId);
       assert.strictEqual(project.files[0].fileName, fileStats.fileName);
@@ -1687,7 +1336,7 @@ describe('#services/project', () => {
       assert.isTrue(updateProjectFromModelStub.calledOnce);
     });
     it('will update a projects file stats when the id is a string', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const fileStats: fileIngestionTypes.IFileStats = {
@@ -1703,16 +1352,9 @@ describe('#services/project', () => {
         _id: projectId,
         files: [fileStats],
       } as unknown as databaseTypes.IProject);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectById',
-        updateProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
-      const project = await projectService.updateProjectFileStats(
-        projectId.toString(),
-        [fileStats]
-      );
+      const project = await projectService.updateProjectFileStats(projectId.toString(), [fileStats]);
       assert.isOk(project);
       assert.strictEqual(project._id, projectId);
       assert.strictEqual(project.files[0].fileName, fileStats.fileName);
@@ -1720,7 +1362,7 @@ describe('#services/project', () => {
       assert.isTrue(updateProjectFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when project model throws it ', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const fileStats: fileIngestionTypes.IFileStats = {
@@ -1735,14 +1377,9 @@ describe('#services/project', () => {
       const err = new error.InvalidArgumentError(errMessage, 'FileStats', []);
       const updateProjectFromModelStub = sandbox.stub();
       updateProjectFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectById',
-        updateProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
         //@ts-ignore
@@ -1768,7 +1405,7 @@ describe('#services/project', () => {
     });
 
     it('will publish and rethrow an InvalidOperationError when project model throws it ', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const fileStats: fileIngestionTypes.IFileStats = {
@@ -1783,14 +1420,9 @@ describe('#services/project', () => {
       const err = new error.InvalidOperationError(errMessage, {});
       const updateProjectFromModelStub = sandbox.stub();
       updateProjectFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectById',
-        updateProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidOperationError);
         //@ts-ignore
@@ -1815,7 +1447,7 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when project model throws a DataOperationError ', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const fileStats: fileIngestionTypes.IFileStats = {
@@ -1827,21 +1459,12 @@ describe('#services/project', () => {
         fileSize: 1000,
       };
       const errMessage = 'A DataOperationError has occurred';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongodDb',
-        'updateProjectById'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateProjectById');
       const updateProjectFromModelStub = sandbox.stub();
       updateProjectFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectById',
-        updateProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -1868,7 +1491,7 @@ describe('#services/project', () => {
   });
   context('updateProjectViewName', () => {
     it('will update a projects view name', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const viewName = 'test view name';
@@ -1877,16 +1500,9 @@ describe('#services/project', () => {
         _id: projectId,
         viewName: viewName,
       } as unknown as databaseTypes.IProject);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectById',
-        updateProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
-      const project = await projectService.updateProjectView(
-        projectId,
-        viewName
-      );
+      const project = await projectService.updateProjectView(projectId, viewName);
       assert.isOk(project);
       assert.strictEqual(project._id, projectId);
       assert.strictEqual(project.viewName, viewName);
@@ -1894,7 +1510,7 @@ describe('#services/project', () => {
       assert.isTrue(updateProjectFromModelStub.calledOnce);
     });
     it('will update a projects view name when the id is a string', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const viewName = 'test view name';
@@ -1903,16 +1519,9 @@ describe('#services/project', () => {
         _id: projectId,
         viewName: viewName,
       } as unknown as databaseTypes.IProject);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectById',
-        updateProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
-      const project = await projectService.updateProjectView(
-        projectId.toString(),
-        viewName
-      );
+      const project = await projectService.updateProjectView(projectId.toString(), viewName);
       assert.isOk(project);
       assert.strictEqual(project._id, projectId);
       assert.strictEqual(project.viewName, viewName);
@@ -1920,7 +1529,7 @@ describe('#services/project', () => {
       assert.isTrue(updateProjectFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when project model throws it ', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const viewName = 'testViewName';
@@ -1928,14 +1537,9 @@ describe('#services/project', () => {
       const err = new error.InvalidArgumentError(errMessage, 'FileStats', []);
       const updateProjectFromModelStub = sandbox.stub();
       updateProjectFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectById',
-        updateProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
         //@ts-ignore
@@ -1961,7 +1565,7 @@ describe('#services/project', () => {
     });
 
     it('will publish and rethrow an InvalidOperationError when project model throws it ', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const viewName = 'test view name';
@@ -1969,14 +1573,9 @@ describe('#services/project', () => {
       const err = new error.InvalidOperationError(errMessage, {});
       const updateProjectFromModelStub = sandbox.stub();
       updateProjectFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectById',
-        updateProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidOperationError);
         //@ts-ignore
@@ -2001,26 +1600,17 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when project model throws a DataOperationError ', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const viewName = 'test view name';
       const errMessage = 'A DataOperationError has occurred';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongodDb',
-        'updateProjectById'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateProjectById');
       const updateProjectFromModelStub = sandbox.stub();
       updateProjectFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectById',
-        updateProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -2047,7 +1637,7 @@ describe('#services/project', () => {
   });
   context('updateProjectView', () => {
     it('will update a project', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const viewName = 'test view name';
@@ -2056,11 +1646,7 @@ describe('#services/project', () => {
         _id: projectId,
         viewName: viewName,
       } as unknown as databaseTypes.IProject);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectById',
-        updateProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
       const project = await projectService.updateProject(projectId, {
         viewName: viewName,
@@ -2072,7 +1658,7 @@ describe('#services/project', () => {
       assert.isTrue(updateProjectFromModelStub.calledOnce);
     });
     it('will update a project when the id is a string', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const viewName = 'test view name';
@@ -2081,11 +1667,7 @@ describe('#services/project', () => {
         _id: projectId,
         viewName: viewName,
       } as unknown as databaseTypes.IProject);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectById',
-        updateProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
       const project = await projectService.updateProject(projectId.toString(), {
         viewName: viewName,
@@ -2097,7 +1679,7 @@ describe('#services/project', () => {
       assert.isTrue(updateProjectFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when project model throws it ', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const viewName = 'testViewName';
@@ -2105,14 +1687,9 @@ describe('#services/project', () => {
       const err = new error.InvalidArgumentError(errMessage, 'FileStats', []);
       const updateProjectFromModelStub = sandbox.stub();
       updateProjectFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectById',
-        updateProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
         //@ts-ignore
@@ -2138,7 +1715,7 @@ describe('#services/project', () => {
     });
 
     it('will publish and rethrow an InvalidOperationError when project model throws it ', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const viewName = 'test view name';
@@ -2146,14 +1723,9 @@ describe('#services/project', () => {
       const err = new error.InvalidOperationError(errMessage, {});
       const updateProjectFromModelStub = sandbox.stub();
       updateProjectFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectById',
-        updateProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidOperationError);
         //@ts-ignore
@@ -2178,26 +1750,17 @@ describe('#services/project', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when project model throws a DataOperationError ', async () => {
-      const projectId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const projectId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const viewName = 'test view name';
       const errMessage = 'A DataOperationError has occurred';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongodDb',
-        'updateProjectById'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateProjectById');
       const updateProjectFromModelStub = sandbox.stub();
       updateProjectFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.ProjectModel,
-        'updateProjectById',
-        updateProjectFromModelStub
-      );
+      sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore

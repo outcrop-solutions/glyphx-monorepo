@@ -4,15 +4,7 @@ import {Types as mongooseTypes} from 'mongoose';
 export interface IMemberCreateInput
   extends Omit<
     databaseTypes.IMember,
-    | '_id'
-    | 'createdAt'
-    | 'updatedAt'
-    | 'invitedAt'
-    | 'joinedAt'
-    | 'member'
-    | 'invitedBy'
-    | 'workspace'
-    | 'project'
+    '_id' | 'createdAt' | 'updatedAt' | 'invitedAt' | 'joinedAt' | 'member' | 'invitedBy' | 'workspace' | 'project'
   > {
   member: mongooseTypes.ObjectId | databaseTypes.IUser;
   invitedBy: mongooseTypes.ObjectId | databaseTypes.IUser;

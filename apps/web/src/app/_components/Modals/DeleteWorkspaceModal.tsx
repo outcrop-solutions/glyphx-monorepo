@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {useRouter,useParams} from 'next/navigation';
+import {useRouter, useParams} from 'next/navigation';
 import {webTypes} from 'types';
 import {useSWRConfig} from 'swr';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
@@ -48,7 +48,7 @@ export const DeleteWorkspaceModal = ({modalContent}: webTypes.DeleteWorkspaceMod
               draft.modals.splice(0, 1);
             })
           );
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
           // @ts-ignore
           setWorkspace(null);
           router.replace('/account' as Route);

@@ -11,7 +11,6 @@ type ObjectId = mongooseTypes.ObjectId;
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const INPUT_PROJECT_TEMPLATE: databaseTypes.IProjectTemplate = {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   _id:
     // @ts-ignore
     new mongooseTypes.ObjectId(),
@@ -41,15 +40,12 @@ describe('#ProjectTemplateService', () => {
       await mongoConnection.init();
       const projectTemplateModel = mongoConnection.models.ProjectTemplateModel;
 
-      await projectTemplateModel.createProjectTemplate(
-        INPUT_PROJECT_TEMPLATE as databaseTypes.IProjectTemplate
-      );
+      await projectTemplateModel.createProjectTemplate(INPUT_PROJECT_TEMPLATE as databaseTypes.IProjectTemplate);
 
       const savedProjectTemplateDocument = await projectTemplateModel
         .findOne({name: INPUT_PROJECT_TEMPLATE.name})
         .lean();
-      projectTemplateId =
-        savedProjectTemplateDocument?._id as mongooseTypes.ObjectId;
+      projectTemplateId = savedProjectTemplateDocument?._id as mongooseTypes.ObjectId;
 
       //   projectTemplateDocument = savedProjectTemplateDocument;
 
@@ -66,82 +62,61 @@ describe('#ProjectTemplateService', () => {
     });
 
     it('will retreive our projectTemplate from the database', async () => {
-      const projectTemplate = await projectTemplateService.getProjectTemplate(
-        projectTemplateId
-      );
+      const projectTemplate = await projectTemplateService.getProjectTemplate(projectTemplateId);
       assert.isOk(projectTemplate);
 
       assert.strictEqual(projectTemplate?.name, INPUT_PROJECT_TEMPLATE.name);
     });
     it('will retreive projectTemplates from the database', async () => {
-      const projectTemplate = await projectTemplateService.getProjectTemplates(
-        projectTemplateId
-      );
+      const projectTemplate = await projectTemplateService.getProjectTemplates(projectTemplateId);
       assert.isOk(projectTemplate);
 
       assert.strictEqual(projectTemplate?.name, INPUT_PROJECT_TEMPLATE.name);
     });
     it('will create a projectTemplate from a project', async () => {
-      const projectTemplate =
-        await projectTemplateService.createProjectFromTemplate(
-          projectTemplateId
-        );
+      const projectTemplate = await projectTemplateService.createProjectFromTemplate(projectTemplateId);
       assert.isOk(projectTemplate);
 
       assert.strictEqual(projectTemplate?.name, INPUT_PROJECT_TEMPLATE.name);
     });
     it('will create a project from a projectTemplate', async () => {
-      const projectTemplate =
-        await projectTemplateService.cloneProjectFromTemplate(
-          projectTemplateId
-        );
+      const projectTemplate = await projectTemplateService.cloneProjectFromTemplate(projectTemplateId);
       assert.isOk(projectTemplate);
 
       assert.strictEqual(projectTemplate?.name, INPUT_PROJECT_TEMPLATE.name);
     });
     it('will deactivate a projectTemplate', async () => {
-      const projectTemplate = await projectTemplateService.deactivate(
-        projectTemplateId
-      );
+      const projectTemplate = await projectTemplateService.deactivate(projectTemplateId);
       assert.isOk(projectTemplate);
 
       assert.strictEqual(projectTemplate?.name, INPUT_PROJECT_TEMPLATE.name);
     });
     it('will update the projectTemplate', async () => {
-      const projectTemplate =
-        await projectTemplateService.updateProjectTemplate(projectTemplateId);
+      const projectTemplate = await projectTemplateService.updateProjectTemplate(projectTemplateId);
       assert.isOk(projectTemplate);
 
       assert.strictEqual(projectTemplate?.name, INPUT_PROJECT_TEMPLATE.name);
     });
     it('will add tags to a project template', async () => {
-      const projectTemplate = await projectTemplateService.addTags(
-        projectTemplateId
-      );
+      const projectTemplate = await projectTemplateService.addTags(projectTemplateId);
       assert.isOk(projectTemplate);
 
       assert.strictEqual(projectTemplate?.name, INPUT_PROJECT_TEMPLATE.name);
     });
     it('will remove tags from a project template', async () => {
-      const projectTemplate = await projectTemplateService.removeTags(
-        projectTemplateId
-      );
+      const projectTemplate = await projectTemplateService.removeTags(projectTemplateId);
       assert.isOk(projectTemplate);
 
       assert.strictEqual(projectTemplate?.name, INPUT_PROJECT_TEMPLATE.name);
     });
     it('will transform a project and make it suitable for template creation', async () => {
-      const projectTemplate = await projectTemplateService.cleanProject(
-        projectTemplateId
-      );
+      const projectTemplate = await projectTemplateService.cleanProject(projectTemplateId);
       assert.isOk(projectTemplate);
 
       assert.strictEqual(projectTemplate?.name, INPUT_PROJECT_TEMPLATE.name);
     });
     it('will transform a project template and make it suitable for project creation', async () => {
-      const projectTemplate = await projectTemplateService.cleanProjectTemplate(
-        projectTemplateId
-      );
+      const projectTemplate = await projectTemplateService.cleanProjectTemplate(projectTemplateId);
       assert.isOk(projectTemplate);
 
       assert.strictEqual(projectTemplate?.name, INPUT_PROJECT_TEMPLATE.name);

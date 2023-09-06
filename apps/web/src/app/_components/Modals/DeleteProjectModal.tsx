@@ -11,7 +11,7 @@ import {_deleteProject, api} from 'lib';
 import {useSetRecoilState} from 'recoil';
 import {modalsAtom} from 'state';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
-import {useRouter,useParams} from 'next/navigation';
+import {useRouter, useParams} from 'next/navigation';
 
 export const DeleteProjectModal = ({modalContent}: webTypes.DeleteProjectModalProps) => {
   const {mutate} = useSWRConfig();

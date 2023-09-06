@@ -56,43 +56,15 @@ describe('#mongoose/models/user', () => {
     });
 
     it('will create a user document', async () => {
-      sandbox.replace(
-        UserModel,
-        'validateProjects',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateWorkspaces',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateMembership',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateWebhooks',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateSessions',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateAccounts',
-        sandbox.stub().resolves([])
-      );
+      sandbox.replace(UserModel, 'validateProjects', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateWorkspaces', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateMembership', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateWebhooks', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateSessions', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateAccounts', sandbox.stub().resolves([]));
 
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(
-        UserModel,
-        'create',
-        sandbox.stub().resolves([{_id: objectId}])
-      );
+      sandbox.replace(UserModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
       sandbox.replace(UserModel, 'validate', sandbox.stub().resolves(true));
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
@@ -103,43 +75,15 @@ describe('#mongoose/models/user', () => {
       assert.isTrue(stub.calledOnce);
     });
     it('will create a user document with nullish coallesce', async () => {
-      sandbox.replace(
-        UserModel,
-        'validateProjects',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateWorkspaces',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateMembership',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateWebhooks',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateSessions',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateAccounts',
-        sandbox.stub().resolves([])
-      );
+      sandbox.replace(UserModel, 'validateProjects', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateWorkspaces', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateMembership', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateWebhooks', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateSessions', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateAccounts', sandbox.stub().resolves([]));
 
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(
-        UserModel,
-        'create',
-        sandbox.stub().resolves([{_id: objectId}])
-      );
+      sandbox.replace(UserModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
       sandbox.replace(UserModel, 'validate', sandbox.stub().resolves(true));
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
@@ -154,49 +98,17 @@ describe('#mongoose/models/user', () => {
       sandbox.replace(
         UserModel,
         'validateProjects',
-        sandbox
-          .stub()
-          .rejects(
-            new error.DataValidationError(
-              'Could not validate the projects',
-              'projects',
-              []
-            )
-          )
+        sandbox.stub().rejects(new error.DataValidationError('Could not validate the projects', 'projects', []))
       );
-      sandbox.replace(
-        UserModel,
-        'validateWorkspaces',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateWebhooks',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateMembership',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateSessions',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateAccounts',
-        sandbox.stub().resolves([])
-      );
+      sandbox.replace(UserModel, 'validateWorkspaces', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateWebhooks', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateMembership', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateSessions', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateAccounts', sandbox.stub().resolves([]));
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(UserModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(
-        UserModel,
-        'create',
-        sandbox.stub().resolves([{_id: objectId}])
-      );
+      sandbox.replace(UserModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
       sandbox.replace(UserModel, 'getUserById', stub);
@@ -212,39 +124,15 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
       sandbox.replace(UserModel, 'validateProjects', sandbox.stub().resolves());
-      sandbox.replace(
-        UserModel,
-        'validateWorkspaces',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateWebhooks',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateSessions',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateMembership',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateAccounts',
-        sandbox.stub().resolves([])
-      );
+      sandbox.replace(UserModel, 'validateWorkspaces', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateWebhooks', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateSessions', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateMembership', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateAccounts', sandbox.stub().resolves([]));
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(UserModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(
-        UserModel,
-        'create',
-        sandbox.stub().rejects('oops, something bad has happened')
-      );
+      sandbox.replace(UserModel, 'create', sandbox.stub().rejects('oops, something bad has happened'));
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
       sandbox.replace(UserModel, 'getUserById', stub);
@@ -260,31 +148,11 @@ describe('#mongoose/models/user', () => {
 
     it('will throw an Unexpected Error when create does not return an object with an _id', async () => {
       sandbox.replace(UserModel, 'validateProjects', sandbox.stub().resolves());
-      sandbox.replace(
-        UserModel,
-        'validateWorkspaces',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateWebhooks',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateMembership',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateSessions',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateAccounts',
-        sandbox.stub().resolves([])
-      );
+      sandbox.replace(UserModel, 'validateWorkspaces', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateWebhooks', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateMembership', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateSessions', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateAccounts', sandbox.stub().resolves([]));
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(UserModel, 'validate', sandbox.stub().resolves(true));
@@ -303,48 +171,16 @@ describe('#mongoose/models/user', () => {
     });
 
     it('will rethrow a DataValidationError when the validate method on the model errors', async () => {
-      sandbox.replace(
-        UserModel,
-        'validateProjects',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateWorkspaces',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateWebhooks',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateMembership',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateSessions',
-        sandbox.stub().resolves([])
-      );
-      sandbox.replace(
-        UserModel,
-        'validateAccounts',
-        sandbox.stub().resolves([])
-      );
+      sandbox.replace(UserModel, 'validateProjects', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateWorkspaces', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateWebhooks', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateMembership', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateSessions', sandbox.stub().resolves([]));
+      sandbox.replace(UserModel, 'validateAccounts', sandbox.stub().resolves([]));
 
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(
-        UserModel,
-        'validate',
-        sandbox.stub().rejects('oops an error has occurred')
-      );
-      sandbox.replace(
-        UserModel,
-        'create',
-        sandbox.stub().resolves([{_id: objectId}])
-      );
+      sandbox.replace(UserModel, 'validate', sandbox.stub().rejects('oops an error has occurred'));
+      sandbox.replace(UserModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
       sandbox.replace(UserModel, 'getUserById', stub);
@@ -409,11 +245,7 @@ describe('#mongoose/models/user', () => {
 
       const validateCustomerPaymentStub = sandbox.stub();
       validateCustomerPaymentStub.resolves(true);
-      sandbox.replace(
-        CustomerPaymentModel,
-        'customerPaymentIdExists',
-        validateCustomerPaymentStub
-      );
+      sandbox.replace(CustomerPaymentModel, 'customerPaymentIdExists', validateCustomerPaymentStub);
 
       const result = await UserModel.updateUserById(userId, updateUser);
 
@@ -430,8 +262,7 @@ describe('#mongoose/models/user', () => {
       const updateUser = {
         name: 'Jason Vorhees',
         email: 'jason.vorhees@campcrystallake.biz',
-        customerPayment:
-          new mongoose.Types.ObjectId() as unknown as databaseTypes.ICustomerPayment,
+        customerPayment: new mongoose.Types.ObjectId() as unknown as databaseTypes.ICustomerPayment,
       };
 
       const userId = new mongoose.Types.ObjectId();
@@ -446,11 +277,7 @@ describe('#mongoose/models/user', () => {
 
       const validateCustomerPaymentStub = sandbox.stub();
       validateCustomerPaymentStub.resolves(true);
-      sandbox.replace(
-        CustomerPaymentModel,
-        'customerPaymentIdExists',
-        validateCustomerPaymentStub
-      );
+      sandbox.replace(CustomerPaymentModel, 'customerPaymentIdExists', validateCustomerPaymentStub);
 
       const result = await UserModel.updateUserById(userId, updateUser);
 
@@ -507,9 +334,7 @@ describe('#mongoose/models/user', () => {
       sandbox.replace(
         UserModel,
         'validateUpdateObject',
-        sandbox
-          .stub()
-          .throws(new error.InvalidOperationError("You can't do this", {}))
+        sandbox.stub().throws(new error.InvalidOperationError("You can't do this", {}))
       );
       let errorred = false;
       try {
@@ -784,11 +609,7 @@ describe('#mongoose/models/user', () => {
     it('will validate a valid customer payment', async () => {
       const paymentExistsStub = sandbox.stub();
       paymentExistsStub.resolves(true);
-      sandbox.replace(
-        CustomerPaymentModel,
-        'customerPaymentIdExists',
-        paymentExistsStub
-      );
+      sandbox.replace(CustomerPaymentModel, 'customerPaymentIdExists', paymentExistsStub);
       const inputUser = {
         customerPayment: {
           _id: new mongoose.Types.ObjectId(),
@@ -801,11 +622,7 @@ describe('#mongoose/models/user', () => {
     it('will throw a InvalidOperationError when the customer payment is not valid', async () => {
       const paymentExistsStub = sandbox.stub();
       paymentExistsStub.resolves(false);
-      sandbox.replace(
-        CustomerPaymentModel,
-        'customerPaymentIdExists',
-        paymentExistsStub
-      );
+      sandbox.replace(CustomerPaymentModel, 'customerPaymentIdExists', paymentExistsStub);
       const inputUser = {
         customerPayment: {
           _id: new mongoose.Types.ObjectId(),
@@ -823,17 +640,9 @@ describe('#mongoose/models/user', () => {
     it('will rethrow a Error when the underlying database connection throws an error', async () => {
       const paymentExistsStub = sandbox.stub();
       paymentExistsStub.rejects(
-        new error.DatabaseOperationError(
-          'This is not good',
-          'mongoDb',
-          'validateCustomerPayment'
-        )
+        new error.DatabaseOperationError('This is not good', 'mongoDb', 'validateCustomerPayment')
       );
-      sandbox.replace(
-        CustomerPaymentModel,
-        'customerPaymentIdExists',
-        paymentExistsStub
-      );
+      sandbox.replace(CustomerPaymentModel, 'customerPaymentIdExists', paymentExistsStub);
       const inputUser = {
         customerPayment: {
           _id: new mongoose.Types.ObjectId(),
@@ -971,67 +780,41 @@ describe('#mongoose/models/user', () => {
 
       const allProjectIdsExistStub = sandbox.stub();
       allProjectIdsExistStub.resolves(true);
-      sandbox.replace(
-        ProjectModel,
-        'allProjectIdsExist',
-        allProjectIdsExistStub
-      );
+      sandbox.replace(ProjectModel, 'allProjectIdsExist', allProjectIdsExistStub);
 
       const results = await UserModel.validateProjects(inputProjects);
 
       assert.strictEqual(results.length, inputProjects.length);
-      results.forEach(r => {
-        const foundId = inputProjects.find(
-          p => p._id?.toString() === r.toString()
-        );
+      results.forEach((r) => {
+        const foundId = inputProjects.find((p) => p._id?.toString() === r.toString());
         assert.isOk(foundId);
       });
     });
 
     it('should return an array of ids when the projectIds can be validated ', async () => {
-      const inputProjects = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const inputProjects = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const allProjectIdsExistStub = sandbox.stub();
       allProjectIdsExistStub.resolves(true);
-      sandbox.replace(
-        ProjectModel,
-        'allProjectIdsExist',
-        allProjectIdsExistStub
-      );
+      sandbox.replace(ProjectModel, 'allProjectIdsExist', allProjectIdsExistStub);
 
       const results = await UserModel.validateProjects(inputProjects);
 
       assert.strictEqual(results.length, inputProjects.length);
-      results.forEach(r => {
-        const foundId = inputProjects.find(
-          p => p._id?.toString() === r.toString()
-        );
+      results.forEach((r) => {
+        const foundId = inputProjects.find((p) => p._id?.toString() === r.toString());
         assert.isOk(foundId);
       });
     });
 
     it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
-      const inputProjects = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const inputProjects = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const allProjectIdsExistStub = sandbox.stub();
       allProjectIdsExistStub.rejects(
-        new error.DataNotFoundError(
-          'the project ids cannot be found',
-          'projectIds',
-          inputProjects
-        )
+        new error.DataNotFoundError('the project ids cannot be found', 'projectIds', inputProjects)
       );
-      sandbox.replace(
-        ProjectModel,
-        'allProjectIdsExist',
-        allProjectIdsExistStub
-      );
+      sandbox.replace(ProjectModel, 'allProjectIdsExist', allProjectIdsExistStub);
 
       let errored = false;
       try {
@@ -1045,20 +828,13 @@ describe('#mongoose/models/user', () => {
     });
 
     it('should rethrow an error from the underlying connection', async () => {
-      const inputProjects = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const inputProjects = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const errorText = 'something bad has happened';
 
       const allProjectIdsExistStub = sandbox.stub();
       allProjectIdsExistStub.rejects(errorText);
-      sandbox.replace(
-        ProjectModel,
-        'allProjectIdsExist',
-        allProjectIdsExistStub
-      );
+      sandbox.replace(ProjectModel, 'allProjectIdsExist', allProjectIdsExistStub);
 
       let errored = false;
       try {
@@ -1085,11 +861,7 @@ describe('#mongoose/models/user', () => {
 
       const customerPaymentIdExistStub = sandbox.stub();
       customerPaymentIdExistStub.resolves(true);
-      sandbox.replace(
-        CustomerPaymentModel,
-        'customerPaymentIdExists',
-        customerPaymentIdExistStub
-      );
+      sandbox.replace(CustomerPaymentModel, 'customerPaymentIdExists', customerPaymentIdExistStub);
 
       const results = await UserModel.validateCustomerPayment(inputPayment);
 
@@ -1101,11 +873,7 @@ describe('#mongoose/models/user', () => {
 
       const customerPaymentIdsExistStub = sandbox.stub();
       customerPaymentIdsExistStub.resolves(true);
-      sandbox.replace(
-        CustomerPaymentModel,
-        'customerPaymentIdExists',
-        customerPaymentIdsExistStub
-      );
+      sandbox.replace(CustomerPaymentModel, 'customerPaymentIdExists', customerPaymentIdsExistStub);
 
       const results = await UserModel.validateCustomerPayment(inputPayment);
 
@@ -1116,11 +884,7 @@ describe('#mongoose/models/user', () => {
       const inputPayment = new mongoose.Types.ObjectId();
       const customerPaymentIdExistStub = sandbox.stub();
       customerPaymentIdExistStub.resolves(false);
-      sandbox.replace(
-        CustomerPaymentModel,
-        'customerPaymentIdExists',
-        customerPaymentIdExistStub
-      );
+      sandbox.replace(CustomerPaymentModel, 'customerPaymentIdExists', customerPaymentIdExistStub);
 
       let errored = false;
       try {
@@ -1175,67 +939,41 @@ describe('#mongoose/models/user', () => {
 
       const allAccountIdsExistStub = sandbox.stub();
       allAccountIdsExistStub.resolves(true);
-      sandbox.replace(
-        AccountModel,
-        'allAccountIdsExist',
-        allAccountIdsExistStub
-      );
+      sandbox.replace(AccountModel, 'allAccountIdsExist', allAccountIdsExistStub);
 
       const results = await UserModel.validateAccounts(inputAccounts);
 
       assert.strictEqual(results.length, inputAccounts.length);
-      results.forEach(r => {
-        const foundId = inputAccounts.find(
-          p => p._id?.toString() === r.toString()
-        );
+      results.forEach((r) => {
+        const foundId = inputAccounts.find((p) => p._id?.toString() === r.toString());
         assert.isOk(foundId);
       });
     });
 
     it('should return an array of ids when the acountIds can be validated ', async () => {
-      const inputAccounts = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const inputAccounts = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const allAccountIdsExistStub = sandbox.stub();
       allAccountIdsExistStub.resolves(true);
-      sandbox.replace(
-        AccountModel,
-        'allAccountIdsExist',
-        allAccountIdsExistStub
-      );
+      sandbox.replace(AccountModel, 'allAccountIdsExist', allAccountIdsExistStub);
 
       const results = await UserModel.validateAccounts(inputAccounts);
 
       assert.strictEqual(results.length, inputAccounts.length);
-      results.forEach(r => {
-        const foundId = inputAccounts.find(
-          p => p._id?.toString() === r.toString()
-        );
+      results.forEach((r) => {
+        const foundId = inputAccounts.find((p) => p._id?.toString() === r.toString());
         assert.isOk(foundId);
       });
     });
 
     it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
-      const inputAccounts = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const inputAccounts = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const allAccountIdsExistStub = sandbox.stub();
       allAccountIdsExistStub.rejects(
-        new error.DataNotFoundError(
-          'the account ids cannot be found',
-          'projectIds',
-          inputAccounts
-        )
+        new error.DataNotFoundError('the account ids cannot be found', 'projectIds', inputAccounts)
       );
-      sandbox.replace(
-        AccountModel,
-        'allAccountIdsExist',
-        allAccountIdsExistStub
-      );
+      sandbox.replace(AccountModel, 'allAccountIdsExist', allAccountIdsExistStub);
 
       let errored = false;
       try {
@@ -1249,20 +987,13 @@ describe('#mongoose/models/user', () => {
     });
 
     it('should rethrow an error from the underlying connection', async () => {
-      const inputAccounts = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const inputAccounts = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const errorText = 'something bad has happened';
 
       const allAccountsIdsExistStub = sandbox.stub();
       allAccountsIdsExistStub.rejects(errorText);
-      sandbox.replace(
-        AccountModel,
-        'allAccountIdsExist',
-        allAccountsIdsExistStub
-      );
+      sandbox.replace(AccountModel, 'allAccountIdsExist', allAccountsIdsExistStub);
 
       let errored = false;
       try {
@@ -1294,67 +1025,41 @@ describe('#mongoose/models/user', () => {
 
       const allSessionIdsExistStub = sandbox.stub();
       allSessionIdsExistStub.resolves(true);
-      sandbox.replace(
-        SessionModel,
-        'allSessionIdsExist',
-        allSessionIdsExistStub
-      );
+      sandbox.replace(SessionModel, 'allSessionIdsExist', allSessionIdsExistStub);
 
       const results = await UserModel.validateSessions(inputSessions);
 
       assert.strictEqual(results.length, inputSessions.length);
-      results.forEach(r => {
-        const foundId = inputSessions.find(
-          p => p._id?.toString() === r.toString()
-        );
+      results.forEach((r) => {
+        const foundId = inputSessions.find((p) => p._id?.toString() === r.toString());
         assert.isOk(foundId);
       });
     });
 
     it('should return an array of ids when the sessionIds can be validated ', async () => {
-      const inputSessions = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const inputSessions = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const allSessionsIdsExistStub = sandbox.stub();
       allSessionsIdsExistStub.resolves(true);
-      sandbox.replace(
-        SessionModel,
-        'allSessionIdsExist',
-        allSessionsIdsExistStub
-      );
+      sandbox.replace(SessionModel, 'allSessionIdsExist', allSessionsIdsExistStub);
 
       const results = await UserModel.validateSessions(inputSessions);
 
       assert.strictEqual(results.length, inputSessions.length);
-      results.forEach(r => {
-        const foundId = inputSessions.find(
-          p => p._id?.toString() === r.toString()
-        );
+      results.forEach((r) => {
+        const foundId = inputSessions.find((p) => p._id?.toString() === r.toString());
         assert.isOk(foundId);
       });
     });
 
     it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
-      const inputSessions = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const inputSessions = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const allSessionIdsExistStub = sandbox.stub();
       allSessionIdsExistStub.rejects(
-        new error.DataNotFoundError(
-          'the session ids cannot be found',
-          'sessionIds',
-          inputSessions
-        )
+        new error.DataNotFoundError('the session ids cannot be found', 'sessionIds', inputSessions)
       );
-      sandbox.replace(
-        SessionModel,
-        'allSessionIdsExist',
-        allSessionIdsExistStub
-      );
+      sandbox.replace(SessionModel, 'allSessionIdsExist', allSessionIdsExistStub);
 
       let errored = false;
       try {
@@ -1368,20 +1073,13 @@ describe('#mongoose/models/user', () => {
     });
 
     it('should rethrow an error from the underlying connection', async () => {
-      const inputSessions = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const inputSessions = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const errorText = 'something bad has happened';
 
       const allSessionIdsExistStub = sandbox.stub();
       allSessionIdsExistStub.rejects(errorText);
-      sandbox.replace(
-        SessionModel,
-        'allSessionIdsExist',
-        allSessionIdsExistStub
-      );
+      sandbox.replace(SessionModel, 'allSessionIdsExist', allSessionIdsExistStub);
 
       let errored = false;
       try {
@@ -1418,19 +1116,14 @@ describe('#mongoose/models/user', () => {
       const results = await UserModel.validateMembership(inputMembers);
 
       assert.strictEqual(results.length, inputMembers.length);
-      results.forEach(r => {
-        const foundId = inputMembers.find(
-          p => p._id?.toString() === r.toString()
-        );
+      results.forEach((r) => {
+        const foundId = inputMembers.find((p) => p._id?.toString() === r.toString());
         assert.isOk(foundId);
       });
     });
 
     it('should return an array of ids when the MemberIds can be validated ', async () => {
-      const inputMembers = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const inputMembers = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const allMembersIdsExistStub = sandbox.stub();
       allMembersIdsExistStub.resolves(true);
@@ -1439,27 +1132,18 @@ describe('#mongoose/models/user', () => {
       const results = await UserModel.validateMembership(inputMembers);
 
       assert.strictEqual(results.length, inputMembers.length);
-      results.forEach(r => {
-        const foundId = inputMembers.find(
-          p => p._id?.toString() === r.toString()
-        );
+      results.forEach((r) => {
+        const foundId = inputMembers.find((p) => p._id?.toString() === r.toString());
         assert.isOk(foundId);
       });
     });
 
     it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
-      const inputMembers = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const inputMembers = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const allMemberIdsExistStub = sandbox.stub();
       allMemberIdsExistStub.rejects(
-        new error.DataNotFoundError(
-          'the Member ids cannot be found',
-          'MemberIds',
-          inputMembers
-        )
+        new error.DataNotFoundError('the Member ids cannot be found', 'MemberIds', inputMembers)
       );
       sandbox.replace(MemberModel, 'allMemberIdsExist', allMemberIdsExistStub);
 
@@ -1475,10 +1159,7 @@ describe('#mongoose/models/user', () => {
     });
 
     it('should rethrow an error from the underlying connection', async () => {
-      const inputMembers = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const inputMembers = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const errorText = 'something bad has happened';
 
@@ -1516,67 +1197,41 @@ describe('#mongoose/models/user', () => {
 
       const allWebhookIdsExistStub = sandbox.stub();
       allWebhookIdsExistStub.resolves(true);
-      sandbox.replace(
-        WebhookModel,
-        'allWebhookIdsExist',
-        allWebhookIdsExistStub
-      );
+      sandbox.replace(WebhookModel, 'allWebhookIdsExist', allWebhookIdsExistStub);
 
       const results = await UserModel.validateWebhooks(inputWebhooks);
 
       assert.strictEqual(results.length, inputWebhooks.length);
-      results.forEach(r => {
-        const foundId = inputWebhooks.find(
-          p => p._id?.toString() === r.toString()
-        );
+      results.forEach((r) => {
+        const foundId = inputWebhooks.find((p) => p._id?.toString() === r.toString());
         assert.isOk(foundId);
       });
     });
 
     it('should return an array of ids when the webhookIds can be validated ', async () => {
-      const inputWebhooks = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const inputWebhooks = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const allWebhookIdsExistStub = sandbox.stub();
       allWebhookIdsExistStub.resolves(true);
-      sandbox.replace(
-        WebhookModel,
-        'allWebhookIdsExist',
-        allWebhookIdsExistStub
-      );
+      sandbox.replace(WebhookModel, 'allWebhookIdsExist', allWebhookIdsExistStub);
 
       const results = await UserModel.validateWebhooks(inputWebhooks);
 
       assert.strictEqual(results.length, inputWebhooks.length);
-      results.forEach(r => {
-        const foundId = inputWebhooks.find(
-          p => p._id?.toString() === r.toString()
-        );
+      results.forEach((r) => {
+        const foundId = inputWebhooks.find((p) => p._id?.toString() === r.toString());
         assert.isOk(foundId);
       });
     });
 
     it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
-      const inputWebhooks = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const inputWebhooks = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const allWebhookIdsExistStub = sandbox.stub();
       allWebhookIdsExistStub.rejects(
-        new error.DataNotFoundError(
-          'the webhook ids cannot be found',
-          'webhookIds',
-          inputWebhooks
-        )
+        new error.DataNotFoundError('the webhook ids cannot be found', 'webhookIds', inputWebhooks)
       );
-      sandbox.replace(
-        WebhookModel,
-        'allWebhookIdsExist',
-        allWebhookIdsExistStub
-      );
+      sandbox.replace(WebhookModel, 'allWebhookIdsExist', allWebhookIdsExistStub);
 
       let errored = false;
       try {
@@ -1590,20 +1245,13 @@ describe('#mongoose/models/user', () => {
     });
 
     it('should rethrow an error from the underlying connection', async () => {
-      const inputWebhooks = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const inputWebhooks = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const errorText = 'something bad has happened';
 
       const allWebhookIdsExistStub = sandbox.stub();
       allWebhookIdsExistStub.rejects(errorText);
-      sandbox.replace(
-        WebhookModel,
-        'allWebhookIdsExist',
-        allWebhookIdsExistStub
-      );
+      sandbox.replace(WebhookModel, 'allWebhookIdsExist', allWebhookIdsExistStub);
 
       let errored = false;
       try {
@@ -1635,67 +1283,41 @@ describe('#mongoose/models/user', () => {
 
       const allWorkspaceIdsExistStub = sandbox.stub();
       allWorkspaceIdsExistStub.resolves(true);
-      sandbox.replace(
-        WorkspaceModel,
-        'allWorkspaceIdsExist',
-        allWorkspaceIdsExistStub
-      );
+      sandbox.replace(WorkspaceModel, 'allWorkspaceIdsExist', allWorkspaceIdsExistStub);
 
       const results = await UserModel.validateWorkspaces(inputWorkspaces);
 
       assert.strictEqual(results.length, inputWorkspaces.length);
-      results.forEach(r => {
-        const foundId = inputWorkspaces.find(
-          p => p._id?.toString() === r.toString()
-        );
+      results.forEach((r) => {
+        const foundId = inputWorkspaces.find((p) => p._id?.toString() === r.toString());
         assert.isOk(foundId);
       });
     });
 
     it('should return an array of ids when the workspaceIds can be validated ', async () => {
-      const inputWorkspaces = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const inputWorkspaces = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const allWorkspaceIdsExistStub = sandbox.stub();
       allWorkspaceIdsExistStub.resolves(true);
-      sandbox.replace(
-        WorkspaceModel,
-        'allWorkspaceIdsExist',
-        allWorkspaceIdsExistStub
-      );
+      sandbox.replace(WorkspaceModel, 'allWorkspaceIdsExist', allWorkspaceIdsExistStub);
 
       const results = await UserModel.validateWorkspaces(inputWorkspaces);
 
       assert.strictEqual(results.length, inputWorkspaces.length);
-      results.forEach(r => {
-        const foundId = inputWorkspaces.find(
-          p => p._id?.toString() === r.toString()
-        );
+      results.forEach((r) => {
+        const foundId = inputWorkspaces.find((p) => p._id?.toString() === r.toString());
         assert.isOk(foundId);
       });
     });
 
     it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
-      const inputWorkspaces = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const inputWorkspaces = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const allWorkspaceIdsExistStub = sandbox.stub();
       allWorkspaceIdsExistStub.rejects(
-        new error.DataNotFoundError(
-          'the workspace ids cannot be found',
-          'workspaceIds',
-          inputWorkspaces
-        )
+        new error.DataNotFoundError('the workspace ids cannot be found', 'workspaceIds', inputWorkspaces)
       );
-      sandbox.replace(
-        WorkspaceModel,
-        'allWorkspaceIdsExist',
-        allWorkspaceIdsExistStub
-      );
+      sandbox.replace(WorkspaceModel, 'allWorkspaceIdsExist', allWorkspaceIdsExistStub);
 
       let errored = false;
       try {
@@ -1709,20 +1331,13 @@ describe('#mongoose/models/user', () => {
     });
 
     it('should rethrow an error from the underlying connection', async () => {
-      const inputWorkspaces = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const inputWorkspaces = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const errorText = 'something bad has happened';
 
       const allWorkspaceIdsExistStub = sandbox.stub();
       allWorkspaceIdsExistStub.rejects(errorText);
-      sandbox.replace(
-        WorkspaceModel,
-        'allWorkspaceIdsExist',
-        allWorkspaceIdsExistStub
-      );
+      sandbox.replace(WorkspaceModel, 'allWorkspaceIdsExist', allWorkspaceIdsExistStub);
 
       let errored = false;
       try {
@@ -1743,12 +1358,9 @@ describe('#mongoose/models/user', () => {
     });
 
     it('should return true when all the user ids exist', async () => {
-      const userIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const userIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
-      const returnedUserIds = userIds.map(userId => {
+      const returnedUserIds = userIds.map((userId) => {
         return {
           _id: userId,
         };
@@ -1763,10 +1375,7 @@ describe('#mongoose/models/user', () => {
     });
 
     it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
-      const userIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const userIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const returnedUserIds = [
         {
@@ -1790,10 +1399,7 @@ describe('#mongoose/models/user', () => {
     });
 
     it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
-      const userIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const userIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const findStub = sandbox.stub();
       findStub.rejects('something bad has happened');
@@ -1904,22 +1510,16 @@ describe('#mongoose/models/user', () => {
       findByIdStub.returns(new MockMongooseQuery(mockUser));
       sandbox.replace(UserModel, 'findById', findByIdStub);
 
-      const doc = await UserModel.getUserById(
-        mockUser._id as mongoose.Types.ObjectId
-      );
+      const doc = await UserModel.getUserById(mockUser._id as mongoose.Types.ObjectId);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
       doc.accounts.forEach((a: any) => assert.isUndefined((a as any)['__v']));
       doc.sessions.forEach((s: any) => assert.isUndefined((s as any)['__v']));
       doc.membership.forEach((m: any) => assert.isUndefined((m as any)['__v']));
-      doc.invitedMembers.forEach((m: any) =>
-        assert.isUndefined((m as any)['__v'])
-      );
+      doc.invitedMembers.forEach((m: any) => assert.isUndefined((m as any)['__v']));
       doc.webhooks.forEach((w: any) => assert.isUndefined((w as any)['__v']));
-      doc.createdWorkspaces.forEach((o: any) =>
-        assert.isUndefined((o as any)['__v'])
-      );
+      doc.createdWorkspaces.forEach((o: any) => assert.isUndefined((o as any)['__v']));
       doc.projects.forEach((p: any) => assert.isUndefined((p as any)['__v']));
 
       assert.strictEqual(doc._id, mockUser._id);
@@ -1943,9 +1543,7 @@ describe('#mongoose/models/user', () => {
 
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(
-        new MockMongooseQuery('something bad happened', true)
-      );
+      findByIdStub.returns(new MockMongooseQuery('something bad happened', true));
       sandbox.replace(UserModel, 'findById', findByIdStub);
 
       let errored = false;
@@ -1992,10 +1590,7 @@ describe('#mongoose/models/user', () => {
       const updatedUser = await UserModel.addProjects(userId, [projectId]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(
-        updatedUser.projects[0].toString(),
-        projectId.toString()
-      );
+      assert.strictEqual(updatedUser.projects[0].toString(), projectId.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateProjectsStub.calledOnce);
@@ -2028,10 +1623,7 @@ describe('#mongoose/models/user', () => {
       const updatedUser = await UserModel.addProjects(userId, [projectId]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(
-        updatedUser.projects[0].toString(),
-        projectId.toString()
-      );
+      assert.strictEqual(updatedUser.projects[0].toString(), projectId.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateProjectsStub.calledOnce);
@@ -2084,11 +1676,7 @@ describe('#mongoose/models/user', () => {
 
       const validateProjectsStub = sandbox.stub();
       validateProjectsStub.rejects(
-        new error.DataValidationError(
-          'The projects id does not exist',
-          'projectId',
-          projectId
-        )
+        new error.DataValidationError('The projects id does not exist', 'projectId', projectId)
       );
       sandbox.replace(UserModel, 'validateProjects', validateProjectsStub);
 
@@ -2233,9 +1821,7 @@ describe('#mongoose/models/user', () => {
       getUserByIdStub.resolves(localMockUser);
       sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
 
-      const updatedUser = await UserModel.removeProjects(userId, [
-        new mongoose.Types.ObjectId(),
-      ]);
+      const updatedUser = await UserModel.removeProjects(userId, [new mongoose.Types.ObjectId()]);
 
       assert.strictEqual(updatedUser._id, userId);
       assert.strictEqual(updatedUser.projects.length, 1);
@@ -2368,10 +1954,7 @@ describe('#mongoose/models/user', () => {
       const updatedUser = await UserModel.addAccounts(userId, [accountId]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(
-        updatedUser.accounts[0].toString(),
-        accountId.toString()
-      );
+      assert.strictEqual(updatedUser.accounts[0].toString(), accountId.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateAccountsStub.calledOnce);
@@ -2404,10 +1987,7 @@ describe('#mongoose/models/user', () => {
       const updatedUser = await UserModel.addAccounts(userId, [accountId]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(
-        updatedUser.accounts[0].toString(),
-        accountId.toString()
-      );
+      assert.strictEqual(updatedUser.accounts[0].toString(), accountId.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateAccountsStub.calledOnce);
@@ -2460,11 +2040,7 @@ describe('#mongoose/models/user', () => {
 
       const validateAccountsStub = sandbox.stub();
       validateAccountsStub.rejects(
-        new error.DataValidationError(
-          'The account id does not exist',
-          'accountId',
-          accountId
-        )
+        new error.DataValidationError('The account id does not exist', 'accountId', accountId)
       );
       sandbox.replace(UserModel, 'validateAccounts', validateAccountsStub);
 
@@ -2609,9 +2185,7 @@ describe('#mongoose/models/user', () => {
       getUserByIdStub.resolves(localMockUser);
       sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
 
-      const updatedUser = await UserModel.removeAccounts(userId, [
-        new mongoose.Types.ObjectId(),
-      ]);
+      const updatedUser = await UserModel.removeAccounts(userId, [new mongoose.Types.ObjectId()]);
 
       assert.strictEqual(updatedUser._id, userId);
       assert.strictEqual(updatedUser.accounts.length, 1);
@@ -2744,10 +2318,7 @@ describe('#mongoose/models/user', () => {
       const updatedUser = await UserModel.addSessions(userId, [sessionId]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(
-        updatedUser.sessions[0].toString(),
-        sessionId.toString()
-      );
+      assert.strictEqual(updatedUser.sessions[0].toString(), sessionId.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateSessionsStub.calledOnce);
@@ -2780,10 +2351,7 @@ describe('#mongoose/models/user', () => {
       const updatedUser = await UserModel.addSessions(userId, [sessionId]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(
-        updatedUser.sessions[0].toString(),
-        sessionId.toString()
-      );
+      assert.strictEqual(updatedUser.sessions[0].toString(), sessionId.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateSessionsStub.calledOnce);
@@ -2836,11 +2404,7 @@ describe('#mongoose/models/user', () => {
 
       const validateSessionsStub = sandbox.stub();
       validateSessionsStub.rejects(
-        new error.DataValidationError(
-          'The session id does not exist',
-          'sessionId',
-          sessionId
-        )
+        new error.DataValidationError('The session id does not exist', 'sessionId', sessionId)
       );
       sandbox.replace(UserModel, 'validateSessions', validateSessionsStub);
 
@@ -2985,9 +2549,7 @@ describe('#mongoose/models/user', () => {
       getUserByIdStub.resolves(localMockUser);
       sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
 
-      const updatedUser = await UserModel.removeSessions(userId, [
-        new mongoose.Types.ObjectId(),
-      ]);
+      const updatedUser = await UserModel.removeSessions(userId, [new mongoose.Types.ObjectId()]);
 
       assert.strictEqual(updatedUser._id, userId);
       assert.strictEqual(updatedUser.sessions.length, 1);
@@ -3120,10 +2682,7 @@ describe('#mongoose/models/user', () => {
       const updatedUser = await UserModel.addWebhooks(userId, [webhookId]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(
-        updatedUser.webhooks[0].toString(),
-        webhookId.toString()
-      );
+      assert.strictEqual(updatedUser.webhooks[0].toString(), webhookId.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateWebhooksStub.calledOnce);
@@ -3156,10 +2715,7 @@ describe('#mongoose/models/user', () => {
       const updatedUser = await UserModel.addWebhooks(userId, [webhookId]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(
-        updatedUser.webhooks[0].toString(),
-        webhookId.toString()
-      );
+      assert.strictEqual(updatedUser.webhooks[0].toString(), webhookId.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateWebhooksStub.calledOnce);
@@ -3212,11 +2768,7 @@ describe('#mongoose/models/user', () => {
 
       const validateWebhookStub = sandbox.stub();
       validateWebhookStub.rejects(
-        new error.DataValidationError(
-          'The webhook id does not exist',
-          'webhookId',
-          webhookId
-        )
+        new error.DataValidationError('The webhook id does not exist', 'webhookId', webhookId)
       );
       sandbox.replace(UserModel, 'validateWebhooks', validateWebhookStub);
 
@@ -3361,9 +2913,7 @@ describe('#mongoose/models/user', () => {
       getUserByIdStub.resolves(localMockUser);
       sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
 
-      const updatedUser = await UserModel.removeWebhooks(userId, [
-        new mongoose.Types.ObjectId(),
-      ]);
+      const updatedUser = await UserModel.removeWebhooks(userId, [new mongoose.Types.ObjectId()]);
 
       assert.strictEqual(updatedUser._id, userId);
       assert.strictEqual(updatedUser.webhooks.length, 1);
@@ -3496,10 +3046,7 @@ describe('#mongoose/models/user', () => {
       const updatedUser = await UserModel.addMembership(userId, [memberId]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(
-        updatedUser.membership[0].toString(),
-        memberId.toString()
-      );
+      assert.strictEqual(updatedUser.membership[0].toString(), memberId.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateMembersStub.calledOnce);
@@ -3532,10 +3079,7 @@ describe('#mongoose/models/user', () => {
       const updatedUser = await UserModel.addMembership(userId, [memberId]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(
-        updatedUser.membership[0].toString(),
-        memberId.toString()
-      );
+      assert.strictEqual(updatedUser.membership[0].toString(), memberId.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateMembersStub.calledOnce);
@@ -3587,13 +3131,7 @@ describe('#mongoose/models/user', () => {
       sandbox.replace(UserModel, 'findById', findByIdStub);
 
       const validateMembersStub = sandbox.stub();
-      validateMembersStub.rejects(
-        new error.DataValidationError(
-          'The webhook id does not exist',
-          'memberId',
-          memberId
-        )
-      );
+      validateMembersStub.rejects(new error.DataValidationError('The webhook id does not exist', 'memberId', memberId));
       sandbox.replace(UserModel, 'validateMembership', validateMembersStub);
 
       const saveStub = sandbox.stub();
@@ -3737,9 +3275,7 @@ describe('#mongoose/models/user', () => {
       getUserByIdStub.resolves(localMockUser);
       sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
 
-      const updatedUser = await UserModel.removeMembership(userId, [
-        new mongoose.Types.ObjectId(),
-      ]);
+      const updatedUser = await UserModel.removeMembership(userId, [new mongoose.Types.ObjectId()]);
 
       assert.strictEqual(updatedUser._id, userId);
       assert.strictEqual(updatedUser.membership.length, 1);
@@ -3872,10 +3408,7 @@ describe('#mongoose/models/user', () => {
       const updatedUser = await UserModel.addWorkspaces(userId, [orgId]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(
-        updatedUser.createdWorkspaces[0].toString(),
-        orgId.toString()
-      );
+      assert.strictEqual(updatedUser.createdWorkspaces[0].toString(), orgId.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateWorkspaceStub.calledOnce);
@@ -3909,10 +3442,7 @@ describe('#mongoose/models/user', () => {
       const updatedUser = await UserModel.addWorkspaces(userId, [orgId]);
 
       assert.strictEqual(updatedUser._id, userId);
-      assert.strictEqual(
-        updatedUser.createdWorkspaces[0].toString(),
-        orgId.toString()
-      );
+      assert.strictEqual(updatedUser.createdWorkspaces[0].toString(), orgId.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isTrue(validateWorkspacesStub.calledOnce);
@@ -3965,11 +3495,7 @@ describe('#mongoose/models/user', () => {
 
       const validateWorkspacesStub = sandbox.stub();
       validateWorkspacesStub.rejects(
-        new error.DataValidationError(
-          'The workspace id does not exist',
-          'workspaceId',
-          workspaceId
-        )
+        new error.DataValidationError('The workspace id does not exist', 'workspaceId', workspaceId)
       );
       sandbox.replace(UserModel, 'validateWorkspaces', validateWorkspacesStub);
 
@@ -4085,9 +3611,7 @@ describe('#mongoose/models/user', () => {
       getUserByIdStub.resolves(localMockUser);
       sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
 
-      const updatedUser = await UserModel.removeWorkspaces(userId, [
-        workspaceId,
-      ]);
+      const updatedUser = await UserModel.removeWorkspaces(userId, [workspaceId]);
 
       assert.strictEqual(updatedUser._id, userId);
       assert.strictEqual(updatedUser.createdWorkspaces.length, 0);
@@ -4116,9 +3640,7 @@ describe('#mongoose/models/user', () => {
       getUserByIdStub.resolves(localMockUser);
       sandbox.replace(UserModel, 'getUserById', getUserByIdStub);
 
-      const updatedUser = await UserModel.removeWorkspaces(userId, [
-        new mongoose.Types.ObjectId(),
-      ]);
+      const updatedUser = await UserModel.removeWorkspaces(userId, [new mongoose.Types.ObjectId()]);
 
       assert.strictEqual(updatedUser._id, userId);
       assert.strictEqual(updatedUser.createdWorkspaces.length, 1);
@@ -4383,17 +3905,9 @@ describe('#mongoose/models/user', () => {
     });
 
     it('will return the filtered users', async () => {
-      sandbox.replace(
-        UserModel,
-        'count',
-        sandbox.stub().resolves(mockUsers.length)
-      );
+      sandbox.replace(UserModel, 'count', sandbox.stub().resolves(mockUsers.length));
 
-      sandbox.replace(
-        UserModel,
-        'find',
-        sandbox.stub().returns(new MockMongooseQuery(mockUsers))
-      );
+      sandbox.replace(UserModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockUsers)));
 
       const results = await UserModel.queryUsers({});
 
@@ -4405,16 +3919,10 @@ describe('#mongoose/models/user', () => {
         assert.isUndefined((doc as any).__v);
         doc.accounts.forEach((a: any) => assert.isUndefined((a as any)['__v']));
         doc.sessions.forEach((s: any) => assert.isUndefined((s as any)['__v']));
-        doc.membership.forEach((m: any) =>
-          assert.isUndefined((m as any)['__v'])
-        );
-        doc.invitedMembers.forEach((m: any) =>
-          assert.isUndefined((m as any)['__v'])
-        );
+        doc.membership.forEach((m: any) => assert.isUndefined((m as any)['__v']));
+        doc.invitedMembers.forEach((m: any) => assert.isUndefined((m as any)['__v']));
         doc.webhooks.forEach((w: any) => assert.isUndefined((w as any)['__v']));
-        doc.createdWorkspaces.forEach((o: any) =>
-          assert.isUndefined((o as any)['__v'])
-        );
+        doc.createdWorkspaces.forEach((o: any) => assert.isUndefined((o as any)['__v']));
         doc.projects.forEach((p: any) => assert.isUndefined((p as any)['__v']));
       });
     });
@@ -4422,11 +3930,7 @@ describe('#mongoose/models/user', () => {
     it('will throw a DataNotFoundError when no values match the filter', async () => {
       sandbox.replace(UserModel, 'count', sandbox.stub().resolves(0));
 
-      sandbox.replace(
-        UserModel,
-        'find',
-        sandbox.stub().returns(new MockMongooseQuery(mockUsers))
-      );
+      sandbox.replace(UserModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockUsers)));
 
       let errored = false;
       try {
@@ -4440,17 +3944,9 @@ describe('#mongoose/models/user', () => {
     });
 
     it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
-      sandbox.replace(
-        UserModel,
-        'count',
-        sandbox.stub().resolves(mockUsers.length)
-      );
+      sandbox.replace(UserModel, 'count', sandbox.stub().resolves(mockUsers.length));
 
-      sandbox.replace(
-        UserModel,
-        'find',
-        sandbox.stub().returns(new MockMongooseQuery(mockUsers))
-      );
+      sandbox.replace(UserModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockUsers)));
 
       let errored = false;
       try {
@@ -4464,18 +3960,12 @@ describe('#mongoose/models/user', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
-      sandbox.replace(
-        UserModel,
-        'count',
-        sandbox.stub().resolves(mockUsers.length)
-      );
+      sandbox.replace(UserModel, 'count', sandbox.stub().resolves(mockUsers.length));
 
       sandbox.replace(
         UserModel,
         'find',
-        sandbox
-          .stub()
-          .returns(new MockMongooseQuery('something bad has happened', true))
+        sandbox.stub().returns(new MockMongooseQuery('something bad has happened', true))
       );
 
       let errored = false;

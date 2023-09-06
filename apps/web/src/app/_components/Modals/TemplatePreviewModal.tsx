@@ -5,7 +5,7 @@ import {webTypes} from 'types';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {modalsAtom, workspaceAtom} from 'state';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
-import {useRouter,useParams} from 'next/navigation';
+import {useRouter, useParams} from 'next/navigation';
 import ColXIcon from 'public/svg/col-x-icon.svg';
 import ColYIcon from 'public/svg/col-y-icon.svg';
 import ColZIcon from 'public/svg/col-z-icon.svg';

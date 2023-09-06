@@ -70,11 +70,7 @@ describe('#mongoose/models/session', () => {
       const sessionId = new mongoose.Types.ObjectId();
       sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
       sandbox.replace(SessionModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(
-        SessionModel,
-        'create',
-        sandbox.stub().resolves([{_id: sessionId}])
-      );
+      sandbox.replace(SessionModel, 'create', sandbox.stub().resolves([{_id: sessionId}]));
 
       const getSessionByIdStub = sandbox.stub();
       getSessionByIdStub.resolves({_id: sessionId});
@@ -88,17 +84,9 @@ describe('#mongoose/models/session', () => {
 
     it('will throw an InvalidArgumentError if the user attached to the session does not exist.', async () => {
       const sessionId = new mongoose.Types.ObjectId();
-      sandbox.replace(
-        UserModel,
-        'userIdExists',
-        sandbox.stub().resolves(false)
-      );
+      sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(false));
       sandbox.replace(SessionModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(
-        SessionModel,
-        'create',
-        sandbox.stub().resolves([{_id: sessionId}])
-      );
+      sandbox.replace(SessionModel, 'create', sandbox.stub().resolves([{_id: sessionId}]));
 
       const getSessionByIdStub = sandbox.stub();
       getSessionByIdStub.resolves({_id: sessionId});
@@ -118,16 +106,8 @@ describe('#mongoose/models/session', () => {
     it('will throw an DataValidationError if the session cannot be validated.', async () => {
       const sessionId = new mongoose.Types.ObjectId();
       sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
-      sandbox.replace(
-        SessionModel,
-        'validate',
-        sandbox.stub().rejects('Invalid')
-      );
-      sandbox.replace(
-        SessionModel,
-        'create',
-        sandbox.stub().resolves([{_id: sessionId}])
-      );
+      sandbox.replace(SessionModel, 'validate', sandbox.stub().rejects('Invalid'));
+      sandbox.replace(SessionModel, 'create', sandbox.stub().resolves([{_id: sessionId}]));
 
       const getSessionByIdStub = sandbox.stub();
       getSessionByIdStub.resolves({_id: sessionId});
@@ -192,10 +172,7 @@ describe('#mongoose/models/session', () => {
       getSessionStub.resolves({_id: sessionId});
       sandbox.replace(SessionModel, 'getSessionById', getSessionStub);
 
-      const result = await SessionModel.updateSessionById(
-        sessionId,
-        updateSession
-      );
+      const result = await SessionModel.updateSessionById(sessionId, updateSession);
 
       assert.strictEqual(result._id, sessionId);
       assert.isTrue(updateStub.calledOnce);
@@ -225,10 +202,7 @@ describe('#mongoose/models/session', () => {
       getSessionStub.resolves({_id: sessionId});
       sandbox.replace(SessionModel, 'getSessionById', getSessionStub);
 
-      const result = await SessionModel.updateSessionById(
-        sessionId,
-        updateSession
-      );
+      const result = await SessionModel.updateSessionById(sessionId, updateSession);
 
       assert.strictEqual(result._id, sessionId);
       assert.isTrue(updateStub.calledOnce);
@@ -270,9 +244,7 @@ describe('#mongoose/models/session', () => {
       sandbox.replace(
         SessionModel,
         'validateUpdateObject',
-        sandbox
-          .stub()
-          .rejects(new error.InvalidOperationError('you cant do that', {}))
+        sandbox.stub().rejects(new error.InvalidOperationError('you cant do that', {}))
       );
 
       const updateStub = sandbox.stub();
@@ -444,12 +416,9 @@ describe('#mongoose/models/session', () => {
     });
 
     it('should return true when all the session ids exist', async () => {
-      const sessionIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const sessionIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
-      const returnedSessionIds = sessionIds.map(sessionId => {
+      const returnedSessionIds = sessionIds.map((sessionId) => {
         return {
           _id: sessionId,
         };
@@ -464,10 +433,7 @@ describe('#mongoose/models/session', () => {
     });
 
     it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
-      const sessionIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const sessionIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const returnedSessionIds = [
         {
@@ -483,10 +449,7 @@ describe('#mongoose/models/session', () => {
         await SessionModel.allSessionIdsExist(sessionIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
-        assert.strictEqual(
-          err.data.value[0].toString(),
-          sessionIds[1].toString()
-        );
+        assert.strictEqual(err.data.value[0].toString(), sessionIds[1].toString());
         errored = true;
       }
       assert.isTrue(errored);
@@ -494,10 +457,7 @@ describe('#mongoose/models/session', () => {
     });
 
     it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
-      const sessionIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const sessionIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const findStub = sandbox.stub();
       findStub.rejects('something bad has happened');
@@ -555,9 +515,7 @@ describe('#mongoose/models/session', () => {
       findByIdStub.returns(new MockMongooseQuery(mockSession));
       sandbox.replace(SessionModel, 'findById', findByIdStub);
 
-      const doc = await SessionModel.getSessionById(
-        mockSession._id as mongoose.Types.ObjectId
-      );
+      const doc = await SessionModel.getSessionById(mockSession._id as mongoose.Types.ObjectId);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
@@ -573,9 +531,7 @@ describe('#mongoose/models/session', () => {
 
       let errored = false;
       try {
-        await SessionModel.getSessionById(
-          mockSession._id as mongoose.Types.ObjectId
-        );
+        await SessionModel.getSessionById(mockSession._id as mongoose.Types.ObjectId);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -586,16 +542,12 @@ describe('#mongoose/models/session', () => {
 
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(
-        new MockMongooseQuery('something bad happened', true)
-      );
+      findByIdStub.returns(new MockMongooseQuery('something bad happened', true));
       sandbox.replace(SessionModel, 'findById', findByIdStub);
 
       let errored = false;
       try {
-        await SessionModel.getSessionById(
-          mockSession._id as mongoose.Types.ObjectId
-        );
+        await SessionModel.getSessionById(mockSession._id as mongoose.Types.ObjectId);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -656,17 +608,9 @@ describe('#mongoose/models/session', () => {
     });
 
     it('will return the filtered Sessions', async () => {
-      sandbox.replace(
-        SessionModel,
-        'count',
-        sandbox.stub().resolves(mockSessions.length)
-      );
+      sandbox.replace(SessionModel, 'count', sandbox.stub().resolves(mockSessions.length));
 
-      sandbox.replace(
-        SessionModel,
-        'find',
-        sandbox.stub().returns(new MockMongooseQuery(mockSessions))
-      );
+      sandbox.replace(SessionModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockSessions)));
 
       const results = await SessionModel.querySessions({});
 
@@ -683,11 +627,7 @@ describe('#mongoose/models/session', () => {
     it('will throw a DataNotFoundError when no values match the filter', async () => {
       sandbox.replace(SessionModel, 'count', sandbox.stub().resolves(0));
 
-      sandbox.replace(
-        SessionModel,
-        'find',
-        sandbox.stub().returns(new MockMongooseQuery(mockSessions))
-      );
+      sandbox.replace(SessionModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockSessions)));
 
       let errored = false;
       try {
@@ -701,17 +641,9 @@ describe('#mongoose/models/session', () => {
     });
 
     it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
-      sandbox.replace(
-        SessionModel,
-        'count',
-        sandbox.stub().resolves(mockSessions.length)
-      );
+      sandbox.replace(SessionModel, 'count', sandbox.stub().resolves(mockSessions.length));
 
-      sandbox.replace(
-        SessionModel,
-        'find',
-        sandbox.stub().returns(new MockMongooseQuery(mockSessions))
-      );
+      sandbox.replace(SessionModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockSessions)));
 
       let errored = false;
       try {
@@ -725,18 +657,12 @@ describe('#mongoose/models/session', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
-      sandbox.replace(
-        SessionModel,
-        'count',
-        sandbox.stub().resolves(mockSessions.length)
-      );
+      sandbox.replace(SessionModel, 'count', sandbox.stub().resolves(mockSessions.length));
 
       sandbox.replace(
         SessionModel,
         'find',
-        sandbox
-          .stub()
-          .returns(new MockMongooseQuery('something bad has happened', true))
+        sandbox.stub().returns(new MockMongooseQuery('something bad has happened', true))
       );
 
       let errored = false;

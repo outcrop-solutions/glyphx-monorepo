@@ -1,24 +1,23 @@
 import 'mocha';
-import { assert } from 'chai';
+import {assert} from 'chai';
 
-import { createSandbox } from 'sinon';
+import {createSandbox} from 'sinon';
 // where the magic happens
 import * as proxyquireType from 'proxyquire';
 const proxyquire = proxyquireType.noCallThru();
-import { testApiHandler } from 'next-test-api-route-handler';
-import { _createModel, _ingestFiles, _getSignedDataUrls, _uploadFile } from 'lib/client/mutations/core';
-import { wrapConfig } from './utilities/wrapConfig';
-import { genericDelete, genericGet, genericPut } from './utilities/genericReqs';
-import { Types as mongooseTypes } from 'mongoose';
-import { databaseTypes, webTypes, fileIngestionTypes } from 'types';
-import type { PageConfig } from 'next';
-import upload, { config } from 'pages/api/etl/upload';
+import {testApiHandler} from 'next-test-api-route-handler';
+import {_createModel, _ingestFiles, _getSignedDataUrls, _uploadFile} from 'lib/client/mutations/core';
+import {wrapConfig} from './utilities/wrapConfig';
+import {genericDelete, genericGet, genericPut} from './utilities/genericReqs';
+import {Types as mongooseTypes} from 'mongoose';
+import {databaseTypes, webTypes, fileIngestionTypes} from 'types';
+import type {PageConfig} from 'next';
+import upload, {config} from 'pages/api/etl/upload';
 // Respect the Next.js config object if it's exported
-const handler: typeof upload & { config?: PageConfig } = upload;
+const handler: typeof upload & {config?: PageConfig} = upload;
 // handler.config = config;
 
 const MOCK_WORKSPACE = {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   _id:
     // @ts-ignore
     new mongooseTypes.ObjectId(),
@@ -34,7 +33,6 @@ const MOCK_SESSION = {
 } as unknown as Session;
 
 const MOCK_PROJECT: databaseTypes.IProject = {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   _id:
     // @ts-ignore
     new mongooseTypes.ObjectId(),
@@ -46,14 +44,12 @@ const MOCK_PROJECT: databaseTypes.IProject = {
   currentVersion: 0,
   tags: [],
   workspace: {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     _id:
       // @ts-ignore
       new mongooseTypes.ObjectId(),
   } as unknown as databaseTypes.IWorkspace,
   slug: 'what is a slug anyway',
   template: {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     _id:
       // @ts-ignore
       new mongooseTypes.ObjectId(),
@@ -202,7 +198,7 @@ describe('FILE UPLOAD ROUTE', () => {
     // route stubs
     validateSessionStub = sandbox.stub();
     validateSessionStub.resolves(MOCK_SESSION);
-    initializerStub = { init: sandbox.stub(), initedField: false };
+    initializerStub = {init: sandbox.stub(), initedField: false};
     initializerStub.init.resolves();
 
     //   handler stubs
@@ -274,7 +270,7 @@ describe('FILE UPLOAD ROUTE', () => {
         await testApiHandler({
           handler: uploadFileRouteWrapper,
           url: '/api/etl/upload',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const config = wrapConfig(
               _uploadFile(MOCK_ACCEPTED_FILE, MOCK_KEY, MOCK_WORKSPACE._id.toString(), MOCK_PROJECT._id.toString())
             );
@@ -293,7 +289,7 @@ describe('FILE UPLOAD ROUTE', () => {
         await testApiHandler({
           handler: uploadFileRoute,
           url: '/api/etl/upload',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -312,7 +308,7 @@ describe('FILE UPLOAD ROUTE', () => {
         await testApiHandler({
           handler: uploadFileRoute,
           url: '/api/etl/upload',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -334,7 +330,7 @@ describe('FILE UPLOAD ROUTE', () => {
         await testApiHandler({
           handler: uploadFileRoute,
           url: '/api/etl/upload',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -356,7 +352,7 @@ describe('FILE UPLOAD ROUTE', () => {
         await testApiHandler({
           handler: uploadFileRoute,
           url: '/api/etl/upload',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);

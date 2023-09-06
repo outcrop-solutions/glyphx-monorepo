@@ -16,7 +16,6 @@ import {renameAppend} from 'lib/client/files/transforms/renameAppend';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 
 export const FileDecisionModal = ({modalContent}: webTypes.FileDecisionsModalProps) => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const [payload, setPayload] = useState<webTypes.IClientSidePayload>(modalContent.data.payload);
   const [project, _] = useRecoilState(projectAtom);
@@ -44,10 +43,10 @@ export const FileDecisionModal = ({modalContent}: webTypes.FileDecisionsModalPro
   // execute upload/glyph engine
   const upload = useCallback(async () => {
     // forced to filter out no-ops on the fly to allow non-desctructive state ops on toggle
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
     // @ts-ignore
     const {cleanPayload, cleanFiles} = cleanNoOps(payload, data.acceptedFiles);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
     // @ts-ignore
     const finalPayload = renameAppend(cleanPayload, data.collisions);
     // get s3 keys for upload

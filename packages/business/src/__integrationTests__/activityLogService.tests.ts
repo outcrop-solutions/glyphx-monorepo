@@ -10,7 +10,6 @@ type ObjectId = mongooseTypes.ObjectId;
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const INPUT_USER: databaseTypes.IUser = {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   _id:
     // @ts-ignore
     new mongooseTypes.ObjectId(),
@@ -32,7 +31,6 @@ const INPUT_USER: databaseTypes.IUser = {
 };
 
 const INPUT_WORKSPACE: databaseTypes.IWorkspace = {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   _id:
     // @ts-ignore
     new mongooseTypes.ObjectId(),
@@ -51,7 +49,6 @@ const INPUT_WORKSPACE: databaseTypes.IWorkspace = {
 };
 
 const INPUT_ACTIVITY_LOG: databaseTypes.IActivityLog = {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   _id:
     // @ts-ignore
     new mongooseTypes.ObjectId(),
@@ -107,9 +104,7 @@ describe('#ActivityLogService', () => {
       const userModel = mongoConnection.models.UserModel;
 
       await userModel.create(INPUT_USER as databaseTypes.IUser);
-      const savedUserDocument = await userModel
-        .findOne({userCode: INPUT_USER.userCode})
-        .lean();
+      const savedUserDocument = await userModel.findOne({userCode: INPUT_USER.userCode}).lean();
       userId = savedUserDocument?._id as mongooseTypes.ObjectId;
 
       userDocument = savedUserDocument;
@@ -118,13 +113,9 @@ describe('#ActivityLogService', () => {
 
       // create log
       const activityLogModel = mongoConnection.models.ActivityLogModel;
-      await activityLogModel.createActivityLog(
-        INPUT_ACTIVITY_LOG as databaseTypes.IActivityLog
-      );
+      await activityLogModel.createActivityLog(INPUT_ACTIVITY_LOG as databaseTypes.IActivityLog);
 
-      const savedActivityLogDocument = await activityLogModel
-        .findOne({location: INPUT_ACTIVITY_LOG.location})
-        .lean();
+      const savedActivityLogDocument = await activityLogModel.findOne({location: INPUT_ACTIVITY_LOG.location}).lean();
       activityLogId = savedActivityLogDocument?._id as mongooseTypes.ObjectId;
 
       activityLogDocument = savedActivityLogDocument;

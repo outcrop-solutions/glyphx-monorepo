@@ -11,11 +11,7 @@ export class InvalidOperationError extends GlyphxError {
    * @param innerError -- an optional inner error which gives more detail regarding why this
    * error was thrown.
    */
-  constructor(
-    message: string,
-    additionalInfo: Record<string, unknown> | undefined,
-    innerError?: unknown
-  ) {
+  constructor(message: string, additionalInfo: Record<string, unknown> | undefined, innerError?: unknown) {
     const errorCode = ErrorCodes.getResponseCode('InvalidOperationError');
     super(message, errorCode, innerError);
     this.data = {additionalInfo};

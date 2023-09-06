@@ -3,8 +3,7 @@ import {IQueryResult, databaseTypes} from 'types';
 import {IUserMethods} from './iUserMethods';
 import {IUserCreateInput} from './iUserCreateInput';
 
-export interface IUserStaticMethods
-  extends Model<databaseTypes.IUser, {}, IUserMethods> {
+export interface IUserStaticMethods extends Model<databaseTypes.IUser, {}, IUserMethods> {
   userIdExists(userId: mongooseTypes.ObjectId): Promise<boolean>;
   allUserIdsExist(userIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createUser(input: IUserCreateInput): Promise<databaseTypes.IUser>;
@@ -14,39 +13,24 @@ export interface IUserStaticMethods
     page?: number,
     itemsPerPage?: number
   ): Promise<IQueryResult<databaseTypes.IUser>>;
-  updateUserById(
-    id: mongooseTypes.ObjectId,
-    user: Partial<databaseTypes.IUser>
-  ): Promise<databaseTypes.IUser>;
+  updateUserById(id: mongooseTypes.ObjectId, user: Partial<databaseTypes.IUser>): Promise<databaseTypes.IUser>;
   deleteUserById(id: mongooseTypes.ObjectId): Promise<void>;
   updateUserWithFilter(
     filter: Record<string, unknown>,
     user: Partial<databaseTypes.IUser>
   ): Promise<databaseTypes.IUser>;
-  validateAccounts(
-    accounts: (databaseTypes.IAccount | mongooseTypes.ObjectId)[]
-  ): Promise<mongooseTypes.ObjectId[]>;
-  validateSessions(
-    sessions: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
-  ): Promise<mongooseTypes.ObjectId[]>;
-  validateWebhooks(
-    webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
-  ): Promise<mongooseTypes.ObjectId[]>;
-  validateMembership(
-    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
-  ): Promise<mongooseTypes.ObjectId[]>;
+  validateAccounts(accounts: (databaseTypes.IAccount | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateSessions(sessions: (databaseTypes.ISession | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateWebhooks(webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateMembership(members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]>;
   validateWorkspaces(
     workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
-  validateProjects(
-    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<mongooseTypes.ObjectId[]>;
+  validateProjects(projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]>;
   validateCustomerPayment(
     payment?: databaseTypes.ICustomerPayment | mongooseTypes.ObjectId
   ): Promise<mongooseTypes.ObjectId>;
-  validateUpdateObject(
-    input: Omit<Partial<databaseTypes.IUser>, '_id'>
-  ): Promise<boolean>;
+  validateUpdateObject(input: Omit<Partial<databaseTypes.IUser>, '_id'>): Promise<boolean>;
   addProjects(
     userId: mongooseTypes.ObjectId,
     projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]

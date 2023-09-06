@@ -40,10 +40,7 @@ describe('#services/data', () => {
         () => new MockAthenaConnection(value) as unknown as aws.AthenaManager
       );
 
-      const result = await dataService.getDataByGlyphxIds(
-        'testTableName',
-        [1, 2, 3, 4, 5]
-      );
+      const result = await dataService.getDataByGlyphxIds('testTableName', [1, 2, 3, 4, 5]);
 
       assert.deepEqual(result, value);
     });
@@ -53,8 +50,7 @@ describe('#services/data', () => {
       sandbox.replaceGetter(
         athenaConnection,
         'connection',
-        () =>
-          new MockAthenaConnection(value, true) as unknown as aws.AthenaManager
+        () => new MockAthenaConnection(value, true) as unknown as aws.AthenaManager
       );
       let didPublish = false;
       function fakePublish() {
@@ -106,8 +102,7 @@ describe('#services/data', () => {
       sandbox.replaceGetter(
         athenaConnection,
         'connection',
-        () =>
-          new MockAthenaConnection(value, true) as unknown as aws.AthenaManager
+        () => new MockAthenaConnection(value, true) as unknown as aws.AthenaManager
       );
       let didPublish = false;
       function fakePublish() {

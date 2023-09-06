@@ -49,8 +49,7 @@ describe('#services/table', () => {
       sandbox.replaceGetter(
         athenaConnection,
         'connection',
-        () =>
-          new MockAthenaConnection(value, true) as unknown as aws.AthenaManager
+        () => new MockAthenaConnection(value, true) as unknown as aws.AthenaManager
       );
       let didPublish = false;
       function fakePublish() {

@@ -107,7 +107,7 @@ describe('#util/heartBeat', () => {
       sandbox.replace(ProcessTrackingService, 'setHeartbeat', setHeartbeatStub);
 
       let errored = false;
-      heartbeat.on('error', err => {
+      heartbeat.on('error', (err) => {
         assert.instanceOf(err, error.UnexpectedError);
         errored = true;
       });

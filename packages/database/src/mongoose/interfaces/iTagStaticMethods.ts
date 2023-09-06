@@ -2,8 +2,7 @@ import {Types as mongooseTypes, Model} from 'mongoose';
 import {IQueryResult, databaseTypes} from 'types';
 import {ITagMethods} from './iTagMethods';
 import {ITagCreateInput} from './iTagCreateInput';
-export interface ITagStaticMethods
-  extends Model<databaseTypes.ITag, {}, ITagMethods> {
+export interface ITagStaticMethods extends Model<databaseTypes.ITag, {}, ITagMethods> {
   tagIdExists(tagId: mongooseTypes.ObjectId): Promise<boolean>;
   allTagIdsExist(tagIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createTag(input: ITagCreateInput): Promise<databaseTypes.ITag>;
@@ -13,10 +12,7 @@ export interface ITagStaticMethods
     page?: number,
     itemsPerPage?: number
   ): Promise<IQueryResult<databaseTypes.ITag>>;
-  updateTagWithFilter(
-    filter: Record<string, unknown>,
-    tag: Omit<Partial<databaseTypes.ITag>, '_id'>
-  ): Promise<void>;
+  updateTagWithFilter(filter: Record<string, unknown>, tag: Omit<Partial<databaseTypes.ITag>, '_id'>): Promise<void>;
   updateTagById(
     tagId: mongooseTypes.ObjectId,
     tag: Omit<Partial<databaseTypes.ITag>, '_id'>
@@ -25,9 +21,7 @@ export interface ITagStaticMethods
   validateWorkspaces(
     projects: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;
-  validateProjects(
-    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<mongooseTypes.ObjectId[]>;
+  validateProjects(projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]>;
   validateTemplates(
     templates: (databaseTypes.IProjectTemplate | mongooseTypes.ObjectId)[]
   ): Promise<mongooseTypes.ObjectId[]>;

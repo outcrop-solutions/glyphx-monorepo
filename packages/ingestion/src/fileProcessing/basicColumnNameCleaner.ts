@@ -2,9 +2,7 @@ import * as fileProcessingInterfaces from '../interfaces/fileProcessing';
 /**
  * Implements {@link interfaces/fileProcessing/iColumnNameCleaner!IColumnNameCleaner} to provide basic column name cleaning.
  */
-export class BasicColumnNameCleaner
-  implements fileProcessingInterfaces.IColumnNameCleaner
-{
+export class BasicColumnNameCleaner implements fileProcessingInterfaces.IColumnNameCleaner {
   invalidCols = 0;
   /**
    * a list of codes that will be replaced with an _ (underscore)
@@ -27,15 +25,9 @@ export class BasicColumnNameCleaner
     const tempValue = value.toLowerCase();
     for (let i = 0; i < tempValue.length; i++) {
       const charValue = tempValue.charCodeAt(i);
-      if (
-        i === 0 &&
-        !(
-          (charValue >= 65 && charValue <= 90) ||
-          (charValue >= 97 && charValue <= 122)
-        )
-      ) {
+      if (i === 0 && !((charValue >= 65 && charValue <= 90) || (charValue >= 97 && charValue <= 122))) {
         outArray.push('_');
-      } else if (i !== 0 && this.REPLACEABLE_CHARS.find(c => c === charValue)) {
+      } else if (i !== 0 && this.REPLACEABLE_CHARS.find((c) => c === charValue)) {
         outArray.push('_');
       } else if (
         charValue === 95 || //_

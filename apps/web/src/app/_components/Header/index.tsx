@@ -1,5 +1,5 @@
 'use client';
-import {useRouter,useParams,usePathname} from 'next/navigation';
+import {useRouter, useParams, usePathname} from 'next/navigation';
 import {drawerOpenAtom, projectAtom} from 'state';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 

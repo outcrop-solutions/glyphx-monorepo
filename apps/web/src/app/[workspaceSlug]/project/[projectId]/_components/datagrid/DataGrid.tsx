@@ -24,7 +24,6 @@ export const Datagrid = ({data}) => {
 
   return data ? (
     <ReactDataGrid
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       columns={draggableColumns}
       rowGetter={(i) => data.rows[i]}

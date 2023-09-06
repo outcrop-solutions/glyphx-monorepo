@@ -8,7 +8,6 @@ import {toSnakeCase} from './toSnakeCase';
 export const Toggle = ({field, config, currentConfig}) => {
   const setConfigs = useSetRecoilState(configsAtom);
   const [checked, setChecked] = useState(config[toSnakeCase(field)]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [configDirty, setConfigDirty] = useRecoilState(togglesConfigDirtyAtom);
 
   const handleChange = useCallback(

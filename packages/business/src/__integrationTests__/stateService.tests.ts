@@ -29,7 +29,6 @@ const MOCK_USER: databaseTypes.IUser = {
 };
 
 const INPUT_STATE: databaseTypes.IState = {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   _id:
     // @ts-ignore
     new mongooseTypes.ObjectId(),
@@ -112,13 +111,11 @@ const INPUT_STATE: databaseTypes.IState = {
   },
   fileSystem: [],
   workspace: {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     _id:
       // @ts-ignore
       new mongooseTypes.ObjectId(),
   } as unknown as databaseTypes.IWorkspace,
   project: {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     _id:
       // @ts-ignore
       new mongooseTypes.ObjectId(),
@@ -159,9 +156,7 @@ describe('#StateService', () => {
 
       await stateModel.createState(INPUT_STATE as databaseTypes.IState);
 
-      const savedStateDocument = await stateModel
-        .findOne({name: INPUT_STATE.name})
-        .lean();
+      const savedStateDocument = await stateModel.findOne({name: INPUT_STATE.name}).lean();
       stateId = savedStateDocument?._id as mongooseTypes.ObjectId;
 
       //   stateDocument = savedStateDocument;

@@ -1,5 +1,1 @@
-export type AiStreamSourceType =
-  | 'ANTHROPIC'
-  | 'HUGGINGFACE'
-  | 'LANGCHAIN'
-  | 'OPENAI';
+export type AiStreamSourceType = 'ANTHROPIC' | 'HUGGINGFACE' | 'LANGCHAIN' | 'OPENAI';

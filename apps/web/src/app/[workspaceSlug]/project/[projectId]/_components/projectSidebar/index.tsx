@@ -21,7 +21,6 @@ export const ProjectSidebar = () => {
   // set projectsSidebar position on transition
   useEffect(() => {
     if (sidebar.current !== null) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const coords = sidebar.current.getBoundingClientRect();
       setCoords(coords);

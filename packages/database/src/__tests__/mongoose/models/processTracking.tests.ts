@@ -28,9 +28,7 @@ describe('#mongoose/models/processTracking', () => {
       findByIdStub.resolves({_id: processTrackingId});
       sandbox.replace(ProcessTrackingModel, 'findById', findByIdStub);
 
-      const result = await ProcessTrackingModel.processTrackingIdExists(
-        processTrackingId
-      );
+      const result = await ProcessTrackingModel.processTrackingIdExists(processTrackingId);
 
       assert.isTrue(result);
     });
@@ -41,9 +39,7 @@ describe('#mongoose/models/processTracking', () => {
       findByIdStub.resolves(null);
       sandbox.replace(ProcessTrackingModel, 'findById', findByIdStub);
 
-      const result = await ProcessTrackingModel.processTrackingIdExists(
-        processTrackingId
-      );
+      const result = await ProcessTrackingModel.processTrackingIdExists(processTrackingId);
 
       assert.isFalse(result);
     });
@@ -89,9 +85,7 @@ describe('#mongoose/models/processTracking', () => {
       findOneStub.resolves(null);
       sandbox.replace(ProcessTrackingModel, 'findOne', findOneStub);
 
-      const result = await ProcessTrackingModel.processIdExists(
-        processId.toString()
-      );
+      const result = await ProcessTrackingModel.processIdExists(processId.toString());
 
       assert.isFalse(result);
     });
@@ -121,36 +115,24 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('should return true when all the ProcessTracking ids exist', async () => {
-      const processTrackingIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const processTrackingIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
-      const returnedProcessTrackingIds = processTrackingIds.map(
-        verificationTokenId => {
-          return {
-            _id: verificationTokenId,
-          };
-        }
-      );
+      const returnedProcessTrackingIds = processTrackingIds.map((verificationTokenId) => {
+        return {
+          _id: verificationTokenId,
+        };
+      });
 
       const findStub = sandbox.stub();
       findStub.resolves(returnedProcessTrackingIds);
       sandbox.replace(ProcessTrackingModel, 'find', findStub);
 
-      assert.isTrue(
-        await ProcessTrackingModel.allProcessTrackingIdsExist(
-          processTrackingIds
-        )
-      );
+      assert.isTrue(await ProcessTrackingModel.allProcessTrackingIdsExist(processTrackingIds));
       assert.isTrue(findStub.calledOnce);
     });
 
     it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
-      const processTrackingIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const processTrackingIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const returnedProcessTrackingIds = [
         {
@@ -163,15 +145,10 @@ describe('#mongoose/models/processTracking', () => {
       sandbox.replace(ProcessTrackingModel, 'find', findStub);
       let errored = false;
       try {
-        await ProcessTrackingModel.allProcessTrackingIdsExist(
-          processTrackingIds
-        );
+        await ProcessTrackingModel.allProcessTrackingIdsExist(processTrackingIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
-        assert.strictEqual(
-          err.data.value[0].toString(),
-          processTrackingIds[1].toString()
-        );
+        assert.strictEqual(err.data.value[0].toString(), processTrackingIds[1].toString());
         errored = true;
       }
       assert.isTrue(errored);
@@ -179,19 +156,14 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
-      const processTrackingIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const processTrackingIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const findStub = sandbox.stub();
       findStub.rejects('something bad has happened');
       sandbox.replace(ProcessTrackingModel, 'find', findStub);
       let errored = false;
       try {
-        await ProcessTrackingModel.allProcessTrackingIdsExist(
-          processTrackingIds
-        );
+        await ProcessTrackingModel.allProcessTrackingIdsExist(processTrackingIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -250,52 +222,32 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('will return the filtered process tracking documents', async () => {
-      sandbox.replace(
-        ProcessTrackingModel,
-        'count',
-        sandbox.stub().resolves(mockProcessTrackingDocuments.length)
-      );
+      sandbox.replace(ProcessTrackingModel, 'count', sandbox.stub().resolves(mockProcessTrackingDocuments.length));
 
       sandbox.replace(
         ProcessTrackingModel,
         'find',
-        sandbox
-          .stub()
-          .returns(new MockMongooseQuery(mockProcessTrackingDocuments))
+        sandbox.stub().returns(new MockMongooseQuery(mockProcessTrackingDocuments))
       );
 
-      const results = await ProcessTrackingModel.queryProcessTrackingDocuments(
-        {}
-      );
+      const results = await ProcessTrackingModel.queryProcessTrackingDocuments({});
 
-      assert.strictEqual(
-        results.numberOfItems,
-        mockProcessTrackingDocuments.length
-      );
+      assert.strictEqual(results.numberOfItems, mockProcessTrackingDocuments.length);
       assert.strictEqual(results.page, 0);
-      assert.strictEqual(
-        results.results.length,
-        mockProcessTrackingDocuments.length
-      );
+      assert.strictEqual(results.results.length, mockProcessTrackingDocuments.length);
       assert.isNumber(results.itemsPerPage);
-      results.results.forEach(doc => {
+      results.results.forEach((doc) => {
         assert.isUndefined((doc as any).__v);
       });
     });
 
     it('will throw a DataNotFoundError when no values match the filter', async () => {
-      sandbox.replace(
-        ProcessTrackingModel,
-        'count',
-        sandbox.stub().resolves(0)
-      );
+      sandbox.replace(ProcessTrackingModel, 'count', sandbox.stub().resolves(0));
 
       sandbox.replace(
         ProcessTrackingModel,
         'find',
-        sandbox
-          .stub()
-          .returns(new MockMongooseQuery(mockProcessTrackingDocuments))
+        sandbox.stub().returns(new MockMongooseQuery(mockProcessTrackingDocuments))
       );
 
       let errored = false;
@@ -310,18 +262,12 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
-      sandbox.replace(
-        ProcessTrackingModel,
-        'count',
-        sandbox.stub().resolves(mockProcessTrackingDocuments.length)
-      );
+      sandbox.replace(ProcessTrackingModel, 'count', sandbox.stub().resolves(mockProcessTrackingDocuments.length));
 
       sandbox.replace(
         ProcessTrackingModel,
         'find',
-        sandbox
-          .stub()
-          .returns(new MockMongooseQuery(mockProcessTrackingDocuments))
+        sandbox.stub().returns(new MockMongooseQuery(mockProcessTrackingDocuments))
       );
 
       let errored = false;
@@ -336,18 +282,12 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
-      sandbox.replace(
-        ProcessTrackingModel,
-        'count',
-        sandbox.stub().resolves(mockProcessTrackingDocuments.length)
-      );
+      sandbox.replace(ProcessTrackingModel, 'count', sandbox.stub().resolves(mockProcessTrackingDocuments.length));
 
       sandbox.replace(
         ProcessTrackingModel,
         'find',
-        sandbox
-          .stub()
-          .returns(new MockMongooseQuery('something bad has happened', true))
+        sandbox.stub().returns(new MockMongooseQuery('something bad has happened', true))
       );
 
       let errored = false;
@@ -371,37 +311,21 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will create an processTracking document', async () => {
       const processTrackingId = new mongoose.Types.ObjectId();
-      sandbox.replace(
-        ProcessTrackingModel,
-        'validate',
-        sandbox.stub().resolves(true)
-      );
-      sandbox.replace(
-        ProcessTrackingModel,
-        'create',
-        sandbox.stub().resolves([{_id: processTrackingId}])
-      );
+      sandbox.replace(ProcessTrackingModel, 'validate', sandbox.stub().resolves(true));
+      sandbox.replace(ProcessTrackingModel, 'create', sandbox.stub().resolves([{_id: processTrackingId}]));
 
       const getProcessTrackingDocumentByIdStub = sandbox.stub();
       getProcessTrackingDocumentByIdStub.resolves({_id: processTrackingId});
 
-      sandbox.replace(
-        ProcessTrackingModel,
-        'getProcessTrackingDocumentById',
-        getProcessTrackingDocumentByIdStub
-      );
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentById', getProcessTrackingDocumentByIdStub);
 
-      const result = await ProcessTrackingModel.createProcessTrackingDocument(
-        MOCK_PROCESS_TRACKING_DOCUMENT
-      );
+      const result = await ProcessTrackingModel.createProcessTrackingDocument(MOCK_PROCESS_TRACKING_DOCUMENT);
       assert.strictEqual(result._id, processTrackingId);
       assert.isTrue(getProcessTrackingDocumentByIdStub.calledOnce);
     });
 
     it('will create an processTracking document defaulting process status, processStartTime, processMessages and processError', async () => {
-      const inputObject = JSON.parse(
-        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
-      );
+      const inputObject = JSON.parse(JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT));
 
       delete inputObject.processStartTime;
       delete inputObject.processMessages;
@@ -409,11 +333,7 @@ describe('#mongoose/models/processTracking', () => {
       delete inputObject.processError;
 
       const processTrackingId = new mongoose.Types.ObjectId();
-      sandbox.replace(
-        ProcessTrackingModel,
-        'validate',
-        sandbox.stub().resolves(true)
-      );
+      sandbox.replace(ProcessTrackingModel, 'validate', sandbox.stub().resolves(true));
 
       const createStub = sandbox.stub();
       createStub.resolves([{_id: processTrackingId}]);
@@ -422,22 +342,13 @@ describe('#mongoose/models/processTracking', () => {
       const getProcessTrackingDocumentByIdStub = sandbox.stub();
       getProcessTrackingDocumentByIdStub.resolves({_id: processTrackingId});
 
-      sandbox.replace(
-        ProcessTrackingModel,
-        'getProcessTrackingDocumentById',
-        getProcessTrackingDocumentByIdStub
-      );
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentById', getProcessTrackingDocumentByIdStub);
 
-      const result = await ProcessTrackingModel.createProcessTrackingDocument(
-        inputObject
-      );
+      const result = await ProcessTrackingModel.createProcessTrackingDocument(inputObject);
       assert.strictEqual(result._id, processTrackingId);
       assert.isTrue(getProcessTrackingDocumentByIdStub.calledOnce);
       const inputArg = createStub.getCall(0).args[0][0];
-      assert.strictEqual(
-        inputArg.processStatus,
-        databaseTypes.constants.PROCESS_STATUS.PENDING
-      );
+      assert.strictEqual(inputArg.processStatus, databaseTypes.constants.PROCESS_STATUS.PENDING);
       assert.isDefined(inputArg.processStartTime);
       assert.isDefined(inputArg.processMessages);
       assert.isDefined(inputArg.processError);
@@ -445,31 +356,17 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will throw an DataValidationError if the process tracking document cannot be validated.', async () => {
       const processTrackingId = new mongoose.Types.ObjectId();
-      sandbox.replace(
-        ProcessTrackingModel,
-        'validate',
-        sandbox.stub().rejects('Invalid')
-      );
-      sandbox.replace(
-        ProcessTrackingModel,
-        'create',
-        sandbox.stub().resolves([{_id: processTrackingId}])
-      );
+      sandbox.replace(ProcessTrackingModel, 'validate', sandbox.stub().rejects('Invalid'));
+      sandbox.replace(ProcessTrackingModel, 'create', sandbox.stub().resolves([{_id: processTrackingId}]));
 
       const getProcessTrackingDocumentByIdStub = sandbox.stub();
       getProcessTrackingDocumentByIdStub.resolves({_id: processTrackingId});
 
-      sandbox.replace(
-        ProcessTrackingModel,
-        'getProcessTrackingDocumentById',
-        getProcessTrackingDocumentByIdStub
-      );
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentById', getProcessTrackingDocumentByIdStub);
       let errorred = false;
 
       try {
-        await ProcessTrackingModel.createProcessTrackingDocument(
-          MOCK_PROCESS_TRACKING_DOCUMENT
-        );
+        await ProcessTrackingModel.createProcessTrackingDocument(MOCK_PROCESS_TRACKING_DOCUMENT);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         errorred = true;
@@ -479,31 +376,17 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will throw an DatabaseOperationError if the underlying database connection throws an error.', async () => {
       const processTrackingId = new mongoose.Types.ObjectId();
-      sandbox.replace(
-        ProcessTrackingModel,
-        'validate',
-        sandbox.stub().resolves(true)
-      );
-      sandbox.replace(
-        ProcessTrackingModel,
-        'create',
-        sandbox.stub().rejects('oops')
-      );
+      sandbox.replace(ProcessTrackingModel, 'validate', sandbox.stub().resolves(true));
+      sandbox.replace(ProcessTrackingModel, 'create', sandbox.stub().rejects('oops'));
 
       const getProcessTrackingDocumentByIdStub = sandbox.stub();
       getProcessTrackingDocumentByIdStub.resolves({_id: processTrackingId});
 
-      sandbox.replace(
-        ProcessTrackingModel,
-        'getProcessTrackingDocumentById',
-        getProcessTrackingDocumentByIdStub
-      );
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentById', getProcessTrackingDocumentByIdStub);
       let errorred = false;
 
       try {
-        await ProcessTrackingModel.createProcessTrackingDocument(
-          MOCK_PROCESS_TRACKING_DOCUMENT
-        );
+        await ProcessTrackingModel.createProcessTrackingDocument(MOCK_PROCESS_TRACKING_DOCUMENT);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -554,9 +437,9 @@ describe('#mongoose/models/processTracking', () => {
       findOneStub.returns(new MockMongooseQuery(mockProcessTrackingDocument));
       sandbox.replace(ProcessTrackingModel, 'findOne', findOneStub);
 
-      const doc = await ProcessTrackingModel.getProcessTrackingDocumentByFilter(
-        {_id: mockProcessTrackingDocument._id as mongoose.Types.ObjectId}
-      );
+      const doc = await ProcessTrackingModel.getProcessTrackingDocumentByFilter({
+        _id: mockProcessTrackingDocument._id as mongoose.Types.ObjectId,
+      });
 
       assert.isTrue(findOneStub.calledOnce);
       assert.isUndefined((doc as any).__v);
@@ -584,9 +467,7 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByOneStub = sandbox.stub();
-      findByOneStub.returns(
-        new MockMongooseQuery('something bad happened', true)
-      );
+      findByOneStub.returns(new MockMongooseQuery('something bad happened', true));
       sandbox.replace(ProcessTrackingModel, 'findOne', findByOneStub);
 
       let errored = false;
@@ -624,11 +505,7 @@ describe('#mongoose/models/processTracking', () => {
     it('will retreive a process tracking document', async () => {
       const findByFilterStub = sandbox.stub();
       findByFilterStub.resolves(mockProcessTrackingDocument);
-      sandbox.replace(
-        ProcessTrackingModel,
-        'getProcessTrackingDocumentByFilter',
-        findByFilterStub
-      );
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentByFilter', findByFilterStub);
 
       const doc = await ProcessTrackingModel.getProcessTrackingDocumentById(
         mockProcessTrackingDocument._id as mongoose.Types.ObjectId
@@ -641,14 +518,8 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will re-throw a DataNotFoundError when the process tracking document does not exist', async () => {
       const findByFilterStub = sandbox.stub();
-      findByFilterStub.rejects(
-        new error.DataNotFoundError('Data not found', 'processTracking', {})
-      );
-      sandbox.replace(
-        ProcessTrackingModel,
-        'getProcessTrackingDocumentByFilter',
-        findByFilterStub
-      );
+      findByFilterStub.rejects(new error.DataNotFoundError('Data not found', 'processTracking', {}));
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentByFilter', findByFilterStub);
 
       let errored = false;
       try {
@@ -666,17 +537,9 @@ describe('#mongoose/models/processTracking', () => {
     it('will re-throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByFilterStub = sandbox.stub();
       findByFilterStub.rejects(
-        new error.DatabaseOperationError(
-          'something bad happened',
-          'mongoDb',
-          'getProcessTrackingDocumentByFilter'
-        )
+        new error.DatabaseOperationError('something bad happened', 'mongoDb', 'getProcessTrackingDocumentByFilter')
       );
-      sandbox.replace(
-        ProcessTrackingModel,
-        'getProcessTrackingDocumentByFilter',
-        findByFilterStub
-      );
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentByFilter', findByFilterStub);
 
       let errored = false;
       try {
@@ -713,16 +576,11 @@ describe('#mongoose/models/processTracking', () => {
     it('will retreive a process tracking document', async () => {
       const findByFilterStub = sandbox.stub();
       findByFilterStub.resolves(mockProcessTrackingDocument);
-      sandbox.replace(
-        ProcessTrackingModel,
-        'getProcessTrackingDocumentByFilter',
-        findByFilterStub
-      );
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentByFilter', findByFilterStub);
 
-      const doc =
-        await ProcessTrackingModel.getProcessTrackingDocumentByProcessId(
-          mockProcessTrackingDocument.processId
-        );
+      const doc = await ProcessTrackingModel.getProcessTrackingDocumentByProcessId(
+        mockProcessTrackingDocument.processId
+      );
 
       assert.isTrue(findByFilterStub.calledOnce);
 
@@ -731,20 +589,12 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will re-throw a DataNotFoundError when the process tracking document does not exist', async () => {
       const findByFilterStub = sandbox.stub();
-      findByFilterStub.rejects(
-        new error.DataNotFoundError('Data not found', 'processTracking', {})
-      );
-      sandbox.replace(
-        ProcessTrackingModel,
-        'getProcessTrackingDocumentByFilter',
-        findByFilterStub
-      );
+      findByFilterStub.rejects(new error.DataNotFoundError('Data not found', 'processTracking', {}));
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentByFilter', findByFilterStub);
 
       let errored = false;
       try {
-        await ProcessTrackingModel.getProcessTrackingDocumentByProcessId(
-          mockProcessTrackingDocument.processId
-        );
+        await ProcessTrackingModel.getProcessTrackingDocumentByProcessId(mockProcessTrackingDocument.processId);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -756,23 +606,13 @@ describe('#mongoose/models/processTracking', () => {
     it('will re-throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByFilterStub = sandbox.stub();
       findByFilterStub.rejects(
-        new error.DatabaseOperationError(
-          'something bad happened',
-          'mongoDb',
-          'getProcessTrackingDocumentByFilter'
-        )
+        new error.DatabaseOperationError('something bad happened', 'mongoDb', 'getProcessTrackingDocumentByFilter')
       );
-      sandbox.replace(
-        ProcessTrackingModel,
-        'getProcessTrackingDocumentByFilter',
-        findByFilterStub
-      );
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentByFilter', findByFilterStub);
 
       let errored = false;
       try {
-        await ProcessTrackingModel.getProcessTrackingDocumentByProcessId(
-          mockProcessTrackingDocument.processId
-        );
+        await ProcessTrackingModel.getProcessTrackingDocumentByProcessId(mockProcessTrackingDocument.processId);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -800,11 +640,10 @@ describe('#mongoose/models/processTracking', () => {
       updateStub.resolves({modifiedCount: 1});
       sandbox.replace(ProcessTrackingModel, 'updateOne', updateStub);
 
-      const result =
-        await ProcessTrackingModel.updateProcessTrackingDocumentWithFilter(
-          {_id: processTrackingId},
-          updateProcessTrackingDocument
-        );
+      const result = await ProcessTrackingModel.updateProcessTrackingDocumentWithFilter(
+        {_id: processTrackingId},
+        updateProcessTrackingDocument
+      );
 
       assert.isTrue(result);
       assert.isTrue(updateStub.calledOnce);
@@ -844,9 +683,7 @@ describe('#mongoose/models/processTracking', () => {
       sandbox.replace(
         ProcessTrackingModel,
         'validateUpdateObject',
-        sandbox
-          .stub()
-          .rejects(new error.InvalidOperationError('you cant do that', {}))
+        sandbox.stub().rejects(new error.InvalidOperationError('you cant do that', {}))
       );
 
       const updateStub = sandbox.stub();
@@ -979,17 +816,12 @@ describe('#mongoose/models/processTracking', () => {
 
       const getProcessTrackingByIdStub = sandbox.stub();
       getProcessTrackingByIdStub.resolves({_id: processTrackingId});
-      sandbox.replace(
-        ProcessTrackingModel,
-        'getProcessTrackingDocumentById',
-        getProcessTrackingByIdStub
-      );
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentById', getProcessTrackingByIdStub);
 
-      const result =
-        await ProcessTrackingModel.updateProcessTrackingDocumentById(
-          processTrackingId,
-          updateProcessTrackingDocument
-        );
+      const result = await ProcessTrackingModel.updateProcessTrackingDocumentById(
+        processTrackingId,
+        updateProcessTrackingDocument
+      );
 
       assert.strictEqual(result._id, processTrackingId);
       assert.isTrue(updateStub.calledOnce);
@@ -1017,17 +849,12 @@ describe('#mongoose/models/processTracking', () => {
 
       const getProcessTrackingByProcessIdStub = sandbox.stub();
       getProcessTrackingByProcessIdStub.resolves({processId: processId});
-      sandbox.replace(
-        ProcessTrackingModel,
-        'getProcessTrackingDocumentByProcessId',
-        getProcessTrackingByProcessIdStub
-      );
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getProcessTrackingByProcessIdStub);
 
-      const result =
-        await ProcessTrackingModel.updateProcessTrackingDocumentByProcessId(
-          processId,
-          updateProcessTrackingDocument
-        );
+      const result = await ProcessTrackingModel.updateProcessTrackingDocumentByProcessId(
+        processId,
+        updateProcessTrackingDocument
+      );
 
       assert.strictEqual(result.processId, processId);
       assert.isTrue(updateStub.calledOnce);
@@ -1111,9 +938,7 @@ describe('#mongoose/models/processTracking', () => {
 
       const processTrackingId = new mongoose.Types.ObjectId();
 
-      await ProcessTrackingModel.deleteProcessTrackingDocumentById(
-        processTrackingId
-      );
+      await ProcessTrackingModel.deleteProcessTrackingDocumentById(processTrackingId);
 
       assert.isTrue(deleteStub.calledOnce);
     });
@@ -1133,9 +958,7 @@ describe('#mongoose/models/processTracking', () => {
 
       const processId = new mongoose.Types.ObjectId().toString();
 
-      await ProcessTrackingModel.deleteProcessTrackingDocumentProcessId(
-        processId
-      );
+      await ProcessTrackingModel.deleteProcessTrackingDocumentProcessId(processId);
 
       assert.isTrue(deleteStub.calledOnce);
     });
@@ -1150,9 +973,7 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will add an error to a process tracking document', async () => {
       const processTrackingId = new mongoose.Types.ObjectId();
-      const localMockProcessTracker = JSON.parse(
-        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
-      );
+      const localMockProcessTracker = JSON.parse(JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT));
       localMockProcessTracker._id = processTrackingId;
       const errorObject = {error: 'oops I did it again'};
 
@@ -1172,16 +993,12 @@ describe('#mongoose/models/processTracking', () => {
         getProcessTrackerDocumentByFilterStub
       );
 
-      const updatedProcessTracker =
-        await ProcessTrackingModel.addErrorsByFilter({_id: processTrackingId}, [
-          errorObject,
-        ]);
+      const updatedProcessTracker = await ProcessTrackingModel.addErrorsByFilter({_id: processTrackingId}, [
+        errorObject,
+      ]);
 
       assert.strictEqual(updatedProcessTracker._id, processTrackingId);
-      assert.strictEqual(
-        updatedProcessTracker.processError[0].error,
-        errorObject.error
-      );
+      assert.strictEqual(updatedProcessTracker.processError[0].error, errorObject.error);
 
       assert.isTrue(findByFilterStub.calledOnce);
       assert.isTrue(saveStub.calledOnce);
@@ -1190,9 +1007,7 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will throw a data not found error when the process tracking document does not exist', async () => {
       const processTrackingId = new mongoose.Types.ObjectId();
-      const localMockProcessTracking = JSON.parse(
-        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
-      );
+      const localMockProcessTracking = JSON.parse(JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT));
       localMockProcessTracking._id = processTrackingId;
       const errorObject = {error: 'oops I did it again'};
 
@@ -1206,17 +1021,11 @@ describe('#mongoose/models/processTracking', () => {
 
       const getProcessTrackerByFilterStub = sandbox.stub();
       getProcessTrackerByFilterStub.resolves(localMockProcessTracking);
-      sandbox.replace(
-        ProcessTrackingModel,
-        'getProcessTrackingDocumentByFilter',
-        getProcessTrackerByFilterStub
-      );
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentByFilter', getProcessTrackerByFilterStub);
 
       let errored = false;
       try {
-        await ProcessTrackingModel.addErrorsByFilter({_id: processTrackingId}, [
-          errorObject,
-        ]);
+        await ProcessTrackingModel.addErrorsByFilter({_id: processTrackingId}, [errorObject]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1227,9 +1036,7 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will throw a data operation error when the underlying connection fails', async () => {
       const processTrackingId = new mongoose.Types.ObjectId();
-      const localMockProcessTracking = JSON.parse(
-        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
-      );
+      const localMockProcessTracking = JSON.parse(JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT));
       localMockProcessTracking._id = processTrackingId;
       const errorObject = {error: 'oops I did it again'};
 
@@ -1243,17 +1050,11 @@ describe('#mongoose/models/processTracking', () => {
 
       const getProcessTrackingByIdStub = sandbox.stub();
       getProcessTrackingByIdStub.resolves(localMockProcessTracking);
-      sandbox.replace(
-        ProcessTrackingModel,
-        'getProcessTrackingDocumentByFilter',
-        getProcessTrackingByIdStub
-      );
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentByFilter', getProcessTrackingByIdStub);
 
       let errored = false;
       try {
-        await ProcessTrackingModel.addErrorsByFilter({_id: processTrackingId}, [
-          errorObject,
-        ]);
+        await ProcessTrackingModel.addErrorsByFilter({_id: processTrackingId}, [errorObject]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1264,9 +1065,7 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will throw an invalid argument error when the error array is empty', async () => {
       const processTrackingId = new mongoose.Types.ObjectId();
-      const localMockProcessTracking = JSON.parse(
-        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
-      );
+      const localMockProcessTracking = JSON.parse(JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT));
       localMockProcessTracking._id = processTrackingId;
 
       const findByFilterStub = sandbox.stub();
@@ -1279,18 +1078,11 @@ describe('#mongoose/models/processTracking', () => {
 
       const getProcessTrackingByFileterStub = sandbox.stub();
       getProcessTrackingByFileterStub.resolves(localMockProcessTracking);
-      sandbox.replace(
-        ProcessTrackingModel,
-        'getProcessTrackingDocumentByFilter',
-        getProcessTrackingByFileterStub
-      );
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentByFilter', getProcessTrackingByFileterStub);
 
       let errored = false;
       try {
-        await ProcessTrackingModel.addErrorsByFilter(
-          {_id: processTrackingId},
-          []
-        );
+        await ProcessTrackingModel.addErrorsByFilter({_id: processTrackingId}, []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1308,9 +1100,7 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will add an error to a process tracking document', async () => {
       const processTrackingId = new mongoose.Types.ObjectId();
-      const localMockProcessTracker = JSON.parse(
-        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
-      );
+      const localMockProcessTracker = JSON.parse(JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT));
       localMockProcessTracker._id = processTrackingId;
       const errorObject = {error: 'oops I did it again'};
 
@@ -1330,16 +1120,10 @@ describe('#mongoose/models/processTracking', () => {
         getProcessTrackerDocumentByFilterStub
       );
 
-      const updatedProcessTracker = await ProcessTrackingModel.addErrorsById(
-        processTrackingId,
-        [errorObject]
-      );
+      const updatedProcessTracker = await ProcessTrackingModel.addErrorsById(processTrackingId, [errorObject]);
 
       assert.strictEqual(updatedProcessTracker._id, processTrackingId);
-      assert.strictEqual(
-        updatedProcessTracker.processError[0].error,
-        errorObject.error
-      );
+      assert.strictEqual(updatedProcessTracker.processError[0].error, errorObject.error);
 
       assert.isTrue(findByFilterStub.calledOnce);
       assert.isTrue(saveStub.calledOnce);
@@ -1356,9 +1140,7 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will add an error to a process tracking document', async () => {
       const processId = new mongoose.Types.ObjectId().toString();
-      const localMockProcessTracker = JSON.parse(
-        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
-      );
+      const localMockProcessTracker = JSON.parse(JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT));
       localMockProcessTracker.processId = processId;
       const errorObject = {error: 'oops I did it again'};
 
@@ -1378,16 +1160,10 @@ describe('#mongoose/models/processTracking', () => {
         getProcessTrackerDocumentByFilterStub
       );
 
-      const updatedProcessTracker =
-        await ProcessTrackingModel.addErrorsByProcessId(processId, [
-          errorObject,
-        ]);
+      const updatedProcessTracker = await ProcessTrackingModel.addErrorsByProcessId(processId, [errorObject]);
 
       assert.strictEqual(updatedProcessTracker.processId, processId);
-      assert.strictEqual(
-        updatedProcessTracker.processError[0].error,
-        errorObject.error
-      );
+      assert.strictEqual(updatedProcessTracker.processError[0].error, errorObject.error);
 
       assert.isTrue(findByFilterStub.calledOnce);
       assert.isTrue(saveStub.calledOnce);
@@ -1403,9 +1179,7 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will add a message to a process tracking document', async () => {
       const processTrackingId = new mongoose.Types.ObjectId();
-      const localMockProcessTracker = JSON.parse(
-        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
-      );
+      const localMockProcessTracker = JSON.parse(JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT));
       localMockProcessTracker._id = processTrackingId;
       const message = "you've got mail";
 
@@ -1425,11 +1199,7 @@ describe('#mongoose/models/processTracking', () => {
         getProcessTrackerDocumentByFilterStub
       );
 
-      const updatedProcessTracker =
-        await ProcessTrackingModel.addMessagesByFilter(
-          {_id: processTrackingId},
-          [message]
-        );
+      const updatedProcessTracker = await ProcessTrackingModel.addMessagesByFilter({_id: processTrackingId}, [message]);
 
       assert.strictEqual(updatedProcessTracker._id, processTrackingId);
       assert.strictEqual(updatedProcessTracker.processMessages[0], message);
@@ -1441,9 +1211,7 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will throw a data not found error when the process tracking document does not exist', async () => {
       const processTrackingId = new mongoose.Types.ObjectId();
-      const localMockProcessTracking = JSON.parse(
-        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
-      );
+      const localMockProcessTracking = JSON.parse(JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT));
       localMockProcessTracking._id = processTrackingId;
       const message = "you've got mail";
 
@@ -1457,18 +1225,11 @@ describe('#mongoose/models/processTracking', () => {
 
       const getProcessTrackerByFilterStub = sandbox.stub();
       getProcessTrackerByFilterStub.resolves(localMockProcessTracking);
-      sandbox.replace(
-        ProcessTrackingModel,
-        'getProcessTrackingDocumentByFilter',
-        getProcessTrackerByFilterStub
-      );
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentByFilter', getProcessTrackerByFilterStub);
 
       let errored = false;
       try {
-        await ProcessTrackingModel.addMessagesByFilter(
-          {_id: processTrackingId},
-          [message]
-        );
+        await ProcessTrackingModel.addMessagesByFilter({_id: processTrackingId}, [message]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1479,9 +1240,7 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will throw a data operation error when the underlying connection fails', async () => {
       const processTrackingId = new mongoose.Types.ObjectId();
-      const localMockProcessTracking = JSON.parse(
-        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
-      );
+      const localMockProcessTracking = JSON.parse(JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT));
       localMockProcessTracking._id = processTrackingId;
       const message = "you've got mail";
 
@@ -1495,18 +1254,11 @@ describe('#mongoose/models/processTracking', () => {
 
       const getProcessTrackingByIdStub = sandbox.stub();
       getProcessTrackingByIdStub.resolves(localMockProcessTracking);
-      sandbox.replace(
-        ProcessTrackingModel,
-        'getProcessTrackingDocumentByFilter',
-        getProcessTrackingByIdStub
-      );
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentByFilter', getProcessTrackingByIdStub);
 
       let errored = false;
       try {
-        await ProcessTrackingModel.addMessagesByFilter(
-          {_id: processTrackingId},
-          [message]
-        );
+        await ProcessTrackingModel.addMessagesByFilter({_id: processTrackingId}, [message]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1517,9 +1269,7 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will throw an invalid argument error when the error array is empty', async () => {
       const processTrackingId = new mongoose.Types.ObjectId();
-      const localMockProcessTracking = JSON.parse(
-        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
-      );
+      const localMockProcessTracking = JSON.parse(JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT));
       localMockProcessTracking._id = processTrackingId;
 
       const findByFilterStub = sandbox.stub();
@@ -1532,18 +1282,11 @@ describe('#mongoose/models/processTracking', () => {
 
       const getProcessTrackingByFileterStub = sandbox.stub();
       getProcessTrackingByFileterStub.resolves(localMockProcessTracking);
-      sandbox.replace(
-        ProcessTrackingModel,
-        'getProcessTrackingDocumentByFilter',
-        getProcessTrackingByFileterStub
-      );
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentByFilter', getProcessTrackingByFileterStub);
 
       let errored = false;
       try {
-        await ProcessTrackingModel.addMessagesByFilter(
-          {_id: processTrackingId},
-          []
-        );
+        await ProcessTrackingModel.addMessagesByFilter({_id: processTrackingId}, []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1561,9 +1304,7 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will add an message to a process tracking document', async () => {
       const processTrackingId = new mongoose.Types.ObjectId();
-      const localMockProcessTracker = JSON.parse(
-        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
-      );
+      const localMockProcessTracker = JSON.parse(JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT));
       localMockProcessTracker._id = processTrackingId;
       const message = "you've got mail";
 
@@ -1583,10 +1324,7 @@ describe('#mongoose/models/processTracking', () => {
         getProcessTrackerDocumentByFilterStub
       );
 
-      const updatedProcessTracker = await ProcessTrackingModel.addMessagesById(
-        processTrackingId,
-        [message]
-      );
+      const updatedProcessTracker = await ProcessTrackingModel.addMessagesById(processTrackingId, [message]);
 
       assert.strictEqual(updatedProcessTracker._id, processTrackingId);
       assert.strictEqual(updatedProcessTracker.processMessages[0], message);
@@ -1606,9 +1344,7 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will add an error to a process tracking document', async () => {
       const processId = new mongoose.Types.ObjectId().toString();
-      const localMockProcessTracker = JSON.parse(
-        JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT)
-      );
+      const localMockProcessTracker = JSON.parse(JSON.stringify(MOCK_PROCESS_TRACKING_DOCUMENT));
       localMockProcessTracker.processId = processId;
       const message = "you've got mail";
 
@@ -1628,8 +1364,7 @@ describe('#mongoose/models/processTracking', () => {
         getProcessTrackerDocumentByFilterStub
       );
 
-      const updatedProcessTracker =
-        await ProcessTrackingModel.addMessagesByProcessId(processId, [message]);
+      const updatedProcessTracker = await ProcessTrackingModel.addMessagesByProcessId(processId, [message]);
 
       assert.strictEqual(updatedProcessTracker.processId, processId);
       assert.strictEqual(updatedProcessTracker.processMessages[0], message);

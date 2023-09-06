@@ -53,9 +53,7 @@ describe('#mongoose/models/annotation', () => {
       findByIdStub.resolves(true);
       sandbox.replace(AnnotationModel, 'findById', findByIdStub);
 
-      const result = await AnnotationModel.annotationIdExists(
-        new mongoose.Types.ObjectId()
-      );
+      const result = await AnnotationModel.annotationIdExists(new mongoose.Types.ObjectId());
       assert.isTrue(result);
     });
 
@@ -64,9 +62,7 @@ describe('#mongoose/models/annotation', () => {
       findByIdStub.resolves(false);
       sandbox.replace(AnnotationModel, 'findById', findByIdStub);
 
-      const result = await AnnotationModel.annotationIdExists(
-        new mongoose.Types.ObjectId()
-      );
+      const result = await AnnotationModel.annotationIdExists(new mongoose.Types.ObjectId());
       assert.isFalse(result);
     });
 
@@ -87,30 +83,22 @@ describe('#mongoose/models/annotation', () => {
 
   context('allAnnotationIdsExist', () => {
     it('will return true id all annotation ids exist in the database', async () => {
-      const ids = [
-        {_id: new mongoose.Types.ObjectId()},
-        {_id: new mongoose.Types.ObjectId()},
-      ];
+      const ids = [{_id: new mongoose.Types.ObjectId()}, {_id: new mongoose.Types.ObjectId()}];
       const findStub = sandbox.stub();
       findStub.resolves(ids);
       sandbox.replace(AnnotationModel, 'find', findStub);
-      const result = await AnnotationModel.allAnnotationIdsExist(
-        ids.map(id => id._id)
-      );
+      const result = await AnnotationModel.allAnnotationIdsExist(ids.map((id) => id._id));
       assert.isTrue(result);
     });
 
     it('will throw a DataNotFoundError when all of the ids do not exist in the database', async () => {
-      const ids = [
-        {_id: new mongoose.Types.ObjectId()},
-        {_id: new mongoose.Types.ObjectId()},
-      ];
+      const ids = [{_id: new mongoose.Types.ObjectId()}, {_id: new mongoose.Types.ObjectId()}];
       const findStub = sandbox.stub();
       findStub.resolves([ids[0]]);
       sandbox.replace(AnnotationModel, 'find', findStub);
       let errored = false;
       try {
-        await AnnotationModel.allAnnotationIdsExist(ids.map(id => id._id));
+        await AnnotationModel.allAnnotationIdsExist(ids.map((id) => id._id));
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -119,16 +107,13 @@ describe('#mongoose/models/annotation', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlyong database operation fails', async () => {
-      const ids = [
-        {_id: new mongoose.Types.ObjectId()},
-        {_id: new mongoose.Types.ObjectId()},
-      ];
+      const ids = [{_id: new mongoose.Types.ObjectId()}, {_id: new mongoose.Types.ObjectId()}];
       const findStub = sandbox.stub();
       findStub.rejects('the database has failed');
       sandbox.replace(AnnotationModel, 'find', findStub);
       let errored = false;
       try {
-        await AnnotationModel.allAnnotationIdsExist(ids.map(id => id._id));
+        await AnnotationModel.allAnnotationIdsExist(ids.map((id) => id._id));
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -147,9 +132,7 @@ describe('#mongoose/models/annotation', () => {
       findByIdStub.returns(new MockMongooseQuery(MOCK_ANNOTATION));
       sandbox.replace(AnnotationModel, 'findById', findByIdStub);
 
-      const result = await AnnotationModel.getAnnotationById(
-        new mongoose.Types.ObjectId()
-      );
+      const result = await AnnotationModel.getAnnotationById(new mongoose.Types.ObjectId());
       assert.isObject(result);
 
       assert.isUndefined((result as any).__v);
@@ -173,9 +156,7 @@ describe('#mongoose/models/annotation', () => {
 
     it('will throw a DatabaseOperationError when the underlying database call fails', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(
-        new MockMongooseQuery('A Database error has occurred', true)
-      );
+      findByIdStub.returns(new MockMongooseQuery('A Database error has occurred', true));
       sandbox.replace(AnnotationModel, 'findById', findByIdStub);
 
       let errored = false;
@@ -326,11 +307,7 @@ describe('#mongoose/models/annotation', () => {
 
       const getAnnotationByIdStub = sandbox.stub();
       getAnnotationByIdStub.resolves(MOCK_ANNOTATION);
-      sandbox.replace(
-        AnnotationModel,
-        'getAnnotationById',
-        getAnnotationByIdStub
-      );
+      sandbox.replace(AnnotationModel, 'getAnnotationById', getAnnotationByIdStub);
 
       const result = await AnnotationModel.createAnnotation(input);
       assert.isOk(result);
@@ -370,11 +347,7 @@ describe('#mongoose/models/annotation', () => {
 
       const getAnnotationByIdStub = sandbox.stub();
       getAnnotationByIdStub.resolves(MOCK_ANNOTATION);
-      sandbox.replace(
-        AnnotationModel,
-        'getAnnotationById',
-        getAnnotationByIdStub
-      );
+      sandbox.replace(AnnotationModel, 'getAnnotationById', getAnnotationByIdStub);
 
       const result = await AnnotationModel.createAnnotation(input);
       assert.isOk(result);
@@ -414,11 +387,7 @@ describe('#mongoose/models/annotation', () => {
 
       const getAnnotationByIdStub = sandbox.stub();
       getAnnotationByIdStub.resolves(MOCK_ANNOTATION);
-      sandbox.replace(
-        AnnotationModel,
-        'getAnnotationById',
-        getAnnotationByIdStub
-      );
+      sandbox.replace(AnnotationModel, 'getAnnotationById', getAnnotationByIdStub);
 
       let errored = false;
       try {
@@ -458,11 +427,7 @@ describe('#mongoose/models/annotation', () => {
 
       const getAnnotationByIdStub = sandbox.stub();
       getAnnotationByIdStub.resolves(MOCK_ANNOTATION);
-      sandbox.replace(
-        AnnotationModel,
-        'getAnnotationById',
-        getAnnotationByIdStub
-      );
+      sandbox.replace(AnnotationModel, 'getAnnotationById', getAnnotationByIdStub);
 
       let errored = false;
       try {
@@ -502,11 +467,7 @@ describe('#mongoose/models/annotation', () => {
 
       const getAnnotationByIdStub = sandbox.stub();
       getAnnotationByIdStub.resolves(MOCK_ANNOTATION);
-      sandbox.replace(
-        AnnotationModel,
-        'getAnnotationById',
-        getAnnotationByIdStub
-      );
+      sandbox.replace(AnnotationModel, 'getAnnotationById', getAnnotationByIdStub);
 
       let errored = false;
       try {
@@ -546,11 +507,7 @@ describe('#mongoose/models/annotation', () => {
 
       const getAnnotationByIdStub = sandbox.stub();
       getAnnotationByIdStub.resolves(MOCK_ANNOTATION);
-      sandbox.replace(
-        AnnotationModel,
-        'getAnnotationById',
-        getAnnotationByIdStub
-      );
+      sandbox.replace(AnnotationModel, 'getAnnotationById', getAnnotationByIdStub);
 
       let errored = false;
       try {
@@ -590,11 +547,7 @@ describe('#mongoose/models/annotation', () => {
 
       const getAnnotationByIdStub = sandbox.stub();
       getAnnotationByIdStub.resolves(MOCK_ANNOTATION);
-      sandbox.replace(
-        AnnotationModel,
-        'getAnnotationById',
-        getAnnotationByIdStub
-      );
+      sandbox.replace(AnnotationModel, 'getAnnotationById', getAnnotationByIdStub);
 
       let errored = false;
       try {

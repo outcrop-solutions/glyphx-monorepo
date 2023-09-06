@@ -35,4 +35,5 @@ class AthenaClient {
   }
 }
 
-export default new AthenaClient();
+const athenaClient = new AthenaClient();
+export default athenaClient;

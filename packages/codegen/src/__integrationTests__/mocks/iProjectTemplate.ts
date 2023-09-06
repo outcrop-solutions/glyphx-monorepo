@@ -11,8 +11,5 @@ export interface IProjectTemplate {
   name: string;
   projects: IProject[];
   tags: ITag[];
-  shape: Record<
-    string,
-    {key: string; type: FIELD_TYPE; required: boolean; description: string}
-  >;
+  shape: Record<string, {key: string; type: FIELD_TYPE; required: boolean; description: string}>;
 }

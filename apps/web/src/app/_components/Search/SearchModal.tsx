@@ -68,7 +68,6 @@ export function SearchModal() {
      */
     const clickHandler = (e) => {
       try {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         if (document.getElementById('search').contains(e.target)) {
           // Clicked in box

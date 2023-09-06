@@ -12,7 +12,7 @@ const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const INPUT_PROJECT = {
   name: 'testProject' + UNIQUE_KEY,
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
   template:
     // @ts-ignore
     new mongooseTypes.ObjectId(),
@@ -97,7 +97,7 @@ const INPUT_PROJECT = {
 
 const INPUT_PROJECT2 = {
   name: 'testProject2' + UNIQUE_KEY,
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
   template:
     // @ts-ignore
     new mongooseTypes.ObjectId(),
@@ -209,9 +209,7 @@ describe('#ProjectTemplateModel', () => {
       const projectModel = mongoConnection.models.ProjectModel;
 
       await projectModel.create([INPUT_PROJECT], {validateBeforeSave: false});
-      const savedProjectDocument = await projectModel
-        .findOne({name: INPUT_PROJECT.name})
-        .lean();
+      const savedProjectDocument = await projectModel.findOne({name: INPUT_PROJECT.name}).lean();
       projectId = savedProjectDocument?._id as mongooseTypes.ObjectId;
 
       projectDocument = savedProjectDocument;
@@ -219,9 +217,7 @@ describe('#ProjectTemplateModel', () => {
       assert.isOk(projectId);
 
       await projectModel.create([INPUT_PROJECT2], {validateBeforeSave: false});
-      const savedProjectDocument2 = await projectModel
-        .findOne({name: INPUT_PROJECT2.name})
-        .lean();
+      const savedProjectDocument2 = await projectModel.findOne({name: INPUT_PROJECT2.name}).lean();
       projectId2 = savedProjectDocument2?._id as mongooseTypes.ObjectId;
 
       assert.isOk(projectId2);
@@ -243,58 +239,40 @@ describe('#ProjectTemplateModel', () => {
     it('add a new projectTemplate ', async () => {
       const projectTemplateInput = JSON.parse(JSON.stringify(INPUT_DATA));
       projectTemplateInput.projects.push(projectDocument);
-      const projectTemplateDocument =
-        await projectTemplateModel.createProjectTemplate(projectTemplateInput);
+      const projectTemplateDocument = await projectTemplateModel.createProjectTemplate(projectTemplateInput);
 
       assert.isOk(projectTemplateDocument);
-      assert.strictEqual(
-        projectTemplateDocument.name,
-        projectTemplateInput.name
-      );
-      assert.strictEqual(
-        projectTemplateDocument.projects[0].name,
-        projectDocument.name
-      );
+      assert.strictEqual(projectTemplateDocument.name, projectTemplateInput.name);
+      assert.strictEqual(projectTemplateDocument.projects[0].name, projectDocument.name);
 
       projectTemplateId = projectTemplateDocument._id as mongooseTypes.ObjectId;
     });
 
     it('retreive a project type', async () => {
       assert.isOk(projectTemplateId);
-      const projectTemplate = await projectTemplateModel.getProjectTemplateById(
-        projectTemplateId
-      );
+      const projectTemplate = await projectTemplateModel.getProjectTemplateById(projectTemplateId);
 
       assert.isOk(projectTemplate);
-      assert.strictEqual(
-        projectTemplate._id?.toString(),
-        projectTemplateId.toString()
-      );
+      assert.strictEqual(projectTemplate._id?.toString(), projectTemplateId.toString());
     });
 
     it('Get multiple projectTemplates without a filter', async () => {
       assert.isOk(projectTemplateId);
       const projectTemplateInput = JSON.parse(JSON.stringify(INPUT_DATA2));
       projectTemplateInput.projects.push(projectDocument);
-      const projectTemplateDocument =
-        await projectTemplateModel.createProjectTemplate(projectTemplateInput);
+      const projectTemplateDocument = await projectTemplateModel.createProjectTemplate(projectTemplateInput);
 
       assert.isOk(projectTemplateDocument);
-      projectTemplateId2 =
-        projectTemplateDocument._id as mongooseTypes.ObjectId;
+      projectTemplateId2 = projectTemplateDocument._id as mongooseTypes.ObjectId;
 
-      const projectTemplates =
-        await projectTemplateModel.queryProjectTemplates();
+      const projectTemplates = await projectTemplateModel.queryProjectTemplates();
       assert.isArray(projectTemplates.results);
       assert.isAtLeast(projectTemplates.numberOfItems, 2);
       const expectedDocumentCount =
         projectTemplates.numberOfItems <= projectTemplates.itemsPerPage
           ? projectTemplates.numberOfItems
           : projectTemplates.itemsPerPage;
-      assert.strictEqual(
-        projectTemplates.results.length,
-        expectedDocumentCount
-      );
+      assert.strictEqual(projectTemplates.results.length, expectedDocumentCount);
     });
 
     it('Get multiple projectTemplates with a filter', async () => {
@@ -308,60 +286,35 @@ describe('#ProjectTemplateModel', () => {
 
     it('page projectTemplates', async () => {
       assert.isOk(projectTemplateId2);
-      const results = await projectTemplateModel.queryProjectTemplates(
-        {},
-        0,
-        1
-      );
+      const results = await projectTemplateModel.queryProjectTemplates({}, 0, 1);
       assert.strictEqual(results.results.length, 1);
 
       const lastId = results.results[0]?._id;
 
-      const results2 = await projectTemplateModel.queryProjectTemplates(
-        {},
-        1,
-        1
-      );
+      const results2 = await projectTemplateModel.queryProjectTemplates({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(
-        results2.results[0]?._id?.toString(),
-        lastId?.toString()
-      );
+      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
     });
 
     it('remove a project from the projectTemplate', async () => {
       assert.isOk(projectTemplateId);
-      const updatedProjectTemplateDocument =
-        await projectTemplateModel.removeProjects(projectTemplateId, [
-          projectId2,
-        ]);
+      const updatedProjectTemplateDocument = await projectTemplateModel.removeProjects(projectTemplateId, [projectId2]);
       assert.strictEqual(updatedProjectTemplateDocument.projects.length, 1);
-      assert.strictEqual(
-        updatedProjectTemplateDocument.projects[0]?._id?.toString(),
-        projectId.toString()
-      );
+      assert.strictEqual(updatedProjectTemplateDocument.projects[0]?._id?.toString(), projectId.toString());
     });
     it('modify a project type', async () => {
       assert.isOk(projectTemplateId);
       const input = {name: 'testProjectName_modified' + UNIQUE_KEY};
-      const updatedDocument =
-        await projectTemplateModel.updateProjectTemplateById(
-          projectTemplateId,
-          input
-        );
+      const updatedDocument = await projectTemplateModel.updateProjectTemplateById(projectTemplateId, input);
       assert.strictEqual(updatedDocument.name, input.name);
     });
 
     it('add a project to the projectTemplate', async () => {
       assert.isOk(projectTemplateId);
-      const updatedProjectTemplateDocument =
-        await projectTemplateModel.addProjects(projectTemplateId, [projectId2]);
+      const updatedProjectTemplateDocument = await projectTemplateModel.addProjects(projectTemplateId, [projectId2]);
       assert.strictEqual(updatedProjectTemplateDocument.projects.length, 2);
-      assert.strictEqual(
-        updatedProjectTemplateDocument.projects[1]?._id?.toString(),
-        projectId2.toString()
-      );
+      assert.strictEqual(updatedProjectTemplateDocument.projects[1]?._id?.toString(), projectId2.toString());
     });
 
     it('remove a project type', async () => {

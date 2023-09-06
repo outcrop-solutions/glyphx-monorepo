@@ -33,8 +33,7 @@ describe('#util/interpolation', () => {
       const maxY = 100;
       const x = 10;
       assert.throws(() => {
-        interpolation.linearInterpolation(x, minX, maxX, minY, maxY),
-          error.InvalidArgumentError;
+        interpolation.linearInterpolation(x, minX, maxX, minY, maxY), error.InvalidArgumentError;
       });
     });
   });
@@ -47,13 +46,7 @@ describe('#util/interpolation', () => {
       const maxY = 100;
       const x = 25;
 
-      const y = interpolation.logaritmicInterpolation(
-        x,
-        minX,
-        maxX,
-        minY,
-        maxY
-      );
+      const y = interpolation.logaritmicInterpolation(x, minX, maxX, minY, maxY);
 
       assert.isAbove(y, 82);
       assert.isBelow(y, 83);
@@ -66,13 +59,7 @@ describe('#util/interpolation', () => {
       const maxY = 100;
       const x = 50;
 
-      const y = interpolation.logaritmicInterpolation(
-        x,
-        minX,
-        maxX,
-        minY,
-        maxY
-      );
+      const y = interpolation.logaritmicInterpolation(x, minX, maxX, minY, maxY);
       assert.strictEqual(y, maxY);
     });
 
@@ -83,8 +70,7 @@ describe('#util/interpolation', () => {
       const maxY = 100;
       const x = 10;
       assert.throws(() => {
-        interpolation.logaritmicInterpolation(x, minX, maxX, minY, maxY),
-          error.InvalidArgumentError;
+        interpolation.logaritmicInterpolation(x, minX, maxX, minY, maxY), error.InvalidArgumentError;
       });
     });
   });

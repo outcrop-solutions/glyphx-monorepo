@@ -28,16 +28,9 @@ const INPUT_PROJECT = {
 };
 async function setupExistingAssets() {
   const payload = addFilesJson.payload as fileIngestion.IPayload;
-  fileProcessingHelpers.loadTableStreams(
-    addFilesJson.testDataDirectory,
-    payload
-  );
+  fileProcessingHelpers.loadTableStreams(addFilesJson.testDataDirectory, payload);
   await processTrackingService.createProcessTracking(PROCESS_ID2, PROCESS_NAME);
-  const fileIngestor = new FileIngestor(
-    payload,
-    addFilesJson.databaseName,
-    PROCESS_ID2
-  );
+  const fileIngestor = new FileIngestor(payload, addFilesJson.databaseName, PROCESS_ID2);
   await fileIngestor.init();
   await fileIngestor.process();
 }
@@ -84,7 +77,7 @@ describe('#fileProcessing', () => {
       payload = replaceFilesJson.payload as fileIngestion.IPayload;
       assert.isOk(payload);
 
-      fileNames = payload.fileStats.map(f => f.fileName);
+      fileNames = payload.fileStats.map((f) => f.fileName);
       assert.isAtLeast(fileNames.length, 1);
 
       s3Bucket = new aws.S3Manager(bucketName);
@@ -93,30 +86,15 @@ describe('#fileProcessing', () => {
       athenaManager = new aws.AthenaManager(databaseName);
       await athenaManager.init();
 
-      await fileProcessingHelpers.cleanupAws(
-        payload,
-        clientId,
-        modelId,
-        s3Bucket,
-        athenaManager
-      );
+      await fileProcessingHelpers.cleanupAws(payload, clientId, modelId, s3Bucket, athenaManager);
       fileProcessingHelpers.loadTableStreams(testDataDirectory, payload);
-      await processTrackingService.createProcessTracking(
-        PROCESS_ID,
-        PROCESS_NAME
-      );
+      await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
       await setupExistingAssets();
       (config as any).inited = false;
     });
 
     after(async () => {
-      await fileProcessingHelpers.cleanupAws(
-        payload,
-        clientId,
-        modelId,
-        s3Bucket,
-        athenaManager
-      );
+      await fileProcessingHelpers.cleanupAws(payload, clientId, modelId, s3Bucket, athenaManager);
       await dbConnection.models.ProjectModel.findByIdAndDelete(projectId);
       await processTrackingService.removeProcessTrackingDocument(PROCESS_ID);
       await processTrackingService.removeProcessTrackingDocument(PROCESS_ID2);
@@ -125,10 +103,7 @@ describe('#fileProcessing', () => {
       const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
       const {joinInformation} = await fileIngestor.process();
-      await fileProcessingHelpers.validateTableResults(
-        joinInformation,
-        athenaManager
-      );
+      await fileProcessingHelpers.validateTableResults(joinInformation, athenaManager);
       await fileProcessingHelpers.validateViewResults(
         athenaManager,
         `glyphx_${clientId}_${modelId}_view`,
@@ -139,9 +114,7 @@ describe('#fileProcessing', () => {
       assert.isAtLeast(results.length, 1);
 
       const query2 = `SELECT * FROM glyphx_${clientId}_${modelId}_view WHERE col1 = 63`;
-      const results2 = (await athenaManager.runQuery(
-        query2
-      )) as unknown as any[];
+      const results2 = (await athenaManager.runQuery(query2)) as unknown as any[];
       assert.strictEqual(results2.length, 0);
       console.log('I am done');
     });

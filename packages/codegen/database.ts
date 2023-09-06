@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-namespace */
 import {Types as mongooseTypes} from 'mongoose';
 
 export namespace databaseTypes {
@@ -116,10 +115,7 @@ export namespace databaseTypes {
     name: string;
     projects: IProject[];
     tags: ITag[];
-    shape: Record<
-      string,
-      {key: string; type: FIELD_TYPE; required: boolean; description: string}
-    >;
+    shape: Record<string, {key: string; type: FIELD_TYPE; required: boolean; description: string}>;
   }
 
   export interface IState {

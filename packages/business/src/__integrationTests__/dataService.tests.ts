@@ -41,9 +41,7 @@ describe('#DataService', () => {
 
       await dataModel.createData(INPUT_DATA as databaseTypes.IData);
 
-      const savedDataDocument = await dataModel
-        .findOne({name: INPUT_DATA.name})
-        .lean();
+      const savedDataDocument = await dataModel.findOne({name: INPUT_DATA.name}).lean();
       dataId = savedDataDocument?._id as mongooseTypes.ObjectId;
 
       //   dataDocument = savedDataDocument;

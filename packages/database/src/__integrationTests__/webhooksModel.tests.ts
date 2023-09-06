@@ -53,9 +53,7 @@ describe('#webhooksModel', () => {
       const userModel = mongoConnection.models.UserModel;
       await userModel.createUser(INPUT_USER as databaseTypes.IUser);
 
-      const savedUserDocument = await userModel
-        .findOne({name: INPUT_USER.name})
-        .lean();
+      const savedUserDocument = await userModel.findOne({name: INPUT_USER.name}).lean();
       userId = savedUserDocument?._id as mongooseTypes.ObjectId;
 
       userDocument = savedUserDocument;
@@ -82,10 +80,7 @@ describe('#webhooksModel', () => {
 
       assert.isOk(webhookDocument);
       assert.strictEqual(webhookDocument.name, webhookInput.name);
-      assert.strictEqual(
-        webhookDocument.user._id?.toString(),
-        userId.toString()
-      );
+      assert.strictEqual(webhookDocument.user._id?.toString(), userId.toString());
 
       webhookId = webhookDocument._id as mongooseTypes.ObjectId;
     });
@@ -111,9 +106,7 @@ describe('#webhooksModel', () => {
       assert.isArray(webhooks.results);
       assert.isAtLeast(webhooks.numberOfItems, 2);
       const expectedDocumentCount =
-        webhooks.numberOfItems <= webhooks.itemsPerPage
-          ? webhooks.numberOfItems
-          : webhooks.itemsPerPage;
+        webhooks.numberOfItems <= webhooks.itemsPerPage ? webhooks.numberOfItems : webhooks.itemsPerPage;
       assert.strictEqual(webhooks.results.length, expectedDocumentCount);
     });
 
@@ -136,19 +129,13 @@ describe('#webhooksModel', () => {
       const results2 = await webhookModel.queryWebhooks({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(
-        results2.results[0]?._id?.toString(),
-        lastId?.toString()
-      );
+      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
     });
 
     it('modify a webhook', async () => {
       assert.isOk(webhookId);
       const input = {url: 'a modified url'};
-      const updatedDocument = await webhookModel.updateWebhookById(
-        webhookId,
-        input
-      );
+      const updatedDocument = await webhookModel.updateWebhookById(webhookId, input);
       assert.strictEqual(updatedDocument.url, input.url);
     });
 

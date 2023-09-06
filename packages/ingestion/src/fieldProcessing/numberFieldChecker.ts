@@ -7,9 +7,7 @@ import currencyToSymbolMap from 'currency-symbol-map/map';
  * not it is a number. See {@link interfaces/fieldProcessing/iFieldChecker!IFieldChecker}
  * additional details.
  */
-export class NumberFieldChecker
-  implements fieldProcessingInterfaces.IFieldChecker<number>
-{
+export class NumberFieldChecker implements fieldProcessingInterfaces.IFieldChecker<number> {
   /**
    *  Will take an input and compare it to a currency symbol table
    *  {@link https://github.com/bengourley/currency-symbol-map#readme currency-symbol-map }
@@ -71,11 +69,7 @@ export class NumberFieldChecker
   public convertField(input: string): number {
     let tempString = this.cleanStringForProcessing(input);
     if (!this.checkField(tempString, false)) {
-      throw new error.InvalidArgumentError(
-        `The input value of : ${input} is not a number`,
-        'input',
-        input
-      );
+      throw new error.InvalidArgumentError(`The input value of : ${input} is not a number`, 'input', input);
     }
 
     tempString = tempString.replace(/,/g, '');

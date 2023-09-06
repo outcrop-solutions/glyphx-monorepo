@@ -19,7 +19,7 @@ describe('#services/customer', () => {
 
   context('getPayment', () => {
     it('should get a customerPayment by email', async () => {
-      const customerPaymentId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const customerPaymentId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const customerPaymentEmail = 'testemail@gmail.com';
@@ -36,14 +36,9 @@ describe('#services/customer', () => {
         getCustomerPaymentFromModelStub
       );
 
-      const customerPayment = await customerPaymentService.getPayment(
-        customerPaymentEmail
-      );
+      const customerPayment = await customerPaymentService.getPayment(customerPaymentEmail);
       assert.isOk(customerPayment);
-      assert.strictEqual(
-        customerPayment?.email?.toString(),
-        customerPaymentEmail.toString()
-      );
+      assert.strictEqual(customerPayment?.email?.toString(), customerPaymentEmail.toString());
 
       assert.isTrue(getCustomerPaymentFromModelStub.calledOnce);
     });
@@ -59,10 +54,9 @@ describe('#services/customer', () => {
         getCustomerPaymentFromModelStub
       );
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DataNotFoundError);
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+
         //@ts-ignore
         assert.strictEqual(this.message, errMessage);
       }
@@ -81,11 +75,7 @@ describe('#services/customer', () => {
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
       const email = 'testemail@gmail.com';
       const errMessage = 'Something Bad has happened';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongoDb',
-        'getCustomerPaymentByEmail'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongoDb', 'getCustomerPaymentByEmail');
       const getCustomerPaymentFromModelStub = sandbox.stub();
       getCustomerPaymentFromModelStub.rejects(err);
       sandbox.replace(
@@ -94,7 +84,6 @@ describe('#services/customer', () => {
         getCustomerPaymentFromModelStub
       );
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -120,14 +109,14 @@ describe('#services/customer', () => {
   });
   context('createPaymentAccount', () => {
     it('will createCustomerPayment with user associated as customer', async () => {
-      const customerPaymentId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const customerPaymentId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const customerPaymentEmail = 'testemail@gmail.com';
-      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const userId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const stripeId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const stripeId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
 
@@ -142,11 +131,7 @@ describe('#services/customer', () => {
 
       const createCustomerStub = sandbox.stub();
       createCustomerStub.resolves({id: stripeId});
-      sandbox.replace(
-        (Stripe as any).resources.Customers.prototype,
-        'create',
-        createCustomerStub
-      );
+      sandbox.replace((Stripe as any).resources.Customers.prototype, 'create', createCustomerStub);
 
       const createCustomerPaymentFromModelStub = sandbox.stub();
       createCustomerPaymentFromModelStub.resolves({
@@ -171,16 +156,9 @@ describe('#services/customer', () => {
         _id: userId,
         customerPayment: {_id: customerPaymentId, email: customerPaymentEmail},
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserStub);
 
-      const doc = await customerPaymentService.createPaymentAccount(
-        customerPaymentEmail,
-        userId
-      );
+      const doc = await customerPaymentService.createPaymentAccount(customerPaymentEmail, userId);
 
       assert.isTrue(createCustomerPaymentFromModelStub.calledOnce);
       assert.isTrue(updateUserStub.calledOnce);
@@ -188,14 +166,14 @@ describe('#services/customer', () => {
       assert.strictEqual(doc?.customer._id, userId);
     });
     it('will createCustomerPayment with user associated as customer when customerId is a string', async () => {
-      const customerPaymentId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const customerPaymentId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const customerPaymentEmail = 'testemail@gmail.com';
-      const userId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const userId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const stripeId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const stripeId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
 
@@ -210,11 +188,7 @@ describe('#services/customer', () => {
 
       const createCustomerStub = sandbox.stub();
       createCustomerStub.resolves({id: stripeId});
-      sandbox.replace(
-        (Stripe as any).resources.Customers.prototype,
-        'create',
-        createCustomerStub
-      );
+      sandbox.replace((Stripe as any).resources.Customers.prototype, 'create', createCustomerStub);
 
       const createCustomerPaymentFromModelStub = sandbox.stub();
       createCustomerPaymentFromModelStub.resolves({
@@ -239,16 +213,9 @@ describe('#services/customer', () => {
         _id: userId,
         customerPayment: {_id: customerPaymentId, email: customerPaymentEmail},
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.UserModel,
-        'updateUserById',
-        updateUserStub
-      );
+      sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserStub);
 
-      const doc = await customerPaymentService.createPaymentAccount(
-        customerPaymentEmail,
-        userId.toString()
-      );
+      const doc = await customerPaymentService.createPaymentAccount(customerPaymentEmail, userId.toString());
 
       assert.isTrue(createCustomerPaymentFromModelStub.calledOnce);
       assert.isTrue(updateUserStub.calledOnce);
@@ -256,19 +223,15 @@ describe('#services/customer', () => {
       assert.strictEqual(doc?.customer._id, userId);
     });
     it('will publish and rethrow an InvalidArgumentError when customerPayment model throws it ', async () => {
-      const customerPaymentId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const customerPaymentId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const customerPaymentEmail = 'testemail@gmail.com';
-      const stripeId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const stripeId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument';
-      const err = new error.InvalidArgumentError(
-        errMessage,
-        'emailVerified',
-        true
-      );
+      const err = new error.InvalidArgumentError(errMessage, 'emailVerified', true);
 
       const createStub = sandbox.stub();
       createStub.resolves({id: customerPaymentId});
@@ -281,11 +244,7 @@ describe('#services/customer', () => {
 
       const createCustomerStub = sandbox.stub();
       createCustomerStub.resolves({id: stripeId});
-      sandbox.replace(
-        (Stripe as any).resources.Customers.prototype,
-        'create',
-        createCustomerStub
-      );
+      sandbox.replace((Stripe as any).resources.Customers.prototype, 'create', createCustomerStub);
 
       const createCustomerPaymentFromModelStub = sandbox.stub();
       createCustomerPaymentFromModelStub.rejects(err);
@@ -296,7 +255,6 @@ describe('#services/customer', () => {
       );
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
         //@ts-ignore
@@ -310,10 +268,7 @@ describe('#services/customer', () => {
 
       let errored = false;
       try {
-        await customerPaymentService.createPaymentAccount(
-          customerPaymentEmail,
-          customerPaymentId
-        );
+        await customerPaymentService.createPaymentAccount(customerPaymentEmail, customerPaymentId);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -324,11 +279,11 @@ describe('#services/customer', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and rethrow a DataValidationError when customerPayment model throws it ', async () => {
-      const customerPaymentId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const customerPaymentId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const customerPaymentEmail = 'testemail@gmail.com';
-      const stripeId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const stripeId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const errMessage = 'You have an invalid argument';
@@ -345,11 +300,7 @@ describe('#services/customer', () => {
 
       const createCustomerStub = sandbox.stub();
       createCustomerStub.resolves({id: stripeId});
-      sandbox.replace(
-        (Stripe as any).resources.Customers.prototype,
-        'create',
-        createCustomerStub
-      );
+      sandbox.replace((Stripe as any).resources.Customers.prototype, 'create', createCustomerStub);
 
       const createCustomerPaymentFromModelStub = sandbox.stub();
       createCustomerPaymentFromModelStub.rejects(err);
@@ -360,7 +311,6 @@ describe('#services/customer', () => {
       );
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DataValidationError);
         //@ts-ignore
@@ -374,10 +324,7 @@ describe('#services/customer', () => {
 
       let errored = false;
       try {
-        await customerPaymentService.createPaymentAccount(
-          customerPaymentEmail,
-          customerPaymentId
-        );
+        await customerPaymentService.createPaymentAccount(customerPaymentEmail, customerPaymentId);
       } catch (e) {
         assert.instanceOf(e, error.DataValidationError);
         errored = true;
@@ -388,19 +335,15 @@ describe('#services/customer', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when customerPayment model throws a DataOperationError ', async () => {
-      const customerPaymentId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const customerPaymentId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const customerPaymentEmail = 'testemail@gmail.com';
-      const stripeId = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      const stripeId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const errMessage = 'A DataOperationError has occurred';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongodDb',
-        'updateCustomerPaymentById'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateCustomerPaymentById');
 
       const createStub = sandbox.stub();
       createStub.resolves({id: customerPaymentId});
@@ -413,11 +356,7 @@ describe('#services/customer', () => {
 
       const createCustomerStub = sandbox.stub();
       createCustomerStub.resolves({id: stripeId});
-      sandbox.replace(
-        (Stripe as any).resources.Customers.prototype,
-        'create',
-        createCustomerStub
-      );
+      sandbox.replace((Stripe as any).resources.Customers.prototype, 'create', createCustomerStub);
 
       const createCustomerPaymentFromModelStub = sandbox.stub();
       createCustomerPaymentFromModelStub.rejects(err);
@@ -428,7 +367,6 @@ describe('#services/customer', () => {
       );
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -442,10 +380,7 @@ describe('#services/customer', () => {
 
       let errored = false;
       try {
-        await customerPaymentService.createPaymentAccount(
-          customerPaymentEmail,
-          customerPaymentId
-        );
+        await customerPaymentService.createPaymentAccount(customerPaymentEmail, customerPaymentId);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -476,11 +411,7 @@ describe('#services/customer', () => {
       const customerId = 'testCustomerId'; //comes from stripe
       const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
       const errMessage = 'You have an invalid argument';
-      const err = new error.InvalidArgumentError(
-        errMessage,
-        'emailVerified',
-        true
-      );
+      const err = new error.InvalidArgumentError(errMessage, 'emailVerified', true);
       const updateCustomerPaymentFromModelStub = sandbox.stub();
       updateCustomerPaymentFromModelStub.rejects(err);
       sandbox.replace(
@@ -490,7 +421,6 @@ describe('#services/customer', () => {
       );
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
         //@ts-ignore
@@ -504,10 +434,7 @@ describe('#services/customer', () => {
 
       let errored = false;
       try {
-        await customerPaymentService.updateSubscription(
-          customerId,
-          subscription
-        );
+        await customerPaymentService.updateSubscription(customerId, subscription);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -531,7 +458,6 @@ describe('#services/customer', () => {
       );
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.InvalidOperationError);
         //@ts-ignore
@@ -545,10 +471,7 @@ describe('#services/customer', () => {
 
       let errored = false;
       try {
-        await customerPaymentService.updateSubscription(
-          customerId,
-          subscription
-        );
+        await customerPaymentService.updateSubscription(customerId, subscription);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -562,11 +485,7 @@ describe('#services/customer', () => {
       const customerId = 'testCustomerId'; //comes from stripe
       const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
       const errMessage = 'A DataOperationError has occurred';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongodDb',
-        'updateCustomerPaymentById'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateCustomerPaymentById');
       const updateCustomerPaymentFromModelStub = sandbox.stub();
       updateCustomerPaymentFromModelStub.rejects(err);
       sandbox.replace(
@@ -576,7 +495,6 @@ describe('#services/customer', () => {
       );
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -590,10 +508,7 @@ describe('#services/customer', () => {
 
       let errored = false;
       try {
-        await customerPaymentService.updateSubscription(
-          customerId,
-          subscription
-        );
+        await customerPaymentService.updateSubscription(customerId, subscription);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;

@@ -16,10 +16,7 @@ describe('#utl/textConversion', () => {
     it('will convert our unit8Array to a string', () => {
       const testString = 'This is a test string';
       const result = textConversion.convertTextToUtfForBuffer(testString);
-      const resultString = textConversion.convertUtfForBufferToText(
-        Buffer.from(result),
-        0
-      );
+      const resultString = textConversion.convertUtfForBufferToText(Buffer.from(result), 0);
       assert.strictEqual(resultString, testString);
     });
   });

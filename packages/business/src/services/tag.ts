@@ -4,15 +4,12 @@ import mongoDbConnection from '../lib/databaseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 
 export class TagService {
-  public static async getTag(
-    tagId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.ITag | null> {
+  public static async getTag(tagId: mongooseTypes.ObjectId | string): Promise<databaseTypes.ITag | null> {
     try {
       const id =
         tagId instanceof mongooseTypes.ObjectId
           ? tagId
-          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+          : // @ts-ignore
             new mongooseTypes.ObjectId(tagId);
       const tag = await mongoDbConnection.models.TagModel.getTagById(id);
       return tag;

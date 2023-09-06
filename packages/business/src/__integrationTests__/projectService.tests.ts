@@ -101,9 +101,7 @@ describe('#ProjectService', () => {
 
       await userModel.createUser(INPUT_USER as databaseTypes.IUser);
 
-      const savedUserDocument = await userModel
-        .findOne({name: INPUT_USER.name})
-        .lean();
+      const savedUserDocument = await userModel.findOne({name: INPUT_USER.name}).lean();
       userId = savedUserDocument?._id as mongooseTypes.ObjectId;
 
       userDocument = savedUserDocument;
@@ -113,20 +111,15 @@ describe('#ProjectService', () => {
       await projectTemplateModel.create([INPUT_PROJECT_TYPE], {
         validateBeforeSave: false,
       });
-      const savedProjectTemplateDocument = await projectTemplateModel
-        .findOne({name: INPUT_PROJECT_TYPE.name})
-        .lean();
-      projectTemplateId =
-        savedProjectTemplateDocument?._id as mongooseTypes.ObjectId;
+      const savedProjectTemplateDocument = await projectTemplateModel.findOne({name: INPUT_PROJECT_TYPE.name}).lean();
+      projectTemplateId = savedProjectTemplateDocument?._id as mongooseTypes.ObjectId;
 
       projectTemplateDocument = savedProjectTemplateDocument;
 
       assert.isOk(projectTemplateId);
 
       await stateModel.create([INPUT_STATE], {validateBeforeSave: false});
-      const savedStateDocument = await stateModel
-        .findOne({fileSystemHash: INPUT_STATE.fileSystemHash})
-        .lean();
+      const savedStateDocument = await stateModel.findOne({fileSystemHash: INPUT_STATE.fileSystemHash}).lean();
       stateId = savedStateDocument?._id as mongooseTypes.ObjectId;
 
       stateDocument = savedStateDocument;
@@ -136,9 +129,7 @@ describe('#ProjectService', () => {
       await workspaceModel.create([INPUT_WORKSPACE], {
         validateBeforeSave: false,
       });
-      const savedWorkspaceDocument = await workspaceModel
-        .findOne({name: INPUT_WORKSPACE.name})
-        .lean();
+      const savedWorkspaceDocument = await workspaceModel.findOne({name: INPUT_WORKSPACE.name}).lean();
       workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
 
       workspaceDocument = savedWorkspaceDocument;
@@ -148,9 +139,7 @@ describe('#ProjectService', () => {
       INPUT_DATA.state = stateDocument;
       INPUT_DATA.workspace = workspaceDocument;
 
-      const projectDocument = await projectModel.createProject(
-        INPUT_DATA as unknown as databaseTypes.IProject
-      );
+      const projectDocument = await projectModel.createProject(INPUT_DATA as unknown as databaseTypes.IProject);
 
       projectId = projectDocument._id as unknown as mongooseTypes.ObjectId;
     });
@@ -220,21 +209,12 @@ describe('#ProjectService', () => {
     });
     it('will update the file stats on our project', async () => {
       assert.isOk(projectId);
-      const updatedProject = await projectService.updateProjectFileStats(
-        projectId,
-        INPUT_FILE_STATS
-      );
-      assert.strictEqual(
-        updatedProject.files[0].fileName,
-        INPUT_FILE_STATS[0].fileName
-      );
+      const updatedProject = await projectService.updateProjectFileStats(projectId, INPUT_FILE_STATS);
+      assert.strictEqual(updatedProject.files[0].fileName, INPUT_FILE_STATS[0].fileName);
     });
     it('will update the view name on our project', async () => {
       assert.isOk(projectId);
-      const updatedProject = await projectService.updateProjectView(
-        projectId,
-        INPUT_VIEW_NAME
-      );
+      const updatedProject = await projectService.updateProjectView(projectId, INPUT_VIEW_NAME);
       assert.strictEqual(updatedProject.viewName, INPUT_VIEW_NAME);
     });
     it('will update our project', async () => {

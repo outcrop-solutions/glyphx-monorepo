@@ -48,13 +48,9 @@ describe('#CustomerPaymentService', () => {
       await mongoConnection.init();
       const memberModel = mongoConnection.models.CustomerPaymentModel;
 
-      await memberModel.createCustomerPayment(
-        INPUT_CUSTOMER_PAYMENT as databaseTypes.ICustomerPayment
-      );
+      await memberModel.createCustomerPayment(INPUT_CUSTOMER_PAYMENT as databaseTypes.ICustomerPayment);
 
-      const savedCustomerPaymentDocument = await memberModel
-        .findOne({name: INPUT_CUSTOMER_PAYMENT.name})
-        .lean();
+      const savedCustomerPaymentDocument = await memberModel.findOne({name: INPUT_CUSTOMER_PAYMENT.name}).lean();
       memberId = savedCustomerPaymentDocument?._id as mongooseTypes.ObjectId;
 
       //   memberDocument = savedCustomerPaymentDocument;

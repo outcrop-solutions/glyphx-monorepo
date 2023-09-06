@@ -12,11 +12,9 @@ export class ModelConfigService {
       const id =
         modelConfigId instanceof mongooseTypes.ObjectId
           ? modelConfigId
-          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+          : // @ts-ignore
             new mongooseTypes.ObjectId(modelConfigId);
-      const modelConfig =
-        await mongoDbConnection.models.ModelConfigModel.getModelConfigById(id);
+      const modelConfig = await mongoDbConnection.models.ModelConfigModel.getModelConfigById(id);
       return modelConfig;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -36,14 +34,9 @@ export class ModelConfigService {
     }
   }
 
-  public static async getModelConfigs(
-    filter?: Record<string, unknown>
-  ): Promise<databaseTypes.IModelConfig[] | null> {
+  public static async getModelConfigs(filter?: Record<string, unknown>): Promise<databaseTypes.IModelConfig[] | null> {
     try {
-      const modelConfigs =
-        await mongoDbConnection.models.ModelConfigModel.queryModelConfigs(
-          filter
-        );
+      const modelConfigs = await mongoDbConnection.models.ModelConfigModel.queryModelConfigs(filter);
       return modelConfigs?.results;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -63,13 +56,10 @@ export class ModelConfigService {
     }
   }
 
-  public static async createModelConfig(
-    data: databaseTypes.IModelConfig
-  ): Promise<databaseTypes.IModelConfig> {
+  public static async createModelConfig(data: databaseTypes.IModelConfig): Promise<databaseTypes.IModelConfig> {
     try {
       // create modelConfig
-      const modelConfig =
-        await mongoDbConnection.models.ModelConfigModel.createModelConfig(data);
+      const modelConfig = await mongoDbConnection.models.ModelConfigModel.createModelConfig(data);
 
       return modelConfig;
     } catch (err: any) {
@@ -96,31 +86,21 @@ export class ModelConfigService {
 
   public static async updateModelConfig(
     modelConfigId: mongooseTypes.ObjectId | string,
-    data: Partial<
-      Omit<databaseTypes.IModelConfig, '_id' | 'createdAt' | 'updatedAt'>
-    >
+    data: Partial<Omit<databaseTypes.IModelConfig, '_id' | 'createdAt' | 'updatedAt'>>
   ): Promise<databaseTypes.IModelConfig> {
     try {
       const id =
         modelConfigId instanceof mongooseTypes.ObjectId
           ? modelConfigId
-          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+          : // @ts-ignore
             new mongooseTypes.ObjectId(modelConfigId);
 
-      const modelConfig =
-        await mongoDbConnection.models.ModelConfigModel.updateModelConfigById(
-          id,
-          {
-            ...data,
-          }
-        );
+      const modelConfig = await mongoDbConnection.models.ModelConfigModel.updateModelConfigById(id, {
+        ...data,
+      });
       return modelConfig;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -144,22 +124,14 @@ export class ModelConfigService {
       const id =
         modelConfigId instanceof mongooseTypes.ObjectId
           ? modelConfigId
-          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+          : // @ts-ignore
             new mongooseTypes.ObjectId(modelConfigId);
-      const modelConfig =
-        await mongoDbConnection.models.ModelConfigModel.updateModelConfigById(
-          id,
-          {
-            deletedAt: new Date(),
-          }
-        );
+      const modelConfig = await mongoDbConnection.models.ModelConfigModel.updateModelConfigById(id, {
+        deletedAt: new Date(),
+      });
       return modelConfig;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {

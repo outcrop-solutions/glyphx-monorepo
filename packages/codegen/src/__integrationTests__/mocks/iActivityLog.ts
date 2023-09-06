@@ -1,15 +1,15 @@
-import { Types as mongooseTypes } from 'mongoose';
-import { IUser } from './iUser';
-import { IState } from './iState';
-import { IProject } from './iProject';
-import { ICustomerPayment } from './iCustomerPayment';
-import { IMember } from './iMember';
-import { IWebhook } from './iWebhook';
-import { IWorkspace } from './iWorkspace';
-import { IUserAgent } from './iUserAgent';
-import { ACTION_TYPE } from '../constants/action';
-import { RESOURCE_MODEL } from '../constants';
-import { IProcessTracking } from './iProcessTracking';
+import {Types as mongooseTypes} from 'mongoose';
+import {IUser} from './iUser';
+import {IState} from './iState';
+import {IProject} from './iProject';
+import {ICustomerPayment} from './iCustomerPayment';
+import {IMember} from './iMember';
+import {IWebhook} from './iWebhook';
+import {IWorkspace} from './iWorkspace';
+import {IUserAgent} from './iUserAgent';
+import {ACTION_TYPE} from '../constants/action';
+import {RESOURCE_MODEL} from '../constants';
+import {IProcessTracking} from './iProcessTracking';
 
 export interface IActivityLog {
   _id?: string | mongooseTypes.ObjectId;

@@ -1,17 +1,10 @@
 import {fileIngestionTypes} from 'types';
 import {error, streams, generalPurposeFunctions, aws} from 'core';
-import {
-  BasicFileTransformer,
-  BasicParquetProcessor,
-  BasicColumnNameCleaner,
-} from './';
+import {BasicFileTransformer, BasicParquetProcessor, BasicColumnNameCleaner} from './';
 import {BasicFieldTypeCalculator} from '../fieldProcessing';
 import {Readable, PassThrough} from 'node:stream';
 import * as csv from 'csv';
-import {
-  IFileInformation,
-  IFileProcessingError,
-} from '../interfaces/fileProcessing';
+import {IFileInformation, IFileProcessingError} from '../interfaces/fileProcessing';
 import {tableService} from 'business';
 
 export class FileUploadManager {
@@ -20,11 +13,7 @@ export class FileUploadManager {
     const splitStream = new streams.ForkingStream(fileStream, csvStream);
     return splitStream;
   }
-  private static createCsvStream(
-    csvFileName: string,
-    s3Manager: aws.S3Manager,
-    splitStream: streams.ForkingStream
-  ) {
+  private static createCsvStream(csvFileName: string, s3Manager: aws.S3Manager, splitStream: streams.ForkingStream) {
     const csvStringify = csv.stringify({quoted: true});
     const passThrough = new PassThrough({objectMode: true});
     const upload = s3Manager.getUploadStream(csvFileName, passThrough);
@@ -49,19 +38,18 @@ export class FileUploadManager {
       parquetPath,
       tableName,
       fileOperationType,
-      input => {
+      (input) => {
         processedFileInformation.columns = input.columns;
         processedFileInformation.fileOperationType = input.fileOperationType;
         processedFileInformation.tableName = input.tableName;
         processedFileInformation.parquetFileName = input.parquetFileName;
-        processedFileInformation.outputFileDirecotry =
-          input.outputFileDirecotry;
+        processedFileInformation.outputFileDirecotry = input.outputFileDirecotry;
         processedFileInformation.fileName = input.fileName;
         processedFileInformation.fileSize = input.fileSize;
         processedFileInformation.numberOfColumns = input.numberOfColumns;
         processedFileInformation.numberOfRows = input.numberOfRows;
       },
-      input => {
+      (input) => {
         processedFileErrorInformation.push(input);
       },
       BasicFieldTypeCalculator,
@@ -71,36 +59,17 @@ export class FileUploadManager {
     const parquetWriter = new BasicParquetProcessor();
     const passThrough2 = new PassThrough();
 
-    splitStream.fork(
-      'parquetWriter',
-      fileTransformer,
-      parquetWriter,
-      passThrough2
-    );
-    const parquetUpload = s3Manager.getUploadStream(
-      parquetPath + parquetFileName,
-      passThrough2
-    );
+    splitStream.fork('parquetWriter', fileTransformer, parquetWriter, passThrough2);
+    const parquetUpload = s3Manager.getUploadStream(parquetPath + parquetFileName, passThrough2);
     return {
       parquetUpload,
     };
   }
 
-  private static getParquetFileName(
-    csvFileName: string,
-    clientId: string,
-    modelId: string,
-    tableName: string
-  ) {
-    const deconstructedOutputFileName =
-      generalPurposeFunctions.string.deconstructFilePath(csvFileName);
+  private static getParquetFileName(csvFileName: string, clientId: string, modelId: string, tableName: string) {
+    const deconstructedOutputFileName = generalPurposeFunctions.string.deconstructFilePath(csvFileName);
 
-    const parquetPath =
-      generalPurposeFunctions.fileIngestion.getTableParquetPath(
-        clientId,
-        modelId,
-        tableName
-      );
+    const parquetPath = generalPurposeFunctions.fileIngestion.getTableParquetPath(clientId, modelId, tableName);
     const parquetFileName = deconstructedOutputFileName.baseName + '.parquet';
     return {parquetFileName, parquetPath};
   }
@@ -116,28 +85,19 @@ export class FileUploadManager {
   ) {
     try {
       const csvFileName =
-        generalPurposeFunctions.fileIngestion.getTableCsvPath(
-          clientId,
-          modelId,
-          tableName
-        ) + fileName;
+        generalPurposeFunctions.fileIngestion.getTableCsvPath(clientId, modelId, tableName) + fileName;
       const splitStream = FileUploadManager.creatBaseStream(fileStream);
 
       //Create our fork for the csv stream
-      const csvUpload = FileUploadManager.createCsvStream(
-        csvFileName,
-        s3Manager,
-        splitStream
-      );
+      const csvUpload = FileUploadManager.createCsvStream(csvFileName, s3Manager, splitStream);
 
       //create our fork for our parquet file
-      const {parquetFileName, parquetPath} =
-        FileUploadManager.getParquetFileName(
-          csvFileName,
-          clientId,
-          modelId,
-          tableName
-        );
+      const {parquetFileName, parquetPath} = FileUploadManager.getParquetFileName(
+        csvFileName,
+        clientId,
+        modelId,
+        tableName
+      );
 
       const processedFileInformation: IFileInformation = {} as IFileInformation;
       const processedFileErrorInformation: IFileProcessingError[] = [];
@@ -177,17 +137,8 @@ export class FileUploadManager {
     }
   }
 
-  static async getMaxRowId(
-    clientId: string,
-    modelId: string,
-    tableName: string
-  ): Promise<number> {
-    const fullTableName =
-      generalPurposeFunctions.fileIngestion.getFullTableName(
-        clientId,
-        modelId,
-        tableName
-      );
+  static async getMaxRowId(clientId: string, modelId: string, tableName: string): Promise<number> {
+    const fullTableName = generalPurposeFunctions.fileIngestion.getFullTableName(clientId, modelId, tableName);
     const maxRowId = await tableService.getMaxRowId(fullTableName);
     return maxRowId;
   }

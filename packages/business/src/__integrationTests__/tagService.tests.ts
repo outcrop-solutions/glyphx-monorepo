@@ -29,9 +29,7 @@ describe('#TagService', () => {
 
       await tagModel.createTag(INPUT_TAG as databaseTypes.ITag);
 
-      const savedTagDocument = await tagModel
-        .findOne({value: INPUT_TAG.value})
-        .lean();
+      const savedTagDocument = await tagModel.findOne({value: INPUT_TAG.value}).lean();
       tagId = savedTagDocument?._id as mongooseTypes.ObjectId;
 
       //   tagDocument = savedTagDocument;

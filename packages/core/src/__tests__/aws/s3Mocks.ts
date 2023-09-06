@@ -55,8 +55,7 @@ export class S3Mock {
     if (!options.StartAfter) {
       this.keys = [];
       const numberToInclude = this.options?.numberOfObjects ?? 1000;
-      for (let i = 0; i < numberToInclude; i++)
-        this.keys.push(`${options.Prefix ?? ''}file-${i}`);
+      for (let i = 0; i < numberToInclude; i++) this.keys.push(`${options.Prefix ?? ''}file-${i}`);
       const {truncated, numberToTake} =
         numberToInclude > 1000
           ? {truncated: true, numberToTake: 1000}
@@ -64,7 +63,7 @@ export class S3Mock {
 
       const retval = {
         IsTruncated: truncated,
-        Contents: this.keys.slice(0, numberToTake).map(k => {
+        Contents: this.keys.slice(0, numberToTake).map((k) => {
           return {Key: k};
         }),
         KeyCount: numberToInclude,
@@ -73,7 +72,7 @@ export class S3Mock {
       };
       return retval;
     } else {
-      const startIndex = this.keys.findIndex(k => k === options.StartAfter) + 1;
+      const startIndex = this.keys.findIndex((k) => k === options.StartAfter) + 1;
       if (startIndex === -1)
         return {
           IsTruncated: false,
@@ -88,11 +87,9 @@ export class S3Mock {
           : {truncated: false, numberToTake: this.keys.length - startIndex};
       const retval = {
         IsTruncated: truncated,
-        Contents: this.keys
-          .slice(startIndex, startIndex + numberToTake)
-          .map(k => {
-            return {Key: k};
-          }),
+        Contents: this.keys.slice(startIndex, startIndex + numberToTake).map((k) => {
+          return {Key: k};
+        }),
         KeyCount: numberToTake,
         Prefix: options.Prefix,
       };
@@ -104,8 +101,7 @@ export class S3Mock {
   async getObject(): Promise<GetObjectOutput> {
     if (this.options?.failsOnGetObjects) throw this.options.failsOnGetObjects;
     else {
-      if (this.options?.getObjectStream)
-        return {Body: this.options.getObjectStream};
+      if (this.options?.getObjectStream) return {Body: this.options.getObjectStream};
       else {
         const buffer = Buffer.from(JSON.stringify(s3MockData));
         const readableSteam = Readable.from(buffer);
@@ -115,16 +111,13 @@ export class S3Mock {
   }
 
   async removeObject(): Promise<DeleteObjectOutput> {
-    if (this.options?.failsOnDelteObject)
-      throw this.options?.failsOnDelteObject;
+    if (this.options?.failsOnDelteObject) throw this.options?.failsOnDelteObject;
     else {
       return true as unknown as DeleteObjectOutput;
     }
   }
 
-  async putObject(
-    input: PutObjectCommandInput
-  ): Promise<PutObjectCommandOutput> {
+  async putObject(input: PutObjectCommandInput): Promise<PutObjectCommandOutput> {
     this.putFileNameField = input.Key ?? '';
     if (this.options?.failsOnPutObject) {
       throw this.options?.failsOnPutObject;

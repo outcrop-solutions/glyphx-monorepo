@@ -3,7 +3,7 @@ import {webTypes} from 'types';
 import {_createProjectFromTemplate, api} from 'lib';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {modalsAtom, templatesAtom, workspaceAtom} from 'state';
-import {useRouter,useParams} from 'next/navigation';
+import {useRouter, useParams} from 'next/navigation';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {LoadingDots} from '../Loaders/LoadingDots';

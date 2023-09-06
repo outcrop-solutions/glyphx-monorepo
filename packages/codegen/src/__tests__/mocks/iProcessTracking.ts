@@ -1,4 +1,4 @@
-import { Types as mongooseTypes } from 'mongoose';
+import {Types as mongooseTypes} from 'mongoose';
 import * as constants from '../constants';
 
 export interface IProcessTracking {

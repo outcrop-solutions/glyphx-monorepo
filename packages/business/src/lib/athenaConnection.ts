@@ -35,4 +35,5 @@ class AthenaConnection {
   }
 }
 
-export default new AthenaConnection();
+const athenaConnection = new AthenaConnection();
+export default athenaConnection;

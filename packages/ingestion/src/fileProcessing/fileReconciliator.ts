@@ -5,10 +5,8 @@ import {generalPurposeFunctions} from 'core';
 export class FileReconciliator {
   private static getDeletedTables(fileInfo: fileIngestion.IFileInfo[]) {
     return fileInfo
-      .filter(
-        d => d.operation === fileIngestionTypes.constants.FILE_OPERATION.DELETE
-      )
-      .map(d => d.tableName);
+      .filter((d) => d.operation === fileIngestionTypes.constants.FILE_OPERATION.DELETE)
+      .map((d) => d.tableName);
   }
 
   private static processProcessedFiles(
@@ -17,11 +15,10 @@ export class FileReconciliator {
     fileStatistics: fileIngestion.IFileStats[],
     fileInfos: IFileInformation[]
   ) {
-    fileInfo.forEach(f => {
-      if (f.operation === fileIngestionTypes.constants.FILE_OPERATION.DELETE)
-        return;
+    fileInfo.forEach((f) => {
+      if (f.operation === fileIngestionTypes.constants.FILE_OPERATION.DELETE) return;
       const fileStats = processedFileInformation.find(
-        fi => fi.tableName === f.tableName && fi.fileName === f.fileName
+        (fi) => fi.tableName === f.tableName && fi.fileName === f.fileName
       ) as unknown as IFileInformation;
       //istanbul ignore else
       if (fileStats) fileInfos.push(fileStats);
@@ -33,75 +30,54 @@ export class FileReconciliator {
     deletedTableNames: string[],
     fileInfos: IFileInformation[]
   ) {
-    fileStatistics.forEach(f => {
+    fileStatistics.forEach((f) => {
       const fInfo = f as unknown as IFileInformation;
       //we do not want any deleted tables
-      if (deletedTableNames.find(d => d === f.tableName)) return;
+      if (deletedTableNames.find((d) => d === f.tableName)) return;
       if (
         !fileInfos.find(
-          fi =>
+          (fi) =>
             fi.tableName === f.tableName &&
-            (fi.fileName === f.fileName ||
-              fi.fileOperationType ===
-                fileIngestionTypes.constants.FILE_OPERATION.REPLACE)
+            (fi.fileName === f.fileName || fi.fileOperationType === fileIngestionTypes.constants.FILE_OPERATION.REPLACE)
         )
       ) {
         //these are essentially no-ops for the Athena Proceser.  This will make sure that they are included in the view, but the table wwill not be regenerated.
-        fInfo.fileOperationType =
-          fileIngestionTypes.constants.FILE_OPERATION.APPEND;
+        fInfo.fileOperationType = fileIngestionTypes.constants.FILE_OPERATION.APPEND;
         fileInfos.push(fInfo);
       }
     });
   }
 
-  private static groupTables(
-    fileInfos: IFileInformation[],
-    clientId: string,
-    modelId: string
-  ) {
-    return fileInfos.reduce((group, fileInfo) => {
-      const {tableName} = fileInfo;
-      const fullTableName =
-        generalPurposeFunctions.fileIngestion.getFullTableName(
-          clientId,
-          modelId,
-          tableName
-        );
-      group[fullTableName] = group[fullTableName] ?? [];
-      group[fullTableName].push(fileInfo);
-      return group;
-    }, {} as Record<string, IFileInformation[]>);
+  private static groupTables(fileInfos: IFileInformation[], clientId: string, modelId: string) {
+    return fileInfos.reduce(
+      (group, fileInfo) => {
+        const {tableName} = fileInfo;
+        const fullTableName = generalPurposeFunctions.fileIngestion.getFullTableName(clientId, modelId, tableName);
+        group[fullTableName] = group[fullTableName] ?? [];
+        group[fullTableName].push(fileInfo);
+        return group;
+      },
+      {} as Record<string, IFileInformation[]>
+    );
   }
 
-  private static squashFilesToTables(
-    clientId: string,
-    modelId: string,
-    fileInfos: IFileInformation[]
-  ) {
+  private static squashFilesToTables(clientId: string, modelId: string, fileInfos: IFileInformation[]) {
     const retval: IFileInformation[] = [];
 
-    const groupedByTable = FileReconciliator.groupTables(
-      fileInfos,
-      clientId,
-      modelId
-    );
+    const groupedByTable = FileReconciliator.groupTables(fileInfos, clientId, modelId);
 
     for (const key in groupedByTable) {
       const mappedData = groupedByTable[key].reduce(
         (accum: IFileInformation, g: IFileInformation) => {
           accum.numberOfRows += g.numberOfRows;
           accum.fileSize += g.fileSize;
-          if (
-            accum.numberOfColumns === 0 ||
-            g.fileOperationType > accum.fileOperationType
-          ) {
+          if (accum.numberOfColumns === 0 || g.fileOperationType > accum.fileOperationType) {
             accum.numberOfColumns = g.numberOfColumns;
             accum.columns = g.columns;
             accum.fileOperationType = g.fileOperationType;
           }
 
-          if (!accum.outputFileDirecotry)
-            accum.outputFileDirecotry = g.outputFileDirecotry;
+          if (!accum.outputFileDirecotry) accum.outputFileDirecotry = g.outputFileDirecotry;
 
           return accum;
         },
@@ -137,24 +113,11 @@ export class FileReconciliator {
 
     const deletedTableNames = FileReconciliator.getDeletedTables(fileInfo);
 
-    FileReconciliator.processProcessedFiles(
-      fileInfo,
-      processedFileInformation,
-      fileStatistics,
-      fileInfos
-    );
+    FileReconciliator.processProcessedFiles(fileInfo, processedFileInformation, fileStatistics, fileInfos);
 
-    FileReconciliator.processSuppliedFiles(
-      fileStatistics,
-      deletedTableNames,
-      fileInfos
-    );
+    FileReconciliator.processSuppliedFiles(fileStatistics, deletedTableNames, fileInfos);
 
-    const retval: IFileInformation[] = FileReconciliator.squashFilesToTables(
-      clientId,
-      modelId,
-      fileInfos
-    );
+    const retval: IFileInformation[] = FileReconciliator.squashFilesToTables(clientId, modelId, fileInfos);
 
     return {allFiles: fileInfos, accumFiles: retval};
   }

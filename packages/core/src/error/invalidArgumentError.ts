@@ -13,12 +13,7 @@ export class InvalidArgumentError extends GlyphxError {
    * @param innerError -- an optional inner error which gives more detail regarding why this
    * error was thrown.
    */
-  constructor(
-    message: string,
-    propertyName: string | string[],
-    propertyValue: unknown,
-    innerError?: unknown
-  ) {
+  constructor(message: string, propertyName: string | string[], propertyValue: unknown, innerError?: unknown) {
     const errorCode = ErrorCodes.getResponseCode('InvalidArgumentError');
     super(message, errorCode, innerError);
     this.data = {propertyName, propertyValue};

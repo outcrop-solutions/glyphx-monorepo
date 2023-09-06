@@ -14,8 +14,7 @@ import {Initializer as glyphEngineInitializer} from '../init';
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
-const INGESTION_PROCESS_ID =
-  generalPurposeFunctions.processTracking.getProcessId();
+const INGESTION_PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
 const PROCESS_NAME = 'glyphEngine' + UNIQUE_KEY;
 const INGESTION_PROCESS_NAME = 'fileIngestion' + UNIQUE_KEY;
 
@@ -65,10 +64,7 @@ describe('GlyphEngine', () => {
       clientId = addFilesJson.payload.clientId + UNIQUE_KEY;
       modelId = projectId.toString();
       testDataDirectory = addFilesJson.testDataDirectory;
-      viewName = generalPurposeFunctions.fileIngestion.getViewName(
-        clientId,
-        modelId
-      );
+      viewName = generalPurposeFunctions.fileIngestion.getViewName(clientId, modelId);
 
       assert.isNotEmpty(bucketName);
       assert.isNotEmpty(databaseName);
@@ -82,7 +78,7 @@ describe('GlyphEngine', () => {
       payload.modelId = modelId;
       assert.isOk(payload);
 
-      fileNames = payload.fileStats.map(f => f.fileName);
+      fileNames = payload.fileStats.map((f) => f.fileName);
       assert.isAtLeast(fileNames.length, 1);
 
       s3Bucket = new aws.S3Manager(bucketName);
@@ -91,23 +87,10 @@ describe('GlyphEngine', () => {
       athenaManager = new aws.AthenaManager(databaseName);
       await athenaManager.init();
 
-      await fileProcessingHelpers.cleanupAws(
-        payload,
-        clientId,
-        modelId,
-        s3Bucket,
-        athenaManager
-      );
+      await fileProcessingHelpers.cleanupAws(payload, clientId, modelId, s3Bucket, athenaManager);
       fileProcessingHelpers.loadTableStreams(testDataDirectory, payload);
-      await processTrackingService.createProcessTracking(
-        INGESTION_PROCESS_ID,
-        INGESTION_PROCESS_NAME
-      );
-      const fileIngestor = new FileIngestor(
-        payload,
-        databaseName,
-        INGESTION_PROCESS_ID
-      );
+      await processTrackingService.createProcessTracking(INGESTION_PROCESS_ID, INGESTION_PROCESS_NAME);
+      const fileIngestor = new FileIngestor(payload, databaseName, INGESTION_PROCESS_ID);
       await fileIngestor.init();
 
       await fileIngestor.process();
@@ -127,52 +110,29 @@ describe('GlyphEngine', () => {
         ['model_id', modelId],
         ['client_id', clientId],
       ]);
-      await processTrackingService.createProcessTracking(
-        PROCESS_ID,
-        PROCESS_NAME
-      );
+      await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
     });
 
     after(async () => {
-      await fileProcessingHelpers.cleanupAws(
-        payload,
-        clientId,
-        modelId,
-        s3Bucket,
-        athenaManager
-      );
+      await fileProcessingHelpers.cleanupAws(payload, clientId, modelId, s3Bucket, athenaManager);
 
       await dbConnection.models.ProjectModel.findByIdAndDelete(projectId);
       await processTrackingService.removeProcessTrackingDocument(PROCESS_ID);
-      await processTrackingService.removeProcessTrackingDocument(
-        INGESTION_PROCESS_ID
-      );
+      await processTrackingService.removeProcessTrackingDocument(INGESTION_PROCESS_ID);
     });
 
     it('will run glyphEngine over our view', async () => {
       await glyphEngineInitializer.init();
-      const glyphEngine = new GlyphEngine(
-        inputBucketName,
-        bucketName,
-        databaseName,
-        PROCESS_ID
-      );
+      const glyphEngine = new GlyphEngine(inputBucketName, bucketName, databaseName, PROCESS_ID);
 
       await glyphEngine.init();
-      const {sdtFileName, sgnFileName, sgcFileName} = await glyphEngine.process(
-        data
-      );
+      const {sdtFileName, sgnFileName, sgcFileName} = await glyphEngine.process(data);
 
       assert.isTrue(await s3Bucket.fileExists(sdtFileName));
       assert.isTrue(await s3Bucket.fileExists(sgnFileName));
       assert.isTrue(await s3Bucket.fileExists(sgcFileName));
-      const processStatus = await processTrackingService.getProcessStatus(
-        PROCESS_ID
-      );
-      assert.strictEqual(
-        processStatus?.processStatus,
-        databaseTypes.constants.PROCESS_STATUS.COMPLETED
-      );
+      const processStatus = await processTrackingService.getProcessStatus(PROCESS_ID);
+      assert.strictEqual(processStatus?.processStatus, databaseTypes.constants.PROCESS_STATUS.COMPLETED);
     });
   });
 });

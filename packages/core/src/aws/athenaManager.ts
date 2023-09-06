@@ -49,10 +49,7 @@ export class AthenaManager {
    */
   public get athenaClient(): AthenaClient {
     if (!this.initedField)
-      throw new error.InvalidOperationError(
-        'you must call init before you can retreive the athena client',
-        {}
-      );
+      throw new error.InvalidOperationError('you must call init before you can retreive the athena client', {});
     return this.athenaClientField;
   }
 
@@ -108,10 +105,7 @@ export class AthenaManager {
    * @returns the query id of the query that was started.
    * @throws QueryExecutionError - if an error occurs while starting the query.
    */
-  public async startQuery(
-    queryString: string,
-    outputLocation?: string
-  ): Promise<string> {
+  public async startQuery(queryString: string, outputLocation?: string): Promise<string> {
     const dataContext = {
       Database: this.databaseName,
       Catalog: DATA_CATALOG_NAME,
@@ -128,9 +122,7 @@ export class AthenaManager {
       };
     }
 
-    const startQueryCommand = new StartQueryExecutionCommand(
-      startQueryCommandInput
-    );
+    const startQueryCommand = new StartQueryExecutionCommand(startQueryCommandInput);
 
     try {
       const startQueryResults = await this.athenaClient.send(startQueryCommand);
@@ -146,9 +138,7 @@ export class AthenaManager {
     }
   }
 
-  public async getQueryStatus(
-    queryId: string
-  ): Promise<GetQueryExecutionCommandOutput> {
+  public async getQueryStatus(queryId: string): Promise<GetQueryExecutionCommandOutput> {
     try {
       const getQueryStatusCommand = new GetQueryExecutionCommand({
         QueryExecutionId: queryId,
@@ -229,9 +219,7 @@ export class AthenaManager {
           includeHeaderRow
         );
 
-        allResults = allResults.concat(
-          convertedResults as Record<string, unknown>[]
-        );
+        allResults = allResults.concat(convertedResults as Record<string, unknown>[]);
         nextToken = results.NextToken;
 
         if (firstResultSet) {
@@ -242,10 +230,7 @@ export class AthenaManager {
 
       return allResults;
     } catch (err) {
-      if (
-        err instanceof error.QueryTimeoutError ||
-        err instanceof error.QueryExecutionError
-      ) {
+      if (err instanceof error.QueryTimeoutError || err instanceof error.QueryExecutionError) {
         throw err;
       } else {
         throw new error.InvalidOperationError(
@@ -287,11 +272,7 @@ export class AthenaManager {
         );
       }
     } catch (err) {
-      if (
-        err instanceof error.QueryExecutionError ||
-        err instanceof error.InvalidOperationError
-      )
-        throw err;
+      if (err instanceof error.QueryExecutionError || err instanceof error.InvalidOperationError) throw err;
 
       throw new error.InvalidOperationError(
         'An unexpected error occrred while getting the pager.  See the inner error for additional details',
@@ -370,12 +351,10 @@ export class AthenaManager {
 
   public async getTableDescription(
     tableName: string
-  ): Promise<
-    {columnName: string; columnType: fileIngestionTypes.constants.FIELD_TYPE}[]
-  > {
+  ): Promise<{columnName: string; columnType: fileIngestionTypes.constants.FIELD_TYPE}[]> {
     const query = `DESCRIBE \`${tableName}\`;`;
     const results = await this.runQuery(query, 10, true);
-    const cleanResults = results.map(r => {
+    const cleanResults = results.map((r) => {
       const dirty = r.col_name as string;
       const split = dirty.split('\t');
       const colTypeString = split[1].trim();

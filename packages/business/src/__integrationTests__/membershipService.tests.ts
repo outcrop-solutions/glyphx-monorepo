@@ -55,9 +55,7 @@ describe('#MembershipService', () => {
 
       await memberModel.createMember(INPUT_MEMBER as databaseTypes.IMember);
 
-      const savedMemberDocument = await memberModel
-        .findOne({name: INPUT_MEMBER.name})
-        .lean();
+      const savedMemberDocument = await memberModel.findOne({name: INPUT_MEMBER.name}).lean();
       memberId = savedMemberDocument?._id as mongooseTypes.ObjectId;
 
       //   memberDocument = savedMemberDocument;

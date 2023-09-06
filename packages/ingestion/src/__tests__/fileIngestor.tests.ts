@@ -4,10 +4,7 @@ import {FileIngestor} from '../fileIngestor';
 import {createSandbox} from 'sinon';
 import mockPayload from './fileIngestionMocks.json';
 import {error, aws, generalPurposeFunctions} from 'core';
-import {
-  BasicAthenaProcessor,
-  BasicJoinProcessor as JoinProcessor,
-} from '@fileProcessing';
+import {BasicAthenaProcessor, BasicJoinProcessor as JoinProcessor} from '@fileProcessing';
 import {fileIngestion, databaseTypes} from 'types';
 import {FileUploadManager} from '../fileProcessing/fileUploadManager';
 import {
@@ -17,10 +14,7 @@ import {
   IJoinTableColumnDefinition,
 } from 'interfaces/fileProcessing';
 import {FileReconciliator} from '../fileProcessing/fileReconciliator';
-import {
-  FILE_PROCESSING_STATUS,
-  FILE_PROCESSING_ERROR_TYPES,
-} from 'util/constants';
+import {FILE_PROCESSING_STATUS, FILE_PROCESSING_ERROR_TYPES} from 'util/constants';
 import * as businessLogic from 'business';
 import {config} from '../config';
 const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
@@ -60,31 +54,11 @@ describe('fileIngestor', () => {
     });
 
     it('should successfuly init our fileingestor', async () => {
-      sandbox.replace(
-        aws.S3Manager.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        BasicAthenaProcessor.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        businessLogic.Initializer,
-        'init',
-        sandbox.stub().resolves(null as unknown as void)
-      );
-      sandbox.replace(
-        businessLogic.projectService,
-        'getProjectFileStats',
-        sandbox.stub().resolves([])
-      );
+      sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(aws.AthenaManager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(BasicAthenaProcessor.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(businessLogic.Initializer, 'init', sandbox.stub().resolves(null as unknown as void));
+      sandbox.replace(businessLogic.projectService, 'getProjectFileStats', sandbox.stub().resolves([]));
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
       const databaseName = 'testDatabaseName';
 
@@ -101,25 +75,11 @@ describe('fileIngestor', () => {
       sandbox.replace(aws.S3Manager.prototype, 'init', s3InitFake);
       const athenaInitFake = sandbox.fake.resolves(true as unknown as void);
       sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitFake);
-      const athenaProcessorInitFake = sandbox.fake.resolves(
-        true as unknown as void
-      );
-      sandbox.replace(
-        BasicAthenaProcessor.prototype,
-        'init',
-        athenaProcessorInitFake
-      );
-      sandbox.replace(
-        businessLogic.Initializer,
-        'init',
-        sandbox.stub().resolves(null as unknown as void)
-      );
+      const athenaProcessorInitFake = sandbox.fake.resolves(true as unknown as void);
+      sandbox.replace(BasicAthenaProcessor.prototype, 'init', athenaProcessorInitFake);
+      sandbox.replace(businessLogic.Initializer, 'init', sandbox.stub().resolves(null as unknown as void));
 
-      sandbox.replace(
-        businessLogic.projectService,
-        'getProjectFileStats',
-        sandbox.stub().resolves([])
-      );
+      sandbox.replace(businessLogic.projectService, 'getProjectFileStats', sandbox.stub().resolves([]));
 
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
       const databaseName = 'testDatabaseName';
@@ -134,31 +94,11 @@ describe('fileIngestor', () => {
     });
 
     it('should throw an invalid argument error when underlying inits fail', async () => {
-      sandbox.replace(
-        aws.S3Manager.prototype,
-        'init',
-        sandbox.fake.rejects('An error has occurred')
-      );
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        BasicAthenaProcessor.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        businessLogic.Initializer,
-        'init',
-        sandbox.stub().resolves(null as unknown as void)
-      );
-      sandbox.replace(
-        businessLogic.projectService,
-        'getProjectFileStats',
-        sandbox.stub().resolves([])
-      );
+      sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.rejects('An error has occurred'));
+      sandbox.replace(aws.AthenaManager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(BasicAthenaProcessor.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(businessLogic.Initializer, 'init', sandbox.stub().resolves(null as unknown as void));
+      sandbox.replace(businessLogic.projectService, 'getProjectFileStats', sandbox.stub().resolves([]));
 
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
       const databaseName = 'testDatabaseName';
@@ -187,26 +127,10 @@ describe('fileIngestor', () => {
     let payload: fileIngestion.IPayload;
     let fileIngestor: FileIngestor;
     beforeEach(async () => {
-      sandbox.replace(
-        aws.S3Manager.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        BasicAthenaProcessor.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        businessLogic.Initializer,
-        'init',
-        sandbox.stub().resolves(null as unknown as void)
-      );
+      sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(aws.AthenaManager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(BasicAthenaProcessor.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(businessLogic.Initializer, 'init', sandbox.stub().resolves(null as unknown as void));
       sandbox.replace(
         businessLogic.projectService,
         'updateProject',
@@ -230,11 +154,7 @@ describe('fileIngestor', () => {
     it('should add a table and create a new view', async () => {
       const dropViewFake = sandbox.fake.resolves(true as unknown);
       sandbox.replace(fileIngestor['athenaManager'], 'dropView', dropViewFake);
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'tableExists',
-        sandbox.fake.resolves(false)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'tableExists', sandbox.fake.resolves(false));
 
       sandbox.replace(
         FileUploadManager,
@@ -261,33 +181,17 @@ describe('fileIngestor', () => {
       );
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'updateProcessStatus',
-        updateStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'updateProcessStatus', updateStub);
       const errorStub = sandbox.stub();
       errorStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'addProcessError',
-        errorStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'addProcessError', errorStub);
       const completeStub = sandbox.stub();
       completeStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'completeProcess',
-        completeStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'completeProcess', completeStub);
 
       const setHeartBeatStub = sandbox.stub();
       setHeartBeatStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'setHeartbeat',
-        setHeartBeatStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'setHeartbeat', setHeartBeatStub);
 
       const results = await fileIngestor.process();
 
@@ -301,34 +205,20 @@ describe('fileIngestor', () => {
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.OK);
       assert.strictEqual(
         results.viewName,
-        generalPurposeFunctions.fileIngestion.getViewName(
-          payload.clientId,
-          payload.modelId
-        )
+        generalPurposeFunctions.fileIngestion.getViewName(payload.clientId, payload.modelId)
       );
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(errorStub.notCalled);
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(
-        completedStatus,
-        databaseTypes.constants.PROCESS_STATUS.COMPLETED
-      );
+      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.COMPLETED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
     it('should fail because the table already exists', async () => {
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'dropView',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'tableExists',
-        sandbox.fake.resolves(true)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'dropView', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(fileIngestor['athenaManager'], 'tableExists', sandbox.fake.resolves(true));
 
       sandbox.replace(
         FileUploadManager,
@@ -355,32 +245,16 @@ describe('fileIngestor', () => {
       );
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'updateProcessStatus',
-        updateStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'updateProcessStatus', updateStub);
       const errorStub = sandbox.stub();
       errorStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'addProcessError',
-        errorStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'addProcessError', errorStub);
       const completeStub = sandbox.stub();
       completeStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'completeProcess',
-        completeStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'completeProcess', completeStub);
       const setHeartBeatStub = sandbox.stub();
       setHeartBeatStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'setHeartbeat',
-        setHeartBeatStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'setHeartbeat', setHeartBeatStub);
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -394,35 +268,21 @@ describe('fileIngestor', () => {
         const fileInfo = payload.fileInfo[i];
         const fileError = results.fileProcessingErrors[i];
         assert.strictEqual(fileInfo.tableName, fileError.tableName);
-        assert.strictEqual(
-          fileError.errorType,
-          FILE_PROCESSING_ERROR_TYPES.TABLE_ALREADY_EXISTS
-        );
+        assert.strictEqual(fileError.errorType, FILE_PROCESSING_ERROR_TYPES.TABLE_ALREADY_EXISTS);
       }
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(errorStub.calledOnce);
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(
-        completedStatus,
-        databaseTypes.constants.PROCESS_STATUS.FAILED
-      );
+      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
     it('should fail because we are adding the same table twice', async () => {
       payload.fileInfo[1].tableName = 'Table1';
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'dropView',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'tableExists',
-        sandbox.fake.resolves(false)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'dropView', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(fileIngestor['athenaManager'], 'tableExists', sandbox.fake.resolves(false));
 
       sandbox.replace(
         FileUploadManager,
@@ -449,33 +309,17 @@ describe('fileIngestor', () => {
       );
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'updateProcessStatus',
-        updateStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'updateProcessStatus', updateStub);
       const errorStub = sandbox.stub();
       errorStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'addProcessError',
-        errorStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'addProcessError', errorStub);
       const completeStub = sandbox.stub();
       completeStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'completeProcess',
-        completeStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'completeProcess', completeStub);
 
       const setHeartBeatStub = sandbox.stub();
       setHeartBeatStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'setHeartbeat',
-        setHeartBeatStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'setHeartbeat', setHeartBeatStub);
 
       const results = await fileIngestor.process();
 
@@ -489,34 +333,20 @@ describe('fileIngestor', () => {
       const fileInfo = payload.fileInfo[0];
       const fileError = results.fileProcessingErrors[0];
       assert.strictEqual(fileInfo.tableName, fileError.tableName);
-      assert.strictEqual(
-        fileError.errorType,
-        FILE_PROCESSING_ERROR_TYPES.INVALID_TABLE_SET
-      );
+      assert.strictEqual(fileError.errorType, FILE_PROCESSING_ERROR_TYPES.INVALID_TABLE_SET);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(errorStub.calledOnce);
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(
-        completedStatus,
-        databaseTypes.constants.PROCESS_STATUS.FAILED
-      );
+      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
     it('should fail because an underlying function throws an exception', async () => {
       const errorString = 'Something bad happened';
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'dropView',
-        sandbox.fake.rejects(errorString)
-      );
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'tableExists',
-        sandbox.fake.resolves(false)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'dropView', sandbox.fake.rejects(errorString));
+      sandbox.replace(fileIngestor['athenaManager'], 'tableExists', sandbox.fake.resolves(false));
 
       sandbox.replace(
         FileUploadManager,
@@ -543,32 +373,16 @@ describe('fileIngestor', () => {
       );
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'updateProcessStatus',
-        updateStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'updateProcessStatus', updateStub);
       const errorStub = sandbox.stub();
       errorStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'addProcessError',
-        errorStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'addProcessError', errorStub);
       const completeStub = sandbox.stub();
       completeStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'completeProcess',
-        completeStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'completeProcess', completeStub);
       const setHeartBeatStub = sandbox.stub();
       setHeartBeatStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'setHeartbeat',
-        setHeartBeatStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'setHeartbeat', setHeartBeatStub);
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -577,40 +391,21 @@ describe('fileIngestor', () => {
       assert.isArray(results.joinInformation);
       assert.strictEqual(results.joinInformation.length, 0);
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.ERROR);
-      assert.isTrue(
-        results.fileProcessingErrors[0].message.indexOf(errorString) >= 0
-      );
-      assert.strictEqual(
-        results.fileProcessingErrors[0].errorType,
-        FILE_PROCESSING_ERROR_TYPES.UNEXPECTED_ERROR
-      );
+      assert.isTrue(results.fileProcessingErrors[0].message.indexOf(errorString) >= 0);
+      assert.strictEqual(results.fileProcessingErrors[0].errorType, FILE_PROCESSING_ERROR_TYPES.UNEXPECTED_ERROR);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(errorStub.calledOnce);
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(
-        completedStatus,
-        databaseTypes.constants.PROCESS_STATUS.FAILED
-      );
+      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
     it('should fail because an underlying function throws an GlyphxError', async () => {
-      const glyphxError = new error.GlyphxError(
-        'something bad has happend',
-        999
-      );
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'dropView',
-        sandbox.fake.rejects(glyphxError)
-      );
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'tableExists',
-        sandbox.fake.resolves(false)
-      );
+      const glyphxError = new error.GlyphxError('something bad has happend', 999);
+      sandbox.replace(fileIngestor['athenaManager'], 'dropView', sandbox.fake.rejects(glyphxError));
+      sandbox.replace(fileIngestor['athenaManager'], 'tableExists', sandbox.fake.resolves(false));
 
       sandbox.replace(
         FileUploadManager,
@@ -638,32 +433,16 @@ describe('fileIngestor', () => {
 
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'updateProcessStatus',
-        updateStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'updateProcessStatus', updateStub);
       const errorStub = sandbox.stub();
       errorStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'addProcessError',
-        errorStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'addProcessError', errorStub);
       const completeStub = sandbox.stub();
       completeStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'completeProcess',
-        completeStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'completeProcess', completeStub);
       const setHeartBeatStub = sandbox.stub();
       setHeartBeatStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'setHeartbeat',
-        setHeartBeatStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'setHeartbeat', setHeartBeatStub);
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -672,20 +451,14 @@ describe('fileIngestor', () => {
       assert.isArray(results.joinInformation);
       assert.strictEqual(results.joinInformation.length, 0);
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.ERROR);
-      assert.strictEqual(
-        results.fileProcessingErrors[0].errorType,
-        FILE_PROCESSING_ERROR_TYPES.UNEXPECTED_ERROR
-      );
+      assert.strictEqual(results.fileProcessingErrors[0].errorType, FILE_PROCESSING_ERROR_TYPES.UNEXPECTED_ERROR);
 
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(errorStub.calledOnce);
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(
-        completedStatus,
-        databaseTypes.constants.PROCESS_STATUS.FAILED
-      );
+      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
   });
@@ -696,26 +469,10 @@ describe('fileIngestor', () => {
     let payload: fileIngestion.IPayload;
     let fileIngestor: FileIngestor;
     beforeEach(async () => {
-      sandbox.replace(
-        aws.S3Manager.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        BasicAthenaProcessor.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        businessLogic.Initializer,
-        'init',
-        sandbox.stub().resolves(null as unknown as void)
-      );
+      sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(aws.AthenaManager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(BasicAthenaProcessor.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(businessLogic.Initializer, 'init', sandbox.stub().resolves(null as unknown as void));
       sandbox.replace(
         businessLogic.projectService,
         'updateProject',
@@ -730,8 +487,7 @@ describe('fileIngestor', () => {
       payload = JSON.parse(JSON.stringify(mockPayload)).payload;
 
       payload.fileInfo.splice(1);
-      payload.fileInfo[0].operation =
-        fileIngestionTypes.constants.FILE_OPERATION.APPEND;
+      payload.fileInfo[0].operation = fileIngestionTypes.constants.FILE_OPERATION.APPEND;
       fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
     });
@@ -741,16 +497,8 @@ describe('fileIngestor', () => {
     });
 
     it('should append a file to an existing table', async () => {
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'tableExists',
-        sandbox.fake.resolves(true)
-      );
-      sandbox.replace(
-        fileIngestor['s3Manager'],
-        'fileExists',
-        sandbox.fake.resolves(false)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'tableExists', sandbox.fake.resolves(true));
+      sandbox.replace(fileIngestor['s3Manager'], 'fileExists', sandbox.fake.resolves(false));
 
       sandbox.replace(
         FileUploadManager,
@@ -777,32 +525,16 @@ describe('fileIngestor', () => {
       );
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'updateProcessStatus',
-        updateStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'updateProcessStatus', updateStub);
       const errorStub = sandbox.stub();
       errorStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'addProcessError',
-        errorStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'addProcessError', errorStub);
       const completeStub = sandbox.stub();
       completeStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'completeProcess',
-        completeStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'completeProcess', completeStub);
       const setHeartBeatStub = sandbox.stub();
       setHeartBeatStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'setHeartbeat',
-        setHeartBeatStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'setHeartbeat', setHeartBeatStub);
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -813,20 +545,14 @@ describe('fileIngestor', () => {
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.OK);
       assert.strictEqual(
         results.viewName,
-        generalPurposeFunctions.fileIngestion.getViewName(
-          payload.clientId,
-          payload.modelId
-        )
+        generalPurposeFunctions.fileIngestion.getViewName(payload.clientId, payload.modelId)
       );
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(errorStub.notCalled);
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(
-        completedStatus,
-        databaseTypes.constants.PROCESS_STATUS.COMPLETED
-      );
+      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.COMPLETED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
@@ -834,26 +560,13 @@ describe('fileIngestor', () => {
       const newFileInfo = JSON.parse(JSON.stringify(payload.fileInfo[0]));
       newFileInfo.fileName = 'APPEND' + newFileInfo.fileName;
       payload.fileInfo.push(newFileInfo);
-      payload.fileInfo[0].operation =
-        fileIngestionTypes.constants.FILE_OPERATION.ADD;
+      payload.fileInfo[0].operation = fileIngestionTypes.constants.FILE_OPERATION.ADD;
 
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'tableExists',
-        sandbox.fake.resolves(false)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'tableExists', sandbox.fake.resolves(false));
 
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'dropView',
-        sandbox.fake.resolves(true as unknown as void)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'dropView', sandbox.fake.resolves(true as unknown as void));
 
-      sandbox.replace(
-        fileIngestor['s3Manager'],
-        'fileExists',
-        sandbox.fake.resolves(false)
-      );
+      sandbox.replace(fileIngestor['s3Manager'], 'fileExists', sandbox.fake.resolves(false));
 
       sandbox.replace(
         FileUploadManager,
@@ -880,32 +593,16 @@ describe('fileIngestor', () => {
       );
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'updateProcessStatus',
-        updateStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'updateProcessStatus', updateStub);
       const errorStub = sandbox.stub();
       errorStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'addProcessError',
-        errorStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'addProcessError', errorStub);
       const completeStub = sandbox.stub();
       completeStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'completeProcess',
-        completeStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'completeProcess', completeStub);
       const setHeartBeatStub = sandbox.stub();
       setHeartBeatStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'setHeartbeat',
-        setHeartBeatStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'setHeartbeat', setHeartBeatStub);
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -919,24 +616,13 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(
-        completedStatus,
-        databaseTypes.constants.PROCESS_STATUS.COMPLETED
-      );
+      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.COMPLETED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
     it('should fail when the table does not exist', async () => {
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'tableExists',
-        sandbox.fake.resolves(false)
-      );
-      sandbox.replace(
-        fileIngestor['s3Manager'],
-        'fileExists',
-        sandbox.fake.resolves(false)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'tableExists', sandbox.fake.resolves(false));
+      sandbox.replace(fileIngestor['s3Manager'], 'fileExists', sandbox.fake.resolves(false));
 
       sandbox.replace(
         FileUploadManager,
@@ -964,34 +650,18 @@ describe('fileIngestor', () => {
 
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'updateProcessStatus',
-        updateStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'updateProcessStatus', updateStub);
       const errorStub = sandbox.stub();
       errorStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'addProcessError',
-        errorStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'addProcessError', errorStub);
 
       const completeStub = sandbox.stub();
       completeStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'completeProcess',
-        completeStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'completeProcess', completeStub);
 
       const setHeartBeatStub = sandbox.stub();
       setHeartBeatStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'setHeartbeat',
-        setHeartBeatStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'setHeartbeat', setHeartBeatStub);
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -1000,33 +670,19 @@ describe('fileIngestor', () => {
       assert.isArray(results.joinInformation);
       assert.strictEqual(results.joinInformation.length, 0);
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.ERROR);
-      assert.strictEqual(
-        results.fileProcessingErrors[0].errorType,
-        FILE_PROCESSING_ERROR_TYPES.TABLE_DOES_NOT_EXIST
-      );
+      assert.strictEqual(results.fileProcessingErrors[0].errorType, FILE_PROCESSING_ERROR_TYPES.TABLE_DOES_NOT_EXIST);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(errorStub.calledOnce);
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(
-        completedStatus,
-        databaseTypes.constants.PROCESS_STATUS.FAILED
-      );
+      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
     it('should fail when the file already exists', async () => {
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'tableExists',
-        sandbox.fake.resolves(true)
-      );
-      sandbox.replace(
-        fileIngestor['s3Manager'],
-        'fileExists',
-        sandbox.fake.resolves(true)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'tableExists', sandbox.fake.resolves(true));
+      sandbox.replace(fileIngestor['s3Manager'], 'fileExists', sandbox.fake.resolves(true));
 
       sandbox.replace(
         FileUploadManager,
@@ -1054,33 +710,17 @@ describe('fileIngestor', () => {
 
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'updateProcessStatus',
-        updateStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'updateProcessStatus', updateStub);
       const errorStub = sandbox.stub();
       errorStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'addProcessError',
-        errorStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'addProcessError', errorStub);
       const completeStub = sandbox.stub();
       completeStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'completeProcess',
-        completeStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'completeProcess', completeStub);
 
       const setHeartBeatStub = sandbox.stub();
       setHeartBeatStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'setHeartbeat',
-        setHeartBeatStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'setHeartbeat', setHeartBeatStub);
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -1089,19 +729,13 @@ describe('fileIngestor', () => {
       assert.isArray(results.joinInformation);
       assert.strictEqual(results.joinInformation.length, 0);
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.ERROR);
-      assert.strictEqual(
-        results.fileProcessingErrors[0].errorType,
-        FILE_PROCESSING_ERROR_TYPES.FILE_ALREADY_EXISTS
-      );
+      assert.strictEqual(results.fileProcessingErrors[0].errorType, FILE_PROCESSING_ERROR_TYPES.FILE_ALREADY_EXISTS);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(errorStub.calledOnce);
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(
-        completedStatus,
-        databaseTypes.constants.PROCESS_STATUS.FAILED
-      );
+      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
@@ -1110,26 +744,13 @@ describe('fileIngestor', () => {
       newFileInfo.fileName = 'APPEND' + newFileInfo.fileName;
       payload.fileInfo.push(newFileInfo);
       payload.fileInfo.push(newFileInfo);
-      payload.fileInfo[0].operation =
-        fileIngestionTypes.constants.FILE_OPERATION.ADD;
+      payload.fileInfo[0].operation = fileIngestionTypes.constants.FILE_OPERATION.ADD;
 
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'tableExists',
-        sandbox.fake.resolves(false)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'tableExists', sandbox.fake.resolves(false));
 
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'dropView',
-        sandbox.fake.resolves(true as unknown as void)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'dropView', sandbox.fake.resolves(true as unknown as void));
 
-      sandbox.replace(
-        fileIngestor['s3Manager'],
-        'fileExists',
-        sandbox.fake.resolves(false)
-      );
+      sandbox.replace(fileIngestor['s3Manager'], 'fileExists', sandbox.fake.resolves(false));
 
       sandbox.replace(
         FileUploadManager,
@@ -1157,33 +778,17 @@ describe('fileIngestor', () => {
 
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'updateProcessStatus',
-        updateStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'updateProcessStatus', updateStub);
       const errorStub = sandbox.stub();
       errorStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'addProcessError',
-        errorStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'addProcessError', errorStub);
       const completeStub = sandbox.stub();
       completeStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'completeProcess',
-        completeStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'completeProcess', completeStub);
 
       const setHeartBeatStub = sandbox.stub();
       setHeartBeatStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'setHeartbeat',
-        setHeartBeatStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'setHeartbeat', setHeartBeatStub);
       const results = await fileIngestor.process();
 
       assert.isArray(results.fileInformation);
@@ -1192,19 +797,13 @@ describe('fileIngestor', () => {
       assert.isArray(results.joinInformation);
       assert.strictEqual(results.joinInformation.length, 0);
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.ERROR);
-      assert.strictEqual(
-        results.fileProcessingErrors[0].errorType,
-        FILE_PROCESSING_ERROR_TYPES.INVALID_TABLE_SET
-      );
+      assert.strictEqual(results.fileProcessingErrors[0].errorType, FILE_PROCESSING_ERROR_TYPES.INVALID_TABLE_SET);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(errorStub.calledOnce);
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(
-        completedStatus,
-        databaseTypes.constants.PROCESS_STATUS.FAILED
-      );
+      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
   });
@@ -1215,26 +814,10 @@ describe('fileIngestor', () => {
     let payload: fileIngestion.IPayload;
     let fileIngestor: FileIngestor;
     beforeEach(async () => {
-      sandbox.replace(
-        aws.S3Manager.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        BasicAthenaProcessor.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        businessLogic.Initializer,
-        'init',
-        sandbox.stub().resolves(null as unknown as void)
-      );
+      sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(aws.AthenaManager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(BasicAthenaProcessor.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(businessLogic.Initializer, 'init', sandbox.stub().resolves(null as unknown as void));
       sandbox.replace(
         businessLogic.projectService,
         'updateProject',
@@ -1250,8 +833,7 @@ describe('fileIngestor', () => {
       payload = JSON.parse(JSON.stringify(mockPayload)).payload;
 
       payload.fileInfo.splice(1);
-      payload.fileInfo[0].operation =
-        fileIngestionTypes.constants.FILE_OPERATION.REPLACE;
+      payload.fileInfo[0].operation = fileIngestionTypes.constants.FILE_OPERATION.REPLACE;
       fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
     });
@@ -1265,24 +847,12 @@ describe('fileIngestor', () => {
       sandbox.replace(fileIngestor['athenaManager'], 'dropView', dropViewFake);
 
       const dropTableFake = sandbox.fake.resolves(true as unknown);
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'dropTable',
-        dropTableFake
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'dropTable', dropTableFake);
 
       const archiveTableFake = sandbox.fake.resolves(true as unknown as void);
-      sandbox.replace(
-        fileIngestor['tableArchver'],
-        'archiveTable',
-        archiveTableFake
-      );
+      sandbox.replace(fileIngestor['tableArchver'], 'archiveTable', archiveTableFake);
 
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'tableExists',
-        sandbox.fake.resolves(true)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'tableExists', sandbox.fake.resolves(true));
 
       sandbox.replace(
         FileUploadManager,
@@ -1310,33 +880,17 @@ describe('fileIngestor', () => {
 
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'updateProcessStatus',
-        updateStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'updateProcessStatus', updateStub);
       const errorStub = sandbox.stub();
       errorStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'addProcessError',
-        errorStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'addProcessError', errorStub);
       const completeStub = sandbox.stub();
       completeStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'completeProcess',
-        completeStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'completeProcess', completeStub);
 
       const setHeartBeatStub = sandbox.stub();
       setHeartBeatStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'setHeartbeat',
-        setHeartBeatStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'setHeartbeat', setHeartBeatStub);
       const results = await fileIngestor.process();
       assert.isTrue(dropTableFake.calledOnce);
       assert.isTrue(dropViewFake.calledOnce);
@@ -1350,20 +904,14 @@ describe('fileIngestor', () => {
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.OK);
       assert.strictEqual(
         results.viewName,
-        generalPurposeFunctions.fileIngestion.getViewName(
-          payload.clientId,
-          payload.modelId
-        )
+        generalPurposeFunctions.fileIngestion.getViewName(payload.clientId, payload.modelId)
       );
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(errorStub.notCalled);
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(
-        completedStatus,
-        databaseTypes.constants.PROCESS_STATUS.COMPLETED
-      );
+      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.COMPLETED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
@@ -1372,24 +920,12 @@ describe('fileIngestor', () => {
       sandbox.replace(fileIngestor['athenaManager'], 'dropView', dropViewFake);
 
       const dropTableFake = sandbox.fake.resolves(true as unknown);
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'dropTable',
-        dropTableFake
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'dropTable', dropTableFake);
 
       const archiveTableFake = sandbox.fake.resolves(true as unknown as void);
-      sandbox.replace(
-        fileIngestor['tableArchver'],
-        'archiveTable',
-        archiveTableFake
-      );
+      sandbox.replace(fileIngestor['tableArchver'], 'archiveTable', archiveTableFake);
 
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'tableExists',
-        sandbox.fake.resolves(false)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'tableExists', sandbox.fake.resolves(false));
 
       sandbox.replace(
         FileUploadManager,
@@ -1417,33 +953,17 @@ describe('fileIngestor', () => {
 
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'updateProcessStatus',
-        updateStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'updateProcessStatus', updateStub);
       const errorStub = sandbox.stub();
       errorStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'addProcessError',
-        errorStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'addProcessError', errorStub);
       const completeStub = sandbox.stub();
       completeStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'completeProcess',
-        completeStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'completeProcess', completeStub);
 
       const setHeartBeatStub = sandbox.stub();
       setHeartBeatStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'setHeartbeat',
-        setHeartBeatStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'setHeartbeat', setHeartBeatStub);
       const results = await fileIngestor.process();
       assert.isFalse(dropTableFake.calledOnce);
       assert.isFalse(dropViewFake.calledOnce);
@@ -1455,19 +975,13 @@ describe('fileIngestor', () => {
       assert.isArray(results.joinInformation);
       assert.strictEqual(results.joinInformation.length, 0);
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.ERROR);
-      assert.strictEqual(
-        results.fileProcessingErrors[0].errorType,
-        FILE_PROCESSING_ERROR_TYPES.TABLE_DOES_NOT_EXIST
-      );
+      assert.strictEqual(results.fileProcessingErrors[0].errorType, FILE_PROCESSING_ERROR_TYPES.TABLE_DOES_NOT_EXIST);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(errorStub.calledOnce);
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(
-        completedStatus,
-        databaseTypes.constants.PROCESS_STATUS.FAILED
-      );
+      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
@@ -1480,24 +994,12 @@ describe('fileIngestor', () => {
       sandbox.replace(fileIngestor['athenaManager'], 'dropView', dropViewFake);
 
       const dropTableFake = sandbox.fake.resolves(true as unknown);
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'dropTable',
-        dropTableFake
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'dropTable', dropTableFake);
 
       const archiveTableFake = sandbox.fake.resolves(true as unknown as void);
-      sandbox.replace(
-        fileIngestor['tableArchver'],
-        'archiveTable',
-        archiveTableFake
-      );
+      sandbox.replace(fileIngestor['tableArchver'], 'archiveTable', archiveTableFake);
 
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'tableExists',
-        sandbox.fake.resolves(false)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'tableExists', sandbox.fake.resolves(false));
 
       sandbox.replace(
         FileUploadManager,
@@ -1525,33 +1027,17 @@ describe('fileIngestor', () => {
 
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'updateProcessStatus',
-        updateStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'updateProcessStatus', updateStub);
       const errorStub = sandbox.stub();
       errorStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'addProcessError',
-        errorStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'addProcessError', errorStub);
       const completeStub = sandbox.stub();
       completeStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'completeProcess',
-        completeStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'completeProcess', completeStub);
 
       const setHeartBeatStub = sandbox.stub();
       setHeartBeatStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'setHeartbeat',
-        setHeartBeatStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'setHeartbeat', setHeartBeatStub);
       const results = await fileIngestor.process();
       assert.isFalse(dropTableFake.calledOnce);
       assert.isFalse(dropViewFake.calledOnce);
@@ -1563,19 +1049,13 @@ describe('fileIngestor', () => {
       assert.isArray(results.joinInformation);
       assert.strictEqual(results.joinInformation.length, 0);
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.ERROR);
-      assert.strictEqual(
-        results.fileProcessingErrors[0].errorType,
-        FILE_PROCESSING_ERROR_TYPES.TABLE_DOES_NOT_EXIST
-      );
+      assert.strictEqual(results.fileProcessingErrors[0].errorType, FILE_PROCESSING_ERROR_TYPES.TABLE_DOES_NOT_EXIST);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(errorStub.calledOnce);
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(
-        completedStatus,
-        databaseTypes.constants.PROCESS_STATUS.FAILED
-      );
+      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
   });
@@ -1586,27 +1066,11 @@ describe('fileIngestor', () => {
     let payload: fileIngestion.IPayload;
     let fileIngestor: FileIngestor;
     beforeEach(async () => {
-      sandbox.replace(
-        aws.S3Manager.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        BasicAthenaProcessor.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
+      sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(aws.AthenaManager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(BasicAthenaProcessor.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
 
-      sandbox.replace(
-        businessLogic.Initializer,
-        'init',
-        sandbox.stub().resolves(null as unknown as void)
-      );
+      sandbox.replace(businessLogic.Initializer, 'init', sandbox.stub().resolves(null as unknown as void));
       sandbox.replace(
         businessLogic.projectService,
         'updateProject',
@@ -1620,8 +1084,7 @@ describe('fileIngestor', () => {
       payload = JSON.parse(JSON.stringify(mockPayload)).payload;
 
       payload.fileInfo.splice(1);
-      payload.fileInfo[0].operation =
-        fileIngestionTypes.constants.FILE_OPERATION.DELETE;
+      payload.fileInfo[0].operation = fileIngestionTypes.constants.FILE_OPERATION.DELETE;
       fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
     });
@@ -1635,24 +1098,12 @@ describe('fileIngestor', () => {
       sandbox.replace(fileIngestor['athenaManager'], 'dropView', dropViewFake);
 
       const dropTableFake = sandbox.fake.resolves(true as unknown);
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'dropTable',
-        dropTableFake
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'dropTable', dropTableFake);
 
       const archiveTableFake = sandbox.fake.resolves(true as unknown as void);
-      sandbox.replace(
-        fileIngestor['tableArchver'],
-        'archiveTable',
-        archiveTableFake
-      );
+      sandbox.replace(fileIngestor['tableArchver'], 'archiveTable', archiveTableFake);
 
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'tableExists',
-        sandbox.fake.resolves(true)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'tableExists', sandbox.fake.resolves(true));
 
       sandbox.replace(
         FileUploadManager,
@@ -1680,33 +1131,17 @@ describe('fileIngestor', () => {
 
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'updateProcessStatus',
-        updateStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'updateProcessStatus', updateStub);
       const errorStub = sandbox.stub();
       errorStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'addProcessError',
-        errorStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'addProcessError', errorStub);
       const completeStub = sandbox.stub();
       completeStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'completeProcess',
-        completeStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'completeProcess', completeStub);
 
       const setHeartBeatStub = sandbox.stub();
       setHeartBeatStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'setHeartbeat',
-        setHeartBeatStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'setHeartbeat', setHeartBeatStub);
       const results = await fileIngestor.process();
       assert.isTrue(dropTableFake.calledOnce);
       assert.isTrue(dropViewFake.calledOnce);
@@ -1720,20 +1155,14 @@ describe('fileIngestor', () => {
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.OK);
       assert.strictEqual(
         results.viewName,
-        generalPurposeFunctions.fileIngestion.getViewName(
-          payload.clientId,
-          payload.modelId
-        )
+        generalPurposeFunctions.fileIngestion.getViewName(payload.clientId, payload.modelId)
       );
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(errorStub.notCalled);
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(
-        completedStatus,
-        databaseTypes.constants.PROCESS_STATUS.COMPLETED
-      );
+      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.COMPLETED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
@@ -1742,24 +1171,12 @@ describe('fileIngestor', () => {
       sandbox.replace(fileIngestor['athenaManager'], 'dropView', dropViewFake);
 
       const dropTableFake = sandbox.fake.resolves(true as unknown);
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'dropTable',
-        dropTableFake
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'dropTable', dropTableFake);
 
       const archiveTableFake = sandbox.fake.resolves(true as unknown as void);
-      sandbox.replace(
-        fileIngestor['tableArchver'],
-        'archiveTable',
-        archiveTableFake
-      );
+      sandbox.replace(fileIngestor['tableArchver'], 'archiveTable', archiveTableFake);
 
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'tableExists',
-        sandbox.fake.resolves(false)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'tableExists', sandbox.fake.resolves(false));
 
       sandbox.replace(
         FileUploadManager,
@@ -1787,33 +1204,17 @@ describe('fileIngestor', () => {
 
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'updateProcessStatus',
-        updateStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'updateProcessStatus', updateStub);
       const errorStub = sandbox.stub();
       errorStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'addProcessError',
-        errorStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'addProcessError', errorStub);
       const completeStub = sandbox.stub();
       completeStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'completeProcess',
-        completeStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'completeProcess', completeStub);
 
       const setHeartBeatStub = sandbox.stub();
       setHeartBeatStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'setHeartbeat',
-        setHeartBeatStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'setHeartbeat', setHeartBeatStub);
       const results = await fileIngestor.process();
       assert.isFalse(dropTableFake.calledOnce);
       assert.isFalse(dropViewFake.calledOnce);
@@ -1825,19 +1226,13 @@ describe('fileIngestor', () => {
       assert.isArray(results.joinInformation);
       assert.strictEqual(results.joinInformation.length, 0);
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.ERROR);
-      assert.strictEqual(
-        results.fileProcessingErrors[0].errorType,
-        FILE_PROCESSING_ERROR_TYPES.TABLE_DOES_NOT_EXIST
-      );
+      assert.strictEqual(results.fileProcessingErrors[0].errorType, FILE_PROCESSING_ERROR_TYPES.TABLE_DOES_NOT_EXIST);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(errorStub.calledOnce);
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(
-        completedStatus,
-        databaseTypes.constants.PROCESS_STATUS.FAILED
-      );
+      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
@@ -1850,24 +1245,12 @@ describe('fileIngestor', () => {
       sandbox.replace(fileIngestor['athenaManager'], 'dropView', dropViewFake);
 
       const dropTableFake = sandbox.fake.resolves(true as unknown);
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'dropTable',
-        dropTableFake
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'dropTable', dropTableFake);
 
       const archiveTableFake = sandbox.fake.resolves(true as unknown as void);
-      sandbox.replace(
-        fileIngestor['tableArchver'],
-        'archiveTable',
-        archiveTableFake
-      );
+      sandbox.replace(fileIngestor['tableArchver'], 'archiveTable', archiveTableFake);
 
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'tableExists',
-        sandbox.fake.resolves(false)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'tableExists', sandbox.fake.resolves(false));
 
       sandbox.replace(
         FileUploadManager,
@@ -1895,33 +1278,17 @@ describe('fileIngestor', () => {
 
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'updateProcessStatus',
-        updateStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'updateProcessStatus', updateStub);
       const errorStub = sandbox.stub();
       errorStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'addProcessError',
-        errorStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'addProcessError', errorStub);
       const completeStub = sandbox.stub();
       completeStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'completeProcess',
-        completeStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'completeProcess', completeStub);
 
       const setHeartBeatStub = sandbox.stub();
       setHeartBeatStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'setHeartbeat',
-        setHeartBeatStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'setHeartbeat', setHeartBeatStub);
       const results = await fileIngestor.process();
       assert.isFalse(dropTableFake.calledOnce);
       assert.isFalse(dropViewFake.calledOnce);
@@ -1933,19 +1300,13 @@ describe('fileIngestor', () => {
       assert.isArray(results.joinInformation);
       assert.strictEqual(results.joinInformation.length, 0);
       assert.strictEqual(results.status, FILE_PROCESSING_STATUS.ERROR);
-      assert.strictEqual(
-        results.fileProcessingErrors[0].errorType,
-        FILE_PROCESSING_ERROR_TYPES.TABLE_DOES_NOT_EXIST
-      );
+      assert.strictEqual(results.fileProcessingErrors[0].errorType, FILE_PROCESSING_ERROR_TYPES.TABLE_DOES_NOT_EXIST);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(errorStub.calledOnce);
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(
-        completedStatus,
-        databaseTypes.constants.PROCESS_STATUS.FAILED
-      );
+      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
   });
@@ -1956,26 +1317,10 @@ describe('fileIngestor', () => {
     let payload: fileIngestion.IPayload;
     let fileIngestor: FileIngestor;
     beforeEach(async () => {
-      sandbox.replace(
-        aws.S3Manager.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        BasicAthenaProcessor.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        businessLogic.Initializer,
-        'init',
-        sandbox.stub().resolves(null as unknown as void)
-      );
+      sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(aws.AthenaManager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(BasicAthenaProcessor.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(businessLogic.Initializer, 'init', sandbox.stub().resolves(null as unknown as void));
       sandbox.replace(
         businessLogic.projectService,
         'updateProject',
@@ -2000,11 +1345,7 @@ describe('fileIngestor', () => {
     it('Should only try to drop the view once even if multiple view affecting operations are present', async () => {
       const dropViewFake = sandbox.fake.resolves(true as unknown);
       sandbox.replace(fileIngestor['athenaManager'], 'dropView', dropViewFake);
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'tableExists',
-        sandbox.fake.resolves(false)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'tableExists', sandbox.fake.resolves(false));
 
       sandbox.replace(
         FileUploadManager,
@@ -2031,32 +1372,16 @@ describe('fileIngestor', () => {
       );
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'updateProcessStatus',
-        updateStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'updateProcessStatus', updateStub);
       const errorStub = sandbox.stub();
       errorStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'addProcessError',
-        errorStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'addProcessError', errorStub);
       const completeStub = sandbox.stub();
       completeStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'completeProcess',
-        completeStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'completeProcess', completeStub);
       const setHeartBeatStub = sandbox.stub();
       setHeartBeatStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'setHeartbeat',
-        setHeartBeatStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'setHeartbeat', setHeartBeatStub);
       const results = await fileIngestor.process();
 
       assert.isTrue(dropViewFake.calledOnce);
@@ -2071,26 +1396,10 @@ describe('fileIngestor', () => {
     let payload: fileIngestion.IPayload;
     let fileIngestor: FileIngestor;
     beforeEach(async () => {
-      sandbox.replace(
-        aws.S3Manager.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        BasicAthenaProcessor.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
-      sandbox.replace(
-        businessLogic.Initializer,
-        'init',
-        sandbox.stub().resolves(null as unknown as void)
-      );
+      sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(aws.AthenaManager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(BasicAthenaProcessor.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(businessLogic.Initializer, 'init', sandbox.stub().resolves(null as unknown as void));
       sandbox.replace(
         businessLogic.projectService,
         'updateProject',
@@ -2115,20 +1424,14 @@ describe('fileIngestor', () => {
     it('should report errors if sent by file upload', async () => {
       const dropViewFake = sandbox.fake.resolves(true as unknown);
       sandbox.replace(fileIngestor['athenaManager'], 'dropView', dropViewFake);
-      sandbox.replace(
-        fileIngestor['athenaManager'],
-        'tableExists',
-        sandbox.fake.resolves(false)
-      );
+      sandbox.replace(fileIngestor['athenaManager'], 'tableExists', sandbox.fake.resolves(false));
 
       sandbox.replace(
         FileUploadManager,
         'processAndUploadNewFiles',
         sandbox.fake.resolves({
           fileInformation: {} as IFileInformation,
-          errorInformation: [
-            {error: 'oops'} as unknown as IFileProcessingError,
-          ] as IFileProcessingError[],
+          errorInformation: [{error: 'oops'} as unknown as IFileProcessingError] as IFileProcessingError[],
         })
       );
 
@@ -2149,33 +1452,17 @@ describe('fileIngestor', () => {
 
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'updateProcessStatus',
-        updateStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'updateProcessStatus', updateStub);
       const errorStub = sandbox.stub();
       errorStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'addProcessError',
-        errorStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'addProcessError', errorStub);
       const completeStub = sandbox.stub();
       completeStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'completeProcess',
-        completeStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'completeProcess', completeStub);
 
       const setHeartBeatStub = sandbox.stub();
       setHeartBeatStub.resolves();
-      sandbox.replace(
-        businessLogic.processTrackingService,
-        'setHeartbeat',
-        setHeartBeatStub
-      );
+      sandbox.replace(businessLogic.processTrackingService, 'setHeartbeat', setHeartBeatStub);
       const results = await fileIngestor.process();
 
       assert.strictEqual(results.fileProcessingErrors.length, 2);
@@ -2188,10 +1475,7 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(
-        completedStatus,
-        databaseTypes.constants.PROCESS_STATUS.COMPLETED
-      );
+      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.COMPLETED);
       assert.isTrue(setHeartBeatStub.called);
     });
   });
@@ -2242,16 +1526,8 @@ describe('fileIngestor', () => {
 
     it('will remove the table definition from the joinTableInformation.columns', () => {
       const joinProcessor = new JoinProcessor();
-      joinProcessor.processColumns(
-        table1.tableName,
-        table1.backingFileName,
-        table1.fields
-      );
-      joinProcessor.processColumns(
-        table2.tableName,
-        table2.backingFileName,
-        table2.fields
-      );
+      joinProcessor.processColumns(table1.tableName, table1.backingFileName, table1.fields);
+      joinProcessor.processColumns(table2.tableName, table2.backingFileName, table2.fields);
 
       const joinInformation = joinProcessor.joinData;
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
@@ -2259,9 +1535,7 @@ describe('fileIngestor', () => {
 
       const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
 
-      const updatedJoinInformation = (fileIngestor as any).cleanJoinInformation(
-        joinInformation
-      );
+      const updatedJoinInformation = (fileIngestor as any).cleanJoinInformation(joinInformation);
 
       updatedJoinInformation.forEach((joinTable: IJoinTableDefinition) => {
         joinTable.columns.forEach((column: IJoinTableColumnDefinition) => {

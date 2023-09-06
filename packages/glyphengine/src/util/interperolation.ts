@@ -27,11 +27,7 @@ export function linearInterpolation(
     return maxGlyphValue;
   }
 
-  return (
-    minGlyphValue +
-    ((maxGlyphValue - minGlyphValue) * (dataValue - minDataValue)) /
-      (maxDataValue - minDataValue)
-  );
+  return minGlyphValue + ((maxGlyphValue - minGlyphValue) * (dataValue - minDataValue)) / (maxDataValue - minDataValue);
 }
 
 export function logaritmicInterpolation(
@@ -53,8 +49,7 @@ export function logaritmicInterpolation(
   }
 
   return (
-    (Math.log10(dataValue - minDataValue + 1) *
-      (maxGlyphValue - minGlyphValue)) /
+    (Math.log10(dataValue - minDataValue + 1) * (maxGlyphValue - minGlyphValue)) /
       Math.log10(maxDataValue - minDataValue + 1) +
     minGlyphValue
   );

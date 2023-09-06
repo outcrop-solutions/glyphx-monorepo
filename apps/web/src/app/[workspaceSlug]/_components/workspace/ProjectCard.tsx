@@ -1,6 +1,6 @@
 'use client';
 import React, {useCallback} from 'react';
-import {useRouter,useParams} from 'next/navigation';
+import {useRouter, useParams} from 'next/navigation';
 import Image from 'next/image';
 import produce from 'immer';
 import dayjs from 'dayjs';
@@ -10,7 +10,7 @@ import {useSetRecoilState} from 'recoil';
 import {webTypes} from 'types';
 import {ProjectTemplateIcons} from '../../project/[projectId]/_components/projectSidebar/icons';
 
-import {modalsAtom,rightSidebarControlAtom} from 'state';
+import {modalsAtom, rightSidebarControlAtom} from 'state';
 
 import projectCard from 'public/images/project.png';
 import AddMemberIcon from 'public/svg/add-member-icon.svg';

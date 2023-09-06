@@ -1,13 +1,5 @@
-import {
-  IFileInformation,
-  IJoinTableDefinition,
-} from '../interfaces/fileProcessing';
-import {
-  BasicHiveTableQueryPlanner,
-  BasicHiveViewQueryPlanner,
-  BasicTableSorter,
-  BasicJoinProcessor,
-} from './';
+import {IFileInformation, IJoinTableDefinition} from '../interfaces/fileProcessing';
+import {BasicHiveTableQueryPlanner, BasicHiveViewQueryPlanner, BasicTableSorter, BasicJoinProcessor} from './';
 
 //eslint-disable-next-line
 import {fileIngestionTypes} from 'types';
@@ -61,10 +53,7 @@ export class BasicAthenaProcessor {
     }
   }
 
-  public async processTables(
-    viewName: string,
-    files: IFileInformation[]
-  ): Promise<IJoinTableDefinition[]> {
+  public async processTables(viewName: string, files: IFileInformation[]): Promise<IJoinTableDefinition[]> {
     //TODO: What to do about files that error.  I guess we can write out the others and create a view on what does pass.  Or just write the tabels but not the view, but then what would we report back to the front end.
     const tableSorter = new BasicTableSorter();
     const sortedTables = tableSorter.sortTables(files);
@@ -79,9 +68,7 @@ export class BasicAthenaProcessor {
     try {
       for (let i = 0; i < sortedTables.length; i++) {
         const file = sortedTables[i];
-        const fileInfos = await this.s3Manager.listObjects(
-          file.outputFileDirecotry
-        );
+        const fileInfos = await this.s3Manager.listObjects(file.outputFileDirecotry);
         if (!fileInfos.length)
           throw new error.InvalidArgumentError(
             `There do not appear to be any files in the output direcotry: ${file.outputFileDirecotry} to build a table against`,
@@ -89,11 +76,7 @@ export class BasicAthenaProcessor {
             file.outputFileDirecotry
           );
         const tableName = file.tableName;
-        joiner.processColumns(
-          tableName,
-          file.outputFileDirecotry,
-          file.columns
-        );
+        joiner.processColumns(tableName, file.outputFileDirecotry, file.columns);
       }
 
       const joinInformation = joiner.joinData;
@@ -104,16 +87,9 @@ export class BasicAthenaProcessor {
         const tableInfo = sortedTables[i];
         //if we are appending the table already exists and does not need
         //to be recreated.
-        if (
-          tableInfo.fileOperationType !==
-          fileIngestionTypes.constants.FILE_OPERATION.APPEND
-        ) {
+        if (tableInfo.fileOperationType !== fileIngestionTypes.constants.FILE_OPERATION.APPEND) {
           const joinData = joinInformation[i];
-          const tableQuery = tablePlanner.defineQuery(
-            joinData.backingFileName,
-            joinData.tableName,
-            joinData
-          );
+          const tableQuery = tablePlanner.defineQuery(joinData.backingFileName, joinData.tableName, joinData);
 
           await this.athenaManager.runQuery(tableQuery, 60);
         }

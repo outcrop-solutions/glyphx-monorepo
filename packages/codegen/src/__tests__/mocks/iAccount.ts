@@ -1,6 +1,6 @@
-import { Types as mongooseTypes } from 'mongoose';
-import { IUser } from './iUser';
-import { ACCOUNT_TYPE, ACCOUNT_PROVIDER, TOKEN_TYPE, SESSION_STATE } from '../constants';
+import {Types as mongooseTypes} from 'mongoose';
+import {IUser} from './iUser';
+import {ACCOUNT_TYPE, ACCOUNT_PROVIDER, TOKEN_TYPE, SESSION_STATE} from '../constants';
 
 export interface IAccount {
   _id?: mongooseTypes.ObjectId;

@@ -97,9 +97,7 @@ describe('#aws/AthenaManager', () => {
 
       const athenaManager = new AthenaManager('jpstestdatabase');
       await athenaManager.init();
-      const queryResults = await athenaManager.runQuery(
-        "Create a table syntaz doesn't matter"
-      );
+      const queryResults = await athenaManager.runQuery("Create a table syntaz doesn't matter");
 
       assert.isArray(queryResults);
       assert.strictEqual(queryResults.length, 0);
@@ -122,9 +120,7 @@ describe('#aws/AthenaManager', () => {
 
       const athenaManager = new AthenaManager('jpstestdatabase');
       await athenaManager.init();
-      const queryResults = await athenaManager.runQuery(
-        'SELECT * FROM someTable LIMIT 100'
-      );
+      const queryResults = await athenaManager.runQuery('SELECT * FROM someTable LIMIT 100');
 
       assert.isArray(queryResults);
       assert.strictEqual(queryResults.length, 100);
@@ -193,11 +189,7 @@ describe('#aws/AthenaManager', () => {
         },
       });
 
-      sandbox.replace(
-        ResultSetConverter,
-        'fromResultset',
-        sandbox.stub().throws('oops I did it again')
-      );
+      sandbox.replace(ResultSetConverter, 'fromResultset', sandbox.stub().throws('oops I did it again'));
       const athenaManager = new AthenaManager('jpstestdatabase');
       await athenaManager.init();
 
@@ -231,11 +223,7 @@ describe('#aws/AthenaManager', () => {
   context('tableExists', () => {
     const sandbox = createSandbox();
     beforeEach(() => {
-      sandbox.replace(
-        AthenaManager.prototype,
-        'init',
-        sandbox.fake.resolves(undefined as void)
-      );
+      sandbox.replace(AthenaManager.prototype, 'init', sandbox.fake.resolves(undefined as void));
     });
 
     afterEach(() => {
@@ -245,11 +233,7 @@ describe('#aws/AthenaManager', () => {
       const athenaManager = new AthenaManager('jpstestdatabase');
       await athenaManager.init();
 
-      sandbox.replace(
-        athenaManager,
-        'runQuery',
-        sandbox.fake.resolves([{tab_name: 'table1'}])
-      );
+      sandbox.replace(athenaManager, 'runQuery', sandbox.fake.resolves([{tab_name: 'table1'}]));
 
       assert.isTrue(await athenaManager.tableExists('sometable'));
     });
@@ -266,11 +250,7 @@ describe('#aws/AthenaManager', () => {
       const athenaManager = new AthenaManager('jpstestdatabase');
       await athenaManager.init();
       const errorString = 'Oops I did it again';
-      sandbox.replace(
-        athenaManager,
-        'runQuery',
-        sandbox.fake.rejects(errorString)
-      );
+      sandbox.replace(athenaManager, 'runQuery', sandbox.fake.rejects(errorString));
       let errored = false;
       try {
         await athenaManager.tableExists('sometable');
@@ -285,11 +265,7 @@ describe('#aws/AthenaManager', () => {
   context('viewExists', () => {
     const sandbox = createSandbox();
     beforeEach(() => {
-      sandbox.replace(
-        AthenaManager.prototype,
-        'init',
-        sandbox.fake.resolves(undefined as void)
-      );
+      sandbox.replace(AthenaManager.prototype, 'init', sandbox.fake.resolves(undefined as void));
     });
 
     afterEach(() => {
@@ -299,11 +275,7 @@ describe('#aws/AthenaManager', () => {
       const athenaManager = new AthenaManager('jpstestdatabase');
       await athenaManager.init();
 
-      sandbox.replace(
-        athenaManager,
-        'runQuery',
-        sandbox.fake.resolves([{tab_name: 'table1'}])
-      );
+      sandbox.replace(athenaManager, 'runQuery', sandbox.fake.resolves([{tab_name: 'table1'}]));
 
       assert.isTrue(await athenaManager.viewExists('sometable'));
     });
@@ -320,11 +292,7 @@ describe('#aws/AthenaManager', () => {
       const athenaManager = new AthenaManager('jpstestdatabase');
       await athenaManager.init();
       const errorString = 'Oops I did it again';
-      sandbox.replace(
-        athenaManager,
-        'runQuery',
-        sandbox.fake.rejects(errorString)
-      );
+      sandbox.replace(athenaManager, 'runQuery', sandbox.fake.rejects(errorString));
       let errored = false;
       try {
         await athenaManager.viewExists('sometable');
@@ -340,11 +308,7 @@ describe('#aws/AthenaManager', () => {
   context('dropTable', () => {
     const sandbox = createSandbox();
     beforeEach(() => {
-      sandbox.replace(
-        AthenaManager.prototype,
-        'init',
-        sandbox.fake.resolves(undefined as void)
-      );
+      sandbox.replace(AthenaManager.prototype, 'init', sandbox.fake.resolves(undefined as void));
     });
 
     afterEach(() => {
@@ -368,11 +332,7 @@ describe('#aws/AthenaManager', () => {
       const athenaManager = new AthenaManager('jpstestdatabase');
       await athenaManager.init();
       const errorString = 'Oops I did it again';
-      sandbox.replace(
-        athenaManager,
-        'runQuery',
-        sandbox.fake.rejects(errorString)
-      );
+      sandbox.replace(athenaManager, 'runQuery', sandbox.fake.rejects(errorString));
       let errored = false;
       try {
         await athenaManager.dropTable('sometable');
@@ -387,11 +347,7 @@ describe('#aws/AthenaManager', () => {
   context('dropView', () => {
     const sandbox = createSandbox();
     beforeEach(() => {
-      sandbox.replace(
-        AthenaManager.prototype,
-        'init',
-        sandbox.fake.resolves(undefined as void)
-      );
+      sandbox.replace(AthenaManager.prototype, 'init', sandbox.fake.resolves(undefined as void));
     });
 
     afterEach(() => {
@@ -415,11 +371,7 @@ describe('#aws/AthenaManager', () => {
       const athenaManager = new AthenaManager('jpstestdatabase');
       await athenaManager.init();
       const errorString = 'Oops I did it again';
-      sandbox.replace(
-        athenaManager,
-        'runQuery',
-        sandbox.fake.rejects(errorString)
-      );
+      sandbox.replace(athenaManager, 'runQuery', sandbox.fake.rejects(errorString));
       let errored = false;
       try {
         await athenaManager.dropView('sometable');
@@ -439,11 +391,7 @@ describe('#aws/AthenaManager', () => {
       sandbox.restore();
     });
     it('will get a table description', async () => {
-      sandbox.replace(
-        AthenaManager.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
+      sandbox.replace(AthenaManager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
 
       sandbox.replace(
         AthenaManager.prototype,
@@ -459,43 +407,25 @@ describe('#aws/AthenaManager', () => {
       const athenaManager = new AthenaManager('glyphx-etl-db');
       await athenaManager.init();
 
-      const r = await athenaManager.getTableDescription(
-        '-etl-data-lake-csv-9ea5173fc201fb5a489bffc6a3c642eb'
-      );
+      const r = await athenaManager.getTableDescription('-etl-data-lake-csv-9ea5173fc201fb5a489bffc6a3c642eb');
 
       assert.isArray(r);
       assert.strictEqual(r.length, 4);
 
       assert.strictEqual(r[0].columnName, 'col1');
-      assert.strictEqual(
-        r[0].columnType,
-        fileIngestionTypes.constants.FIELD_TYPE.INTEGER
-      );
+      assert.strictEqual(r[0].columnType, fileIngestionTypes.constants.FIELD_TYPE.INTEGER);
 
       assert.strictEqual(r[1].columnName, 'col2');
-      assert.strictEqual(
-        r[1].columnType,
-        fileIngestionTypes.constants.FIELD_TYPE.STRING
-      );
+      assert.strictEqual(r[1].columnType, fileIngestionTypes.constants.FIELD_TYPE.STRING);
 
       assert.strictEqual(r[2].columnName, 'col3');
-      assert.strictEqual(
-        r[2].columnType,
-        fileIngestionTypes.constants.FIELD_TYPE.NUMBER
-      );
+      assert.strictEqual(r[2].columnType, fileIngestionTypes.constants.FIELD_TYPE.NUMBER);
       assert.strictEqual(r[3].columnName, 'col4');
-      assert.strictEqual(
-        r[3].columnType,
-        fileIngestionTypes.constants.FIELD_TYPE.STRING
-      );
+      assert.strictEqual(r[3].columnType, fileIngestionTypes.constants.FIELD_TYPE.STRING);
     });
 
     it('will throw an invalidOperationException when it encounters an unknown column type', async () => {
-      sandbox.replace(
-        AthenaManager.prototype,
-        'init',
-        sandbox.fake.resolves(true as unknown as void)
-      );
+      sandbox.replace(AthenaManager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
 
       sandbox.replace(
         AthenaManager.prototype,
@@ -511,9 +441,7 @@ describe('#aws/AthenaManager', () => {
       await athenaManager.init();
       let errored = false;
       try {
-        await athenaManager.getTableDescription(
-          '-etl-data-lake-csv-9ea5173fc201fb5a489bffc6a3c642eb'
-        );
+        await athenaManager.getTableDescription('-etl-data-lake-csv-9ea5173fc201fb5a489bffc6a3c642eb');
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -541,9 +469,7 @@ describe('#aws/AthenaManager', () => {
 
       const athenaManager = new AthenaManager('jpstestdatabase');
       await athenaManager.init();
-      const startedQueryId = await athenaManager.startQuery(
-        "Select * from  a table syntax doesn't matter"
-      );
+      const startedQueryId = await athenaManager.startQuery("Select * from  a table syntax doesn't matter");
 
       assert.strictEqual(startedQueryId, queryId);
     });
@@ -569,24 +495,17 @@ describe('#aws/AthenaManager', () => {
       //the startQueryExecution command.  If that
       //changes, then you will have to update the
       //array pointers.
-      assert.strictEqual(
-        clientMock.send.args[1][0].input.ResultConfiguration.OutputLocation,
-        outputLocation
-      );
+      assert.strictEqual(clientMock.send.args[1][0].input.ResultConfiguration.OutputLocation, outputLocation);
     });
     it('Should throw a QueryExecutionError when the underlying connection fails', async () => {
       athenaMock.on(GetDatabaseCommand).resolves(true as any);
-      athenaMock
-        .on(StartQueryExecutionCommand)
-        .rejects('something bad happened');
+      athenaMock.on(StartQueryExecutionCommand).rejects('something bad happened');
 
       const athenaManager = new AthenaManager('jpstestdatabase');
       await athenaManager.init();
       let errored = false;
       try {
-        await athenaManager.startQuery(
-          "Select * from  a table syntax doesn't matter"
-        );
+        await athenaManager.startQuery("Select * from  a table syntax doesn't matter");
       } catch (err) {
         assert.instanceOf(err, error.QueryExecutionError);
         errored = true;
@@ -663,11 +582,7 @@ describe('#aws/AthenaManager', () => {
       getQueryStatusStub.resolves({
         QueryExecution: {Status: {State: 'SUCCEEDED'}},
       });
-      sandbox.replace(
-        AthenaManager.prototype,
-        'getQueryStatus',
-        getQueryStatusStub
-      );
+      sandbox.replace(AthenaManager.prototype, 'getQueryStatus', getQueryStatusStub);
 
       const athenaManager = new AthenaManager('jpstestdatabase');
       await athenaManager.init();
@@ -684,11 +599,7 @@ describe('#aws/AthenaManager', () => {
       getQueryStatusStub.resolves({
         QueryExecution: {Status: {State: 'RUNNING'}},
       });
-      sandbox.replace(
-        AthenaManager.prototype,
-        'getQueryStatus',
-        getQueryStatusStub
-      );
+      sandbox.replace(AthenaManager.prototype, 'getQueryStatus', getQueryStatusStub);
 
       const athenaManager = new AthenaManager('jpstestdatabase');
       await athenaManager.init();
@@ -708,11 +619,7 @@ describe('#aws/AthenaManager', () => {
       getQueryStatusStub.resolves({
         QueryExecution: {Status: {State: 'FAILED', AthenaError: errorText}},
       });
-      sandbox.replace(
-        AthenaManager.prototype,
-        'getQueryStatus',
-        getQueryStatusStub
-      );
+      sandbox.replace(AthenaManager.prototype, 'getQueryStatus', getQueryStatusStub);
 
       const athenaManager = new AthenaManager('jpstestdatabase');
       await athenaManager.init();
@@ -731,11 +638,7 @@ describe('#aws/AthenaManager', () => {
       const getQueryStatusStub = sandbox.stub();
       const errorText = 'Something bad has happened';
       getQueryStatusStub.rejects(errorText);
-      sandbox.replace(
-        AthenaManager.prototype,
-        'getQueryStatus',
-        getQueryStatusStub
-      );
+      sandbox.replace(AthenaManager.prototype, 'getQueryStatus', getQueryStatusStub);
 
       const athenaManager = new AthenaManager('jpstestdatabase');
       await athenaManager.init();

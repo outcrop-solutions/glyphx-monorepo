@@ -74,9 +74,7 @@ describe('#accountModel', () => {
       const userModel = mongoConnection.models.UserModel;
       await userModel.createUser(INPUT_USER as databaseTypes.IUser);
 
-      const savedUserDocument = await userModel
-        .findOne({name: INPUT_USER.name})
-        .lean();
+      const savedUserDocument = await userModel.findOne({name: INPUT_USER.name}).lean();
       userId = savedUserDocument?._id as mongooseTypes.ObjectId;
 
       userDocument = savedUserDocument;
@@ -103,14 +101,8 @@ describe('#accountModel', () => {
       const accountDocument = await accountModel.createAccount(accountInput);
 
       assert.isOk(accountDocument);
-      assert.strictEqual(
-        accountDocument.refresh_token,
-        accountInput.refresh_token
-      );
-      assert.strictEqual(
-        accountDocument.user._id?.toString(),
-        userId.toString()
-      );
+      assert.strictEqual(accountDocument.refresh_token, accountInput.refresh_token);
+      assert.strictEqual(accountDocument.user._id?.toString(), userId.toString());
 
       accountId = accountDocument._id as mongooseTypes.ObjectId;
     });
@@ -126,10 +118,7 @@ describe('#accountModel', () => {
     it('modify an account', async () => {
       assert.isOk(accountId);
       const input = {refresh_token: 'a modified refresh_token'};
-      const updatedDocument = await accountModel.updateAccountById(
-        accountId,
-        input
-      );
+      const updatedDocument = await accountModel.updateAccountById(accountId, input);
       assert.strictEqual(updatedDocument.refresh_token, input.refresh_token);
     });
 
@@ -146,9 +135,7 @@ describe('#accountModel', () => {
       assert.isArray(accounts.results);
       assert.isAtLeast(accounts.numberOfItems, 2);
       const expectedDocumentCount =
-        accounts.numberOfItems <= accounts.itemsPerPage
-          ? accounts.numberOfItems
-          : accounts.itemsPerPage;
+        accounts.numberOfItems <= accounts.itemsPerPage ? accounts.numberOfItems : accounts.itemsPerPage;
       assert.strictEqual(accounts.results.length, expectedDocumentCount);
     });
 
@@ -158,10 +145,7 @@ describe('#accountModel', () => {
         providerAccountId: INPUT_DATA.providerAccountId,
       });
       assert.strictEqual(results.results.length, 1);
-      assert.strictEqual(
-        results.results[0]?.providerAccountId,
-        INPUT_DATA.providerAccountId
-      );
+      assert.strictEqual(results.results[0]?.providerAccountId, INPUT_DATA.providerAccountId);
     });
 
     it('page accounts', async () => {
@@ -174,10 +158,7 @@ describe('#accountModel', () => {
       const results2 = await accountModel.queryAccounts({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(
-        results2.results[0]?._id?.toString(),
-        lastId?.toString()
-      );
+      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
     });
 
     it('remove an account', async () => {

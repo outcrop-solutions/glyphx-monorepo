@@ -1,9 +1,8 @@
-/*eslint-disable-next-line node/no-unpublished-import*/
 import 'mocha';
 import {assert} from 'chai';
 import {SecretsManager} from '@aws-sdk/client-secrets-manager';
 import {SecretManager} from '../../aws';
-/*eslint-disable-next-line node/no-unpublished-import*/
+
 import {v4} from 'uuid';
 
 const SECRET = {
@@ -27,7 +26,7 @@ describe('#integrationTests/secrets/basicSecret', () => {
     after(async () => {
       //There is a delay between creating the secret and having it available in the listSecrets
       //command so we are going to wait 5 seconds to make sure that it shows up.
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise((resolve) => setTimeout(resolve, 5000));
       const definedSecrets = await (mgr.listSecrets({
         Filters: [{Key: 'name', Values: [SECRET_NAME]}],
       }) as Promise<any>);

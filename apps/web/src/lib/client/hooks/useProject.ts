@@ -1,5 +1,5 @@
 'use client';
-import {useParams,useRouter} from 'next/navigation';
+import {useParams, useRouter} from 'next/navigation';
 import useSWR from 'swr';
 
 const useProject = () => {

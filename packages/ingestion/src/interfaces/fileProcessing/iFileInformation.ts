@@ -55,6 +55,4 @@ export interface IFileInformation {
 /**
  * Defines our callback which is passed to our FileTRansformers to recieve information about the file.
  */
-export type FileInformationCallback = (
-  fileInformation: IFileInformation
-) => void;
+export type FileInformationCallback = (fileInformation: IFileInformation) => void;

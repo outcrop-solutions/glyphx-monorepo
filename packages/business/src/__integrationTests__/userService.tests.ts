@@ -12,7 +12,6 @@ const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const USER_EMAIL = 'testEmail' + UNIQUE_KEY + '@email.com';
 const INPUT_USER: Partial<databaseTypes.IUser> = {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   _id:
     // @ts-ignore
     new mongooseTypes.ObjectId(),
@@ -99,28 +98,19 @@ describe('#UserService', () => {
       // create user
       await userModel.create(INPUT_USER as databaseTypes.IUser);
 
-      const savedUserDocument = await userModel
-        .findOne({username: INPUT_USER.username})
-        .lean();
+      const savedUserDocument = await userModel.findOne({username: INPUT_USER.username}).lean();
       userId = savedUserDocument?._id as mongooseTypes.ObjectId;
       assert.isOk(userId);
 
       // create members
-      await memberModel.create([
-        INPUT_MEMBER_1,
-        INPUT_MEMBER_2,
-      ] as databaseTypes.IMember[]);
+      await memberModel.create([INPUT_MEMBER_1, INPUT_MEMBER_2] as databaseTypes.IMember[]);
 
-      const savedMemberDocument1 = await memberModel
-        .findOne({inviter: INPUT_MEMBER_1.inviter})
-        .lean();
+      const savedMemberDocument1 = await memberModel.findOne({inviter: INPUT_MEMBER_1.inviter}).lean();
 
       memberId = savedMemberDocument1?._id as mongooseTypes.ObjectId;
       assert.isOk(memberId);
 
-      const savedMemberDocument2 = await memberModel
-        .findOne({inviter: INPUT_MEMBER_1.inviter})
-        .lean();
+      const savedMemberDocument2 = await memberModel.findOne({inviter: INPUT_MEMBER_1.inviter}).lean();
 
       memberId = savedMemberDocument2?._id as mongooseTypes.ObjectId;
       assert.isOk(member2Id);
@@ -135,15 +125,12 @@ describe('#UserService', () => {
       assert.isOk(workspaceId);
 
       // create customerPayment
-      await customerPaymentModel.create(
-        INPUT_CUSTOMER_PAYMENT as databaseTypes.ICustomerPayment
-      );
+      await customerPaymentModel.create(INPUT_CUSTOMER_PAYMENT as databaseTypes.ICustomerPayment);
 
       const savedCustomerPaymentDocument = await customerPaymentModel
         .findOne({paymentId: INPUT_CUSTOMER_PAYMENT.paymentId})
         .lean();
-      customerPaymentId =
-        savedCustomerPaymentDocument?._id as mongooseTypes.ObjectId;
+      customerPaymentId = savedCustomerPaymentDocument?._id as mongooseTypes.ObjectId;
       assert.isOk(customerPaymentId);
     });
 
@@ -199,11 +186,7 @@ describe('#UserService', () => {
       assert.strictEqual(user?.username, INPUT_USER.username);
     });
     it('will update a user email', async () => {
-      const user = await userService.updateEmail(
-        userId,
-        'changedemail@gmail.com',
-        'previousemail@gmail.com'
-      );
+      const user = await userService.updateEmail(userId, 'changedemail@gmail.com', 'previousemail@gmail.com');
       assert.isOk(user);
       assert.strictEqual(user?.username, INPUT_USER.username);
     });

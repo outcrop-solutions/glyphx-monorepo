@@ -75,11 +75,7 @@ describe('#util/error', () => {
 
     it('should serialize an GlyphxError with an inner error', () => {
       const innerInnerError = 'I am an inner inner error';
-      const innerError = new GlyphxError(
-        'I am the inner error',
-        999,
-        innerInnerError
-      );
+      const innerError = new GlyphxError('I am the inner error', 999, innerInnerError);
       const serialized = glyphxError['serialize'](innerError);
       assert.strictEqual(serialized.innerError, innerInnerError);
     });
@@ -109,21 +105,11 @@ describe('#util/error', () => {
       assert.strictEqual(serialized.message, innerError.message);
     });
     it('should find an glyphxError as the inner, inner error', () => {
-      const innerInnerError = new GlyphxError(
-        'i am the inner inner error',
-        997
-      );
-      const innerError = new GlyphxError(
-        'i am the inner error',
-        998,
-        innerInnerError
-      );
+      const innerInnerError = new GlyphxError('i am the inner inner error', 997);
+      const innerError = new GlyphxError('i am the inner error', 998, innerInnerError);
       const err = new GlyphxError('I am an error', 999, innerError);
       const serialized = err['getInnerError'](err.innerError);
-      assert.strictEqual(
-        serialized.innerError.message,
-        innerInnerError.message
-      );
+      assert.strictEqual(serialized.innerError.message, innerInnerError.message);
     });
   });
 

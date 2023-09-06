@@ -6,9 +6,7 @@ import {InvalidOperationError, InvalidArgumentError} from '../../error';
 import {PIPELINE_STATUS} from '../../constants';
 
 const STREAM_DATA =
-  'I am the stream data. It really makes no difference what you set here; as long as you set something'.split(
-    ' '
-  );
+  'I am the stream data. It really makes no difference what you set here; as long as you set something'.split(' ');
 
 describe('#stream/ForkingStream', () => {
   const sandbox = createSandbox();
@@ -35,7 +33,6 @@ describe('#stream/ForkingStream', () => {
   let errorTransform2ErrorCount: number;
   let errorTtransformStream2: Transform;
   beforeEach(() => {
-    /*eslint-disable-next-line node/no-unsupported-features/node-builtins*/
     inputStream = Readable.from(STREAM_DATA);
 
     transform1Count = 0;
@@ -112,11 +109,7 @@ describe('#stream/ForkingStream', () => {
 
     it('Should successfully build a new object passing a single base stream and multiple transforms', () => {
       const spy = sandbox.spy(ForkingStream.prototype, 'addStreams');
-      const splitStream = new ForkingStream(
-        inputStream,
-        transformStream1,
-        transformStream2
-      );
+      const splitStream = new ForkingStream(inputStream, transformStream1, transformStream2);
 
       assert.isOk(splitStream['start']);
       //assert.isOk(splitStream['basePipe']);
@@ -157,9 +150,7 @@ describe('#stream/ForkingStream', () => {
       assert.isOk(fork);
       assert.isAtLeast(splitStream['forks'].length, 1);
 
-      const privateFork = splitStream['forks'].find(
-        f => f.forkName === 'fork1'
-      );
+      const privateFork = splitStream['forks'].find((f) => f.forkName === 'fork1');
 
       assert.isOk(privateFork);
     });
@@ -172,14 +163,10 @@ describe('#stream/ForkingStream', () => {
       assert.isOk(fork2);
       assert.isAtLeast(splitStream['forks'].length, 2);
 
-      const privateFork = splitStream['forks'].find(
-        f => f.forkName === 'fork1'
-      );
+      const privateFork = splitStream['forks'].find((f) => f.forkName === 'fork1');
 
       assert.isOk(privateFork);
-      const privateFork2 = splitStream['forks'].find(
-        f => f.forkName === 'fork2'
-      );
+      const privateFork2 = splitStream['forks'].find((f) => f.forkName === 'fork2');
 
       assert.isOk(privateFork2);
     });
@@ -240,14 +227,8 @@ describe('#stream/ForkingStream', () => {
       assert.strictEqual(transform4Count, numberOfCalls);
       assert.strictEqual(transform5Count, numberOfCalls);
       assert.strictEqual(splitStream.status, PIPELINE_STATUS.COMPLETE);
-      assert.strictEqual(
-        splitStream['forks'][0].pipelineStatus,
-        PIPELINE_STATUS.COMPLETE
-      );
-      assert.strictEqual(
-        splitStream['forks'][1].pipelineStatus,
-        PIPELINE_STATUS.COMPLETE
-      );
+      assert.strictEqual(splitStream['forks'][0].pipelineStatus, PIPELINE_STATUS.COMPLETE);
+      assert.strictEqual(splitStream['forks'][1].pipelineStatus, PIPELINE_STATUS.COMPLETE);
     });
     it('It will run just our base stream with no forks', async () => {
       const splitStream = new ForkingStream(inputStream, transformStream1);
@@ -295,21 +276,11 @@ describe('#stream/ForkingStream', () => {
       assert.strictEqual(transform1Count, numberOfCalls);
       assert.strictEqual(errorTransform1ErrorCount, 1);
       assert.strictEqual(splitStream.status, PIPELINE_STATUS.ERROR);
-      assert.strictEqual(
-        splitStream['forks'][0].pipelineStatus,
-        PIPELINE_STATUS.ERROR
-      );
-      assert.strictEqual(
-        splitStream['forks'][1].pipelineStatus,
-        PIPELINE_STATUS.CANCELLED
-      );
+      assert.strictEqual(splitStream['forks'][0].pipelineStatus, PIPELINE_STATUS.ERROR);
+      assert.strictEqual(splitStream['forks'][1].pipelineStatus, PIPELINE_STATUS.CANCELLED);
     });
     it('should fork our stream at the same branch point and process both pipelines a base stream will error', async () => {
-      const splitStream = new ForkingStream(
-        inputStream,
-        errorTtransformStream2,
-        transformStream1
-      );
+      const splitStream = new ForkingStream(inputStream, errorTtransformStream2, transformStream1);
       splitStream.fork('fork1', transformStream2, transformStream3);
       splitStream.fork('fork2', transformStream4, transformStream5);
 
@@ -330,14 +301,8 @@ describe('#stream/ForkingStream', () => {
 
       assert.strictEqual(errorTransform2ErrorCount, 1);
       assert.strictEqual(splitStream.status, PIPELINE_STATUS.ERROR);
-      assert.strictEqual(
-        splitStream['forks'][0].pipelineStatus,
-        PIPELINE_STATUS.CANCELLED
-      );
-      assert.strictEqual(
-        splitStream['forks'][1].pipelineStatus,
-        PIPELINE_STATUS.CANCELLED
-      );
+      assert.strictEqual(splitStream['forks'][0].pipelineStatus, PIPELINE_STATUS.CANCELLED);
+      assert.strictEqual(splitStream['forks'][1].pipelineStatus, PIPELINE_STATUS.CANCELLED);
     });
     it('Should throw an exception if we call start twice', async () => {
       const splitStream = new ForkingStream(inputStream, transformStream1);

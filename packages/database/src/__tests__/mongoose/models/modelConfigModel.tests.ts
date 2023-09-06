@@ -62,12 +62,9 @@ describe('#mongoose/models/modelConfig', () => {
     });
 
     it('should return true when all the modelConfig ids exist', async () => {
-      const modelConfigIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const modelConfigIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
-      const returnedModelConfigIds = modelConfigIds.map(modelConfigId => {
+      const returnedModelConfigIds = modelConfigIds.map((modelConfigId) => {
         return {
           _id: modelConfigId,
         };
@@ -77,17 +74,12 @@ describe('#mongoose/models/modelConfig', () => {
       findStub.resolves(returnedModelConfigIds);
       sandbox.replace(ModelConfigModel, 'find', findStub);
 
-      assert.isTrue(
-        await ModelConfigModel.allModelConfigIdsExist(modelConfigIds)
-      );
+      assert.isTrue(await ModelConfigModel.allModelConfigIdsExist(modelConfigIds));
       assert.isTrue(findStub.calledOnce);
     });
 
     it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
-      const modelConfigIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const modelConfigIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const returnedModelConfigIds = [
         {
@@ -103,10 +95,7 @@ describe('#mongoose/models/modelConfig', () => {
         await ModelConfigModel.allModelConfigIdsExist(modelConfigIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
-        assert.strictEqual(
-          err.data.value[0].toString(),
-          modelConfigIds[1].toString()
-        );
+        assert.strictEqual(err.data.value[0].toString(), modelConfigIds[1].toString());
         errored = true;
       }
       assert.isTrue(errored);
@@ -114,10 +103,7 @@ describe('#mongoose/models/modelConfig', () => {
     });
 
     it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
-      const modelConfigIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const modelConfigIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const findStub = sandbox.stub();
       findStub.rejects('something bad has happened');
@@ -146,10 +132,7 @@ describe('#mongoose/models/modelConfig', () => {
 
       try {
         await ModelConfigModel.validateUpdateObject(
-          mocks.MOCK_MODELCONFIG as unknown as Omit<
-            Partial<databaseTypes.IModelConfig>,
-            '_id'
-          >
+          mocks.MOCK_MODELCONFIG as unknown as Omit<Partial<databaseTypes.IModelConfig>, '_id'>
         );
       } catch (err) {
         errored = true;
@@ -162,10 +145,7 @@ describe('#mongoose/models/modelConfig', () => {
 
       try {
         await ModelConfigModel.validateUpdateObject(
-          mocks.MOCK_MODELCONFIG as unknown as Omit<
-            Partial<databaseTypes.IModelConfig>,
-            '_id'
-          >
+          mocks.MOCK_MODELCONFIG as unknown as Omit<Partial<databaseTypes.IModelConfig>, '_id'>
         );
       } catch (err) {
         errored = true;
@@ -228,26 +208,16 @@ describe('#mongoose/models/modelConfig', () => {
 
     it('will create a modelConfig document', async () => {
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(
-        ModelConfigModel,
-        'create',
-        sandbox.stub().resolves([{_id: objectId}])
-      );
+      sandbox.replace(ModelConfigModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
 
-      sandbox.replace(
-        ModelConfigModel,
-        'validate',
-        sandbox.stub().resolves(true)
-      );
+      sandbox.replace(ModelConfigModel, 'validate', sandbox.stub().resolves(true));
 
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
 
       sandbox.replace(ModelConfigModel, 'getModelConfigById', stub);
 
-      const modelConfigDocument = await ModelConfigModel.createModelConfig(
-        mocks.MOCK_MODELCONFIG
-      );
+      const modelConfigDocument = await ModelConfigModel.createModelConfig(mocks.MOCK_MODELCONFIG);
 
       assert.strictEqual(modelConfigDocument._id, objectId);
       assert.isTrue(stub.calledOnce);
@@ -255,16 +225,8 @@ describe('#mongoose/models/modelConfig', () => {
 
     it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(
-        ModelConfigModel,
-        'validate',
-        sandbox.stub().resolves(true)
-      );
-      sandbox.replace(
-        ModelConfigModel,
-        'create',
-        sandbox.stub().rejects('oops, something bad has happened')
-      );
+      sandbox.replace(ModelConfigModel, 'validate', sandbox.stub().resolves(true));
+      sandbox.replace(ModelConfigModel, 'create', sandbox.stub().rejects('oops, something bad has happened'));
 
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
@@ -281,16 +243,8 @@ describe('#mongoose/models/modelConfig', () => {
 
     it('will throw an Unexpected Error when create does not return an object with an _id', async () => {
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(
-        ModelConfigModel,
-        'validate',
-        sandbox.stub().resolves(true)
-      );
-      sandbox.replace(
-        ModelConfigModel,
-        'create',
-        sandbox.stub().resolves([{}])
-      );
+      sandbox.replace(ModelConfigModel, 'validate', sandbox.stub().resolves(true));
+      sandbox.replace(ModelConfigModel, 'create', sandbox.stub().resolves([{}]));
 
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
@@ -308,16 +262,8 @@ describe('#mongoose/models/modelConfig', () => {
 
     it('will rethrow a DataValidationError when the validate method on the model errors', async () => {
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(
-        ModelConfigModel,
-        'validate',
-        sandbox.stub().rejects('oops an error has occurred')
-      );
-      sandbox.replace(
-        ModelConfigModel,
-        'create',
-        sandbox.stub().resolves([{_id: objectId}])
-      );
+      sandbox.replace(ModelConfigModel, 'validate', sandbox.stub().rejects('oops an error has occurred'));
+      sandbox.replace(ModelConfigModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
       sandbox.replace(ModelConfigModel, 'getModelConfigById', stub);
@@ -362,9 +308,7 @@ describe('#mongoose/models/modelConfig', () => {
       findByIdStub.returns(new MockMongooseQuery(mocks.MOCK_MODELCONFIG));
       sandbox.replace(ModelConfigModel, 'findById', findByIdStub);
 
-      const doc = await ModelConfigModel.getModelConfigById(
-        mocks.MOCK_MODELCONFIG._id as mongoose.Types.ObjectId
-      );
+      const doc = await ModelConfigModel.getModelConfigById(mocks.MOCK_MODELCONFIG._id as mongoose.Types.ObjectId);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any)?.__v);
@@ -379,9 +323,7 @@ describe('#mongoose/models/modelConfig', () => {
 
       let errored = false;
       try {
-        await ModelConfigModel.getModelConfigById(
-          mocks.MOCK_MODELCONFIG._id as mongoose.Types.ObjectId
-        );
+        await ModelConfigModel.getModelConfigById(mocks.MOCK_MODELCONFIG._id as mongoose.Types.ObjectId);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -392,16 +334,12 @@ describe('#mongoose/models/modelConfig', () => {
 
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(
-        new MockMongooseQuery('something bad happened', true)
-      );
+      findByIdStub.returns(new MockMongooseQuery('something bad happened', true));
       sandbox.replace(ModelConfigModel, 'findById', findByIdStub);
 
       let errored = false;
       try {
-        await ModelConfigModel.getModelConfigById(
-          mocks.MOCK_MODELCONFIG._id as mongoose.Types.ObjectId
-        );
+        await ModelConfigModel.getModelConfigById(mocks.MOCK_MODELCONFIG._id as mongoose.Types.ObjectId);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -448,17 +386,9 @@ describe('#mongoose/models/modelConfig', () => {
     });
 
     it('will return the filtered modelConfigs', async () => {
-      sandbox.replace(
-        ModelConfigModel,
-        'count',
-        sandbox.stub().resolves(mockModelConfigs.length)
-      );
+      sandbox.replace(ModelConfigModel, 'count', sandbox.stub().resolves(mockModelConfigs.length));
 
-      sandbox.replace(
-        ModelConfigModel,
-        'find',
-        sandbox.stub().returns(new MockMongooseQuery(mockModelConfigs))
-      );
+      sandbox.replace(ModelConfigModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockModelConfigs)));
 
       const results = await ModelConfigModel.queryModelConfigs({});
 
@@ -474,11 +404,7 @@ describe('#mongoose/models/modelConfig', () => {
     it('will throw a DataNotFoundError when no values match the filter', async () => {
       sandbox.replace(ModelConfigModel, 'count', sandbox.stub().resolves(0));
 
-      sandbox.replace(
-        ModelConfigModel,
-        'find',
-        sandbox.stub().returns(new MockMongooseQuery(mockModelConfigs))
-      );
+      sandbox.replace(ModelConfigModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockModelConfigs)));
 
       let errored = false;
       try {
@@ -492,17 +418,9 @@ describe('#mongoose/models/modelConfig', () => {
     });
 
     it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
-      sandbox.replace(
-        ModelConfigModel,
-        'count',
-        sandbox.stub().resolves(mockModelConfigs.length)
-      );
+      sandbox.replace(ModelConfigModel, 'count', sandbox.stub().resolves(mockModelConfigs.length));
 
-      sandbox.replace(
-        ModelConfigModel,
-        'find',
-        sandbox.stub().returns(new MockMongooseQuery(mockModelConfigs))
-      );
+      sandbox.replace(ModelConfigModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockModelConfigs)));
 
       let errored = false;
       try {
@@ -516,18 +434,12 @@ describe('#mongoose/models/modelConfig', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
-      sandbox.replace(
-        ModelConfigModel,
-        'count',
-        sandbox.stub().resolves(mockModelConfigs.length)
-      );
+      sandbox.replace(ModelConfigModel, 'count', sandbox.stub().resolves(mockModelConfigs.length));
 
       sandbox.replace(
         ModelConfigModel,
         'find',
-        sandbox
-          .stub()
-          .returns(new MockMongooseQuery('something bad has happened', true))
+        sandbox.stub().returns(new MockMongooseQuery('something bad has happened', true))
       );
 
       let errored = false;
@@ -563,20 +475,13 @@ describe('#mongoose/models/modelConfig', () => {
 
       const getModelConfigStub = sandbox.stub();
       getModelConfigStub.resolves({_id: modelConfigId});
-      sandbox.replace(
-        ModelConfigModel,
-        'getModelConfigById',
-        getModelConfigStub
-      );
+      sandbox.replace(ModelConfigModel, 'getModelConfigById', getModelConfigStub);
 
       const validateStub = sandbox.stub();
       validateStub.resolves(undefined as void);
       sandbox.replace(ModelConfigModel, 'validateUpdateObject', validateStub);
 
-      const result = await ModelConfigModel.updateModelConfigById(
-        modelConfigId,
-        updateModelConfig
-      );
+      const result = await ModelConfigModel.updateModelConfigById(modelConfigId, updateModelConfig);
 
       assert.strictEqual(result._id, modelConfigId);
       assert.isTrue(updateStub.calledOnce);
@@ -598,20 +503,13 @@ describe('#mongoose/models/modelConfig', () => {
 
       const getModelConfigStub = sandbox.stub();
       getModelConfigStub.resolves({_id: modelConfigId});
-      sandbox.replace(
-        ModelConfigModel,
-        'getModelConfigById',
-        getModelConfigStub
-      );
+      sandbox.replace(ModelConfigModel, 'getModelConfigById', getModelConfigStub);
 
       const validateStub = sandbox.stub();
       validateStub.resolves(undefined as void);
       sandbox.replace(ModelConfigModel, 'validateUpdateObject', validateStub);
 
-      const result = await ModelConfigModel.updateModelConfigById(
-        modelConfigId,
-        updateModelConfig
-      );
+      const result = await ModelConfigModel.updateModelConfigById(modelConfigId, updateModelConfig);
 
       assert.strictEqual(result._id, modelConfigId);
       assert.isTrue(updateStub.calledOnce);
@@ -637,18 +535,11 @@ describe('#mongoose/models/modelConfig', () => {
 
       const getModelConfigStub = sandbox.stub();
       getModelConfigStub.resolves({_id: modelConfigId});
-      sandbox.replace(
-        ModelConfigModel,
-        'getModelConfigById',
-        getModelConfigStub
-      );
+      sandbox.replace(ModelConfigModel, 'getModelConfigById', getModelConfigStub);
 
       let errorred = false;
       try {
-        await ModelConfigModel.updateModelConfigById(
-          modelConfigId,
-          updateModelConfig
-        );
+        await ModelConfigModel.updateModelConfigById(modelConfigId, updateModelConfig);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -670,23 +561,14 @@ describe('#mongoose/models/modelConfig', () => {
 
       const getModelConfigStub = sandbox.stub();
       getModelConfigStub.resolves({_id: modelConfigId});
-      sandbox.replace(
-        ModelConfigModel,
-        'getModelConfigById',
-        getModelConfigStub
-      );
+      sandbox.replace(ModelConfigModel, 'getModelConfigById', getModelConfigStub);
 
       const validateStub = sandbox.stub();
-      validateStub.rejects(
-        new error.InvalidOperationError("You can't do this", {})
-      );
+      validateStub.rejects(new error.InvalidOperationError("You can't do this", {}));
       sandbox.replace(ModelConfigModel, 'validateUpdateObject', validateStub);
       let errorred = false;
       try {
-        await ModelConfigModel.updateModelConfigById(
-          modelConfigId,
-          updateModelConfig
-        );
+        await ModelConfigModel.updateModelConfigById(modelConfigId, updateModelConfig);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errorred = true;
@@ -708,11 +590,7 @@ describe('#mongoose/models/modelConfig', () => {
 
       const getModelConfigStub = sandbox.stub();
       getModelConfigStub.resolves({_id: modelConfigId});
-      sandbox.replace(
-        ModelConfigModel,
-        'getModelConfigById',
-        getModelConfigStub
-      );
+      sandbox.replace(ModelConfigModel, 'getModelConfigById', getModelConfigStub);
 
       const validateStub = sandbox.stub();
       validateStub.resolves(undefined as void);
@@ -720,10 +598,7 @@ describe('#mongoose/models/modelConfig', () => {
 
       let errorred = false;
       try {
-        await ModelConfigModel.updateModelConfigById(
-          modelConfigId,
-          updateModelConfig
-        );
+        await ModelConfigModel.updateModelConfigById(modelConfigId, updateModelConfig);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;

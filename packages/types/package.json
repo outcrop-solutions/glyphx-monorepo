@@ -12,9 +12,11 @@
     "url": "git+https://github.com/SynGlyphX/serverless.git"
   },
   "scripts": {
-   "lint": "eslint .",
+    "lint": "eslint .",
     "clean": "rimraf .turbo node_modules dist",
-    "fix": "gts fix",
+    "fix": "eslint . --fix",
+    "format:write": "prettier --write \"**/*.{js,json,jsx,ts,tsx}\"",
+    "format": "prettier \"**/*.{js,json,jsx,ts,tsx}\"",
     "build": "tsup",
     "precommit": "npx lint-staged",
     "docs": "npx typedoc",

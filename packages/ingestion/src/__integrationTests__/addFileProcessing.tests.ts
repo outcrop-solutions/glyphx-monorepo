@@ -6,12 +6,7 @@ import addFilesJson from './assets/addTables.json';
 //eslint-disable-next-line
 import {fileIngestion, databaseTypes} from 'types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
-import {
-  Initializer,
-  processTrackingService,
-  projectService,
-  dbConnection,
-} from 'business';
+import {Initializer, processTrackingService, projectService, dbConnection} from 'business';
 import {v4} from 'uuid';
 import {config} from '../config';
 const UNIQUE_KEY = v4().replaceAll('-', '');
@@ -62,10 +57,7 @@ describe('#fileProcessing', () => {
       clientId = addFilesJson.payload.clientId;
       modelId = addFilesJson.payload.modelId;
       testDataDirectory = addFilesJson.testDataDirectory;
-      viewName = generalPurposeFunctions.fileIngestion.getViewName(
-        clientId,
-        modelId
-      );
+      viewName = generalPurposeFunctions.fileIngestion.getViewName(clientId, modelId);
 
       assert.isNotEmpty(bucketName);
       assert.isNotEmpty(databaseName);
@@ -77,7 +69,7 @@ describe('#fileProcessing', () => {
       payload = addFilesJson.payload as fileIngestion.IPayload;
       assert.isOk(payload);
 
-      fileNames = payload.fileStats.map(f => f.fileName);
+      fileNames = payload.fileStats.map((f) => f.fileName);
       assert.isAtLeast(fileNames.length, 1);
 
       s3Bucket = new aws.S3Manager(bucketName);
@@ -86,28 +78,13 @@ describe('#fileProcessing', () => {
       athenaManager = new aws.AthenaManager(databaseName);
       await athenaManager.init();
 
-      await fileProcessingHelpers.cleanupAws(
-        payload,
-        clientId,
-        modelId,
-        s3Bucket,
-        athenaManager
-      );
+      await fileProcessingHelpers.cleanupAws(payload, clientId, modelId, s3Bucket, athenaManager);
       fileProcessingHelpers.loadTableStreams(testDataDirectory, payload);
-      await processTrackingService.createProcessTracking(
-        PROCESS_ID,
-        PROCESS_NAME
-      );
+      await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
     });
 
     after(async () => {
-      await fileProcessingHelpers.cleanupAws(
-        payload,
-        clientId,
-        modelId,
-        s3Bucket,
-        athenaManager
-      );
+      await fileProcessingHelpers.cleanupAws(payload, clientId, modelId, s3Bucket, athenaManager);
 
       await dbConnection.models.ProjectModel.findByIdAndDelete(projectId);
       await processTrackingService.removeProcessTrackingDocument(PROCESS_ID);
@@ -117,16 +94,8 @@ describe('#fileProcessing', () => {
       console.log('stuff spun up ok');
       const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
-      const {
-        fileInformation,
-        joinInformation,
-        viewName: savedViewName,
-        status,
-      } = await fileIngestor.process();
-      await fileProcessingHelpers.validateTableResults(
-        joinInformation,
-        athenaManager
-      );
+      const {fileInformation, joinInformation, viewName: savedViewName, status} = await fileIngestor.process();
+      await fileProcessingHelpers.validateTableResults(joinInformation, athenaManager);
       await fileProcessingHelpers.validateViewResults(
         athenaManager,
         `glyphx_${clientId}_${modelId}_view`,
@@ -135,24 +104,15 @@ describe('#fileProcessing', () => {
 
       assert.strictEqual(savedViewName, viewName);
 
-      const fileStats = await projectService.getProjectFileStats(
-        payload.modelId
-      );
+      const fileStats = await projectService.getProjectFileStats(payload.modelId);
       assert.strictEqual(fileStats.length, fileInformation.length);
       assert.strictEqual(fileStats[0].fileName, fileInformation[0].fileName);
 
-      const documentViewName = await projectService.getProjectViewName(
-        payload.modelId
-      );
+      const documentViewName = await projectService.getProjectViewName(payload.modelId);
       assert.strictEqual(documentViewName, viewName);
 
-      const processStatus = await processTrackingService.getProcessStatus(
-        PROCESS_ID
-      );
-      assert.strictEqual(
-        processStatus?.processStatus,
-        databaseTypes.constants.PROCESS_STATUS.COMPLETED
-      );
+      const processStatus = await processTrackingService.getProcessStatus(PROCESS_ID);
+      assert.strictEqual(processStatus?.processStatus, databaseTypes.constants.PROCESS_STATUS.COMPLETED);
 
       assert.strictEqual(processStatus?.processResult?.status, status);
       console.log('I am done');

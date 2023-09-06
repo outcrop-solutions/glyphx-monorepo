@@ -10,7 +10,6 @@ export function ModalSearch({id, searchId, modalOpen, setModalOpen}) {
   // close on click outside
   useEffect(() => {
     const clickHandler = ({target}) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       if (!modalOpen || modalContent.current?.contains(target)) return;
       setModalOpen(false);

@@ -52,11 +52,7 @@ describe('#mongoose/models/account', () => {
       const accountId = new mongoose.Types.ObjectId();
       sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
       sandbox.replace(AccountModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(
-        AccountModel,
-        'create',
-        sandbox.stub().resolves([{_id: accountId}])
-      );
+      sandbox.replace(AccountModel, 'create', sandbox.stub().resolves([{_id: accountId}]));
 
       const getAccountByIdStub = sandbox.stub();
       getAccountByIdStub.resolves({_id: accountId});
@@ -72,11 +68,7 @@ describe('#mongoose/models/account', () => {
       const accountId = new mongoose.Types.ObjectId();
       sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
       sandbox.replace(AccountModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(
-        AccountModel,
-        'create',
-        sandbox.stub().resolves([{_id: accountId}])
-      );
+      sandbox.replace(AccountModel, 'create', sandbox.stub().resolves([{_id: accountId}]));
 
       const getAccountByIdStub = sandbox.stub();
       getAccountByIdStub.resolves({_id: accountId});
@@ -90,17 +82,9 @@ describe('#mongoose/models/account', () => {
 
     it('will throw an InvalidArgumentError if the user attached to the account does not exist.', async () => {
       const accountId = new mongoose.Types.ObjectId();
-      sandbox.replace(
-        UserModel,
-        'userIdExists',
-        sandbox.stub().resolves(false)
-      );
+      sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(false));
       sandbox.replace(AccountModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(
-        AccountModel,
-        'create',
-        sandbox.stub().resolves([{_id: accountId}])
-      );
+      sandbox.replace(AccountModel, 'create', sandbox.stub().resolves([{_id: accountId}]));
 
       const getAccountByIdStub = sandbox.stub();
       getAccountByIdStub.resolves({_id: accountId});
@@ -120,16 +104,8 @@ describe('#mongoose/models/account', () => {
     it('will throw an DataValidationError if the account cannot be validated.', async () => {
       const accountId = new mongoose.Types.ObjectId();
       sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
-      sandbox.replace(
-        AccountModel,
-        'validate',
-        sandbox.stub().rejects('Invalid')
-      );
-      sandbox.replace(
-        AccountModel,
-        'create',
-        sandbox.stub().resolves([{_id: accountId}])
-      );
+      sandbox.replace(AccountModel, 'validate', sandbox.stub().rejects('Invalid'));
+      sandbox.replace(AccountModel, 'create', sandbox.stub().resolves([{_id: accountId}]));
 
       const getAccountByIdStub = sandbox.stub();
       getAccountByIdStub.resolves({_id: accountId});
@@ -194,10 +170,7 @@ describe('#mongoose/models/account', () => {
       getAccountStub.resolves({_id: accountId});
       sandbox.replace(AccountModel, 'getAccountById', getAccountStub);
 
-      const result = await AccountModel.updateAccountById(
-        accountId,
-        updateAccount
-      );
+      const result = await AccountModel.updateAccountById(accountId, updateAccount);
 
       assert.strictEqual(result._id, accountId);
       assert.isTrue(updateStub.calledOnce);
@@ -228,10 +201,7 @@ describe('#mongoose/models/account', () => {
       getAccountStub.resolves({_id: accountId});
       sandbox.replace(AccountModel, 'getAccountById', getAccountStub);
 
-      const result = await AccountModel.updateAccountById(
-        accountId,
-        updateAccount
-      );
+      const result = await AccountModel.updateAccountById(accountId, updateAccount);
 
       assert.strictEqual(result._id, accountId);
       assert.isTrue(updateStub.calledOnce);
@@ -275,9 +245,7 @@ describe('#mongoose/models/account', () => {
       sandbox.replace(
         AccountModel,
         'validateUpdateObject',
-        sandbox
-          .stub()
-          .rejects(new error.InvalidOperationError('you cant do that', {}))
+        sandbox.stub().rejects(new error.InvalidOperationError('you cant do that', {}))
       );
 
       const updateStub = sandbox.stub();
@@ -490,12 +458,9 @@ describe('#mongoose/models/account', () => {
     });
 
     it('should return true when all the account ids exist', async () => {
-      const accountIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const accountIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
-      const returnedAccountIds = accountIds.map(accountId => {
+      const returnedAccountIds = accountIds.map((accountId) => {
         return {
           _id: accountId,
         };
@@ -510,10 +475,7 @@ describe('#mongoose/models/account', () => {
     });
 
     it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
-      const accountIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const accountIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const returnedAccountIds = [
         {
@@ -529,10 +491,7 @@ describe('#mongoose/models/account', () => {
         await AccountModel.allAccountIdsExist(accountIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
-        assert.strictEqual(
-          err.data.value[0].toString(),
-          accountIds[1].toString()
-        );
+        assert.strictEqual(err.data.value[0].toString(), accountIds[1].toString());
         errored = true;
       }
       assert.isTrue(errored);
@@ -540,10 +499,7 @@ describe('#mongoose/models/account', () => {
     });
 
     it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
-      const accountIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const accountIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const findStub = sandbox.stub();
       findStub.rejects('something bad has happened');
@@ -613,9 +569,7 @@ describe('#mongoose/models/account', () => {
       findByIdStub.returns(new MockMongooseQuery(mockAccount));
       sandbox.replace(AccountModel, 'findById', findByIdStub);
 
-      const doc = await AccountModel.getAccountById(
-        mockAccount._id as mongoose.Types.ObjectId
-      );
+      const doc = await AccountModel.getAccountById(mockAccount._id as mongoose.Types.ObjectId);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
@@ -631,9 +585,7 @@ describe('#mongoose/models/account', () => {
 
       let errored = false;
       try {
-        await AccountModel.getAccountById(
-          mockAccount._id as mongoose.Types.ObjectId
-        );
+        await AccountModel.getAccountById(mockAccount._id as mongoose.Types.ObjectId);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -644,16 +596,12 @@ describe('#mongoose/models/account', () => {
 
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(
-        new MockMongooseQuery('something bad happened', true)
-      );
+      findByIdStub.returns(new MockMongooseQuery('something bad happened', true));
       sandbox.replace(AccountModel, 'findById', findByIdStub);
 
       let errored = false;
       try {
-        await AccountModel.getAccountById(
-          mockAccount._id as mongoose.Types.ObjectId
-        );
+        await AccountModel.getAccountById(mockAccount._id as mongoose.Types.ObjectId);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -736,17 +684,9 @@ describe('#mongoose/models/account', () => {
     });
 
     it('will return the filtered accounts', async () => {
-      sandbox.replace(
-        AccountModel,
-        'count',
-        sandbox.stub().resolves(mockAccounts.length)
-      );
+      sandbox.replace(AccountModel, 'count', sandbox.stub().resolves(mockAccounts.length));
 
-      sandbox.replace(
-        AccountModel,
-        'find',
-        sandbox.stub().returns(new MockMongooseQuery(mockAccounts))
-      );
+      sandbox.replace(AccountModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockAccounts)));
 
       const results = await AccountModel.queryAccounts({});
 
@@ -754,7 +694,7 @@ describe('#mongoose/models/account', () => {
       assert.strictEqual(results.page, 0);
       assert.strictEqual(results.results.length, mockAccounts.length);
       assert.isNumber(results.itemsPerPage);
-      results.results.forEach(doc => {
+      results.results.forEach((doc) => {
         assert.isUndefined((doc as any).__v);
         assert.isUndefined((doc.user as any).__v);
       });
@@ -763,11 +703,7 @@ describe('#mongoose/models/account', () => {
     it('will throw a DataNotFoundError when no values match the filter', async () => {
       sandbox.replace(AccountModel, 'count', sandbox.stub().resolves(0));
 
-      sandbox.replace(
-        AccountModel,
-        'find',
-        sandbox.stub().returns(new MockMongooseQuery(mockAccounts))
-      );
+      sandbox.replace(AccountModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockAccounts)));
 
       let errored = false;
       try {
@@ -781,17 +717,9 @@ describe('#mongoose/models/account', () => {
     });
 
     it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
-      sandbox.replace(
-        AccountModel,
-        'count',
-        sandbox.stub().resolves(mockAccounts.length)
-      );
+      sandbox.replace(AccountModel, 'count', sandbox.stub().resolves(mockAccounts.length));
 
-      sandbox.replace(
-        AccountModel,
-        'find',
-        sandbox.stub().returns(new MockMongooseQuery(mockAccounts))
-      );
+      sandbox.replace(AccountModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockAccounts)));
 
       let errored = false;
       try {
@@ -805,18 +733,12 @@ describe('#mongoose/models/account', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
-      sandbox.replace(
-        AccountModel,
-        'count',
-        sandbox.stub().resolves(mockAccounts.length)
-      );
+      sandbox.replace(AccountModel, 'count', sandbox.stub().resolves(mockAccounts.length));
 
       sandbox.replace(
         AccountModel,
         'find',
-        sandbox
-          .stub()
-          .returns(new MockMongooseQuery('something bad has happened', true))
+        sandbox.stub().returns(new MockMongooseQuery('something bad has happened', true))
       );
 
       let errored = false;

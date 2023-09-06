@@ -21,8 +21,7 @@ describe('#ModelConfigService', () => {
       const modelConfigDocument = await modelConfigModel.createModelConfig(
         mocks.MOCK_MODELCONFIG as unknown as databaseTypes.IModelConfig
       );
-      modelConfigId =
-        modelConfigDocument._id as unknown as mongooseTypes.ObjectId;
+      modelConfigId = modelConfigDocument._id as unknown as mongooseTypes.ObjectId;
     });
 
     after(async () => {
@@ -32,26 +31,19 @@ describe('#ModelConfigService', () => {
     });
 
     it('will retreive our modelConfig from the database', async () => {
-      const modelConfig = await modelConfigService.getModelConfig(
-        modelConfigId
-      );
+      const modelConfig = await modelConfigService.getModelConfig(modelConfigId);
       assert.isOk(modelConfig);
     });
 
     // updates and deletes
     it('will update our modelConfig', async () => {
       assert.isOk(modelConfigId);
-      const updatedModelConfig = await modelConfigService.updateModelConfig(
-        modelConfigId,
-        {
-          deletedAt: new Date(),
-        }
-      );
+      const updatedModelConfig = await modelConfigService.updateModelConfig(modelConfigId, {
+        deletedAt: new Date(),
+      });
       assert.isOk(updatedModelConfig.deletedAt);
 
-      const savedModelConfig = await modelConfigService.getModelConfig(
-        modelConfigId
-      );
+      const savedModelConfig = await modelConfigService.getModelConfig(modelConfigId);
 
       assert.isOk(savedModelConfig!.deletedAt);
     });

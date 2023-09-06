@@ -1,6 +1,6 @@
-import { Types as mongooseTypes } from 'mongoose';
-import { IUser } from './iUser';
-import { SUBSCRIPTION_TYPE } from '../constants';
+import {Types as mongooseTypes} from 'mongoose';
+import {IUser} from './iUser';
+import {SUBSCRIPTION_TYPE} from '../constants';
 
 export interface ICustomerPayment {
   _id?: mongooseTypes.ObjectId;

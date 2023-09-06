@@ -55,30 +55,24 @@ describe('#fileProcessing/fileUploadManager', () => {
       sandbox.replace(
         tableService,
         'getMaxRowId',
-        sandbox
-          .stub()
-          .rejects('getMaxRowId shouild not be getting called for an add')
+        sandbox.stub().rejects('getMaxRowId shouild not be getting called for an add')
       );
       const s3Bucket = new aws.S3Manager('testBucket');
       await s3Bucket.init();
 
-      const results =
-        await fileProcessing.FileUploadManager.processAndUploadNewFiles(
-          clientId,
-          modelId,
-          inputStream,
-          tableName,
-          fileName,
-          fileOperationType,
-          s3Bucket
-        );
+      const results = await fileProcessing.FileUploadManager.processAndUploadNewFiles(
+        clientId,
+        modelId,
+        inputStream,
+        tableName,
+        fileName,
+        fileOperationType,
+        s3Bucket
+      );
 
       assert.isOk(results);
       assert.strictEqual(results.fileInformation.fileName, fileName);
-      assert.strictEqual(
-        results.fileInformation.fileOperationType,
-        fileOperationType
-      );
+      assert.strictEqual(results.fileInformation.fileOperationType, fileOperationType);
       assert.isAtLeast(results.fileInformation.fileSize, 1);
       assert.strictEqual(results.fileInformation.numberOfColumns, 4);
       assert.isNotEmpty(results.fileInformation.outputFileDirecotry);
@@ -87,10 +81,7 @@ describe('#fileProcessing/fileUploadManager', () => {
       assert.isArray(results.errorInformation);
       assert.isAtLeast(results.errorInformation.length, 1);
 
-      assert.strictEqual(
-        results.errorInformation[0].errorType,
-        FILE_PROCESSING_ERROR_TYPES.INVALID_FIELD_VALUE
-      );
+      assert.strictEqual(results.errorInformation[0].errorType, FILE_PROCESSING_ERROR_TYPES.INVALID_FIELD_VALUE);
     });
 
     it('will throw an error when uploading a file fails', async () => {
@@ -101,9 +92,7 @@ describe('#fileProcessing/fileUploadManager', () => {
       s3Mock.on(HeadBucketCommand).resolves(true);
 
       const tableServiceStub = sandbox.stub();
-      tableServiceStub.rejects(
-        'getMaxRowId shouild not be getting called for an add'
-      );
+      tableServiceStub.rejects('getMaxRowId shouild not be getting called for an add');
 
       sandbox.replace(tableService, 'getMaxRowId', tableServiceStub);
 
@@ -138,8 +127,7 @@ describe('#fileProcessing/fileUploadManager', () => {
     let inputStream: Readable;
     const fileName = 'file1.csv';
     const tableName = 'table1';
-    const fileOperationType =
-      fileIngestionTypes.constants.FILE_OPERATION.APPEND;
+    const fileOperationType = fileIngestionTypes.constants.FILE_OPERATION.APPEND;
     beforeEach(() => {
       // eslint-disable-next-line
       inputStream = Readable.from(INPUT_DATA);
@@ -163,23 +151,19 @@ describe('#fileProcessing/fileUploadManager', () => {
       const s3Bucket = new aws.S3Manager('testBucket');
       await s3Bucket.init();
 
-      const results =
-        await fileProcessing.FileUploadManager.processAndUploadNewFiles(
-          clientId,
-          modelId,
-          inputStream,
-          tableName,
-          fileName,
-          fileOperationType,
-          s3Bucket
-        );
+      const results = await fileProcessing.FileUploadManager.processAndUploadNewFiles(
+        clientId,
+        modelId,
+        inputStream,
+        tableName,
+        fileName,
+        fileOperationType,
+        s3Bucket
+      );
 
       assert.isOk(results);
       assert.strictEqual(results.fileInformation.fileName, fileName);
-      assert.strictEqual(
-        results.fileInformation.fileOperationType,
-        fileOperationType
-      );
+      assert.strictEqual(results.fileInformation.fileOperationType, fileOperationType);
       assert.isAtLeast(results.fileInformation.fileSize, 1);
       assert.strictEqual(results.fileInformation.numberOfColumns, 4);
       assert.isNotEmpty(results.fileInformation.outputFileDirecotry);
@@ -188,10 +172,7 @@ describe('#fileProcessing/fileUploadManager', () => {
       assert.isArray(results.errorInformation);
       assert.isAtLeast(results.errorInformation.length, 1);
 
-      assert.strictEqual(
-        results.errorInformation[0].errorType,
-        FILE_PROCESSING_ERROR_TYPES.INVALID_FIELD_VALUE
-      );
+      assert.strictEqual(results.errorInformation[0].errorType, FILE_PROCESSING_ERROR_TYPES.INVALID_FIELD_VALUE);
       assert.isTrue(tableServiceStub.calledOnce);
     });
   });

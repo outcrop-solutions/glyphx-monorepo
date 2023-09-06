@@ -15,9 +15,7 @@ interface IJoinData extends fileProcessingInterfaces.IJoinTableDefinition {
  * define how table relate to each other.  The primary external interface
  * for clients in the processColumns function.
  */
-export class BasicJoinProcessor
-  implements fileProcessingInterfaces.IJoinProcessor
-{
+export class BasicJoinProcessor implements fileProcessingInterfaces.IJoinProcessor {
   /**
    *  The tables that have been processed by the join processor.
    */
@@ -94,9 +92,7 @@ export class BasicJoinProcessor
     backingFileName: string,
     columns: fileProcessingInterfaces.IFieldDefinition[]
   ): fileProcessingInterfaces.IJoinTableDefinition {
-    this.currentAlias = String.fromCharCode(
-      this.currentAlias.charCodeAt(0) + 1
-    );
+    this.currentAlias = String.fromCharCode(this.currentAlias.charCodeAt(0) + 1);
     const newProcessedTable: fileProcessingInterfaces.IJoinTableDefinition = {
       tableName: tableName,
       tableIndex: ++this.currentIndex,
@@ -117,9 +113,7 @@ export class BasicJoinProcessor
    * @returns true if the table exists
    */
   private doesTableExist(tableName: string): boolean {
-    const retVal = this.processedTables.find(t => t.tableName === tableName)
-      ? true
-      : false;
+    const retVal = this.processedTables.find((t) => t.tableName === tableName) ? true : false;
     return retVal;
   }
 
@@ -144,11 +138,7 @@ export class BasicJoinProcessor
     //2. if the table already exisits what should we do?  For now lets just throw an error
     const cleanTableName = this.cleanTableName(tableName);
     if (this.doesTableExist(cleanTableName))
-      throw new error.InvalidArgumentError(
-        `A table with the name ${tableName} already exists`,
-        'tableName',
-        tableName
-      );
+      throw new error.InvalidArgumentError(`A table with the name ${tableName} already exists`, 'tableName', tableName);
 
     const newTable = this.addTable(cleanTableName, backingTableName, columns);
 
@@ -171,22 +161,19 @@ export class BasicJoinProcessor
    *
    *
    */
-  private processJoins(
-    table: fileProcessingInterfaces.IJoinTableDefinition
-  ): void {
+  private processJoins(table: fileProcessingInterfaces.IJoinTableDefinition): void {
     const joinTablesData: IJoinData[] = [];
-    this.processedTables.forEach(processedTable => {
+    this.processedTables.forEach((processedTable) => {
       //no self joins, that would make things a mess
       if (processedTable.tableIndex !== table.tableIndex) {
         const joinTable = Object.assign({}, processedTable) as IJoinData;
 
-        const matchingColumns = joinTable.columns.filter(joinTablecolumn => {
+        const matchingColumns = joinTable.columns.filter((joinTablecolumn) => {
           const isMatch = table.columns.find(
-            tableColumn =>
+            (tableColumn) =>
               //we do not want to join on glyphxId ever
               joinTablecolumn.columnName !== GLYPHX_ID_COLUMN_NAME &&
-              joinTablecolumn.columnType !==
-                fileIngestionTypes.constants.FIELD_TYPE.DATE &&
+              joinTablecolumn.columnType !== fileIngestionTypes.constants.FIELD_TYPE.DATE &&
               joinTablecolumn.columnName === tableColumn.columnName &&
               joinTablecolumn.columnType === tableColumn.columnType
           );
@@ -219,29 +206,23 @@ export class BasicJoinProcessor
 
       const joinTableDefinition = this.processedTables[joinTable.tableIndex];
       table.joinTable = joinTableDefinition;
-      table.columns.forEach(c => {
+      table.columns.forEach((c) => {
         //we only wan't the left most glyphxId column to be selected
         if (c.columnName === GLYPHX_ID_COLUMN_NAME) {
           c.isSelectedColumn = false;
-        } else if (
-          c.columnType === fileIngestionTypes.constants.FIELD_TYPE.DATE
-        ) {
+        } else if (c.columnType === fileIngestionTypes.constants.FIELD_TYPE.DATE) {
           //For dates we don't want to join even if they have the same name.
           //For instance, some databases may have a deletedAt column,
           //in this case, we will only select the same named column from
           //the left table.
-          const sameColumn = joinTableDefinition.columns.find(jc => {
-            return (
-              jc.columnName === c.columnName && jc.columnType === c.columnType
-            );
+          const sameColumn = joinTableDefinition.columns.find((jc) => {
+            return jc.columnName === c.columnName && jc.columnType === c.columnType;
           });
           c.isJoinColumn = false;
           c.isSelectedColumn = sameColumn ? false : true;
         } else if (
-          joinTable.columns.find(jc => {
-            return (
-              jc.columnName === c.columnName && jc.columnType === c.columnType
-            );
+          joinTable.columns.find((jc) => {
+            return jc.columnName === c.columnName && jc.columnType === c.columnType;
           })
         ) {
           c.isJoinColumn = true;
@@ -249,18 +230,14 @@ export class BasicJoinProcessor
         }
       });
     } else if (this.joinData.length > 1) {
-      table.columns.forEach(c => {
+      table.columns.forEach((c) => {
         if (c.columnName === GLYPHX_ID_COLUMN_NAME) {
           c.isSelectedColumn = false;
-        } else if (
-          c.columnType === fileIngestionTypes.constants.FIELD_TYPE.DATE
-        ) {
+        } else if (c.columnType === fileIngestionTypes.constants.FIELD_TYPE.DATE) {
           for (let i = this.joinData.length - 2; i >= 0; i--) {
             const leftTable = this.joinData[i];
-            const sharedColumn = leftTable.columns.find(lc => {
-              return (
-                lc.columnName === c.columnName && lc.columnType === c.columnType
-              );
+            const sharedColumn = leftTable.columns.find((lc) => {
+              return lc.columnName === c.columnName && lc.columnType === c.columnType;
             });
             if (sharedColumn) {
               c.isSelectedColumn = false;

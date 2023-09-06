@@ -80,6 +80,8 @@
   },
   "globalEnv": [
     "OPENAI_API_KEY",
+    "ANTHROPIC_API_KEY",
+    "HUGGINGFACE_API_KEY",
     "GITHUB_TOKEN",
     "API_ENV",
     "MONGODB_URI",
@@ -111,7 +113,8 @@
     "PAYMENTS_SECRET_KEY",
     "PAYMENTS_SIGNING_SECRET",
     "NEXT_PUBLIC_POSTHOG_KEY",
-    "NEXT_PUBLIC_POSTHOG_HOST"
+    "NEXT_PUBLIC_POSTHOG_HOST",
+    "LOG_LEVEL"
   ],
   "globalDependencies": ["tsconfig.json"]
 }

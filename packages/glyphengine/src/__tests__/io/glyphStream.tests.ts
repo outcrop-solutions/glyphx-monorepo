@@ -108,57 +108,29 @@ describe('#io/GlyphStream', () => {
 
   before(async () => {
     const stringTemplate = await helperFunctions.getMockTemplate();
-    const glyphEngine = new GlyphEngine(
-      'testBucketName',
-      'outputBucketName',
-      'databaseName',
-      'testProcessId'
-    );
-    const stringSdt = (glyphEngine as any).updateSdt(
-      stringTemplate,
-      mockInputData
-    );
+    const glyphEngine = new GlyphEngine('testBucketName', 'outputBucketName', 'databaseName', 'testProcessId');
+    const stringSdt = (glyphEngine as any).updateSdt(stringTemplate, mockInputData);
 
     const textToNumberLoadStub = sandbox.stub();
     textToNumberLoadStub.resolves();
-    sandbox.replace(
-      TextColumnToNumberConverter.prototype,
-      'load',
-      textToNumberLoadStub
-    );
+    sandbox.replace(TextColumnToNumberConverter.prototype, 'load', textToNumberLoadStub);
 
     const textToNumberConvertStub = sandbox.stub();
     textToNumberConvertStub.callsFake((data: string) => {
       return mockTextToNumberResults.get(data);
     });
 
-    sandbox.replace(
-      TextColumnToNumberConverter.prototype,
-      'convert',
-      textToNumberConvertStub
-    );
+    sandbox.replace(TextColumnToNumberConverter.prototype, 'convert', textToNumberConvertStub);
 
-    sandbox.replaceGetter(
-      TextColumnToNumberConverter.prototype,
-      'size',
-      () => mockTextToNumberResults.size
-    );
+    sandbox.replaceGetter(TextColumnToNumberConverter.prototype, 'size', () => mockTextToNumberResults.size);
 
     const minMaxoadStub = sandbox.stub();
     minMaxoadStub.resolves();
     sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
-    sandbox.replaceGetter(
-      MinMaxCalculator.prototype,
-      'minMax',
-      () => mockMinMaxData
-    );
+    sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => mockMinMaxData);
 
-    sdtParser = (await SdtParser.parseSdtString(
-      stringSdt,
-      'viewName',
-      mockInputData
-    )) as any;
+    sdtParser = (await SdtParser.parseSdtString(stringSdt, 'viewName', mockInputData)) as any;
   });
 
   after(() => {
@@ -177,7 +149,7 @@ describe('#io/GlyphStream', () => {
       const rStream = new Readable({
         objectMode: true,
         read: () => {
-          mockData.forEach(data => rStream.push(data));
+          mockData.forEach((data) => rStream.push(data));
           rStream.push(null);
         },
       });

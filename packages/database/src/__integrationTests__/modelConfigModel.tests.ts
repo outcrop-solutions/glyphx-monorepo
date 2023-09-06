@@ -31,55 +31,36 @@ describe('#ModelConfigModel', () => {
     });
 
     it('add a new modelConfig ', async () => {
-      const modelConfigInput = JSON.parse(
-        JSON.stringify(mocks.MOCK_MODELCONFIG)
-      );
+      const modelConfigInput = JSON.parse(JSON.stringify(mocks.MOCK_MODELCONFIG));
 
-      const modelConfigDocument = await modelConfigModel.createModelConfig(
-        modelConfigInput
-      );
+      const modelConfigDocument = await modelConfigModel.createModelConfig(modelConfigInput);
 
       assert.isOk(modelConfigDocument);
-      assert.strictEqual(
-        Object.keys(modelConfigDocument)[1],
-        Object.keys(modelConfigInput)[1]
-      );
+      assert.strictEqual(Object.keys(modelConfigDocument)[1], Object.keys(modelConfigInput)[1]);
 
       modelConfigDocId = modelConfigDocument._id as mongooseTypes.ObjectId;
     });
 
     it('retreive a modelConfig', async () => {
       assert.isOk(modelConfigDocId);
-      const modelConfig = await modelConfigModel.getModelConfigById(
-        modelConfigDocId
-      );
+      const modelConfig = await modelConfigModel.getModelConfigById(modelConfigDocId);
 
       assert.isOk(modelConfig);
-      assert.strictEqual(
-        modelConfig._id?.toString(),
-        modelConfigDocId.toString()
-      );
+      assert.strictEqual(modelConfig._id?.toString(), modelConfigDocId.toString());
     });
 
     it('modify a modelConfig', async () => {
       assert.isOk(modelConfigDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await modelConfigModel.updateModelConfigById(
-        modelConfigDocId,
-        input
-      );
+      const updatedDocument = await modelConfigModel.updateModelConfigById(modelConfigDocId, input);
       assert.isOk(updatedDocument.deletedAt);
     });
 
     it('Get multiple modelConfigs without a filter', async () => {
       assert.isOk(modelConfigDocId);
-      const modelConfigInput = JSON.parse(
-        JSON.stringify(mocks.MOCK_MODELCONFIG)
-      );
+      const modelConfigInput = JSON.parse(JSON.stringify(mocks.MOCK_MODELCONFIG));
 
-      const modelConfigDocument = await modelConfigModel.createModelConfig(
-        modelConfigInput
-      );
+      const modelConfigDocument = await modelConfigModel.createModelConfig(modelConfigInput);
 
       assert.isOk(modelConfigDocument);
 
@@ -114,10 +95,7 @@ describe('#ModelConfigModel', () => {
       const results2 = await modelConfigModel.queryModelConfigs({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(
-        results2.results[0]?._id?.toString(),
-        lastId?.toString()
-      );
+      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
     });
 
     it('remove a modelConfig', async () => {

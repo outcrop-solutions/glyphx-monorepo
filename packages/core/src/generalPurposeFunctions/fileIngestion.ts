@@ -1,45 +1,27 @@
 import * as fileIngestionFunctions from './strings';
 
-export function getFullTableName(
-  clientId: string,
-  modelId: string,
-  tableName: string
-): string {
+export function getFullTableName(clientId: string, modelId: string, tableName: string): string {
   return `glyphx_${clientId}_${modelId}_${tableName}`.toLowerCase();
 }
 export function getViewName(clientId: string, modelId: string): string {
   return `glyphx_${clientId}_${modelId}_view`.toLowerCase();
 }
 
-export function getTableCsvPath(
-  clientId: string,
-  modelId: string,
-  tableName: string
-): string {
+export function getTableCsvPath(clientId: string, modelId: string, tableName: string): string {
   return `client/${clientId}/${modelId}/input/${tableName}/`.toLowerCase();
 }
 
-export function getTableParquetPath(
-  clientId: string,
-  modelId: string,
-  tableName: string
-): string {
+export function getTableParquetPath(clientId: string, modelId: string, tableName: string): string {
   return `client/${clientId}/${modelId}/data/${tableName}/`.toLowerCase();
 }
-export function getArchiveFilePath(
-  clientId: string,
-  modelId: string,
-  key: string,
-  timestamp: string
-): string {
+export function getArchiveFilePath(clientId: string, modelId: string, key: string, timestamp: string): string {
   const deconstructedFilePath = fileIngestionFunctions.deconstructFilePath(key);
   const src = deconstructedFilePath.pathParts[2];
   const tableName = deconstructedFilePath.pathParts[3];
   const fileName = deconstructedFilePath.fileName;
 
   //client/clientId/archive/moedlId/20221213091632/input/table1/table1.csv
-  const retval =
-    `client/${clientId}/archive/${modelId}/${timestamp}/${src}/${tableName}/${fileName}`.toLowerCase();
+  const retval = `client/${clientId}/archive/${modelId}/${timestamp}/${src}/${tableName}/${fileName}`.toLowerCase();
 
   return retval;
 }

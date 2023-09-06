@@ -18,15 +18,7 @@
     "registered": "2018-05-29T03:09:52 +04:00",
     "latitude": 79.152834,
     "longitude": 123.47952,
-    "tags": [
-      "aute",
-      "qui",
-      "qui",
-      "deserunt",
-      "exercitation",
-      "officia",
-      "nostrud"
-    ],
+    "tags": ["aute", "qui", "qui", "deserunt", "exercitation", "officia", "nostrud"],
     "friends": [
       {
         "id": 0,
@@ -63,15 +55,7 @@
     "registered": "2022-06-20T02:32:17 +04:00",
     "latitude": 0.243682,
     "longitude": -22.372885,
-    "tags": [
-      "veniam",
-      "cupidatat",
-      "do",
-      "nostrud",
-      "exercitation",
-      "nostrud",
-      "Lorem"
-    ],
+    "tags": ["veniam", "cupidatat", "do", "nostrud", "exercitation", "nostrud", "Lorem"],
     "friends": [
       {
         "id": 0,
@@ -108,15 +92,7 @@
     "registered": "2018-05-28T02:17:46 +04:00",
     "latitude": -53.166536,
     "longitude": -83.308209,
-    "tags": [
-      "nulla",
-      "excepteur",
-      "elit",
-      "cupidatat",
-      "commodo",
-      "tempor",
-      "aliquip"
-    ],
+    "tags": ["nulla", "excepteur", "elit", "cupidatat", "commodo", "tempor", "aliquip"],
     "friends": [
       {
         "id": 0,
@@ -153,15 +129,7 @@
     "registered": "2021-10-10T02:45:29 +04:00",
     "latitude": 25.75628,
     "longitude": -106.509134,
-    "tags": [
-      "irure",
-      "fugiat",
-      "cillum",
-      "magna",
-      "amet",
-      "proident",
-      "anim"
-    ],
+    "tags": ["irure", "fugiat", "cillum", "magna", "amet", "proident", "anim"],
     "friends": [
       {
         "id": 0,
@@ -198,15 +166,7 @@
     "registered": "2020-10-13T11:06:51 +04:00",
     "latitude": 30.685842,
     "longitude": 178.345596,
-    "tags": [
-      "reprehenderit",
-      "aute",
-      "dolor",
-      "reprehenderit",
-      "consequat",
-      "id",
-      "culpa"
-    ],
+    "tags": ["reprehenderit", "aute", "dolor", "reprehenderit", "consequat", "id", "culpa"],
     "friends": [
       {
         "id": 0,
@@ -243,15 +203,7 @@
     "registered": "2018-08-05T01:45:22 +04:00",
     "latitude": -3.150458,
     "longitude": 145.684896,
-    "tags": [
-      "labore",
-      "tempor",
-      "est",
-      "enim",
-      "reprehenderit",
-      "cillum",
-      "qui"
-    ],
+    "tags": ["labore", "tempor", "est", "enim", "reprehenderit", "cillum", "qui"],
     "friends": [
       {
         "id": 0,
@@ -288,15 +240,7 @@
     "registered": "2020-04-15T02:57:26 +04:00",
     "latitude": 6.404331,
     "longitude": -96.502533,
-    "tags": [
-      "do",
-      "eiusmod",
-      "ea",
-      "magna",
-      "do",
-      "reprehenderit",
-      "non"
-    ],
+    "tags": ["do", "eiusmod", "ea", "magna", "do", "reprehenderit", "non"],
     "friends": [
       {
         "id": 0,

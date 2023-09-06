@@ -1,8 +1,8 @@
 import 'mocha';
-import { assert } from 'chai';
-import { createSandbox } from 'sinon';
-import { CodeGenerator } from '../generator/codeGenerator';
-import { DEFAULT_CONFIG } from 'generator/config';
+import {assert} from 'chai';
+import {createSandbox} from 'sinon';
+import {CodeGenerator} from '../generator/codeGenerator';
+import {DEFAULT_CONFIG} from 'generator/config';
 
 describe('#codegen/generator', () => {
   context('generator', () => {

@@ -13,13 +13,7 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(
-        databaseName,
-        viewName,
-        xColumn,
-        yColumn,
-        zColumn
-      ) as any;
+      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
       assert.strictEqual(queryRunner.viewName, viewName);
       assert.strictEqual(queryRunner.xColumn, xColumn);
       assert.strictEqual(queryRunner.yColumn, yColumn);
@@ -43,16 +37,8 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(
-        databaseName,
-        viewName,
-        xColumn,
-        yColumn,
-        zColumn
-      ) as any;
-      const initStub = sandbox
-        .stub(queryRunner.athenaManager, 'init')
-        .resolves();
+      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
+      const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();
       assert.isTrue(initStub.calledOnce);
       assert.isTrue(queryRunner.inited);
@@ -64,16 +50,8 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(
-        databaseName,
-        viewName,
-        xColumn,
-        yColumn,
-        zColumn
-      ) as any;
-      const initStub = sandbox
-        .stub(queryRunner.athenaManager, 'init')
-        .resolves();
+      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
+      const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();
       await queryRunner.init();
       assert.isTrue(initStub.calledOnce);
@@ -87,16 +65,8 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(
-        databaseName,
-        viewName,
-        xColumn,
-        yColumn,
-        zColumn
-      ) as any;
-      const initStub = sandbox
-        .stub(queryRunner.athenaManager, 'init')
-        .rejects(err);
+      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
+      const initStub = sandbox.stub(queryRunner.athenaManager, 'init').rejects(err);
       let errored = false;
       try {
         await queryRunner.init();
@@ -124,21 +94,11 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(
-        databaseName,
-        viewName,
-        xColumn,
-        yColumn,
-        zColumn
-      ) as any;
+      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
 
       const queryId = 'testQueryId';
-      const queryStub = sandbox
-        .stub(queryRunner.athenaManager, 'startQuery')
-        .resolves(queryId);
-      const initStub = sandbox
-        .stub(queryRunner.athenaManager, 'init')
-        .resolves();
+      const queryStub = sandbox.stub(queryRunner.athenaManager, 'startQuery').resolves(queryId);
+      const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();
       const result = await queryRunner.startQuery();
       assert.strictEqual(result, queryId);
@@ -173,22 +133,11 @@ describe('#io/QueryRunner', () => {
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
       const filter = 'foo = bar';
-      const queryRunner = new QueryRunner(
-        databaseName,
-        viewName,
-        xColumn,
-        yColumn,
-        zColumn,
-        filter
-      ) as any;
+      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn, filter) as any;
 
       const queryId = 'testQueryId';
-      const queryStub = sandbox
-        .stub(queryRunner.athenaManager, 'startQuery')
-        .resolves(queryId);
-      const initStub = sandbox
-        .stub(queryRunner.athenaManager, 'init')
-        .resolves();
+      const queryStub = sandbox.stub(queryRunner.athenaManager, 'startQuery').resolves(queryId);
+      const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();
       const result = await queryRunner.startQuery();
       assert.strictEqual(result, queryId);
@@ -221,20 +170,10 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(
-        databaseName,
-        viewName,
-        xColumn,
-        yColumn,
-        zColumn
-      ) as any;
+      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
 
-      const queryStub = sandbox
-        .stub(queryRunner.athenaManager, 'startQuery')
-        .rejects(err);
-      const initStub = sandbox
-        .stub(queryRunner.athenaManager, 'init')
-        .resolves();
+      const queryStub = sandbox.stub(queryRunner.athenaManager, 'startQuery').rejects(err);
+      const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();
       let errored = false;
       try {
@@ -262,32 +201,22 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(
-        databaseName,
-        viewName,
-        xColumn,
-        yColumn,
-        zColumn
-      ) as any;
+      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
 
       const queryId = 'testQueryId';
 
       queryRunner.queryId = queryId;
 
-      const initStub = sandbox
-        .stub(queryRunner.athenaManager, 'init')
-        .resolves();
+      const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();
 
-      const queryStub = sandbox
-        .stub(queryRunner.athenaManager, 'getQueryStatus')
-        .resolves({
-          QueryExecution: {
-            Status: {
-              State: 'SUCCEEDED',
-            },
+      const queryStub = sandbox.stub(queryRunner.athenaManager, 'getQueryStatus').resolves({
+        QueryExecution: {
+          Status: {
+            State: 'SUCCEEDED',
           },
-        });
+        },
+      });
       const result = await queryRunner.getQueryStatus();
       assert.strictEqual(result.status, 'SUCCEEDED');
       assert.isTrue(queryStub.calledOnce);
@@ -300,36 +229,26 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(
-        databaseName,
-        viewName,
-        xColumn,
-        yColumn,
-        zColumn
-      ) as any;
+      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
 
       const queryId = 'testQueryId';
 
       queryRunner.queryId = queryId;
 
-      const initStub = sandbox
-        .stub(queryRunner.athenaManager, 'init')
-        .resolves();
+      const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();
 
       const errorMessage = 'I Have Failed';
-      const queryStub = sandbox
-        .stub(queryRunner.athenaManager, 'getQueryStatus')
-        .resolves({
-          QueryExecution: {
-            Status: {
-              State: 'FAILED',
-              AthenaError: {
-                ErrorMessage: errorMessage,
-              },
+      const queryStub = sandbox.stub(queryRunner.athenaManager, 'getQueryStatus').resolves({
+        QueryExecution: {
+          Status: {
+            State: 'FAILED',
+            AthenaError: {
+              ErrorMessage: errorMessage,
             },
           },
-        });
+        },
+      });
       const result = await queryRunner.getQueryStatus();
       assert.strictEqual(result.status, 'FAILED');
       assert.strictEqual(result.error, errorMessage);
@@ -343,36 +262,26 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(
-        databaseName,
-        viewName,
-        xColumn,
-        yColumn,
-        zColumn
-      ) as any;
+      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
 
       const queryId = 'testQueryId';
 
       queryRunner.queryId = queryId;
       queryRunner.queryStatusField = {status: QUERY_STATUS.SUCCEEDED};
-      const initStub = sandbox
-        .stub(queryRunner.athenaManager, 'init')
-        .resolves();
+      const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();
 
       const errorMessage = 'I Have Failed';
-      const queryStub = sandbox
-        .stub(queryRunner.athenaManager, 'getQueryStatus')
-        .resolves({
-          QueryExecution: {
-            Status: {
-              State: 'FAILED',
-              AthenaError: {
-                ErrorMessage: errorMessage,
-              },
+      const queryStub = sandbox.stub(queryRunner.athenaManager, 'getQueryStatus').resolves({
+        QueryExecution: {
+          Status: {
+            State: 'FAILED',
+            AthenaError: {
+              ErrorMessage: errorMessage,
             },
           },
-        });
+        },
+      });
       const result = await queryRunner.getQueryStatus();
       assert.strictEqual(result.status, 'SUCCEEDED');
       assert.isFalse(queryStub.called);
@@ -385,32 +294,22 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(
-        databaseName,
-        viewName,
-        xColumn,
-        yColumn,
-        zColumn
-      ) as any;
+      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
 
       const queryId = 'testQueryId';
 
       queryRunner.queryId = queryId;
       queryRunner.queryStatusField = {status: QUERY_STATUS.FAILED};
-      const initStub = sandbox
-        .stub(queryRunner.athenaManager, 'init')
-        .resolves();
+      const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();
 
-      const queryStub = sandbox
-        .stub(queryRunner.athenaManager, 'getQueryStatus')
-        .resolves({
-          QueryExecution: {
-            Status: {
-              State: 'SUCCEEDED',
-            },
+      const queryStub = sandbox.stub(queryRunner.athenaManager, 'getQueryStatus').resolves({
+        QueryExecution: {
+          Status: {
+            State: 'SUCCEEDED',
           },
-        });
+        },
+      });
       const result = await queryRunner.getQueryStatus();
       assert.strictEqual(result.status, 'FAILED');
       assert.isFalse(queryStub.called);
@@ -423,32 +322,22 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(
-        databaseName,
-        viewName,
-        xColumn,
-        yColumn,
-        zColumn
-      ) as any;
+      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
 
       const queryId = 'testQueryId';
 
       queryRunner.queryId = queryId;
 
-      const initStub = sandbox
-        .stub(queryRunner.athenaManager, 'init')
-        .resolves();
+      const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();
 
-      const queryStub = sandbox
-        .stub(queryRunner.athenaManager, 'getQueryStatus')
-        .resolves({
-          QueryExecution: {
-            Status: {
-              State: 'FOO',
-            },
+      const queryStub = sandbox.stub(queryRunner.athenaManager, 'getQueryStatus').resolves({
+        QueryExecution: {
+          Status: {
+            State: 'FOO',
           },
-        });
+        },
+      });
       const result = await queryRunner.getQueryStatus();
       assert.strictEqual(result.status, 'UNKNOWN');
       assert.isTrue(queryStub.calledOnce);
@@ -461,28 +350,18 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(
-        databaseName,
-        viewName,
-        xColumn,
-        yColumn,
-        zColumn
-      ) as any;
+      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
 
       const queryId = 'testQueryId';
 
       queryRunner.queryId = queryId;
 
-      const initStub = sandbox
-        .stub(queryRunner.athenaManager, 'init')
-        .resolves();
+      const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();
 
-      const queryStub = sandbox
-        .stub(queryRunner.athenaManager, 'getQueryStatus')
-        .resolves({
-          QueryExecution: {},
-        });
+      const queryStub = sandbox.stub(queryRunner.athenaManager, 'getQueryStatus').resolves({
+        QueryExecution: {},
+      });
       const result = await queryRunner.getQueryStatus();
       assert.strictEqual(result.status, 'UNKNOWN');
       assert.isTrue(queryStub.calledOnce);
@@ -495,24 +374,14 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(
-        databaseName,
-        viewName,
-        xColumn,
-        yColumn,
-        zColumn
-      ) as any;
+      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
 
-      const initStub = sandbox
-        .stub(queryRunner.athenaManager, 'init')
-        .resolves();
+      const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();
 
-      const queryStub = sandbox
-        .stub(queryRunner.athenaManager, 'getQueryStatus')
-        .resolves({
-          QueryExecution: {},
-        });
+      const queryStub = sandbox.stub(queryRunner.athenaManager, 'getQueryStatus').resolves({
+        QueryExecution: {},
+      });
       let errored = false;
       try {
         await queryRunner.getQueryStatus();

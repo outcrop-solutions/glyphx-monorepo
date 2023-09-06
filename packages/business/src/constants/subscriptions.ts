@@ -1,6 +1,6 @@
 import {databaseTypes} from 'types';
 
-export default {
+const config = {
   [databaseTypes.constants.SUBSCRIPTION_TYPE.FREE]: {
     customDomains: 1,
     members: 1,
@@ -17,3 +17,5 @@ export default {
     workspaces: 10,
   },
 };
+
+export default config;

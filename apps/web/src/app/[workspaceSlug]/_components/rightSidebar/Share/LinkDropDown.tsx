@@ -10,7 +10,7 @@ export function LinkDropDown() {
   useEffect(() => {
     const clickHandler = ({target}) => {
       if (!dropdown.current) return;
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
       // @ts-ignore
       if (!dropdownOpen || dropdown.current.contains(target) || trigger.current.contains(target)) return;
       setDropdownOpen(false);

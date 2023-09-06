@@ -1,7 +1,7 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
 
 import {aws, generalPurposeFunctions} from 'core';
-import {FileIngestor,BasicColumnNameCleaner} from 'fileingestion';
+import {FileIngestor, BasicColumnNameCleaner} from 'fileingestion';
 import {S3_BUCKET_NAME, ATHENA_DB_NAME} from 'config/constants';
 import {formatUserAgent} from 'lib/utils/formatUserAgent';
 import {databaseTypes} from 'types';

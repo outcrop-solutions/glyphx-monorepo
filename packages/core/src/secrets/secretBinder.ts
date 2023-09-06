@@ -8,10 +8,7 @@ export interface ISecretBoundObject extends Record<string, any> {
 //snagged this form here: https://stackoverflow.com/questions/51267554/accessing-a-objects-non-enumerable-properties
 function getPropertyNames(obj: any, prev: string[] = []): string[] {
   if (obj) {
-    return getPropertyNames(
-      obj.prototype || obj.__proto__,
-      prev.concat(Object.getOwnPropertyNames(obj))
-    );
+    return getPropertyNames(obj.prototype || obj.__proto__, prev.concat(Object.getOwnPropertyNames(obj)));
   }
   return prev.sort();
 }
@@ -22,26 +19,17 @@ interface IPropertyDefinition {
   extractor: (input: any) => any;
   setter: (input: any) => void;
 }
-function mapProperties(
-  secretBoundObject: Record<string, any>
-): Map<string, IPropertyDefinition> {
+function mapProperties(secretBoundObject: Record<string, any>): Map<string, IPropertyDefinition> {
   const propNames = getPropertyNames(secretBoundObject);
   const retval = new Map<string, IPropertyDefinition>();
   for (let i = 0; i < propNames.length; i++) {
     const key = propNames[i];
-    const propertyDescriptor = Object.getOwnPropertyDescriptor(
-      secretBoundObject.__proto__,
-      key
-    );
+    const propertyDescriptor = Object.getOwnPropertyDescriptor(secretBoundObject.__proto__, key);
 
     //in this version only properties can be mapped
     if (!propertyDescriptor || !propertyDescriptor.set) continue;
 
-    const isBindable = Reflect.getMetadata(
-      'boundSecrets:isBound',
-      secretBoundObject,
-      key
-    );
+    const isBindable = Reflect.getMetadata('boundSecrets:isBound', secretBoundObject, key);
     //eslint-disable-next-line
     if (isBindable == false) continue;
 
@@ -59,17 +47,9 @@ function mapProperties(
         secretName: key,
       });
     } else {
-      const extractor = Reflect.getMetadata(
-        'boundSecrets:extractor',
-        secretBoundObject,
-        key
-      );
+      const extractor = Reflect.getMetadata('boundSecrets:extractor', secretBoundObject, key);
 
-      const secretName = Reflect.getMetadata(
-        'boundSecrets:secretName',
-        secretBoundObject,
-        key
-      );
+      const secretName = Reflect.getMetadata('boundSecrets:secretName', secretBoundObject, key);
 
       const existingMap = retval.get(secretName);
 

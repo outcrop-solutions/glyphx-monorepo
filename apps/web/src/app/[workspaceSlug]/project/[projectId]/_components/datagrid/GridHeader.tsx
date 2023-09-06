@@ -12,12 +12,7 @@ export const GridHeader = ({data}) => {
   const isBrowser = !(window && window?.core);
 
   const exportCsv = useCallback(() => {
-    const csv = toCSV(
-      data?.rows,
-      data?.columns?.map(({key}) => key),
-      ',',
-      '"'
-    );
+    const csv = toCSV(data?.rows, data?.columns?.map(({key}) => key), ',', '"');
     window?.core?.SendCsv(csv);
   }, [data]);
 

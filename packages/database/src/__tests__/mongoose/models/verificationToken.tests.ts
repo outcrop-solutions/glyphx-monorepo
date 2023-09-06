@@ -25,9 +25,7 @@ describe('#mongoose/models/verificationToken', () => {
       findByIdStub.resolves({_id: verificationTokenId});
       sandbox.replace(VerificationTokenModel, 'findById', findByIdStub);
 
-      const result = await VerificationTokenModel.verificationTokenIdExists(
-        verificationTokenId
-      );
+      const result = await VerificationTokenModel.verificationTokenIdExists(verificationTokenId);
 
       assert.isTrue(result);
     });
@@ -38,9 +36,7 @@ describe('#mongoose/models/verificationToken', () => {
       findByIdStub.resolves(null);
       sandbox.replace(VerificationTokenModel, 'findById', findByIdStub);
 
-      const result = await VerificationTokenModel.verificationTokenIdExists(
-        verificationTokenId
-      );
+      const result = await VerificationTokenModel.verificationTokenIdExists(verificationTokenId);
 
       assert.isFalse(result);
     });
@@ -53,9 +49,7 @@ describe('#mongoose/models/verificationToken', () => {
 
       let errorred = false;
       try {
-        await VerificationTokenModel.verificationTokenIdExists(
-          verificationTokenId
-        );
+        await VerificationTokenModel.verificationTokenIdExists(verificationTokenId);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -73,60 +67,32 @@ describe('#mongoose/models/verificationToken', () => {
 
     it('will create an verificationToken document', async () => {
       const verificationTokenId = new mongoose.Types.ObjectId();
-      sandbox.replace(
-        VerificationTokenModel,
-        'validate',
-        sandbox.stub().resolves(true)
-      );
-      sandbox.replace(
-        VerificationTokenModel,
-        'create',
-        sandbox.stub().resolves([{_id: verificationTokenId}])
-      );
+      sandbox.replace(VerificationTokenModel, 'validate', sandbox.stub().resolves(true));
+      sandbox.replace(VerificationTokenModel, 'create', sandbox.stub().resolves([{_id: verificationTokenId}]));
 
       const getVerificationTokenByIdStub = sandbox.stub();
       getVerificationTokenByIdStub.resolves({_id: verificationTokenId});
 
-      sandbox.replace(
-        VerificationTokenModel,
-        'getVerificationTokenById',
-        getVerificationTokenByIdStub
-      );
+      sandbox.replace(VerificationTokenModel, 'getVerificationTokenById', getVerificationTokenByIdStub);
 
-      const result = await VerificationTokenModel.createVerificationToken(
-        MOCK_VERIFICATION_TOKEN
-      );
+      const result = await VerificationTokenModel.createVerificationToken(MOCK_VERIFICATION_TOKEN);
       assert.strictEqual(result._id, verificationTokenId);
       assert.isTrue(getVerificationTokenByIdStub.calledOnce);
     });
 
     it('will throw an DataValidationError if the verificationToken cannot be validated.', async () => {
       const verificationTokenId = new mongoose.Types.ObjectId();
-      sandbox.replace(
-        VerificationTokenModel,
-        'validate',
-        sandbox.stub().rejects('Invalid')
-      );
-      sandbox.replace(
-        VerificationTokenModel,
-        'create',
-        sandbox.stub().resolves([{_id: verificationTokenId}])
-      );
+      sandbox.replace(VerificationTokenModel, 'validate', sandbox.stub().rejects('Invalid'));
+      sandbox.replace(VerificationTokenModel, 'create', sandbox.stub().resolves([{_id: verificationTokenId}]));
 
       const getVerificationTokenByIdStub = sandbox.stub();
       getVerificationTokenByIdStub.resolves({_id: verificationTokenId});
 
-      sandbox.replace(
-        VerificationTokenModel,
-        'getVerificationTokenById',
-        getVerificationTokenByIdStub
-      );
+      sandbox.replace(VerificationTokenModel, 'getVerificationTokenById', getVerificationTokenByIdStub);
       let errorred = false;
 
       try {
-        await VerificationTokenModel.createVerificationToken(
-          MOCK_VERIFICATION_TOKEN
-        );
+        await VerificationTokenModel.createVerificationToken(MOCK_VERIFICATION_TOKEN);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         errorred = true;
@@ -136,31 +102,17 @@ describe('#mongoose/models/verificationToken', () => {
 
     it('will throw an DatabaseOperationError if the underlying database connection throws an error.', async () => {
       const verificationTokenId = new mongoose.Types.ObjectId();
-      sandbox.replace(
-        VerificationTokenModel,
-        'validate',
-        sandbox.stub().resolves(true)
-      );
-      sandbox.replace(
-        VerificationTokenModel,
-        'create',
-        sandbox.stub().rejects('oops')
-      );
+      sandbox.replace(VerificationTokenModel, 'validate', sandbox.stub().resolves(true));
+      sandbox.replace(VerificationTokenModel, 'create', sandbox.stub().rejects('oops'));
 
       const getVerificationTokenByIdStub = sandbox.stub();
       getVerificationTokenByIdStub.resolves({_id: verificationTokenId});
 
-      sandbox.replace(
-        VerificationTokenModel,
-        'getVerificationTokenById',
-        getVerificationTokenByIdStub
-      );
+      sandbox.replace(VerificationTokenModel, 'getVerificationTokenById', getVerificationTokenByIdStub);
       let errorred = false;
 
       try {
-        await VerificationTokenModel.createVerificationToken(
-          MOCK_VERIFICATION_TOKEN
-        );
+        await VerificationTokenModel.createVerificationToken(MOCK_VERIFICATION_TOKEN);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -189,11 +141,7 @@ describe('#mongoose/models/verificationToken', () => {
 
       const getVerificationTokenStub = sandbox.stub();
       getVerificationTokenStub.resolves({_id: verificationTokenId});
-      sandbox.replace(
-        VerificationTokenModel,
-        'getVerificationTokenById',
-        getVerificationTokenStub
-      );
+      sandbox.replace(VerificationTokenModel, 'getVerificationTokenById', getVerificationTokenStub);
 
       const result = await VerificationTokenModel.updateVerificationTokenById(
         verificationTokenId,
@@ -218,17 +166,10 @@ describe('#mongoose/models/verificationToken', () => {
 
       const getVerificationTokenStub = sandbox.stub();
       getVerificationTokenStub.resolves({_id: verificationTokenId});
-      sandbox.replace(
-        VerificationTokenModel,
-        'getVerificationTokenById',
-        getVerificationTokenStub
-      );
+      sandbox.replace(VerificationTokenModel, 'getVerificationTokenById', getVerificationTokenStub);
       let errorred = false;
       try {
-        await VerificationTokenModel.updateVerificationTokenById(
-          verificationTokenId,
-          updateVerificationToken
-        );
+        await VerificationTokenModel.updateVerificationTokenById(verificationTokenId, updateVerificationToken);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -246,9 +187,7 @@ describe('#mongoose/models/verificationToken', () => {
       sandbox.replace(
         VerificationTokenModel,
         'validateUpdateObject',
-        sandbox
-          .stub()
-          .rejects(new error.InvalidOperationError('you cant do that', {}))
+        sandbox.stub().rejects(new error.InvalidOperationError('you cant do that', {}))
       );
 
       const updateStub = sandbox.stub();
@@ -257,17 +196,10 @@ describe('#mongoose/models/verificationToken', () => {
 
       const getVerificationTokenStub = sandbox.stub();
       getVerificationTokenStub.resolves({_id: verificationTokenId});
-      sandbox.replace(
-        VerificationTokenModel,
-        'getVerificationTokenById',
-        getVerificationTokenStub
-      );
+      sandbox.replace(VerificationTokenModel, 'getVerificationTokenById', getVerificationTokenStub);
       let errorred = false;
       try {
-        await VerificationTokenModel.updateVerificationTokenById(
-          verificationTokenId,
-          updateVerificationToken
-        );
+        await VerificationTokenModel.updateVerificationTokenById(verificationTokenId, updateVerificationToken);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errorred = true;
@@ -288,17 +220,10 @@ describe('#mongoose/models/verificationToken', () => {
 
       const getVerificationTokenStub = sandbox.stub();
       getVerificationTokenStub.resolves({_id: verificationTokenId});
-      sandbox.replace(
-        VerificationTokenModel,
-        'getVerificationTokenById',
-        getVerificationTokenStub
-      );
+      sandbox.replace(VerificationTokenModel, 'getVerificationTokenById', getVerificationTokenStub);
       let errorred = false;
       try {
-        await VerificationTokenModel.updateVerificationTokenById(
-          verificationTokenId,
-          updateVerificationToken
-        );
+        await VerificationTokenModel.updateVerificationTokenById(verificationTokenId, updateVerificationToken);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -321,9 +246,7 @@ describe('#mongoose/models/verificationToken', () => {
 
       let errorred = false;
       try {
-        await VerificationTokenModel.validateUpdateObject(
-          inputVerificationToken
-        );
+        await VerificationTokenModel.validateUpdateObject(inputVerificationToken);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errorred = true;
@@ -346,9 +269,7 @@ describe('#mongoose/models/verificationToken', () => {
 
       const verificationTokenId = new mongoose.Types.ObjectId();
 
-      await VerificationTokenModel.deleteVerificationTokenById(
-        verificationTokenId
-      );
+      await VerificationTokenModel.deleteVerificationTokenById(verificationTokenId);
 
       assert.isTrue(deleteStub.calledOnce);
     });
@@ -362,9 +283,7 @@ describe('#mongoose/models/verificationToken', () => {
 
       let errorred = false;
       try {
-        await VerificationTokenModel.deleteVerificationTokenById(
-          verificationTokenId
-        );
+        await VerificationTokenModel.deleteVerificationTokenById(verificationTokenId);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -382,9 +301,7 @@ describe('#mongoose/models/verificationToken', () => {
 
       let errorred = false;
       try {
-        await VerificationTokenModel.deleteVerificationTokenById(
-          verificationTokenId
-        );
+        await VerificationTokenModel.deleteVerificationTokenById(verificationTokenId);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -402,36 +319,24 @@ describe('#mongoose/models/verificationToken', () => {
     });
 
     it('should return true when all the verificationToken ids exist', async () => {
-      const verificationTokenIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const verificationTokenIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
-      const returnedVerificationTokenIds = verificationTokenIds.map(
-        verificationTokenId => {
-          return {
-            _id: verificationTokenId,
-          };
-        }
-      );
+      const returnedVerificationTokenIds = verificationTokenIds.map((verificationTokenId) => {
+        return {
+          _id: verificationTokenId,
+        };
+      });
 
       const findStub = sandbox.stub();
       findStub.resolves(returnedVerificationTokenIds);
       sandbox.replace(VerificationTokenModel, 'find', findStub);
 
-      assert.isTrue(
-        await VerificationTokenModel.allVerificationTokenIdsExist(
-          verificationTokenIds
-        )
-      );
+      assert.isTrue(await VerificationTokenModel.allVerificationTokenIdsExist(verificationTokenIds));
       assert.isTrue(findStub.calledOnce);
     });
 
     it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
-      const verificationTokenIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const verificationTokenIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const returnedVerificationTokenIds = [
         {
@@ -444,15 +349,10 @@ describe('#mongoose/models/verificationToken', () => {
       sandbox.replace(VerificationTokenModel, 'find', findStub);
       let errored = false;
       try {
-        await VerificationTokenModel.allVerificationTokenIdsExist(
-          verificationTokenIds
-        );
+        await VerificationTokenModel.allVerificationTokenIdsExist(verificationTokenIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
-        assert.strictEqual(
-          err.data.value[0].toString(),
-          verificationTokenIds[1].toString()
-        );
+        assert.strictEqual(err.data.value[0].toString(), verificationTokenIds[1].toString());
         errored = true;
       }
       assert.isTrue(errored);
@@ -460,19 +360,14 @@ describe('#mongoose/models/verificationToken', () => {
     });
 
     it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
-      const verificationTokenIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const verificationTokenIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const findStub = sandbox.stub();
       findStub.rejects('something bad has happened');
       sandbox.replace(VerificationTokenModel, 'find', findStub);
       let errored = false;
       try {
-        await VerificationTokenModel.allVerificationTokenIdsExist(
-          verificationTokenIds
-        );
+        await VerificationTokenModel.allVerificationTokenIdsExist(verificationTokenIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -536,9 +431,7 @@ describe('#mongoose/models/verificationToken', () => {
 
       let errored = false;
       try {
-        await VerificationTokenModel.getVerificationTokenById(
-          mockVerificationToken._id as mongoose.Types.ObjectId
-        );
+        await VerificationTokenModel.getVerificationTokenById(mockVerificationToken._id as mongoose.Types.ObjectId);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -549,16 +442,12 @@ describe('#mongoose/models/verificationToken', () => {
 
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(
-        new MockMongooseQuery('something bad happened', true)
-      );
+      findByIdStub.returns(new MockMongooseQuery('something bad happened', true));
       sandbox.replace(VerificationTokenModel, 'findById', findByIdStub);
 
       let errored = false;
       try {
-        await VerificationTokenModel.getVerificationTokenById(
-          mockVerificationToken._id as mongoose.Types.ObjectId
-        );
+        await VerificationTokenModel.getVerificationTokenById(mockVerificationToken._id as mongoose.Types.ObjectId);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -611,11 +500,7 @@ describe('#mongoose/models/verificationToken', () => {
     });
 
     it('will return the filtered verification tokens', async () => {
-      sandbox.replace(
-        VerificationTokenModel,
-        'count',
-        sandbox.stub().resolves(mockVerificationTokens.length)
-      );
+      sandbox.replace(VerificationTokenModel, 'count', sandbox.stub().resolves(mockVerificationTokens.length));
 
       sandbox.replace(
         VerificationTokenModel,
@@ -629,17 +514,13 @@ describe('#mongoose/models/verificationToken', () => {
       assert.strictEqual(results.page, 0);
       assert.strictEqual(results.results.length, mockVerificationTokens.length);
       assert.isNumber(results.itemsPerPage);
-      results.results.forEach(doc => {
+      results.results.forEach((doc) => {
         assert.isUndefined((doc as any).__v);
       });
     });
 
     it('will throw a DataNotFoundError when no values match the filter', async () => {
-      sandbox.replace(
-        VerificationTokenModel,
-        'count',
-        sandbox.stub().resolves(0)
-      );
+      sandbox.replace(VerificationTokenModel, 'count', sandbox.stub().resolves(0));
 
       sandbox.replace(
         VerificationTokenModel,
@@ -659,11 +540,7 @@ describe('#mongoose/models/verificationToken', () => {
     });
 
     it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
-      sandbox.replace(
-        VerificationTokenModel,
-        'count',
-        sandbox.stub().resolves(mockVerificationTokens.length)
-      );
+      sandbox.replace(VerificationTokenModel, 'count', sandbox.stub().resolves(mockVerificationTokens.length));
 
       sandbox.replace(
         VerificationTokenModel,
@@ -683,18 +560,12 @@ describe('#mongoose/models/verificationToken', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
-      sandbox.replace(
-        VerificationTokenModel,
-        'count',
-        sandbox.stub().resolves(mockVerificationTokens.length)
-      );
+      sandbox.replace(VerificationTokenModel, 'count', sandbox.stub().resolves(mockVerificationTokens.length));
 
       sandbox.replace(
         VerificationTokenModel,
         'find',
-        sandbox
-          .stub()
-          .returns(new MockMongooseQuery('something bad has happened', true))
+        sandbox.stub().returns(new MockMongooseQuery('something bad has happened', true))
       );
 
       let errored = false;

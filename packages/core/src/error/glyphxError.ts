@@ -34,12 +34,7 @@ export class GlyphxError extends Error {
    * @param name -- allows the implementer to override the name of the error.  This appears in the logs
    * and defaults to the name of the Class.
    */
-  constructor(
-    message: string,
-    errorCode: number,
-    innerError?: unknown,
-    name?: string
-  ) {
+  constructor(message: string, errorCode: number, innerError?: unknown, name?: string) {
     super(message);
     if (!name) this.name = this.constructor.name;
     else this.name = name;
@@ -78,7 +73,7 @@ export class GlyphxError extends Error {
     //we have to enumerate our functions, through the prototype
     //to look for our get accessors
     const proto = Object.getPrototypeOf(obj);
-    Object.getOwnPropertyNames(proto).forEach(classFunctionName => {
+    Object.getOwnPropertyNames(proto).forEach((classFunctionName) => {
       {
         //so it is weird, but in my testing the proto will
         //have a key for the get accessor, but its value will
@@ -124,8 +119,7 @@ export class GlyphxError extends Error {
       res.stack = err.stack;
       res.innerError = this.getInnerError(err.innerError);
     } else if (err) {
-      res.serialized =
-        typeof err === 'object' ? this.serialize(err) : err.toString();
+      res.serialized = typeof err === 'object' ? this.serialize(err) : err.toString();
     }
     return res;
   }
@@ -163,12 +157,9 @@ export class GlyphxError extends Error {
   publish(correlationId?: string, severity?: ERROR_SEVERITY): GlyphxError {
     const logSeverity = severity ?? ERROR_SEVERITY.ERROR;
     const logCorId = correlationId ?? '';
-    if (logSeverity === ERROR_SEVERITY.INFORMATION)
-      Logger.info(logCorId, this.getMessage());
-    else if (logSeverity === ERROR_SEVERITY.WARNING)
-      Logger.warn(logCorId, this.getMessage());
-    else if (logSeverity === ERROR_SEVERITY.ERROR)
-      Logger.error(logCorId, this.getMessage());
+    if (logSeverity === ERROR_SEVERITY.INFORMATION) Logger.info(logCorId, this.getMessage());
+    else if (logSeverity === ERROR_SEVERITY.WARNING) Logger.warn(logCorId, this.getMessage());
+    else if (logSeverity === ERROR_SEVERITY.ERROR) Logger.error(logCorId, this.getMessage());
     else Logger.error(logCorId, this.getMessage());
 
     return this;

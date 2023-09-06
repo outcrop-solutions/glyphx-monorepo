@@ -7,10 +7,7 @@ import {databaseTypes} from 'types';
  * @param project
  * @returns
  */
-export function hashPayload(
-  fileHash: string,
-  project: databaseTypes.IProject
-): string {
+export function hashPayload(fileHash: string, project: databaseTypes.IProject): string {
   const projectStateProperties = JSON.stringify(project.state.properties);
 
   const payload = `${fileHash}${projectStateProperties}`;

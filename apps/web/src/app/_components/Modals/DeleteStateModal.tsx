@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import Button from 'app/_components/Button';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
-import {api,_deleteState} from 'lib';
+import {api, _deleteState} from 'lib';
 import {webTypes} from 'types';
 import {useSetRecoilState} from 'recoil';
 import {modalsAtom, projectAtom} from 'state';

@@ -4,19 +4,14 @@ import {Types as mongooseTypes} from 'mongoose';
 import mongoDbConnection from '../lib/databaseConnection';
 
 export class MembershipService {
-  public static async getMember(
-    memberId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IMember | null> {
+  public static async getMember(memberId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IMember | null> {
     try {
       const id =
         memberId instanceof mongooseTypes.ObjectId
           ? memberId
-          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+          : // @ts-ignore
             new mongooseTypes.ObjectId(memberId);
-      const member = await mongoDbConnection.models.MemberModel.getMemberById(
-        id
-      );
+      const member = await mongoDbConnection.models.MemberModel.getMemberById(id);
       return member;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -36,17 +31,13 @@ export class MembershipService {
     }
   }
 
-  public static async getMembers(
-    filter?: Record<string, unknown>
-  ): Promise<databaseTypes.IMember[] | null> {
+  public static async getMembers(filter?: Record<string, unknown>): Promise<databaseTypes.IMember[] | null> {
     try {
-      const workspaces =
-        await mongoDbConnection.models.WorkspaceModel.queryWorkspaces(filter);
+      const workspaces = await mongoDbConnection.models.WorkspaceModel.queryWorkspaces(filter);
       if (workspaces) {
         return (
-          workspaces.results[0].members.filter(
-            m => m.type === databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE
-          ) || null
+          workspaces.results[0].members.filter((m) => m.type === databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE) ||
+          null
         );
       } else {
         return null;
@@ -69,9 +60,7 @@ export class MembershipService {
     }
   }
 
-  public static async getPendingInvitations(
-    email: string
-  ): Promise<databaseTypes.IMember[] | null> {
+  public static async getPendingInvitations(email: string): Promise<databaseTypes.IMember[] | null> {
     try {
       const members = await MembershipService.getMembers({
         email,
@@ -97,26 +86,19 @@ export class MembershipService {
     }
   }
 
-  public static async remove(
-    memberId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IMember | null> {
+  public static async remove(memberId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IMember | null> {
     try {
       const id =
         memberId instanceof mongooseTypes.ObjectId
           ? memberId
-          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+          : // @ts-ignore
             new mongooseTypes.ObjectId(memberId);
-      const member =
-        await mongoDbConnection.models.MemberModel.updateMemberById(id, {
-          deletedAt: new Date(),
-        });
+      const member = await mongoDbConnection.models.MemberModel.updateMemberById(id, {
+        deletedAt: new Date(),
+      });
       return member;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -141,36 +123,27 @@ export class MembershipService {
       const id =
         memberId instanceof mongooseTypes.ObjectId
           ? memberId
-          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+          : // @ts-ignore
             new mongooseTypes.ObjectId(memberId);
-      if (
-        role === databaseTypes.constants.ROLE.MEMBER ||
-        role === databaseTypes.constants.ROLE.OWNER
-      ) {
-        const member =
-          await mongoDbConnection.models.MemberModel.updateMemberById(id, {
-            teamRole: role,
-          });
+      if (role === databaseTypes.constants.ROLE.MEMBER || role === databaseTypes.constants.ROLE.OWNER) {
+        const member = await mongoDbConnection.models.MemberModel.updateMemberById(id, {
+          teamRole: role,
+        });
         return member;
       } else if (
         role === databaseTypes.constants.PROJECT_ROLE.CAN_EDIT ||
         role === databaseTypes.constants.PROJECT_ROLE.READ_ONLY ||
         role === databaseTypes.constants.PROJECT_ROLE.OWNER
       ) {
-        const member =
-          await mongoDbConnection.models.MemberModel.updateMemberById(id, {
-            projectRole: role,
-          });
+        const member = await mongoDbConnection.models.MemberModel.updateMemberById(id, {
+          projectRole: role,
+        });
         return member;
       } else {
         return null;
       }
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -195,19 +168,14 @@ export class MembershipService {
       const id =
         memberId instanceof mongooseTypes.ObjectId
           ? memberId
-          : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+          : // @ts-ignore
             new mongooseTypes.ObjectId(memberId);
-      const member =
-        await mongoDbConnection.models.MemberModel.updateMemberById(id, {
-          status,
-        });
+      const member = await mongoDbConnection.models.MemberModel.updateMemberById(id, {
+        status,
+      });
       return member;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
