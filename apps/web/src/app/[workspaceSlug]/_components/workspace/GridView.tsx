@@ -21,7 +21,7 @@ export const GridView = () => {
         {workspace.projects
           .filter((proj) => !proj.deletedAt)
           .map((project, idx) => {
-            return <ProjectCard key={project._id!.toString()} idx={idx} project={project} />;
+            return <ProjectCard key={project._id!.toString()} project={project} />;
           })}
       </div>
     </>

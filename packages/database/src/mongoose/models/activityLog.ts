@@ -34,7 +34,7 @@ const SCHEMA = new Schema<IActivityLogDocument, IActivityLogStaticMethods, IActi
       () => new Date(),
   },
   actor: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
-  userAgent: {type: userAgentSchema, required: true, default: {}},
+  userAgent: {type: Schema.Types.Mixed, required: true},
   workspaceId: {type: Schema.Types.ObjectId, required: false},
   projectId: {type: Schema.Types.ObjectId, required: false},
   action: {
@@ -239,7 +239,7 @@ SCHEMA.static('createActivityLog', async (input: IActivityLogCreateInput): Promi
         throw new error.InvalidArgumentError(
           `A user resource with _id : ${userId} cannot be found`,
           'user._id',
-          input.resource._id
+          (input.resource as databaseTypes.IWorkspace | databaseTypes.IProject | databaseTypes.IState | databaseTypes.IUser | databaseTypes.IMember | databaseTypes.IWebhook | databaseTypes.ICustomerPayment | databaseTypes.IProcessTracking)._id
         );
       break;
     case databaseTypes.constants.RESOURCE_MODEL.PROJECT:

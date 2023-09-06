@@ -3,7 +3,6 @@ import {useSetRecoilState} from 'recoil';
 import {modalsAtom} from 'state';
 import ClickAwayListener from 'react-click-away-listener';
 import {webTypes} from 'types';
-
 import {CreateWorkspaceModal} from './CreateWorkspaceModal';
 import {CreateProjectModal} from './CreateProjectModal';
 import produce from 'immer';
@@ -77,12 +76,12 @@ export const Modal = ({modalContent}: {modalContent: webTypes.ModalState}) => {
                   case webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT:
                     return (
                       <CreateProjectModal
-                        modalContent={
-                          modalContent as Extract<
-                            webTypes.ModalState,
-                            {type: typeof webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT}
-                          >
-                        }
+                        // modalContent={
+                        //   modalContent as Extract<
+                        //     webTypes.ModalState,
+                        //     {type: typeof webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT}
+                        //   >
+                        // }
                       />
                     );
                   case webTypes.constants.MODAL_CONTENT_TYPE.CREATE_STATE:

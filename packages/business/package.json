@@ -5,8 +5,6 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
-    "dev": "tsup --watch",
-    "build": "tsup",
     "lint": "eslint .",
     "fix": "eslint . --fix",
     "format:write": "prettier --write \"**/*.{js,json,jsx,ts,tsx}\"",
@@ -16,6 +14,11 @@
     "test": "TS_NODE_FILES=true EMAIL_SERVER=smtp://apikey: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@smtp.sendgrid.net:587 mocha -r ts-node/register -r dotenv/config -r tsconfig-paths/register --recursive  --timeout 999999 --exit \"src/__tests__/**/*.tests.ts\"",
     "integrationTest": "DOTENV_CONFIG_PATH=src/__integrationTests__/.env.integration TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register  -r dotenv/config --recursive  --timeout 999999 --exit \"src/__integrationTests__/**/*.tests.ts\"",
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "eslint . --fix"
+    ]
   },
   "engines": {
     "node": ">=18.0.0"
@@ -41,6 +44,7 @@
     "sinon": "^14.0.1",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.1.0",
+    "lint-staged": "^13.0.3",
     "tsup": "^5.11.13",
     "tsx": "^3.7.1",
     "typescript": "4.9.5",

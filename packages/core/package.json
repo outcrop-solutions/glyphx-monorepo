@@ -12,9 +12,7 @@
     "fix": "eslint . --fix",
     "format:write": "prettier --write \"**/*.{js,json,jsx,ts,tsx}\"",
     "format": "prettier \"**/*.{js,json,jsx,ts,tsx}\"",
-    "dev": "tsup --watch",
     "clean": "rimraf .turbo node_modules dist",
-    "build": "tsup",
     "docs": "npx typedoc",
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs"
   },

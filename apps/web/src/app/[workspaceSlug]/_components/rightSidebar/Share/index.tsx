@@ -66,7 +66,7 @@ export const Share = () => {
         </div>
         <div className="flex flex-row justify-between mb-3">
           <div>
-            <LinkDropDown align="right" />
+            <LinkDropDown />
           </div>
           <div>{/* <PermissionsDropDown /> */}</div>
         </div>

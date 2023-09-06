@@ -7,7 +7,6 @@
   "scripts": {
     "clean": "rimraf .turbo node_modules dist",
     "coverage": "TS_NODE_FILES=true nyc mocha -r ts-node/register -r tsconfig-paths/register --timeout 999999 --exit --recursive \"src/__tests__/**/*.tests.ts\"",
-    "build": "tsup",
     "lint": "eslint .",
     "fix": "eslint . --fix",
     "format:write": "prettier --write \"**/*.{js,json,jsx,ts,tsx}\"",
@@ -20,7 +19,7 @@
   "license": "ISC",
   "lint-staged": {
     "*.{js,ts}": [
-      "gts fix"
+      "eslint . --fix"
     ]
   },
   "engines": {
@@ -50,6 +49,7 @@
     "uuid": "^8.3.2"
   },
   "dependencies": {
-    "nodemailer": "^6.9.1"
+    "nodemailer": "^6.9.1",
+     "server-only": "^0.0.1"
   }
 }

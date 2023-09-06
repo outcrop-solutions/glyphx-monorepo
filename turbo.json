@@ -40,12 +40,6 @@
     "codegen": {
       "outputs": ["./packages/examples/**", "./packages/sdks/**"]
     },
-    "test:db": {
-      "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
-    },
-    "test:business": {
-      "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
-    },
     "build": {
       "outputs": [".next/**", "dist/**", "build/**"]
     },
@@ -60,21 +54,7 @@
       "outputs": [],
       "inputs": ["src/**/*.tsx", "src/**/*.ts", "**/tests/**/*.ts", "**/tests/**/*.tsx"]
     },
-    "web#build": {
-      "dependsOn": ["^build"],
-      "inputs": ["./src/**/*.ts", "./src/**/*.tsx"],
-      "outputs": [".next/**"]
-    },
-    "database#build": {
-      "dependsOn": ["^build"],
-      "env": ["DATABASE_URL"],
-      "outputs": ["dist/**"]
-    },
     "dev": {
-      "cache": false
-    },
-    "web#dev": {
-      "dependsOn": ["^dev", "^build"],
       "cache": false
     }
   },
@@ -114,7 +94,8 @@
     "PAYMENTS_SIGNING_SECRET",
     "NEXT_PUBLIC_POSTHOG_KEY",
     "NEXT_PUBLIC_POSTHOG_HOST",
-    "LOG_LEVEL"
+    "LOG_LEVEL",
+    "DATABASE_URL"
   ],
   "globalDependencies": ["tsconfig.json"]
 }

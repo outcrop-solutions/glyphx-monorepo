@@ -2,16 +2,6 @@
   "extends": "tsconfig/node18.json",
   "compilerOptions": {
     "baseUrl": "./src",
-    "paths": {
-      "@/interfaces": ["interfaces/index.ts"],
-      "@/interfaces/fileProcessing": ["interfaces/fileProcessing/index.ts"],
-      "@/interfaces/fieldProcessing": ["interfaces/fieldProcessing/index.ts"],
-      "@/interfaces/aws": ["interfaces/aws/index.ts"],
-      "@/util": ["util/index.ts"],
-      "@/util/constants": ["util/constants/index.ts"],
-      "@/fileProcessing": ["fileProcessing/index.ts"],
-      "@/fieldProcessing": ["fieldProcessing/index.ts"]
-    }
   },
   "include": ["src/**/*.ts", "**/*.tsx", "tsup.config.ts"],
   "exclude": ["src/__tests__/**"]

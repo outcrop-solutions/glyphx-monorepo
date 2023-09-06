@@ -4,12 +4,7 @@
   "description": "Builds our glyphs and stores them in sgn and sdt files ",
   "main": "src/index.ts",
   "types": "src/index.ts",
-  "engines": {
-    "node": ">=16.0.0"
-  },
   "scripts": {
-    "dev": "tsup --watch",
-    "build": "tsup",
     "clean": "rimraf .turbo node_modules dist",
     "coverage": "TS_NODE_FILES=true nyc mocha -r ts-node/register -r tsconfig-paths/register --timeout 999999 --exit --recursive \"src/__tests__/**/*.tests.ts\"",
     "test": "TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register --recursive  --timeout 999999 --exit \"src/__tests__/**/*.tests.ts\"",
@@ -20,6 +15,14 @@
     "format": "prettier \"**/*.{js,json,jsx,ts,tsx}\"",
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist,prisma"
   },
+   "lint-staged": {
+    "*.{js,ts}": [
+      "eslint . --fix"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "author": "JP Burford",
   "license": "ISC",
   "devDependencies": {
@@ -28,6 +31,7 @@
     "fileingestion": "workspace:^1.0.0",
     "tsconfig": "workspace:*",
     "types": "workspace:*",
+    "lint-staged": "^13.0.3",
     "@types/chai": "^4.3.3",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.11.7",

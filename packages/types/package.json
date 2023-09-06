@@ -12,15 +12,22 @@
     "url": "git+https://github.com/SynGlyphX/serverless.git"
   },
   "scripts": {
-    "lint": "eslint .",
     "clean": "rimraf .turbo node_modules dist",
+    "lint": "eslint .",
     "fix": "eslint . --fix",
     "format:write": "prettier --write \"**/*.{js,json,jsx,ts,tsx}\"",
     "format": "prettier \"**/*.{js,json,jsx,ts,tsx}\"",
-    "build": "tsup",
     "precommit": "npx lint-staged",
     "docs": "npx typedoc",
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs"
+  },
+   "lint-staged": {
+    "*.{js,ts}": [
+      "eslint . --fix"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "devDependencies": {
     "eslint-config-custom": "workspace:*",
