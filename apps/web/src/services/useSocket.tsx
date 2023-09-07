@@ -27,7 +27,6 @@ export const useSocket = () => {
           window.core = channel.objects.core; // making it global
           window.core.SendRowIds.connect((json: string) => {
             const ids = JSON.parse(json)?.rowIds;
-            console.log({ids});
             setRowIds(ids.length === 0 ? false : [...ids]);
           });
           window.core.SendCameraPosition.connect((json: string) => {
@@ -60,9 +59,7 @@ export const useSocket = () => {
               })
             );
           });
-          window.core.SendDrawerStatus.connect((status: string) => {
-            console.log({status});
-          });
+          window.core.SendDrawerStatus.connect((status: string) => {});
           window.core.OpenProjectComplete.connect((json: string) => {
             const msg = JSON.parse(json);
             if (!payload.isSent && msg.isCreate) {

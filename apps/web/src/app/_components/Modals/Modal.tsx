@@ -74,16 +74,7 @@ export const Modal = ({modalContent}: {modalContent: webTypes.ModalState}) => {
                       />
                     );
                   case webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT:
-                    return (
-                      <CreateProjectModal
-                        // modalContent={
-                        //   modalContent as Extract<
-                        //     webTypes.ModalState,
-                        //     {type: typeof webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT}
-                        //   >
-                        // }
-                      />
-                    );
+                    return <CreateProjectModal />;
                   case webTypes.constants.MODAL_CONTENT_TYPE.CREATE_STATE:
                     return (
                       <CreateStateModal

@@ -8,19 +8,6 @@ import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
 import {api, _createSubscription} from 'lib/client';
 import {Route} from 'next';
-// import { redirectToCheckout } from 'lib/server';
-
-//  if (!Initializer.initedField) {
-//    await Initializer.init();
-//  }
-//  const session = await getSession(context);
-
-//  const customerPayment = await customerPaymentService.getPayment(session?.user?.email);
-
-//  const [invoices, products] = await Promise.all([
-//    StripeClient.getInvoices(customerPayment?.paymentId),
-//    StripeClient.getProducts(),
-//  ]);
 
 const invoices = [];
 
@@ -29,16 +16,6 @@ const Billing = () => {
   const [showModal, setModalVisibility] = useState(false);
 
   const toggleModal = () => setModalVisibility(!showModal);
-
-  // const subscribe = (priceId) => {
-  //   api({
-  //     ..._createSubscription(priceId),
-  //     setLoading: (state) => setSubmittingState(state as boolean),
-  //     onSuccess: (data) => {
-  //       // return (async () => redirectToCheckout(data.sessionId))();
-  //     },
-  //   });
-  // };
 
   return (
     <>

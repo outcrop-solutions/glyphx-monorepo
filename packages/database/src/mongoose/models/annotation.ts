@@ -177,7 +177,11 @@ SCHEMA.static('createAnnotation', async (input: IAnnotationCreateInput): Promise
 
   const userExists = await UserModel.userIdExists(userId);
   if (!userExists)
-    throw new error.InvalidArgumentError(`A user with _id : ${userId} cannot be found`, 'user._id', input.author._id);
+    throw new error.InvalidArgumentError(
+      `A user with _id : ${userId} cannot be found`,
+      'user._id',
+      (input.author as databaseTypes.IUser)._id
+    );
 
   let projectId;
   //istanbul ignore else

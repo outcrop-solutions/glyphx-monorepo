@@ -23,10 +23,6 @@ export const Toggle = ({field, config, currentConfig}) => {
     [setConfigDirty, setConfigs]
   );
 
-  // const saveChanges = useCallback(async () => {
-  //   await api({ ..._updateConfig(config?._id.toString(), config as databaseTypes.IModelConfig) });
-  // }, [config]);
-
   return (
     <div key={field} className="relative flex items-start">
       <div className="flex h-6 items-center">

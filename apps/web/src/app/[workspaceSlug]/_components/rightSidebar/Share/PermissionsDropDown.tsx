@@ -2,20 +2,9 @@ import {useState, Fragment} from 'react';
 import {Menu, Transition} from '@headlessui/react';
 import {ChevronDownIcon, DotsVerticalIcon} from '@heroicons/react/outline';
 import {databaseTypes} from 'types';
-// import toast from 'react-hot-toast';
-// import { _updateRole, api } from 'lib';
 
 export function PermissionsDropDown() {
-  // const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isSubmitting] = useState(false);
-  // const trigger = useRef(null);
-  // const dropdown = useRef(null);
-
-  // const copyToClipboard = () => toast.success('Copied to clipboard!');
-  // // mutations
-  // const changeRole = (memberId, role) => {
-  //   api({ ..._updateRole(memberId, role) });
-  // };
 
   return (
     <Menu as="div" className="relative inline-block text-left">
@@ -43,14 +32,6 @@ export function PermissionsDropDown() {
                     <select
                       className="w-full px-5 py-2 capitalize rounded appearance-none bg-transparent"
                       disabled={isSubmitting}
-                      // onChange={
-                      //   // changeRole(
-                      //   //   member._id,
-                      //   //   event.target.value as unknown as
-                      //   //     | databaseTypes.constants.ROLE
-                      //   //     | databaseTypes.constants.PROJECT_ROLE
-                      //   // )
-                      // }
                     >
                       <option value={databaseTypes.constants.PROJECT_ROLE.READ_ONLY}>
                         {databaseTypes.constants.PROJECT_ROLE.READ_ONLY.toLowerCase()}
@@ -67,10 +48,7 @@ export function PermissionsDropDown() {
               </button>
             </Menu.Item>
             <Menu.Item>
-              <button
-                className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-red-600 rounded hover:bg-red-600 hover:text-white"
-                // onClick={() => removeMember(member?._id)}
-              >
+              <button className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-red-600 rounded hover:bg-red-600 hover:text-white">
                 <span>Remove Team Member</span>
               </button>
             </Menu.Item>

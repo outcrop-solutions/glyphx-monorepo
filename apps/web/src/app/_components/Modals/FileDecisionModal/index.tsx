@@ -72,16 +72,6 @@ export const FileDecisionModal = ({modalContent}: webTypes.FileDecisionsModalPro
       await api({
         ..._ingestFiles(finalPayload),
         onSuccess: () => {
-          // update project filesystem
-          // setProject(
-          //   produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-          //     draft.files = finalPayload?.fileStats;
-          //     draft.files[0].dataGrid = data.dataGrid;
-          //     draft.files[0].open = true;
-          //   })
-          // );
-          // open first file
-          // selectFile(0);
           closeModal();
         },
       });

@@ -1,6 +1,7 @@
 {
   "extends": "tsconfig/node18.json",
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "tsup.config.ts"],
+  "baseUrl": "./src",
   "compilerOptions": {
     "experimentalDecorators": true, // required for correct next transpilation
     "emitDecoratorMetadata": true

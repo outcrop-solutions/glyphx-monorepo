@@ -10,8 +10,6 @@ import {LoadingDots} from '../Loaders/LoadingDots';
 import Button from '../Button';
 import {Route} from 'next';
 
-// FIXME: NOTE: completions require streaming + RSC in feature/next-13.4-layout - placeholder for now so Will can mark it up
-// export const AIRecommendationsModal = ({ modalContent }: webTypes.AiRecommendationsModalProps) => {
 export const AIRecommendationsModal = ({modalContent: any}) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();

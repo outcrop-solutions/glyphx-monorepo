@@ -239,7 +239,7 @@ SCHEMA.static('createActivityLog', async (input: IActivityLogCreateInput): Promi
         throw new error.InvalidArgumentError(
           `A user resource with _id : ${userId} cannot be found`,
           'user._id',
-          (input.resource as databaseTypes.IWorkspace | databaseTypes.IProject | databaseTypes.IState | databaseTypes.IUser | databaseTypes.IMember | databaseTypes.IWebhook | databaseTypes.ICustomerPayment | databaseTypes.IProcessTracking)._id
+          (input.resource as databaseTypes.IUser)._id
         );
       break;
     case databaseTypes.constants.RESOURCE_MODEL.PROJECT:
@@ -248,7 +248,7 @@ SCHEMA.static('createActivityLog', async (input: IActivityLogCreateInput): Promi
         throw new error.InvalidArgumentError(
           `A project resource with _id : ${resourceId} cannot be found`,
           'project._id',
-          input.resource._id
+          (input.resource as databaseTypes.IProject)._id
         );
       break;
     case databaseTypes.constants.RESOURCE_MODEL.STATE:
@@ -257,7 +257,7 @@ SCHEMA.static('createActivityLog', async (input: IActivityLogCreateInput): Promi
         throw new error.InvalidArgumentError(
           `A state resource with _id : ${resourceId} cannot be found`,
           'state._id',
-          input.resource._id
+          (input.resource as databaseTypes.IState)._id
         );
       break;
     case databaseTypes.constants.RESOURCE_MODEL.CUSTOMER_PAYMENT:
@@ -266,7 +266,7 @@ SCHEMA.static('createActivityLog', async (input: IActivityLogCreateInput): Promi
         throw new error.InvalidArgumentError(
           `A customerPayment resource with _id : ${resourceId} cannot be found`,
           'customerPayment._id',
-          input.resource._id
+          (input.resource as databaseTypes.ICustomerPayment)._id
         );
       break;
     case databaseTypes.constants.RESOURCE_MODEL.MEMBER:
@@ -275,7 +275,7 @@ SCHEMA.static('createActivityLog', async (input: IActivityLogCreateInput): Promi
         throw new error.InvalidArgumentError(
           `A member resource with _id : ${resourceId} cannot be found`,
           'member._id',
-          input.resource._id
+          (input.resource as databaseTypes.IMember)._id
         );
       break;
     case databaseTypes.constants.RESOURCE_MODEL.PROCESS_TRACKING:
@@ -284,7 +284,7 @@ SCHEMA.static('createActivityLog', async (input: IActivityLogCreateInput): Promi
         throw new error.InvalidArgumentError(
           `A processTracking resource with _id : ${resourceId} cannot be found`,
           'processTracking._id',
-          input.resource._id
+          (input.resource as databaseTypes.IProcessTracking)._id
         );
       break;
     case databaseTypes.constants.RESOURCE_MODEL.WEBHOOK:
@@ -293,7 +293,7 @@ SCHEMA.static('createActivityLog', async (input: IActivityLogCreateInput): Promi
         throw new error.InvalidArgumentError(
           `A webhook resource with _id : ${resourceId} cannot be found`,
           'webhook._id',
-          input.resource._id
+          (input.resource as databaseTypes.IWebhook)._id
         );
       break;
     case databaseTypes.constants.RESOURCE_MODEL.WORKSPACE:
@@ -302,7 +302,7 @@ SCHEMA.static('createActivityLog', async (input: IActivityLogCreateInput): Promi
         throw new error.InvalidArgumentError(
           `A workspace resource with _id : ${resourceId} cannot be found`,
           'workspace._id',
-          input.resource._id
+          (input.resource as databaseTypes.IWorkspace)._id
         );
       break;
   }

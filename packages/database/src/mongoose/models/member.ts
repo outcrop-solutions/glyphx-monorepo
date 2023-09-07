@@ -345,8 +345,8 @@ SCHEMA.static('createWorkspaceMember', async (input: IMemberCreateInput): Promis
     updatedAt: createDate,
     status: input.status ?? databaseTypes.constants.INVITATION_STATUS.PENDING,
     teamRole: input.teamRole ?? databaseTypes.constants.ROLE.MEMBER,
-    member: member._id,
-    invitedBy: invitedBy._id,
+    member: member,
+    invitedBy: invitedBy,
     workspace: workspaceId,
   };
 
@@ -408,8 +408,8 @@ SCHEMA.static('createProjectMember', async (input: IMemberCreateInput): Promise<
     status: input.status ?? databaseTypes.constants.INVITATION_STATUS.PENDING,
     teamRole: input.teamRole ?? databaseTypes.constants.ROLE.MEMBER,
     projectRole: input.projectRole ?? databaseTypes.constants.PROJECT_ROLE.READ_ONLY,
-    member: member._id,
-    invitedBy: invitedBy._id,
+    member: member,
+    invitedBy: invitedBy,
     workspace: workspaceId,
     project: projectId,
   };

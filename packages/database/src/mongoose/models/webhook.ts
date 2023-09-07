@@ -144,7 +144,7 @@ SCHEMA.static('queryWebhooks', async (filter: Record<string, unknown> = {}, page
     if (err instanceof error.DataNotFoundError || err instanceof error.InvalidArgumentError) throw err;
     else
       throw new error.DatabaseOperationError(
-        'An unexpected error occurred while getting the webhooks.  See the inner error for additional information',
+        'An unexpected error occurred while creating the webhooks.  See the inner error for additional information',
         'mongoDb',
         'getWebhooks',
         err
