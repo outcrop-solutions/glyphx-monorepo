@@ -1,10 +1,7 @@
-// eslint-disable-next-line @typescript-eslint/naming-convention
-const initMiddleware = middleware => {
+const initMiddleware = (middleware) => {
   return (req, res) =>
     new Promise((resolve, reject) => {
-      middleware(req, res, result =>
-        result instanceof Error ? reject(result) : resolve(result)
-      );
+      middleware(req, res, (result) => (result instanceof Error ? reject(result) : resolve(result)));
     });
 };
 

@@ -1,16 +1,18 @@
-import { web as webTypes } from '@glyphx/types';
-import { Session } from 'next-auth';
-import { validateSession, Initializer } from '@glyphx/business';
-import { getWorkspace, deleteWorkspace } from 'lib/server/workspace';
+import {webTypes} from 'types';
+import {authOptions} from 'app/api/auth/[...nextauth]/route';
+import {getServerSession} from 'next-auth/next';
+import {NextApiRequest, NextApiResponse} from 'next';
+import {Initializer} from 'business';
+import {getWorkspace, deleteWorkspace} from 'lib/server/workspace';
 
-const workspace = async (req, res) => {
+const workspace = async (req: NextApiRequest, res: NextApiResponse) => {
   // initialize the business layer
   if (!Initializer.initedField) {
     await Initializer.init();
   }
 
   // check for valid session
-  const session = (await validateSession(req, res)) as Session;
+  const session = await getServerSession(req, res, authOptions);
   if (!session?.user?.userId) return res.status(401).end();
 
   // execute the appropriate handler
@@ -21,7 +23,7 @@ const workspace = async (req, res) => {
       return deleteWorkspace(req, res, session);
     default:
       res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.GET, webTypes.constants.HTTP_METHOD.DELETE]);
-      return res.status(405).json({ error: `${req.method} method unsupported` });
+      return res.status(405).json({error: `${req.method} method unsupported`});
   }
 };
 

@@ -1,4 +1,4 @@
-import { database as databaseTypes, web as webTypes } from '@glyphx/types';
+import {databaseTypes, webTypes} from 'types';
 /**
  * Creates Project Template from a project
  * @param id
@@ -14,7 +14,7 @@ export const _createProjectTemplate = (
   return {
     url: '/api/template/create',
     options: {
-      body: { projectId, projectName, projectDesc, properties },
+      body: {projectId, projectName, projectDesc, properties},
       method: 'POST',
     },
     successMsg: 'New project template successfully created',
@@ -34,7 +34,7 @@ export const _createProjectFromTemplate = (
   return {
     url: '/api/template/clone',
     options: {
-      body: { workspaceId, template },
+      body: {workspaceId, template},
       method: 'POST',
     },
     successMsg: 'New project successfully created',

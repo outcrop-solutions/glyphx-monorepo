@@ -1,4 +1,4 @@
-import {error, constants} from '@glyphx/core';
+import {error, constants} from 'core';
 import Stripe from 'stripe';
 
 export class StripeClient {
@@ -34,8 +34,8 @@ export class StripeClient {
       StripeClient.stripe.prices.list(),
     ]);
     const productPrices = {};
-    prices?.data.map(price => (productPrices[price.product] = price));
-    products?.data.map(product => (product.prices = productPrices[product.id]));
+    prices?.data.map((price) => (productPrices[price.product] = price));
+    products?.data.map((product) => (product.prices = productPrices[product.id]));
     return products?.data.reverse();
   }
 }

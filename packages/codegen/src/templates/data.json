@@ -1,0 +1,1350 @@
+[
+  {
+    "name": "IAccount",
+    "path": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks/iAccount.ts",
+    "properties": [
+      {
+        "name": "type",
+        "type": "ACCOUNT_TYPE",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "userId",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "provider",
+        "type": "ACCOUNT_PROVIDER",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "providerAccountId",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "refresh_token",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "refresh_token_expires_in",
+        "type": "number",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "access_token",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "expires_at",
+        "type": "number",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "token_type",
+        "type": "TOKEN_TYPE",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "scope",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "id_token",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "session_state",
+        "type": "SESSION_STATE",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "oauth_token_secret",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "oauth_token",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "user",
+        "type": "IUser",
+        "protected": false,
+        "required": false
+      }
+    ],
+    "relationships": [
+      {
+        "type": "ENUM",
+        "sourceTable": "IAccount",
+        "referenceTable": "ACCOUNT_TYPE"
+      },
+      {
+        "type": "ENUM",
+        "sourceTable": "IAccount",
+        "referenceTable": "ACCOUNT_PROVIDER"
+      },
+      {
+        "type": "ENUM",
+        "sourceTable": "IAccount",
+        "referenceTable": "TOKEN_TYPE"
+      },
+      {
+        "type": "ENUM",
+        "sourceTable": "IAccount",
+        "referenceTable": "SESSION_STATE"
+      },
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "IAccount",
+        "referenceTable": "IUser"
+      }
+    ]
+  },
+  {
+    "name": "IActivityLog",
+    "path": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks/iActivityLog.ts",
+    "properties": [
+      {
+        "name": "createdAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "updatedAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "deletedAt",
+        "type": "Date",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "actor",
+        "type": "IUser",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "workspaceId",
+        "type": "string | ObjectId",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "projectId",
+        "type": "string | ObjectId",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "location",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "userAgent",
+        "type": "IUserAgent",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "action",
+        "type": "ACTION_TYPE",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "onModel",
+        "type": "RESOURCE_MODEL",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "resource",
+        "type": "IUser | IState | IProject | ICustomerPayment | IMember | IWebhook | IWorkspace | IProcessTracking",
+        "protected": false,
+        "required": false
+      }
+    ],
+    "relationships": [
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "IActivityLog",
+        "referenceTable": "IUser"
+      },
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "IActivityLog",
+        "referenceTable": "IUserAgent"
+      },
+      {
+        "type": "ENUM",
+        "sourceTable": "IActivityLog",
+        "referenceTable": "ACTION_TYPE"
+      },
+      {
+        "type": "ENUM",
+        "sourceTable": "IActivityLog",
+        "referenceTable": "RESOURCE_MODEL"
+      }
+    ]
+  },
+  {
+    "name": "IAnnotation",
+    "path": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks/iAnnotation.ts",
+    "properties": [
+      {
+        "name": "createdAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "updatedAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "deletedAt",
+        "type": "Date",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "author",
+        "type": "IUser",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "value",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "projectId",
+        "type": "string | ObjectId",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "stateId",
+        "type": "string | ObjectId",
+        "protected": false,
+        "required": false
+      }
+    ],
+    "relationships": [
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "IAnnotation",
+        "referenceTable": "IUser"
+      }
+    ]
+  },
+  {
+    "name": "IComment",
+    "path": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks/iComment.ts",
+    "properties": [
+      {
+        "name": "createdAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "updatedAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "content",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "author",
+        "type": "IUser",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "state",
+        "type": "IState",
+        "protected": false,
+        "required": false
+      }
+    ],
+    "relationships": [
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "IComment",
+        "referenceTable": "IUser"
+      },
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "IComment",
+        "referenceTable": "IState"
+      }
+    ]
+  },
+  {
+    "name": "ICustomerPayment",
+    "path": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks/iCustomerPayment.ts",
+    "properties": [
+      {
+        "name": "paymentId",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "email",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "subscriptionType",
+        "type": "SUBSCRIPTION_TYPE",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "createdAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "deletedAt",
+        "type": "Date",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "updatedAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "customer",
+        "type": "IUser",
+        "protected": false,
+        "required": false
+      }
+    ],
+    "relationships": [
+      {
+        "type": "ENUM",
+        "sourceTable": "ICustomerPayment",
+        "referenceTable": "SUBSCRIPTION_TYPE"
+      },
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "ICustomerPayment",
+        "referenceTable": "IUser"
+      }
+    ]
+  },
+  {
+    "name": "IMember",
+    "path": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks/iMember.ts",
+    "properties": [
+      {
+        "name": "email",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "inviter",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "type",
+        "type": "MEMBERSHIP_TYPE",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "invitedAt",
+        "type": "Date",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "joinedAt",
+        "type": "Date",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "deletedAt",
+        "type": "Date",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "updatedAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "createdAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "status",
+        "type": "INVITATION_STATUS",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "teamRole",
+        "type": "ROLE",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "projectRole",
+        "type": "PROJECT_ROLE",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "member",
+        "type": "IUser",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "invitedBy",
+        "type": "IUser",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "workspace",
+        "type": "IWorkspace",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "project",
+        "type": "IProject",
+        "protected": false,
+        "required": false
+      }
+    ],
+    "relationships": [
+      {
+        "type": "ENUM",
+        "sourceTable": "IMember",
+        "referenceTable": "MEMBERSHIP_TYPE"
+      },
+      {
+        "type": "ENUM",
+        "sourceTable": "IMember",
+        "referenceTable": "INVITATION_STATUS"
+      },
+      {
+        "type": "ENUM",
+        "sourceTable": "IMember",
+        "referenceTable": "ROLE"
+      },
+      {
+        "type": "ENUM",
+        "sourceTable": "IMember",
+        "referenceTable": "PROJECT_ROLE"
+      },
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "IMember",
+        "referenceTable": "IUser"
+      },
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "IMember",
+        "referenceTable": "IUser"
+      },
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "IMember",
+        "referenceTable": "IWorkspace"
+      },
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "IMember",
+        "referenceTable": "IProject"
+      }
+    ]
+  },
+  {
+    "name": "IProcessTracking",
+    "path": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks/iProcessTracking.ts",
+    "properties": [
+      {
+        "name": "processId",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "processName",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "processStatus",
+        "type": "PROCESS_STATUS",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "processStartTime",
+        "type": "Date",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "processEndTime",
+        "type": "Date",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "processMessages",
+        "type": "string[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "processError",
+        "type": "Record<string, unknown>[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "processResult",
+        "type": "Record<string, unknown>",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "processHeartbeat",
+        "type": "Date",
+        "protected": false,
+        "required": false
+      }
+    ],
+    "relationships": [
+      {
+        "type": "SCHEMA",
+        "sourceTable": "IProcessTracking",
+        "referenceTable": "constants.PROCESS_STATUS"
+      },
+      {
+        "type": "SCHEMA",
+        "sourceTable": "IProcessTracking",
+        "referenceTable": "Record"
+      }
+    ]
+  },
+  {
+    "name": "IProject",
+    "path": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks/iProject.ts",
+    "properties": [
+      {
+        "name": "createdAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "updatedAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "description",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "deletedAt",
+        "type": "Date",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "sdtPath",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "workspace",
+        "type": "IWorkspace",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "lastOpened",
+        "type": "Date",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "imageHash",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "aspectRatio",
+        "type": "Aspect",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "slug",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "template",
+        "type": "IProjectTemplate",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "members",
+        "type": "IMember[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "tags",
+        "type": "ITag[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "currentVersion",
+        "type": "number",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "state",
+        "type": "Omit<IState, \"name\" | \"createdAt\" | \"updatedAt\" | \"fileSystemHash\" | \"payloadHash\" | \"fileSystem\" | \"description\" | \"version\" | \"static\" | \"camera\" | \"aspectRatio\" | \"project\" | \"workspace\" | \"createdBy\" | \"_id\">",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "stateHistory",
+        "type": "IState[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "files",
+        "type": "IFileStats[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "viewName",
+        "type": "string",
+        "protected": false,
+        "required": false
+      }
+    ],
+    "relationships": [
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "IProject",
+        "referenceTable": "IWorkspace"
+      },
+      {
+        "type": "SCHEMA",
+        "sourceTable": "IProject",
+        "referenceTable": "Aspect"
+      },
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "IProject",
+        "referenceTable": "IProjectTemplate"
+      },
+      {
+        "type": "SCHEMA",
+        "sourceTable": "IProject",
+        "referenceTable": "Omit"
+      }
+    ]
+  },
+  {
+    "name": "IProjectTemplate",
+    "path": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks/iProjectTemplate.ts",
+    "properties": [
+      {
+        "name": "createdAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "updatedAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "deletedAt",
+        "type": "Date",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "projects",
+        "type": "IProject[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "tags",
+        "type": "ITag[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "shape",
+        "type": "Record<string, { key: string; type: FIELD_TYPE; required: boolean; description: string; }>",
+        "protected": false,
+        "required": false
+      }
+    ],
+    "relationships": [
+      {
+        "type": "SCHEMA",
+        "sourceTable": "IProjectTemplate",
+        "referenceTable": "Record"
+      }
+    ]
+  },
+  {
+    "name": "ISession",
+    "path": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks/iSession.ts",
+    "properties": [
+      {
+        "name": "userId",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "sessionToken",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "expires",
+        "type": "Date",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "user",
+        "type": "IUser",
+        "protected": false,
+        "required": false
+      }
+    ],
+    "relationships": [
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "ISession",
+        "referenceTable": "IUser"
+      }
+    ]
+  },
+  {
+    "name": "IState",
+    "path": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks/iState.ts",
+    "properties": [
+      {
+        "name": "createdBy",
+        "type": "IUser",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "createdAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "deletedAt",
+        "type": "Date",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "updatedAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "version",
+        "type": "number",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "static",
+        "type": "boolean",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "imageHash",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "camera",
+        "type": "Camera",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "aspectRatio",
+        "type": "Aspect",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "properties",
+        "type": "Record<string, Property>",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "fileSystemHash",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "payloadHash",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "description",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "project",
+        "type": "IProject",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "workspace",
+        "type": "IWorkspace",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "fileSystem",
+        "type": "IFileStats[]",
+        "protected": false,
+        "required": false
+      }
+    ],
+    "relationships": [
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "IState",
+        "referenceTable": "IUser"
+      },
+      {
+        "type": "SCHEMA",
+        "sourceTable": "IState",
+        "referenceTable": "Camera"
+      },
+      {
+        "type": "SCHEMA",
+        "sourceTable": "IState",
+        "referenceTable": "Aspect"
+      },
+      {
+        "type": "SCHEMA",
+        "sourceTable": "IState",
+        "referenceTable": "Record"
+      },
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "IState",
+        "referenceTable": "IProject"
+      },
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "IState",
+        "referenceTable": "IWorkspace"
+      }
+    ]
+  },
+  {
+    "name": "ITag",
+    "path": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks/iTag.ts",
+    "properties": [
+      {
+        "name": "createdAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "updatedAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "workspaces",
+        "type": "IWorkspace[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "templates",
+        "type": "IProjectTemplate[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "projects",
+        "type": "IProject[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "value",
+        "type": "string",
+        "protected": false,
+        "required": false
+      }
+    ],
+    "relationships": []
+  },
+  {
+    "name": "IUser",
+    "path": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks/iUser.ts",
+    "properties": [
+      {
+        "name": "userCode",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "username",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "gh_username",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "email",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "emailVerified",
+        "type": "Date",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "isVerified",
+        "type": "boolean",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "image",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "createdAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "updatedAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "deletedAt",
+        "type": "Date",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "accounts",
+        "type": "IAccount[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "sessions",
+        "type": "ISession[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "membership",
+        "type": "IMember[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "invitedMembers",
+        "type": "IMember[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "createdWorkspaces",
+        "type": "IWorkspace[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "projects",
+        "type": "IProject[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "customerPayment",
+        "type": "ICustomerPayment",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "webhooks",
+        "type": "IWebhook[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "apiKey",
+        "type": "string",
+        "protected": false,
+        "required": false
+      }
+    ],
+    "relationships": [
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "IUser",
+        "referenceTable": "ICustomerPayment"
+      }
+    ]
+  },
+  {
+    "name": "IUserAgent",
+    "path": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks/iUserAgent.ts",
+    "properties": [
+      {
+        "name": "userAgent",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "platform",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "appName",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "appVersion",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "vendor",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "language",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "cookieEnabled",
+        "type": "boolean",
+        "protected": false,
+        "required": false
+      }
+    ],
+    "relationships": []
+  },
+  {
+    "name": "IVerificationToken",
+    "path": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks/iVerificationToken.ts",
+    "properties": [
+      {
+        "name": "identifier",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "token",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "expires",
+        "type": "Date",
+        "protected": false,
+        "required": false
+      }
+    ],
+    "relationships": []
+  },
+  {
+    "name": "IWebhook",
+    "path": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks/iWebhook.ts",
+    "properties": [
+      {
+        "name": "createdAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "updatedAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "url",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "user",
+        "type": "IUser",
+        "protected": false,
+        "required": false
+      }
+    ],
+    "relationships": [
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "IWebhook",
+        "referenceTable": "IUser"
+      }
+    ]
+  },
+  {
+    "name": "IWorkspace",
+    "path": "/Users/jamesmurdockgraham/Desktop/projects/glyphx/dev/monorepo/packages/codegen/src/__tests__/mocks/iWorkspace.ts",
+    "properties": [
+      {
+        "name": "workspaceCode",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "inviteCode",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "slug",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "createdAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "updatedAt",
+        "type": "Date",
+        "protected": true,
+        "required": false
+      },
+      {
+        "name": "tags",
+        "type": "ITag[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "deletedAt",
+        "type": "Date",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "description",
+        "type": "string",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "creator",
+        "type": "IUser",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "members",
+        "type": "IMember[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "projects",
+        "type": "IProject[]",
+        "protected": false,
+        "required": false
+      },
+      {
+        "name": "states",
+        "type": "IState[]",
+        "protected": false,
+        "required": false
+      }
+    ],
+    "relationships": [
+      {
+        "type": "ONE_TO_ONE",
+        "sourceTable": "IWorkspace",
+        "referenceTable": "IUser"
+      }
+    ]
+  }
+]

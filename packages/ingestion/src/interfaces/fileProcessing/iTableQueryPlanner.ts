@@ -1,5 +1,5 @@
 import {IJoinTableDefinition} from './iJoinTableDefinition';
-import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '@util/constants';
+import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '../../util/constants';
 
 /**
  * Our ITableQueryPlanner will process a {@link interfaces/fileProcessing/iJoinTableDefinition!IJoinTableDefinition} object
@@ -40,11 +40,7 @@ export interface ITableQueryPlanner {
    * @throws error.InvalidOperationError if an illegal join is attempted -- an implimentor may choose to
    * throw this error if a circular join exists.  I don't know, options people.
    */
-  defineQuery(
-    fileName: string,
-    tableName: string,
-    tableData: IJoinTableDefinition
-  ): string;
+  defineQuery(fileName: string, tableName: string, tableData: IJoinTableDefinition): string;
 }
 
 /**
@@ -59,9 +55,5 @@ export interface IConstructableTableQueryPlanner {
    * @param storageFormat - the file format of the backend file.
    * @param - the compression type used to compress the file
    */
-  new (
-    bucketName: string,
-    storageFormat: FILE_STORAGE_TYPES,
-    compressionType: COMPRESSION_TYPES
-  ): ITableQueryPlanner;
+  new (bucketName: string, storageFormat: FILE_STORAGE_TYPES, compressionType: COMPRESSION_TYPES): ITableQueryPlanner;
 }

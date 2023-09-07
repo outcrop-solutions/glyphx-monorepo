@@ -1,6 +1,6 @@
-import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
-import { S3_BUCKET_NAME } from 'config/constants';
-import { Types as mongooseTypes } from 'mongoose';
+import {webTypes, fileIngestionTypes} from 'types';
+import {S3_BUCKET_NAME} from 'config/constants';
+import {Types as mongooseTypes} from 'mongoose';
 /**
  *
  * @param workspaceId

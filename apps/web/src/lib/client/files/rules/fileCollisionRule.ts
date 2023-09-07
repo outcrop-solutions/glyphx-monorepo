@@ -1,13 +1,13 @@
-import { web as webTypes } from '@glyphx/types';
-import { hashFileStats } from '../transforms/hashFileStats';
-import { handleCollisionCase } from '../mappings/handleCollisionCase';
-import { handelOperations } from '../mappings/handleOperations';
+import {webTypes} from 'types';
+import {hashFileStats} from '../transforms/hashFileStats';
+import {handleCollisionCase} from '../mappings/handleCollisionCase';
+import {handelOperations} from '../mappings/handleOperations';
 
 export const fileCollisionRule: webTypes.IFileRule = {
   type: webTypes.constants.MODAL_CONTENT_TYPE.FILE_DECISIONS,
   name: 'File Upload Summary',
   desc: 'At least one of your csv looks like a pre-existing upload. Please choose which operations you would like to perform.',
-  condition: (payload, existingFileStats, acceptedFiles): webTypes.MatchingFileStatsData => {
+  condition: (payload, existingFileStats, acceptedFiles: Blob[]): webTypes.MatchingFileStatsData => {
     // select and hash relevant values
     const newHashes = hashFileStats(payload.fileStats, false);
     const existingHashes = hashFileStats(existingFileStats, true);
@@ -19,15 +19,15 @@ export const fileCollisionRule: webTypes.IFileRule = {
     // determine column matches from hashes
     const findIndexInExistingHashes = (fileColumnsHash, columnsHash) =>
       existingHashes.findIndex(
-        ({ fileColumnsHash: existingFileColumnsHash, columnsHash: existingColumnsHash }) =>
+        ({fileColumnsHash: existingFileColumnsHash, columnsHash: existingColumnsHash}) =>
           fileColumnsHash === existingFileColumnsHash || columnsHash === existingColumnsHash
       );
 
     // keep track of collisions to set default -1 (no-op)
-    const foundIndexes = [];
+    const foundIndexes: number[] = [];
 
     const retval = newHashes
-      .map(({ fileColumnsHash, columnsHash }, idx) => {
+      .map(({fileColumnsHash, columnsHash}, idx) => {
         const foundIndex = findIndexInExistingHashes(fileColumnsHash, columnsHash);
         if (foundIndex !== -1) {
           return {
@@ -48,11 +48,13 @@ export const fileCollisionRule: webTypes.IFileRule = {
       ...payload,
       fileInfo: payload.fileInfo.map((info, idx) => {
         if (!foundIndexes.includes(idx)) {
-          return { ...info, operation: -1 };
+          return {...info, operation: -1};
         } else return info;
       }),
     };
 
-    return retval.length > 0 ? { collisions: retval, payload: cleanPayload, acceptedFiles } : false;
+    return retval.length > 0
+      ? {collisions: retval as webTypes.Collision[], payload: cleanPayload, acceptedFiles}
+      : false;
   },
 };

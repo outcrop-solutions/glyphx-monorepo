@@ -1,4 +1,4 @@
-import {aws, error} from '@glyphx/core';
+import {aws, error} from 'core';
 import {QUERY_STATUS} from '../constants';
 import {IQueryResponse} from '../interfaces';
 
@@ -40,19 +40,14 @@ export class QueryRunner {
 
   public async getQueryStatus(): Promise<IQueryResponse> {
     if (!this.queryId) {
-      throw new error.InvalidOperationError(
-        'You must call startQuery() before calling getQueryStatus()',
-        {}
-      );
+      throw new error.InvalidOperationError('You must call startQuery() before calling getQueryStatus()', {});
     }
     if (
       this.queryStatusField?.status !== QUERY_STATUS.SUCCEEDED &&
       this.queryStatusField?.status !== QUERY_STATUS.FAILED
     ) {
       const status = await this.athenaManager.getQueryStatus(this.queryId);
-      const statusCode =
-        QUERY_STATUS[status.QueryExecution?.Status?.State ?? 'UNKNOWN'] ??
-        QUERY_STATUS.UNKNOWN;
+      const statusCode = QUERY_STATUS[status.QueryExecution?.Status?.State ?? 'UNKNOWN'] ?? QUERY_STATUS.UNKNOWN;
       this.queryStatusField = {
         status: statusCode,
         error:

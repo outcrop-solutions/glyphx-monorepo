@@ -1,4 +1,4 @@
-import { web as webTypes } from '@glyphx/types';
+import {webTypes} from 'types';
 
 // WORKSPACE MUTATIONS
 
@@ -11,7 +11,7 @@ export const _createWorkspace = (name: string): webTypes.IFetchConfig => {
   return {
     url: '/api/workspace',
     options: {
-      body: { name: name },
+      body: {name: name},
       method: 'POST',
     },
     successMsg: 'Workspace successfully created',
@@ -39,11 +39,11 @@ export const _deleteWorkspace = (slug: string): webTypes.IFetchConfig => {
  * @param slug corresponds to workspace.slug in mongoDB
  * @param name corresponds to workspace.name in mongoDB
  */
-export const _updateWorkspaceName = ({ slug, name }: { slug: string; name: string }): webTypes.IFetchConfig => {
+export const _updateWorkspaceName = ({slug, name}: {slug: string; name: string}): webTypes.IFetchConfig => {
   return {
     url: `/api/workspace/${slug}/name`,
     options: {
-      body: { name },
+      body: {name},
       method: 'PUT',
     },
     successMsg: 'Workspace name successfully updated!',
@@ -56,11 +56,11 @@ export const _updateWorkspaceName = ({ slug, name }: { slug: string; name: strin
  * @param slug corresponds to workspace.slug in mongoDB
  * @param newSlug corresponds to workspace.slug in mongoDB
  */
-export const _updateWorkspaceSlug = ({ slug, newSlug }: { slug: string; newSlug: string }): webTypes.IFetchConfig => {
+export const _updateWorkspaceSlug = ({slug, newSlug}: {slug: string; newSlug: string}): webTypes.IFetchConfig => {
   return {
     url: `/api/workspace/${slug}/slug`,
     options: {
-      body: { slug: newSlug },
+      body: {slug: newSlug},
       method: 'PUT',
     },
     successMsg: 'Workspace slug successfully updated!',
@@ -76,7 +76,7 @@ export const _joinWorkspace = (workspaceCode: string): webTypes.IFetchConfig => 
   return {
     url: `/api/workspace/team/join`,
     options: {
-      body: { workspaceCode: workspaceCode },
+      body: {workspaceCode: workspaceCode},
       method: 'POST',
     },
     successMsg: 'Accepted invitation!',

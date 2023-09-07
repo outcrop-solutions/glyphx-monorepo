@@ -14,11 +14,7 @@ class FakePager {
   data: any[];
   pageNo: number;
   throwErrorOnPage: number;
-  constructor(
-    numberOfPages: number,
-    data: Record<string, unknown>[],
-    throwErrorOnPage = -1
-  ) {
+  constructor(numberOfPages: number, data: Record<string, unknown>[], throwErrorOnPage = -1) {
     this.numberOfPages = numberOfPages;
     this.data = data;
     this.pageNo = 0;
@@ -75,11 +71,7 @@ describe('treams/AthenaQueryReadStream', () => {
 
       const athenaManager = new AthenaManager('jpstestdatabase');
       await athenaManager.init();
-      const stream = new AthenaQueryReadStream(
-        athenaManager,
-        queryId,
-        pageSize
-      ) as any;
+      const stream = new AthenaQueryReadStream(athenaManager, queryId, pageSize) as any;
       assert.strictEqual(stream.athenaManager, athenaManager);
       assert.strictEqual(stream.queryId, queryId);
       assert.strictEqual(stream.pageSize, pageSize);
@@ -116,15 +108,9 @@ describe('treams/AthenaQueryReadStream', () => {
       const getPagedQueryResultsStub = sandbox.stub();
       const numberOfPages = 10;
       const queryId = 'testQueryId';
-      getPagedQueryResultsStub.resolves(
-        new FakePager(numberOfPages, FAKE_DATA)
-      );
+      getPagedQueryResultsStub.resolves(new FakePager(numberOfPages, FAKE_DATA));
 
-      sandbox.replace(
-        AthenaManager.prototype,
-        'getPagedQueryResults',
-        getPagedQueryResultsStub
-      );
+      sandbox.replace(AthenaManager.prototype, 'getPagedQueryResults', getPagedQueryResultsStub);
 
       const fromResultSetStub = sandbox.stub();
       fromResultSetStub.returns(FAKE_DATA);
@@ -158,15 +144,9 @@ describe('treams/AthenaQueryReadStream', () => {
       const getPagedQueryResultsStub = sandbox.stub();
       const numberOfPages = 1;
       const queryId = 'testQueryId';
-      getPagedQueryResultsStub.resolves(
-        new FakePager(numberOfPages, FAKE_DATA)
-      );
+      getPagedQueryResultsStub.resolves(new FakePager(numberOfPages, FAKE_DATA));
 
-      sandbox.replace(
-        AthenaManager.prototype,
-        'getPagedQueryResults',
-        getPagedQueryResultsStub
-      );
+      sandbox.replace(AthenaManager.prototype, 'getPagedQueryResults', getPagedQueryResultsStub);
 
       const fromResultSetStub = sandbox.stub();
       fromResultSetStub.returns(FAKE_DATA);
@@ -200,15 +180,9 @@ describe('treams/AthenaQueryReadStream', () => {
       const getPagedQueryResultsStub = sandbox.stub();
       const numberOfPages = 10;
       const queryId = 'testQueryId';
-      getPagedQueryResultsStub.resolves(
-        new FakePager(numberOfPages, FAKE_DATA, 2)
-      );
+      getPagedQueryResultsStub.resolves(new FakePager(numberOfPages, FAKE_DATA, 2));
 
-      sandbox.replace(
-        AthenaManager.prototype,
-        'getPagedQueryResults',
-        getPagedQueryResultsStub
-      );
+      sandbox.replace(AthenaManager.prototype, 'getPagedQueryResults', getPagedQueryResultsStub);
 
       const fromResultSetStub = sandbox.stub();
       fromResultSetStub.returns(FAKE_DATA);
@@ -227,7 +201,7 @@ describe('treams/AthenaQueryReadStream', () => {
       });
       const dataReader = new AthenaQueryReadStream(athenaManager, queryId, 10);
       let caughtError = false;
-      dataReader.on('error', err => {
+      dataReader.on('error', (err) => {
         assert.instanceOf(err, error.DatabaseOperationError);
         caughtError = true;
       });

@@ -1,4 +1,3 @@
-/*eslint-disable-next-line node/no-unpublished-import*/
 import 'mocha';
 import {assert} from 'chai';
 import * as secrets from '../../secrets/secretClassDecorator';
@@ -6,10 +5,7 @@ import 'reflect-metadata';
 import {InvalidOperationError} from '../../error';
 //eslint-disable-next-line
 import {mockClient} from 'aws-sdk-client-mock';
-import {
-  SecretsManager,
-  GetSecretValueCommand,
-} from '@aws-sdk/client-secrets-manager';
+import {SecretsManager, GetSecretValueCommand} from '@aws-sdk/client-secrets-manager';
 
 describe('#/secrets/secretClassDecorator', () => {
   context('initializer', () => {
@@ -21,10 +17,7 @@ describe('#/secrets/secretClassDecorator', () => {
         }
       }
 
-      const metaData = Reflect.getMetadata(
-        'boundSecrets:initializerFunction',
-        TestClass.prototype
-      );
+      const metaData = Reflect.getMetadata('boundSecrets:initializerFunction', TestClass.prototype);
 
       assert.isOk(metaData);
       assert.strictEqual(metaData.name, 'init');
@@ -33,7 +26,6 @@ describe('#/secrets/secretClassDecorator', () => {
 
     it('will throw an InvalidOperationException if the initilizer is set more than once', () => {
       assert.throws(() => {
-        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
         class TestClass {
           @secrets.initializer
           async init(): Promise<void> {
@@ -50,7 +42,6 @@ describe('#/secrets/secretClassDecorator', () => {
 
     it('will throw an InvalidOperationException if the initilizer is set on a property', () => {
       assert.throws(() => {
-        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
         class TestClass {
           @secrets.initializer
           get init(): string {
@@ -62,7 +53,6 @@ describe('#/secrets/secretClassDecorator', () => {
 
     it('will throw an InvalidOperationException if the initilizer is set on a function that is not async', () => {
       assert.throws(() => {
-        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
         @secrets.bindSecrets('test')
         class TestClass {
           @secrets.initializer
@@ -76,7 +66,6 @@ describe('#/secrets/secretClassDecorator', () => {
 
   context('boundPropery', () => {
     it('bind a field using the secret name', () => {
-      /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
       class TestClass {
         @secrets.boundProperty('bar')
         foo = '';
@@ -91,24 +80,13 @@ describe('#/secrets/secretClassDecorator', () => {
       const isBound = Reflect.getMetadata('boundSecrets:isBound', test, 'foo');
       assert.isTrue(isBound);
 
-      const secretName = Reflect.getMetadata(
-        'boundSecrets:secretName',
-        test,
-        'foo'
-      );
+      const secretName = Reflect.getMetadata('boundSecrets:secretName', test, 'foo');
       assert.strictEqual(secretName, 'bar');
 
-      const extractor = Reflect.getMetadata(
-        'boundSecrets:extractor',
-        test,
-        'foo'
-      );
+      const extractor = Reflect.getMetadata('boundSecrets:extractor', test, 'foo');
       assert.isOk(extractor);
 
-      const propertyDescriptor = Object.getOwnPropertyDescriptor(
-        (test as any).__proto__,
-        'foo'
-      );
+      const propertyDescriptor = Object.getOwnPropertyDescriptor((test as any).__proto__, 'foo');
       assert.isOk(propertyDescriptor?.get);
       assert.isOk(propertyDescriptor?.set);
     });
@@ -118,7 +96,7 @@ describe('#/secrets/secretClassDecorator', () => {
       const extractor = () => {
         return extractorText;
       };
-      /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+
       class TestClass {
         @secrets.boundProperty('bar', extractor)
         foo = '';
@@ -133,33 +111,21 @@ describe('#/secrets/secretClassDecorator', () => {
       const isBound = Reflect.getMetadata('boundSecrets:isBound', test, 'foo');
       assert.isTrue(isBound);
 
-      const secretName = Reflect.getMetadata(
-        'boundSecrets:secretName',
-        test,
-        'foo'
-      );
+      const secretName = Reflect.getMetadata('boundSecrets:secretName', test, 'foo');
       assert.strictEqual(secretName, 'bar');
 
-      const savedExtractor = Reflect.getMetadata(
-        'boundSecrets:extractor',
-        test,
-        'foo'
-      );
+      const savedExtractor = Reflect.getMetadata('boundSecrets:extractor', test, 'foo');
       assert.isOk(savedExtractor);
       assert.strictEqual(savedExtractor, extractor);
 
       assert.strictEqual(savedExtractor('hi mom'), extractorText);
 
-      const propertyDescriptor = Object.getOwnPropertyDescriptor(
-        (test as any).__proto__,
-        'foo'
-      );
+      const propertyDescriptor = Object.getOwnPropertyDescriptor((test as any).__proto__, 'foo');
       assert.isOk(propertyDescriptor?.get);
       assert.isOk(propertyDescriptor?.set);
     });
 
     it('bind a property using secret name', () => {
-      /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
       class TestClass {
         fooField = '';
 
@@ -188,31 +154,19 @@ describe('#/secrets/secretClassDecorator', () => {
       const isBound = Reflect.getMetadata('boundSecrets:isBound', test, 'foo');
       assert.isTrue(isBound);
 
-      const secretName = Reflect.getMetadata(
-        'boundSecrets:secretName',
-        test,
-        'foo'
-      );
+      const secretName = Reflect.getMetadata('boundSecrets:secretName', test, 'foo');
       assert.strictEqual(secretName, 'bar');
 
-      const extractor = Reflect.getMetadata(
-        'boundSecrets:extractor',
-        test,
-        'foo'
-      );
+      const extractor = Reflect.getMetadata('boundSecrets:extractor', test, 'foo');
       assert.isOk(extractor);
 
-      const propertyDescriptor = Object.getOwnPropertyDescriptor(
-        (test as any).__proto__,
-        'foo'
-      );
+      const propertyDescriptor = Object.getOwnPropertyDescriptor((test as any).__proto__, 'foo');
       assert.isOk(propertyDescriptor?.get);
       assert.isOk(propertyDescriptor?.set);
     });
 
     it('will throw an error if you try to bind to a property without a getter', () => {
       assert.throws(() => {
-        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
         class TestClass {
           fooField = '';
 
@@ -226,7 +180,6 @@ describe('#/secrets/secretClassDecorator', () => {
 
     it('will throw an error if you try to bind to a property without a setter', () => {
       assert.throws(() => {
-        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
         class TestClass {
           fooField = '';
 
@@ -239,7 +192,6 @@ describe('#/secrets/secretClassDecorator', () => {
     });
 
     it('bind a property with no arguments', () => {
-      /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
       class TestClass {
         @secrets.boundProperty()
         foo = '';
@@ -254,30 +206,18 @@ describe('#/secrets/secretClassDecorator', () => {
       const isBound = Reflect.getMetadata('boundSecrets:isBound', test, 'foo');
       assert.isTrue(isBound);
 
-      const secretName = Reflect.getMetadata(
-        'boundSecrets:secretName',
-        test,
-        'foo'
-      );
+      const secretName = Reflect.getMetadata('boundSecrets:secretName', test, 'foo');
       assert.strictEqual(secretName, 'foo');
 
-      const extractor = Reflect.getMetadata(
-        'boundSecrets:extractor',
-        test,
-        'foo'
-      );
+      const extractor = Reflect.getMetadata('boundSecrets:extractor', test, 'foo');
       assert.isOk(extractor);
 
-      const propertyDescriptor = Object.getOwnPropertyDescriptor(
-        (test as any).__proto__,
-        'foo'
-      );
+      const propertyDescriptor = Object.getOwnPropertyDescriptor((test as any).__proto__, 'foo');
       assert.isOk(propertyDescriptor?.get);
       assert.isOk(propertyDescriptor?.set);
     });
 
     it('bind a property with the boolean == true', () => {
-      /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
       class TestClass {
         @secrets.boundProperty(true)
         foo = '';
@@ -292,30 +232,18 @@ describe('#/secrets/secretClassDecorator', () => {
       const isBound = Reflect.getMetadata('boundSecrets:isBound', test, 'foo');
       assert.isTrue(isBound);
 
-      const secretName = Reflect.getMetadata(
-        'boundSecrets:secretName',
-        test,
-        'foo'
-      );
+      const secretName = Reflect.getMetadata('boundSecrets:secretName', test, 'foo');
       assert.strictEqual(secretName, 'foo');
 
-      const extractor = Reflect.getMetadata(
-        'boundSecrets:extractor',
-        test,
-        'foo'
-      );
+      const extractor = Reflect.getMetadata('boundSecrets:extractor', test, 'foo');
       assert.isOk(extractor);
 
-      const propertyDescriptor = Object.getOwnPropertyDescriptor(
-        (test as any).__proto__,
-        'foo'
-      );
+      const propertyDescriptor = Object.getOwnPropertyDescriptor((test as any).__proto__, 'foo');
       assert.isOk(propertyDescriptor?.get);
       assert.isOk(propertyDescriptor?.set);
     });
 
     it('bind a property with the boolean == false', () => {
-      /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
       class TestClass {
         @secrets.boundProperty(false)
         foo = '';
@@ -330,30 +258,18 @@ describe('#/secrets/secretClassDecorator', () => {
       const isBound = Reflect.getMetadata('boundSecrets:isBound', test, 'foo');
       assert.isFalse(isBound);
 
-      const secretName = Reflect.getMetadata(
-        'boundSecrets:secretName',
-        test,
-        'foo'
-      );
+      const secretName = Reflect.getMetadata('boundSecrets:secretName', test, 'foo');
       assert.strictEqual(secretName, 'foo');
 
-      const extractor = Reflect.getMetadata(
-        'boundSecrets:extractor',
-        test,
-        'foo'
-      );
+      const extractor = Reflect.getMetadata('boundSecrets:extractor', test, 'foo');
       assert.isOk(extractor);
 
-      const propertyDescriptor = Object.getOwnPropertyDescriptor(
-        (test as any).__proto__,
-        'foo'
-      );
+      const propertyDescriptor = Object.getOwnPropertyDescriptor((test as any).__proto__, 'foo');
       assert.notOk(propertyDescriptor?.get);
       assert.notOk(propertyDescriptor?.set);
     });
 
     it('bind a property with the boolean and secret name', () => {
-      /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
       class TestClass {
         @secrets.boundProperty(true, 'bar')
         foo = '';
@@ -368,24 +284,13 @@ describe('#/secrets/secretClassDecorator', () => {
       const isBound = Reflect.getMetadata('boundSecrets:isBound', test, 'foo');
       assert.isTrue(isBound);
 
-      const secretName = Reflect.getMetadata(
-        'boundSecrets:secretName',
-        test,
-        'foo'
-      );
+      const secretName = Reflect.getMetadata('boundSecrets:secretName', test, 'foo');
       assert.strictEqual(secretName, 'bar');
 
-      const extractor = Reflect.getMetadata(
-        'boundSecrets:extractor',
-        test,
-        'foo'
-      );
+      const extractor = Reflect.getMetadata('boundSecrets:extractor', test, 'foo');
       assert.isOk(extractor);
 
-      const propertyDescriptor = Object.getOwnPropertyDescriptor(
-        (test as any).__proto__,
-        'foo'
-      );
+      const propertyDescriptor = Object.getOwnPropertyDescriptor((test as any).__proto__, 'foo');
       assert.isOk(propertyDescriptor?.get);
       assert.isOk(propertyDescriptor?.set);
     });
@@ -395,7 +300,7 @@ describe('#/secrets/secretClassDecorator', () => {
       const extractor = () => {
         return extractorText;
       };
-      /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
+
       class TestClass {
         @secrets.boundProperty(true, 'bar', extractor)
         foo = '';
@@ -410,27 +315,16 @@ describe('#/secrets/secretClassDecorator', () => {
       const isBound = Reflect.getMetadata('boundSecrets:isBound', test, 'foo');
       assert.isTrue(isBound);
 
-      const secretName = Reflect.getMetadata(
-        'boundSecrets:secretName',
-        test,
-        'foo'
-      );
+      const secretName = Reflect.getMetadata('boundSecrets:secretName', test, 'foo');
       assert.strictEqual(secretName, 'bar');
 
-      const savedExtractor = Reflect.getMetadata(
-        'boundSecrets:extractor',
-        test,
-        'foo'
-      );
+      const savedExtractor = Reflect.getMetadata('boundSecrets:extractor', test, 'foo');
       assert.isOk(savedExtractor);
       assert.strictEqual(savedExtractor, extractor);
 
       assert.strictEqual(savedExtractor('hi mom'), extractorText);
 
-      const propertyDescriptor = Object.getOwnPropertyDescriptor(
-        (test as any).__proto__,
-        'foo'
-      );
+      const propertyDescriptor = Object.getOwnPropertyDescriptor((test as any).__proto__, 'foo');
       assert.isOk(propertyDescriptor?.get);
       assert.isOk(propertyDescriptor?.set);
     });
@@ -457,17 +351,13 @@ describe('#/secrets/secretClassDecorator', () => {
     it('will bind our class to a secrets object', async () => {
       const secretName = 'testSecret';
       const initedResult = 'I am inited';
-      secretsManagerMock
-        .on(GetSecretValueCommand)
-        .resolves({SecretString: JSON.stringify(mockedSecret)});
+      secretsManagerMock.on(GetSecretValueCommand).resolves({SecretString: JSON.stringify(mockedSecret)});
 
       @secrets.bindSecrets(secretName)
       class BoundClass {
         @secrets.boundProperty('userName')
         user = '';
-        @secrets.boundProperty('userId', (input: any) =>
-          input.userId.toUpperCase()
-        )
+        @secrets.boundProperty('userId', (input: any) => input.userId.toUpperCase())
         id = '';
 
         async init(): Promise<string> {
@@ -491,17 +381,13 @@ describe('#/secrets/secretClassDecorator', () => {
     it('will bind our class to a secrets object setting an init function', async () => {
       const secretName = 'testSecret';
       const initedResult = 'I am inited';
-      secretsManagerMock
-        .on(GetSecretValueCommand)
-        .resolves({SecretString: JSON.stringify(mockedSecret)});
+      secretsManagerMock.on(GetSecretValueCommand).resolves({SecretString: JSON.stringify(mockedSecret)});
 
       @secrets.bindSecrets(secretName)
       class BoundClass {
         @secrets.boundProperty('userName')
         user = '';
-        @secrets.boundProperty('userId', (input: any) =>
-          input.userId.toUpperCase()
-        )
+        @secrets.boundProperty('userId', (input: any) => input.userId.toUpperCase())
         id = '';
 
         @secrets.initializer
@@ -526,17 +412,13 @@ describe('#/secrets/secretClassDecorator', () => {
     it('will allow us to instantiate two objects each with its own inited value', async () => {
       const secretName = 'testSecret';
       const initedResult = 'I am inited';
-      secretsManagerMock
-        .on(GetSecretValueCommand)
-        .resolves({SecretString: JSON.stringify(mockedSecret)});
+      secretsManagerMock.on(GetSecretValueCommand).resolves({SecretString: JSON.stringify(mockedSecret)});
 
       @secrets.bindSecrets(secretName)
       class BoundClass {
         @secrets.boundProperty('userName')
         user = '';
-        @secrets.boundProperty('userId', (input: any) =>
-          input.userId.toUpperCase()
-        )
+        @secrets.boundProperty('userId', (input: any) => input.userId.toUpperCase())
         id = '';
 
         @secrets.initializer
@@ -564,19 +446,14 @@ describe('#/secrets/secretClassDecorator', () => {
     it('will throw an InvalidOperationError becuase our init function is not async', async () => {
       const secretName = 'testSecret';
       const initedResult = 'I am inited';
-      secretsManagerMock
-        .on(GetSecretValueCommand)
-        .resolves({SecretString: JSON.stringify(mockedSecret)});
+      secretsManagerMock.on(GetSecretValueCommand).resolves({SecretString: JSON.stringify(mockedSecret)});
 
       assert.throws(() => {
         @secrets.bindSecrets(secretName)
-        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
         class BoundClass {
           @secrets.boundProperty('userName')
           user = '';
-          @secrets.boundProperty('userId', (input: any) =>
-            input.userId.toUpperCase()
-          )
+          @secrets.boundProperty('userId', (input: any) => input.userId.toUpperCase())
           id = '';
 
           init(): string {
@@ -588,19 +465,14 @@ describe('#/secrets/secretClassDecorator', () => {
     it("will throw an InvalidOperationError becuase it can't find our init function", async () => {
       const secretName = 'testSecret';
       const initedResult = 'I am inited';
-      secretsManagerMock
-        .on(GetSecretValueCommand)
-        .resolves({SecretString: JSON.stringify(mockedSecret)});
+      secretsManagerMock.on(GetSecretValueCommand).resolves({SecretString: JSON.stringify(mockedSecret)});
 
       assert.throws(() => {
         @secrets.bindSecrets(secretName)
-        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
         class BoundClass {
           @secrets.boundProperty('userName')
           user = '';
-          @secrets.boundProperty('userId', (input: any) =>
-            input.userId.toUpperCase()
-          )
+          @secrets.boundProperty('userId', (input: any) => input.userId.toUpperCase())
           id = '';
 
           notinit(): string {
@@ -613,21 +485,16 @@ describe('#/secrets/secretClassDecorator', () => {
     it('will throw an InvalidOperationError when we try to bind the same secret more than once', async () => {
       const secretName = 'testSecret';
       const initedResult = 'I am inited';
-      secretsManagerMock
-        .on(GetSecretValueCommand)
-        .resolves({SecretString: JSON.stringify(mockedSecret)});
+      secretsManagerMock.on(GetSecretValueCommand).resolves({SecretString: JSON.stringify(mockedSecret)});
 
       assert.throws(() => {
         @secrets.bindSecrets(secretName)
-        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
         class BoundClass {
           @secrets.boundProperty('userName')
           user = '';
           @secrets.boundProperty('userName')
           name = '';
-          @secrets.boundProperty('userId', (input: any) =>
-            input.userId.toUpperCase()
-          )
+          @secrets.boundProperty('userId', (input: any) => input.userId.toUpperCase())
           id = '';
 
           init(): string {
@@ -639,19 +506,14 @@ describe('#/secrets/secretClassDecorator', () => {
 
     it('will throw an InvalidOperationError becuase there is no initalizer function', async () => {
       const secretName = 'testSecret';
-      secretsManagerMock
-        .on(GetSecretValueCommand)
-        .resolves({SecretString: JSON.stringify(mockedSecret)});
+      secretsManagerMock.on(GetSecretValueCommand).resolves({SecretString: JSON.stringify(mockedSecret)});
 
       assert.throws(() => {
         @secrets.bindSecrets(secretName)
-        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
         class BoundClass {
           @secrets.boundProperty('userName')
           user = '';
-          @secrets.boundProperty('userId', (input: any) =>
-            input.userId.toUpperCase()
-          )
+          @secrets.boundProperty('userId', (input: any) => input.userId.toUpperCase())
           id = '';
         }
       }, InvalidOperationError);
@@ -659,19 +521,14 @@ describe('#/secrets/secretClassDecorator', () => {
 
     it('will throw an InvalidOperationError becuase there is no initalizer function', async () => {
       const secretName = 'testSecret';
-      secretsManagerMock
-        .on(GetSecretValueCommand)
-        .resolves({SecretString: JSON.stringify(mockedSecret)});
+      secretsManagerMock.on(GetSecretValueCommand).resolves({SecretString: JSON.stringify(mockedSecret)});
 
       assert.throws(() => {
         @secrets.bindSecrets(secretName)
-        /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
         class BoundClass {
           @secrets.boundProperty('userName')
           user = '';
-          @secrets.boundProperty('userId', (input: any) =>
-            input.userId.toUpperCase()
-          )
+          @secrets.boundProperty('userId', (input: any) => input.userId.toUpperCase())
           id = '';
         }
       }, InvalidOperationError);
@@ -680,18 +537,13 @@ describe('#/secrets/secretClassDecorator', () => {
     it('Guards will prevent access to the bound properties until init is called', async () => {
       const secretName = 'testSecret';
       const initedResult = 'I am inited';
-      secretsManagerMock
-        .on(GetSecretValueCommand)
-        .resolves({SecretString: JSON.stringify(mockedSecret)});
+      secretsManagerMock.on(GetSecretValueCommand).resolves({SecretString: JSON.stringify(mockedSecret)});
 
       @secrets.bindSecrets(secretName)
-      /*eslint-disable-next-line @typescript-eslint/no-unused-vars*/
       class BoundClass {
         @secrets.boundProperty('userName')
         user = '';
-        @secrets.boundProperty('userId', (input: any) =>
-          input.userId.toUpperCase()
-        )
+        @secrets.boundProperty('userId', (input: any) => input.userId.toUpperCase())
         id = '';
 
         unboundField = 'I am unbound';
@@ -721,9 +573,7 @@ describe('#/secrets/secretClassDecorator', () => {
     it('will bind our class to a secrets object with some properties not being decorated', async () => {
       const secretName = 'testSecret';
       const initedResult = 'I am inited';
-      secretsManagerMock
-        .on(GetSecretValueCommand)
-        .resolves({SecretString: JSON.stringify(mockedSecret)});
+      secretsManagerMock.on(GetSecretValueCommand).resolves({SecretString: JSON.stringify(mockedSecret)});
 
       @secrets.bindSecrets(secretName)
       class BoundClass {
@@ -735,9 +585,7 @@ describe('#/secrets/secretClassDecorator', () => {
         set userName(input: string) {
           this.user = input;
         }
-        @secrets.boundProperty('userId', (input: any) =>
-          input.userId.toUpperCase()
-        )
+        @secrets.boundProperty('userId', (input: any) => input.userId.toUpperCase())
         id = '';
 
         async init(): Promise<string> {
@@ -756,9 +604,7 @@ describe('#/secrets/secretClassDecorator', () => {
     it('an un-decorated property is masked by a decorated field', async () => {
       const secretName = 'testSecret';
       const initedResult = 'I am inited';
-      secretsManagerMock
-        .on(GetSecretValueCommand)
-        .resolves({SecretString: JSON.stringify(mockedSecret)});
+      secretsManagerMock.on(GetSecretValueCommand).resolves({SecretString: JSON.stringify(mockedSecret)});
 
       @secrets.bindSecrets(secretName)
       class BoundClass {
@@ -772,9 +618,7 @@ describe('#/secrets/secretClassDecorator', () => {
         set userName(input: string) {
           this.user = input;
         }
-        @secrets.boundProperty('userId', (input: any) =>
-          input.userId.toUpperCase()
-        )
+        @secrets.boundProperty('userId', (input: any) => input.userId.toUpperCase())
         id = '';
 
         async init(): Promise<string> {
@@ -793,9 +637,7 @@ describe('#/secrets/secretClassDecorator', () => {
     it('an un-decorated property is masked by a decorated Property', async () => {
       const secretName = 'testSecret';
       const initedResult = 'I am inited';
-      secretsManagerMock
-        .on(GetSecretValueCommand)
-        .resolves({SecretString: JSON.stringify(mockedSecret)});
+      secretsManagerMock.on(GetSecretValueCommand).resolves({SecretString: JSON.stringify(mockedSecret)});
 
       @secrets.bindSecrets(secretName)
       class BoundClass {
@@ -811,9 +653,7 @@ describe('#/secrets/secretClassDecorator', () => {
         set zuser(input: string) {
           this.userField = input;
         }
-        @secrets.boundProperty('userId', (input: any) =>
-          input.userId.toUpperCase()
-        )
+        @secrets.boundProperty('userId', (input: any) => input.userId.toUpperCase())
         id = '';
 
         get userName() {
@@ -839,9 +679,7 @@ describe('#/secrets/secretClassDecorator', () => {
     it('an property marked not bindable does not mask a decorated property', async () => {
       const secretName = 'testSecret';
       const initedResult = 'I am inited';
-      secretsManagerMock
-        .on(GetSecretValueCommand)
-        .resolves({SecretString: JSON.stringify(mockedSecret)});
+      secretsManagerMock.on(GetSecretValueCommand).resolves({SecretString: JSON.stringify(mockedSecret)});
 
       @secrets.bindSecrets(secretName)
       class BoundClass {
@@ -857,9 +695,7 @@ describe('#/secrets/secretClassDecorator', () => {
         set zuser(input: string) {
           this.userField = input;
         }
-        @secrets.boundProperty('userId', (input: any) =>
-          input.userId.toUpperCase()
-        )
+        @secrets.boundProperty('userId', (input: any) => input.userId.toUpperCase())
         id = '';
         @secrets.boundProperty(false)
         get userName() {

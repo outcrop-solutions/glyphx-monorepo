@@ -52,11 +52,7 @@ export class BasicParquetProcessor extends Transform {
    * @param encoding -- is not used.
    * @param callback -- must be caled to let the pipeline know that we have successfuly processed the data.
    */
-  public override async _transform(
-    row: any,
-    encoding: BufferEncoding,
-    callback: TransformCallback
-  ) {
+  public override async _transform(row: any, encoding: BufferEncoding, callback: TransformCallback) {
     //TODO: need to make sure that exceptions cannot leak out of this transformer.
     if (this.firstRow) {
       //If this is the first row, then the row is our
@@ -67,15 +63,9 @@ export class BasicParquetProcessor extends Transform {
       const schema = new ParquetSchema(row);
       this.parquetWriter = new ParquetWriter(
         schema,
-        new ParquetEnvelopeWriter(
-          schema,
-          this.writeProxy(this),
-          async () => {},
-          0,
-          {
-            //rowGroupSize: this.pageSize,
-          }
-        ),
+        new ParquetEnvelopeWriter(schema, this.writeProxy(this), async () => {}, 0, {
+          //rowGroupSize: this.pageSize,
+        }),
         {
           //rowGroupSize: this.pageSize,
         }
@@ -86,7 +76,7 @@ export class BasicParquetProcessor extends Transform {
       //this is most definitley getting called.  Not sure why
       // nyc can't see it
       //istanbul ignore next
-      this.parquetWriter?.appendRow(row).then(d => callback(null, d), callback);
+      this.parquetWriter?.appendRow(row).then((d) => callback(null, d), callback);
     }
   }
 

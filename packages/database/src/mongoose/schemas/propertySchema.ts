@@ -1,8 +1,5 @@
 import {Schema} from 'mongoose';
-import {
-  web as webTypes,
-  fileIngestion as fileIngestionTypes,
-} from '@glyphx/types';
+import {webTypes, fileIngestionTypes} from 'types';
 import {filterSchema} from './filterSchema';
 
 const PROPERTY_SCHEMA = new Schema({

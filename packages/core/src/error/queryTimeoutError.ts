@@ -12,12 +12,7 @@ export class QueryTimeoutError extends GlyphxError {
    * @param innerError -- an optional inner error which gives more detail regarding why this
    * error was thrown.
    */
-  constructor(
-    message: string,
-    query: string,
-    timeout: number,
-    innerError?: unknown
-  ) {
+  constructor(message: string, query: string, timeout: number, innerError?: unknown) {
     const errorCode = ErrorCodes.getResponseCode('QueryTimeoutError');
     super(message, errorCode, innerError);
 

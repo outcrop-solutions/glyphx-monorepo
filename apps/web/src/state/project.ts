@@ -1,5 +1,5 @@
-import { atom, selector, selectorFamily } from 'recoil';
-import { database as databaseTypes, web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import {atom, selector, selectorFamily} from 'recoil';
+import {databaseTypes, webTypes, fileIngestionTypes} from 'types';
 // import { generateFilterQuery } from 'lib/client/helpers';
 
 /**
@@ -110,7 +110,7 @@ export const projectDetailsAtom = atom<databaseTypes.IProject | null>({
 /************************  QT  *************************/
 export const footerLabelSelector = selector({
   key: 'footerLabelSelector',
-  get: ({ get }) => {
+  get: ({get}) => {
     const project = get(projectAtom);
   },
 });
@@ -119,7 +119,7 @@ export const footerLabelSelector = selector({
 
 export const propertiesSelector = selector<Record<string, webTypes.Property>>({
   key: 'propertiesSelector',
-  get: ({ get }) => {
+  get: ({get}) => {
     const project = get(projectAtom);
     return project?.state?.properties;
   },
@@ -128,10 +128,10 @@ export const propertiesSelector = selector<Record<string, webTypes.Property>>({
 // used to add XYZ icons to datagrid columns
 export const droppedPropertiesSelector = selector<webTypes.Property[]>({
   key: 'droppedPropertiesSelector',
-  get: ({ get }) => {
+  get: ({get}) => {
     const project = get(projectAtom);
     const axisArray = Object.values(webTypes.constants.AXIS);
-    let retval = [];
+    const retval: webTypes.Property[] = [];
     for (const axis of axisArray.slice(0, 3)) {
       const prop = project?.state?.properties[`${axis}`];
       if (prop?.key !== '') {
@@ -147,10 +147,10 @@ export const droppedPropertiesSelector = selector<webTypes.Property[]>({
 // creates unified filter query for createModel call
 export const filterQuerySelector = selector<string>({
   key: 'filterQuerySelector',
-  get: ({ get }) => {
+  get: ({get}) => {
     const project = get(projectAtom);
     const axisArray = Object.values(webTypes.constants.AXIS);
-    let retval = [];
+    const retval = [];
     for (const axis of axisArray) {
       const prop = project?.state.properties[`${axis}`];
       // const query = generateFilterQuery(prop);
@@ -165,7 +165,7 @@ export const singleFilterSelectorFamily = selectorFamily<webTypes.Filter, webTyp
   key: 'singleFilterSelectorFamily',
   get:
     (axis) =>
-    ({ get }) => {
+    ({get}) => {
       const project = get(projectAtom);
       return {
         ...project?.state.properties[`${axis}`].filter,
@@ -178,7 +178,7 @@ export const singlePropertySelectorFamily = selectorFamily<webTypes.Property, we
   key: 'singlePropertySelectorFamily',
   get:
     (axis) =>
-    ({ get }) => {
+    ({get}) => {
       const project = get(projectAtom);
       return {
         ...project?.state.properties[`${axis}`],

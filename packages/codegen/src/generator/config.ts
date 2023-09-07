@@ -1,12 +1,11 @@
-import { database as databaseTypes } from '@glyphx/types';
+import {databaseTypes} from 'types';
 
 // TODO: make these paths customizable from package.json
 export const DEFAULT_CONFIG: databaseTypes.meta.ICodeGenConfig = {
   // base path configuration
   paths: {
     // where are your database interfaces defined?
-    source:
-      './src/__tests__/mocks/database.ts',
+    source: './src/__tests__/mocks/database.ts',
     // where do i want to output my database files?
     destination: './src/output',
     // where do my templates with?

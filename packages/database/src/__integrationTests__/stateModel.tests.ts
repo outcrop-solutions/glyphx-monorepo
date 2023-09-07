@@ -3,11 +3,8 @@ import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose/mongooseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
-import {
-  web as webTypes,
-  fileIngestion as fileIngestionTypes,
-} from '@glyphx/types';
-import {error} from '@glyphx/core';
+import {webTypes, fileIngestionTypes} from 'types';
+import {error} from 'core';
 
 type ObjectId = mongooseTypes.ObjectId;
 
@@ -26,7 +23,10 @@ const INPUT_WORKSPACE = {
 
 const INPUT_PROJECT = {
   name: 'testProject' + UNIQUE_KEY,
-  template: new mongooseTypes.ObjectId(),
+
+  template:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
   state: {
     properties: {
       X: {
@@ -108,7 +108,10 @@ const INPUT_PROJECT = {
 
 const INPUT_PROJECT2 = {
   name: 'testProject2' + UNIQUE_KEY,
-  template: new mongooseTypes.ObjectId(),
+
+  template:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
   state: {
     properties: {
       X: {
@@ -448,9 +451,7 @@ describe('#StateModel', () => {
       await workspaceModel.create([INPUT_WORKSPACE], {
         validateBeforeSave: false,
       });
-      const savedWorkspaceDocument = await workspaceModel
-        .findOne({name: INPUT_WORKSPACE.name})
-        .lean();
+      const savedWorkspaceDocument = await workspaceModel.findOne({name: INPUT_WORKSPACE.name}).lean();
       workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
 
       workspaceDocument = savedWorkspaceDocument;
@@ -458,9 +459,7 @@ describe('#StateModel', () => {
       assert.isOk(workspaceId);
 
       await projectModel.create([INPUT_PROJECT], {validateBeforeSave: false});
-      const savedProjectDocument = await projectModel
-        .findOne({name: INPUT_PROJECT.name})
-        .lean();
+      const savedProjectDocument = await projectModel.findOne({name: INPUT_PROJECT.name}).lean();
       projectId = savedProjectDocument?._id as mongooseTypes.ObjectId;
 
       projectDocument = savedProjectDocument;
@@ -468,9 +467,7 @@ describe('#StateModel', () => {
       assert.isOk(projectId);
 
       await projectModel.create([INPUT_PROJECT2], {validateBeforeSave: false});
-      const savedProjectDocument2 = await projectModel
-        .findOne({name: INPUT_PROJECT2.name})
-        .lean();
+      const savedProjectDocument2 = await projectModel.findOne({name: INPUT_PROJECT2.name}).lean();
       projectId2 = savedProjectDocument2?._id as mongooseTypes.ObjectId;
 
       assert.isOk(projectId2);
@@ -478,9 +475,7 @@ describe('#StateModel', () => {
       const userModel = mongoConnection.models.UserModel;
 
       await userModel.create([INPUT_USER], {validateBeforeSave: false});
-      const savedUserDocument = await userModel
-        .findOne({name: INPUT_USER.name})
-        .lean();
+      const savedUserDocument = await userModel.findOne({name: INPUT_USER.name}).lean();
       userId = savedUserDocument?._id as mongooseTypes.ObjectId;
 
       userDocument = savedUserDocument;
@@ -488,9 +483,7 @@ describe('#StateModel', () => {
       assert.isOk(userId);
 
       await userModel.create([INPUT_USER2], {validateBeforeSave: false});
-      const savedUserDocument2 = await userModel
-        .findOne({name: INPUT_USER2.name})
-        .lean();
+      const savedUserDocument2 = await userModel.findOne({name: INPUT_USER2.name}).lean();
       userId2 = savedUserDocument2?._id as mongooseTypes.ObjectId;
 
       assert.isOk(userId2);
@@ -518,10 +511,7 @@ describe('#StateModel', () => {
       const stateDocument = await stateModel.createState(stateInput);
 
       assert.isOk(stateDocument);
-      assert.strictEqual(
-        stateDocument.fileSystemHash,
-        stateInput.fileSystemHash
-      );
+      assert.strictEqual(stateDocument.fileSystemHash, stateInput.fileSystemHash);
       assert.strictEqual(stateDocument.workspace.name, workspaceDocument.name);
       assert.strictEqual(stateDocument.project.name, projectDocument.name);
       assert.strictEqual(stateDocument.createdBy.name, userDocument.name);
@@ -552,9 +542,7 @@ describe('#StateModel', () => {
       assert.isArray(states.results);
       assert.isAtLeast(states.numberOfItems, 2);
       const expectedDocumentCount =
-        states.numberOfItems <= states.itemsPerPage
-          ? states.numberOfItems
-          : states.itemsPerPage;
+        states.numberOfItems <= states.itemsPerPage ? states.numberOfItems : states.itemsPerPage;
       assert.strictEqual(states.results.length, expectedDocumentCount);
     });
 
@@ -564,10 +552,7 @@ describe('#StateModel', () => {
         fileSystemHash: INPUT_DATA.fileSystemHash,
       });
       assert.strictEqual(results.results.length, 1);
-      assert.strictEqual(
-        results.results[0]?.fileSystemHash,
-        INPUT_DATA.fileSystemHash
-      );
+      assert.strictEqual(results.results[0]?.fileSystemHash, INPUT_DATA.fileSystemHash);
     });
 
     it('page states', async () => {
@@ -580,10 +565,7 @@ describe('#StateModel', () => {
       const results2 = await stateModel.queryStates({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(
-        results2.results[0]?._id?.toString(),
-        lastId?.toString()
-      );
+      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
     });
 
     it('modify a state', async () => {

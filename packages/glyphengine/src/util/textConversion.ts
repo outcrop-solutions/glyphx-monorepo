@@ -14,10 +14,7 @@ export function convertTextToUtfForBuffer(text: string): Uint8Array {
   return byteArray;
 }
 
-export function convertUtfForBufferToText(
-  input: Buffer,
-  offset: number
-): string {
+export function convertUtfForBufferToText(input: Buffer, offset: number): string {
   // buffer is the ArrayBuffer containing the encoded string
   const length = input.readUInt16BE(offset); // length of the encoded string
   const data = input.subarray(offset + 2, offset + 2 + length); // the encoded string

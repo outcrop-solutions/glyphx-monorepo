@@ -1,19 +1,17 @@
-import {database as databaseTypes} from '@glyphx/types';
-import {error, constants} from '@glyphx/core';
-import mongoDbConnection from 'lib/databaseConnection';
+import {databaseTypes} from 'types';
+import {error, constants} from 'core';
+import mongoDbConnection from '../lib/databaseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 
 export class ActivityLogService {
-  public static async getLog(
-    logId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IActivityLog | null> {
+  public static async getLog(logId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IActivityLog | null> {
     try {
       const id =
         logId instanceof mongooseTypes.ObjectId
           ? logId
-          : new mongooseTypes.ObjectId(logId);
-      const log =
-        await mongoDbConnection.models.ActivityLogModel.getActivityLogById(id);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(logId);
+      const log = await mongoDbConnection.models.ActivityLogModel.getActivityLogById(id);
       return log;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -43,21 +41,20 @@ export class ActivityLogService {
       const id =
         resourceId instanceof mongooseTypes.ObjectId
           ? resourceId
-          : new mongooseTypes.ObjectId(resourceId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(resourceId);
 
       let logs;
       if (type === databaseTypes.constants.RESOURCE_MODEL.PROJECT) {
-        logs =
-          await mongoDbConnection.models.ActivityLogModel.queryActivityLogs({
-            projectId: id,
-            onModel: {$ne: 'processTracking'},
-          });
+        logs = await mongoDbConnection.models.ActivityLogModel.queryActivityLogs({
+          projectId: id,
+          onModel: {$ne: 'processTracking'},
+        });
       } else {
-        logs =
-          await mongoDbConnection.models.ActivityLogModel.queryActivityLogs({
-            workspaceId: id,
-            onModel: {$ne: 'processTracking'},
-          });
+        logs = await mongoDbConnection.models.ActivityLogModel.queryActivityLogs({
+          workspaceId: id,
+          onModel: {$ne: 'processTracking'},
+        });
       }
       return logs?.results;
     } catch (err: any) {
@@ -101,18 +98,21 @@ export class ActivityLogService {
       const actorCastId =
         actorId instanceof mongooseTypes.ObjectId
           ? actorId
-          : new mongooseTypes.ObjectId(actorId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(actorId);
       const resourceCastId =
         resourceId instanceof mongooseTypes.ObjectId
           ? resourceId
-          : new mongooseTypes.ObjectId(resourceId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(resourceId);
 
       let spaceCastId;
       if (workspaceId) {
         spaceCastId =
           workspaceId instanceof mongooseTypes.ObjectId
             ? workspaceId
-            : new mongooseTypes.ObjectId(workspaceId);
+            : // @ts-ignore
+              new mongooseTypes.ObjectId(workspaceId);
       }
 
       let projCastId;
@@ -120,7 +120,8 @@ export class ActivityLogService {
         projCastId =
           projectId instanceof mongooseTypes.ObjectId
             ? projectId
-            : new mongooseTypes.ObjectId(projectId);
+            : // @ts-ignore
+              new mongooseTypes.ObjectId(projectId);
       }
 
       const input = {
@@ -134,10 +135,7 @@ export class ActivityLogService {
         projectId: projCastId,
       };
 
-      const log =
-        await mongoDbConnection.models.ActivityLogModel.createActivityLog(
-          input
-        );
+      const log = await mongoDbConnection.models.ActivityLogModel.createActivityLog(input);
       return log;
     } catch (err: any) {
       if (

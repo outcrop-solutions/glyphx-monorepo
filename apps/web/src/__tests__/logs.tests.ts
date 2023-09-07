@@ -1,16 +1,14 @@
 import 'mocha';
-import { assert } from 'chai';
-import { Session } from 'next-auth';
-import { createSandbox } from 'sinon';
+import {assert} from 'chai';
+
+import {createSandbox} from 'sinon';
 // where the magic happens
 import * as proxyquireType from 'proxyquire';
 const proxyquire = proxyquireType.noCallThru();
-import { testApiHandler } from 'next-test-api-route-handler';
-import { _deactivateAccount, _updateUserEmail, _updateUserName } from 'lib/client/mutations/user';
-import { wrapConfig } from './utilities/wrapConfig';
-import { genericDelete, genericGet, genericPost, genericPut } from './utilities/genericReqs';
-import { Types as mongooseTypes } from 'mongoose';
-import { database as databaseTypes } from '@glyphx/types';
+import {testApiHandler} from 'next-test-api-route-handler';
+import {genericDelete, genericGet, genericPost, genericPut} from './utilities/genericReqs';
+import {Types as mongooseTypes} from 'mongoose';
+import {databaseTypes} from 'types';
 
 // import type { PageConfig } from 'next';
 // Respect the Next.js config object if it's exported
@@ -35,7 +33,7 @@ const MOCK_USER_AGENT: databaseTypes.IUserAgent = {
   language: '',
   cookieEnabled: false,
 };
-const MOCK_LOCATION: string = 'location';
+const MOCK_LOCATION = 'location';
 
 const MOCK_USER: databaseTypes.IUser = {
   userCode: 'dfkadfkljafdkalsjskldf',
@@ -69,6 +67,7 @@ const MOCK_WORKSPACE: databaseTypes.IWorkspace = {
   } as unknown as databaseTypes.IUser,
   members: [],
   projects: [],
+  tags: [],
   states: [],
 };
 
@@ -80,6 +79,7 @@ const MOCK_PROJECT: databaseTypes.IProject = {
   description: 'this is a test description',
   sdtPath: 'sdtPath',
   currentVersion: 0,
+  tags: [],
   workspace: {
     _id: new mongooseTypes.ObjectId(),
   } as unknown as databaseTypes.IWorkspace,
@@ -101,6 +101,7 @@ const MOCK_PROJECT_LOG: databaseTypes.IActivityLog = {
   updatedAt: new Date(),
   actor: MOCK_USER,
   location: MOCK_LOCATION,
+
   projectId: new mongooseTypes.ObjectId(),
   userAgent: MOCK_USER_AGENT,
   action: databaseTypes.constants.ACTION_TYPE.UPDATED,
@@ -145,19 +146,19 @@ describe('LOG ROUTES', () => {
     // route stubs
     validateSessionStub = sandbox.stub();
     validateSessionStub.resolves(MOCK_SESSION);
-    initializerStub = { init: sandbox.stub(), initedField: false };
+    initializerStub = {init: sandbox.stub(), initedField: false};
     initializerStub.init.resolves();
     getProjectLogsStub = sandbox.stub();
     getWorkspaceLogsStub = sandbox.stub();
 
     // handler stubs
     formatUserAgentStub = sandbox.stub();
-    mockActivityLogService = { createLog: sandbox.stub(), getLogs: sandbox.stub() };
+    mockActivityLogService = {createLog: sandbox.stub(), getLogs: sandbox.stub()};
 
     // GET PROJECT LOGS
     // replace handler import resolution
     getProjectLogs = proxyquire.load('../lib/server/activity', {
-      '@glyphx/business': {
+      business: {
         activityLogService: mockActivityLogService,
       },
       'lib/utils/formatUserAgent': {
@@ -167,7 +168,7 @@ describe('LOG ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     getProjectLogsRouteWrapper = proxyquire('../pages/api/logs/project/[projectId]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -178,7 +179,7 @@ describe('LOG ROUTES', () => {
 
     // for testing routing
     getProjectLogsRoute = proxyquire('../pages/api/logs/project/[projectId]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -189,7 +190,7 @@ describe('LOG ROUTES', () => {
     // GET WORKSPACE LOGS
     // replace handler import resolution
     getWorkspaceLogs = proxyquire.load('../lib/server/activity', {
-      '@glyphx/business': {
+      business: {
         activityLogService: mockActivityLogService,
       },
       'lib/utils/formatUserAgent': {
@@ -199,7 +200,7 @@ describe('LOG ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     getWorkspaceLogsRouteWrapper = proxyquire('../pages/api/logs/workspace/[workspaceId]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -210,7 +211,7 @@ describe('LOG ROUTES', () => {
 
     // for testing routing
     getWorkspaceLogsRoute = proxyquire('../pages/api/logs/workspace/[workspaceId]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -224,17 +225,17 @@ describe('LOG ROUTES', () => {
     sandbox.restore();
   });
 
-  context('/api/logs/project/[projectId]', async function () {
+  context('/api/logs/project/[projectId]', async () => {
     describe('GET PROJECT LOGS handler', () => {
-      it('should get a projects logs', async function () {
+      it('should get a projects logs', async () => {
         mockActivityLogService.getLogs.resolves([MOCK_PROJECT_LOG]);
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
 
         await testApiHandler({
           handler: getProjectLogsRouteWrapper,
           url: '/api/logs/project/[projectId]',
-          params: { projectId: MOCK_PROJECT._id.toString() },
-          test: async ({ fetch }) => {
+          params: {projectId: MOCK_PROJECT._id.toString()},
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.strictEqual(res.status, 200);
           },
@@ -250,8 +251,8 @@ describe('LOG ROUTES', () => {
         await testApiHandler({
           handler: getProjectLogsRoute,
           url: '/api/logs/project/[projectId]',
-          params: { projectId: MOCK_PROJECT._id.toString() },
-          test: async ({ fetch }) => {
+          params: {projectId: MOCK_PROJECT._id.toString()},
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -270,8 +271,8 @@ describe('LOG ROUTES', () => {
         await testApiHandler({
           handler: getProjectLogsRoute,
           url: '/api/logs/project/[projectId]',
-          params: { projectId: MOCK_PROJECT._id.toString() },
-          test: async ({ fetch }) => {
+          params: {projectId: MOCK_PROJECT._id.toString()},
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -293,8 +294,8 @@ describe('LOG ROUTES', () => {
         await testApiHandler({
           handler: getProjectLogsRoute,
           url: '/api/logs/project/[projectId]',
-          params: { projectId: MOCK_PROJECT._id.toString() },
-          test: async ({ fetch }) => {
+          params: {projectId: MOCK_PROJECT._id.toString()},
+          test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -316,8 +317,8 @@ describe('LOG ROUTES', () => {
         await testApiHandler({
           handler: getProjectLogsRoute,
           url: '/api/logs/project/[projectId]',
-          params: { projectId: MOCK_PROJECT._id.toString() },
-          test: async ({ fetch }) => {
+          params: {projectId: MOCK_PROJECT._id.toString()},
+          test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -333,17 +334,17 @@ describe('LOG ROUTES', () => {
       });
     });
   });
-  context('/api/logs/workspace/[workspaceId]', async function () {
+  context('/api/logs/workspace/[workspaceId]', async () => {
     describe('GET WORKSPACE LOGS handler', () => {
-      it('should get a workspaces logs', async function () {
+      it('should get a workspaces logs', async () => {
         mockActivityLogService.getLogs.resolves([MOCK_WORKSPACE_LOG]);
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
 
         await testApiHandler({
           handler: getWorkspaceLogsRouteWrapper,
           url: '/api/logs/workspace/[workspaceId]',
-          params: { workspaceId: MOCK_WORKSPACE._id.toString() },
-          test: async ({ fetch }) => {
+          params: {workspaceId: MOCK_WORKSPACE._id.toString()},
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.strictEqual(res.status, 200);
           },
@@ -359,8 +360,8 @@ describe('LOG ROUTES', () => {
         await testApiHandler({
           handler: getWorkspaceLogsRoute,
           url: '/api/logs/workspace/[workspaceId]',
-          params: { workspaceId: MOCK_WORKSPACE._id.toString() },
-          test: async ({ fetch }) => {
+          params: {workspaceId: MOCK_WORKSPACE._id.toString()},
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -379,8 +380,8 @@ describe('LOG ROUTES', () => {
         await testApiHandler({
           handler: getWorkspaceLogsRoute,
           url: '/api/logs/workspace/[workspaceId]',
-          params: { workspaceId: MOCK_WORKSPACE._id.toString() },
-          test: async ({ fetch }) => {
+          params: {workspaceId: MOCK_WORKSPACE._id.toString()},
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -402,8 +403,8 @@ describe('LOG ROUTES', () => {
         await testApiHandler({
           handler: getWorkspaceLogsRoute,
           url: '/api/logs/workspace/[workspaceId]',
-          params: { workspaceId: MOCK_WORKSPACE._id.toString() },
-          test: async ({ fetch }) => {
+          params: {workspaceId: MOCK_WORKSPACE._id.toString()},
+          test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -425,8 +426,8 @@ describe('LOG ROUTES', () => {
         await testApiHandler({
           handler: getWorkspaceLogsRoute,
           url: '/api/logs/workspace/[workspaceId]',
-          params: { workspaceId: MOCK_WORKSPACE._id.toString() },
-          test: async ({ fetch }) => {
+          params: {workspaceId: MOCK_WORKSPACE._id.toString()},
+          test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);

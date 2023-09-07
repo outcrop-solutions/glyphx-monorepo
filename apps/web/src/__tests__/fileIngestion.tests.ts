@@ -1,17 +1,18 @@
 import 'mocha';
-import { assert } from 'chai';
-import { Session } from 'next-auth';
-import { createSandbox } from 'sinon';
+import {assert} from 'chai';
+
+import {createSandbox} from 'sinon';
 // where the magic happens
 import * as proxyquireType from 'proxyquire';
 const proxyquire = proxyquireType.noCallThru();
-import { testApiHandler } from 'next-test-api-route-handler';
-import { _createModel, _ingestFiles, _getSignedDataUrls, _uploadFile } from 'lib/client/mutations/core';
-import { wrapConfig } from './utilities/wrapConfig';
-import { genericDelete, genericGet, genericPost, genericPut } from './utilities/genericReqs';
-import { Types as mongooseTypes } from 'mongoose';
-import { database as databaseTypes, web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
-import { BasicColumnNameCleaner } from '@glyphx/fileingestion';
+import {testApiHandler} from 'next-test-api-route-handler';
+import {_ingestFiles} from 'lib/client/mutations/core';
+import {wrapConfig} from './utilities/wrapConfig';
+import {genericDelete, genericGet, genericPut} from './utilities/genericReqs';
+import {Types as mongooseTypes} from 'mongoose';
+import {databaseTypes, webTypes, fileIngestionTypes} from 'types';
+import {BasicColumnNameCleaner} from 'fileingestion';
+import {Session} from 'next-auth';
 
 const MOCK_SESSION = {
   user: {
@@ -31,7 +32,7 @@ const MOCK_USER_AGENT: databaseTypes.IUserAgent = {
   language: '',
   cookieEnabled: false,
 };
-const MOCK_LOCATION: string = 'location';
+const MOCK_LOCATION = 'location';
 
 const MOCK_PROJECT: databaseTypes.IProject = {
   _id: new mongooseTypes.ObjectId(),
@@ -50,6 +51,7 @@ const MOCK_PROJECT: databaseTypes.IProject = {
   } as unknown as databaseTypes.IProjectTemplate,
   stateHistory: [],
   members: [],
+  tags: [],
   state: {
     properties: {
       X: {
@@ -177,24 +179,6 @@ const MOCK_FILE_INFO: Omit<fileIngestionTypes.IFileInfo, 'fileStream'>[] = [
 ];
 const MOCK_STATUS: databaseTypes.constants.PROCESS_STATUS = databaseTypes.constants.PROCESS_STATUS.COMPLETED;
 
-const MOCK_USER: databaseTypes.IUser = {
-  userCode: 'dfkadfkljafdkalsjskldf',
-  name: 'testUser',
-  username: 'test@user.com',
-  email: 'test@user.com',
-  emailVerified: new Date(),
-  isVerified: true,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  accounts: [],
-  sessions: [],
-  membership: [],
-  invitedMembers: [],
-  createdWorkspaces: [],
-  projects: [],
-  webhooks: [],
-};
-
 describe('FILE INGESTION ROUTE', () => {
   const sandbox = createSandbox();
 
@@ -224,7 +208,7 @@ describe('FILE INGESTION ROUTE', () => {
     // route stubs
     validateSessionStub = sandbox.stub();
     validateSessionStub.resolves(MOCK_SESSION);
-    initializerStub = { init: sandbox.stub(), initedField: false };
+    initializerStub = {init: sandbox.stub(), initedField: false};
     initializerStub.init.resolves();
 
     //   handler stubs
@@ -245,15 +229,15 @@ describe('FILE INGESTION ROUTE', () => {
       init: sandbox.stub(),
       process: sandbox.stub(),
     };
-    mockProjectService = { updateProjectFileStats: sandbox.stub() };
-    mockProcessTrackingService = { createProcessTracking: sandbox.stub() };
-    mockGeneralPurposeFunctions = { createProcessTracking: sandbox.stub(), getProcessId: sandbox.stub() };
-    mockActivityLogService = { createLog: sandbox.stub() };
+    mockProjectService = {updateProjectFileStats: sandbox.stub()};
+    mockProcessTrackingService = {createProcessTracking: sandbox.stub()};
+    mockGeneralPurposeFunctions = {createProcessTracking: sandbox.stub(), getProcessId: sandbox.stub()};
+    mockActivityLogService = {createLog: sandbox.stub()};
 
     /******************** ROUTE /api/workspace/team/role ********************/
     // replace handler import resolution
     fileIngestion = proxyquire.load('../lib/server/etl/fileIngestion', {
-      '@glyphx/business': {
+      business: {
         processTrackingService: mockProcessTrackingService,
         projectService: mockProjectService,
         activityLogService: mockActivityLogService,
@@ -261,10 +245,10 @@ describe('FILE INGESTION ROUTE', () => {
       'lib/utils/formatUserAgent': {
         formatUserAgent: formatUserAgentStub,
       },
-      '@glyphx/fileingestion': {
+      fileingestion: {
         FileIngestor: mockFileIngestor,
       },
-      '@glyphx/core': {
+      core: {
         generalPursposeFunctions: mockGeneralPurposeFunctions,
         aws: mockAws,
       },
@@ -272,7 +256,7 @@ describe('FILE INGESTION ROUTE', () => {
 
     // swap overridden import into handler to be able to call
     fileIngestionRouteWrapper = proxyquire('../pages/api/etl/ingest', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -283,7 +267,7 @@ describe('FILE INGESTION ROUTE', () => {
 
     // for testing routing at api/workspace
     fileIngestionRoute = proxyquire('../pages/api/etl/ingest', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -297,9 +281,9 @@ describe('FILE INGESTION ROUTE', () => {
     sandbox.restore();
   });
 
-  context('/api/etl/ingest', async function () {
+  context('/api/etl/ingest', async () => {
     describe('FILE INGESTION handler', () => {
-      it('should process files via fileIngestor', async function () {
+      it('should process files via fileIngestor', async () => {
         const cleanColumnNameStub = sandbox.stub();
         cleanColumnNameStub.resolves();
         sandbox.replace(BasicColumnNameCleaner.prototype, 'cleanColumnName', cleanColumnNameStub);
@@ -308,7 +292,10 @@ describe('FILE INGESTION ROUTE', () => {
         mockAws.S3Manager.resolves();
         mockS3Manager.init.resolves();
         mockS3Manager.getObjectStream.resolves();
-        mockGeneralPurposeFunctions.getProcessId.returns(new mongooseTypes.ObjectId());
+        mockGeneralPurposeFunctions.getProcessId.returns(
+          //
+          new mongooseTypes.ObjectId()
+        );
         mockGeneralPurposeFunctions.createProcessTracking.resolves();
         mockFileIngestor.init.resolves();
         mockFileIngestor.process.resolves({
@@ -318,13 +305,13 @@ describe('FILE INGESTION ROUTE', () => {
           viewName: MOCK_PROJECT.viewName,
           status: MOCK_STATUS,
         });
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
           handler: fileIngestionRouteWrapper,
           url: '/api/etl/ingest',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const config = wrapConfig(_ingestFiles(MOCK_PAYLOAD));
             const res = await fetch(config);
             assert.strictEqual(res.status, 200);
@@ -341,7 +328,7 @@ describe('FILE INGESTION ROUTE', () => {
         await testApiHandler({
           handler: fileIngestionRoute,
           url: '/api/etl/ingest',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -360,7 +347,7 @@ describe('FILE INGESTION ROUTE', () => {
         await testApiHandler({
           handler: fileIngestionRoute,
           url: '/api/etl/ingest',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -382,7 +369,7 @@ describe('FILE INGESTION ROUTE', () => {
         await testApiHandler({
           handler: fileIngestionRoute,
           url: '/api/etl/ingest',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -404,7 +391,7 @@ describe('FILE INGESTION ROUTE', () => {
         await testApiHandler({
           handler: fileIngestionRoute,
           url: '/api/etl/ingest',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);

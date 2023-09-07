@@ -1,11 +1,5 @@
-import {
-  aws,
-  error,
-  logging,
-  generalPurposeFunctions,
-  streams,
-} from '@glyphx/core';
-import {fileIngestion, database as databaseTypes} from '@glyphx/types';
+import {aws, error, logging, generalPurposeFunctions, streams} from 'core';
+import {fileIngestion, databaseTypes} from 'types';
 import {SdtParser} from './io';
 import {QueryRunner} from './io/queryRunner';
 import {IQueryResponse} from './interfaces';
@@ -14,11 +8,7 @@ import {GlyphStream} from './io/glyphStream';
 import {SgcStream} from './io/sgcStream';
 import {SgnStream} from './io/sgnStream';
 import {PassThrough} from 'stream';
-import {
-  processTrackingService,
-  Heartbeat,
-  projectService,
-} from '@glyphx/business';
+import {processTrackingService, Heartbeat, projectService} from 'business';
 
 export class GlyphEngine {
   private readonly templateKey: string;
@@ -37,12 +27,7 @@ export class GlyphEngine {
   private queryId?: string;
   private initedField: boolean;
 
-  constructor(
-    inputBucketName: string,
-    outputBucketName: string,
-    databaseName: string,
-    processId: string
-  ) {
+  constructor(inputBucketName: string, outputBucketName: string, databaseName: string, processId: string) {
     this.templateKey = 'templates/template_new.sdt';
 
     this.inputBucketNameField = inputBucketName;
@@ -78,18 +63,9 @@ export class GlyphEngine {
   }
 
   private cleanupData(data: Map<string, string>): void {
-    data.set(
-      'x_axis',
-      data.get('x_axis')?.replaceAll('.', '').replaceAll(' ', '_') ?? ''
-    );
-    data.set(
-      'y_axis',
-      data.get('y_axis')?.replaceAll('.', '').replaceAll(' ', '_') ?? ''
-    );
-    data.set(
-      'z_axis',
-      data.get('z_axis')?.replaceAll('.', '').replaceAll(' ', '_') ?? ''
-    );
+    data.set('x_axis', data.get('x_axis')?.replaceAll('.', '').replaceAll(' ', '_') ?? '');
+    data.set('y_axis', data.get('y_axis')?.replaceAll('.', '').replaceAll(' ', '_') ?? '');
+    data.set('z_axis', data.get('z_axis')?.replaceAll('.', '').replaceAll(' ', '_') ?? '');
     if (!data.get('x_func')) {
       data.set('x_func', 'LIN');
       data.set('y_func', 'LIN');
@@ -102,19 +78,12 @@ export class GlyphEngine {
     }
   }
 
-  private async getDataTypes(
-    viewName: string,
-    data: Map<string, string>
-  ): Promise<void> {
+  private async getDataTypes(viewName: string, data: Map<string, string>): Promise<void> {
     try {
       const tableDef = await this.athenaManager.getTableDescription(viewName);
-      const project = (await projectService.getProject(
-        data.get('model_id') as string
-      )) as databaseTypes.IProject;
+      const project = (await projectService.getProject(data.get('model_id') as string)) as databaseTypes.IProject;
       if (!project) {
-        throw new error.UnexpectedError(
-          `Project ${data.get('model_id')}not found`
-        );
+        throw new error.UnexpectedError(`Project ${data.get('model_id')}not found`);
       }
       setColType('x', tableDef, data, project);
       setColType('y', tableDef, data, project);
@@ -131,19 +100,18 @@ export class GlyphEngine {
       prefix: string,
       tableDef: {
         columnName: string;
-        columnType: fileIngestion.constants.FIELD_TYPE;
+        columnType: fileIngestionTypes.constants.FIELD_TYPE;
       }[],
       data: Map<string, string>,
       project: databaseTypes.IProject
     ): void {
       const col = data.get(`${prefix}_axis`);
       const colxType =
-        tableDef.find(d => d.columnName === col)?.columnType ??
-        fileIngestion.constants.FIELD_TYPE.UNKNOWN;
+        tableDef.find((d) => d.columnName === col)?.columnType ?? fileIngestionTypes.constants.FIELD_TYPE.UNKNOWN;
 
       let colAsString = 'string';
-      if (colxType !== fileIngestion.constants.FIELD_TYPE.STRING) {
-        let foundType = fileIngestion.constants.FIELD_TYPE.UNKNOWN;
+      if (colxType !== fileIngestionTypes.constants.FIELD_TYPE.STRING) {
+        let foundType = fileIngestionTypes.constants.FIELD_TYPE.UNKNOWN;
         for (let i = 0; i < project.files.length; i++) {
           const file = project.files[i];
           for (let j = 0; j < file.columns.length; j++) {
@@ -153,9 +121,9 @@ export class GlyphEngine {
             }
           }
         }
-        if (foundType === fileIngestion.constants.FIELD_TYPE.NUMBER) {
+        if (foundType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER) {
           colAsString = 'number';
-        } else if (foundType === fileIngestion.constants.FIELD_TYPE.DATE) {
+        } else if (foundType === fileIngestionTypes.constants.FIELD_TYPE.DATE) {
           colAsString = 'date';
         }
       }
@@ -165,9 +133,7 @@ export class GlyphEngine {
 
   private async getTemplateAsString(): Promise<string> {
     try {
-      const rStream = await this.inputBucketField.getObjectStream(
-        this.templateKey
-      );
+      const rStream = await this.inputBucketField.getObjectStream(this.templateKey);
 
       const chunks: Array<any> = [];
       for await (const chunk of rStream) {
@@ -186,20 +152,9 @@ export class GlyphEngine {
     }
   }
   private validateInput(data: Map<string, string>): void {
-    const requiredFileds = [
-      'x_axis',
-      'y_axis',
-      'z_axis',
-      'client_id',
-      'model_id',
-    ];
-    requiredFileds.forEach(field => {
-      if (!data.get(field))
-        throw new error.InvalidArgumentError(
-          `${field} is required`,
-          field,
-          data
-        );
+    const requiredFileds = ['x_axis', 'y_axis', 'z_axis', 'client_id', 'model_id'];
+    requiredFileds.forEach((field) => {
+      if (!data.get(field)) throw new error.InvalidArgumentError(`${field} is required`, field, data);
     });
   }
   public async process(
@@ -222,18 +177,12 @@ export class GlyphEngine {
       const clientId = data.get('client_id') as string;
       const payloadHash = data.get('payload_hash') as string;
 
-      const viewName = generalPurposeFunctions.fileIngestion.getViewName(
-        clientId,
-        modelId
-      );
+      const viewName = generalPurposeFunctions.fileIngestion.getViewName(clientId, modelId);
 
       data.set('view_name', viewName);
 
       //Start our query now before we do any processing
-      await processTrackingService.addProcessMessage(
-        this.processId,
-        `Starting the query: ${new Date()}`
-      );
+      await processTrackingService.addProcessMessage(this.processId, `Starting the query: ${new Date()}`);
       await this.startQuery(data, viewName);
 
       await processTrackingService.addProcessMessage(
@@ -248,11 +197,7 @@ export class GlyphEngine {
       const sdtFileName = `${prefix}/${payloadHash}.sdt`;
       await this.outputBucketField.putObject(sdtFileName, template);
 
-      const sdtParser = await SdtParser.parseSdtString(
-        template,
-        viewName,
-        data
-      );
+      const sdtParser = await SdtParser.parseSdtString(template, viewName, data);
 
       await processTrackingService.addProcessMessage(
         this.processId,
@@ -269,11 +214,7 @@ export class GlyphEngine {
           `Creating Gyphs and uploading files: ${new Date()}`
         );
 
-        const fileNames = await this.processData(
-          sdtParser,
-          prefix,
-          payloadHash
-        );
+        const fileNames = await this.processData(sdtParser, prefix, payloadHash);
         sgnFileName = fileNames.sgnFileName;
         sgcFileName = fileNames.sgcFileName;
       }
@@ -293,11 +234,7 @@ export class GlyphEngine {
       e.publish();
       heartBeat.stop();
       await processTrackingService.addProcessError(this.processId, e);
-      await processTrackingService.completeProcess(
-        this.processId,
-        {},
-        databaseTypes.constants.PROCESS_STATUS.FAILED
-      );
+      await processTrackingService.completeProcess(this.processId, {}, databaseTypes.constants.PROCESS_STATUS.FAILED);
 
       throw e;
     }
@@ -312,11 +249,7 @@ export class GlyphEngine {
     const sgcFileName = `${filePrefix}/${payloadHash}.sgc`;
     //bucket/client/workspaceId/ProjectId/output/model.sgn
     const sgnFileName = `${filePrefix}/${payloadHash}.sgn`;
-    const resultsStream = new streams.AthenaQueryReadStream(
-      this.athenaManager,
-      this.queryId as string,
-      1000
-    );
+    const resultsStream = new streams.AthenaQueryReadStream(this.athenaManager, this.queryId as string, 1000);
 
     const glyphStream = new GlyphStream(sdtParser);
     const forkingStream = new streams.ForkingStream(resultsStream, glyphStream);
@@ -327,14 +260,8 @@ export class GlyphEngine {
     const sgnUploadStream = new PassThrough();
     const sgcUploadStream = new PassThrough();
 
-    const sgnDestStream = this.outputBucketField.getUploadStream(
-      sgnFileName,
-      sgnUploadStream
-    );
-    const sgcDestStream = this.outputBucketField.getUploadStream(
-      sgcFileName,
-      sgcUploadStream
-    );
+    const sgnDestStream = this.outputBucketField.getUploadStream(sgnFileName, sgnUploadStream);
+    const sgcDestStream = this.outputBucketField.getUploadStream(sgcFileName, sgcUploadStream);
 
     forkingStream.fork('sgnStream', sgnStream, sgnUploadStream);
     forkingStream.fork('sgcStream', sgcStream, sgcUploadStream);
@@ -349,31 +276,18 @@ export class GlyphEngine {
     let status: IQueryResponse;
     do {
       status = (await this.queryRunner?.getQueryStatus()) as IQueryResponse;
-    } while (
-      status.status === QUERY_STATUS.RUNNING ||
-      status.status === QUERY_STATUS.UNKNOWN
-    );
+    } while (status.status === QUERY_STATUS.RUNNING || status.status === QUERY_STATUS.UNKNOWN);
     return status;
   }
 
-  private async startQuery(
-    data: Map<string, string>,
-    viewName: string
-  ): Promise<void> {
+  private async startQuery(data: Map<string, string>, viewName: string): Promise<void> {
     //TODO: need some validation here
     const xCol = data.get('x_axis') as string;
     const yCol = data.get('y_axis') as string;
     const zCol = data.get('z_axis') as string;
     const filter = (data.get('filter') as string) ?? undefined;
 
-    this.queryRunner = new QueryRunner(
-      this.databaseNameField,
-      viewName,
-      xCol,
-      yCol,
-      zCol,
-      filter
-    );
+    this.queryRunner = new QueryRunner(this.databaseNameField, viewName, xCol, yCol, zCol, filter);
     await this.queryRunner.init();
     this.queryId = await this.queryRunner.startQuery();
   }
@@ -389,12 +303,8 @@ export class GlyphEngine {
     const yDiff = (data.get('y_direction') ?? 'ASC') === 'ASC' ? 410 : -410;
     const zMin = (data.get('z_direction') ?? 'ASC') === 'ASC' ? 1 : 70;
     const zDiff = (data.get('z_direction') ?? 'ASC') === 'ASC' ? 70 : -70;
-    const colorMin =
-      (data.get('z_direction') ?? 'ASC') === 'ASC' ? '0,255,255' : '255,0,0';
-    const colorDiff =
-      (data.get('z_direction') ?? 'ASC') === 'ASC'
-        ? '255,-255,-255'
-        : '-255,255,255';
+    const colorMin = (data.get('z_direction') ?? 'ASC') === 'ASC' ? '0,255,255' : '255,0,0';
+    const colorDiff = (data.get('z_direction') ?? 'ASC') === 'ASC' ? '255,-255,-255' : '-255,255,255';
     const updatedTemplate = template
       .replace('ROOT_ID', data.get('model_id') as string)
       .replace('_HOST_', '_data.csv')
@@ -413,25 +323,15 @@ export class GlyphEngine {
       .replace('FIELD_X', data.get('x_axis') as string)
       .replace('FIELD_Y', data.get('y_axis') as string)
       .replace('FIELD_Z', data.get('z_axis') as string)
-      .replace(
-        'TYPE_X',
-        (data.get('type_x') as string) === 'string' ? 'Text' : 'Real'
-      )
-      .replace(
-        'TYPE_Y',
-        (data.get('type_y') as string) === 'string' ? 'Text' : 'Real'
-      )
-      .replace(
-        'TYPE_Z',
-        (data.get('type_z') as string) === 'string' ? 'Text' : 'Real'
-      );
+      .replace('TYPE_X', (data.get('type_x') as string) === 'string' ? 'Text' : 'Real')
+      .replace('TYPE_Y', (data.get('type_y') as string) === 'string' ? 'Text' : 'Real')
+      .replace('TYPE_Z', (data.get('type_z') as string) === 'string' ? 'Text' : 'Real');
 
     return updatedTemplate;
   }
   getFunction(data: Map<string, string>, key: string, func: string) {
     if (data.get(key) !== 'string') {
-      if ((data.get(func) as string) === 'LOG')
-        return 'Logarithmic Interpolation';
+      if ((data.get(func) as string) === 'LOG') return 'Logarithmic Interpolation';
       return 'Linear Interpolation';
     } else {
       return 'Text Interpolation';

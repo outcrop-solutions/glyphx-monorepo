@@ -1,5 +1,5 @@
 import athenaClient from './athenaClient';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 
 interface IColumnMinMax {
   columnName: string;
@@ -23,21 +23,12 @@ export class MinMaxCalculator {
 
   public get minMax(): IMinMax {
     if (!this.minMaxField) {
-      throw new error.InvalidOperationError(
-        'You must call load before accessing minMax',
-        {}
-      );
+      throw new error.InvalidOperationError('You must call load before accessing minMax', {});
     }
     return this.minMaxField;
   }
 
-  constructor(
-    tableName: string,
-    xColumnName: string,
-    yColumnName: string,
-    zColumnName: string,
-    filter = ''
-  ) {
+  constructor(tableName: string, xColumnName: string, yColumnName: string, zColumnName: string, filter = '') {
     this.tableName = tableName;
     this.xColumnName = xColumnName;
     this.yColumnName = yColumnName;

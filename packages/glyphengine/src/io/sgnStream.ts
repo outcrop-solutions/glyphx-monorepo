@@ -14,11 +14,7 @@ export class SgnStream extends Transform {
     this.glyphNodeCount = 0;
   }
 
-  _transform(
-    chunk: IGlyph,
-    encoding: BufferEncoding,
-    callback: TransformCallback
-  ) {
+  _transform(chunk: IGlyph, encoding: BufferEncoding, callback: TransformCallback) {
     this.glyphNodeCount++;
     callback();
   }

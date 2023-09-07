@@ -1,10 +1,7 @@
-import {
-  IJoinTableDefinition,
-  ITableQueryPlanner,
-} from '@interfaces/fileProcessing';
-import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '@util/constants';
-import {generalPurposeFunctions} from '@glyphx/core';
-import {fileIngestion} from '@glyphx/types';
+import {IJoinTableDefinition, ITableQueryPlanner} from '../interfaces/fileProcessing';
+import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '../util/constants';
+import {generalPurposeFunctions} from 'core';
+import {fileIngestionTypes} from 'types';
 
 /**
  * This is our basic table query planner for hive tables (AWS Athena).  It renders the proper SQL like syntaxt to represent a suppoert file type ( parquet, csv, json etc)
@@ -49,11 +46,7 @@ export class BasicHiveTableQueryPlanner implements ITableQueryPlanner {
    * @param storageFormat - the storage format (parquet, csv, json) the data is stored in.
    * @param compressionType - the type of compression used when storing the data.
    */
-  constructor(
-    bucketName: string,
-    storageFormat: FILE_STORAGE_TYPES,
-    compressionType: COMPRESSION_TYPES
-  ) {
+  constructor(bucketName: string, storageFormat: FILE_STORAGE_TYPES, compressionType: COMPRESSION_TYPES) {
     this.queryField = '';
     this.bucketNameField = bucketName;
     this.storageFormatField = storageFormat;
@@ -68,20 +61,14 @@ export class BasicHiveTableQueryPlanner implements ITableQueryPlanner {
    * @param tableName - the name of the table (can be differnt that the file name)
    * @param tableData - the information about the table to be used to create it.
    */
-  defineQuery(
-    fileName: string,
-    tableName: string,
-    tableData: IJoinTableDefinition
-  ): string {
+  defineQuery(fileName: string, tableName: string, tableData: IJoinTableDefinition): string {
     const columnDef = tableData.columns
-      .map(c => {
+      .map((c) => {
         return `${c.columnName} ${
-          c.columnType === fileIngestion.constants.FIELD_TYPE.STRING
-            ? `varchar(${
-                (c.columnLength ?? -1) > 65535 ? 65535 : c.columnLength ?? 100
-              })`
-            : c.columnType === fileIngestion.constants.FIELD_TYPE.NUMBER ||
-              c.columnType === fileIngestion.constants.FIELD_TYPE.DATE
+          c.columnType === fileIngestionTypes.constants.FIELD_TYPE.STRING
+            ? `varchar(${(c.columnLength ?? -1) > 65535 ? 65535 : c.columnLength ?? 100})`
+            : c.columnType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER ||
+              c.columnType === fileIngestionTypes.constants.FIELD_TYPE.DATE
             ? 'double'
             : 'bigint'
         }`;

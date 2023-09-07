@@ -1,5 +1,5 @@
 type Email = string | null;
-export function html({ email }: { email: Email }): string {
+export function html({email}: {email: Email}): string {
   return `
 <body>
     <p>Hello there!</p>
@@ -11,7 +11,7 @@ export function html({ email }: { email: Email }): string {
 `;
 }
 
-export function text({ email }: { email: Email }): string {
+export function text({email}: {email: Email}): string {
   return `
 Hello there!
 

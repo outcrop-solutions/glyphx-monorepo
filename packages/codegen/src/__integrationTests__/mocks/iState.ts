@@ -1,10 +1,10 @@
-import { Types as mongooseTypes } from 'mongoose';
-import { IProject } from './iProject';
-import { IFileStats } from '../fileIngestion';
-import { IUser } from './iUser';
-import { Camera, Property } from '../web';
-import { IWorkspace } from './iWorkspace';
-import { Aspect } from '../web/types/ui/aspect';
+import {Types as mongooseTypes} from 'mongoose';
+import {IProject} from './iProject';
+import {IFileStats} from '../fileIngestion';
+import {IUser} from './iUser';
+import {Camera, Property} from '../web';
+import {IWorkspace} from './iWorkspace';
+import {Aspect} from '../web/types/ui/aspect';
 
 // only created via user input
 // immutable

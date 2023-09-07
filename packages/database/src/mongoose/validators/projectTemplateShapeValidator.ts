@@ -1,6 +1,4 @@
-export function projectTemplateShapeValidator(
-  input: Record<string, Record<string, any>>
-): boolean {
+export function projectTemplateShapeValidator(input: Record<string, Record<string, any>>): boolean {
   let retval = true;
 
   for (const key in input) {

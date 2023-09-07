@@ -17,11 +17,7 @@ export class SdtParser {
   private readonly shapeField: SHAPE;
   private readonly data: Map<string, string>;
 
-  private constructor(
-    parsedDocument: sdt.ISdtDocument,
-    viewName: string,
-    data: Map<string, string>
-  ) {
+  private constructor(parsedDocument: sdt.ISdtDocument, viewName: string, data: Map<string, string>) {
     this.sdtAsJson = parsedDocument;
     this.viewName = viewName;
     this.bindings = this.getBindings();
@@ -40,7 +36,7 @@ export class SdtParser {
   private getSdtInpuField(field: 'x' | 'y' | 'z'): sdt.ISdtInputField {
     const binding = this.bindings[field];
     const inputField = this.sdtAsJson.Transform.InputFields.InputField.find(
-      i => i['@_name'] === binding
+      (i) => i['@_name'] === binding
     ) as sdt.ISdtInputField;
     return inputField;
   }
@@ -70,10 +66,7 @@ export class SdtParser {
     };
 
     if (retval.type === TYPE.TEXT) {
-      const textToNumberConverter = new TextColumnToNumberConverter(
-        this.viewName,
-        retval.field
-      );
+      const textToNumberConverter = new TextColumnToNumberConverter(this.viewName, retval.field);
       await textToNumberConverter.load();
       retval.text_to_num = textToNumberConverter;
       retval.min = 0;
@@ -87,34 +80,14 @@ export class SdtParser {
     const y = this.getSdtInpuField('y');
     const z = this.getSdtInpuField('z');
 
-    const minMaxCalculator = new MinMaxCalculator(
-      this.viewName,
-      x['@_field'],
-      y['@_field'],
-      z['@_field']
-    );
+    const minMaxCalculator = new MinMaxCalculator(this.viewName, x['@_field'], y['@_field'], z['@_field']);
 
     await minMaxCalculator.load();
-    const xInputField = await this.buildInputField(
-      'x',
-      x,
-      minMaxCalculator.minMax,
-      this.data.get('type_x') as string
-    );
+    const xInputField = await this.buildInputField('x', x, minMaxCalculator.minMax, this.data.get('type_x') as string);
 
-    const yInputField = await this.buildInputField(
-      'y',
-      y,
-      minMaxCalculator.minMax,
-      this.data.get('type_y') as string
-    );
+    const yInputField = await this.buildInputField('y', y, minMaxCalculator.minMax, this.data.get('type_y') as string);
 
-    const zInputField = await this.buildInputField(
-      'z',
-      z,
-      minMaxCalculator.minMax,
-      this.data.get('type_z') as string
-    );
+    const zInputField = await this.buildInputField('z', z, minMaxCalculator.minMax, this.data.get('type_z') as string);
 
     this.inputFieldsField = {x: xInputField, y: yInputField, z: zInputField};
   }
@@ -174,9 +147,7 @@ export class SdtParser {
 
       const diffRgb = this.parseRgb(subProperty.Difference);
 
-      const maxRgb = minRgb.map(
-        (n: number, index: number) => n + diffRgb[index]
-      );
+      const maxRgb = minRgb.map((n: number, index: number) => n + diffRgb[index]);
 
       retval = {
         binding: '',
@@ -210,7 +181,7 @@ export class SdtParser {
   }
 
   private parseRgb(input: string): number[] {
-    const retval: number[] = input.split(',').map(n => {
+    const retval: number[] = input.split(',').map((n) => {
       return this.parseNumber(n);
     });
 

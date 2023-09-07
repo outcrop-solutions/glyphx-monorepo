@@ -13,13 +13,7 @@ export class DatabaseOperationError extends GlyphxError {
    * @param innerError -- an optional inner error which gives more detail regarding why this
    * error was thrown.
    */
-  constructor(
-    message: string,
-    databaseName: string,
-    operationDescription: string,
-    data?: any,
-    innerError?: unknown
-  ) {
+  constructor(message: string, databaseName: string, operationDescription: string, data?: any, innerError?: unknown) {
     const errorCode = ErrorCodes.getResponseCode('UnknownDatabaseError');
     super(message, errorCode, innerError);
     this.data = {databaseName, operationDescription, data};

@@ -13,13 +13,7 @@ export class DataServiceError extends GlyphxError {
    * @param innerError -- an optional inner error which gives more detail regarding why this
    * error was thrown.
    */
-  constructor(
-    message: string,
-    service: string,
-    operation: any,
-    data: any,
-    innerError?: unknown
-  ) {
+  constructor(message: string, service: string, operation: any, data: any, innerError?: unknown) {
     const errorCode = ErrorCodes.getResponseCode('DataServiceError');
     super(message, errorCode, innerError);
     this.data = {service, operation, data};

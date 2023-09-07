@@ -1,19 +1,19 @@
-import { EmailClient } from './emailClient';
+import {EmailClient} from './emailClient';
 
 /**
  * Sends an email via nodemailer smtp connection
  * @param params configuration option on the HTML Email body {@link html}
  */
 export async function sendVerificationRequest(params: any) {
-  const { identifier, url, provider, theme } = params;
-  const { host } = new URL(url);
+  const {identifier, url, provider, theme} = params;
+  const {host} = new URL(url);
 
   const result = await EmailClient.sendMail({
     to: identifier,
     from: provider.from,
     subject: 'Sign in to glyphx.co',
-    text: text({ url, host }),
-    html: html({ url, host, theme }),
+    text: text({url, host}),
+    html: html({url, host, theme}),
   });
 
   const failed = result.rejected.concat(result.pending).filter(Boolean);
@@ -30,8 +30,8 @@ export async function sendVerificationRequest(params: any) {
  *
  * @note We don't add the email address to avoid needing to escape it, if you do, remember to sanitize it!
  */
-function html(params: { url: string; host: string; theme: any }) {
-  const { url, theme } = params;
+function html(params: {url: string; host: string; theme: any}) {
+  const {url, theme} = params;
 
   const brandColor = theme.brandColor || '#FFC500';
   const color = {
@@ -82,6 +82,6 @@ function html(params: { url: string; host: string; theme: any }) {
 }
 
 /** Email Text body (fallback for email clients that don't render HTML, e.g. feature phones) */
-function text({ url, host }: { url: string; host: string }) {
+function text({url, host}: {url: string; host: string}) {
   return `Sign in to ${host}\n${url}\n\n`;
 }

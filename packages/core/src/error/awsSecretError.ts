@@ -12,12 +12,7 @@ export class AwsSecretError extends GlyphxError {
    * @param innerError -- an optional inner error which gives more detail regarding why this
    * error was thrown.
    */
-  constructor(
-    message: string,
-    secretName: string,
-    errorType: string,
-    innerError?: unknown
-  ) {
+  constructor(message: string, secretName: string, errorType: string, innerError?: unknown) {
     const errorCode = ErrorCodes.getResponseCode('AwsSecretError');
     super(message, errorCode, innerError);
     this.data = {secretName, errorType};

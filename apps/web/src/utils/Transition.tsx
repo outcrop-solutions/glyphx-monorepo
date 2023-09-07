@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useContext } from "react";
-import { CSSTransition as ReactCSSTransition } from "react-transition-group";
+import React, {useRef, useEffect, useContext, Ref} from 'react';
+import {CSSTransition as ReactCSSTransition} from 'react-transition-group';
 
 const TransitionContext = React.createContext({
   parent: {},
@@ -15,24 +15,24 @@ function useIsInitialRender() {
 
 function CSSTransition({
   show,
-  enter = "",
-  enterStart = "",
-  enterEnd = "",
-  leave = "",
-  leaveStart = "",
-  leaveEnd = "",
+  enter = '',
+  enterStart = '',
+  enterEnd = '',
+  leave = '',
+  leaveStart = '',
+  leaveEnd = '',
   appear,
   unmountOnExit,
-  tag = "div",
+  tag = 'div',
   children,
   ...rest
 }) {
-  const enterClasses = enter.split(" ").filter((s) => s.length);
-  const enterStartClasses = enterStart.split(" ").filter((s) => s.length);
-  const enterEndClasses = enterEnd.split(" ").filter((s) => s.length);
-  const leaveClasses = leave.split(" ").filter((s) => s.length);
-  const leaveStartClasses = leaveStart.split(" ").filter((s) => s.length);
-  const leaveEndClasses = leaveEnd.split(" ").filter((s) => s.length);
+  const enterClasses = enter.split(' ').filter((s) => s.length);
+  const enterStartClasses = enterStart.split(' ').filter((s) => s.length);
+  const enterEndClasses = enterEnd.split(' ').filter((s) => s.length);
+  const leaveClasses = leave.split(' ').filter((s) => s.length);
+  const leaveStartClasses = leaveStart.split(' ').filter((s) => s.length);
+  const leaveEndClasses = leaveEnd.split(' ').filter((s) => s.length);
   const removeFromDom = unmountOnExit;
 
   function addClasses(node, classes) {
@@ -53,9 +53,11 @@ function CSSTransition({
       unmountOnExit={removeFromDom}
       in={show}
       addEndListener={(done) => {
-        nodeRef.current.addEventListener("transitionend", done, false);
+        // @ts-ignore
+        nodeRef.current.addEventListener('transitionend', done, false);
       }}
       onEnter={() => {
+        // @ts-ignore
         if (!removeFromDom) nodeRef.current.style.display = null;
         addClasses(nodeRef.current, [...enterClasses, ...enterStartClasses]);
       }}
@@ -75,23 +77,20 @@ function CSSTransition({
       }}
       onExited={() => {
         removeClasses(nodeRef.current, [...leaveEndClasses, ...leaveClasses]);
-        if (!removeFromDom) nodeRef.current.style.display = "none";
+        // @ts-ignore
+        if (!removeFromDom) nodeRef.current.style.display = 'none';
       }}
     >
       {/* @ts-ignore */}
-      <Component
-        ref={nodeRef}
-        {...rest}
-        style={{ display: !removeFromDom ? "none" : null }}
-      >
+      <Component ref={nodeRef} {...rest} style={{display: !removeFromDom ? 'none' : null}}>
         {children}
       </Component>
     </ReactCSSTransition>
   );
 }
 
-export const Transition = ({ show, appear, ...rest }) => {
-  const { parent } = useContext(TransitionContext);
+export const Transition = ({show, appear, ...rest}) => {
+  const {parent} = useContext(TransitionContext);
   const isInitialRender = useIsInitialRender();
   const isChild = show === undefined;
 
@@ -99,7 +98,7 @@ export const Transition = ({ show, appear, ...rest }) => {
     return (
       // @ts-ignore
       <CSSTransition
-      // @ts-ignore
+        // @ts-ignore
         appear={parent.appear || !parent.isInitialRender}
         // @ts-ignore
         show={parent.show}

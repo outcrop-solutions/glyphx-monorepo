@@ -1,4 +1,4 @@
-import { CreditCardIcon, UserCircleIcon } from '@heroicons/react/outline';
+import {CreditCardIcon, UserCircleIcon} from '@heroicons/react/outline';
 
 const sidebarMenu = () => [
   {

@@ -1,4 +1,4 @@
-import {database as databaseTypes, IQueryResult} from '@glyphx/types';
+import {databaseTypes, IQueryResult} from 'types';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {
   IActivityLogMethods,
@@ -6,7 +6,7 @@ import {
   IActivityLogDocument,
   IActivityLogCreateInput,
 } from '../interfaces';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 import {UserModel} from './user';
 import {userAgentSchema} from '../schemas';
 import {ProjectModel} from './project';
@@ -17,11 +17,7 @@ import {WebhookModel} from './webhook';
 import {WorkspaceModel} from './workspace';
 import {ProcessTrackingModel} from './processTracking';
 
-const SCHEMA = new Schema<
-  IActivityLogDocument,
-  IActivityLogStaticMethods,
-  IActivityLogMethods
->({
+const SCHEMA = new Schema<IActivityLogDocument, IActivityLogStaticMethods, IActivityLogMethods>({
   createdAt: {
     type: Date,
     required: true,
@@ -38,7 +34,7 @@ const SCHEMA = new Schema<
       () => new Date(),
   },
   actor: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
-  userAgent: {type: userAgentSchema, required: true, default: {}},
+  userAgent: {type: Schema.Types.Mixed, required: true},
   workspaceId: {type: Schema.Types.ObjectId, required: false},
   projectId: {type: Schema.Types.ObjectId, required: false},
   action: {
@@ -56,100 +52,87 @@ const SCHEMA = new Schema<
   resource: {type: Schema.Types.ObjectId, required: true, refPath: 'onModel'},
 });
 
-SCHEMA.static(
-  'activityLogIdExists',
-  async (activityLogId: mongooseTypes.ObjectId): Promise<boolean> => {
-    let retval = false;
-    try {
-      const result = await ACTIVITY_LOG_MODEL.findById(activityLogId, ['_id']);
-      if (result) retval = true;
-    } catch (err) {
+SCHEMA.static('activityLogIdExists', async (activityLogId: mongooseTypes.ObjectId): Promise<boolean> => {
+  let retval = false;
+  try {
+    const result = await ACTIVITY_LOG_MODEL.findById(activityLogId, ['_id']);
+    if (result) retval = true;
+  } catch (err) {
+    throw new error.DatabaseOperationError(
+      'an unexpected error occurred while trying to find the activityLog.  See the inner error for additional information',
+      'mongoDb',
+      'activityLogIdExists',
+      {_id: activityLogId},
+      err
+    );
+  }
+  return retval;
+});
+
+SCHEMA.static('allActivityLogIdsExist', async (activityLogIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
+  try {
+    const notFoundIds: mongooseTypes.ObjectId[] = [];
+    const foundIds = (await ACTIVITY_LOG_MODEL.find({_id: {$in: activityLogIds}}, ['_id'])) as {
+      _id: mongooseTypes.ObjectId;
+    }[];
+
+    activityLogIds.forEach((id) => {
+      if (!foundIds.find((fid) => fid._id.toString() === id.toString())) notFoundIds.push(id);
+    });
+
+    if (notFoundIds.length) {
+      throw new error.DataNotFoundError(
+        'One or more activityLogIds cannot be found in the database.',
+        'activityLog._id',
+        notFoundIds
+      );
+    }
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else {
       throw new error.DatabaseOperationError(
-        'an unexpected error occurred while trying to find the activityLog.  See the inner error for additional information',
+        'an unexpected error occurred while trying to find the activityLogIds.  See the inner error for additional information',
         'mongoDb',
-        'activityLogIdExists',
-        {_id: activityLogId},
+        'allActivityLogIdsExists',
+        {activityLogIds: activityLogIds},
         err
       );
     }
-    return retval;
   }
-);
+  return true;
+});
 
-SCHEMA.static(
-  'allActivityLogIdsExist',
-  async (activityLogIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
-    try {
-      const notFoundIds: mongooseTypes.ObjectId[] = [];
-      const foundIds = (await ACTIVITY_LOG_MODEL.find(
-        {_id: {$in: activityLogIds}},
-        ['_id']
-      )) as {_id: mongooseTypes.ObjectId}[];
-
-      activityLogIds.forEach(id => {
-        if (!foundIds.find(fid => fid._id.toString() === id.toString()))
-          notFoundIds.push(id);
-      });
-
-      if (notFoundIds.length) {
-        throw new error.DataNotFoundError(
-          'One or more activityLogIds cannot be found in the database.',
-          'activityLog._id',
-          notFoundIds
-        );
-      }
-    } catch (err) {
-      if (err instanceof error.DataNotFoundError) throw err;
-      else {
-        throw new error.DatabaseOperationError(
-          'an unexpected error occurred while trying to find the activityLogIds.  See the inner error for additional information',
-          'mongoDb',
-          'allActivityLogIdsExists',
-          {activityLogIds: activityLogIds},
-          err
-        );
-      }
-    }
-    return true;
-  }
-);
-
-SCHEMA.static(
-  'getActivityLogById',
-  async (activityLogId: mongooseTypes.ObjectId) => {
-    try {
-      const activityLogDocument = (await ACTIVITY_LOG_MODEL.findById(
+SCHEMA.static('getActivityLogById', async (activityLogId: mongooseTypes.ObjectId) => {
+  try {
+    const activityLogDocument = (await ACTIVITY_LOG_MODEL.findById(activityLogId)
+      .populate('actor')
+      .populate('resource')
+      .lean()) as databaseTypes.IActivityLog;
+    if (!activityLogDocument) {
+      throw new error.DataNotFoundError(
+        `Could not find a activityLog with the _id: ${activityLogId}`,
+        'activityLog_id',
         activityLogId
-      )
-        .populate('actor')
-        .populate('resource')
-        .lean()) as databaseTypes.IActivityLog;
-      if (!activityLogDocument) {
-        throw new error.DataNotFoundError(
-          `Could not find a activityLog with the _id: ${activityLogId}`,
-          'activityLog_id',
-          activityLogId
-        );
-      }
-      //this is added by mongoose, so we will want to remove it before returning the document
-      //to the user.
-      delete (activityLogDocument as any)['__v'];
-      delete (activityLogDocument as any).actor['__v'];
-      delete (activityLogDocument as any).resource['__v'];
-
-      return activityLogDocument;
-    } catch (err) {
-      if (err instanceof error.DataNotFoundError) throw err;
-      else
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurred while getting the activityLog.  See the inner error for additional information',
-          'mongoDb',
-          'getActivityLogById',
-          err
-        );
+      );
     }
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    delete (activityLogDocument as any)['__v'];
+    delete (activityLogDocument as any).actor['__v'];
+    delete (activityLogDocument as any).resource['__v'];
+
+    return activityLogDocument;
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the activityLog.  See the inner error for additional information',
+        'mongoDb',
+        'getActivityLogById',
+        err
+      );
   }
-);
+});
 
 SCHEMA.static(
   'queryActivityLogs',
@@ -177,14 +160,10 @@ SCHEMA.static(
         );
       }
 
-      const activityLogDocuments = (await ACTIVITY_LOG_MODEL.find(
-        filter,
-        null,
-        {
-          skip: skip,
-          limit: itemsPerPage,
-        }
-      )
+      const activityLogDocuments = (await ACTIVITY_LOG_MODEL.find(filter, null, {
+        skip: skip,
+        limit: itemsPerPage,
+      })
         .populate('actor')
         .populate('resource')
         .lean()) as databaseTypes.IActivityLog[];
@@ -205,11 +184,7 @@ SCHEMA.static(
 
       return retval;
     } catch (err) {
-      if (
-        err instanceof error.DataNotFoundError ||
-        err instanceof error.InvalidArgumentError
-      )
-        throw err;
+      if (err instanceof error.DataNotFoundError || err instanceof error.InvalidArgumentError) throw err;
       else
         throw new error.DatabaseOperationError(
           'An unexpected error occurred while querying the activityLogs.  See the inner error for additional information',
@@ -221,183 +196,166 @@ SCHEMA.static(
   }
 );
 
-SCHEMA.static(
-  'createActivityLog',
-  async (
-    input: IActivityLogCreateInput
-  ): Promise<databaseTypes.IActivityLog> => {
-    const userId =
-      input.actor instanceof mongooseTypes.ObjectId
-        ? input.actor
-        : new mongooseTypes.ObjectId(input.actor._id);
+SCHEMA.static('createActivityLog', async (input: IActivityLogCreateInput): Promise<databaseTypes.IActivityLog> => {
+  const userId =
+    input.actor instanceof mongooseTypes.ObjectId
+      ? input.actor
+      : // @ts-ignore
+        new mongooseTypes.ObjectId(input.actor._id);
 
-    const userExists = await UserModel.userIdExists(userId);
-    if (!userExists)
+  const userExists = await UserModel.userIdExists(userId);
+  if (!userExists)
+    throw new error.InvalidArgumentError(`A user with _id : ${userId} cannot be found`, 'user._id', userId);
+
+  let workspaceId;
+  //istanbul ignore else
+  if (input.workspaceId) {
+    workspaceId =
+      input.workspaceId instanceof mongooseTypes.ObjectId
+        ? input.workspaceId
+        : // @ts-ignore
+          new mongooseTypes.ObjectId(input.workspaceId);
+
+    const workspaceExists = await WorkspaceModel.workspaceIdExists(workspaceId);
+    if (!workspaceExists)
       throw new error.InvalidArgumentError(
-        `A user with _id : ${userId} cannot be found`,
-        'user._id',
-        input.actor._id
+        `A workspace with _id : ${workspaceId} cannot be found`,
+        'workspace._id',
+        input.workspaceId
       );
-
-    let workspaceId;
-    //istanbul ignore else
-    if (input.workspaceId) {
-      workspaceId =
-        input.workspaceId instanceof mongooseTypes.ObjectId
-          ? input.workspaceId
-          : new mongooseTypes.ObjectId(input.workspaceId);
-
-      const workspaceExists = await WorkspaceModel.workspaceIdExists(
-        workspaceId
-      );
-      if (!workspaceExists)
-        throw new error.InvalidArgumentError(
-          `A workspace with _id : ${workspaceId} cannot be found`,
-          'workspace._id',
-          input.workspaceId
-        );
-    }
-
-    let resourceExists;
-    const resourceId =
-      input.resource instanceof mongooseTypes.ObjectId
-        ? input.resource
-        : new mongooseTypes.ObjectId(input.resource._id);
-
-    switch (input.onModel) {
-      case databaseTypes.constants.RESOURCE_MODEL.USER:
-        resourceExists = await UserModel.userIdExists(resourceId);
-        if (!resourceExists)
-          throw new error.InvalidArgumentError(
-            `A user resource with _id : ${userId} cannot be found`,
-            'user._id',
-            input.resource._id
-          );
-        break;
-      case databaseTypes.constants.RESOURCE_MODEL.PROJECT:
-        resourceExists = await ProjectModel.projectIdExists(resourceId);
-        if (!resourceExists)
-          throw new error.InvalidArgumentError(
-            `A project resource with _id : ${resourceId} cannot be found`,
-            'project._id',
-            input.resource._id
-          );
-        break;
-      case databaseTypes.constants.RESOURCE_MODEL.STATE:
-        resourceExists = await StateModel.stateIdExists(resourceId);
-        if (!resourceExists)
-          throw new error.InvalidArgumentError(
-            `A state resource with _id : ${resourceId} cannot be found`,
-            'state._id',
-            input.resource._id
-          );
-        break;
-      case databaseTypes.constants.RESOURCE_MODEL.CUSTOMER_PAYMENT:
-        resourceExists = await CustomerPaymentModel.customerPaymentIdExists(
-          resourceId
-        );
-        if (!resourceExists)
-          throw new error.InvalidArgumentError(
-            `A customerPayment resource with _id : ${resourceId} cannot be found`,
-            'customerPayment._id',
-            input.resource._id
-          );
-        break;
-      case databaseTypes.constants.RESOURCE_MODEL.MEMBER:
-        resourceExists = await MemberModel.memberIdExists(resourceId);
-        if (!resourceExists)
-          throw new error.InvalidArgumentError(
-            `A member resource with _id : ${resourceId} cannot be found`,
-            'member._id',
-            input.resource._id
-          );
-        break;
-      case databaseTypes.constants.RESOURCE_MODEL.PROCESS_TRACKING:
-        resourceExists = await ProcessTrackingModel.processTrackingIdExists(
-          resourceId
-        );
-        if (!resourceExists)
-          throw new error.InvalidArgumentError(
-            `A processTracking resource with _id : ${resourceId} cannot be found`,
-            'processTracking._id',
-            input.resource._id
-          );
-        break;
-      case databaseTypes.constants.RESOURCE_MODEL.WEBHOOK:
-        resourceExists = await WebhookModel.webhookIdExists(resourceId);
-        if (!resourceExists)
-          throw new error.InvalidArgumentError(
-            `A webhook resource with _id : ${resourceId} cannot be found`,
-            'webhook._id',
-            input.resource._id
-          );
-        break;
-      case databaseTypes.constants.RESOURCE_MODEL.WORKSPACE:
-        resourceExists = await WorkspaceModel.workspaceIdExists(resourceId);
-        if (!resourceExists)
-          throw new error.InvalidArgumentError(
-            `A workspace resource with _id : ${resourceId} cannot be found`,
-            'workspace._id',
-            input.resource._id
-          );
-        break;
-    }
-
-    const createDate = new Date();
-
-    const transformedDocument: IActivityLogDocument = {
-      createdAt: createDate,
-      updatedAt: createDate,
-      actor: userId,
-      location: input.location,
-      userAgent: {...input.userAgent},
-      action: input.action,
-      onModel: input.onModel,
-      resource: resourceId,
-      workspaceId: workspaceId,
-      projectId: input?.projectId ?? undefined,
-    };
-
-    try {
-      await ACTIVITY_LOG_MODEL.validate(transformedDocument);
-    } catch (err) {
-      throw new error.DataValidationError(
-        'An error occurred while validating the activityLog document.  See the inner error for additional details.',
-        'activityLog',
-        transformedDocument,
-        err
-      );
-    }
-
-    try {
-      const createdDocument = (
-        await ACTIVITY_LOG_MODEL.create([transformedDocument], {
-          validateBeforeSave: false,
-        })
-      )[0];
-      return await ACTIVITY_LOG_MODEL.getActivityLogById(
-        createdDocument._id as unknown as mongooseTypes.ObjectId
-      );
-    } catch (err) {
-      throw new error.DatabaseOperationError(
-        'An unexpected error occurred wile creating the activityLog. See the inner error for additional information',
-        'mongoDb',
-        'create activityLog',
-        input,
-        err
-      );
-    }
   }
-);
+
+  let resourceExists;
+  const resourceId =
+    input.resource instanceof mongooseTypes.ObjectId
+      ? input.resource
+      : // @ts-ignore
+        new mongooseTypes.ObjectId(input.resource._id);
+
+  switch (input.onModel) {
+    case databaseTypes.constants.RESOURCE_MODEL.USER:
+      resourceExists = await UserModel.userIdExists(resourceId);
+      if (!resourceExists)
+        throw new error.InvalidArgumentError(
+          `A user resource with _id : ${userId} cannot be found`,
+          'user._id',
+          (input.resource as databaseTypes.IUser)._id
+        );
+      break;
+    case databaseTypes.constants.RESOURCE_MODEL.PROJECT:
+      resourceExists = await ProjectModel.projectIdExists(resourceId);
+      if (!resourceExists)
+        throw new error.InvalidArgumentError(
+          `A project resource with _id : ${resourceId} cannot be found`,
+          'project._id',
+          (input.resource as databaseTypes.IProject)._id
+        );
+      break;
+    case databaseTypes.constants.RESOURCE_MODEL.STATE:
+      resourceExists = await StateModel.stateIdExists(resourceId);
+      if (!resourceExists)
+        throw new error.InvalidArgumentError(
+          `A state resource with _id : ${resourceId} cannot be found`,
+          'state._id',
+          (input.resource as databaseTypes.IState)._id
+        );
+      break;
+    case databaseTypes.constants.RESOURCE_MODEL.CUSTOMER_PAYMENT:
+      resourceExists = await CustomerPaymentModel.customerPaymentIdExists(resourceId);
+      if (!resourceExists)
+        throw new error.InvalidArgumentError(
+          `A customerPayment resource with _id : ${resourceId} cannot be found`,
+          'customerPayment._id',
+          (input.resource as databaseTypes.ICustomerPayment)._id
+        );
+      break;
+    case databaseTypes.constants.RESOURCE_MODEL.MEMBER:
+      resourceExists = await MemberModel.memberIdExists(resourceId);
+      if (!resourceExists)
+        throw new error.InvalidArgumentError(
+          `A member resource with _id : ${resourceId} cannot be found`,
+          'member._id',
+          (input.resource as databaseTypes.IMember)._id
+        );
+      break;
+    case databaseTypes.constants.RESOURCE_MODEL.PROCESS_TRACKING:
+      resourceExists = await ProcessTrackingModel.processTrackingIdExists(resourceId);
+      if (!resourceExists)
+        throw new error.InvalidArgumentError(
+          `A processTracking resource with _id : ${resourceId} cannot be found`,
+          'processTracking._id',
+          (input.resource as databaseTypes.IProcessTracking)._id
+        );
+      break;
+    case databaseTypes.constants.RESOURCE_MODEL.WEBHOOK:
+      resourceExists = await WebhookModel.webhookIdExists(resourceId);
+      if (!resourceExists)
+        throw new error.InvalidArgumentError(
+          `A webhook resource with _id : ${resourceId} cannot be found`,
+          'webhook._id',
+          (input.resource as databaseTypes.IWebhook)._id
+        );
+      break;
+    case databaseTypes.constants.RESOURCE_MODEL.WORKSPACE:
+      resourceExists = await WorkspaceModel.workspaceIdExists(resourceId);
+      if (!resourceExists)
+        throw new error.InvalidArgumentError(
+          `A workspace resource with _id : ${resourceId} cannot be found`,
+          'workspace._id',
+          (input.resource as databaseTypes.IWorkspace)._id
+        );
+      break;
+  }
+
+  const createDate = new Date();
+
+  const transformedDocument: IActivityLogDocument = {
+    createdAt: createDate,
+    updatedAt: createDate,
+    actor: userId,
+    location: input.location,
+    userAgent: {...input.userAgent},
+    action: input.action,
+    onModel: input.onModel,
+    resource: resourceId,
+    workspaceId: workspaceId,
+    projectId: input?.projectId ?? undefined,
+  };
+
+  try {
+    await ACTIVITY_LOG_MODEL.validate(transformedDocument);
+  } catch (err) {
+    throw new error.DataValidationError(
+      'An error occurred while validating the activityLog document.  See the inner error for additional details.',
+      'activityLog',
+      transformedDocument,
+      err
+    );
+  }
+
+  try {
+    const createdDocument = (
+      await ACTIVITY_LOG_MODEL.create([transformedDocument], {
+        validateBeforeSave: false,
+      })
+    )[0];
+    return await ACTIVITY_LOG_MODEL.getActivityLogById(createdDocument._id as unknown as mongooseTypes.ObjectId);
+  } catch (err) {
+    throw new error.DatabaseOperationError(
+      'An unexpected error occurred wile creating the activityLog. See the inner error for additional information',
+      'mongoDb',
+      'create activityLog',
+      input,
+      err
+    );
+  }
+});
 
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 
 delete MODELS['activityLog'];
 
-const ACTIVITY_LOG_MODEL = model<
-  IActivityLogDocument,
-  IActivityLogStaticMethods
->('activityLog', SCHEMA);
+const ACTIVITY_LOG_MODEL = model<IActivityLogDocument, IActivityLogStaticMethods>('activityLog', SCHEMA);
 
 export {ACTIVITY_LOG_MODEL as ActivityLogModel};

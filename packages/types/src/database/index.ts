@@ -1,3 +1,4 @@
+export * as meta from './meta';
 export * as constants from './constants';
 export type {IAccount} from './iAccount';
 export type {IComment} from './iComment';
@@ -17,4 +18,3 @@ export type {IUserAgent} from './iUserAgent';
 export type {IAnnotation} from './iAnnotation';
 export type {ITag} from './iTag';
 export type {IModelConfig} from './iModelConfig';
-export * as meta from './meta';

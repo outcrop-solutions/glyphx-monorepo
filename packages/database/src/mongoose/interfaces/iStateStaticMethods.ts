@@ -1,9 +1,8 @@
 import {Types as mongooseTypes, Model} from 'mongoose';
-import {IQueryResult, database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, databaseTypes} from 'types';
 import {IStateMethods} from './iStateMethods';
 import {IStateCreateInput} from './iStateCreateInput';
-export interface IStateStaticMethods
-  extends Model<databaseTypes.IState, {}, IStateMethods> {
+export interface IStateStaticMethods extends Model<databaseTypes.IState, {}, IStateMethods> {
   stateIdExists(stateId: mongooseTypes.ObjectId): Promise<boolean>;
   allStateIdsExist(stateIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createState(input: IStateCreateInput): Promise<databaseTypes.IState>;
@@ -22,13 +21,7 @@ export interface IStateStaticMethods
     state: Omit<Partial<databaseTypes.IState>, '_id'>
   ): Promise<databaseTypes.IState>;
   deleteStateById(stateId: mongooseTypes.ObjectId): Promise<void>;
-  validateProject(
-    project: databaseTypes.IProject | mongooseTypes.ObjectId
-  ): Promise<mongooseTypes.ObjectId>;
-  validateUser(
-    user: databaseTypes.IUser | mongooseTypes.ObjectId
-  ): Promise<mongooseTypes.ObjectId>;
-  validateUpdateObject(
-    state: Omit<Partial<databaseTypes.IState>, '_id'>
-  ): Promise<void>;
+  validateProject(project: databaseTypes.IProject | mongooseTypes.ObjectId): Promise<mongooseTypes.ObjectId>;
+  validateUser(user: databaseTypes.IUser | mongooseTypes.ObjectId): Promise<mongooseTypes.ObjectId>;
+  validateUpdateObject(state: Omit<Partial<databaseTypes.IState>, '_id'>): Promise<void>;
 }

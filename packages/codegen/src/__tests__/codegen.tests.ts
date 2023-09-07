@@ -2,13 +2,13 @@ import 'mocha';
 import path from 'node:path';
 import ts from 'typescript';
 import fs from 'fs-extra';
-import { assert } from 'chai';
+import {assert} from 'chai';
 import Handlebars from 'handlebars';
-import { createSandbox } from 'sinon';
-import { CodeGenerator } from '../generator/codeGenerator';
-import { error } from '@glyphx/core';
-import { database as databaseTypes } from '@glyphx/types';
-import { DEFAULT_CONFIG } from '../generator/config';
+import {createSandbox} from 'sinon';
+import {CodeGenerator} from '../generator/codeGenerator';
+import {error} from 'core';
+import {databaseTypes} from 'types';
+import {DEFAULT_CONFIG} from '../generator/config';
 
 describe('#codegen/generator', () => {
   context('generator', () => {
@@ -67,8 +67,8 @@ describe('#codegen/generator', () => {
         // Creating spy for processFiles
         const processFilesSpy = sandbox.spy(codeGen, 'processFiles');
 
-        fsStatStub.onFirstCall().resolves({ isDirectory: () => false });
-        fsStatStub.onSecondCall().resolves({ isDirectory: () => false });
+        fsStatStub.onFirstCall().resolves({isDirectory: () => false});
+        fsStatStub.onSecondCall().resolves({isDirectory: () => false});
 
         let errored = false;
         try {
@@ -135,8 +135,8 @@ describe('#codegen/generator', () => {
         // Creating spy for processFiles
         const processFilesSpy = sandbox.spy(codeGen, 'processFiles');
 
-        fsStatStub.onFirstCall().resolves({ isDirectory: () => false });
-        fsStatStub.onSecondCall().resolves({ isDirectory: () => false });
+        fsStatStub.onFirstCall().resolves({isDirectory: () => false});
+        fsStatStub.onSecondCall().resolves({isDirectory: () => false});
 
         let errored = false;
         try {
@@ -193,11 +193,10 @@ describe('#codegen/generator', () => {
         // Creating spy for processFiles
         const processFilesSpy = sandbox.spy(codeGen, 'processFiles');
 
-        fsStatStub.onFirstCall().resolves({ isDirectory: () => false });
-        fsStatStub.onSecondCall().resolves({ isDirectory: () => false });
+        fsStatStub.onFirstCall().resolves({isDirectory: () => false});
+        fsStatStub.onSecondCall().resolves({isDirectory: () => false});
 
         function fakePublish() {
-          /*eslint-disable  @typescript-eslint/ban-ts-comment */
           //@ts-ignore
           assert.instanceOf(this, error.FileParseError);
           //@ts-ignore
@@ -311,7 +310,6 @@ describe('#codegen/generator', () => {
         } as unknown as ts.Program;
 
         function fakePublish() {
-          /*eslint-disable  @typescript-eslint/ban-ts-comment */
           //@ts-ignore
           assert.instanceOf(this, error.TypeCheckError);
           //@ts-ignore
@@ -552,7 +550,11 @@ describe('#codegen/generator', () => {
         const properties = codeGen.getInterfaceProperties(mockNode);
 
         assert.lengthOf(properties, 1);
-        assert.deepEqual(properties[0], { name: 'propertyName', type: 'typeString', protected: false });
+        assert.deepEqual(properties[0], {
+          name: 'propertyName',
+          type: 'typeString',
+          protected: false,
+        });
       });
 
       it('should throw a TypeCheckError when the ts compiler throws', () => {
@@ -628,18 +630,18 @@ describe('#codegen/generator', () => {
         const mockProperties = [
           {
             type: userTypeNode,
-            name: { text: 'user', kind: ts.SyntaxKind.PropertySignature },
+            name: {text: 'user', kind: ts.SyntaxKind.PropertySignature},
           } as unknown as ts.PropertySignature,
           {
             type: stateArrayTypeNode,
-            name: { text: 'states', kind: ts.SyntaxKind.PropertySignature },
+            name: {text: 'states', kind: ts.SyntaxKind.PropertySignature},
           } as unknown as ts.PropertySignature,
         ];
 
         // Create a mock InterfaceDeclaration
         const mockNode = {
           members: mockProperties,
-          name: { text: 'IComment', kind: ts.SyntaxKind.Identifier },
+          name: {text: 'IComment', kind: ts.SyntaxKind.Identifier},
         } as unknown as ts.InterfaceDeclaration;
 
         // Create a stub for ts.isPropertySignature

@@ -1,4 +1,4 @@
-import { database as databaseTypes, web as webTypes } from '@glyphx/types';
+import {databaseTypes, webTypes} from 'types';
 
 // STATE MUTATIONS
 
@@ -41,7 +41,7 @@ export const _createState = (
   return {
     url: '/api/state',
     options: {
-      body: { name: name, projectId: projectId, camera, imageHash, aspectRatio },
+      body: {name: name, projectId: projectId, camera, imageHash, aspectRatio},
       method: 'POST',
     },
     successMsg: 'State successfully created',
@@ -58,7 +58,7 @@ export const _deleteState = (id: string): webTypes.IFetchConfig => {
     url: `/api/state`,
     options: {
       method: 'DELETE',
-      body: { stateId: id },
+      body: {stateId: id},
     },
     successMsg: 'State has been deleted',
   };
@@ -70,11 +70,11 @@ export const _deleteState = (id: string): webTypes.IFetchConfig => {
  * @param id corresponds to state.slug in mongoDB
  * @param name corresponds to state.name in mongoDB
  */
-export const _updateStateName = ({ id, name }: { id: string; name: string }): webTypes.IFetchConfig => {
+export const _updateStateName = ({id, name}: {id: string; name: string}): webTypes.IFetchConfig => {
   return {
     url: `/api/state`,
     options: {
-      body: { name, stateId: id },
+      body: {name, stateId: id},
       method: 'PUT',
     },
     successMsg: 'State name successfully updated!',

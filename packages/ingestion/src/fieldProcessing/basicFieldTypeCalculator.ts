@@ -1,8 +1,8 @@
-import * as fieldProcessingInterfaces from '@interfaces/fieldProcessing';
-import {error} from '@glyphx/core';
+import * as fieldProcessingInterfaces from '../interfaces/fieldProcessing';
+import {error} from 'core';
 import {NumberFieldChecker} from './numberFieldChecker';
-// eslint-disable-next-line node/no-unpublished-import
-import {fileIngestion} from '@glyphx/types';
+
+import {fileIngestionTypes} from 'types';
 import {DateFieldChecker} from './dateFieldChecker';
 
 /**
@@ -17,15 +17,13 @@ export const MINIMUM_NUMBER_OF_SAMPLES = 100;
  * that we support, strings and floats (numbers).  See {@link interfaces/fieldProcessing/iFieldTypeCalculator!IFieldTypeCalulator}
  * for more details about fields and accessors not documented here.
  */
-export class BasicFieldTypeCalculator
-  implements fieldProcessingInterfaces.IFieldTypeCalulator
-{
+export class BasicFieldTypeCalculator implements fieldProcessingInterfaces.IFieldTypeCalulator {
   private readonly nameField: string;
   private readonly indexField: number;
   private readonly sampleRateField: number;
   private numberPassedField: number;
   private samplesAnalyzedField: number;
-  private fieldTypeField: fileIngestion.constants.FIELD_TYPE;
+  private fieldTypeField: fileIngestionTypes.constants.FIELD_TYPE;
   private hasProcessedItemsField: boolean;
   private allItemsProcessedField: boolean;
 
@@ -75,10 +73,7 @@ export class BasicFieldTypeCalculator
    */
   get numberPassed(): number {
     if (!this.hasProcessedItemsField) {
-      throw new error.InvalidOperationError(
-        'This information is not available until processItems has been called',
-        {}
-      );
+      throw new error.InvalidOperationError('This information is not available until processItems has been called', {});
     }
     return this.numberPassedField;
   }
@@ -88,10 +83,7 @@ export class BasicFieldTypeCalculator
    */
   get samplesAnalyzed(): number {
     if (!this.hasProcessedItemsField) {
-      throw new error.InvalidOperationError(
-        'This information is not available until processItems has been called',
-        {}
-      );
+      throw new error.InvalidOperationError('This information is not available until processItems has been called', {});
     }
     return this.samplesAnalyzedField;
   }
@@ -99,12 +91,9 @@ export class BasicFieldTypeCalculator
    * See the interface IFieldTypeCalculator for more information --
    * {@link interfaces/fieldProcessing/iFieldTypeCalculator!IFieldTypeCalulator.fieldType | IFieldTypeCalculator.fieldType}
    */
-  get fieldType(): fileIngestion.constants.FIELD_TYPE {
+  get fieldType(): fileIngestionTypes.constants.FIELD_TYPE {
     if (!this.hasProcessedItemsField) {
-      throw new error.InvalidOperationError(
-        'This information is not available until processItems has been called',
-        {}
-      );
+      throw new error.InvalidOperationError('This information is not available until processItems has been called', {});
     }
     return this.fieldTypeField;
   }
@@ -138,7 +127,7 @@ export class BasicFieldTypeCalculator
     this.sampleRateField = sampleRate;
     this.numberPassedField = 0;
     this.samplesAnalyzedField = 0;
-    this.fieldTypeField = fileIngestion.constants.FIELD_TYPE.UNKNOWN;
+    this.fieldTypeField = fileIngestionTypes.constants.FIELD_TYPE.UNKNOWN;
     this.hasProcessedItemsField = false;
     this.allItemsProcessedField = false;
     this.numberOfStrings = 0;
@@ -151,22 +140,18 @@ export class BasicFieldTypeCalculator
   /**
    * will evaluate the values of {@link numberOfStrings} and {@link numberOfNumbers} to
    * determne our {@link fieldType}.  In the case of an equal number of each, the field
-   * type will be set to {@link util/constants/fieldType!FIELD_TYPE.STRING | fileIngestion.constants.FIELD_TYPE.STRING}
+   * type will be set to {@link util/constants/fieldType!FIELD_TYPE.STRING | fileIngestionTypes.constants.FIELD_TYPE.STRING}
    */
   private calculateFieldType(): void {
-    const percentNumber =
-      this.numberOfNumbers /
-      (this.numberOfNumbers + this.numberOfStrings + this.numberOfDates);
+    const percentNumber = this.numberOfNumbers / (this.numberOfNumbers + this.numberOfStrings + this.numberOfDates);
 
-    const percentDate =
-      this.numberOfDates /
-      (this.numberOfDates + this.numberOfStrings + this.numberOfNumbers);
+    const percentDate = this.numberOfDates / (this.numberOfDates + this.numberOfStrings + this.numberOfNumbers);
     this.fieldTypeField =
       percentNumber < 0.65 && percentDate < 0.65
-        ? fileIngestion.constants.FIELD_TYPE.STRING
+        ? fileIngestionTypes.constants.FIELD_TYPE.STRING
         : percentNumber > percentDate
-        ? fileIngestion.constants.FIELD_TYPE.NUMBER
-        : fileIngestion.constants.FIELD_TYPE.DATE;
+        ? fileIngestionTypes.constants.FIELD_TYPE.NUMBER
+        : fileIngestionTypes.constants.FIELD_TYPE.DATE;
     this.hasProcessedItemsField = true;
   }
 
@@ -183,8 +168,7 @@ export class BasicFieldTypeCalculator
     if (isDate) this.numberOfDates++;
     if (!isNumber && !isDate) this.numberOfStrings++;
 
-    if (!(this.samplesAnalyzedField % MINIMUM_NUMBER_OF_SAMPLES))
-      this.calculateFieldType();
+    if (!(this.samplesAnalyzedField % MINIMUM_NUMBER_OF_SAMPLES)) this.calculateFieldType();
   }
 
   /**
@@ -200,7 +184,7 @@ export class BasicFieldTypeCalculator
    */
   processItemsSync(value: string | string[]): void {
     if (Array.isArray(value)) {
-      value.forEach(v => {
+      value.forEach((v) => {
         this.numberPassedField++;
         this.validateField(v);
       });
@@ -213,15 +197,12 @@ export class BasicFieldTypeCalculator
    * See the interface IFieldTypeCalculator for more information -- {@link interfaces/fieldProcessing/iFieldTypeCalculator!IFieldTypeCalulator.processItems | IFieldTypeCalculator.processItems}
    */
   processItems(itemsStream: NodeJS.ReadableStream): void {
-    itemsStream.on('data', chunk => {
+    itemsStream.on('data', (chunk) => {
       const value = chunk.toString();
       this.numberPassedField++;
       if (this.numberPassedField <= MINIMUM_NUMBER_OF_SAMPLES) {
         this.validateField(value);
-      } else if (
-        this.samplesAnalyzedField / this.numberPassedField <
-        this.sampleRateField
-      ) {
+      } else if (this.samplesAnalyzedField / this.numberPassedField < this.sampleRateField) {
         this.validateField(value);
       }
     });

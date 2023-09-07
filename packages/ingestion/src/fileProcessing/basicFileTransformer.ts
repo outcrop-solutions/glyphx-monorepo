@@ -1,10 +1,10 @@
 import {Transform, TransformCallback} from 'node:stream';
-import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
-import * as fieldProcessingInterfaces from '@interfaces/fieldProcessing';
-import {FILE_PROCESSING_ERROR_TYPES} from '@util/constants';
-import {NumberFieldChecker, DateFieldChecker} from '@fieldProcessing';
+import * as fileProcessingInterfaces from '../interfaces/fileProcessing';
+import * as fieldProcessingInterfaces from '../interfaces/fieldProcessing';
+import {FILE_PROCESSING_ERROR_TYPES} from '../util/constants';
+import {NumberFieldChecker, DateFieldChecker} from '../fieldProcessing';
 //eslint-disable-next-line
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 /**
  * After further reading and research. I was able to find
  * the Parquet transformer so I can create a similar approach.
@@ -101,7 +101,7 @@ export class BasicFileTransformer extends Transform {
    * reported back through a callback.
    */
 
-  private readonly fileOperation: fileIngestion.constants.FILE_OPERATION;
+  private readonly fileOperation: fileIngestionTypes.constants.FILE_OPERATION;
   /**
    * Once all data has been read, this will be called to report out the results.
    * See {@link interfaces/fileProcessing/iFileInformation!FileInformationCallback} for additional
@@ -162,7 +162,7 @@ export class BasicFileTransformer extends Transform {
     outputFileName: string,
     outputDirectory: string,
     tableName: string,
-    fileOperation: fileIngestion.constants.FILE_OPERATION,
+    fileOperation: fileIngestionTypes.constants.FILE_OPERATION,
     callback: fileProcessingInterfaces.FileInformationCallback,
     errorCallback: fileProcessingInterfaces.FileProcessingErrorHandler,
     fieldTypeCalculator: fieldProcessingInterfaces.IConstructableFieldTypeCalculator,
@@ -203,14 +203,13 @@ export class BasicFileTransformer extends Transform {
    * Puts the data together for the callback
    */
   private getDataForCallback(): fileProcessingInterfaces.IFileInformation {
-    const columns = this.columTypeTrackers.map(c => {
+    const columns = this.columTypeTrackers.map((c) => {
       return {
         name: c.columnName,
         origionalName: c.origionalColumnName,
         fieldType: c.fieldTypeCalculator.fieldType,
         longestString:
-          c.fieldTypeCalculator.fieldType ===
-          fileIngestion.constants.FIELD_TYPE.STRING
+          c.fieldTypeCalculator.fieldType === fileIngestionTypes.constants.FIELD_TYPE.STRING
             ? c.maxFieldLength
             : undefined,
       };
@@ -218,7 +217,7 @@ export class BasicFileTransformer extends Transform {
     columns.unshift({
       name: GLYPHX_ID_COLUMN_NAME,
       origionalName: GLYPHX_ID_COLUMN_NAME,
-      fieldType: fileIngestion.constants.FIELD_TYPE.INTEGER,
+      fieldType: fileIngestionTypes.constants.FIELD_TYPE.INTEGER,
       longestString: undefined,
     });
     return {
@@ -241,7 +240,7 @@ export class BasicFileTransformer extends Transform {
    */
   public override _flush(callback: TransformCallback) {
     if (this.savedRows.length) {
-      this.columTypeTrackers.forEach(c => c.fieldTypeCalculator.finish());
+      this.columTypeTrackers.forEach((c) => c.fieldTypeCalculator.finish());
       this.sendSavedRows();
     }
     callback();
@@ -256,11 +255,7 @@ export class BasicFileTransformer extends Transform {
     let fieldNumber = -1;
     for (const key in chunk) {
       fieldNumber++;
-      const fieldTypeCalculator = new this.fieldTypeCalculator(
-        key,
-        fieldNumber,
-        1
-      );
+      const fieldTypeCalculator = new this.fieldTypeCalculator(key, fieldNumber, 1);
       const columnName = this.columnNameCleaner.cleanColumnName(key);
       this.columTypeTrackers.push({
         columnName: columnName,
@@ -284,22 +279,18 @@ export class BasicFileTransformer extends Transform {
       optional: false,
     };
 
-    this.columTypeTrackers.forEach(c => {
+    this.columTypeTrackers.forEach((c) => {
       retval[c.columnName] = {
         //We are going to store our dates as numbers in the database.
         type:
-          c.fieldTypeCalculator.fieldType ===
-            fileIngestion.constants.FIELD_TYPE.NUMBER ||
-          c.fieldTypeCalculator.fieldType ===
-            fileIngestion.constants.FIELD_TYPE.DATE
+          c.fieldTypeCalculator.fieldType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER ||
+          c.fieldTypeCalculator.fieldType === fileIngestionTypes.constants.FIELD_TYPE.DATE
             ? 'DOUBLE'
             : 'UTF8',
         encoding: 'PLAIN',
         optional:
-          c.fieldTypeCalculator.fieldType ===
-            fileIngestion.constants.FIELD_TYPE.NUMBER ||
-          c.fieldTypeCalculator.fieldType ===
-            fileIngestion.constants.FIELD_TYPE.DATE,
+          c.fieldTypeCalculator.fieldType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER ||
+          c.fieldTypeCalculator.fieldType === fileIngestionTypes.constants.FIELD_TYPE.DATE,
       };
     });
 
@@ -316,7 +307,7 @@ export class BasicFileTransformer extends Transform {
     let columnIndex = 0;
     for (const key in chunk) {
       const fieldTypeCalculator = this.columTypeTrackers.find(
-        c => c.origionalColumnName === key
+        (c) => c.origionalColumnName === key
       ) as IColumnTypeTracker;
       const dirtyValue = chunk[key];
       let value: unknown = null;
@@ -326,15 +317,11 @@ export class BasicFileTransformer extends Transform {
       try {
         //not sure why nyc is not seeing us hit the branch on line 135
         //istanbul ignore next
-        if (
-          fieldTypeCalculator?.fieldTypeCalculator.fieldType ===
-          fileIngestion.constants.FIELD_TYPE.DATE
-        ) {
+        if (fieldTypeCalculator?.fieldTypeCalculator.fieldType === fileIngestionTypes.constants.FIELD_TYPE.DATE) {
           //convert the date to milliseconds
           value = this.dateFieldChecker.convertField(dirtyValue).getTime();
         } else if (
-          fieldTypeCalculator?.fieldTypeCalculator.fieldType ===
-          fileIngestion.constants.FIELD_TYPE.NUMBER
+          fieldTypeCalculator?.fieldTypeCalculator.fieldType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER
         ) {
           value = this.numberFieldChecker.convertField(dirtyValue);
         } else {
@@ -370,7 +357,7 @@ export class BasicFileTransformer extends Transform {
    * Once we know what our data types are, this function will call buildParquertSchema to beuild the schema,  and then send the schema and along with clean versions of our saved rows.
    */
   private sendSavedRows(): void {
-    this.columTypeTrackers.forEach(c => c.fieldTypeCalculator.finish());
+    this.columTypeTrackers.forEach((c) => c.fieldTypeCalculator.finish());
 
     this.savedRows.forEach((r, index) => {
       if (index === 0) {
@@ -392,9 +379,7 @@ export class BasicFileTransformer extends Transform {
   private checkFieldType(chunk: any): void {
     for (const key in chunk) {
       const value = chunk[key];
-      const fieldTypeCalculator = this.columTypeTrackers.find(
-        c => c.origionalColumnName === key
-      );
+      const fieldTypeCalculator = this.columTypeTrackers.find((c) => c.origionalColumnName === key);
       //istanbul ignore next
       //eslint-disable-next-line
       if (value != null)
@@ -411,11 +396,7 @@ export class BasicFileTransformer extends Transform {
    * @param encoding -- is not used.
    * @param callback -- must be caled to let the pipeline know that we have successfuly processed the data.
    */
-  public override _transform(
-    chunk: any,
-    encoding: BufferEncoding,
-    callback: TransformCallback
-  ): void {
+  public override _transform(chunk: any, encoding: BufferEncoding, callback: TransformCallback): void {
     //TODO: we need some exception handling here.  We cannot allow an uncaught exception to bubble up and crash the pipeline.
     //we should catch the error and then emit on 'error' event.   Not sure yet what we should do if the first row fails.
     //if any other row fails we should log it and move on.

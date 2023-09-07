@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import {BasicHiveQueryPlanner} from '@fileProcessing';
-import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
-import {fileIngestion} from '@glyphx/types';
+import * as fileProcessingInterfaces from 'interfaces/fileProcessing';
+import {fileIngestionTypes} from 'types';
 
 //$1 = our tableName -- this is case sensitive
 const FROM_REGEX_TEMPLATE = '[Ff][Rr][Oo][Mm]\\s*$1\\s*(?:[Aa][Ss]\\s*)?$2\\s*';
@@ -20,16 +20,11 @@ const JOIN_NO_ON_REGEX_TEMPLATE =
 
 //This uses the same args as JOIN_REGEX_TEMPLATE except or $a.
 //$a is replaced with the column number minimum of $5.
-const SUB_JOIN_REGEX_TEMPLATE =
-  '\\s*[Aa][Nn][Dd]\\s*$3.$a(?:\\s*)?=(?:\\s*)?$2.$a(?:\\s*)?';
+const SUB_JOIN_REGEX_TEMPLATE = '\\s*[Aa][Nn][Dd]\\s*$3.$a(?:\\s*)?=(?:\\s*)?$2.$a(?:\\s*)?';
 
 const SELECT_REGEX_TEMPLATE = 'SELECT(.+?)FROM';
 
-export function buildRegex(
-  templateString: string,
-  globalArgs: string,
-  ...args: string[]
-): RegExp {
+export function buildRegex(templateString: string, globalArgs: string, ...args: string[]): RegExp {
   let tempString = templateString;
 
   let extraArgNumber = -1;
@@ -46,10 +41,7 @@ export function buildRegex(
   return new RegExp(tempString, globalArgs);
 }
 
-export function testSelectResults(
-  inputs: fileProcessingInterfaces.IJoinTableDefinition[],
-  query: string
-) {
+export function testSelectResults(inputs: fileProcessingInterfaces.IJoinTableDefinition[], query: string) {
   const selectRegex = new RegExp(SELECT_REGEX_TEMPLATE, 'gms');
   assert.isTrue(selectRegex.test(query));
 
@@ -63,73 +55,50 @@ export function testSelectResults(
   const selectedFields = results?.[1].trim() ?? '';
 
   //let's make sure that our select does not end with a ','.
-  assert.notStrictEqual(
-    selectedFields.substring(selectedFields.length - 1),
-    ','
-  );
+  assert.notStrictEqual(selectedFields.substring(selectedFields.length - 1), ',');
 
   const selectedFieldsArray = selectedFields.split(',');
   //we are going to test this each way.  First input columns against the query string, then the query string against the inputs
-  inputs.forEach(t => {
+  inputs.forEach((t) => {
     t.columns
-      .filter(c => c.isSelectedColumn)
-      .forEach(c => {
+      .filter((c) => c.isSelectedColumn)
+      .forEach((c) => {
         assert.isOk(
-          selectedFieldsArray.find(
-            s => s === `${t.tableAlias}."${c.columnName}"`
-          ),
+          selectedFieldsArray.find((s) => s === `${t.tableAlias}."${c.columnName}"`),
           `${t.tableName} - ${c.columnName}`
         );
       });
   });
 
-  selectedFieldsArray.forEach(s => {
+  selectedFieldsArray.forEach((s) => {
     const split = s.split('.');
     assert.strictEqual(split.length, 2);
 
     const alias = split[0];
     const field = split[1].replace(/"/g, '');
 
-    const tableDef = inputs.find(t => t.tableAlias === alias);
+    const tableDef = inputs.find((t) => t.tableAlias === alias);
     assert.isOk(tableDef);
 
-    const column = tableDef?.columns.find(c => c.columnName === field);
+    const column = tableDef?.columns.find((c) => c.columnName === field);
     assert.isOk(column);
 
     assert.isTrue(column?.isSelectedColumn);
   });
 }
 
-export function testFromJoinSyntax(
-  tableDef: fileProcessingInterfaces.IJoinTableDefinition,
-  query: string
-) {
+export function testFromJoinSyntax(tableDef: fileProcessingInterfaces.IJoinTableDefinition, query: string) {
   let regex: RegExp;
 
   if (tableDef.tableIndex === 0) {
-    regex = buildRegex(
-      FROM_REGEX_TEMPLATE,
-      'gm',
-      tableDef.tableName,
-      tableDef.tableAlias
-    );
+    regex = buildRegex(FROM_REGEX_TEMPLATE, 'gm', tableDef.tableName, tableDef.tableAlias);
   } else if (!tableDef.joinTable) {
-    regex = buildRegex(
-      JOIN_NO_ON_REGEX_TEMPLATE,
-      'gm',
-      tableDef.tableName,
-      tableDef.tableAlias
-    );
+    regex = buildRegex(JOIN_NO_ON_REGEX_TEMPLATE, 'gm', tableDef.tableName, tableDef.tableAlias);
   } else {
-    const joinColumns = tableDef.columns
-      .filter(c => c.isJoinColumn)
-      .map(c => c.columnName);
+    const joinColumns = tableDef.columns.filter((c) => c.isJoinColumn).map((c) => c.columnName);
     let joinRegEx = JOIN_REGEX_TEMPLATE;
     for (let i = 1; i < joinColumns.length; i++) {
-      joinRegEx += SUB_JOIN_REGEX_TEMPLATE.replace(
-        /\$a/g,
-        `$${(i + 4).toString()}`
-      );
+      joinRegEx += SUB_JOIN_REGEX_TEMPLATE.replace(/\$a/g, `$${(i + 4).toString()}`);
     }
     regex = buildRegex(
       joinRegEx,
@@ -137,9 +106,7 @@ export function testFromJoinSyntax(
       tableDef.tableName,
       tableDef.tableAlias,
       tableDef.joinTable?.tableAlias ?? '',
-      ...tableDef.columns
-        .filter(c => c.isJoinColumn)
-        .map(c => `"${c.columnName}"`)
+      ...tableDef.columns.filter((c) => c.isJoinColumn).map((c) => `"${c.columnName}"`)
     );
   }
   assert.isTrue(regex.test(query), tableDef.tableName);
@@ -160,7 +127,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: tableDef,
         columnIndex: 0,
         columnName: 'column1',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -169,7 +136,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: tableDef,
         columnIndex: 1,
         columnName: 'column2',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -192,7 +159,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: secondTable,
         columnIndex: 0,
         columnName: 'column1',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: true,
         isSelectedColumn: false,
       });
@@ -201,7 +168,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: secondTable,
         columnIndex: 1,
         columnName: 'column3',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -225,7 +192,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: secondTable,
         columnIndex: 0,
         columnName: 'column1',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: true,
         isSelectedColumn: false,
       });
@@ -234,7 +201,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: secondTable,
         columnIndex: 1,
         columnName: 'column2',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: true,
         isSelectedColumn: false,
       });
@@ -243,7 +210,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: secondTable,
         columnIndex: 2,
         columnName: 'column3',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -268,7 +235,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: thirdTable,
         columnIndex: 0,
         columnName: 'column1',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: true,
         isSelectedColumn: false,
       });
@@ -277,7 +244,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: thirdTable,
         columnIndex: 2,
         columnName: 'column3',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -300,7 +267,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: secondTable,
         columnIndex: 0,
         columnName: 'column1',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -309,7 +276,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: secondTable,
         columnIndex: 1,
         columnName: 'column3',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -325,7 +292,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
       const query = queryPlanner.defineQuery(joinMock);
       assert.isOk(query);
       testSelectResults(joinMock, query);
-      joinMock.forEach(t => {
+      joinMock.forEach((t) => {
         testFromJoinSyntax(t, query);
       });
     });
@@ -336,7 +303,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
       assert.isOk(query);
 
       testSelectResults(joinMock, query);
-      joinMock.forEach(t => {
+      joinMock.forEach((t) => {
         testFromJoinSyntax(t, query);
       });
     });
@@ -347,7 +314,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
       assert.isOk(query);
 
       testSelectResults(joinMock, query);
-      joinMock.forEach(t => {
+      joinMock.forEach((t) => {
         testFromJoinSyntax(t, query);
       });
     });
@@ -359,7 +326,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
       assert.isOk(query);
 
       testSelectResults(joinMock, query);
-      joinMock.forEach(t => {
+      joinMock.forEach((t) => {
         testFromJoinSyntax(t, query);
       });
     });
@@ -370,7 +337,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
       assert.isOk(query);
 
       testSelectResults(joinMock, query);
-      joinMock.forEach(t => {
+      joinMock.forEach((t) => {
         testFromJoinSyntax(t, query);
       });
     });
@@ -390,7 +357,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: tableDef,
         columnIndex: 0,
         columnName: 'column1',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -399,7 +366,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
         tableDefinition: tableDef,
         columnIndex: 1,
         columnName: 'column2',
-        columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+        columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         isJoinColumn: false,
         isSelectedColumn: true,
       });
@@ -410,7 +377,7 @@ describe('#fileProcessing/BasicHiveQueryPlanner', () => {
       const q2 = queryPlanner.query;
 
       testSelectResults([tableDef], q2);
-      [tableDef].forEach(t => {
+      [tableDef].forEach((t) => {
         testFromJoinSyntax(t, q2);
       });
     });

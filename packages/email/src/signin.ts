@@ -1,6 +1,6 @@
 type Email = string | null;
 type Url = string | null;
-function html({ email, url }: { email: Email; url: Url }): string {
+function html({email, url}: {email: Email; url: Url}): string {
   return `
 <body>
     <p>Welcome! You are logging in with ${email}</p>
@@ -13,7 +13,7 @@ function html({ email, url }: { email: Email; url: Url }): string {
 `;
 }
 
-function text({ email, url }: { email: Email; url: Url }): string {
+function text({email, url}: {email: Email; url: Url}): string {
   return `
 Welcome! You are logging in with ${email}
 
@@ -28,4 +28,4 @@ ${process.env.EMAIL_FROM}
 `;
 }
 
-export { html, text };
+export {html, text};

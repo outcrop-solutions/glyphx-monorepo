@@ -11,7 +11,7 @@ describe('#io/sgnStream', () => {
       const rStream = new Readable({
         objectMode: true,
         read: () => {
-          MOCK_GLYPH_DATA.forEach(data => rStream.push(data));
+          MOCK_GLYPH_DATA.forEach((data) => rStream.push(data));
           rStream.push(null);
         },
       });

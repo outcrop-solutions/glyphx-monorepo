@@ -1,17 +1,9 @@
-import {IQueryResult, database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, databaseTypes} from 'types';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
-import {
-  IVerificationTokenMethods,
-  IVerificationTokenStaticMethods,
-  IVerificationTokenDocument,
-} from '../interfaces';
-import {error} from '@glyphx/core';
+import {IVerificationTokenMethods, IVerificationTokenStaticMethods, IVerificationTokenDocument} from '../interfaces';
+import {error} from 'core';
 
-const SCHEMA = new Schema<
-  IVerificationTokenDocument,
-  IVerificationTokenStaticMethods,
-  IVerificationTokenMethods
->({
+const SCHEMA = new Schema<IVerificationTokenDocument, IVerificationTokenStaticMethods, IVerificationTokenMethods>({
   identifier: {type: String, required: true},
   token: {type: String, required: true},
   expires: {
@@ -23,42 +15,34 @@ const SCHEMA = new Schema<
   },
 });
 
-SCHEMA.static(
-  'verificationTokenIdExists',
-  async (verificationTokenId: mongooseTypes.ObjectId): Promise<boolean> => {
-    let retval = false;
-    try {
-      const result = await VERIFICATION_TOKEN_MODEL.findById(
-        verificationTokenId,
-        ['_id']
-      );
-      if (result) retval = true;
-    } catch (err) {
-      throw new error.DatabaseOperationError(
-        'an unexpected error occurred while trying to find the verificationToken.  See the inner error for additional information',
-        'mongoDb',
-        'verificationTokenIdExists',
-        {_id: verificationTokenId},
-        err
-      );
-    }
-    return retval;
+SCHEMA.static('verificationTokenIdExists', async (verificationTokenId: mongooseTypes.ObjectId): Promise<boolean> => {
+  let retval = false;
+  try {
+    const result = await VERIFICATION_TOKEN_MODEL.findById(verificationTokenId, ['_id']);
+    if (result) retval = true;
+  } catch (err) {
+    throw new error.DatabaseOperationError(
+      'an unexpected error occurred while trying to find the verificationToken.  See the inner error for additional information',
+      'mongoDb',
+      'verificationTokenIdExists',
+      {_id: verificationTokenId},
+      err
+    );
   }
-);
+  return retval;
+});
 
 SCHEMA.static(
   'allVerificationTokenIdsExist',
   async (verificationTokenIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
     try {
       const notFoundIds: mongooseTypes.ObjectId[] = [];
-      const foundIds = (await VERIFICATION_TOKEN_MODEL.find(
-        {_id: {$in: verificationTokenIds}},
-        ['_id']
-      )) as {_id: mongooseTypes.ObjectId}[];
+      const foundIds = (await VERIFICATION_TOKEN_MODEL.find({_id: {$in: verificationTokenIds}}, ['_id'])) as {
+        _id: mongooseTypes.ObjectId;
+      }[];
 
-      verificationTokenIds.forEach(id => {
-        if (!foundIds.find(fid => fid._id.toString() === id.toString()))
-          notFoundIds.push(id);
+      verificationTokenIds.forEach((id) => {
+        if (!foundIds.find((fid) => fid._id.toString() === id.toString())) notFoundIds.push(id);
       });
 
       if (notFoundIds.length) {
@@ -84,108 +68,91 @@ SCHEMA.static(
   }
 );
 
-SCHEMA.static(
-  'getVerificationTokenById',
-  async (verificationTokenId: mongooseTypes.ObjectId) => {
-    try {
-      const verificationTokenDocument =
-        (await VERIFICATION_TOKEN_MODEL.findById(
-          verificationTokenId
-        ).lean()) as databaseTypes.IVerificationToken;
-      if (!verificationTokenDocument) {
-        throw new error.DataNotFoundError(
-          `Could not find a verificationToken with the _id: ${verificationTokenId}`,
-          'verificationToken_id',
-          verificationTokenId
-        );
-      }
-      //this is added by mongoose, so we will want to remove it before returning the document
-      //to the user.
-      delete (verificationTokenDocument as any)['__v'];
-
-      return verificationTokenDocument;
-    } catch (err) {
-      if (err instanceof error.DataNotFoundError) throw err;
-      else
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurred while getting the verificationToken.  See the inner error for additional information',
-          'mongoDb',
-          'getVerificationTokenById',
-          err
-        );
+SCHEMA.static('getVerificationTokenById', async (verificationTokenId: mongooseTypes.ObjectId) => {
+  try {
+    const verificationTokenDocument = (await VERIFICATION_TOKEN_MODEL.findById(
+      verificationTokenId
+    ).lean()) as databaseTypes.IVerificationToken;
+    if (!verificationTokenDocument) {
+      throw new error.DataNotFoundError(
+        `Could not find a verificationToken with the _id: ${verificationTokenId}`,
+        'verificationToken_id',
+        verificationTokenId
+      );
     }
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    delete (verificationTokenDocument as any)['__v'];
+
+    return verificationTokenDocument;
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the verificationToken.  See the inner error for additional information',
+        'mongoDb',
+        'getVerificationTokenById',
+        err
+      );
   }
-);
+});
 
-SCHEMA.static(
-  'queryVerificationTokens',
-  async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
-    try {
-      const count = await VERIFICATION_TOKEN_MODEL.count(filter);
+SCHEMA.static('queryVerificationTokens', async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+  try {
+    const count = await VERIFICATION_TOKEN_MODEL.count(filter);
 
-      if (!count) {
-        throw new error.DataNotFoundError(
-          `Could not find verification tokens with the filter: ${filter}`,
-          'queryVerificationTokens',
-          filter
-        );
-      }
-
-      const skip = itemsPerPage * page;
-      if (skip > count) {
-        throw new error.InvalidArgumentError(
-          `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
-            count / itemsPerPage
-          )}`,
-          'page',
-          page
-        );
-      }
-
-      const verificationTokenDocuments = (await VERIFICATION_TOKEN_MODEL.find(
-        filter,
-        null,
-        {
-          skip: skip,
-          limit: itemsPerPage,
-        }
-      ).lean()) as databaseTypes.IVerificationToken[];
-      //this is added by mongoose, so we will want to remove it before returning the document
-      //to the user.
-      verificationTokenDocuments.forEach((doc: any) => {
-        delete (doc as any)['__v'];
-      });
-
-      const retval: IQueryResult<databaseTypes.IVerificationToken> = {
-        results: verificationTokenDocuments,
-        numberOfItems: count,
-        page: page,
-        itemsPerPage: itemsPerPage,
-      };
-
-      return retval;
-    } catch (err) {
-      if (
-        err instanceof error.DataNotFoundError ||
-        err instanceof error.InvalidArgumentError
-      )
-        throw err;
-      else
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurred while querying the verification tokens.  See the inner error for additional information',
-          'mongoDb',
-          'queryProjectTemplates',
-          err
-        );
+    if (!count) {
+      throw new error.DataNotFoundError(
+        `Could not find verification tokens with the filter: ${filter}`,
+        'queryVerificationTokens',
+        filter
+      );
     }
+
+    const skip = itemsPerPage * page;
+    if (skip > count) {
+      throw new error.InvalidArgumentError(
+        `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
+          count / itemsPerPage
+        )}`,
+        'page',
+        page
+      );
+    }
+
+    const verificationTokenDocuments = (await VERIFICATION_TOKEN_MODEL.find(filter, null, {
+      skip: skip,
+      limit: itemsPerPage,
+    }).lean()) as databaseTypes.IVerificationToken[];
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    verificationTokenDocuments.forEach((doc: any) => {
+      delete (doc as any)['__v'];
+    });
+
+    const retval: IQueryResult<databaseTypes.IVerificationToken> = {
+      results: verificationTokenDocuments,
+      numberOfItems: count,
+      page: page,
+      itemsPerPage: itemsPerPage,
+    };
+
+    return retval;
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError || err instanceof error.InvalidArgumentError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while querying the verification tokens.  See the inner error for additional information',
+        'mongoDb',
+        'queryProjectTemplates',
+        err
+      );
   }
-);
+});
 
 SCHEMA.static(
   'createVerificationToken',
-  async (
-    input: Omit<databaseTypes.IVerificationToken, '_id'>
-  ): Promise<databaseTypes.IVerificationToken> => {
+  async (input: Omit<databaseTypes.IVerificationToken, '_id'>): Promise<databaseTypes.IVerificationToken> => {
     const transformedDocument: IVerificationTokenDocument = {
       identifier: input.identifier,
       token: input.token,
@@ -209,9 +176,7 @@ SCHEMA.static(
           validateBeforeSave: false,
         })
       )[0];
-      return await VERIFICATION_TOKEN_MODEL.getVerificationTokenById(
-        createdDocument._id
-      );
+      return await VERIFICATION_TOKEN_MODEL.getVerificationTokenById(createdDocument._id);
     } catch (err) {
       throw new error.DatabaseOperationError(
         'An unexpected error occurred wile creating the verificationToken. See the inner error for additional information',
@@ -226,18 +191,11 @@ SCHEMA.static(
 
 SCHEMA.static(
   'validateUpdateObject',
-  async (
-    verificationToken: Omit<Partial<databaseTypes.IVerificationToken>, '_id'>
-  ): Promise<void> => {
+  async (verificationToken: Omit<Partial<databaseTypes.IVerificationToken>, '_id'>): Promise<void> => {
     if ((verificationToken as unknown as databaseTypes.IVerificationToken)._id)
-      throw new error.InvalidOperationError(
-        "A VerificationToken's _id is imutable and cannot be changed",
-        {
-          _id: (
-            verificationToken as unknown as databaseTypes.IVerificationToken
-          )._id,
-        }
-      );
+      throw new error.InvalidOperationError("A VerificationToken's _id is imutable and cannot be changed", {
+        _id: (verificationToken as unknown as databaseTypes.IVerificationToken)._id,
+      });
   }
 );
 
@@ -249,18 +207,14 @@ SCHEMA.static(
   ): Promise<boolean> => {
     await VERIFICATION_TOKEN_MODEL.validateUpdateObject(verificationToken);
     try {
-      const transformedVerificationToken: Partial<IVerificationTokenDocument> &
-        Record<string, any> = {};
+      const transformedVerificationToken: Partial<IVerificationTokenDocument> & Record<string, any> = {};
       for (const key in verificationToken) {
         const value = (verificationToken as Record<string, any>)[key];
 
         //we only store the user id in our account collection
         transformedVerificationToken[key] = value;
       }
-      const updateResult = await VERIFICATION_TOKEN_MODEL.updateOne(
-        filter,
-        transformedVerificationToken
-      );
+      const updateResult = await VERIFICATION_TOKEN_MODEL.updateOne(filter, transformedVerificationToken);
       if (updateResult.modifiedCount !== 1) {
         throw new error.InvalidArgumentError(
           `No verificationToken document with filter: ${filter} was found`,
@@ -269,11 +223,7 @@ SCHEMA.static(
         );
       }
     } catch (err) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      )
-        throw err;
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) throw err;
       else
         throw new error.DatabaseOperationError(
           `An unexpected error occurred while updating the verificationToken with filter :${filter}.  See the inner error for additional information`,
@@ -293,52 +243,44 @@ SCHEMA.static(
     verificationTokenId: mongooseTypes.ObjectId,
     verificationToken: Omit<Partial<databaseTypes.IVerificationToken>, '_id'>
   ): Promise<databaseTypes.IVerificationToken> => {
-    await VERIFICATION_TOKEN_MODEL.updateVerificationTokenWithFilter(
-      {_id: verificationTokenId},
-      verificationToken
-    );
-    const retval = await VERIFICATION_TOKEN_MODEL.getVerificationTokenById(
-      verificationTokenId
-    );
+    await VERIFICATION_TOKEN_MODEL.updateVerificationTokenWithFilter({_id: verificationTokenId}, verificationToken);
+    const retval = await VERIFICATION_TOKEN_MODEL.getVerificationTokenById(verificationTokenId);
     return retval;
   }
 );
 
-SCHEMA.static(
-  'deleteVerificationTokenById',
-  async (verificationTokenId: mongooseTypes.ObjectId): Promise<void> => {
-    try {
-      const results = await VERIFICATION_TOKEN_MODEL.deleteOne({
-        _id: verificationTokenId,
-      });
-      if (results.deletedCount !== 1)
-        throw new error.InvalidArgumentError(
-          `An verificationToken with a _id: ${verificationTokenId} was not found in the database`,
-          '_id',
-          verificationTokenId
-        );
-    } catch (err) {
-      if (err instanceof error.InvalidArgumentError) throw err;
-      else
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurred while deleteing the verificationToken from the database. The verificationToken may still exist.  See the inner error for additional information',
-          'mongoDb',
-          'delete verificationToken',
-          {_id: verificationTokenId},
-          err
-        );
-    }
+SCHEMA.static('deleteVerificationTokenById', async (verificationTokenId: mongooseTypes.ObjectId): Promise<void> => {
+  try {
+    const results = await VERIFICATION_TOKEN_MODEL.deleteOne({
+      _id: verificationTokenId,
+    });
+    if (results.deletedCount !== 1)
+      throw new error.InvalidArgumentError(
+        `An verificationToken with a _id: ${verificationTokenId} was not found in the database`,
+        '_id',
+        verificationTokenId
+      );
+  } catch (err) {
+    if (err instanceof error.InvalidArgumentError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while deleteing the verificationToken from the database. The verificationToken may still exist.  See the inner error for additional information',
+        'mongoDb',
+        'delete verificationToken',
+        {_id: verificationTokenId},
+        err
+      );
   }
-);
+});
 
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 
 delete MODELS['verificationToken'];
 
-const VERIFICATION_TOKEN_MODEL = model<
-  IVerificationTokenDocument,
-  IVerificationTokenStaticMethods
->('verificationToken', SCHEMA);
+const VERIFICATION_TOKEN_MODEL = model<IVerificationTokenDocument, IVerificationTokenStaticMethods>(
+  'verificationToken',
+  SCHEMA
+);
 
 export {VERIFICATION_TOKEN_MODEL as VerificationTokenModel};

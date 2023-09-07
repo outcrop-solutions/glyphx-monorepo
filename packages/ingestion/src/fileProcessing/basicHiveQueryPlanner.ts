@@ -1,13 +1,11 @@
-import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
+import * as fileProcessingInterfaces from '../interfaces/fileProcessing';
 
 /**
  * This class will take an array of {@link interfaces/fileProcessing/iJoinTableDefinition!IJoinTableDefinition}
  * and create a SELECT query which will join thed table together and select the approriate fields.
  * This query can them be used downstream to create a view of our data.
  */
-export class BasicHiveQueryPlanner
-  implements fileProcessingInterfaces.IQueryPlanner
-{
+export class BasicHiveQueryPlanner implements fileProcessingInterfaces.IQueryPlanner {
   private queryField: string;
   /**
    * Returns the query that was defined by the last call to {@link defineQuery} See {@link interfaces/fileProcessing/iQueryPlanner!IQueryPlanner.query | IQueryPlanner.query } for additional information.
@@ -28,9 +26,7 @@ export class BasicHiveQueryPlanner
    * the tableData and convert it to a string which represents the SELECT
    * query. See {@link interfaces/fileProcessing/iQueryPlanner!IQueryPlanner.query | IQueryPlanner.defineQuery } for additional details.
    */
-  defineQuery(
-    tableData: fileProcessingInterfaces.IJoinTableDefinition[]
-  ): string {
+  defineQuery(tableData: fileProcessingInterfaces.IJoinTableDefinition[]): string {
     const selections: string[] = [];
     const joins: string[] = [];
 
@@ -42,15 +38,13 @@ export class BasicHiveQueryPlanner
 
       let joinPhrase = `${prefix} ${t.tableName} ${myAlias} ${onPhrase} `;
       const subJoins: string[] = [];
-      t.columns.forEach(c => {
+      t.columns.forEach((c) => {
         if (c.isSelectedColumn) {
           selections.push(`${myAlias}."${c.columnName}"`);
         }
 
         if (c.isJoinColumn) {
-          subJoins.push(
-            `${joinAlias}."${c.columnName}"=${myAlias}."${c.columnName}"`
-          );
+          subJoins.push(`${joinAlias}."${c.columnName}"=${myAlias}."${c.columnName}"`);
         }
       });
 

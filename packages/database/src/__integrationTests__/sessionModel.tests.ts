@@ -3,8 +3,8 @@ import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose/mongooseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
-import {database as databaseTypes} from '@glyphx/types';
-import {error} from '@glyphx/core';
+import {databaseTypes} from 'types';
+import {error} from 'core';
 
 type ObjectId = mongooseTypes.ObjectId;
 
@@ -53,9 +53,7 @@ describe('#sessionModel', () => {
       const userModel = mongoConnection.models.UserModel;
       await userModel.createUser(INPUT_USER as databaseTypes.IUser);
 
-      const savedUserDocument = await userModel
-        .findOne({name: INPUT_USER.name})
-        .lean();
+      const savedUserDocument = await userModel.findOne({name: INPUT_USER.name}).lean();
       userId = savedUserDocument?._id as mongooseTypes.ObjectId;
 
       userDocument = savedUserDocument;
@@ -82,14 +80,8 @@ describe('#sessionModel', () => {
       const sessionDocument = await sessionModel.createSession(sessionInput);
 
       assert.isOk(sessionDocument);
-      assert.strictEqual(
-        sessionDocument.sessionToken,
-        sessionInput.sessionToken
-      );
-      assert.strictEqual(
-        sessionDocument.user._id?.toString(),
-        userId.toString()
-      );
+      assert.strictEqual(sessionDocument.sessionToken, sessionInput.sessionToken);
+      assert.strictEqual(sessionDocument.user._id?.toString(), userId.toString());
 
       sessionId = sessionDocument._id as mongooseTypes.ObjectId;
     });
@@ -115,9 +107,7 @@ describe('#sessionModel', () => {
       assert.isArray(sessions.results);
       assert.isAtLeast(sessions.numberOfItems, 2);
       const expectedDocumentCount =
-        sessions.numberOfItems <= sessions.itemsPerPage
-          ? sessions.numberOfItems
-          : sessions.itemsPerPage;
+        sessions.numberOfItems <= sessions.itemsPerPage ? sessions.numberOfItems : sessions.itemsPerPage;
       assert.strictEqual(sessions.results.length, expectedDocumentCount);
     });
 
@@ -127,10 +117,7 @@ describe('#sessionModel', () => {
         sessionToken: INPUT_DATA.sessionToken,
       });
       assert.strictEqual(results.results.length, 1);
-      assert.strictEqual(
-        results.results[0]?.sessionToken,
-        INPUT_DATA.sessionToken
-      );
+      assert.strictEqual(results.results[0]?.sessionToken, INPUT_DATA.sessionToken);
     });
 
     it('pagesessions', async () => {
@@ -143,19 +130,13 @@ describe('#sessionModel', () => {
       const results2 = await sessionModel.querySessions({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(
-        results2.results[0]?._id?.toString(),
-        lastId?.toString()
-      );
+      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
     });
 
     it('modify a Session', async () => {
       assert.isOk(sessionId);
       const input = {sessionToken: 'a modified Session Token'};
-      const updatedDocument = await sessionModel.updateSessionById(
-        sessionId,
-        input
-      );
+      const updatedDocument = await sessionModel.updateSessionById(sessionId, input);
       assert.strictEqual(updatedDocument.sessionToken, input.sessionToken);
     });
 

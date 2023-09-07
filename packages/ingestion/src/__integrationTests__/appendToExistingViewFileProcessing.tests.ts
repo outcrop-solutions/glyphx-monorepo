@@ -1,18 +1,14 @@
 import {assert} from 'chai';
-import {aws, generalPurposeFunctions} from '@glyphx/core';
+import {aws, generalPurposeFunctions} from 'core';
 import {FileIngestor} from '../fileIngestor';
 import addFilesJson from './assets/addTables.json';
 import appendFilesJson from './assets/appendTables.json';
 //eslint-disable-next-line
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
 import {GLYPHX_ID_COLUMN_NAME} from 'fileProcessing/basicFileTransformer';
 
-import {
-  Initializer,
-  processTrackingService,
-  dbConnection,
-} from '@glyphx/business';
+import {Initializer, processTrackingService, dbConnection} from 'business';
 import {v4} from 'uuid';
 
 import {config} from '../config';
@@ -33,16 +29,9 @@ const INPUT_PROJECT = {
 };
 async function setupExistingAssets() {
   const payload = addFilesJson.payload as fileIngestion.IPayload;
-  fileProcessingHelpers.loadTableStreams(
-    addFilesJson.testDataDirectory,
-    payload
-  );
+  fileProcessingHelpers.loadTableStreams(addFilesJson.testDataDirectory, payload);
   await processTrackingService.createProcessTracking(PROCESS_ID2, PROCESS_NAME);
-  const fileIngestor = new FileIngestor(
-    payload,
-    addFilesJson.databaseName,
-    PROCESS_ID2
-  );
+  const fileIngestor = new FileIngestor(payload, addFilesJson.databaseName, PROCESS_ID2);
   await fileIngestor.init();
   await fileIngestor.process();
 }
@@ -89,7 +78,7 @@ describe('#fileProcessing', () => {
       payload = appendFilesJson.payload as fileIngestion.IPayload;
       assert.isOk(payload);
 
-      fileNames = payload.fileStats.map(f => f.fileName);
+      fileNames = payload.fileStats.map((f) => f.fileName);
       assert.isAtLeast(fileNames.length, 1);
 
       s3Bucket = new aws.S3Manager(bucketName);
@@ -98,30 +87,15 @@ describe('#fileProcessing', () => {
       athenaManager = new aws.AthenaManager(databaseName);
       await athenaManager.init();
 
-      await fileProcessingHelpers.cleanupAws(
-        payload,
-        clientId,
-        modelId,
-        s3Bucket,
-        athenaManager
-      );
+      await fileProcessingHelpers.cleanupAws(payload, clientId, modelId, s3Bucket, athenaManager);
       fileProcessingHelpers.loadTableStreams(testDataDirectory, payload);
-      await processTrackingService.createProcessTracking(
-        PROCESS_ID,
-        PROCESS_NAME
-      );
+      await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
       await setupExistingAssets();
       (config as any).inited = false;
     });
 
     after(async () => {
-      await fileProcessingHelpers.cleanupAws(
-        payload,
-        clientId,
-        modelId,
-        s3Bucket,
-        athenaManager
-      );
+      await fileProcessingHelpers.cleanupAws(payload, clientId, modelId, s3Bucket, athenaManager);
       await dbConnection.models.ProjectModel.findByIdAndDelete(projectId);
       await processTrackingService.removeProcessTrackingDocument(PROCESS_ID);
       await processTrackingService.removeProcessTrackingDocument(PROCESS_ID2);
@@ -132,10 +106,7 @@ describe('#fileProcessing', () => {
       await fileIngestor.init();
       const res = await fileIngestor.process();
       const {joinInformation} = res;
-      await fileProcessingHelpers.validateTableResults(
-        joinInformation,
-        athenaManager
-      );
+      await fileProcessingHelpers.validateTableResults(joinInformation, athenaManager);
       await fileProcessingHelpers.validateViewResults(
         athenaManager,
         `glyphx_${clientId}_${modelId}_view`,
@@ -148,13 +119,11 @@ describe('#fileProcessing', () => {
       const foundIds: number[] = [];
       let maxRowId = 0;
       const glyphIdQuery = `SELECT ${GLYPHX_ID_COLUMN_NAME} from glyphx_${clientId}_${modelId}_view`;
-      const rowIdResults = (await athenaManager.runQuery(
-        glyphIdQuery
-      )) as unknown as any[];
+      const rowIdResults = (await athenaManager.runQuery(glyphIdQuery)) as unknown as any[];
 
-      rowIdResults.forEach(r => {
+      rowIdResults.forEach((r) => {
         const id = r[GLYPHX_ID_COLUMN_NAME];
-        assert.notOk(foundIds.find(i => i === id));
+        assert.notOk(foundIds.find((i) => i === id));
         if (id > maxRowId) maxRowId = id;
         foundIds.push(id);
       });

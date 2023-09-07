@@ -17,10 +17,7 @@ export interface IFilePipeline {
  *  how our pipelines are constructed.
  */
 export interface IConstructableFilePipeline {
-  new (
-    joinProcessor: IConstructableJoinProcessor,
-    queryPlanner: IConstructableQueryPlanner
-  ): IFilePipeline;
+  new (joinProcessor: IConstructableJoinProcessor, queryPlanner: IConstructableQueryPlanner): IFilePipeline;
 }
 
 //TODO: need to give some thought as to how we might pass external parameters

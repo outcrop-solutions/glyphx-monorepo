@@ -1,8 +1,8 @@
 import produce from 'immer';
 import api from '../api';
-import { database as databaseTypes } from '@glyphx/types';
-import { WritableDraft } from 'immer/dist/internal';
-import { _createModel, _createOpenProject, _getSignedDataUrls } from 'lib/client/mutations';
+import {databaseTypes} from 'types';
+import {WritableDraft} from 'immer/dist/internal';
+import {_createModel, _createOpenProject, _getSignedDataUrls} from 'lib/client/mutations';
 
 export const callCreateModel = async ({
   isFilter,
@@ -36,7 +36,7 @@ export const callCreateModel = async ({
       );
       api({
         ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), payloadHash),
-        onSuccess: async (data) => {
+        onSuccess: (data) => {
           mutate(`/api/project/${project._id}`);
           setLoading({});
           if (window?.core) {

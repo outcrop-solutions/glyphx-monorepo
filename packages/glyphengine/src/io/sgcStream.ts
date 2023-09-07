@@ -136,20 +136,11 @@ export class SgcStream extends Transform {
     bufferOffset += 4;
 
     //Rotatation Rate
-    buffer.set(
-      convertNumberTo32bIeee754Float(chunk.rotationRateX),
-      bufferOffset
-    );
+    buffer.set(convertNumberTo32bIeee754Float(chunk.rotationRateX), bufferOffset);
     bufferOffset += 4;
-    buffer.set(
-      convertNumberTo32bIeee754Float(chunk.rotationRateY),
-      bufferOffset
-    );
+    buffer.set(convertNumberTo32bIeee754Float(chunk.rotationRateY), bufferOffset);
     bufferOffset += 4;
-    buffer.set(
-      convertNumberTo32bIeee754Float(chunk.rotationRateZ),
-      bufferOffset
-    );
+    buffer.set(convertNumberTo32bIeee754Float(chunk.rotationRateZ), bufferOffset);
     bufferOffset += 4;
 
     const tag = convertTextToUtfForBuffer(chunk.tag);

@@ -67,8 +67,7 @@ export class Logger {
    */
   silly(correlationId: string, logMessage: unknown) {
     /* istanbul ignore else */
-    if (winstonLogger)
-      winstonLogger.silly(this.buildLogObject(correlationId, logMessage));
+    if (winstonLogger) winstonLogger.silly(this.buildLogObject(correlationId, logMessage));
   }
 
   /**
@@ -76,40 +75,35 @@ export class Logger {
    */
   debug(correlationId: string, logMessage: unknown) {
     /* istanbul ignore else */
-    if (winstonLogger)
-      winstonLogger.debug(this.buildLogObject(correlationId, logMessage));
+    if (winstonLogger) winstonLogger.debug(this.buildLogObject(correlationId, logMessage));
   }
   /**
    * Use this method to send verbose messages.
    */
   verbose(correlationId: string, logMessage: unknown) {
     /* istanbul ignore else */
-    if (winstonLogger)
-      winstonLogger.verbose(this.buildLogObject(correlationId, logMessage));
+    if (winstonLogger) winstonLogger.verbose(this.buildLogObject(correlationId, logMessage));
   }
   /**
    * Use this method to send informational messages.  This is the default level.
    */
   info(correlationId: string, logMessage: unknown) {
     /* istanbul ignore else */
-    if (winstonLogger)
-      winstonLogger.info(this.buildLogObject(correlationId, logMessage));
+    if (winstonLogger) winstonLogger.info(this.buildLogObject(correlationId, logMessage));
   }
   /**
    * Use this method to send warnings.
    */
   warn(correlationId: string, logMessage: unknown) {
     /* istanbul ignore else */
-    if (winstonLogger)
-      winstonLogger.warn(this.buildLogObject(correlationId, logMessage));
+    if (winstonLogger) winstonLogger.warn(this.buildLogObject(correlationId, logMessage));
   }
   /**
    * Use this method to send Error messages.
    */
   error(correlationId: string, logMessage: unknown) {
     /* istanbul ignore else */
-    if (winstonLogger)
-      winstonLogger.error(this.buildLogObject(correlationId, logMessage));
+    if (winstonLogger) winstonLogger.error(this.buildLogObject(correlationId, logMessage));
   }
 }
 

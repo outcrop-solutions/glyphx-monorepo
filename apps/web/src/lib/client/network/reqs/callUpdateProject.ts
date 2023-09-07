@@ -1,4 +1,4 @@
-import { _updateProjectState } from '../../mutations';
+import {_updateProjectState} from '../../mutations';
 import api from '../api';
 
 export const callUpdateProject = (project, mutate) => {

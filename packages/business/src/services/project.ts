@@ -1,23 +1,17 @@
-import {
-  database as databaseTypes,
-  fileIngestion as fileIngestionTypes,
-  web as webTypes,
-} from '@glyphx/types';
-import {error, constants} from '@glyphx/core';
+import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
+import {error, constants} from 'core';
 import {Types as mongooseTypes} from 'mongoose';
-import mongoDbConnection from 'lib/databaseConnection';
+import mongoDbConnection from '../lib/databaseConnection';
 
 export class ProjectService {
-  public static async getProject(
-    projectId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IProject | null> {
+  public static async getProject(projectId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IProject | null> {
     try {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new mongooseTypes.ObjectId(projectId);
-      const project =
-        await mongoDbConnection.models.ProjectModel.getProjectById(id);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(projectId);
+      const project = await mongoDbConnection.models.ProjectModel.getProjectById(id);
       return project;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -37,12 +31,9 @@ export class ProjectService {
     }
   }
 
-  public static async getProjects(
-    filter?: Record<string, unknown>
-  ): Promise<databaseTypes.IProject[] | null> {
+  public static async getProjects(filter?: Record<string, unknown>): Promise<databaseTypes.IProject[] | null> {
     try {
-      const projects =
-        await mongoDbConnection.models.ProjectModel.queryProjects(filter);
+      const projects = await mongoDbConnection.models.ProjectModel.queryProjects(filter);
       return projects?.results;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -74,7 +65,8 @@ export class ProjectService {
       const workspaceCastId =
         workspaceId instanceof mongooseTypes.ObjectId
           ? workspaceId
-          : new mongooseTypes.ObjectId(workspaceId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(workspaceId);
 
       let projectTemplateCastId;
 
@@ -82,13 +74,15 @@ export class ProjectService {
         projectTemplateCastId =
           template?._id instanceof mongooseTypes.ObjectId
             ? template._id
-            : new mongooseTypes.ObjectId(template._id);
+            : // @ts-ignore
+              new mongooseTypes.ObjectId(template._id);
       }
 
       const creatorCastId =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new mongooseTypes.ObjectId(userId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(userId);
 
       // TODO: requires getProjectTemplate service
       const input = {
@@ -179,9 +173,7 @@ export class ProjectService {
       };
 
       // create project
-      const project = await mongoDbConnection.models.ProjectModel.createProject(
-        input
-      );
+      const project = await mongoDbConnection.models.ProjectModel.createProject(input);
 
       const memberInput = {
         type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
@@ -200,28 +192,20 @@ export class ProjectService {
       } as unknown as databaseTypes.IMember;
 
       // create default project membership
-      const member =
-        await mongoDbConnection.models.MemberModel.createProjectMember(
-          memberInput
-        );
+      const member = await mongoDbConnection.models.MemberModel.createProjectMember(memberInput);
 
       // add member to project
-      await mongoDbConnection.models.ProjectModel.addMembers(
-        project?._id as unknown as mongooseTypes.ObjectId,
-        [member]
-      );
+      await mongoDbConnection.models.ProjectModel.addMembers(project?._id as unknown as mongooseTypes.ObjectId, [
+        member,
+      ]);
 
       // add member to user
-      await mongoDbConnection.models.UserModel.addMembership(
-        creatorCastId as unknown as mongooseTypes.ObjectId,
-        [member]
-      );
+      await mongoDbConnection.models.UserModel.addMembership(creatorCastId as unknown as mongooseTypes.ObjectId, [
+        member,
+      ]);
 
       // connect project to workspace
-      await mongoDbConnection.models.WorkspaceModel.addProjects(
-        workspaceCastId,
-        [project]
-      );
+      await mongoDbConnection.models.WorkspaceModel.addProjects(workspaceCastId, [project]);
 
       return project;
     } catch (err: any) {
@@ -268,17 +252,14 @@ export class ProjectService {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new mongooseTypes.ObjectId(projectId);
-      const project =
-        await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
-          state: state,
-        });
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(projectId);
+      const project = await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
+        state: state,
+      });
       return project;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -295,24 +276,19 @@ export class ProjectService {
     }
   }
 
-  public static async deactivate(
-    projectId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IProject> {
+  public static async deactivate(projectId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IProject> {
     try {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new mongooseTypes.ObjectId(projectId);
-      const project =
-        await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
-          deletedAt: new Date(),
-        });
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(projectId);
+      const project = await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
+        deletedAt: new Date(),
+      });
       return project;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -336,9 +312,7 @@ export class ProjectService {
     return project?.files ?? [];
   }
 
-  public static async getProjectViewName(
-    id: mongooseTypes.ObjectId | string
-  ): Promise<string> {
+  public static async getProjectViewName(id: mongooseTypes.ObjectId | string): Promise<string> {
     const project = await ProjectService.getProject(id);
     return project?.viewName ?? '';
   }
@@ -351,18 +325,15 @@ export class ProjectService {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new mongooseTypes.ObjectId(projectId);
-      const updatedProject =
-        await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
-          files: fileStats,
-        });
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(projectId);
+      const updatedProject = await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
+        files: fileStats,
+      });
 
       return updatedProject;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -387,18 +358,15 @@ export class ProjectService {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new mongooseTypes.ObjectId(projectId);
-      const updatedProject =
-        await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
-          viewName: viewName,
-        });
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(projectId);
+      const updatedProject = await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
+        viewName: viewName,
+      });
 
       return updatedProject;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -417,28 +385,19 @@ export class ProjectService {
 
   public static async updateProject(
     projectId: mongooseTypes.ObjectId | string,
-    update: Omit<
-      Partial<databaseTypes.IProject>,
-      '_id' | 'createdAt' | 'updatedAt'
-    >
+    update: Omit<Partial<databaseTypes.IProject>, '_id' | 'createdAt' | 'updatedAt'>
   ): Promise<databaseTypes.IProject> {
     try {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new mongooseTypes.ObjectId(projectId);
-      const updatedProject =
-        await mongoDbConnection.models.ProjectModel.updateProjectById(
-          id,
-          update
-        );
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(projectId);
+      const updatedProject = await mongoDbConnection.models.ProjectModel.updateProjectById(id, update);
 
       return updatedProject;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -463,16 +422,13 @@ export class ProjectService {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new mongooseTypes.ObjectId(projectId);
-      const updatedProject =
-        await mongoDbConnection.models.ProjectModel.addStates(id, states);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(projectId);
+      const updatedProject = await mongoDbConnection.models.ProjectModel.addStates(id, states);
 
       return updatedProject;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -497,16 +453,13 @@ export class ProjectService {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new mongooseTypes.ObjectId(projectId);
-      const updatedProject =
-        await mongoDbConnection.models.ProjectModel.addTags(id, tags);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(projectId);
+      const updatedProject = await mongoDbConnection.models.ProjectModel.addTags(id, tags);
 
       return updatedProject;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -530,16 +483,13 @@ export class ProjectService {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new mongooseTypes.ObjectId(projectId);
-      const updatedProject =
-        await mongoDbConnection.models.ProjectModel.removeTags(id, tags);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(projectId);
+      const updatedProject = await mongoDbConnection.models.ProjectModel.removeTags(id, tags);
 
       return updatedProject;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {

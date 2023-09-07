@@ -1,10 +1,10 @@
-import { database as databaseTypes } from '@glyphx/types';
+import {databaseTypes} from 'types';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
-import { _createOpenProject, _getSignedDataUrls } from '../../mutations';
+import {WritableDraft} from 'immer/dist/internal';
+import {_createOpenProject, _getSignedDataUrls} from '../../mutations';
 import api from '../api';
 
-export const callDownloadModel = async ({ project, payloadHash, session, url, setLoading, setDrawer, setResize }) => {
+export const callDownloadModel = async ({project, payloadHash, session, url, setLoading, setDrawer, setResize}) => {
   setLoading(
     produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
       draft.processName = 'Fetching Data...';
@@ -12,7 +12,7 @@ export const callDownloadModel = async ({ project, payloadHash, session, url, se
   );
   await api({
     ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), payloadHash),
-    onSuccess: async (data) => {
+    onSuccess: (data) => {
       if (window?.core) {
         setResize(150);
         setDrawer(true);

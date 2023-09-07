@@ -1,5 +1,5 @@
 import {IFieldDefinition} from './iFieldDefinition';
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 /**
  * An interface which decribes useful information about
  * a file.  This is used by our transformers to communicate
@@ -49,12 +49,10 @@ export interface IFileInformation {
   /**
    * File operation
    */
-  fileOperationType: fileIngestion.constants.FILE_OPERATION;
+  fileOperationType: fileIngestionTypes.constants.FILE_OPERATION;
 }
 
 /**
  * Defines our callback which is passed to our FileTRansformers to recieve information about the file.
  */
-export type FileInformationCallback = (
-  fileInformation: IFileInformation
-) => void;
+export type FileInformationCallback = (fileInformation: IFileInformation) => void;

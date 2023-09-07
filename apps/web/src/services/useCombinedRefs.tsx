@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import {useCallback} from 'react';
 
 /**
  * handles combined refs for DraggableHeaderRenderer in DataGrid
@@ -9,9 +9,9 @@ export function useCombinedRefs(...refs) {
   return useCallback(
     (handle) => {
       for (const ref of refs) {
-        if (typeof ref === "function") {
+        if (typeof ref === 'function') {
           ref(handle);
-        } else if (ref !== null && "current" in ref) {
+        } else if (ref !== null && 'current' in ref) {
           // https://github.com/DefinitelyTyped/DefinitelyTyped/issues/31065
           ref.current = handle;
         }

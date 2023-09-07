@@ -1,23 +1,14 @@
-import {IQueryResult, database as databaseTypes} from '@glyphx/types';
+import {IQueryResult, databaseTypes} from 'types';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
-import {
-  IWorkspaceMethods,
-  IWorkspaceStaticMethods,
-  IWorkspaceDocument,
-  IWorkspaceCreateInput,
-} from '../interfaces';
-import {error} from '@glyphx/core';
+import {IWorkspaceMethods, IWorkspaceStaticMethods, IWorkspaceDocument, IWorkspaceCreateInput} from '../interfaces';
+import {error} from 'core';
 import {UserModel} from './user';
 import {MemberModel} from './member';
 import {ProjectModel} from './project';
 import {StateModel} from './state';
 import {TagModel} from './tag';
 
-const SCHEMA = new Schema<
-  IWorkspaceDocument,
-  IWorkspaceStaticMethods,
-  IWorkspaceMethods
->({
+const SCHEMA = new Schema<IWorkspaceDocument, IWorkspaceStaticMethods, IWorkspaceMethods>({
   workspaceCode: {type: String, required: true},
   inviteCode: {type: String, required: true},
   name: {type: String, required: true},
@@ -62,70 +53,61 @@ const SCHEMA = new Schema<
   },
 });
 
-SCHEMA.static(
-  'workspaceIdExists',
-  async (workspaceId: mongooseTypes.ObjectId): Promise<boolean> => {
-    let retval = false;
-    try {
-      const result = await WORKSPACE_MODEL.findById(workspaceId, ['_id']);
-      if (result) retval = true;
-    } catch (err) {
+SCHEMA.static('workspaceIdExists', async (workspaceId: mongooseTypes.ObjectId): Promise<boolean> => {
+  let retval = false;
+  try {
+    const result = await WORKSPACE_MODEL.findById(workspaceId, ['_id']);
+    if (result) retval = true;
+  } catch (err) {
+    throw new error.DatabaseOperationError(
+      'an unexpected error occurred while trying to find the workspace.  See the inner error for additional information',
+      'mongoDb',
+      'workspaceIdExists',
+      {_id: workspaceId},
+      err
+    );
+  }
+  return retval;
+});
+
+SCHEMA.static('allWorkspaceIdsExist', async (workspaceIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
+  try {
+    const notFoundIds: mongooseTypes.ObjectId[] = [];
+    const foundIds = (await WORKSPACE_MODEL.find({_id: {$in: workspaceIds}}, ['_id'])) as {
+      _id: mongooseTypes.ObjectId;
+    }[];
+
+    workspaceIds.forEach((id) => {
+      if (!foundIds.find((fid) => fid._id.toString() === id.toString())) notFoundIds.push(id);
+    });
+
+    if (notFoundIds.length) {
+      throw new error.DataNotFoundError(
+        'One or more workspaceIds cannot be found in the database.',
+        'workspace._id',
+        notFoundIds
+      );
+    }
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else {
       throw new error.DatabaseOperationError(
-        'an unexpected error occurred while trying to find the workspace.  See the inner error for additional information',
+        'an unexpected error occurred while trying to find the workspaceIds.  See the inner error for additional information',
         'mongoDb',
-        'workspaceIdExists',
-        {_id: workspaceId},
+        'allWorkspaceIdsExists',
+        {workspaceIds: workspaceIds},
         err
       );
     }
-    return retval;
   }
-);
-
-SCHEMA.static(
-  'allWorkspaceIdsExist',
-  async (workspaceIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
-    try {
-      const notFoundIds: mongooseTypes.ObjectId[] = [];
-      const foundIds = (await WORKSPACE_MODEL.find({_id: {$in: workspaceIds}}, [
-        '_id',
-      ])) as {_id: mongooseTypes.ObjectId}[];
-
-      workspaceIds.forEach(id => {
-        if (!foundIds.find(fid => fid._id.toString() === id.toString()))
-          notFoundIds.push(id);
-      });
-
-      if (notFoundIds.length) {
-        throw new error.DataNotFoundError(
-          'One or more workspaceIds cannot be found in the database.',
-          'workspace._id',
-          notFoundIds
-        );
-      }
-    } catch (err) {
-      if (err instanceof error.DataNotFoundError) throw err;
-      else {
-        throw new error.DatabaseOperationError(
-          'an unexpected error occurred while trying to find the workspaceIds.  See the inner error for additional information',
-          'mongoDb',
-          'allWorkspaceIdsExists',
-          {workspaceIds: workspaceIds},
-          err
-        );
-      }
-    }
-    return true;
-  }
-);
+  return true;
+});
 
 SCHEMA.static(
   'validateProjects',
-  async (
-    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<mongooseTypes.ObjectId[]> => {
+  async (projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]> => {
     const projectIds: mongooseTypes.ObjectId[] = [];
-    projects.forEach(p => {
+    projects.forEach((p) => {
       if (p instanceof mongooseTypes.ObjectId) projectIds.push(p);
       else projectIds.push(p._id as mongooseTypes.ObjectId);
     });
@@ -148,11 +130,9 @@ SCHEMA.static(
 
 SCHEMA.static(
   'validateMembers',
-  async (
-    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
-  ): Promise<mongooseTypes.ObjectId[]> => {
+  async (members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]> => {
     const memberIds: mongooseTypes.ObjectId[] = [];
-    members.forEach(p => {
+    members.forEach((p) => {
       if (p instanceof mongooseTypes.ObjectId) memberIds.push(p);
       else memberIds.push(p._id as mongooseTypes.ObjectId);
     });
@@ -175,32 +155,21 @@ SCHEMA.static(
 
 SCHEMA.static(
   'validateUser',
-  async (
-    user: databaseTypes.IUser | mongooseTypes.ObjectId
-  ): Promise<mongooseTypes.ObjectId> => {
+  async (user: databaseTypes.IUser | mongooseTypes.ObjectId): Promise<mongooseTypes.ObjectId> => {
     const userId: mongooseTypes.ObjectId =
-      user instanceof mongooseTypes.ObjectId
-        ? user
-        : (user._id as mongooseTypes.ObjectId);
+      user instanceof mongooseTypes.ObjectId ? user : (user._id as mongooseTypes.ObjectId);
 
     const idExists = await UserModel.userIdExists(userId);
     if (idExists) return userId;
-    else
-      throw new error.DataValidationError(
-        `the user id : ${userId} does not exist in the database.`,
-        'user',
-        userId
-      );
+    else throw new error.DataValidationError(`the user id : ${userId} does not exist in the database.`, 'user', userId);
   }
 );
 
 SCHEMA.static(
   'validateStates',
-  async (
-    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
-  ): Promise<mongooseTypes.ObjectId[]> => {
+  async (states: (databaseTypes.IState | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]> => {
     const stateIds: mongooseTypes.ObjectId[] = [];
-    states.forEach(m => {
+    states.forEach((m) => {
       if (m instanceof mongooseTypes.ObjectId) stateIds.push(m);
       else stateIds.push(m._id as mongooseTypes.ObjectId);
     });
@@ -222,11 +191,9 @@ SCHEMA.static(
 );
 SCHEMA.static(
   'validateTags',
-  async (
-    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
-  ): Promise<mongooseTypes.ObjectId[]> => {
+  async (tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]> => {
     const tagIds: mongooseTypes.ObjectId[] = [];
-    tags.forEach(m => {
+    tags.forEach((m) => {
       if (m instanceof mongooseTypes.ObjectId) tagIds.push(m);
       else tagIds.push(m._id as mongooseTypes.ObjectId);
     });
@@ -255,11 +222,7 @@ SCHEMA.static(
   ): Promise<databaseTypes.IWorkspace> => {
     try {
       if (!states.length)
-        throw new error.InvalidArgumentError(
-          'You must supply at least one stateId',
-          'states',
-          states
-        );
+        throw new error.InvalidArgumentError('You must supply at least one stateId', 'states', states);
       const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
       if (!workspaceDocument)
         throw new error.DataNotFoundError(
@@ -272,11 +235,7 @@ SCHEMA.static(
       let dirty = false;
 
       reconciledIds.forEach((s: any) => {
-        if (
-          !workspaceDocument.states.find(
-            (sId: any) => sId.toString() === s.toString()
-          )
-        ) {
+        if (!workspaceDocument.states.find((sId: any) => sId.toString() === s.toString())) {
           dirty = true;
           workspaceDocument.states.push(s as unknown as databaseTypes.IState);
         }
@@ -312,11 +271,7 @@ SCHEMA.static(
   ): Promise<databaseTypes.IWorkspace> => {
     try {
       if (!states.length)
-        throw new error.InvalidArgumentError(
-          'You must supply at least one stateId',
-          'states',
-          states
-        );
+        throw new error.InvalidArgumentError('You must supply at least one stateId', 'states', states);
       const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
       if (!workspaceDocument)
         throw new error.DataNotFoundError(
@@ -325,22 +280,14 @@ SCHEMA.static(
           workspaceId
         );
 
-      const reconciledIds = states.map(i =>
+      const reconciledIds = states.map((i) =>
         //istanbul ignore next
-        i instanceof mongooseTypes.ObjectId
-          ? i
-          : (i._id as mongooseTypes.ObjectId)
+        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
       const updatedStates = workspaceDocument.states.filter((s: any) => {
         let retval = true;
-        if (
-          reconciledIds.find(
-            r =>
-              r.toString() ===
-              (s as unknown as mongooseTypes.ObjectId).toString()
-          )
-        ) {
+        if (reconciledIds.find((r) => r.toString() === (s as unknown as mongooseTypes.ObjectId).toString())) {
           dirty = true;
           retval = false;
         }
@@ -349,8 +296,7 @@ SCHEMA.static(
       });
 
       if (dirty) {
-        workspaceDocument.states =
-          updatedStates as unknown as databaseTypes.IState[];
+        workspaceDocument.states = updatedStates as unknown as databaseTypes.IState[];
         await workspaceDocument.save();
       }
 
@@ -374,127 +320,109 @@ SCHEMA.static(
   }
 );
 
-SCHEMA.static(
-  'createWorkspace',
-  async (input: IWorkspaceCreateInput): Promise<databaseTypes.IWorkspace> => {
-    let id: undefined | mongooseTypes.ObjectId = undefined;
+SCHEMA.static('createWorkspace', async (input: IWorkspaceCreateInput): Promise<databaseTypes.IWorkspace> => {
+  let id: undefined | mongooseTypes.ObjectId = undefined;
+  try {
+    const [tags, members, projects, states, creator] = await Promise.all([
+      WORKSPACE_MODEL.validateTags(input.tags ?? []),
+      WORKSPACE_MODEL.validateMembers(input.members ?? []),
+      WORKSPACE_MODEL.validateProjects(input.projects ?? []),
+      WORKSPACE_MODEL.validateStates(input.states ?? []),
+      WORKSPACE_MODEL.validateUser(input.creator),
+    ]);
+    const createDate = new Date();
+
+    const resolvedInput: IWorkspaceDocument = {
+      createdAt: createDate,
+      updatedAt: createDate,
+      workspaceCode: input.workspaceCode,
+      inviteCode: input.inviteCode,
+      name: input.name,
+      slug: input.slug,
+      description: input.description,
+      creator: creator,
+      members: members,
+      states: states,
+      projects: projects,
+      tags: tags,
+    };
     try {
-      const [tags, members, projects, states, creator] = await Promise.all([
-        WORKSPACE_MODEL.validateTags(input.tags ?? []),
-        WORKSPACE_MODEL.validateMembers(input.members ?? []),
-        WORKSPACE_MODEL.validateProjects(input.projects ?? []),
-        WORKSPACE_MODEL.validateStates(input.states ?? []),
-        WORKSPACE_MODEL.validateUser(input.creator),
-      ]);
-      const createDate = new Date();
-
-      const resolvedInput: IWorkspaceDocument = {
-        createdAt: createDate,
-        updatedAt: createDate,
-        workspaceCode: input.workspaceCode,
-        inviteCode: input.inviteCode,
-        name: input.name,
-        slug: input.slug,
-        description: input.description,
-        creator: creator,
-        members: members,
-        states: states,
-        projects: projects,
-        tags: tags,
-      };
-      try {
-        await WORKSPACE_MODEL.validate(resolvedInput);
-      } catch (err) {
-        throw new error.DataValidationError(
-          'An error occurred while validating the document before creating it.  See the inner error for additional information',
-          'IWorkspaceDocument',
-          resolvedInput,
-          err
-        );
-      }
-
-      const workspaceDocument = (
-        await WORKSPACE_MODEL.create([resolvedInput], {
-          validateBeforeSave: false,
-        })
-      )[0];
-      id = workspaceDocument._id;
+      await WORKSPACE_MODEL.validate(resolvedInput);
     } catch (err) {
-      if (err instanceof error.DataValidationError) throw err;
-      else {
-        throw new error.DatabaseOperationError(
-          'An Unexpected Error occurred while add the user.  See the inner error for additional details',
-          'mongoDb',
-          'add User',
-          {},
-          err
-        );
-      }
+      throw new error.DataValidationError(
+        'An error occurred while validating the document before creating it.  See the inner error for additional information',
+        'IWorkspaceDocument',
+        resolvedInput,
+        err
+      );
     }
 
-    if (id) return await WORKSPACE_MODEL.getWorkspaceById(id);
-    else
-      throw new error.UnexpectedError(
-        'An unexpected error has occurred and the workspace may not have been created.  I have no other information to provide.'
+    const workspaceDocument = (
+      await WORKSPACE_MODEL.create([resolvedInput], {
+        validateBeforeSave: false,
+      })
+    )[0];
+    id = workspaceDocument._id;
+  } catch (err) {
+    if (err instanceof error.DataValidationError) throw err;
+    else {
+      throw new error.DatabaseOperationError(
+        'An Unexpected Error occurred while add the user.  See the inner error for additional details',
+        'mongoDb',
+        'add User',
+        {},
+        err
       );
+    }
   }
-);
 
-SCHEMA.static(
-  'validateUpdateObject',
-  async (input: Partial<databaseTypes.IWorkspace>): Promise<boolean> => {
-    if (input.projects?.length)
-      throw new error.InvalidOperationError(
-        "This method cannot be used to alter the workspaces' projects.  Use the add/remove project functions to complete this operation",
-        {projects: input.projects}
-      );
+  if (id) return await WORKSPACE_MODEL.getWorkspaceById(id);
+  else
+    throw new error.UnexpectedError(
+      'An unexpected error has occurred and the workspace may not have been created.  I have no other information to provide.'
+    );
+});
 
-    if (input.members?.length)
-      throw new error.InvalidOperationError(
-        "This method cannot be used to alter the users' members.  Use the add/remove members functions to complete this operation",
-        {members: input.members}
-      );
-    if (input._id)
-      throw new error.InvalidOperationError(
-        "An Workspace's _id is imutable and cannot be changed",
-        {
-          _id: input._id,
-        }
-      );
-    if (input.createdAt)
-      throw new error.InvalidOperationError(
-        "An workspace's createdAt date is immutable and cannot be changed",
-        {createdAt: input.createdAt}
-      );
-    if (input.updatedAt)
-      throw new error.InvalidOperationError(
-        "An workspace's updatedAt date is set internally and cannot be changed externally",
-        {updatedAt: input.updatedAt}
-      );
+SCHEMA.static('validateUpdateObject', async (input: Partial<databaseTypes.IWorkspace>): Promise<boolean> => {
+  if (input.projects?.length)
+    throw new error.InvalidOperationError(
+      "This method cannot be used to alter the workspaces' projects.  Use the add/remove project functions to complete this operation",
+      {projects: input.projects}
+    );
 
-    if (
-      input.creator?._id &&
-      !(await UserModel.userIdExists(input.creator._id))
-    )
-      throw new error.InvalidOperationError(
-        'The creator does not appear to exist in the database',
-        {creatorId: input.creator._id}
-      );
+  if (input.members?.length)
+    throw new error.InvalidOperationError(
+      "This method cannot be used to alter the users' members.  Use the add/remove members functions to complete this operation",
+      {members: input.members}
+    );
+  if (input._id)
+    throw new error.InvalidOperationError("An Workspace's _id is imutable and cannot be changed", {
+      _id: input._id,
+    });
+  if (input.createdAt)
+    throw new error.InvalidOperationError("An workspace's createdAt date is immutable and cannot be changed", {
+      createdAt: input.createdAt,
+    });
+  if (input.updatedAt)
+    throw new error.InvalidOperationError(
+      "An workspace's updatedAt date is set internally and cannot be changed externally",
+      {updatedAt: input.updatedAt}
+    );
 
-    return true;
-  }
-);
+  if (input.creator?._id && !(await UserModel.userIdExists(input.creator._id)))
+    throw new error.InvalidOperationError('The creator does not appear to exist in the database', {
+      creatorId: input.creator._id,
+    });
+
+  return true;
+});
 
 SCHEMA.static(
   'updateWorkspaceByFilter',
-  async (
-    filter: Record<string, unknown>,
-    input: Partial<databaseTypes.IWorkspace>
-  ): Promise<void> => {
+  async (filter: Record<string, unknown>, input: Partial<databaseTypes.IWorkspace>): Promise<void> => {
     try {
       await WORKSPACE_MODEL.validateUpdateObject(input);
-      const transformedDocument: Partial<databaseTypes.IWorkspace> &
-        Record<string, any> = {};
+      const transformedDocument: Partial<databaseTypes.IWorkspace> & Record<string, any> = {};
       const updateDate = new Date();
       for (const key in input) {
         const value = (input as Record<string, any>)[key];
@@ -505,10 +433,7 @@ SCHEMA.static(
         }
       }
       transformedDocument.updatedAt = updateDate;
-      const updateResult = await WORKSPACE_MODEL.updateOne(
-        filter,
-        transformedDocument
-      );
+      const updateResult = await WORKSPACE_MODEL.updateOne(filter, transformedDocument);
       if (updateResult.modifiedCount !== 1) {
         throw new error.InvalidArgumentError(
           `No workspace document with filter: ${filter} was found`,
@@ -517,11 +442,7 @@ SCHEMA.static(
         );
       }
     } catch (err) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      )
-        throw err;
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) throw err;
       else
         throw new error.DatabaseOperationError(
           `An unexpected error occurred while updating the workspace with filter :${filter}.  See the inner error for additional information`,
@@ -536,152 +457,134 @@ SCHEMA.static(
 
 SCHEMA.static(
   'updateWorkspaceById',
-  async (
-    id: mongooseTypes.ObjectId,
-    input: Partial<databaseTypes.IWorkspace>
-  ): Promise<databaseTypes.IWorkspace> => {
+  async (id: mongooseTypes.ObjectId, input: Partial<databaseTypes.IWorkspace>): Promise<databaseTypes.IWorkspace> => {
     await WORKSPACE_MODEL.updateWorkspaceByFilter({_id: id}, input);
     return await WORKSPACE_MODEL.getWorkspaceById(id);
   }
 );
 
-SCHEMA.static(
-  'getWorkspaceById',
-  async (
-    workspaceId: mongooseTypes.ObjectId
-  ): Promise<databaseTypes.IWorkspace> => {
-    try {
-      const workspaceDocument = (await WORKSPACE_MODEL.findById(workspaceId)
-        .populate('creator')
-        .populate('members')
-        .populate('projects')
-        .lean()) as databaseTypes.IWorkspace;
-      if (!workspaceDocument)
-        throw new error.DataNotFoundError(
-          `Could not find an Workspace with the _id: ${workspaceId}`,
-          'workspace._id',
-          workspaceId
-        );
-      delete (workspaceDocument as any)['__v'];
-      delete (workspaceDocument as any).creator?.__v;
-      workspaceDocument.members?.forEach((m: any) => delete (m as any)['__v']);
-      workspaceDocument.projects?.forEach((p: any) => delete (p as any)['__v']);
+SCHEMA.static('getWorkspaceById', async (workspaceId: mongooseTypes.ObjectId): Promise<databaseTypes.IWorkspace> => {
+  try {
+    const workspaceDocument = (await WORKSPACE_MODEL.findById(workspaceId)
+      .populate('creator')
+      .populate('members')
+      .populate('projects')
+      .lean()) as databaseTypes.IWorkspace;
+    if (!workspaceDocument)
+      throw new error.DataNotFoundError(
+        `Could not find an Workspace with the _id: ${workspaceId}`,
+        'workspace._id',
+        workspaceId
+      );
+    delete (workspaceDocument as any)['__v'];
+    delete (workspaceDocument as any).creator?.__v;
+    workspaceDocument.members?.forEach((m: any) => delete (m as any)['__v']);
+    workspaceDocument.projects?.forEach((p: any) => delete (p as any)['__v']);
 
-      return workspaceDocument;
-    } catch (err) {
-      if (err instanceof error.DataNotFoundError) throw err;
-      else
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurred while retreiving the workspace from the database.  See the inner error for additional information',
-          'mongoDb',
-          'getWorkspaceById',
-          err
-        );
-    }
+    return workspaceDocument;
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while retreiving the workspace from the database.  See the inner error for additional information',
+        'mongoDb',
+        'getWorkspaceById',
+        err
+      );
   }
-);
+});
 
-SCHEMA.static(
-  'queryWorkspaces',
-  async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
-    try {
-      const count = await WORKSPACE_MODEL.count(filter);
+SCHEMA.static('queryWorkspaces', async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+  try {
+    const count = await WORKSPACE_MODEL.count(filter);
 
-      if (!count) {
-        throw new error.DataNotFoundError(
-          `Could not find workspaces with the filter: ${filter}`,
-          'workspace_filter',
-          filter
-        );
-      }
+    if (!count) {
+      throw new error.DataNotFoundError(
+        `Could not find workspaces with the filter: ${filter}`,
+        'workspace_filter',
+        filter
+      );
+    }
 
-      const skip = itemsPerPage * page;
-      if (skip > count) {
-        throw new error.InvalidArgumentError(
-          `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
-            count / itemsPerPage
-          )}`,
-          'page',
-          page
-        );
-      }
+    const skip = itemsPerPage * page;
+    if (skip > count) {
+      throw new error.InvalidArgumentError(
+        `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
+          count / itemsPerPage
+        )}`,
+        'page',
+        page
+      );
+    }
 
-      const workspaceDocuments = (await WORKSPACE_MODEL.find(filter, null, {
-        skip: skip,
-        limit: itemsPerPage,
+    const workspaceDocuments = (await WORKSPACE_MODEL.find(filter, null, {
+      skip: skip,
+      limit: itemsPerPage,
+    })
+      .populate('creator')
+      .populate('members')
+      .populate({
+        path: 'projects',
+        populate: {
+          path: 'members',
+        },
       })
-        .populate('creator')
-        .populate('members')
-        .populate({
-          path: 'projects',
-          populate: {
-            path: 'members',
-          },
-        })
-        .lean()) as databaseTypes.IWorkspace[];
-      //this is added by mongoose, so we will want to remove it before returning the document
-      //to the user.
-      workspaceDocuments.forEach((doc: any) => {
-        delete (doc as any)['__v'];
-        delete (doc as any).creator['__v'];
-        (doc as any).members?.map((mem: any) => delete mem['__v']);
-        (doc as any).projects?.map((proj: any) => {
-          delete proj['__v'];
-          proj?.members?.map((m: any) => {
-            delete m['__v'];
-          });
+      .lean()) as databaseTypes.IWorkspace[];
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    workspaceDocuments.forEach((doc: any) => {
+      delete (doc as any)['__v'];
+      delete (doc as any).creator['__v'];
+      (doc as any).members?.map((mem: any) => delete mem['__v']);
+      (doc as any).projects?.map((proj: any) => {
+        delete proj['__v'];
+        proj?.members?.map((m: any) => {
+          delete m['__v'];
         });
       });
+    });
 
-      const retval: IQueryResult<databaseTypes.IWorkspace> = {
-        results: workspaceDocuments,
-        numberOfItems: count,
-        page: page,
-        itemsPerPage: itemsPerPage,
-      };
+    const retval: IQueryResult<databaseTypes.IWorkspace> = {
+      results: workspaceDocuments,
+      numberOfItems: count,
+      page: page,
+      itemsPerPage: itemsPerPage,
+    };
 
-      return retval;
-    } catch (err) {
-      if (
-        err instanceof error.DataNotFoundError ||
-        err instanceof error.InvalidArgumentError
-      )
-        throw err;
-      else
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurred while getting the workspace.  See the inner error for additional information',
-          'mongoDb',
-          'queryWorkspaces',
-          err
-        );
-    }
+    return retval;
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError || err instanceof error.InvalidArgumentError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the workspace.  See the inner error for additional information',
+        'mongoDb',
+        'queryWorkspaces',
+        err
+      );
   }
-);
+});
 
-SCHEMA.static(
-  'deleteWorkspaceById',
-  async (workspaceId: mongooseTypes.ObjectId): Promise<void> => {
-    try {
-      const results = await WORKSPACE_MODEL.deleteOne({_id: workspaceId});
-      if (results.deletedCount !== 1)
-        throw new error.InvalidArgumentError(
-          `An workspace with a _id: ${workspaceId} was not found in the database`,
-          '_id',
-          workspaceId
-        );
-    } catch (err) {
-      if (err instanceof error.InvalidArgumentError) throw err;
-      else
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurred while deleteing the workspace from the database. The workspace may still exist.  See the inner error for additional information',
-          'mongoDb',
-          'delete workspace',
-          {_id: workspaceId},
-          err
-        );
-    }
+SCHEMA.static('deleteWorkspaceById', async (workspaceId: mongooseTypes.ObjectId): Promise<void> => {
+  try {
+    const results = await WORKSPACE_MODEL.deleteOne({_id: workspaceId});
+    if (results.deletedCount !== 1)
+      throw new error.InvalidArgumentError(
+        `An workspace with a _id: ${workspaceId} was not found in the database`,
+        '_id',
+        workspaceId
+      );
+  } catch (err) {
+    if (err instanceof error.InvalidArgumentError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while deleteing the workspace from the database. The workspace may still exist.  See the inner error for additional information',
+        'mongoDb',
+        'delete workspace',
+        {_id: workspaceId},
+        err
+      );
   }
-);
+});
 
 SCHEMA.static(
   'addProjects',
@@ -691,11 +594,7 @@ SCHEMA.static(
   ): Promise<databaseTypes.IWorkspace> => {
     try {
       if (!projects.length)
-        throw new error.InvalidArgumentError(
-          'You must supply at least one projectId',
-          'projects',
-          projects
-        );
+        throw new error.InvalidArgumentError('You must supply at least one projectId', 'projects', projects);
       const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
       if (!workspaceDocument)
         throw new error.DataNotFoundError(
@@ -706,16 +605,10 @@ SCHEMA.static(
 
       const reconciledIds = await WORKSPACE_MODEL.validateProjects(projects);
       let dirty = false;
-      reconciledIds.forEach(p => {
-        if (
-          !workspaceDocument.projects.find(
-            (progId: any) => progId.toString() === p.toString()
-          )
-        ) {
+      reconciledIds.forEach((p) => {
+        if (!workspaceDocument.projects.find((progId: any) => progId.toString() === p.toString())) {
           dirty = true;
-          workspaceDocument.projects.push(
-            p as unknown as databaseTypes.IProject
-          );
+          workspaceDocument.projects.push(p as unknown as databaseTypes.IProject);
         }
       });
 
@@ -749,11 +642,7 @@ SCHEMA.static(
   ): Promise<databaseTypes.IWorkspace> => {
     try {
       if (!projects.length)
-        throw new error.InvalidArgumentError(
-          'You must supply at least one projectId',
-          'projects',
-          projects
-        );
+        throw new error.InvalidArgumentError('You must supply at least one projectId', 'projects', projects);
       const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
       if (!workspaceDocument)
         throw new error.DataNotFoundError(
@@ -762,21 +651,13 @@ SCHEMA.static(
           workspaceId
         );
 
-      const reconciledIds = projects.map(i =>
-        i instanceof mongooseTypes.ObjectId
-          ? i
-          : (i._id as mongooseTypes.ObjectId)
+      const reconciledIds = projects.map((i) =>
+        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
       const updatedProjects = workspaceDocument.projects.filter((p: any) => {
         let retval = true;
-        if (
-          reconciledIds.find(
-            r =>
-              r.toString() ===
-              (p as unknown as mongooseTypes.ObjectId).toString()
-          )
-        ) {
+        if (reconciledIds.find((r) => r.toString() === (p as unknown as mongooseTypes.ObjectId).toString())) {
           dirty = true;
           retval = false;
         }
@@ -785,8 +666,7 @@ SCHEMA.static(
       });
 
       if (dirty) {
-        workspaceDocument.projects =
-          updatedProjects as unknown as databaseTypes.IProject[];
+        workspaceDocument.projects = updatedProjects as unknown as databaseTypes.IProject[];
         await workspaceDocument.save();
       }
 
@@ -818,11 +698,7 @@ SCHEMA.static(
   ): Promise<databaseTypes.IWorkspace> => {
     try {
       if (!members.length)
-        throw new error.InvalidArgumentError(
-          'You must supply at least one workspaceId',
-          'members',
-          members
-        );
+        throw new error.InvalidArgumentError('You must supply at least one workspaceId', 'members', members);
       const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
       if (!workspaceDocument)
         throw new error.DataNotFoundError(
@@ -833,12 +709,8 @@ SCHEMA.static(
 
       const reconciledIds = await WORKSPACE_MODEL.validateMembers(members);
       let dirty = false;
-      reconciledIds.forEach(m => {
-        if (
-          !workspaceDocument.members.find(
-            (memberId: any) => memberId.toString() === m.toString()
-          )
-        ) {
+      reconciledIds.forEach((m) => {
+        if (!workspaceDocument.members.find((memberId: any) => memberId.toString() === m.toString())) {
           dirty = true;
           workspaceDocument.members.push(m as unknown as databaseTypes.IMember);
         }
@@ -874,11 +746,7 @@ SCHEMA.static(
   ): Promise<databaseTypes.IWorkspace> => {
     try {
       if (!members.length)
-        throw new error.InvalidArgumentError(
-          'You must supply at least one workspaceId',
-          'members',
-          members
-        );
+        throw new error.InvalidArgumentError('You must supply at least one workspaceId', 'members', members);
       const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
       if (!workspaceDocument)
         throw new error.DataNotFoundError(
@@ -887,21 +755,13 @@ SCHEMA.static(
           workspaceId
         );
 
-      const reconciledIds = members.map(i =>
-        i instanceof mongooseTypes.ObjectId
-          ? i
-          : (i._id as mongooseTypes.ObjectId)
+      const reconciledIds = members.map((i) =>
+        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
       const updatedMembers = workspaceDocument.members.filter((m: any) => {
         let retval = true;
-        if (
-          reconciledIds.find(
-            r =>
-              r.toString() ===
-              (m as unknown as mongooseTypes.ObjectId).toString()
-          )
-        ) {
+        if (reconciledIds.find((r) => r.toString() === (m as unknown as mongooseTypes.ObjectId).toString())) {
           dirty = true;
           retval = false;
         }
@@ -910,8 +770,7 @@ SCHEMA.static(
       });
 
       if (dirty) {
-        workspaceDocument.members =
-          updatedMembers as unknown as databaseTypes.IMember[];
+        workspaceDocument.members = updatedMembers as unknown as databaseTypes.IMember[];
         await workspaceDocument.save();
       }
 
@@ -941,12 +800,7 @@ SCHEMA.static(
     tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IWorkspace> => {
     try {
-      if (!tags.length)
-        throw new error.InvalidArgumentError(
-          'You must supply at least one tagId',
-          'tags',
-          tags
-        );
+      if (!tags.length) throw new error.InvalidArgumentError('You must supply at least one tagId', 'tags', tags);
       const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
       if (!workspaceDocument)
         throw new error.DataNotFoundError(
@@ -957,12 +811,8 @@ SCHEMA.static(
 
       const reconciledIds = await WORKSPACE_MODEL.validateTags(tags);
       let dirty = false;
-      reconciledIds.forEach(m => {
-        if (
-          !workspaceDocument.tags.find(
-            (tagsId: any) => tagsId.toString() === m.toString()
-          )
-        ) {
+      reconciledIds.forEach((m) => {
+        if (!workspaceDocument.tags.find((tagsId: any) => tagsId.toString() === m.toString())) {
           dirty = true;
           workspaceDocument.tags.push(m as unknown as databaseTypes.ITag);
         }
@@ -997,12 +847,7 @@ SCHEMA.static(
     tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IWorkspace> => {
     try {
-      if (!tags.length)
-        throw new error.InvalidArgumentError(
-          'You must supply at least one workspaceId',
-          'tags',
-          tags
-        );
+      if (!tags.length) throw new error.InvalidArgumentError('You must supply at least one workspaceId', 'tags', tags);
       const workspaceDocument = await WORKSPACE_MODEL.findById(workspaceId);
       if (!workspaceDocument)
         throw new error.DataNotFoundError(
@@ -1011,21 +856,13 @@ SCHEMA.static(
           workspaceId
         );
 
-      const reconciledIds = tags.map(i =>
-        i instanceof mongooseTypes.ObjectId
-          ? i
-          : (i._id as mongooseTypes.ObjectId)
+      const reconciledIds = tags.map((i) =>
+        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
       const updatedTags = workspaceDocument.tags.filter((t: any) => {
         let retval = true;
-        if (
-          reconciledIds.find(
-            r =>
-              r.toString() ===
-              (t as unknown as mongooseTypes.ObjectId).toString()
-          )
-        ) {
+        if (reconciledIds.find((r) => r.toString() === (t as unknown as mongooseTypes.ObjectId).toString())) {
           dirty = true;
           retval = false;
         }
@@ -1063,9 +900,6 @@ const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 
 delete MODELS['workspace'];
 
-const WORKSPACE_MODEL = model<IWorkspaceDocument, IWorkspaceStaticMethods>(
-  'workspace',
-  SCHEMA
-);
+const WORKSPACE_MODEL = model<IWorkspaceDocument, IWorkspaceStaticMethods>('workspace', SCHEMA);
 
 export {WORKSPACE_MODEL as WorkspaceModel};

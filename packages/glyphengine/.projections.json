@@ -3,9 +3,8 @@
     "type": "source",
     "alternate": "src/__tests__/{}.tests.ts"
   },
-  "src/__tests__/*.tests.ts" : {
-    "type" : "test",
-    "alternate":  "src/{}.ts"
+  "src/__tests__/*.tests.ts": {
+    "type": "test",
+    "alternate": "src/{}.ts"
   }
-
 }

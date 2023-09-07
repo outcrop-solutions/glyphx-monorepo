@@ -1,9 +1,10 @@
-import { Initializer } from '@glyphx/business';
-import { stripeHooks } from 'lib/server';
+import {Initializer} from 'business';
+import {stripeHooks} from 'lib/server';
+import {NextApiRequest, NextApiResponse} from 'next';
 
-export const config = { api: { bodyParser: false } };
+export const config = {api: {bodyParser: false}};
 
-const hooks = async (req, res) => {
+const hooks = async (req: NextApiRequest, res: NextApiResponse) => {
   // initialize the business layer
   if (!Initializer.initedField) {
     await Initializer.init();

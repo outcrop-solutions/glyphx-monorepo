@@ -1,19 +1,16 @@
 {
-  "name": "@glyphx/email",
+  "name": "email",
   "version": "1.0.0",
   "description": "Transactional Email",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist/**"
-  ],
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "scripts": {
     "clean": "rimraf .turbo node_modules dist",
     "coverage": "TS_NODE_FILES=true nyc mocha -r ts-node/register -r tsconfig-paths/register --timeout 999999 --exit --recursive \"src/__tests__/**/*.tests.ts\"",
-    "build": "tsup",
-    "lint": "gts lint",
-    "fix": "gts fix",
+    "lint": "eslint .",
+    "fix": "eslint . --fix",
+    "format:write": "prettier --write \"**/*.{js,json,jsx,ts,tsx}\"",
+    "format": "prettier \"**/*.{js,json,jsx,ts,tsx}\"",
     "start:dev": "ts-node src/index.ts",
     "docs": "npx typedoc",
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs"
@@ -22,15 +19,15 @@
   "license": "ISC",
   "lint-staged": {
     "*.{js,ts}": [
-      "gts fix"
+      "eslint . --fix"
     ]
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "devDependencies": {
-    "@glyphx/tsconfig": "workspace:*",
-    "@glyphx/eslint-config-glyphx-backend": "workspace:*",
+    "tsconfig": "workspace:*",
+    "eslint-config-custom": "workspace:*",
     "@types/chai": "^4.3.3",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.11.7",
@@ -38,16 +35,7 @@
     "@types/rewire": "^2.5.28",
     "@types/sinon": "^10.0.13",
     "@types/uuid": "^9.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.46.1",
-    "@typescript-eslint/parser": "^5.42.0",
     "chai": "^4.3.6",
-    "eslint": "^8.12.0",
-    "eslint-import-resolver-typescript": "^3.5.2",
-    "eslint-plugin-filename-rules": "^1.2.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "gts": "^3.1.0",
     "mocha": "^10.1.0",
     "nyc": "^15.1.0",
     "lint-staged": "^13.0.3",
@@ -61,6 +49,7 @@
     "uuid": "^8.3.2"
   },
   "dependencies": {
-    "nodemailer": "^6.9.1"
+    "nodemailer": "^6.9.1",
+     "server-only": "^0.0.1"
   }
 }

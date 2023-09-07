@@ -54,18 +54,18 @@ nnoremap <F2> :call ToggleAutoTests()<CR>
 " close all buffers but the current.
 nnoremap <silent> <C-b><C-o> :%bd<Bar>e#<cr>
 
-" Build our @glyphx/core package
-:command BuildCore :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/core 
-" Build our @glyphx/types package
-:command BuildTypes :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/types 
+" Build our core package
+:command BuildCore :FloatermNew --autoclose=1 pnpm run build --filter core 
+" Build our types package
+:command BuildTypes :FloatermNew --autoclose=1 pnpm run build --filter types 
 " Build our eslint-config-glyphx-backend package
 :command BuildLint :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/eslint-config-glyphx-backend
-" Build our @glyphx/database 
-:command BuildDatabase :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/database
-" Build our @glyphx/business 
-:command BuildBusiness :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/business
-" Build our @glyphx/glyphEngine 
-:command BuildGlyphEngine :FloatermNew --autoclose=1 pnpm run build --filter @glyphx/glyphengine
+" Build our database 
+:command BuildDatabase :FloatermNew --autoclose=1 pnpm run build --filter database
+" Build our business 
+:command BuildBusiness :FloatermNew --autoclose=1 pnpm run build --filter business
+" Build our glyphengine 
+:command BuildGlyphEngine :FloatermNew --autoclose=1 pnpm run build --filter glyphengine
 
 let g:coc_settings = {
 \   "rust-analyzer.cargo.features": ["test"]

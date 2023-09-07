@@ -1,26 +1,58 @@
 {
   "compilerOptions": {
     "target": "ES2015",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "baseUrl": "./src",
     "paths": {
-      "@/email/*": ["src/email/*"],
-      "@/components/*": ["src/components/*"],
-      "@/config/*": ["src/config/*"],
-      "@/layouts/*": ["src/layouts/*"],
-      "@/public/*": ["src/public/*"],
-      "@/lib/*": ["src/lib/*"],
-      "@/lib/server": ["src/lib/server/*"],
-      "@/lib/client": ["src/lib/client/*"],
-      "@/pages/*": ["src/pages/*"],
-      "@/hooks/*": ["src/hooks/*"],
-      "@/partials/*": ["src/partials/*"],
-      "@/providers/*": ["src/providers/*"],
-      "@/state/*": ["src/state/*"],
-      "@/services/*": ["src/services/*"],
-      "@/styles/*": ["src/styles/*"],
-      "@/types/*": ["src/types/*"],
-      "@/utils/*": ["src/utils/*"]
+      "@/email/*": [
+        "src/email/*"
+      ],
+      "@/app/*": [
+        "src/app/*"
+      ],
+      "@/config/*": [
+        "src/config/*"
+      ],
+      "@/layouts/*": [
+        "src/layouts/*"
+      ],
+      "@/public/*": [
+        "src/public/*"
+      ],
+      "@/lib/*": [
+        "src/lib/*"
+      ],
+      "@/lib/server": [
+        "src/business/server/*"
+      ],
+      "@/lib/client": [
+        "src/lib/client/*"
+      ],
+      "@/pages/*": [
+        "src/pages/*"
+      ],
+      "@/hooks/*": [
+        "src/hooks/*"
+      ],
+      "@/providers/*": [
+        "src/providers/*"
+      ],
+      "@/state/*": [
+        "src/state/*"
+      ],
+      "@/services/*": [
+        "src/services/*"
+      ],
+      "@/styles/*": [
+        "src/styles/*"
+      ],
+      "@/utils/*": [
+        "src/utils/*"
+      ]
     },
     "allowJs": true,
     "skipLibCheck": true,
@@ -33,15 +65,26 @@
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "isolatedModules": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "experimentalDecorators": true, // required for correct next transpilation
+    "emitDecoratorMetadata": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/utils/scrollbar.js",
-    "src/utils/scrollbar.js",
-    "src/__tests__/utilities"
+    "src/__tests__/utilities",
+    ".next/types/**/*.ts",
+    "../../packages/database/node_modules/mongoose/types/index.d.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

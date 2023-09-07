@@ -1,4 +1,4 @@
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 /**
  * An interface for defining fields in a CSV that will be consumed
  * by the join processord
@@ -16,7 +16,7 @@ export interface IFieldDefinition {
   /**
    * the type of the field
    */
-  fieldType: fileIngestion.constants.FIELD_TYPE;
+  fieldType: fileIngestionTypes.constants.FIELD_TYPE;
   /**
    * For strings we need to track the longest value
    */

@@ -1,4 +1,4 @@
-import {FILE_PROCESSING_ERROR_TYPES} from '@util/constants';
+import {FILE_PROCESSING_ERROR_TYPES} from '../../util/constants';
 
 /**
  * This interface defines the shape of error messages that

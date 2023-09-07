@@ -1,7 +1,7 @@
 import 'mocha';
 import {assert} from 'chai';
-import {NumberFieldChecker} from '@fieldProcessing';
-import {error} from '@glyphx/core';
+import {NumberFieldChecker} from 'fieldProcessing';
+import {error} from 'core';
 
 describe('#fieldProcessing/NumberFieldChecker', () => {
   context('isCurrencySymbol', () => {

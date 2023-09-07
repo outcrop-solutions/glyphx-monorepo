@@ -1,11 +1,7 @@
-import {
-  database as databaseTypes,
-  web as webTypes,
-  fileIngestion as fileIngestionTypes,
-} from '@glyphx/types';
-import {error, constants} from '@glyphx/core';
+import {databaseTypes, webTypes, fileIngestionTypes} from 'types';
+import {error, constants} from 'core';
 import {Types as mongooseTypes} from 'mongoose';
-import mongoDbConnection from 'lib/databaseConnection';
+import mongoDbConnection from '../lib/databaseConnection';
 
 export class ProjectTemplateService {
   public static async getProjectTemplate(
@@ -15,11 +11,9 @@ export class ProjectTemplateService {
       const id =
         projectTemplateId instanceof mongooseTypes.ObjectId
           ? projectTemplateId
-          : new mongooseTypes.ObjectId(projectTemplateId);
-      const projectTemplate =
-        await mongoDbConnection.models.ProjectTemplateModel.getProjectTemplateById(
-          id
-        );
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(projectTemplateId);
+      const projectTemplate = await mongoDbConnection.models.ProjectTemplateModel.getProjectTemplateById(id);
       return projectTemplate;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -43,10 +37,7 @@ export class ProjectTemplateService {
     filter?: Record<string, unknown>
   ): Promise<databaseTypes.IProjectTemplate[] | null> {
     try {
-      const projectTemplates =
-        await mongoDbConnection.models.ProjectTemplateModel.queryProjectTemplates(
-          filter
-        );
+      const projectTemplates = await mongoDbConnection.models.ProjectTemplateModel.queryProjectTemplates(filter);
       return projectTemplates?.results;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -73,12 +64,11 @@ export class ProjectTemplateService {
     properties: Record<string, webTypes.Property>
   ): Promise<databaseTypes.IProjectTemplate | null> {
     try {
-      const template =
-        await mongoDbConnection.models.ProjectTemplateModel.create({
-          name: projectName,
-          description: projectDesc,
-          shape: properties,
-        });
+      const template = await mongoDbConnection.models.ProjectTemplateModel.create({
+        name: projectName,
+        description: projectDesc,
+        shape: properties,
+      });
 
       return template;
     } catch (err: any) {
@@ -106,20 +96,14 @@ export class ProjectTemplateService {
       const id =
         projectTemplateId instanceof mongooseTypes.ObjectId
           ? projectTemplateId
-          : new mongooseTypes.ObjectId(projectTemplateId);
-      const project =
-        await mongoDbConnection.models.ProjectTemplateModel.updateProjectTemplateById(
-          id,
-          {
-            deletedAt: new Date(),
-          }
-        );
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(projectTemplateId);
+      const project = await mongoDbConnection.models.ProjectTemplateModel.updateProjectTemplateById(id, {
+        deletedAt: new Date(),
+      });
       return project;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -138,28 +122,22 @@ export class ProjectTemplateService {
 
   public static async updateProjectTemplate(
     projectTemplateId: mongooseTypes.ObjectId | string,
-    update: Omit<
-      Partial<databaseTypes.IProject>,
-      '_id' | 'createdAt' | 'updatedAt'
-    >
+    update: Omit<Partial<databaseTypes.IProject>, '_id' | 'createdAt' | 'updatedAt'>
   ): Promise<databaseTypes.IProjectTemplate> {
     try {
       const id =
         projectTemplateId instanceof mongooseTypes.ObjectId
           ? projectTemplateId
-          : new mongooseTypes.ObjectId(projectTemplateId);
-      const updatedProjectTemplate =
-        await mongoDbConnection.models.ProjectTemplateModel.updateProjectTemplateById(
-          id,
-          update
-        );
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(projectTemplateId);
+      const updatedProjectTemplate = await mongoDbConnection.models.ProjectTemplateModel.updateProjectTemplateById(
+        id,
+        update
+      );
 
       return updatedProjectTemplate;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -184,16 +162,13 @@ export class ProjectTemplateService {
       const id =
         projectTemplateId instanceof mongooseTypes.ObjectId
           ? projectTemplateId
-          : new mongooseTypes.ObjectId(projectTemplateId);
-      const updatedProjectTemplate =
-        await mongoDbConnection.models.ProjectTemplateModel.addTags(id, tags);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(projectTemplateId);
+      const updatedProjectTemplate = await mongoDbConnection.models.ProjectTemplateModel.addTags(id, tags);
 
       return updatedProjectTemplate;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -218,19 +193,13 @@ export class ProjectTemplateService {
       const id =
         projectTemplateId instanceof mongooseTypes.ObjectId
           ? projectTemplateId
-          : new mongooseTypes.ObjectId(projectTemplateId);
-      const updatedProjectTemplate =
-        await mongoDbConnection.models.ProjectTemplateModel.removeTags(
-          id,
-          tags
-        );
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(projectTemplateId);
+      const updatedProjectTemplate = await mongoDbConnection.models.ProjectTemplateModel.removeTags(id, tags);
 
       return updatedProjectTemplate;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -246,9 +215,7 @@ export class ProjectTemplateService {
       }
     }
   }
-  static async cleanProject(
-    project: databaseTypes.IProject
-  ): Promise<Partial<databaseTypes.IProjectTemplate>> {
+  static async cleanProject(project: databaseTypes.IProject): Promise<Partial<databaseTypes.IProjectTemplate>> {
     return {
       name: `${project.name}-template`,
       projects: [project],
@@ -258,15 +225,12 @@ export class ProjectTemplateService {
           axis: webTypes.constants.AXIS.X,
           accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
           key: project?.state?.properties['X']?.key || 'Column X',
-          dataType:
-            project?.state?.properties['X']?.dataType ||
-            fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
+          dataType: project?.state?.properties['X']?.dataType || fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           description: '',
           interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
           direction: webTypes.constants.DIRECTION_TYPE.ASC,
           filter:
-            project?.state?.properties['X']?.dataType ===
-            fileIngestionTypes.constants.FIELD_TYPE.NUMBER
+            project?.state?.properties['X']?.dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER
               ? {
                   min: 0,
                   max: 0,
@@ -277,15 +241,12 @@ export class ProjectTemplateService {
           axis: webTypes.constants.AXIS.X,
           accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
           key: project?.state?.properties['Y']?.key || 'Column Y',
-          dataType:
-            project?.state?.properties['Y']?.dataType ||
-            fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
+          dataType: project?.state?.properties['Y']?.dataType || fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           description: '',
           interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
           direction: webTypes.constants.DIRECTION_TYPE.ASC,
           filter:
-            project?.state?.properties['X']?.dataType ===
-            fileIngestionTypes.constants.FIELD_TYPE.NUMBER
+            project?.state?.properties['X']?.dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER
               ? {
                   min: 0,
                   max: 0,
@@ -296,15 +257,12 @@ export class ProjectTemplateService {
           axis: webTypes.constants.AXIS.X,
           accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
           key: project?.state?.properties['Z']?.key || 'Column Z',
-          dataType:
-            project?.state?.properties['Z']?.dataType ||
-            fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
+          dataType: project?.state?.properties['Z']?.dataType || fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           description: '',
           interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
           direction: webTypes.constants.DIRECTION_TYPE.ASC,
           filter:
-            project?.state?.properties['X']?.dataType ===
-            fileIngestionTypes.constants.FIELD_TYPE.NUMBER
+            project?.state?.properties['X']?.dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER
               ? {
                   min: 0,
                   max: 0,
@@ -315,15 +273,12 @@ export class ProjectTemplateService {
           axis: webTypes.constants.AXIS.X,
           accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
           key: project?.state?.properties['A']?.key || 'Column A',
-          dataType:
-            project?.state?.properties['A']?.dataType ||
-            fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
+          dataType: project?.state?.properties['A']?.dataType || fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           description: '',
           interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
           direction: webTypes.constants.DIRECTION_TYPE.ASC,
           filter:
-            project?.state?.properties['X']?.dataType ===
-            fileIngestionTypes.constants.FIELD_TYPE.NUMBER
+            project?.state?.properties['X']?.dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER
               ? {
                   min: 0,
                   max: 0,
@@ -334,15 +289,12 @@ export class ProjectTemplateService {
           axis: webTypes.constants.AXIS.X,
           accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
           key: project?.state?.properties['B']?.key || 'Column B',
-          dataType:
-            project?.state?.properties['B']?.dataType ||
-            fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
+          dataType: project?.state?.properties['B']?.dataType || fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           description: '',
           interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
           direction: webTypes.constants.DIRECTION_TYPE.ASC,
           filter:
-            project?.state?.properties['X']?.dataType ===
-            fileIngestionTypes.constants.FIELD_TYPE.NUMBER
+            project?.state?.properties['X']?.dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER
               ? {
                   min: 0,
                   max: 0,
@@ -353,15 +305,12 @@ export class ProjectTemplateService {
           axis: webTypes.constants.AXIS.X,
           accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
           key: project?.state?.properties['C']?.key || 'Column C',
-          dataType:
-            project?.state?.properties['C']?.dataType ||
-            fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
+          dataType: project?.state?.properties['C']?.dataType || fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           description: '',
           interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
           direction: webTypes.constants.DIRECTION_TYPE.ASC,
           filter:
-            project?.state?.properties['X']?.dataType ===
-            fileIngestionTypes.constants.FIELD_TYPE.NUMBER
+            project?.state?.properties['X']?.dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER
               ? {
                   min: 0,
                   max: 0,
@@ -388,8 +337,7 @@ export class ProjectTemplateService {
             interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
             direction: webTypes.constants.DIRECTION_TYPE.ASC,
             filter:
-              projectTemplate.shape['X']?.dataType ===
-              fileIngestionTypes.constants.FIELD_TYPE.NUMBER
+              projectTemplate.shape['X']?.dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER
                 ? {
                     min: 0,
                     max: 0,
@@ -404,8 +352,7 @@ export class ProjectTemplateService {
             interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
             direction: webTypes.constants.DIRECTION_TYPE.ASC,
             filter:
-              projectTemplate.shape['Y']?.dataType ===
-              fileIngestionTypes.constants.FIELD_TYPE.NUMBER
+              projectTemplate.shape['Y']?.dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER
                 ? {
                     min: 0,
                     max: 0,
@@ -420,8 +367,7 @@ export class ProjectTemplateService {
             interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
             direction: webTypes.constants.DIRECTION_TYPE.ASC,
             filter:
-              projectTemplate.shape['Z']?.dataType ===
-              fileIngestionTypes.constants.FIELD_TYPE.NUMBER
+              projectTemplate.shape['Z']?.dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER
                 ? {
                     min: 0,
                     max: 0,
@@ -436,8 +382,7 @@ export class ProjectTemplateService {
             interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
             direction: webTypes.constants.DIRECTION_TYPE.ASC,
             filter:
-              projectTemplate.shape['A']?.dataType ===
-              fileIngestionTypes.constants.FIELD_TYPE.NUMBER
+              projectTemplate.shape['A']?.dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER
                 ? {
                     min: 0,
                     max: 0,
@@ -452,8 +397,7 @@ export class ProjectTemplateService {
             interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
             direction: webTypes.constants.DIRECTION_TYPE.ASC,
             filter:
-              projectTemplate.shape['B']?.dataType ===
-              fileIngestionTypes.constants.FIELD_TYPE.NUMBER
+              projectTemplate.shape['B']?.dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER
                 ? {
                     min: 0,
                     max: 0,
@@ -468,8 +412,7 @@ export class ProjectTemplateService {
             interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
             direction: webTypes.constants.DIRECTION_TYPE.ASC,
             filter:
-              projectTemplate.shape['C']?.dataType ===
-              fileIngestionTypes.constants.FIELD_TYPE.NUMBER
+              projectTemplate.shape['C']?.dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER
                 ? {
                     min: 0,
                     max: 0,
