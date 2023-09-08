@@ -2416,7 +2416,7 @@ describe('#mongoose/models/workspace', () => {
       allStateIdsExistStub.resolves();
       sandbox.replace(StateModel, 'allStateIdsExist', allStateIdsExistStub);
 
-      const res = await WorkspaceModel.validateStates(stateIds.map((id) => ({_id: id}) as databaseTypes.IState));
+      const res = await WorkspaceModel.validateStates(stateIds.map((id) => ({_id: id} as databaseTypes.IState)));
       assert.deepEqual(res, stateIds);
       assert.isTrue(allStateIdsExistStub.calledOnce);
     });

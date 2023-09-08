@@ -44,10 +44,12 @@ export default function Invite() {
                     Join Workspace
                   </Button>
                 ) : (
-                  <Link href={'/auth/login' as Route}>
-                    <a className="flex items-center justify-center px-5 py-2 space-x-3 text-black bg-yellow rounded hover:bg-blue-500">
+                  <Link
+                    href={'/auth/login' as Route}
+                    className="flex items-center justify-center px-5 py-2 space-x-3 text-black bg-yellow rounded hover:bg-blue-500">
+                    
                       Create an account
-                    </a>
+                    
                   </Link>
                 )}
               </Card.Footer>

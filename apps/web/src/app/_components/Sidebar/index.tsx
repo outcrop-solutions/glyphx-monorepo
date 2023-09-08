@@ -59,7 +59,7 @@ const Sidebar = ({menu}) => {
             window?.core?.ToggleDrawer(false);
           }}
           href="/account"
-        >
+          legacyBehavior>
           {projectId ? (
             <div className="py-1">
               <SmallLogo />

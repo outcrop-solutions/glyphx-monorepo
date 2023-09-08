@@ -52,67 +52,65 @@ export default function Login() {
     })();
   }, []);
 
-  return (
-    <>
-      <div className="flex flex-col bg-primary-dark-blue items-center justify-center p-5 m-auto space-y-5 rounded shadow-lg md:p-10 md:w-1/3">
-        <div>
-          <Link href="/">
-            <a className="text-4xl text-white font-bold">Glyphx</a>
-          </Link>
-        </div>
-        <div className="text-center">
-          <h1 className="text-2xl text-white font-bold">Sign in with your email</h1>
-          <h2 className="text-white">
-            We&apos;ll send a magic link to your inbox to confirm your email address and sign you in.
-          </h2>
-        </div>
-        <form className="flex flex-col w-full space-y-3">
-          <input
-            className="px-3 py-2 border border-gray rounded bg-transparent text-white"
-            onChange={handleEmailChange}
-            placeholder="user@email.com"
-            type="email"
-            value={email}
-          />
-          <button
-            className="py-2 bg-yellow rounded hover:bg-primary-yellow disabled:opacity-75"
-            disabled={status === 'loading' || !validate || isSubmitting}
-            onClick={signInWithEmail}
-          >
-            {status === 'loading'
-              ? 'Checking session...'
-              : isSubmitting
-              ? 'Sending the link...'
-              : 'Send the Magic Link'}
-          </button>
-        </form>
-        {socialProviders?.length > 0 && (
-          <>
-            <span className="text-sm text-white">or sign in with</span>
-            <div className="flex flex-col w-full space-y-3">
-              {socialProviders.map((provider, index) => (
-                <button
-                  key={index}
-                  className="py-2 bg-secondary-midnight border rounded hover:bg-gray-50 disabled:opacity-75 text-white"
-                  disabled={status === 'loading'}
-                  onClick={() => {
-                    // @ts-ignore
-                    if (provider.name === 'Credentials') {
-                      signInWithCreds();
-                    } else {
-                      // @ts-ignore
-                      signInWithSocial(provider.id);
-                    }
-                  }}
-                >
-                  {/* @ts-ignore */}
-                  {provider.name === 'Credentials' ? 'Dev Mode Sign In' : provider.name}
-                </button>
-              ))}
-            </div>
-          </>
-        )}
+  return <>
+    <div className="flex flex-col bg-primary-dark-blue items-center justify-center p-5 m-auto space-y-5 rounded shadow-lg md:p-10 md:w-1/3">
+      <div>
+        <Link href="/" className="text-4xl text-white font-bold">
+          Glyphx
+        </Link>
       </div>
-    </>
-  );
+      <div className="text-center">
+        <h1 className="text-2xl text-white font-bold">Sign in with your email</h1>
+        <h2 className="text-white">
+          We&apos;ll send a magic link to your inbox to confirm your email address and sign you in.
+        </h2>
+      </div>
+      <form className="flex flex-col w-full space-y-3">
+        <input
+          className="px-3 py-2 border border-gray rounded bg-transparent text-white"
+          onChange={handleEmailChange}
+          placeholder="user@email.com"
+          type="email"
+          value={email}
+        />
+        <button
+          className="py-2 bg-yellow rounded hover:bg-primary-yellow disabled:opacity-75"
+          disabled={status === 'loading' || !validate || isSubmitting}
+          onClick={signInWithEmail}
+        >
+          {status === 'loading'
+            ? 'Checking session...'
+            : isSubmitting
+            ? 'Sending the link...'
+            : 'Send the Magic Link'}
+        </button>
+      </form>
+      {socialProviders?.length > 0 && (
+        <>
+          <span className="text-sm text-white">or sign in with</span>
+          <div className="flex flex-col w-full space-y-3">
+            {socialProviders.map((provider, index) => (
+              <button
+                key={index}
+                className="py-2 bg-secondary-midnight border rounded hover:bg-gray-50 disabled:opacity-75 text-white"
+                disabled={status === 'loading'}
+                onClick={() => {
+                  // @ts-ignore
+                  if (provider.name === 'Credentials') {
+                    signInWithCreds();
+                  } else {
+                    // @ts-ignore
+                    signInWithSocial(provider.id);
+                  }
+                }}
+              >
+                {/* @ts-ignore */}
+                {provider.name === 'Credentials' ? 'Dev Mode Sign In' : provider.name}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  </>;
 }

@@ -1186,7 +1186,7 @@ describe('#mongoose/models/project', () => {
       allTagIdsExistStub.resolves();
       sandbox.replace(TagModel, 'allTagIdsExist', allTagIdsExistStub);
 
-      const res = await ProjectModel.validateTags(tagIds.map((id) => ({_id: id}) as databaseTypes.ITag));
+      const res = await ProjectModel.validateTags(tagIds.map((id) => ({_id: id} as databaseTypes.ITag)));
       assert.deepEqual(res, tagIds);
       assert.isTrue(allTagIdsExistStub.calledOnce);
     });
@@ -1255,7 +1255,7 @@ describe('#mongoose/models/project', () => {
       allStateIdsExistStub.resolves();
       sandbox.replace(StateModel, 'allStateIdsExist', allStateIdsExistStub);
 
-      const res = await ProjectModel.validateStates(stateIds.map((id) => ({_id: id}) as databaseTypes.IState));
+      const res = await ProjectModel.validateStates(stateIds.map((id) => ({_id: id} as databaseTypes.IState)));
       assert.deepEqual(res, stateIds);
       assert.isTrue(allStateIdsExistStub.calledOnce);
     });
