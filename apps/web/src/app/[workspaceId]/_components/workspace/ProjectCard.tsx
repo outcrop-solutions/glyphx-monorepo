@@ -23,7 +23,7 @@ export const ProjectCard = ({project}) => {
   dayjs.extend(relativeTime);
   const router = useRouter();
   const params = useParams();
-  const {workspaceSlug} = params as {workspaceSlug: string};
+  const {workspaceId} = params as {workspaceId: string};
 
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
   const setModals = useSetRecoilState(modalsAtom);
@@ -65,7 +65,7 @@ export const ProjectCard = ({project}) => {
           <DeleteProjectIcon onClick={deleteProject} />
         </div>
       </div>
-      <div onClick={() => navigate(workspaceSlug)} className="flex flex-col h-full justify-between rounded-md">
+      <div onClick={() => navigate(workspaceId)} className="flex flex-col h-full justify-between rounded-md">
         <div className="rounded-t-md overflow-hidden h-5/6">
           <Image
             width={project?.aspectRatio?.width || 300}

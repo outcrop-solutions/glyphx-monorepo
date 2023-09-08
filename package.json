@@ -6,11 +6,6 @@
     "apps/**",
     "packages/**"
   ],
-  "pnpm": {
-    "overrides": {
-      "@colors/colors": "1.6.0"
-    }
-  },
   "scripts": {
     "build": "rimraf apps/web/.next && dotenv -- turbo build",
     "test": "rimraf apps/web/.next && dotenv -- turbo test",
@@ -43,7 +38,8 @@
     "eslint-config-custom": "workspace:*",
     "plop": "^3.1.2",
     "rimraf": "^3.0.2",
-    "turbo": "latest"
+    "turbo": "latest",
+    "prettier": "latest"
   },
   "packageManager": "pnpm@7.15.0",
   "dependencies": {

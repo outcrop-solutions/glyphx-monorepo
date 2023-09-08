@@ -7,7 +7,7 @@ export const Controls = () => {
   const {data} = useSession();
   const isGlyphxUser = data?.user?.email?.endsWith('@glyphx.co');
   const params = useParams();
-  const {projectId, workspaceSlug} = params as {projectId: string; workspaceSlug: string};
+  const {projectId, workspaceId} = params as {projectId: string; workspaceId: string};
 
   const pControls = projectControls();
   const wControls = workspaceControls();
@@ -31,7 +31,7 @@ export const Controls = () => {
 
   return (
     <div className="flex justify-end items-center space-x-2">
-      {projectId ? renderProjectControls() : workspaceSlug ? renderWorkspaceControls() : renderHomeControls()}
+      {projectId ? renderProjectControls() : workspaceId ? renderWorkspaceControls() : renderHomeControls()}
     </div>
   );
 };

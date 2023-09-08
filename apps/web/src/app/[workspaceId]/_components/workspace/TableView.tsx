@@ -23,7 +23,7 @@ export const TableView = () => {
   dayjs.extend(relativeTime);
   const router = useRouter();
   const params = useParams();
-  const {workspaceSlug} = params as {workspaceSlug: string};
+  const {workspaceId} = params as {workspaceId: string};
   const workspace = useRecoilValue(workspaceAtom);
   const setModals = useSetRecoilState(modalsAtom);
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
@@ -92,7 +92,7 @@ export const TableView = () => {
                   <tr className="bg-secondary-space-blue rounded py-2 px-6 border border-transparent hover:border-white hover:bg-secondary-midnight hover:cursor-pointer font-roboto font-normal text-[14px] leading-[16px] tracking-[0.01em] text-light-gray hover:text-white">
                     <td
                       onClick={() => {
-                        router.push(`/account/${workspaceSlug}/${project._id!.toString()}` as Route);
+                        router.push(`/account/${workspaceId}/${project._id!.toString()}` as Route);
                       }}
                       title="Project Name"
                       className="pl-2"
@@ -101,7 +101,7 @@ export const TableView = () => {
                     </td>
                     <td
                       onClick={() => {
-                        router.push(`/account/${workspaceSlug}/${project._id!.toString()}` as Route);
+                        router.push(`/account/${workspaceId}/${project._id!.toString()}` as Route);
                       }}
                       title="Last Updated"
                       className="p-2"
@@ -110,7 +110,7 @@ export const TableView = () => {
                     </td>
                     <td
                       onClick={() => {
-                        router.push(`/account/${workspaceSlug}/${project._id!.toString()}` as Route);
+                        router.push(`/account/${workspaceId}/${project._id!.toString()}` as Route);
                       }}
                       title="Data Used"
                       className="p-2"

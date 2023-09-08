@@ -1,22 +1,22 @@
 import {CogIcon, UserGroupIcon, ShieldExclamationIcon} from '@heroicons/react/outline';
 
-const menu = (workspaceSlug) => [
+const menu = (workspaceId) => [
   {
     name: 'Settings',
     menuItems: [
       {
         name: 'Workspace',
-        path: `/account/${workspaceSlug}/settings/general`,
+        path: `/account/${workspaceId}/settings/general`,
         altIcon: <CogIcon />,
       },
       {
         name: 'Team',
-        path: `/account/${workspaceSlug}/settings/team`,
+        path: `/account/${workspaceId}/settings/team`,
         altIcon: <UserGroupIcon />,
       },
       {
         name: 'Advanced',
-        path: `/account/${workspaceSlug}/settings/advanced`,
+        path: `/account/${workspaceId}/settings/advanced`,
         altIcon: <ShieldExclamationIcon />,
       },
     ],

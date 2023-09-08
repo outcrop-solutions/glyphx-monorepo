@@ -56,9 +56,15 @@ export const _updateWorkspaceName = ({slug, name}: {slug: string; name: string})
  * @param slug corresponds to workspace.slug in mongoDB
  * @param newSlug corresponds to workspace.slug in mongoDB
  */
-export const _updateWorkspaceSlug = ({slug, newSlug}: {slug: string; newSlug: string}): webTypes.IFetchConfig => {
+export const _updateWorkspaceSlug = ({
+  workspaceId,
+  newSlug,
+}: {
+  workspaceId: string;
+  newSlug: string;
+}): webTypes.IFetchConfig => {
   return {
-    url: `/api/workspace/${slug}/slug`,
+    url: `/api/workspace/${workspaceId}/slug`,
     options: {
       body: {slug: newSlug},
       method: 'PUT',

@@ -16,7 +16,7 @@ import {Route} from 'next';
 export const TemplatePreviewModal = ({modalContent}: webTypes.TemplatePreviewModalProps) => {
   const router = useRouter();
   const params = useParams();
-  const {workspaceSlug} = params as {workspaceSlug: string};
+  const {workspaceId} = params as {workspaceId: string};
   const [loading, setLoading] = useState(false);
   const setModals = useSetRecoilState(modalsAtom);
   const {_id} = useRecoilValue(workspaceAtom);
@@ -50,10 +50,10 @@ export const TemplatePreviewModal = ({modalContent}: webTypes.TemplatePreviewMod
             draft.modals.splice(0, 1);
           })
         );
-        router.push(`/account/${workspaceSlug}/${data._id}` as Route);
+        router.push(`/account/${workspaceId}/${data._id}` as Route);
       },
     });
-  }, [_id, data, router, setModals, workspaceSlug]);
+  }, [_id, data, router, setModals, workspaceId]);
 
   return (
     <div className="flex flex-col items-stretch justify-center px-4 py-8 w-[500px] space-y-5 bg-secondary-midnight rounded-md text-white">

@@ -32,7 +32,7 @@ const items = [
 export const Templates = () => {
   const router = useRouter();
   const params = useParams();
-  const {workspaceSlug} = params as {workspaceSlug: string};
+  const {workspaceId} = params as {workspaceId: string};
   const {data} = useWorkspace();
 
   // mutations
@@ -40,7 +40,7 @@ export const Templates = () => {
     api({
       ..._createDefaultProject(data.workspace._id),
       onSuccess: (data) => {
-        router.push(`/account/${workspaceSlug}/${data._id}` as Route);
+        router.push(`/account/${workspaceId}/${data._id}` as Route);
       },
     });
   };

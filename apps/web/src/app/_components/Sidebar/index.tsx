@@ -15,21 +15,25 @@ import {useWorkspace, useWorkspaces} from 'lib/client';
 import {drawerOpenAtom} from 'state';
 import {useSetRecoilState} from 'recoil';
 import {useParams} from 'next/navigation';
+import menu from 'config/menu';
 
 const staticMenu = sidebarMenu();
 
-const Sidebar = ({menu}) => {
+const Sidebar = () => {
+  const params = useParams();
+  const workspaceId = params?.workspaceId;
+
   const [showMenu, setMenuVisibility] = useState(false);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
-  const params = useParams();
   const {projectId} = params as {projectId: string};
   const {data, isLoading} = useWorkspaces();
   const {data: workspace} = useWorkspace();
+  const menuConfig = menu(workspaceId);
 
   const renderMenu = () => {
     return (
       workspace &&
-      menu.map((item, index) => (
+      menuConfig.map((item, index) => (
         <Menu key={index} data={item} isLoading={isLoading} showMenu={data?.workspaces?.length > 0 || isLoading} />
       ))
     );
