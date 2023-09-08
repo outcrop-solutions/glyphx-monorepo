@@ -1,4 +1,4 @@
-import {fileIngestion, databaseTypes} from 'types';
+import {fileIngestionTypes, databaseTypes} from 'types';
 import {error, aws, generalPurposeFunctions as sharedFunctions} from 'core';
 import {Readable} from 'node:stream';
 import {BasicAthenaProcessor, FileUploadManager, FileReconciliator} from './fileProcessing';
@@ -18,8 +18,8 @@ export class FileIngestor {
   private readonly clientIdField: string;
   private readonly modelIdField: string;
   private readonly bucketNameField: string;
-  private fileStatisticsField: fileIngestion.IFileStats[];
-  private readonly fileInfoField: fileIngestion.IFileInfo[];
+  private fileStatisticsField: fileIngestionTypes.IFileStats[];
+  private readonly fileInfoField: fileIngestionTypes.IFileInfo[];
   private readonly databaseNameField: string;
   private readonly s3Manager: aws.S3Manager;
   private readonly athenaManager: aws.AthenaManager;
@@ -48,11 +48,11 @@ export class FileIngestor {
     return this.bucketNameField;
   }
 
-  public get fileStatistics(): fileIngestion.IFileStats[] {
+  public get fileStatistics(): fileIngestionTypes.IFileStats[] {
     return this.fileStatisticsField;
   }
 
-  public get fileInfo(): fileIngestion.IFileInfo[] {
+  public get fileInfo(): fileIngestionTypes.IFileInfo[] {
     return this.fileInfoField;
   }
 
@@ -63,7 +63,7 @@ export class FileIngestor {
   public get inited() {
     return this.initedField;
   }
-  constructor(payload: fileIngestion.IPayload, databaseName: string, processId: string) {
+  constructor(payload: fileIngestionTypes.IPayload, databaseName: string, processId: string) {
     this.clientIdField = payload.clientId;
     this.modelIdField = payload.modelId;
     this.bucketNameField = payload.bucketName;
@@ -322,7 +322,7 @@ export class FileIngestor {
     await heartBeat.start();
 
     let joinInformation: IJoinTableDefinition[] = [];
-    let fileInfoForReturn: fileIngestion.IFileStats[] = [];
+    let fileInfoForReturn: fileIngestionTypes.IFileStats[] = [];
     let processingResults = FILE_PROCESSING_STATUS.UNKNOWN;
     const viewName = sharedFunctions.fileIngestion.getViewName(this.clientId, this.modelId);
     const errors: IFileProcessingError[] = await this.reconcileFileInfo();

@@ -1,5 +1,5 @@
 import {aws, error, logging, generalPurposeFunctions, streams} from 'core';
-import {fileIngestion, databaseTypes} from 'types';
+import {fileIngestionTypes, databaseTypes} from 'types';
 import {SdtParser} from './io';
 import {QueryRunner} from './io/queryRunner';
 import {IQueryResponse} from './interfaces';

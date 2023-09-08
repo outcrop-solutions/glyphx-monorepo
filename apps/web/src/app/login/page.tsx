@@ -7,7 +7,7 @@ import isEmail from 'validator/lib/isEmail';
 import {useRouter} from 'next/navigation';
 import {Route} from 'next';
 
-const Login = () => {
+export default function Login() {
   const {status} = useSession();
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -115,6 +115,4 @@ const Login = () => {
       </div>
     </>
   );
-};
-
-export default Login;
+}

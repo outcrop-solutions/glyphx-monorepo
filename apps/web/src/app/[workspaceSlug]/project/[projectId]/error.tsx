@@ -5,7 +5,7 @@ import {useRouter} from 'next/navigation';
 import ProjectErrorIcon from 'public/svg/project-error-icon.svg';
 import {Route} from 'next';
 
-export const ProjectErrorFallback = () => {
+export default function ProjectErrorFallback() {
   const router = useRouter();
 
   function returnToHome() {
@@ -27,4 +27,4 @@ export const ProjectErrorFallback = () => {
       <h3 className="text-white text-center">{error.message}</h3> */}
     </div>
   );
-};
+}

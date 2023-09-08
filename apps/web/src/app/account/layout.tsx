@@ -10,7 +10,7 @@ import Sidebar from '../_components/Sidebar/index';
 import menu from 'config/menu/index';
 import {useWorkspace} from 'lib';
 
-const AccountLayout = ({children}) => {
+export default function AccountLayout({children}) {
   const {data} = useSession();
   const router = useRouter();
   const {data: workspace} = useWorkspace();
@@ -31,6 +31,4 @@ const AccountLayout = ({children}) => {
       </Content>
     </div>
   );
-};
-
-export default AccountLayout;
+}

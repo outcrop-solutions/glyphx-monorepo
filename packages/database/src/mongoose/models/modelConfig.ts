@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 
-import {IQueryResult, databaseTypes} from 'types';
+import {IQueryResult, databaseTypes, webTypes} from 'types';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {error} from 'core';
 import {
@@ -46,36 +46,12 @@ const SCHEMA = new Schema<IModelConfigDocument, IModelConfigStaticMethods, IMode
     type: Boolean,
     required: true,
   },
-  min_color: {
-    type: minColorSchema,
-    required: false,
-    default: {},
-  },
-  max_color: {
-    type: maxColorSchema,
-    required: false,
-    default: {},
-  },
-  background_color: {
-    type: backgroundColorSchema,
-    required: false,
-    default: {},
-  },
-  x_axis_color: {
-    type: xAxisColorSchema,
-    required: false,
-    default: {},
-  },
-  y_axis_color: {
-    type: yAxisColorSchema,
-    required: false,
-    default: {},
-  },
-  z_axis_color: {
-    type: zAxisColorSchema,
-    required: false,
-    default: {},
-  },
+  min_color: minColorSchema,
+  max_color: maxColorSchema,
+  background_color: backgroundColorSchema,
+  x_axis_color: xAxisColorSchema,
+  y_axis_color: yAxisColorSchema,
+  z_axis_color: zAxisColorSchema,
   grid_cylinder_radius: {
     type: Number,
     required: true,

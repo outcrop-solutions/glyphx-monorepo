@@ -24,7 +24,7 @@ export const updateName = async (req: NextApiRequest, res: NextApiResponse, sess
 
     await activityLogService.createLog({
       actorId: session?.user?.userId as string,
-      resourceId: user._id as string,
+      resourceId: user._id?.toString() as string,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.USER,
@@ -56,7 +56,7 @@ export const updateEmail = async (req: NextApiRequest, res: NextApiResponse, ses
 
     await activityLogService.createLog({
       actorId: session?.user?.userId as string,
-      resourceId: user._id as string,
+      resourceId: user._id?.toString() as string,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.USER,
@@ -90,7 +90,7 @@ export const deactivateUser = async (req: NextApiRequest, res: NextApiResponse, 
 
       await activityLogService.createLog({
         actorId: session?.user?.userId as string,
-        resourceId: user._id as string,
+        resourceId: user._id?.toString() as string,
         location: location,
         userAgent: agentData,
         onModel: databaseTypes.constants.RESOURCE_MODEL.USER,

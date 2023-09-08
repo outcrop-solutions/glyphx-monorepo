@@ -19,16 +19,7 @@ intercept(interceptStdout);
 /** @type {import('next').NextConfig} */
 module.exports = {
   //https://nextjs.org/blog/next-13-1#built-in-module-transpilation-stable
-  transpilePackages: [
-    '@glyphx/codegen',
-    'core',
-    'business',
-    'database',
-    'email',
-    'fileingestion',
-    'glyphengine',
-    'types',
-  ],
+  transpilePackages: ['core', 'business', 'database', 'email', 'fileingestion', 'glyphengine', 'types'],
   modularizeImports: {
     lodash: {
       transform: 'lodash/{{member}}',
@@ -37,7 +28,7 @@ module.exports = {
   },
   experimental: {
     // gives us statically types routes
-    typedRoutes: true,
+    // typedRoutes: true,
     // turbo: {
     //   loaders: {
     //     '.svg': ['@svgr/webpack'],
@@ -90,7 +81,15 @@ module.exports = {
   // removes "X-POWERED-BY-VERCEL" header
   poweredByHeader: false,
 
-  webpack(config) {
+  webpack(config, {buildId, dev, isServer, defaultLoaders, nextRuntime, webpack}) {
+    // https://stackoverflow.com/questions/67478532/module-not-found-cant-resolve-fs-nextjs/67478653#67478653
+    config.resolve.fallback = {
+      ...config.resolve.fallback, // if you miss it, all the other options in fallback, specified by next.js will be dropped. Doesn't make much sense, but how it is
+      os: false,
+      fs: false,
+      zlib: false,
+    };
+
     config.module.rules.push({
       test: /\.svg$/,
       use: ['@svgr/webpack'],

@@ -5,8 +5,8 @@ import {Providers} from './providers';
 import {authOptions} from './api/auth/[...nextauth]/route';
 
 export const metadata: Metadata = {
-  title: 'Home | Maxxed',
-  description: 'Welcome to Maxxed',
+  title: 'Home | Glyphx',
+  description: 'Welcome to Glyphx',
 };
 
 declare global {

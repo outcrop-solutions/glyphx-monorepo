@@ -11,7 +11,7 @@ import {showProjectsGridViewAtom, workspaceAtom} from 'state';
 import {GridView, PinnedProjects, TableView, Templates} from './_components/workspace';
 import {RightSidebar} from './_components/rightSidebar';
 
-const Workspace = () => {
+export default function Workspace() {
   const {data, isLoading} = useWorkspace();
   const setWorkspace = useSetRecoilState(workspaceAtom);
   // hydrate recoil state
@@ -47,5 +47,3 @@ const Workspace = () => {
     )
   );
 };
-
-export default Workspace;

@@ -1,5 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {Schema} from 'mongoose';
+import {webTypes} from 'types';
 
 const MINCOLOR_SCHEMA = new Schema({
   r: {

@@ -19,14 +19,14 @@ export const updateRole = async (req: NextApiRequest, res: NextApiResponse, sess
   const {memberId, role} = req.body;
   try {
     const member = await membershipService.getMember(memberId);
-    await membershipService.updateRole(member?._id as string, role);
+    await membershipService.updateRole(member?._id?.toString() as string, role);
 
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
       actorId: session?.user?.userId as string,
-      resourceId: member?._id as string,
-      workspaceId: member?.workspace._id as string,
+      resourceId: member?._id?.toString() as string,
+      workspaceId: member?.workspace._id?.toString() as string,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
@@ -57,8 +57,8 @@ export const removeMember = async (req: NextApiRequest, res: NextApiResponse, se
 
     await activityLogService.createLog({
       actorId: session?.user?.userId as string,
-      resourceId: member?._id as string,
-      workspaceId: member?.workspace._id as string,
+      resourceId: member?._id?.toString() as string,
+      workspaceId: member?.workspace._id?.toString() as string,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
@@ -90,7 +90,7 @@ export const joinWorkspace = async (req: NextApiRequest, res: NextApiResponse, s
 
     await activityLogService.createLog({
       actorId: session?.user?.userId as string,
-      resourceId: workspace?._id as string,
+      resourceId: workspace?._id?.toString() as string,
       workspaceId: workspace?._id,
       location: location,
       userAgent: agentData,

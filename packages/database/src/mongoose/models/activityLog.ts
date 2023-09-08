@@ -34,7 +34,7 @@ const SCHEMA = new Schema<IActivityLogDocument, IActivityLogStaticMethods, IActi
       () => new Date(),
   },
   actor: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
-  userAgent: {type: Schema.Types.Mixed, required: true},
+  userAgent: userAgentSchema,
   workspaceId: {type: Schema.Types.ObjectId, required: false},
   projectId: {type: Schema.Types.ObjectId, required: false},
   action: {

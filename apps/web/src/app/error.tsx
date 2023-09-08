@@ -2,7 +2,7 @@
 import React from 'react';
 import {FallbackProps} from 'react-error-boundary';
 
-export const ErrorFallback = ({error, resetErrorBoundary}: FallbackProps) => {
+export default function ErrorFallback({error, resetErrorBoundary}: FallbackProps) {
   return (
     <div className="w-full h-full">
       <h2 className="text-white text-center">Root Error Boundary</h2>
@@ -12,4 +12,4 @@ export const ErrorFallback = ({error, resetErrorBoundary}: FallbackProps) => {
       </h4>
     </div>
   );
-};
+}

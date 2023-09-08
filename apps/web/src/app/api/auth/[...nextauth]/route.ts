@@ -14,10 +14,8 @@ export const authOptions: NextAuthOptions = {
     session: async ({session, user}) => {
       if (session?.user) {
         const customerPayment = await customerPaymentService.getPayment(user.email);
-        //@ts-ignore
         session.user.userId = user.id;
         if (customerPayment) {
-          //@ts-ignore
           session.user.subscription = customerPayment.subscriptionType;
         }
       }
@@ -72,9 +70,7 @@ export const authOptions: NextAuthOptions = {
       },
     }),
     GoogleProvider({
-      // eslint-disable-next-line turbo/no-undeclared-env-vars
       clientId: process.env.GOOGLE_CLIENT_ID!,
-      // eslint-disable-next-line turbo/no-undeclared-env-vars
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],

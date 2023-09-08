@@ -11,7 +11,7 @@ import {useWorkspace} from 'lib';
 import {RightSidebar} from 'app/[workspaceSlug]/_components/rightSidebar';
 import {ProjectSidebar} from './_components/projectSidebar';
 
-const ProjectLayout = ({children}) => {
+export default function ProjectLayout({children}) {
   const {data} = useSession();
   const router = useRouter();
   const {data: result} = useWorkspace();
@@ -38,6 +38,4 @@ const ProjectLayout = ({children}) => {
       <RightSidebar />
     </div>
   );
-};
-
-export default ProjectLayout;
+}

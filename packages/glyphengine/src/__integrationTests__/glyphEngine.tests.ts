@@ -8,7 +8,7 @@ import addFilesJson from './assets/addTables.json';
 import {v4} from 'uuid';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
 
-import {fileIngestion, databaseTypes} from 'types';
+import {fileIngestionTypes, databaseTypes} from 'types';
 import {GlyphEngine} from '../glyphEngine';
 import {Initializer as glyphEngineInitializer} from '../init';
 const UNIQUE_KEY = v4().replaceAll('-', '');

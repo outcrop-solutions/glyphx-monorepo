@@ -8,7 +8,7 @@ import Content from 'app/_components/Content';
 import {_acceptInvitation, _declineInvitation, api, useInvitations, useWorkspaces} from 'lib/client';
 import {Route} from 'next';
 
-const Welcome = () => {
+export default function Welcome() {
   const router = useRouter();
   const {data: invitationsData, isLoading: isFetchingInvitations} = useInvitations();
   const {data: workspacesData, isLoading: isFetchingWorkspaces} = useWorkspaces();
@@ -100,6 +100,4 @@ const Welcome = () => {
       </Content.Container>
     </>
   );
-};
-
-export default Welcome;
+}
