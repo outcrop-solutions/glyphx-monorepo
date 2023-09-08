@@ -76,12 +76,12 @@ export const States = () => {
               />
             </svg>
           </span>
-          <a>
+          <div>
             <span className="font-roboto font-medium text-[12px] leading-[14px] tracking-[.01em] ml-3 text-light-gray">
               {' '}
               States{' '}
             </span>
-          </a>
+          </div>
         </div>
         <PlusIcon
           color="#CECECE"

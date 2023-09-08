@@ -6,10 +6,10 @@ import GoogleProvider from 'next-auth/providers/google';
 import EmailProvider from 'next-auth/providers/email';
 import {signInHtml, signInText, EmailClient} from 'email';
 import {customerPaymentService} from 'business';
-import clientPromise from 'lib/server/mongodb';
+import MongoClient from 'lib/server/mongodb';
 
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(clientPromise),
+  adapter: MongoDBAdapter(MongoClient),
   callbacks: {
     session: async ({session, user}) => {
       if (session?.user) {

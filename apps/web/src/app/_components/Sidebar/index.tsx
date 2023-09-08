@@ -52,23 +52,16 @@ const Sidebar = ({menu}) => {
           projectId && 'border-b-gray'
         }`}
       >
-        {/* eslint-disable-next-line react/no-string-refs */}
-        <Link
-          onClick={() => {
-            setDrawer(false);
-            window?.core?.ToggleDrawer(false);
-          }}
-          href="/account"
-          legacyBehavior>
-          {projectId ? (
-            <div className="py-1">
-              <SmallLogo />
-            </div>
-          ) : (
-            <div className="py-1">
-              <FullLogo />
-            </div>
-          )}
+        <Link href="/account">
+          <div
+            onClick={() => {
+              setDrawer(false);
+              window?.core?.ToggleDrawer(false);
+            }}
+            className="py-1"
+          >
+            {projectId ? <SmallLogo /> : <FullLogo />}
+          </div>
         </Link>
         {!projectId && (
           <button className="absolute right-0 p-5 md:hidden" onClick={toggleMenu}>

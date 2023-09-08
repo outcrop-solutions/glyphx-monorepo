@@ -43,12 +43,12 @@ export const Files = () => {
                 />
               </svg>
             </span>
-            <a>
+            <div>
               <span className="font-roboto font-medium text-[12px] leading-[14px] tracking-[.01em] ml-3 text-light-gray">
                 {' '}
                 Files{' '}
               </span>
-            </a>
+            </div>
           </div>
           <div
             {...getRootProps()}

@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {AnnotationList} from './AnnotationList';
 import {useAnnotations} from 'lib/client/hooks';
+import Link from 'next/link';
 
 export const Annotations = () => {
   const [isCollapsed, setCollapsed] = useState(false);
@@ -29,12 +30,12 @@ export const Annotations = () => {
               />
             </svg>
           </span>
-          <a>
+          <Link>
             <span className="font-roboto font-medium text-[12px] leading-[14px] tracking-[.01em] ml-3 text-light-gray">
               {' '}
               Threads{' '}
             </span>
-          </a>
+          </Link>
         </div>
       </summary>
       {!isCollapsed && !isLoading && <AnnotationList />}

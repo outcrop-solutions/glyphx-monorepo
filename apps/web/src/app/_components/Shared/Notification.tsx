@@ -4,6 +4,7 @@ import Success from 'public/svg/success-notif.svg';
 import Default from 'public/svg/tooltip-icon.svg';
 import NotifIcon from 'public/svg/notif-icon.svg';
 import {Route} from 'next';
+import Link from 'next/link';
 
 export function Notification({children, className, type, open, setOpen}) {
   const typeIcon = (type) => {
@@ -35,9 +36,9 @@ export function Notification({children, className, type, open, setOpen}) {
               </button>
             </div>
             <div className="text-right mt-1">
-              <a className="font-medium text-indigo-500 hover:text-indigo-600" href={'#0' as Route}>
+              <Link className="font-medium text-indigo-500 hover:text-indigo-600" href={'#0' as Route}>
                 Action -&gt;
-              </a>
+              </Link>
             </div>
           </div>
         </div>

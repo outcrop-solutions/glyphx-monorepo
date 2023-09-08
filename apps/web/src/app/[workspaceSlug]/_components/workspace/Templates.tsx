@@ -4,6 +4,7 @@ import {CalendarIcon, SpeakerphoneIcon, TerminalIcon} from '@heroicons/react/out
 import {_createDefaultProject, api, useWorkspace} from 'lib/client';
 import {useParams, useRouter} from 'next/navigation';
 import {Route} from 'next';
+import Link from 'next/link';
 const items = [
   {
     name: 'Shipping Send by SKU',
@@ -58,10 +59,10 @@ export const Templates = () => {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium text-white">
-                  <a href={item.href as Route}>
+                  <Link href={item.href as Route}>
                     <span className="absolute inset-0" aria-hidden="true" />
                     {item.name}
-                  </a>
+                  </Link>
                   <span className="text-sm text-yellow ml-2">Coming Soon!</span>
                 </div>
                 <p className="text-sm text-gray">{item.description}</p>

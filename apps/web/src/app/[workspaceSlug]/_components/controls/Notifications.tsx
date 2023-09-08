@@ -1,6 +1,6 @@
 import {Route} from 'next';
 import React, {useState, useRef, useEffect} from 'react';
-import {Link} from 'react-router-dom';
+import {Link} from 'next/link';
 import {Transition} from 'utils/Transition';
 
 export function Notifications() {
@@ -73,36 +73,36 @@ export function Notifications() {
           <ul>
             <li className="border-b border-gray last:border-0">
               <Link className="block py-2 px-4 hover:bg-gray" href={'#0' as Route}>
-                <a onClick={() => setDropdownOpen(!dropdownOpen)}>
+                <div onClick={() => setDropdownOpen(!dropdownOpen)}>
                   <span className="block text-sm mb-2">
                     📣 <span className="font-medium text-gray">Edit your information in a swipe</span> Sint occaecat
                     cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.
                   </span>
                   <span className="block text-xs font-medium text-gray">Feb 12, 2021</span>
-                </a>
+                </div>
               </Link>
             </li>
             <li className="border-b border-gray last:border-0">
               <Link href={'#0' as Route}>
-                <a onClick={() => setDropdownOpen(!dropdownOpen)} className="block py-2 px-4 hover:bg-gray">
+                <div onClick={() => setDropdownOpen(!dropdownOpen)} className="block py-2 px-4 hover:bg-gray">
                   <span className="block text-sm mb-2">
                     📣 <span className="font-medium text-gray">Edit your information in a swipe</span> Sint occaecat
                     cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.
                   </span>
                   <span className="block text-xs font-medium text-gray">Feb 9, 2021</span>
-                </a>
+                </div>
               </Link>
             </li>
             <li className="border-b border-gray last:border-0">
               <Link href={'#0' as Route}>
-                <a onClick={() => setDropdownOpen(!dropdownOpen)} className="block py-2 px-4 hover:bg-gray">
+                <div onClick={() => setDropdownOpen(!dropdownOpen)} className="block py-2 px-4 hover:bg-gray">
                   <span className="block text-sm mb-2">
                     🚀
                     <span className="font-medium text-gray">Say goodbye to paper receipts!</span> Sint occaecat
                     cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.
                   </span>
                   <span className="block text-xs font-medium text-gray">Jan 24, 2020</span>
-                </a>
+                </div>
               </Link>
             </li>
           </ul>

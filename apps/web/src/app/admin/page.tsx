@@ -4,6 +4,7 @@ import {Disclosure, Menu, Transition} from '@headlessui/react';
 import {BellIcon, MenuIcon, XIcon} from '@heroicons/react/outline';
 import Image from 'next/image';
 import {Route} from 'next';
+import Link from 'next/link';
 // DUMMY DATA
 const user = {
   name: 'Bryan Holster',
@@ -99,7 +100,7 @@ export default function Dashboard() {
                       </div>
                       <div className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
                         {navigation.map((item) => (
-                          <a
+                          <Link
                             key={item.name}
                             href={item.href as Route}
                             className={classNames(
@@ -111,7 +112,7 @@ export default function Dashboard() {
                             aria-current={item.current ? 'page' : undefined}
                           >
                             {item.name}
-                          </a>
+                          </Link>
                         ))}
                       </div>
                     </div>
@@ -145,12 +146,12 @@ export default function Dashboard() {
                             {userNavigation.map((item) => (
                               <Menu.Item key={item.name}>
                                 {({active}) => (
-                                  <a
+                                  <Link
                                     href={item.href as Route}
                                     className={classNames(active ? 'bg-gray' : '', 'block px-4 py-2 text-sm text-gray')}
                                   >
                                     {item.name}
-                                  </a>
+                                  </Link>
                                 )}
                               </Menu.Item>
                             ))}

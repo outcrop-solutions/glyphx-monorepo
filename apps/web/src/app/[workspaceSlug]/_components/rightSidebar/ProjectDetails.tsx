@@ -7,6 +7,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 import {useRecoilState} from 'recoil';
 import {rightSidebarControlAtom} from 'state';
+import Link from 'next/link';
 
 const tabs = [
   {name: 'Info', href: '#', current: true},
@@ -72,7 +73,7 @@ export const ProjectDetails = () => {
             <div className="block mb-2">
               <nav className="relative z-0 rounded-lg shadow flex divide-x divide-gray" aria-label="Tabs">
                 {tabs.map((tab, tabIdx) => (
-                  <a
+                  <Link
                     key={tab.name}
                     href={tab.href}
                     className={classNames(
@@ -91,7 +92,7 @@ export const ProjectDetails = () => {
                         'absolute inset-x-0 bottom-0 h-0.5'
                       )}
                     />
-                  </a>
+                  </Link>
                 ))}
               </nav>
             </div>

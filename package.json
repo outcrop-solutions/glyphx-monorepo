@@ -6,6 +6,11 @@
     "apps/**",
     "packages/**"
   ],
+  "pnpm": {
+    "overrides": {
+      "@colors/colors": "1.6.0"
+    }
+  },
   "scripts": {
     "build": "rimraf apps/web/.next && dotenv -- turbo build",
     "test": "rimraf apps/web/.next && dotenv -- turbo test",

@@ -27,6 +27,7 @@ module.exports = {
     },
   },
   experimental: {
+    serverActions: true,
     // gives us statically types routes
     // typedRoutes: true,
     // turbo: {
@@ -82,13 +83,20 @@ module.exports = {
   poweredByHeader: false,
 
   webpack(config, {buildId, dev, isServer, defaultLoaders, nextRuntime, webpack}) {
-    // https://stackoverflow.com/questions/67478532/module-not-found-cant-resolve-fs-nextjs/67478653#67478653
-    config.resolve.fallback = {
-      ...config.resolve.fallback, // if you miss it, all the other options in fallback, specified by next.js will be dropped. Doesn't make much sense, but how it is
-      os: false,
-      fs: false,
-      zlib: false,
-    };
+    if (!isServer) {
+      // https://stackoverflow.com/questions/67478532/module-not-found-cant-resolve-fs-nextjs/67478653#67478653
+      // config.resolve.fallback = {
+      //   ...config.resolve.fallback, // if you miss it, all the other options in fallback, specified by next.js will be dropped. Doesn't make much sense, but how it is
+      //   os: false,
+      //   fs: false,
+      //   zlib: false,
+      //   winston: false,
+      //   querystring: false,
+      //   crypto: false,
+      // };
+      // externalize server-only modules on the client
+      // config.externals = ['winston', 'crypto', 'fs', 'zlib', 'querystring', '@colors/colors', ...config.externals];
+    }
 
     config.module.rules.push({
       test: /\.svg$/,

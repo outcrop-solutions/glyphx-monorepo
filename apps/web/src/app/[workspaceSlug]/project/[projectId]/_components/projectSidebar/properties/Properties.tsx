@@ -35,12 +35,12 @@ export const Properties = () => {
                   />
                 </svg>
               </span>
-              <a>
+              <div>
                 <span className="font-roboto font-medium text-[12px] leading-[14px] tracking-[.01em] ml-3 text-light-gray">
                   {' '}
                   Axes{' '}
                 </span>
-              </a>
+              </div>
             </div>
             {/* <PlusIcon className="w-5 h-5 opacity-75 mr-1" /> */}
           </summary>
