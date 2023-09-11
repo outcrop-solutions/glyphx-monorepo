@@ -1,6 +1,6 @@
-import {database as databaseTypes} from '@glyphx/types';
-import {error, constants} from '@glyphx/core';
-import mongoDbConnection from 'lib/databaseConnection';
+import {databaseTypes} from 'types';
+import {error, constants} from 'core';
+import mongoDbConnection from '../lib/databaseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 
 export class AnnotationService {
@@ -11,12 +11,12 @@ export class AnnotationService {
       const id =
         stateId instanceof mongooseTypes.ObjectId
           ? stateId
-          : new mongooseTypes.ObjectId(stateId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(stateId);
 
-      const annotations =
-        await mongoDbConnection.models.AnnotationModel.queryAnnotations({
-          stateId: id,
-        });
+      const annotations = await mongoDbConnection.models.AnnotationModel.queryAnnotations({
+        stateId: id,
+      });
 
       return annotations?.results;
     } catch (err: any) {
@@ -44,12 +44,12 @@ export class AnnotationService {
       const id =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new mongooseTypes.ObjectId(projectId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(projectId);
 
-      const annotations =
-        await mongoDbConnection.models.AnnotationModel.queryAnnotations({
-          projectId: id,
-        });
+      const annotations = await mongoDbConnection.models.AnnotationModel.queryAnnotations({
+        projectId: id,
+      });
 
       return annotations?.results;
     } catch (err: any) {
@@ -83,11 +83,13 @@ export class AnnotationService {
       const authorCastId =
         authorId instanceof mongooseTypes.ObjectId
           ? authorId
-          : new mongooseTypes.ObjectId(authorId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(authorId);
       const stateCastId =
         stateId instanceof mongooseTypes.ObjectId
           ? stateId
-          : new mongooseTypes.ObjectId(stateId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(stateId);
 
       const input = {
         author: authorCastId,
@@ -95,8 +97,7 @@ export class AnnotationService {
         value: value,
       };
 
-      const annotation =
-        await mongoDbConnection.models.AnnotationModel.createAnnotation(input);
+      const annotation = await mongoDbConnection.models.AnnotationModel.createAnnotation(input);
       return annotation;
     } catch (err: any) {
       if (
@@ -132,11 +133,13 @@ export class AnnotationService {
       const authorCastId =
         authorId instanceof mongooseTypes.ObjectId
           ? authorId
-          : new mongooseTypes.ObjectId(authorId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(authorId);
       const projectCastId =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new mongooseTypes.ObjectId(projectId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(projectId);
 
       const input = {
         author: authorCastId,
@@ -144,8 +147,7 @@ export class AnnotationService {
         value: value,
       };
 
-      const annotation =
-        await mongoDbConnection.models.AnnotationModel.createAnnotation(input);
+      const annotation = await mongoDbConnection.models.AnnotationModel.createAnnotation(input);
       return annotation;
     } catch (err: any) {
       if (

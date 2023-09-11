@@ -3,7 +3,7 @@ import {assert} from 'chai';
 import {createSandbox} from 'sinon';
 import {TextColumnToNumberConverter} from '../../io/textToNumberConverter';
 import athenaClient from '../../io/athenaClient';
-import {error, aws} from '@glyphx/core';
+import {error, aws} from 'core';
 
 class MockAthenaClient {
   private data: any;
@@ -38,10 +38,7 @@ describe('TextToNumberConverter', () => {
     it('should create an instance', () => {
       const tableName = 'testTableName';
       const columnName = 'testColumnName';
-      const converter = new TextColumnToNumberConverter(
-        tableName,
-        columnName
-      ) as any;
+      const converter = new TextColumnToNumberConverter(tableName, columnName) as any;
       assert.strictEqual(converter.tableName, tableName);
       assert.strictEqual(converter.columnName, columnName);
     });
@@ -62,10 +59,7 @@ describe('TextToNumberConverter', () => {
 
       const tableName = 'testTableName';
       const columnName = 'colA';
-      const converter = new TextColumnToNumberConverter(
-        tableName,
-        columnName
-      ) as any;
+      const converter = new TextColumnToNumberConverter(tableName, columnName) as any;
 
       await converter.load();
       assert.strictEqual(converter.convertedFields.size, MOCK_DATA.length);
@@ -75,16 +69,12 @@ describe('TextToNumberConverter', () => {
       sandbox.replaceGetter(
         athenaClient,
         'connection',
-        () =>
-          new MockAthenaClient(MOCK_DATA, true) as unknown as aws.AthenaManager
+        () => new MockAthenaClient(MOCK_DATA, true) as unknown as aws.AthenaManager
       );
 
       const tableName = 'testTableName';
       const columnName = 'colA';
-      const converter = new TextColumnToNumberConverter(
-        tableName,
-        columnName
-      ) as any;
+      const converter = new TextColumnToNumberConverter(tableName, columnName) as any;
       let errored = false;
       try {
         await converter.load();
@@ -112,20 +102,13 @@ describe('TextToNumberConverter', () => {
 
       const tableName = 'testTableName';
       const columnName = 'colA';
-      const converter = new TextColumnToNumberConverter(
-        tableName,
-        columnName
-      ) as any;
+      const converter = new TextColumnToNumberConverter(tableName, columnName) as any;
 
       await converter.load();
-      const aIndex = MOCK_DATA.findIndex(
-        (row: {colA: string}) => row.colA === 'a'
-      );
+      const aIndex = MOCK_DATA.findIndex((row: {colA: string}) => row.colA === 'a');
       assert.strictEqual(converter.convert('a'), aIndex);
 
-      const jIndex = MOCK_DATA.findIndex(
-        (row: {colA: string}) => row.colA === 'j'
-      );
+      const jIndex = MOCK_DATA.findIndex((row: {colA: string}) => row.colA === 'j');
       assert.strictEqual(converter.convert('j'), jIndex);
     });
 
@@ -138,10 +121,7 @@ describe('TextToNumberConverter', () => {
 
       const tableName = 'testTableName';
       const columnName = 'colA';
-      const converter = new TextColumnToNumberConverter(
-        tableName,
-        columnName
-      ) as any;
+      const converter = new TextColumnToNumberConverter(tableName, columnName) as any;
 
       await converter.load();
       let errored = false;
@@ -169,10 +149,7 @@ describe('TextToNumberConverter', () => {
 
       const tableName = 'testTableName';
       const columnName = 'colA';
-      const converter = new TextColumnToNumberConverter(
-        tableName,
-        columnName
-      ) as any;
+      const converter = new TextColumnToNumberConverter(tableName, columnName) as any;
 
       await converter.load();
 

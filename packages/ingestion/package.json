@@ -1,55 +1,45 @@
 {
-  "name": "@glyphx/fileingestion",
+  "name": "fileingestion",
   "version": "1.0.0",
   "description": "A Lambda Function for ingesting CSV files uploaded to an S3 Bucket.",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "scripts": {
     "coverage": "TS_NODE_FILES=true nyc mocha -r ts-node/register -r tsconfig-paths/register --timeout 999999 --exit --recursive \"src/__tests__/**/*.tests.ts\"",
     "test": "TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register  -r dotenv/config --recursive  --timeout 999999 --exit \"src/__tests__/**/*.tests.ts\"",
     "integrationTest": "DOTENV_CONFIG_PATH=src/__integrationTests__/.env.integration TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register  -r dotenv/config --recursive  --timeout 999999 --exit \"src/__integrationTests__/**/*.tests.ts\"",
-    "lint": "gts lint",
-    "dev": "tsup --watch",
+    "lint": "eslint .",
+    "fix": "eslint . --fix",
+    "format:write": "prettier --write \"**/*.{js,json,jsx,ts,tsx}\"",
+    "format": "prettier \"**/*.{js,json,jsx,ts,tsx}\"",
     "clean": "rimraf .turbo node_modules dist",
-    "build": "tsup",
-    "fix": "gts fix",
     "start:dev": "ts-node src/index.ts",
     "docs": "npx typedoc",
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs"
   },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "eslint . --fix"
+    ]
+  },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "author": "JP Burford",
   "license": "ISC",
-  "lint-staged": {
-    "*.{js,ts}": [
-      "gts fix"
-    ]
-  },
   "devDependencies": {
     "@aws-sdk/types": "3.292.0",
-    "@glyphx/eslint-config-glyphx-backend": "workspace:*",
-    "@glyphx/tsconfig": "workspace:*",
-    "@glyphx/types": "workspace:*",
+    "eslint-config-custom": "workspace:*",
+    "tsconfig": "workspace:*",
+    "types": "workspace:*",
     "@types/chai": "^4.3.3",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.11.7",
     "@types/parquetjs": "^0.10.3",
     "@types/sinon": "^10.0.13",
     "@types/uuid": "^9.0.0",
-    "@typescript-eslint/eslint-plugin": "5.46.1",
-    "@typescript-eslint/parser": "^5.42.0",
     "aws-sdk-client-mock": "^2.1.1",
     "chai": "^4.3.6",
-    "eslint": "^8.12.0",
-    "eslint-import-resolver-typescript": "^3.5.2",
-    "eslint-plugin-filename-rules": "^1.2.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "gts": "^3.1.0",
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
     "mocha": "^10.1.0",
@@ -69,12 +59,13 @@
     "@aws-sdk/client-athena": "3.292.0",
     "@aws-sdk/client-s3": "3.292.0",
     "@aws-sdk/lib-storage": "3.292.0",
-    "@glyphx/business": "workspace:*",
-    "@glyphx/core": "workspace:*",
+    "business": "workspace:*",
+    "core": "workspace:*",
     "csv": "^6.2.2",
     "currency-symbol-map": "^5.1.0",
     "dotenv": "^16.0.3",
     "module-alias": "^2.2.2",
-    "parquetjs": "^0.11.2"
+    "parquetjs": "^0.11.2",
+    "server-only": "^0.0.1"
   }
 }

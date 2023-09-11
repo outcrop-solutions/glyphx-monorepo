@@ -3,8 +3,8 @@ import {MemberModel} from '../../../mongoose/models/member';
 import {UserModel} from '../../../mongoose/models/user';
 import {WorkspaceModel} from '../../../mongoose/models/workspace';
 import {ProjectModel} from '../../../mongoose/models/project';
-import {database as databaseTypes} from '@glyphx/types';
-import {error} from '@glyphx/core';
+import {databaseTypes} from 'types';
+import {error} from 'core';
 import mongoose, {Types as mongooseTypes} from 'mongoose';
 import {createSandbox} from 'sinon';
 import {IMemberCreateInput} from '../../../mongoose/interfaces';
@@ -110,7 +110,9 @@ describe('#mongoose/models/member', () => {
 
     it('should return true if the member email exists type === PROJECT', async () => {
       const memberEmail = 'testmember@gmail.com' as string;
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId =
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const findByEmailStub = sandbox.stub();
       findByEmailStub.resolves({email: memberEmail});
       sandbox.replace(MemberModel, 'findOne', findByEmailStub);
@@ -126,7 +128,9 @@ describe('#mongoose/models/member', () => {
 
     it('should return false if the member email does not exist type === PROJECT', async () => {
       const memberEmail = 'testmember@gmail.com' as string;
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId =
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const findByEmailStub = sandbox.stub();
       findByEmailStub.resolves(null);
       sandbox.replace(MemberModel, 'findOne', findByEmailStub);
@@ -142,7 +146,9 @@ describe('#mongoose/models/member', () => {
 
     it('should return true if the member email exists type === WORKSPACE', async () => {
       const memberEmail = 'testmember@gmail.com' as string;
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId =
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const findByEmailStub = sandbox.stub();
       findByEmailStub.resolves({email: memberEmail});
       sandbox.replace(MemberModel, 'findOne', findByEmailStub);
@@ -158,7 +164,9 @@ describe('#mongoose/models/member', () => {
 
     it('should return false if the member email does not exist type === WORKSPACE', async () => {
       const memberEmail = 'testmember@gmail.com' as string;
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId =
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const findByEmailStub = sandbox.stub();
       findByEmailStub.resolves(null);
       sandbox.replace(MemberModel, 'findOne', findByEmailStub);
@@ -174,18 +182,16 @@ describe('#mongoose/models/member', () => {
 
     it('will throw a DatabaseOperationError when the underlying database connection errors', async () => {
       const memberEmail = 'testmember@gmail.com' as string;
-      const projectId = new mongooseTypes.ObjectId();
+      const projectId =
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const findByEmailStub = sandbox.stub();
       findByEmailStub.rejects('something unexpected has happend');
       sandbox.replace(MemberModel, 'findOne', findByEmailStub);
 
       let errorred = false;
       try {
-        await MemberModel.memberExists(
-          memberEmail,
-          databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
-          projectId
-        );
+        await MemberModel.memberExists(memberEmail, databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT, projectId);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -204,17 +210,9 @@ describe('#mongoose/models/member', () => {
     it('will create a member document', async () => {
       const memberId = new mongoose.Types.ObjectId();
       sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
-      sandbox.replace(
-        WorkspaceModel,
-        'workspaceIdExists',
-        sandbox.stub().resolves(true)
-      );
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', sandbox.stub().resolves(true));
 
-      sandbox.replace(
-        MemberModel,
-        'memberExists',
-        sandbox.stub().resolves(false)
-      );
+      sandbox.replace(MemberModel, 'memberExists', sandbox.stub().resolves(false));
 
       sandbox.replace(
         MemberModel,
@@ -223,11 +221,7 @@ describe('#mongoose/models/member', () => {
       );
 
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(
-        MemberModel,
-        'create',
-        sandbox.stub().resolves([{_id: memberId}])
-      );
+      sandbox.replace(MemberModel, 'create', sandbox.stub().resolves([{_id: memberId}]));
 
       const getMemberByIdStub = sandbox.stub();
       getMemberByIdStub.resolves({_id: memberId});
@@ -242,17 +236,9 @@ describe('#mongoose/models/member', () => {
     it('will create a member document with nullish coallesce', async () => {
       const memberId = new mongoose.Types.ObjectId();
       sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
-      sandbox.replace(
-        WorkspaceModel,
-        'workspaceIdExists',
-        sandbox.stub().resolves(true)
-      );
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', sandbox.stub().resolves(true));
 
-      sandbox.replace(
-        MemberModel,
-        'memberExists',
-        sandbox.stub().resolves(false)
-      );
+      sandbox.replace(MemberModel, 'memberExists', sandbox.stub().resolves(false));
 
       sandbox.replace(
         MemberModel,
@@ -282,14 +268,9 @@ describe('#mongoose/models/member', () => {
 
       sandbox.replace(MemberModel, 'getMemberById', getMemberByIdStub);
 
-      const result = await MemberModel.createWorkspaceMember(
-        MOCK_NULLISH_MEMBER
-      );
+      const result = await MemberModel.createWorkspaceMember(MOCK_NULLISH_MEMBER);
       assert.strictEqual(result._id, memberId);
-      assert.strictEqual(
-        result.status,
-        databaseTypes.constants.INVITATION_STATUS.PENDING
-      );
+      assert.strictEqual(result.status, databaseTypes.constants.INVITATION_STATUS.PENDING);
       assert.strictEqual(result.teamRole, databaseTypes.constants.ROLE.MEMBER);
       assert.isTrue(getMemberByIdStub.calledOnce);
     });
@@ -297,35 +278,19 @@ describe('#mongoose/models/member', () => {
     it('will create a member document with member as ID', async () => {
       const memberId = new mongoose.Types.ObjectId();
       sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
-      sandbox.replace(
-        WorkspaceModel,
-        'workspaceIdExists',
-        sandbox.stub().resolves(true)
-      );
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', sandbox.stub().resolves(true));
 
-      sandbox.replace(
-        MemberModel,
-        'memberExists',
-        sandbox.stub().resolves(false)
-      );
+      sandbox.replace(MemberModel, 'memberExists', sandbox.stub().resolves(false));
       sandbox.replace(
         MemberModel,
         'validateWorkspaceMember',
         sandbox.stub().resolves({_id: new mongoose.Types.ObjectId()})
       );
 
-      sandbox.replace(
-        UserModel,
-        'getUserById',
-        sandbox.stub().resolves({_id: new mongoose.Types.ObjectId()})
-      );
+      sandbox.replace(UserModel, 'getUserById', sandbox.stub().resolves({_id: new mongoose.Types.ObjectId()}));
 
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(
-        MemberModel,
-        'create',
-        sandbox.stub().resolves([{_id: memberId}])
-      );
+      sandbox.replace(MemberModel, 'create', sandbox.stub().resolves([{_id: memberId}]));
 
       const getMemberByIdStub = sandbox.stub();
       getMemberByIdStub.resolves({_id: memberId});
@@ -340,27 +305,11 @@ describe('#mongoose/models/member', () => {
     it('will throw an InvalidArgumentError if the member attached to the Member does not exist.', async () => {
       const memberId = new mongoose.Types.ObjectId();
 
-      sandbox.replace(
-        UserModel,
-        'userIdExists',
-        sandbox.stub().resolves(false)
-      );
-      sandbox.replace(
-        WorkspaceModel,
-        'workspaceIdExists',
-        sandbox.stub().resolves(true)
-      );
-      sandbox.replace(
-        MemberModel,
-        'memberExists',
-        sandbox.stub().resolves(false)
-      );
+      sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(false));
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', sandbox.stub().resolves(true));
+      sandbox.replace(MemberModel, 'memberExists', sandbox.stub().resolves(false));
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(
-        MemberModel,
-        'create',
-        sandbox.stub().resolves([{_id: memberId}])
-      );
+      sandbox.replace(MemberModel, 'create', sandbox.stub().resolves([{_id: memberId}]));
 
       const getMemberByIdStub = sandbox.stub();
       getMemberByIdStub.resolves({_id: memberId});
@@ -384,22 +333,10 @@ describe('#mongoose/models/member', () => {
       userIdStub.resolves(true);
       userIdStub.onSecondCall().resolves(false);
       sandbox.replace(UserModel, 'userIdExists', userIdStub);
-      sandbox.replace(
-        WorkspaceModel,
-        'workspaceIdExists',
-        sandbox.stub().resolves(true)
-      );
-      sandbox.replace(
-        MemberModel,
-        'memberExists',
-        sandbox.stub().resolves(false)
-      );
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', sandbox.stub().resolves(true));
+      sandbox.replace(MemberModel, 'memberExists', sandbox.stub().resolves(false));
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(
-        MemberModel,
-        'create',
-        sandbox.stub().resolves([{_id: memberId}])
-      );
+      sandbox.replace(MemberModel, 'create', sandbox.stub().resolves([{_id: memberId}]));
 
       const getMemberByIdStub = sandbox.stub();
       getMemberByIdStub.resolves({_id: memberId});
@@ -422,34 +359,14 @@ describe('#mongoose/models/member', () => {
       const userIdStub = sandbox.stub();
       userIdStub.resolves(true);
       sandbox.replace(UserModel, 'userIdExists', userIdStub);
-      sandbox.replace(
-        WorkspaceModel,
-        'workspaceIdExists',
-        sandbox.stub().resolves(true)
-      );
-      sandbox.replace(
-        MemberModel,
-        'memberExists',
-        sandbox.stub().resolves(true)
-      );
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', sandbox.stub().resolves(true));
+      sandbox.replace(MemberModel, 'memberExists', sandbox.stub().resolves(true));
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(
-        MemberModel,
-        'create',
-        sandbox.stub().resolves([{_id: memberId}])
-      );
+      sandbox.replace(MemberModel, 'create', sandbox.stub().resolves([{_id: memberId}]));
       sandbox.replace(
         MemberModel,
         'validateWorkspaceMember',
-        sandbox
-          .stub()
-          .rejects(
-            new error.InvalidArgumentError(
-              'The email already exists',
-              'email',
-              'email'
-            )
-          )
+        sandbox.stub().rejects(new error.InvalidArgumentError('The email already exists', 'email', 'email'))
       );
 
       const getMemberByIdStub = sandbox.stub();
@@ -471,27 +388,15 @@ describe('#mongoose/models/member', () => {
 
       sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
 
-      sandbox.replace(
-        WorkspaceModel,
-        'workspaceIdExists',
-        sandbox.stub().resolves(false)
-      );
-      sandbox.replace(
-        MemberModel,
-        'memberExists',
-        sandbox.stub().resolves(false)
-      );
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', sandbox.stub().resolves(false));
+      sandbox.replace(MemberModel, 'memberExists', sandbox.stub().resolves(false));
       sandbox.replace(
         MemberModel,
         'validateWorkspaceMember',
         sandbox.stub().resolves({_id: new mongoose.Types.ObjectId()})
       );
       sandbox.replace(MemberModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(
-        MemberModel,
-        'create',
-        sandbox.stub().resolves([{_id: memberId}])
-      );
+      sandbox.replace(MemberModel, 'create', sandbox.stub().resolves([{_id: memberId}]));
 
       const getMemberByIdStub = sandbox.stub();
       getMemberByIdStub.resolves({_id: memberId});
@@ -511,31 +416,15 @@ describe('#mongoose/models/member', () => {
     it('will throw an DataValidationError if the member cannot be validated.', async () => {
       const memberId = new mongoose.Types.ObjectId();
       sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
-      sandbox.replace(
-        WorkspaceModel,
-        'workspaceIdExists',
-        sandbox.stub().resolves(true)
-      );
-      sandbox.replace(
-        MemberModel,
-        'memberExists',
-        sandbox.stub().resolves(false)
-      );
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', sandbox.stub().resolves(true));
+      sandbox.replace(MemberModel, 'memberExists', sandbox.stub().resolves(false));
       sandbox.replace(
         MemberModel,
         'validateWorkspaceMember',
         sandbox.stub().resolves({_id: new mongoose.Types.ObjectId()})
       );
-      sandbox.replace(
-        MemberModel,
-        'validate',
-        sandbox.stub().rejects('Invalid')
-      );
-      sandbox.replace(
-        MemberModel,
-        'create',
-        sandbox.stub().resolves([{_id: memberId}])
-      );
+      sandbox.replace(MemberModel, 'validate', sandbox.stub().rejects('Invalid'));
+      sandbox.replace(MemberModel, 'create', sandbox.stub().resolves([{_id: memberId}]));
 
       const getMemberByIdStub = sandbox.stub();
       getMemberByIdStub.resolves({_id: memberId});
@@ -555,16 +444,8 @@ describe('#mongoose/models/member', () => {
     it('will throw an DatabaseOperationError if the underlying database connection throws an error.', async () => {
       const memberId = new mongoose.Types.ObjectId();
       sandbox.replace(UserModel, 'userIdExists', sandbox.stub().resolves(true));
-      sandbox.replace(
-        WorkspaceModel,
-        'workspaceIdExists',
-        sandbox.stub().resolves(true)
-      );
-      sandbox.replace(
-        MemberModel,
-        'memberExists',
-        sandbox.stub().resolves(false)
-      );
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', sandbox.stub().resolves(true));
+      sandbox.replace(MemberModel, 'memberExists', sandbox.stub().resolves(false));
       sandbox.replace(
         MemberModel,
         'validateWorkspaceMember',
@@ -753,9 +634,7 @@ describe('#mongoose/models/member', () => {
       sandbox.replace(
         MemberModel,
         'validateUpdateObject',
-        sandbox
-          .stub()
-          .rejects(new error.InvalidOperationError('you cant do that', {}))
+        sandbox.stub().rejects(new error.InvalidOperationError('you cant do that', {}))
       );
 
       const updateStub = sandbox.stub();
@@ -1011,12 +890,9 @@ describe('#mongoose/models/member', () => {
     });
 
     it('should return true when all the member ids exist', async () => {
-      const memberIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const memberIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
-      const returnedMemberIds = memberIds.map(memberId => {
+      const returnedMemberIds = memberIds.map((memberId) => {
         return {
           _id: memberId,
         };
@@ -1031,10 +907,7 @@ describe('#mongoose/models/member', () => {
     });
 
     it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
-      const memberIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const memberIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const returnedMemberIds = [
         {
@@ -1050,10 +923,7 @@ describe('#mongoose/models/member', () => {
         await MemberModel.allMemberIdsExist(memberIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
-        assert.strictEqual(
-          err.data.value[0].toString(),
-          memberIds[1].toString()
-        );
+        assert.strictEqual(err.data.value[0].toString(), memberIds[1].toString());
         errored = true;
       }
       assert.isTrue(errored);
@@ -1061,10 +931,7 @@ describe('#mongoose/models/member', () => {
     });
 
     it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
-      const memberIds = [
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId(),
-      ];
+      const memberIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
 
       const findStub = sandbox.stub();
       findStub.rejects('something bad has happened');
@@ -1140,9 +1007,7 @@ describe('#mongoose/models/member', () => {
       findByIdStub.returns(new MockMongooseQuery(mockMember));
       sandbox.replace(MemberModel, 'findById', findByIdStub);
 
-      const doc = await MemberModel.getMemberById(
-        mockMember._id as mongoose.Types.ObjectId
-      );
+      const doc = await MemberModel.getMemberById(mockMember._id as mongoose.Types.ObjectId);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
@@ -1158,10 +1023,7 @@ describe('#mongoose/models/member', () => {
       findByIdStub.returns(new MockMongooseQuery(mockMember));
       sandbox.replace(MemberModel, 'findById', findByIdStub);
 
-      const doc = await MemberModel.getMemberById(
-        mockMember._id as mongoose.Types.ObjectId,
-        true
-      );
+      const doc = await MemberModel.getMemberById(mockMember._id as mongoose.Types.ObjectId, true);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
@@ -1177,10 +1039,7 @@ describe('#mongoose/models/member', () => {
       findByIdStub.returns(new MockMongooseQuery(mockMember));
       sandbox.replace(MemberModel, 'findById', findByIdStub);
 
-      const doc = await MemberModel.getMemberById(
-        mockMember._id as mongoose.Types.ObjectId,
-        false
-      );
+      const doc = await MemberModel.getMemberById(mockMember._id as mongoose.Types.ObjectId, false);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
@@ -1198,9 +1057,7 @@ describe('#mongoose/models/member', () => {
 
       let errored = false;
       try {
-        await MemberModel.getMemberById(
-          mockMember._id as mongoose.Types.ObjectId
-        );
+        await MemberModel.getMemberById(mockMember._id as mongoose.Types.ObjectId);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1211,16 +1068,12 @@ describe('#mongoose/models/member', () => {
 
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(
-        new MockMongooseQuery('something bad happened', true)
-      );
+      findByIdStub.returns(new MockMongooseQuery('something bad happened', true));
       sandbox.replace(MemberModel, 'findById', findByIdStub);
 
       let errored = false;
       try {
-        await MemberModel.getMemberById(
-          mockMember._id as mongoose.Types.ObjectId
-        );
+        await MemberModel.getMemberById(mockMember._id as mongoose.Types.ObjectId);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1329,17 +1182,9 @@ describe('#mongoose/models/member', () => {
     });
 
     it('will return the filtered members', async () => {
-      sandbox.replace(
-        MemberModel,
-        'count',
-        sandbox.stub().resolves(mockMembers.length)
-      );
+      sandbox.replace(MemberModel, 'count', sandbox.stub().resolves(mockMembers.length));
 
-      sandbox.replace(
-        MemberModel,
-        'find',
-        sandbox.stub().returns(new MockMongooseQuery(mockMembers))
-      );
+      sandbox.replace(MemberModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockMembers)));
 
       const results = await MemberModel.queryMembers({});
 
@@ -1359,11 +1204,7 @@ describe('#mongoose/models/member', () => {
     it('will throw a DataNotFoundError when no values match the filter', async () => {
       sandbox.replace(MemberModel, 'count', sandbox.stub().resolves(0));
 
-      sandbox.replace(
-        MemberModel,
-        'find',
-        sandbox.stub().returns(new MockMongooseQuery(mockMembers))
-      );
+      sandbox.replace(MemberModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockMembers)));
 
       let errored = false;
       try {
@@ -1377,17 +1218,9 @@ describe('#mongoose/models/member', () => {
     });
 
     it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
-      sandbox.replace(
-        MemberModel,
-        'count',
-        sandbox.stub().resolves(mockMembers.length)
-      );
+      sandbox.replace(MemberModel, 'count', sandbox.stub().resolves(mockMembers.length));
 
-      sandbox.replace(
-        MemberModel,
-        'find',
-        sandbox.stub().returns(new MockMongooseQuery(mockMembers))
-      );
+      sandbox.replace(MemberModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockMembers)));
 
       let errored = false;
       try {
@@ -1401,18 +1234,12 @@ describe('#mongoose/models/member', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
-      sandbox.replace(
-        MemberModel,
-        'count',
-        sandbox.stub().resolves(mockMembers.length)
-      );
+      sandbox.replace(MemberModel, 'count', sandbox.stub().resolves(mockMembers.length));
 
       sandbox.replace(
         MemberModel,
         'find',
-        sandbox
-          .stub()
-          .returns(new MockMongooseQuery('something bad has happened', true))
+        sandbox.stub().returns(new MockMongooseQuery('something bad has happened', true))
       );
 
       let errored = false;
@@ -1496,11 +1323,7 @@ describe('#mongoose/models/member', () => {
 
       const workspaceIdExistsStub = sandbox.stub();
       workspaceIdExistsStub.resolves(true);
-      sandbox.replace(
-        WorkspaceModel,
-        'workspaceIdExists',
-        workspaceIdExistsStub
-      );
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
       const getUserByIdStub = sandbox.stub();
       getUserByIdStub.resolves({
@@ -1513,11 +1336,7 @@ describe('#mongoose/models/member', () => {
       memberExistsStub.resolves(false);
       sandbox.replace(MemberModel, 'memberExists', memberExistsStub);
 
-      const res = await MemberModel.validateProjectMember(
-        memberId,
-        workspoaceId,
-        projectId
-      );
+      const res = await MemberModel.validateProjectMember(memberId, workspoaceId, projectId);
 
       assert.isOk(res);
       assert.strictEqual(res._id.toString(), memberId.toString());
@@ -1542,11 +1361,7 @@ describe('#mongoose/models/member', () => {
 
       const workspaceIdExistsStub = sandbox.stub();
       workspaceIdExistsStub.resolves(true);
-      sandbox.replace(
-        WorkspaceModel,
-        'workspaceIdExists',
-        workspaceIdExistsStub
-      );
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
       const getUserByIdStub = sandbox.stub();
       getUserByIdStub.resolves({
@@ -1589,11 +1404,7 @@ describe('#mongoose/models/member', () => {
 
       const workspaceIdExistsStub = sandbox.stub();
       workspaceIdExistsStub.resolves(true);
-      sandbox.replace(
-        WorkspaceModel,
-        'workspaceIdExists',
-        workspaceIdExistsStub
-      );
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
       const getUserByIdStub = sandbox.stub();
       getUserByIdStub.resolves({
@@ -1635,11 +1446,7 @@ describe('#mongoose/models/member', () => {
 
       const workspaceIdExistsStub = sandbox.stub();
       workspaceIdExistsStub.resolves(true);
-      sandbox.replace(
-        WorkspaceModel,
-        'workspaceIdExists',
-        workspaceIdExistsStub
-      );
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
       const getUserByIdStub = sandbox.stub();
       getUserByIdStub.resolves({
@@ -1681,11 +1488,7 @@ describe('#mongoose/models/member', () => {
 
       const workspaceIdExistsStub = sandbox.stub();
       workspaceIdExistsStub.resolves(false);
-      sandbox.replace(
-        WorkspaceModel,
-        'workspaceIdExists',
-        workspaceIdExistsStub
-      );
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
       const getUserByIdStub = sandbox.stub();
       getUserByIdStub.resolves({
@@ -1727,11 +1530,7 @@ describe('#mongoose/models/member', () => {
 
       const workspaceIdExistsStub = sandbox.stub();
       workspaceIdExistsStub.resolves(true);
-      sandbox.replace(
-        WorkspaceModel,
-        'workspaceIdExists',
-        workspaceIdExistsStub
-      );
+      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
       const getUserByIdStub = sandbox.stub();
       getUserByIdStub.resolves({
@@ -1839,10 +1638,7 @@ describe('#mongoose/models/member', () => {
 
       let errored = false;
       try {
-        await MemberModel.validateWorkspaceMember(
-          new mongoose.Types.ObjectId(),
-          new mongoose.Types.ObjectId()
-        );
+        await MemberModel.validateWorkspaceMember(new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId());
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1868,10 +1664,7 @@ describe('#mongoose/models/member', () => {
 
       let errored = false;
       try {
-        await MemberModel.validateWorkspaceMember(
-          new mongoose.Types.ObjectId(),
-          new mongoose.Types.ObjectId()
-        );
+        await MemberModel.validateWorkspaceMember(new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId());
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1898,11 +1691,7 @@ describe('#mongoose/models/member', () => {
       const validateProjectMemberStub = sandbox.stub();
       validateProjectMemberStub.resolves(memberId);
       validateProjectMemberStub.onCall(1).resolves(invitedById);
-      sandbox.replace(
-        MemberModel,
-        'validateProjectMember',
-        validateProjectMemberStub
-      );
+      sandbox.replace(MemberModel, 'validateProjectMember', validateProjectMemberStub);
 
       const projectId = new mongoose.Types.ObjectId();
       const validateProjectStub = sandbox.stub();
@@ -1949,11 +1738,7 @@ describe('#mongoose/models/member', () => {
       const validateProjectMemberStub = sandbox.stub();
       validateProjectMemberStub.resolves(memberId);
       validateProjectMemberStub.onCall(1).resolves(invitedById);
-      sandbox.replace(
-        MemberModel,
-        'validateProjectMember',
-        validateProjectMemberStub
-      );
+      sandbox.replace(MemberModel, 'validateProjectMember', validateProjectMemberStub);
 
       const projectId = new mongoose.Types.ObjectId();
       const validateProjectStub = sandbox.stub();
@@ -2000,11 +1785,7 @@ describe('#mongoose/models/member', () => {
       const validateProjectMemberStub = sandbox.stub();
       validateProjectMemberStub.resolves(memberId);
       validateProjectMemberStub.onCall(1).resolves(invitedById);
-      sandbox.replace(
-        MemberModel,
-        'validateProjectMember',
-        validateProjectMemberStub
-      );
+      sandbox.replace(MemberModel, 'validateProjectMember', validateProjectMemberStub);
 
       const projectId = new mongoose.Types.ObjectId();
       const validateProjectStub = sandbox.stub();

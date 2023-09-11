@@ -1,13 +1,8 @@
-import {
-  S3,
-  GetObjectCommand,
-  PutObjectCommand,
-  S3Client,
-} from '@aws-sdk/client-s3';
+import {S3, GetObjectCommand, PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
 import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
 import * as error from '../error';
-import {aws} from '@glyphx/types';
+import {awsTypes} from 'types';
 import {Readable} from 'node:stream';
 
 /**`
@@ -46,12 +41,8 @@ export class S3Manager {
    *
    * @throws InvalidOperationError - if we have not previously called {@link init}
    */
-  public get bucket(): S3 {
-    if (!this.initedField)
-      throw new error.InvalidOperationError(
-        'you must call init before using this object',
-        {}
-      );
+  private get bucket(): S3 {
+    if (!this.initedField) throw new error.InvalidOperationError('you must call init before using this object', {});
 
     return this.bucketField;
   }
@@ -96,10 +87,7 @@ export class S3Manager {
    *
    * @throws InvalidOperationError if you do not have list permissions for the filter on the bucket.
    */
-  public async listObjects(
-    filter: string,
-    startAfter?: string
-  ): Promise<string[]> {
+  public async listObjects(filter: string, startAfter?: string): Promise<string[]> {
     const options: {Bucket: string} & Record<string, string> = {
       Bucket: this.bucketName,
       Prefix: filter,
@@ -112,7 +100,7 @@ export class S3Manager {
       const results = await this.bucket.listObjectsV2(options);
       const retval: string[] = [];
       //istanbul ignore next
-      results.Contents?.forEach(r => {
+      results.Contents?.forEach((r) => {
         retval.push(r.Key as string);
       });
 
@@ -138,9 +126,7 @@ export class S3Manager {
    *
    * @throws InvalidArgumentError - if the file does not exist iin the bucket, or you do not have permissions to access it.
    */
-  public async getFileInformation(
-    fileName: string
-  ): Promise<aws.IHeadObjectData> {
+  public async getFileInformation(fileName: string): Promise<awsTypes.IHeadObjectData> {
     try {
       const result = await this.bucket.headObject({
         Bucket: this.bucketName,
@@ -175,7 +161,6 @@ export class S3Manager {
     const client = new S3Client({region: 'us-east-2'});
     const command = new PutObjectCommand(putObjectParams);
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const url = await getSignedUrl(client, command);
     return url;
@@ -190,7 +175,6 @@ export class S3Manager {
     const client = new S3Client({region: 'us-east-2'});
     const command = new GetObjectCommand(getObjectParams);
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const url = await getSignedUrl(client, command, {expiresIn: 3600});
     return url;
@@ -230,7 +214,6 @@ export class S3Manager {
    *  @param fileName - the name of the file to create in S3.
    *  @param stream - a pass through stream that will stream the data to be uploaded.
    */
-  /*eslint-disable-next-line @typescript-eslint/ban-ts-comment*/
   // @ts-ignore
   public getUploadStream(fileName: string, stream, contentType?: string) {
     const params: any = {

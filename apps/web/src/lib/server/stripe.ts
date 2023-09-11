@@ -1,13 +1,13 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { Session } from 'next-auth';
-import { loadStripe } from '@stripe/stripe-js';
-import { buffer } from 'micro';
-import { StripeClient, customerPaymentService } from '@glyphx/business';
+import type {NextApiRequest, NextApiResponse} from 'next';
+import type {Session} from 'next-auth';
+import {loadStripe} from '@stripe/stripe-js';
+import {buffer} from 'micro';
+import {StripeClient, customerPaymentService} from 'business';
 
 export async function redirectToCheckout(sessionId) {
   if (process.env.NEXT_PUBLIC_PUBLISHABLE_KEY) {
     const clientStripe = await loadStripe(process.env.NEXT_PUBLIC_PUBLISHABLE_KEY);
-    await clientStripe?.redirectToCheckout({ sessionId });
+    await clientStripe?.redirectToCheckout({sessionId});
   }
 }
 
@@ -25,7 +25,7 @@ export async function redirectToCheckout(sessionId) {
 export const stripeHooks = async (req: NextApiRequest, res: NextApiResponse) => {
   const reqBuffer = await buffer(req);
   const signature = req.headers['stripe-signature'];
-  let event = null;
+  let event: any = null;
 
   try {
     event = StripeClient.stripe.webhooks.constructEvent(reqBuffer, signature, process.env.PAYMENTS_SIGNING_SECRET);
@@ -34,7 +34,7 @@ export const stripeHooks = async (req: NextApiRequest, res: NextApiResponse) => 
   }
 
   if (event) {
-    const { metadata } = event.data.object;
+    const {metadata} = event.data.object;
 
     switch (event.type) {
       case 'charge.succeeded':
@@ -49,7 +49,7 @@ export const stripeHooks = async (req: NextApiRequest, res: NextApiResponse) => 
     return res.status(400).send(`Webhook Error: Event not created`);
   }
 
-  res.status(200).send({ received: true });
+  res.status(200).send({received: true});
 };
 
 /**
@@ -64,9 +64,9 @@ export const stripeHooks = async (req: NextApiRequest, res: NextApiResponse) => 
  */
 
 export const initStripePaymentSession = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const { priceId } = req.query;
+  const {priceId} = req.query;
   const [customerPayment, price] = await Promise.all([
-    customerPaymentService.getPayment(session?.user?.email),
+    customerPaymentService.getPayment(session?.user?.email as string),
     StripeClient.stripe.prices.retrieve(priceId),
   ]);
   const product = await StripeClient.stripe.products.retrieve(price.product);
@@ -77,16 +77,16 @@ export const initStripePaymentSession = async (req: NextApiRequest, res: NextApi
     },
   ];
   const paymentSession = await StripeClient.stripe.checkout.sessions.create({
-    customer: customerPayment.paymentId,
+    customer: customerPayment?.paymentId,
     mode: 'subscription',
     payment_method_types: ['card'],
     line_items: lineItems,
     success_url: `${process.env.APP_URL}/account/payment?status=success`,
     cancel_url: `${process.env.APP_URL}/account/payment?status=cancelled`,
     metadata: {
-      customerId: customerPayment.customer._id,
+      customerId: customerPayment?.customer._id,
       type: product.metadata.type,
     },
   });
-  res.status(200).json({ data: { sessionId: paymentSession.id } });
+  res.status(200).json({data: {sessionId: paymentSession.id}});
 };

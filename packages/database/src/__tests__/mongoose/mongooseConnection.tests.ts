@@ -2,7 +2,7 @@ import 'mocha';
 import {MongoDbConnection} from '../../mongoose/mongooseConnection';
 import {createSandbox} from 'sinon';
 import mongoose from 'mongoose';
-import {aws, error} from '@glyphx/core';
+import {aws, error} from 'core';
 import {assert} from 'chai';
 
 const MOCK_DB_SECRETS = {
@@ -25,11 +25,7 @@ describe('#mongoose/mongooseConnection', () => {
 
       const secretManagerStub = sandbox.stub();
       secretManagerStub.resolves(MOCK_DB_SECRETS);
-      sandbox.replace(
-        aws.SecretManager.prototype,
-        'getSecrets',
-        secretManagerStub
-      );
+      sandbox.replace(aws.SecretManager.prototype, 'getSecrets', secretManagerStub);
 
       const connection = new MongoDbConnection();
       await connection.init();
@@ -54,11 +50,7 @@ describe('#mongoose/mongooseConnection', () => {
 
       const secretManagerStub = sandbox.stub();
       secretManagerStub.resolves(MOCK_DB_SECRETS);
-      sandbox.replace(
-        aws.SecretManager.prototype,
-        'getSecrets',
-        secretManagerStub
-      );
+      sandbox.replace(aws.SecretManager.prototype, 'getSecrets', secretManagerStub);
 
       const connection = new MongoDbConnection();
       let errored = false;
@@ -84,11 +76,7 @@ describe('#mongoose/mongooseConnection', () => {
 
       const secretManagerStub = sandbox.stub();
       secretManagerStub.resolves(MOCK_DB_SECRETS);
-      sandbox.replace(
-        aws.SecretManager.prototype,
-        'getSecrets',
-        secretManagerStub
-      );
+      sandbox.replace(aws.SecretManager.prototype, 'getSecrets', secretManagerStub);
 
       const connection = new MongoDbConnection();
       assert.isFalse(connection.isInited);

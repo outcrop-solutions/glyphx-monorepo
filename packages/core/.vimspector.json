@@ -11,8 +11,8 @@
         "args": [
           "-r",
           "ts-node/register",
-	  "-r",
-	  "tsconfig-paths/register",
+          "-r",
+          "tsconfig-paths/register",
           "--timeout",
           "999999",
           "--exit",

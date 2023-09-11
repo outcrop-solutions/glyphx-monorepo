@@ -1,33 +1,17 @@
-import {fileIngestion, database as databaseTypes} from '@glyphx/types';
-import {
-  error,
-  aws,
-  generalPurposeFunctions as sharedFunctions,
-} from '@glyphx/core';
+import {fileIngestion, databaseTypes} from 'types';
+import {error, aws, generalPurposeFunctions as sharedFunctions} from 'core';
 import {Readable} from 'node:stream';
-import {
-  BasicAthenaProcessor,
-  FileUploadManager,
-  FileReconciliator,
-} from './fileProcessing';
-import {
-  projectService,
-  processTrackingService,
-  Initializer as businessLogicInit,
-  Heartbeat,
-} from '@glyphx/business';
+import {BasicAthenaProcessor, FileUploadManager, FileReconciliator} from './fileProcessing';
+import {projectService, processTrackingService, Initializer as businessLogicInit, Heartbeat} from 'business';
 
 import {
   IFileInformation,
   IFileProcessingError,
   IJoinTableDefinition,
   IFileProcessingResult,
-} from '@interfaces/fileProcessing';
+} from './interfaces/fileProcessing';
 import {TableArchiver} from './fileProcessing/tableArchiver';
-import {
-  FILE_PROCESSING_ERROR_TYPES,
-  FILE_PROCESSING_STATUS,
-} from '@util/constants';
+import {FILE_PROCESSING_ERROR_TYPES, FILE_PROCESSING_STATUS} from './util/constants';
 import {config} from './config';
 
 export class FileIngestor {
@@ -48,10 +32,7 @@ export class FileIngestor {
 
   public get isSafe() {
     if (!this.inited)
-      throw new error.InvalidOperationError(
-        'You must call init before perfoming this action',
-        {inited: this.inited}
-      );
+      throw new error.InvalidOperationError('You must call init before perfoming this action', {inited: this.inited});
 
     return true;
   }
@@ -82,11 +63,7 @@ export class FileIngestor {
   public get inited() {
     return this.initedField;
   }
-  constructor(
-    payload: fileIngestion.IPayload,
-    databaseName: string,
-    processId: string
-  ) {
+  constructor(payload: fileIngestion.IPayload, databaseName: string, processId: string) {
     this.clientIdField = payload.clientId;
     this.modelIdField = payload.modelId;
     this.bucketNameField = payload.bucketName;
@@ -100,15 +77,8 @@ export class FileIngestor {
 
     this.s3Manager = new aws.S3Manager(this.bucketName);
     this.athenaManager = new aws.AthenaManager(this.databaseName);
-    this.basicAthenaProcessor = new BasicAthenaProcessor(
-      this.bucketName,
-      this.databaseName
-    );
-    this.tableArchver = new TableArchiver(
-      this.clientId,
-      this.modelId,
-      this.s3Manager as aws.S3Manager
-    );
+    this.basicAthenaProcessor = new BasicAthenaProcessor(this.bucketName, this.databaseName);
+    this.tableArchver = new TableArchiver(this.clientId, this.modelId, this.s3Manager as aws.S3Manager);
 
     this.fileStatisticsField = [];
 
@@ -123,9 +93,7 @@ export class FileIngestor {
         await this.basicAthenaProcessor.init();
         //TODO: set our file statistics here
         await businessLogicInit.init();
-        this.fileStatisticsField = await projectService.getProjectFileStats(
-          this.modelId
-        );
+        this.fileStatisticsField = await projectService.getProjectFileStats(this.modelId);
       } catch (err) {
         throw new error.InvalidArgumentError(
           'An unexpected error occurred while initing the FileIngestor.  See the inner error for additional information',
@@ -139,21 +107,14 @@ export class FileIngestor {
   }
 
   async removeTableFromAthena(tableName: string) {
-    const fullTableName = sharedFunctions.fileIngestion.getFullTableName(
-      this.clientId,
-      this.modelId,
-      tableName
-    );
+    const fullTableName = sharedFunctions.fileIngestion.getFullTableName(this.clientId, this.modelId, tableName);
 
     await this.athenaManager.dropTable(fullTableName);
   }
 
   async removeViewFromAthena() {
     if (!this.viewRemoved) {
-      const viewName = sharedFunctions.fileIngestion.getViewName(
-        this.clientId,
-        this.modelId
-      );
+      const viewName = sharedFunctions.fileIngestion.getViewName(this.clientId, this.modelId);
 
       await this.athenaManager.dropView(viewName);
 
@@ -167,40 +128,22 @@ export class FileIngestor {
     await this.tableArchver.archiveTable(tableName);
   }
 
-  async replaceTable(
-    tableName: string,
-    fileName: string,
-    fileStream: Readable
-  ) {
+  async replaceTable(tableName: string, fileName: string, fileStream: Readable) {
     await this.deleteTable(tableName);
-    await this.addTable(
-      tableName,
-      fileName,
-      fileStream,
-      fileIngestion.constants.FILE_OPERATION.REPLACE
-    );
+    await this.addTable(tableName, fileName, fileStream, fileIngestionTypes.constants.FILE_OPERATION.REPLACE);
   }
 
-  private async appendFile(
-    tableName: string,
-    fileName: string,
-    fileStream: Readable
-  ) {
+  private async appendFile(tableName: string, fileName: string, fileStream: Readable) {
     //TODO: should I check for the append file or just trust the front end.
 
-    await this.uploadFile(
-      tableName,
-      fileName,
-      fileStream,
-      fileIngestion.constants.FILE_OPERATION.APPEND
-    );
+    await this.uploadFile(tableName, fileName, fileStream, fileIngestionTypes.constants.FILE_OPERATION.APPEND);
   }
 
   private async addTable(
     tableName: string,
     fileName: string,
     fileStream: Readable,
-    fileOperationType = fileIngestion.constants.FILE_OPERATION.ADD
+    fileOperationType = fileIngestionTypes.constants.FILE_OPERATION.ADD
   ) {
     //This is a view affecting operation so remove it if it exists
 
@@ -212,18 +155,17 @@ export class FileIngestor {
     tableName: string,
     fileName: string,
     fileStream: Readable,
-    fileOperationType: fileIngestion.constants.FILE_OPERATION
+    fileOperationType: fileIngestionTypes.constants.FILE_OPERATION
   ) {
-    const {fileInformation, errorInformation} =
-      await FileUploadManager.processAndUploadNewFiles(
-        this.clientId,
-        this.modelId,
-        fileStream,
-        tableName,
-        fileName,
-        fileOperationType,
-        this.s3Manager
-      );
+    const {fileInformation, errorInformation} = await FileUploadManager.processAndUploadNewFiles(
+      this.clientId,
+      this.modelId,
+      fileStream,
+      tableName,
+      fileName,
+      fileOperationType,
+      this.s3Manager
+    );
 
     this.processedFileInformation.push(fileInformation);
     this.processedFileErrorInformation.push(...errorInformation);
@@ -245,13 +187,7 @@ export class FileIngestor {
     const processedTableFiles: {fileName: string; tableName: string}[] = [];
     for (let i = 0; i < this.fileInfo.length; i++) {
       const fileInfo = this.fileInfo[i];
-      if (
-        processedTableFiles.find(
-          a =>
-            a.tableName === fileInfo.tableName &&
-            a.fileName === fileInfo.fileName
-        )
-      ) {
+      if (processedTableFiles.find((a) => a.tableName === fileInfo.tableName && a.fileName === fileInfo.fileName)) {
         const message = `A file/table combinatoin for clientId: ${this.clientId}, modelId: ${this.modelId}, tableName: ${fileInfo.tableName}, fileName: ${fileInfo.fileName} has already been checked for processing.  Each fileName/TableName combination must be unique`;
         retval.push({
           fileName: fileInfo.fileName,
@@ -259,16 +195,10 @@ export class FileIngestor {
           errorType: FILE_PROCESSING_ERROR_TYPES.INVALID_TABLE_SET,
           message: message,
         });
-      } else if (
-        fileInfo.operation === fileIngestion.constants.FILE_OPERATION.ADD
-      ) {
+      } else if (fileInfo.operation === fileIngestionTypes.constants.FILE_OPERATION.ADD) {
         if (
           await this.athenaManager.tableExists(
-            sharedFunctions.fileIngestion.getFullTableName(
-              this.clientId,
-              this.modelId,
-              fileInfo.tableName
-            )
+            sharedFunctions.fileIngestion.getFullTableName(this.clientId, this.modelId, fileInfo.tableName)
           )
         ) {
           const message = `A table for clientId: ${this.clientId}, modelId: ${this.modelId}, tableName: ${fileInfo.tableName} aready exits in the database.  You must remove it before adding or call replace`;
@@ -278,7 +208,7 @@ export class FileIngestor {
             errorType: FILE_PROCESSING_ERROR_TYPES.TABLE_ALREADY_EXISTS,
             message: message,
           });
-        } else if (addedFileNames.find(f => f === fileInfo.tableName)) {
+        } else if (addedFileNames.find((f) => f === fileInfo.tableName)) {
           const message = `A table for clientId: ${this.clientId}, modelId: ${this.modelId}, tableName: ${fileInfo.tableName} has already been flagged for add on this set of operations. A Second add does not make sense`;
           retval.push({
             fileName: fileInfo.fileName,
@@ -290,18 +220,12 @@ export class FileIngestor {
           addedFileNames.push(fileInfo.tableName);
         }
         //An append can be called if we are plannig on adding a table in this operation.
-      } else if (
-        fileInfo.operation === fileIngestion.constants.FILE_OPERATION.APPEND
-      ) {
+      } else if (fileInfo.operation === fileIngestionTypes.constants.FILE_OPERATION.APPEND) {
         if (
           !(await this.athenaManager.tableExists(
-            sharedFunctions.fileIngestion.getFullTableName(
-              this.clientId,
-              this.modelId,
-              fileInfo.tableName
-            )
+            sharedFunctions.fileIngestion.getFullTableName(this.clientId, this.modelId, fileInfo.tableName)
           )) &&
-          !addedFileNames.find(f => f === fileInfo.tableName)
+          !addedFileNames.find((f) => f === fileInfo.tableName)
         ) {
           const message = `A table for clientId: ${this.clientId}, modelId: ${this.modelId}, tableName: ${fileInfo.tableName} does not exits in the database.  You cannot append a file to a non existant table`;
           retval.push({
@@ -312,11 +236,8 @@ export class FileIngestor {
           });
         } else {
           const fileName =
-            sharedFunctions.fileIngestion.getTableParquetPath(
-              this.clientId,
-              this.modelId,
-              fileInfo.tableName
-            ) + fileInfo.fileName;
+            sharedFunctions.fileIngestion.getTableParquetPath(this.clientId, this.modelId, fileInfo.tableName) +
+            fileInfo.fileName;
           if (await this.s3Manager.fileExists(fileName)) {
             const message = `A file for clientId: ${this.clientId}, modelId: ${this.modelId}, tableName: ${fileInfo.tableName}, fileeName: ${fileInfo.fileName} Has allready been uploaded.  You can append a new file, but you cannot overwrite an existing file.`;
             retval.push({
@@ -328,13 +249,9 @@ export class FileIngestor {
           }
         }
       } else if (
-        fileInfo.operation === fileIngestion.constants.FILE_OPERATION.REPLACE &&
+        fileInfo.operation === fileIngestionTypes.constants.FILE_OPERATION.REPLACE &&
         !(await this.athenaManager.tableExists(
-          sharedFunctions.fileIngestion.getFullTableName(
-            this.clientId,
-            this.modelId,
-            fileInfo.tableName
-          )
+          sharedFunctions.fileIngestion.getFullTableName(this.clientId, this.modelId, fileInfo.tableName)
         ))
       ) {
         const message = `A table for clientId: ${this.clientId}, modelId: ${this.modelId}, tableName: ${fileInfo.tableName} does not exits in the database.  You cannot replace a table that does not exist `;
@@ -345,13 +262,9 @@ export class FileIngestor {
           message: message,
         });
       } else if (
-        fileInfo.operation === fileIngestion.constants.FILE_OPERATION.DELETE &&
+        fileInfo.operation === fileIngestionTypes.constants.FILE_OPERATION.DELETE &&
         !(await this.athenaManager.tableExists(
-          sharedFunctions.fileIngestion.getFullTableName(
-            this.clientId,
-            this.modelId,
-            fileInfo.tableName
-          )
+          sharedFunctions.fileIngestion.getFullTableName(this.clientId, this.modelId, fileInfo.tableName)
         ))
       ) {
         const message = `A table for clientId: ${this.clientId}, modelId: ${this.modelId}, tableName: ${fileInfo.tableName} does not exits in the database.  You cannot delete a table that does not exist `;
@@ -376,36 +289,16 @@ export class FileIngestor {
     let viewAffectingOperations = false;
     for (let i = 0; i < this.fileInfo.length; i++) {
       const fileInformation = this.fileInfo[i];
-      if (
-        fileInformation.operation === fileIngestion.constants.FILE_OPERATION.ADD
-      ) {
+      if (fileInformation.operation === fileIngestionTypes.constants.FILE_OPERATION.ADD) {
         //1. Adding a table starts at rowid = 0
-        await this.addTable(
-          fileInformation.tableName,
-          fileInformation.fileName,
-          fileInformation.fileStream
-        );
+        await this.addTable(fileInformation.tableName, fileInformation.fileName, fileInformation.fileStream);
         viewAffectingOperations = true;
-      } else if (
-        fileInformation.operation ===
-        fileIngestion.constants.FILE_OPERATION.APPEND
-      ) {
+      } else if (fileInformation.operation === fileIngestionTypes.constants.FILE_OPERATION.APPEND) {
         //2. Appending a file will require that we get the row id.
-        await this.appendFile(
-          fileInformation.tableName,
-          fileInformation.fileName,
-          fileInformation.fileStream
-        );
-      } else if (
-        fileInformation.operation ===
-        fileIngestion.constants.FILE_OPERATION.REPLACE
-      ) {
+        await this.appendFile(fileInformation.tableName, fileInformation.fileName, fileInformation.fileStream);
+      } else if (fileInformation.operation === fileIngestionTypes.constants.FILE_OPERATION.REPLACE) {
         //3. Replace will drop and start over so rowid starts at 0
-        await this.replaceTable(
-          fileInformation.tableName,
-          fileInformation.fileName,
-          fileInformation.fileStream
-        );
+        await this.replaceTable(fileInformation.tableName, fileInformation.fileName, fileInformation.fileStream);
         viewAffectingOperations = true;
       } else {
         //4. no need for rowid here.
@@ -431,41 +324,31 @@ export class FileIngestor {
     let joinInformation: IJoinTableDefinition[] = [];
     let fileInfoForReturn: fileIngestion.IFileStats[] = [];
     let processingResults = FILE_PROCESSING_STATUS.UNKNOWN;
-    const viewName = sharedFunctions.fileIngestion.getViewName(
-      this.clientId,
-      this.modelId
-    );
+    const viewName = sharedFunctions.fileIngestion.getViewName(this.clientId, this.modelId);
     const errors: IFileProcessingError[] = await this.reconcileFileInfo();
     if (errors.length) {
       this.processedFileErrorInformation.push(...errors);
       fileInfoForReturn = this.fileStatistics;
       processingResults = FILE_PROCESSING_STATUS.ERROR;
-      const err = new error.InvalidOperationError(
-        'There were errors processing the files',
-        {errors}
-      );
+      const err = new error.InvalidOperationError('There were errors processing the files', {errors});
       processTrackingService.addProcessError(config.processId, err);
     } else {
       try {
         const needsViewUpdates = await this.processFiles();
         if (needsViewUpdates) {
-          const reconFileInformation =
-            FileReconciliator.reconcileFileInformation(
-              this.clientId,
-              this.modelId,
-              this.fileInfo,
-              this.processedFileInformation,
-              this.fileStatistics
-            );
+          const reconFileInformation = FileReconciliator.reconcileFileInformation(
+            this.clientId,
+            this.modelId,
+            this.fileInfo,
+            this.processedFileInformation,
+            this.fileStatistics
+          );
           fileInfoForReturn = reconFileInformation.allFiles;
           //If we delete all of the tables we will have nothing to create.
           if (fileInfoForReturn.length) {
             //5. We will need to update the view so that we selct the row id as the rowid from the left most column.
             joinInformation = (await this.basicAthenaProcessor?.processTables(
-              sharedFunctions.fileIngestion.getViewName(
-                this.clientId,
-                this.modelId
-              ),
+              sharedFunctions.fileIngestion.getViewName(this.clientId, this.modelId),
               reconFileInformation.accumFiles
             )) as IJoinTableDefinition[];
           }
@@ -490,12 +373,7 @@ export class FileIngestor {
           err.publish();
           processTrackingService.addProcessError(config.processId, err);
         } else {
-          const gError = new error.GlyphxError(
-            message,
-            999,
-            err,
-            'UnexpectedError'
-          );
+          const gError = new error.GlyphxError(message, 999, err, 'UnexpectedError');
           gError.publish();
           processTrackingService.addProcessError(config.processId, gError);
         }
@@ -517,20 +395,14 @@ export class FileIngestor {
         : databaseTypes.constants.PROCESS_STATUS.COMPLETED;
 
     heartBeat.stop();
-    await processTrackingService.completeProcess(
-      config.processId,
-      retval,
-      status
-    );
+    await processTrackingService.completeProcess(config.processId, retval, status);
 
     return retval;
   }
 
-  private cleanJoinInformation(
-    joinInformation: IJoinTableDefinition[]
-  ): IJoinTableDefinition[] {
-    joinInformation?.forEach(join => {
-      join.columns?.forEach(joinColumn => {
+  private cleanJoinInformation(joinInformation: IJoinTableDefinition[]): IJoinTableDefinition[] {
+    joinInformation?.forEach((join) => {
+      join.columns?.forEach((joinColumn) => {
         delete (joinColumn as any).tableDefinition;
       });
     });

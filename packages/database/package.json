@@ -1,51 +1,45 @@
 {
-  "name": "@glyphx/database",
+  "name": "database",
   "version": "1.0.0",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist/**"
-  ],
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "scripts": {
-    "build": "tsup",
     "clean": "rimraf .turbo node_modules dist",
-    "dev": "tsup --watch",
     "coverage": "TS_NODE_FILES=true nyc mocha -r ts-node/register -r tsconfig-paths/register --timeout 999999 --exit --recursive \"src/__tests__/**/*.tests.ts\"",
     "test": "TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register --recursive  --timeout 999999 --exit \"src/__tests__/**/*.tests.ts\"",
     "integrationTest": "DOTENV_CONFIG_PATH=src/__integrationTests__/.env.integration TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register  -r dotenv/config --recursive  --timeout 999999 --exit \"src/__integrationTests__/**/*.tests.ts\"",
-    "lint": "gts lint",
-    "fix": "gts fix",
+    "lint": "eslint .",
+    "fix": "eslint . --fix",
+    "format:write": "prettier --write \"**/*.{js,json,jsx,ts,tsx}\"",
+    "format": "prettier \"**/*.{js,json,jsx,ts,tsx}\"",
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist"
   },
+   "lint-staged": {
+    "*.{js,ts}": [
+      "eslint . --fix"
+    ]
+  },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "dependencies": {
-    "@glyphx/core": "workspace:*",
-    "mongoose": "^6.8.1"
+    "core": "workspace:*",
+    "mongoose": "^6.8.1",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
-    "@glyphx/types": "workspace:*",
-    "@glyphx/eslint-config-glyphx-backend": "workspace:*",
-    "@glyphx/tsconfig": "workspace:*",
+    "eslint-config-custom": "workspace:*",
+    "tsconfig": "workspace:*",
+    "types": "workspace:*",
     "@types/chai": "^4.3.3",
     "@types/mocha": "^10.0.0",
-    "@types/node": "^14.14.37",
+    "@types/node": "^18.11.7",
     "@types/rewire": "^2.5.28",
     "@types/sinon": "^10.0.13",
     "@types/uuid": "^9.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.46.1",
-    "@typescript-eslint/parser": "^5.42.0",
+    "lint-staged": "^13.0.3",
     "chai": "^4.3.6",
     "dotenv": "^16.0.3",
-    "eslint": "^8.12.0",
-    "eslint-import-resolver-typescript": "^3.5.2",
-    "eslint-plugin-filename-rules": "^1.2.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "gts": "^3.1.0",
     "mocha": "^10.1.0",
     "nyc": "^15.1.0",
     "rewire": "^6.0.0",

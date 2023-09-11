@@ -1,5 +1,5 @@
 {
-  "name": "@glyphx/scripts",
+  "name": "scripts",
   "version": "1.0.0",
   "description": "A collection of general purpose scripts for working with the GlyphX codebase and environments.",
   "main": "./dist/index.js",
@@ -21,9 +21,9 @@
   "author": "JP Burford",
   "devDependencies": {
     "@aws-sdk/types": "3.292.0",
-    "@glyphx/eslint-config-glyphx-backend": "workspace:*",
-    "@glyphx/tsconfig": "workspace:*",
-    "@glyphx/types": "workspace:*",
+    "eslint-config-custom": "workspace:*",
+    "tsconfig": "workspace:*",
+    "types": "workspace:*",
     "@types/node": "^18.11.7",
     "@typescript-eslint/eslint-plugin": "^5.46.1",
     "@typescript-eslint/parser": "^5.42.0",
@@ -45,8 +45,8 @@
     "@aws-sdk/client-secrets-manager": "3.292.0",
     "@aws-sdk/lib-storage": "3.292.0",
     "@aws-sdk/signature-v4-crt": "3.292.0",
-    "@glyphx/core": "workspace:*",
-    "@glyphx/database": "workspace:*",
+    "core": "workspace:*",
+    "database": "workspace:*",
     "dotenv": "^16.0.3",
     "mongoose": "^6.8.1",
     "winston": "^3.8.2"

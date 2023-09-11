@@ -7,4 +7,4 @@ import useConfigs from './hooks/useConfigs';
 
 export * from './mutations';
 export * from './network';
-export { useInvitations, useMembers, useWorkspaces, useWorkspace, useProject, useConfigs };
+export {useInvitations, useMembers, useWorkspaces, useWorkspace, useProject, useConfigs};

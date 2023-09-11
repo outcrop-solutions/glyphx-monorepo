@@ -3,12 +3,7 @@ import {assert} from 'chai';
 import {MOCK_GLYPH_DATA} from './mockGlyphData';
 import {Readable, Writable} from 'stream';
 import {pipeline} from 'stream/promises';
-import {
-  SgcStream,
-  MAGIC_NUMBER,
-  FORMAT_VERSION,
-  OFFSET,
-} from '../../io/sgcStream';
+import {SgcStream, MAGIC_NUMBER, FORMAT_VERSION, OFFSET} from '../../io/sgcStream';
 import {convertUtfForBufferToText} from '../../util/textConversion';
 function checkHeader(buffer: Buffer) {
   let offset = 0;
@@ -118,7 +113,7 @@ describe('#io/SgcStream', () => {
       const rStream = new Readable({
         objectMode: true,
         read: () => {
-          MOCK_GLYPH_DATA.forEach(data => rStream.push(data));
+          MOCK_GLYPH_DATA.forEach((data) => rStream.push(data));
           rStream.push(null);
         },
       });

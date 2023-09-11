@@ -11,7 +11,6 @@ import {
 } from '@aws-sdk/client-s3';
 import {S3Manager} from '../../aws';
 import * as error from '../../error';
-//eslint-disable-next-line  node/no-unpublished-import
 import {mockClient} from 'aws-sdk-client-mock';
 import {S3Mock} from './s3Mocks';
 import {Readable, PassThrough} from 'node:stream';
@@ -140,7 +139,7 @@ describe('#aws/s3Manager', () => {
       const keys = await s3Manager.listObjects(filter);
       assert.isArray(keys);
       assert.strictEqual(keys.length, 10);
-      keys.forEach(k => {
+      keys.forEach((k) => {
         assert.isTrue(k.startsWith(filter));
       });
     });
@@ -168,7 +167,7 @@ describe('#aws/s3Manager', () => {
       const keys = await s3Manager.listObjects(filter);
       assert.isArray(keys);
       assert.strictEqual(keys.length, 1500);
-      keys.forEach(k => {
+      keys.forEach((k) => {
         assert.isTrue(k.startsWith(filter));
       });
     });
@@ -183,7 +182,7 @@ describe('#aws/s3Manager', () => {
       const keys = await s3Manager.listObjects(filter);
       assert.isArray(keys);
       assert.strictEqual(keys.length, 2500);
-      keys.forEach(k => {
+      keys.forEach((k) => {
         assert.isTrue(k.startsWith(filter));
       });
     });
@@ -202,10 +201,7 @@ describe('#aws/s3Manager', () => {
         await s3Manager.listObjects(filter);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
-        assert.strictEqual(
-          (err as error.InvalidOperationError).innerError,
-          errorText
-        );
+        assert.strictEqual((err as error.InvalidOperationError).innerError, errorText);
         threw = true;
       }
       assert.isTrue(threw);
@@ -326,10 +322,7 @@ describe('#aws/s3Manager', () => {
       await s3Manager.init();
       const psStream = new PassThrough();
 
-      const upload = s3Manager.getUploadStream(
-        'someupload_file_name',
-        psStream
-      );
+      const upload = s3Manager.getUploadStream('someupload_file_name', psStream);
 
       assert.isOk(upload);
       assert.instanceOf(upload, Upload);

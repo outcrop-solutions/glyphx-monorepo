@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { drawerOpenAtom, modalsAtom } from 'state';
+import {useEffect} from 'react';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {drawerOpenAtom, modalsAtom} from 'state';
 
 export const useCloseViewerOnModalOpen = () => {
   const modals = useRecoilValue(modalsAtom);

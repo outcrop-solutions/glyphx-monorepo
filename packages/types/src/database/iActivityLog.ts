@@ -23,13 +23,5 @@ export interface IActivityLog {
   userAgent: IUserAgent;
   action: ACTION_TYPE;
   onModel: RESOURCE_MODEL;
-  resource:
-    | IUser
-    | IState
-    | IProject
-    | ICustomerPayment
-    | IMember
-    | IWebhook
-    | IWorkspace
-    | IProcessTracking;
+  resource: IUser | IState | IProject | ICustomerPayment | IMember | IWebhook | IWorkspace | IProcessTracking;
 }

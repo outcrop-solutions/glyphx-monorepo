@@ -1,4 +1,4 @@
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 /**
  * The IFieldTypeCalulator interface accepts an array of items and
  * determines a common {@link util/constants/fieldType!FIELD_TYPE} for the items in the set.
@@ -49,7 +49,7 @@ export interface IFieldTypeCalulator {
    *
    * @throws InvalidOperationError if a set has has not been processed through {@link processItems}
    */
-  get fieldType(): fileIngestion.constants.FIELD_TYPE;
+  get fieldType(): fileIngestionTypes.constants.FIELD_TYPE;
   /**
    * indicates whether or not data has been processed to determiine a {@link util/constants/fieldType!FIELD_TYPE}
    */
@@ -92,9 +92,5 @@ export interface IConstructableFieldTypeCalculator {
    * @param fieldIndex -- the external index number of the field attached to this instance of {@link interfaces/fieldProcessing/iFieldTypeCalculator!IFieldTypeCalulator}
    * @param sampleRate-- a number between 0.01 and 1 that is used by {@link interfaces/fieldProcessing/iFieldTypeCalculator!IFieldTypeCalulator.processItems} to choose items on which to caluclate our {@link utils/constants/fieldType!FIELD_TYPE}.  Early implementations should set this to 1 or near 1.
    */
-  new (
-    fieldName: string,
-    fieldIndex: number,
-    sampleRate: number
-  ): IFieldTypeCalulator;
+  new (fieldName: string, fieldIndex: number, sampleRate: number): IFieldTypeCalulator;
 }

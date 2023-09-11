@@ -1,5 +1,5 @@
-import {error} from '@glyphx/core';
-import athenaConnection from 'lib/athenaConnection';
+import {error} from 'core';
+import athenaConnection from '../lib/athenaConnection';
 
 /**
  * A Service to provide table operations against AWS Athena.

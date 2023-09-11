@@ -1,18 +1,17 @@
 import 'mocha';
-import { assert } from 'chai';
-import { Session } from 'next-auth';
-import { createSandbox } from 'sinon';
+import {assert} from 'chai';
+
+import {createSandbox} from 'sinon';
 // where the magic happens
 import * as proxyquireType from 'proxyquire';
 const proxyquire = proxyquireType.noCallThru();
-import { testApiHandler } from 'next-test-api-route-handler';
-import { _deactivateAccount, _updateUserEmail, _updateUserName } from 'lib/client/mutations/user';
-import { wrapConfig } from './utilities/wrapConfig';
-import { genericDelete, genericGet, genericPut } from './utilities/genericReqs';
-import { Types as mongooseTypes } from 'mongoose';
-import { database as databaseTypes, fileIngestion as fileIngestionTypes, web as webTypes } from '@glyphx/types';
-import { formatGridData } from 'lib/client/files/transforms/formatGridData';
-import { _getDataGrid, _getRowIds } from 'lib';
+import {testApiHandler} from 'next-test-api-route-handler';
+import {wrapConfig} from './utilities/wrapConfig';
+import {genericDelete, genericGet, genericPut} from './utilities/genericReqs';
+import {Types as mongooseTypes} from 'mongoose';
+import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
+import {_getDataGrid, _getRowIds} from 'lib';
+import {Session} from 'next-auth';
 
 // import type { PageConfig } from 'next';
 // Respect the Next.js config object if it's exported
@@ -27,35 +26,6 @@ const MOCK_SESSION = {
   },
   expires: new Date().toISOString(),
 } as unknown as Session;
-
-const MOCK_USER_AGENT: databaseTypes.IUserAgent = {
-  userAgent: '',
-  platform: '',
-  appName: '',
-  appVersion: '',
-  vendor: '',
-  language: '',
-  cookieEnabled: false,
-};
-const MOCK_LOCATION: string = 'location';
-
-const MOCK_USER: databaseTypes.IUser = {
-  userCode: 'dfkadfkljafdkalsjskldf',
-  name: 'testUser',
-  username: 'test@user.com',
-  email: 'test@user.com',
-  emailVerified: new Date(),
-  isVerified: true,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  accounts: [],
-  sessions: [],
-  membership: [],
-  invitedMembers: [],
-  createdWorkspaces: [],
-  projects: [],
-  webhooks: [],
-};
 
 const MOCK_WORKSPACE: databaseTypes.IWorkspace = {
   _id: new mongooseTypes.ObjectId(),
@@ -72,11 +42,12 @@ const MOCK_WORKSPACE: databaseTypes.IWorkspace = {
   members: [],
   projects: [],
   states: [],
+  tags: [],
 };
 
 const MOCK_DATA: any[] = [
-  { column1: 'col1Value', column2: 'col2Value' },
-  { column1: 'col1Value', column2: 'col2Value' },
+  {column1: 'col1Value', column2: 'col2Value'},
+  {column1: 'col1Value', column2: 'col2Value'},
 ];
 
 const MOCK_RENDERABLE_DATA_GRID: webTypes.IRenderableDataGrid = {
@@ -104,8 +75,8 @@ const MOCK_RENDERABLE_DATA_GRID: webTypes.IRenderableDataGrid = {
     },
   ],
   rows: [
-    { id: 0, column1: 'col1Value', column2: 'col2Value' },
-    { id: 1, column1: 'col1Value', column2: 'col2Value' },
+    {id: 0, column1: 'col1Value', column2: 'col2Value'},
+    {id: 1, column1: 'col1Value', column2: 'col2Value'},
   ],
 };
 
@@ -133,6 +104,7 @@ const MOCK_PROJECT: databaseTypes.IProject = {
   } as unknown as databaseTypes.IState,
   files: [],
   viewName: 'testView',
+  tags: [],
 };
 
 describe('DATA ROUTES', () => {
@@ -164,7 +136,7 @@ describe('DATA ROUTES', () => {
     // route stubs
     validateSessionStub = sandbox.stub();
     validateSessionStub.resolves(MOCK_SESSION);
-    initializerStub = { init: sandbox.stub(), initedField: false };
+    initializerStub = {init: sandbox.stub(), initedField: false};
     initializerStub.init.resolves();
     formatGridDataStub = sandbox.stub();
     getDataByTableNameStub = sandbox.stub();
@@ -184,10 +156,10 @@ describe('DATA ROUTES', () => {
     // GET DATA BY ROW ID
     // replace handler import resolution
     getDataByTableName = proxyquire.load('../lib/server/data', {
-      '@glyphx/business': {
+      business: {
         dataService: mockDataService,
       },
-      '@glyphx/core': {
+      core: {
         generalPurposeFunctions: mockGeneralPurposeFunctions,
       },
       'lib/client/files/transforms/formatGridData': {
@@ -197,7 +169,7 @@ describe('DATA ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     getDataByTableNameRouteWrapper = proxyquire('../pages/api/data/grid', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -208,7 +180,7 @@ describe('DATA ROUTES', () => {
 
     // for testing routing
     getDataByTableNameRoute = proxyquire('../pages/api/data/grid', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -220,10 +192,10 @@ describe('DATA ROUTES', () => {
     // GET DATA BY ROW ID
     // replace handler import resolution
     getDataByRowId = proxyquire.load('../lib/server/data', {
-      '@glyphx/business': {
+      business: {
         dataService: mockDataService,
       },
-      '@glyphx/core': {
+      core: {
         generalPurposeFunctions: mockGeneralPurposeFunctions,
       },
       'lib/client/files/transforms/formatGridData': {
@@ -233,7 +205,7 @@ describe('DATA ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     getDataByRowIdRouteWrapper = proxyquire('../pages/api/data/rows', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -244,7 +216,7 @@ describe('DATA ROUTES', () => {
 
     // for testing routing
     getDataByRowIdRoute = proxyquire('../pages/api/data/rows', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -258,9 +230,9 @@ describe('DATA ROUTES', () => {
     sandbox.restore();
   });
 
-  context('/api/data/grid', async function () {
+  context('/api/data/grid', async () => {
     describe('GET DATA BY TABLENAME handler', () => {
-      it('should get all data for a given view', async function () {
+      it('should get all data for a given view', async () => {
         mockGeneralPurposeFunctions.fileIngestion.getFullTableName.resolves(MOCK_TABLE_NAME);
         mockDataService.getDataByTableName.resolves(MOCK_DATA);
         formatGridDataStub.returns(MOCK_RENDERABLE_DATA_GRID);
@@ -268,7 +240,7 @@ describe('DATA ROUTES', () => {
         await testApiHandler({
           handler: getDataByTableNameRouteWrapper,
           url: '/api/data/grid',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(
               wrapConfig(_getDataGrid(MOCK_WORKSPACE._id.toString(), MOCK_PROJECT._id.toString(), MOCK_TABLE_NAME))
             );
@@ -293,7 +265,7 @@ describe('DATA ROUTES', () => {
         await testApiHandler({
           handler: getDataByTableNameRoute,
           url: '/api/data/grid',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -312,7 +284,7 @@ describe('DATA ROUTES', () => {
         await testApiHandler({
           handler: getDataByTableNameRoute,
           url: '/api/data/grid',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -334,7 +306,7 @@ describe('DATA ROUTES', () => {
         await testApiHandler({
           handler: getDataByTableNameRoute,
           url: '/api/data/grid',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -356,7 +328,7 @@ describe('DATA ROUTES', () => {
         await testApiHandler({
           handler: getDataByTableNameRoute,
           url: '/api/data/grid',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -372,16 +344,16 @@ describe('DATA ROUTES', () => {
       });
     });
   });
-  context('/api/data/rows', async function () {
+  context('/api/data/rows', async () => {
     describe('GET DATA BY ROW ID handler', () => {
-      it('should get data by row id', async function () {
+      it('should get data by row id', async () => {
         mockGeneralPurposeFunctions.fileIngestion.getFullTableName.resolves(MOCK_TABLE_NAME);
         mockDataService.getDataByGlyphxIds.resolves(MOCK_DATA);
         formatGridDataStub.returns(MOCK_RENDERABLE_DATA_GRID);
         await testApiHandler({
           handler: getDataByRowIdRouteWrapper,
           url: '/api/data/rows',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(
               wrapConfig(
                 _getRowIds(MOCK_WORKSPACE._id.toString(), MOCK_PROJECT._id.toString(), MOCK_TABLE_NAME, ['0', '1'])
@@ -408,7 +380,7 @@ describe('DATA ROUTES', () => {
         await testApiHandler({
           handler: getDataByRowIdRoute,
           url: '/api/data/rows',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -427,7 +399,7 @@ describe('DATA ROUTES', () => {
         await testApiHandler({
           handler: getDataByRowIdRoute,
           url: '/api/data/rows',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -449,7 +421,7 @@ describe('DATA ROUTES', () => {
         await testApiHandler({
           handler: getDataByRowIdRoute,
           url: '/api/data/rows',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -471,7 +443,7 @@ describe('DATA ROUTES', () => {
         await testApiHandler({
           handler: getDataByRowIdRoute,
           url: '/api/data/rows',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);

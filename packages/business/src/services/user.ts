@@ -1,19 +1,18 @@
-import {EmailClient, updateHtml, updateText} from '@glyphx/email';
-import {database as databaseTypes} from '@glyphx/types';
-import {error, constants} from '@glyphx/core';
-import mongoDbConnection from 'lib/databaseConnection';
+import {EmailClient, updateHtml, updateText} from 'email';
+import {databaseTypes} from 'types';
+import {error, constants} from 'core';
+import mongoDbConnection from '../lib/databaseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 
 export class UserService {
-  public static async getUser(
-    userId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IUser | null> {
+  public static async getUser(userId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IUser | null> {
     try {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new mongooseTypes.ObjectId(userId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(userId);
       const user = await mongoDbConnection.models.UserModel.getUserById(id);
       return user;
     } catch (err: any) {
@@ -34,14 +33,13 @@ export class UserService {
     }
   }
 
-  public static async deactivate(
-    userId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IUser> {
+  public static async deactivate(userId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IUser> {
     try {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new mongooseTypes.ObjectId(userId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(userId);
 
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         deletedAt: new Date(),
@@ -74,10 +72,7 @@ export class UserService {
 
       return user;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -103,7 +98,8 @@ export class UserService {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new mongooseTypes.ObjectId(userId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(userId);
 
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         email,
@@ -117,15 +113,9 @@ export class UserService {
         to: [email, previousEmail],
       });
 
-      await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
-        {email: previousEmail},
-        {email: email}
-      );
+      await mongoDbConnection.models.MemberModel.updateMemberWithFilter({email: previousEmail}, {email: email});
 
-      await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
-        {inviter: previousEmail},
-        {inviter: email}
-      );
+      await mongoDbConnection.models.MemberModel.updateMemberWithFilter({inviter: previousEmail}, {inviter: email});
 
       await mongoDbConnection.models.CustomerPaymentModel.updateCustomerPaymentWithFilter(
         {email: previousEmail},
@@ -134,10 +124,7 @@ export class UserService {
 
       return user;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -154,24 +141,19 @@ export class UserService {
     }
   }
 
-  public static async updateName(
-    userId: mongooseTypes.ObjectId | string,
-    name: string
-  ): Promise<databaseTypes.IUser> {
+  public static async updateName(userId: mongooseTypes.ObjectId | string, name: string): Promise<databaseTypes.IUser> {
     try {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new mongooseTypes.ObjectId(userId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(userId);
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         name,
       });
       return user;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -188,23 +170,19 @@ export class UserService {
     }
   }
 
-  public static async updateUserCode(
-    userId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IUser> {
+  public static async updateUserCode(userId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IUser> {
     try {
       const id =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new mongooseTypes.ObjectId(userId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(userId);
       const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
         userCode: v4().replaceAll('-', ''),
       });
       return user;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {

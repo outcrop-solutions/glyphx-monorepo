@@ -1,8 +1,8 @@
-import {logging} from '@glyphx/core';
-import {EmailClient} from '@glyphx/email';
-import databaseConnection from 'lib/databaseConnection';
-import athenaConnection from 'lib/athenaConnection';
-import {StripeClient} from 'lib/stripe';
+import {logging} from 'core';
+import {EmailClient} from 'email';
+import databaseConnection from './lib/databaseConnection';
+import athenaConnection from './lib/athenaConnection';
+import {StripeClient} from './lib/stripe';
 
 export class Initializer {
   static initedField = false;
@@ -15,12 +15,8 @@ export class Initializer {
 
   public static async init(): Promise<void> {
     await logging.Logger.init();
-    // if (!databaseConnection.inited) {
     await databaseConnection.init();
-    // },
-    // if (!athenaConnection.inited) {
     await athenaConnection.init();
-    // }
     await EmailClient.init();
     await StripeClient.init();
     Initializer.initedField = true;

@@ -1,8 +1,9 @@
-import { web as webTypes } from '@glyphx/types';
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { Session } from 'next-auth';
-import { Initializer, validateSession } from '@glyphx/business';
-import { signUploadUrls } from 'lib/server/etl/signUploadUrls';
+import {webTypes} from 'types';
+import type {NextApiRequest, NextApiResponse} from 'next';
+import {authOptions} from 'app/api/auth/[...nextauth]/route';
+import {getServerSession} from 'next-auth/next';
+import {Initializer} from 'business';
+import {signUploadUrls} from 'lib/server/etl/signUploadUrls';
 /**
  * Implements controller of browser based FILE OPERATIONS
  * HANDLERS FOUND @ /lib/server/fileingestion.ts
@@ -17,8 +18,8 @@ export default async function signUpload(req: NextApiRequest, res: NextApiRespon
     await Initializer.init();
   }
   // check for valid session
-  const session = (await validateSession(req, res)) as Session;
-  if (!session.user.userId) return res.status(401).end();
+  const session = await getServerSession(req, res, authOptions);
+  if (!session?.user?.userId) return res.status(401).end();
   switch (req.method) {
     case webTypes.constants.HTTP_METHOD.POST:
       return signUploadUrls(req, res);

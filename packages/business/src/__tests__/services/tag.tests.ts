@@ -1,10 +1,10 @@
 import 'mocha';
 import {assert} from 'chai';
 import {createSandbox} from 'sinon';
-import {database as databaseTypes} from '@glyphx/types';
+import {databaseTypes} from 'types';
 import {Types as mongooseTypes} from 'mongoose';
-import {MongoDbConnection} from '@glyphx/database';
-import {error} from '@glyphx/core';
+import {MongoDbConnection} from 'database';
+import {error} from 'core';
 import {tagService} from '../../services';
 
 describe('#services/tag', () => {
@@ -15,17 +15,15 @@ describe('#services/tag', () => {
   });
   context('getTag', () => {
     it('should get a tag by id', async () => {
-      const tagId = new mongooseTypes.ObjectId();
+      const tagId =
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const getTagFromModelStub = sandbox.stub();
       getTagFromModelStub.resolves({
         _id: tagId,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.TagModel,
-        'getTagById',
-        getTagFromModelStub
-      );
+      sandbox.replace(dbConnection.models.TagModel, 'getTagById', getTagFromModelStub);
 
       const tag = await tagService.getTag(tagId);
       assert.isOk(tag);
@@ -34,17 +32,15 @@ describe('#services/tag', () => {
       assert.isTrue(getTagFromModelStub.calledOnce);
     });
     it('should get a tag by id when id is a string', async () => {
-      const tagId = new mongooseTypes.ObjectId();
+      const tagId =
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
 
       const getTagFromModelStub = sandbox.stub();
       getTagFromModelStub.resolves({
         _id: tagId,
       } as unknown as databaseTypes.IUser);
-      sandbox.replace(
-        dbConnection.models.TagModel,
-        'getTagById',
-        getTagFromModelStub
-      );
+      sandbox.replace(dbConnection.models.TagModel, 'getTagById', getTagFromModelStub);
 
       const tag = await tagService.getTag(tagId.toString());
       assert.isOk(tag);
@@ -53,21 +49,18 @@ describe('#services/tag', () => {
       assert.isTrue(getTagFromModelStub.calledOnce);
     });
     it('will log the failure and return null if the tag cannot be found', async () => {
-      const tagId = new mongooseTypes.ObjectId();
+      const tagId =
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'Cannot find the tag';
       const err = new error.DataNotFoundError(errMessage, 'tagId', tagId);
       const getTagFromModelStub = sandbox.stub();
       getTagFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.TagModel,
-        'getTagById',
-        getTagFromModelStub
-      );
+      sandbox.replace(dbConnection.models.TagModel, 'getTagById', getTagFromModelStub);
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DataNotFoundError);
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+
         //@ts-ignore
         assert.strictEqual(this.message, errMessage);
       }
@@ -84,22 +77,15 @@ describe('#services/tag', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const tagId = new mongooseTypes.ObjectId();
+      const tagId =
+        // @ts-ignore
+        new mongooseTypes.ObjectId();
       const errMessage = 'Something Bad has happened';
-      const err = new error.DatabaseOperationError(
-        errMessage,
-        'mongoDb',
-        'getTagById'
-      );
+      const err = new error.DatabaseOperationError(errMessage, 'mongoDb', 'getTagById');
       const getTagFromModelStub = sandbox.stub();
       getTagFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.TagModel,
-        'getTagById',
-        getTagFromModelStub
-      );
+      sandbox.replace(dbConnection.models.TagModel, 'getTagById', getTagFromModelStub);
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore

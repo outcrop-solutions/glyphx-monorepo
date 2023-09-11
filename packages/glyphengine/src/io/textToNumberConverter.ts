@@ -1,5 +1,5 @@
 import athenaClient from './athenaClient';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 
 export class TextColumnToNumberConverter {
   private readonly tableName: string;

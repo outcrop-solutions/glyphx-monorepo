@@ -1,4 +1,4 @@
-import { fileIngestion as fileIngestionTypes, web as webTypes } from '@glyphx/types';
+import {fileIngestionTypes, webTypes} from 'types';
 
 export const isValidPayload = (properties) => {
   let retval = true;

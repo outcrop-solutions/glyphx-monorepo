@@ -11,8 +11,8 @@
         "args": [
           "-r",
           "ts-node/register",
-	  "-r",
-	  "tsconfig-paths/register",
+          "-r",
+          "tsconfig-paths/register",
           "--timeout",
           "999999",
           "--exit",
@@ -46,6 +46,5 @@
         "env": {"TS_NODE_FILES": "true", "DOTENV_CONFIG_PATH": "src/__integrationTests__/.env.integration"}
       }
     }
-    
   }
 }

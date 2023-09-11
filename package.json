@@ -1,5 +1,5 @@
 {
-  "name": "@glyphx/monorepo",
+  "name": "monorepo",
   "repository": "https://github.com/glyphx/monorepo.git",
   "private": true,
   "workspaces": [
@@ -7,27 +7,26 @@
     "packages/**"
   ],
   "scripts": {
-    "build": "dotenv -- turbo build",
-    "test": "dotenv -- turbo test",
-    "test:db": "dotenv -- turbo test:db",
-    "test:business": "dotenv -- turbo test:business",
-    "test:web": "dotenv -- turbo test:web",
-    "integrationTest": "turbo integrationTest",
+    "build": "rimraf apps/web/.next && dotenv -- turbo build",
+    "test": "rimraf apps/web/.next && dotenv -- turbo test",
+    "integrationTest": "rimraf apps/web/.next && turbo integrationTest",
     "format": "turbo format",
-    "format:write": "turbo format",
-    "dev": "dotenv -- turbo dev",
+    "format:write": "turbo format:write",
+    "dev": "rimraf apps/web/.next && dotenv -- turbo dev",
+    "plop": "plop",
     "start": "dotenv -- turbo start",
-    "lint": "turbo run lint",
-    "fix": "turbo fix",
-    "count": "turbo count",
-    "coverage": "turbo coverage",
-    "clean:root": "rimraf pnpm-lock.yaml node_modules",
-    "clean": "turbo clean",
-    "db:generate": "turbo db:generate",
+    "lint": "rimraf apps/web/.next && dotenv -- turbo lint",
+    "fix": "rimraf apps/web/.next && dotenv -- turbo fix",
+    "type-check": "dotenv -- turbo type-check",
+    "count": "rimraf apps/web/.next && turbo count",
+    "coverage": "rimraf apps/web/.next && turbo coverage",
+    "clean:root": "rimraf apps/web/.next pnpm-lock.yaml node_modules target",
+    "clean": "rimraf apps/web/.next && turbo clean",
+    "db:generate": "dotenv -- turbo db:generate",
     "db:push": "dotenv -- turbo db:push",
-    "db:seed": "turbo db:seed",
-    "db:update": "turbo db:push db:generate",
-    "db:studio": "turbo db:studio",
+    "db:seed": "dotenv -- turbo db:seed",
+    "db:update": "dotenv -- turbo db:push db:generate",
+    "db:studio": "dotenv -- turbo db:studio",
     "sdk:codegen": "openapi-generator generate -g typescript-node -o packages/sdks/node -i api.yaml && openapi-generator generate -g javascript -o packages/sdks/js -i api.yaml && openapi-generator generate -g python -o packages/sdks/python -i api.yaml && openapi-generator generate -g ruby -o packages/sdks/ruby -i api.yaml && openapi-generator generate -g php -o packages/sdks/php -i api.yaml && openapi-generator generate -g csharp-netcore -o packages/sdks/netcore -i api.yaml && openapi-generator generate -g java -o packages/sdks/java -i api.yaml",
     "server:codegen": "openapi-generator generate -g aspnetcore -o packages/examples/with-aspnetcore -i api.yaml && openapi-generator generate -g spring -o packages/examples/with-spring -i api.yaml && openapi-generator generate -g python-flask -o packages/examples/with-flask -i api.yaml && openapi-generator generate -g ruby-on-rails -o packages/examples/with-rails -i api.yaml && openapi-generator generate -g php-laravel -o packages/examples/with-laravel -i api.yaml && openapi-generator generate -g nodejs-express-server -o packages/examples/with-express -i api.yaml",
     "codegen": "pnpm sdk:codegen && pnpm server:codegen",
@@ -35,15 +34,11 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.25.2",
-    "rimraf": "^3.0.2",
     "eslint": "^8.29.0",
     "eslint-config-custom": "workspace:*",
+    "plop": "^3.1.2",
+    "rimraf": "^3.0.2",
     "turbo": "latest"
-  },
-  "pnpm": {
-    "overrides": {
-      "@types/react": "17.0.2"
-    }
   },
   "packageManager": "pnpm@7.15.0",
   "dependencies": {

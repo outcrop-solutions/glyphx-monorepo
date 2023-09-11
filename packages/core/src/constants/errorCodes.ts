@@ -17,6 +17,11 @@ export class ErrorCodes {
     InvalidOperationError: 451,
     DataNotFoundError: 452,
 
+    FileNotFoundError: 453,
+    TypeCheckError: 454,
+    FileParseError: 455,
+    CodeGenError: 456,
+
     AiProviderError: 600,
 
     ConfigurationError: 460,

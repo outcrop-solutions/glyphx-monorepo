@@ -1,11 +1,8 @@
 import {assert} from 'chai';
 import {BasicJoinProcessor as JoinProcessor} from '@fileProcessing';
-import {error} from '@glyphx/core';
-import {
-  IFieldDefinition,
-  IJoinTableColumnDefinition,
-} from '@interfaces/fileProcessing';
-import {fileIngestion} from '@glyphx/types';
+import {error} from 'core';
+import {IFieldDefinition, IJoinTableColumnDefinition} from 'interfaces/fileProcessing';
+import {fileIngestionTypes} from 'types';
 import {GLYPHX_ID_COLUMN_NAME} from '../../fileProcessing/basicFileTransformer';
 
 describe('#fileProcessing/basicJoinProcessor', () => {
@@ -27,25 +24,21 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         {
           name: GLYPHX_ID_COLUMN_NAME,
           origionalName: GLYPHX_ID_COLUMN_NAME,
-          fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
         },
         {
           name: 'field1',
           origionalName: 'field1',
-          fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+          fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         },
         {
           name: 'field2',
           origionalName: 'field2',
-          fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
         },
       ];
       const joinProcessor = new JoinProcessor();
-      const newTable = joinProcessor['addTable'](
-        testTableName,
-        backingFileName,
-        fields
-      );
+      const newTable = joinProcessor['addTable'](testTableName, backingFileName, fields);
       const processedTables = joinProcessor.joinData;
       assert.isArray(processedTables);
       assert.strictEqual(processedTables.length, 1);
@@ -76,11 +69,7 @@ describe('#fileProcessing/basicJoinProcessor', () => {
       const backingFileName2 = `${testTableName2}.parquet`;
       const joinProcessor = new JoinProcessor();
       joinProcessor['addTable'](testTableName, backingFileName, []);
-      const newProcessedTable = joinProcessor['addTable'](
-        testTableName2,
-        backingFileName2,
-        []
-      );
+      const newProcessedTable = joinProcessor['addTable'](testTableName2, backingFileName2, []);
       const processedTables = joinProcessor['processedTables'];
       assert.isArray(processedTables);
       assert.strictEqual(processedTables.length, 2);
@@ -131,31 +120,23 @@ describe('#fileProcessing/basicJoinProcessor', () => {
         {
           name: GLYPHX_ID_COLUMN_NAME,
           origionalName: GLYPHX_ID_COLUMN_NAME,
-          fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
         },
         {
           name: 'field1',
           origionalName: 'field1',
-          fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+          fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
         },
         {
           name: 'field2',
           origionalName: 'field2',
-          fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+          fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
         },
       ];
-      joinProcessor['addTable'](
-        joinProcessor['cleanTableName'](tableName),
-        backingFileName,
-        fields
-      );
+      joinProcessor['addTable'](joinProcessor['cleanTableName'](tableName), backingFileName, fields);
       assert.throws(() => {
         //make the name upper to make sure that cleanTableName is called.
-        joinProcessor.processColumns(
-          tableName.toUpperCase(),
-          backingFileName,
-          fields
-        );
+        joinProcessor.processColumns(tableName.toUpperCase(), backingFileName, fields);
       }, error.InvalidArgumentError);
     });
 
@@ -167,27 +148,23 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
 
       const joinProcessor = new JoinProcessor();
-      joinProcessor.processColumns(
-        table1.tableName,
-        table1.backingFileName,
-        table1.fields
-      );
+      joinProcessor.processColumns(table1.tableName, table1.backingFileName, table1.fields);
 
       const tables = joinProcessor['processedTables'];
       assert.strictEqual(tables.length, 1);
@@ -212,17 +189,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -234,32 +211,24 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
 
       const joinProcessor = new JoinProcessor();
-      joinProcessor.processColumns(
-        table1.tableName,
-        table1.backingFileName,
-        table1.fields
-      );
-      joinProcessor.processColumns(
-        table2.tableName,
-        table2.backingFileName,
-        table2.fields
-      );
+      joinProcessor.processColumns(table1.tableName, table1.backingFileName, table1.fields);
+      joinProcessor.processColumns(table2.tableName, table2.backingFileName, table2.fields);
 
       const tables = joinProcessor['processedTables'];
       assert.strictEqual(tables.length, 2);
@@ -301,17 +270,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -323,17 +292,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -345,37 +314,25 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field4',
             origionalName: 'field4',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
 
       const joinProcessor = new JoinProcessor();
-      joinProcessor.processColumns(
-        table1.tableName,
-        table1.backingFileName,
-        table1.fields
-      );
-      joinProcessor.processColumns(
-        table2.tableName,
-        table2.backingFileName,
-        table2.fields
-      );
-      joinProcessor.processColumns(
-        table3.tableName,
-        table3.backingFileName,
-        table3.fields
-      );
+      joinProcessor.processColumns(table1.tableName, table1.backingFileName, table1.fields);
+      joinProcessor.processColumns(table2.tableName, table2.backingFileName, table2.fields);
+      joinProcessor.processColumns(table3.tableName, table3.backingFileName, table3.fields);
 
       const tables = joinProcessor['processedTables'];
       assert.strictEqual(tables.length, 3);
@@ -433,17 +390,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -455,17 +412,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -477,37 +434,25 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field4',
             origionalName: 'field4',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
 
       const joinProcessor = new JoinProcessor();
-      joinProcessor.processColumns(
-        table1.tableName,
-        table1.backingFileName,
-        table1.fields
-      );
-      joinProcessor.processColumns(
-        table2.tableName,
-        table2.backingFileName,
-        table2.fields
-      );
-      joinProcessor.processColumns(
-        table3.tableName,
-        table3.backingFileName,
-        table3.fields
-      );
+      joinProcessor.processColumns(table1.tableName, table1.backingFileName, table1.fields);
+      joinProcessor.processColumns(table2.tableName, table2.backingFileName, table2.fields);
+      joinProcessor.processColumns(table3.tableName, table3.backingFileName, table3.fields);
 
       const tables = joinProcessor['processedTables'];
       assert.strictEqual(tables.length, 3);
@@ -566,28 +511,28 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
 
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field22',
             origionalName: 'field22',
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
         ],
       };
@@ -599,27 +544,27 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field22',
             origionalName: 'field22',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -631,52 +576,40 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field4',
             origionalName: 'field4',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field22',
             origionalName: 'field22',
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
 
       const joinProcessor = new JoinProcessor();
-      joinProcessor.processColumns(
-        table1.tableName,
-        table1.backingFileName,
-        table1.fields
-      );
-      joinProcessor.processColumns(
-        table2.tableName,
-        table2.backingFileName,
-        table2.fields
-      );
-      joinProcessor.processColumns(
-        table3.tableName,
-        table3.backingFileName,
-        table3.fields
-      );
+      joinProcessor.processColumns(table1.tableName, table1.backingFileName, table1.fields);
+      joinProcessor.processColumns(table2.tableName, table2.backingFileName, table2.fields);
+      joinProcessor.processColumns(table3.tableName, table3.backingFileName, table3.fields);
 
       const tables = joinProcessor['processedTables'];
       assert.strictEqual(tables.length, 3);
@@ -750,28 +683,28 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
 
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field22',
             origionalName: 'field22',
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
         ],
       };
@@ -783,27 +716,27 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field22',
             origionalName: 'field22',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -815,52 +748,40 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field4',
             origionalName: 'field4',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field22',
             origionalName: 'field22',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
         ],
       };
 
       const joinProcessor = new JoinProcessor();
-      joinProcessor.processColumns(
-        table1.tableName,
-        table1.backingFileName,
-        table1.fields
-      );
-      joinProcessor.processColumns(
-        table2.tableName,
-        table2.backingFileName,
-        table2.fields
-      );
-      joinProcessor.processColumns(
-        table3.tableName,
-        table3.backingFileName,
-        table3.fields
-      );
+      joinProcessor.processColumns(table1.tableName, table1.backingFileName, table1.fields);
+      joinProcessor.processColumns(table2.tableName, table2.backingFileName, table2.fields);
+      joinProcessor.processColumns(table3.tableName, table3.backingFileName, table3.fields);
 
       const tables = joinProcessor['processedTables'];
       assert.strictEqual(tables.length, 3);
@@ -933,17 +854,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -955,32 +876,24 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field11',
             origionalName: 'field11',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.DATE,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.DATE,
           },
         ],
       };
 
       const joinProcessor = new JoinProcessor();
-      joinProcessor.processColumns(
-        table1.tableName,
-        table1.backingFileName,
-        table1.fields
-      );
-      joinProcessor.processColumns(
-        table2.tableName,
-        table2.backingFileName,
-        table2.fields
-      );
+      joinProcessor.processColumns(table1.tableName, table1.backingFileName, table1.fields);
+      joinProcessor.processColumns(table2.tableName, table2.backingFileName, table2.fields);
 
       const tables = joinProcessor['processedTables'];
       assert.strictEqual(tables.length, 2);
@@ -1019,17 +932,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.DATE,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.DATE,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -1041,32 +954,24 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.DATE,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.DATE,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
 
       const joinProcessor = new JoinProcessor();
-      joinProcessor.processColumns(
-        table1.tableName,
-        table1.backingFileName,
-        table1.fields
-      );
-      joinProcessor.processColumns(
-        table2.tableName,
-        table2.backingFileName,
-        table2.fields
-      );
+      joinProcessor.processColumns(table1.tableName, table1.backingFileName, table1.fields);
+      joinProcessor.processColumns(table2.tableName, table2.backingFileName, table2.fields);
 
       const tables = joinProcessor['processedTables'];
       assert.strictEqual(tables.length, 2);
@@ -1106,17 +1011,17 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.DATE,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.DATE,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
         ],
       };
@@ -1128,37 +1033,29 @@ describe('#fileProcessing/basicJoinProcessor', () => {
           {
             name: GLYPHX_ID_COLUMN_NAME,
             origionalName: GLYPHX_ID_COLUMN_NAME,
-            fieldType: fileIngestion.constants.FIELD_TYPE.NUMBER,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
           },
           {
             name: 'field1',
             origionalName: 'field1',
-            fieldType: fileIngestion.constants.FIELD_TYPE.DATE,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.DATE,
           },
           {
             name: 'field2',
             origionalName: 'field2',
-            fieldType: fileIngestion.constants.FIELD_TYPE.STRING,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
           },
           {
             name: 'field3',
             origionalName: 'field3',
-            fieldType: fileIngestion.constants.FIELD_TYPE.DATE,
+            fieldType: fileIngestionTypes.constants.FIELD_TYPE.DATE,
           },
         ],
       };
 
       const joinProcessor = new JoinProcessor();
-      joinProcessor.processColumns(
-        table1.tableName,
-        table1.backingFileName,
-        table1.fields
-      );
-      joinProcessor.processColumns(
-        table2.tableName,
-        table2.backingFileName,
-        table2.fields
-      );
+      joinProcessor.processColumns(table1.tableName, table1.backingFileName, table1.fields);
+      joinProcessor.processColumns(table2.tableName, table2.backingFileName, table2.fields);
 
       const tables = joinProcessor['processedTables'];
       assert.strictEqual(tables.length, 2);

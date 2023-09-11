@@ -108,7 +108,7 @@ export class ForkingStream extends EventEmitter {
         this.finishBaseStream(index);
       });
 
-      baseStream.on('error', err => {
+      baseStream.on('error', (err) => {
         this.errorBaseStream(index, err);
       });
       if (index === 0) retval = baseStream as Readable;
@@ -132,7 +132,7 @@ export class ForkingStream extends EventEmitter {
   }
 
   private processForks(baseStream: Readable) {
-    this.forks.forEach(f => {
+    this.forks.forEach((f) => {
       const streams = f.streams;
       let forkStream: Writable | null = null;
       f.pipelineStatus = PIPELINE_STATUS.RUNNING;
@@ -145,7 +145,7 @@ export class ForkingStream extends EventEmitter {
           this.finishForkStream(f, index);
         });
 
-        s.on('error', err => {
+        s.on('error', (err) => {
           this.errorForkStream(err, f, index);
         });
 
@@ -183,23 +183,16 @@ export class ForkingStream extends EventEmitter {
     //is safe throws an exception if not safe so we need to ignore the else.
     //istanbul ignore else
     if (this.isSafe) {
-      const fork = this.forks.find(f => f.forkName === name);
+      const fork = this.forks.find((f) => f.forkName === name);
       if (!fork) {
-        throw new error.InvalidArgumentError(
-          `An existing fork with the name: ${name} cannot be found`,
-          'name',
-          name
-        );
+        throw new error.InvalidArgumentError(`An existing fork with the name: ${name} cannot be found`, 'name', name);
       }
 
       fork.streams.push(...streams);
     }
   }
 
-  public fork(
-    name: string,
-    ...streams: (Transform | Writable)[]
-  ): IForkedStream {
+  public fork(name: string, ...streams: (Transform | Writable)[]): IForkedStream {
     //is safe throws an exception if not safe so we need to ignore the else.
     //istanbul ignore else
     if (this.isSafe) {
@@ -227,17 +220,15 @@ export class ForkingStream extends EventEmitter {
   public done() {
     this.unsafe = true;
     return new Promise<void>((resolve, reject) => {
-      this.on('finish', forkName => {
+      this.on('finish', (forkName) => {
         if (forkName) {
-          const forkStatus = this.forks.find(f => f.forkName === forkName);
+          const forkStatus = this.forks.find((f) => f.forkName === forkName);
           //this should never happen but is here to make typescript feel better
           //istanbul ignore else
           if (forkStatus) forkStatus.pipelineStatus = PIPELINE_STATUS.COMPLETE;
         }
 
-        const stillRunning = this.forks.find(
-          s => s.pipelineStatus === PIPELINE_STATUS.RUNNING
-        );
+        const stillRunning = this.forks.find((s) => s.pipelineStatus === PIPELINE_STATUS.RUNNING);
         if (!stillRunning) {
           this.status = PIPELINE_STATUS.COMPLETE;
           resolve();
@@ -253,12 +244,10 @@ export class ForkingStream extends EventEmitter {
           err
         );
         this.status = PIPELINE_STATUS.ERROR;
-        const stillRunning = this.forks.filter(
-          s => s.pipelineStatus === PIPELINE_STATUS.RUNNING
-        );
+        const stillRunning = this.forks.filter((s) => s.pipelineStatus === PIPELINE_STATUS.RUNNING);
         //istanbul ignore next
         if (stillRunning.length) {
-          stillRunning.forEach(r => {
+          stillRunning.forEach((r) => {
             r.pipelineStatus = PIPELINE_STATUS.CANCELLED;
             r.streamStatus.forEach((s, index) => {
               if (s === PIPELINE_STATUS.RUNNING) {

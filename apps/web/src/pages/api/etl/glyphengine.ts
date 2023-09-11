@@ -1,8 +1,8 @@
-import { web as webTypes } from '@glyphx/types';
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { Session } from 'next-auth';
-import { validateSession } from '@glyphx/business';
-import { glyphEngine } from 'lib/server/etl/glyphEngine';
+import {webTypes} from 'types';
+import type {NextApiRequest, NextApiResponse} from 'next';
+import {authOptions} from 'app/api/auth/[...nextauth]/route';
+import {getServerSession} from 'next-auth/next';
+import {glyphEngine} from 'lib/server/etl/glyphEngine';
 
 /**
  * Implements controller of browser based FILE OPERATIONS
@@ -14,7 +14,7 @@ import { glyphEngine } from 'lib/server/etl/glyphEngine';
 
 export default async function engine(req: NextApiRequest, res: NextApiResponse) {
   // check for valid session
-  const session = (await validateSession(req, res)) as Session;
+  const session = await getServerSession(req, res, authOptions);
   if (!session?.user?.userId) return res.status(401).end();
 
   switch (req.method) {
@@ -22,6 +22,6 @@ export default async function engine(req: NextApiRequest, res: NextApiResponse) 
       return await glyphEngine(req, res, session);
     default:
       res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.POST]);
-      return res.status(405).json({ error: `${req.method} method unsupported` });
+      return res.status(405).json({error: `${req.method} method unsupported`});
   }
 }

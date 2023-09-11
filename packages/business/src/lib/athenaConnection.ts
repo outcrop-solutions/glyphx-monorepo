@@ -1,8 +1,8 @@
-import {aws, secretBinders, error} from '@glyphx/core';
+import {aws, bindSecrets, boundProperty, initializer, error} from 'core';
 
-@secretBinders.bindSecrets('db/athena')
+@bindSecrets('db/athena')
 class AthenaConnection {
-  @secretBinders.boundProperty()
+  @boundProperty()
   private databaseName: string;
   private connectionField?: aws.AthenaManager;
 
@@ -25,7 +25,7 @@ class AthenaConnection {
     this.initedField = false;
   }
 
-  @secretBinders.initializer
+  @initializer
   public async init(): Promise<void> {
     if (!this.initedField) {
       this.connectionField = new aws.AthenaManager(this.databaseName);
@@ -35,4 +35,5 @@ class AthenaConnection {
   }
 }
 
-export default new AthenaConnection();
+const athenaConnection = new AthenaConnection();
+export default athenaConnection;

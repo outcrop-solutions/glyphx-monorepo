@@ -1,16 +1,16 @@
 import 'mocha';
-import { assert } from 'chai';
-import { Session } from 'next-auth';
-import { createSandbox } from 'sinon';
+import {assert} from 'chai';
+import {createSandbox} from 'sinon';
 // where the magic happens
 import * as proxyquireType from 'proxyquire';
 const proxyquire = proxyquireType.noCallThru();
-import { testApiHandler } from 'next-test-api-route-handler';
-import { _createDefaultProject, _deleteProject, _updateProjectState } from 'lib/client/mutations/project';
-import { wrapConfig } from './utilities/wrapConfig';
-import { genericGet, genericPatch } from './utilities/genericReqs';
-import { database as databaseTypes, fileIngestion as fileIngestionTypes, web as webTypes } from '@glyphx/types';
-import { Types as mongooseTypes } from 'mongoose';
+import {testApiHandler} from 'next-test-api-route-handler';
+import {_createDefaultProject, _deleteProject, _updateProjectState} from 'lib/client/mutations/project';
+import {wrapConfig} from './utilities/wrapConfig';
+import {genericGet, genericPatch} from './utilities/genericReqs';
+import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
+import {Types as mongooseTypes} from 'mongoose';
+import {Session} from 'next-auth';
 // import type { PageConfig } from 'next';
 // Respect the Next.js config object if it's exported
 // const handler: typeof deactivate & { config?: PageConfig } = deactivate;
@@ -45,6 +45,10 @@ const MOCK_STATE: Omit<
   | 'camera'
   | 'createdBy'
 > = {
+  aspectRatio: {
+    height: 100,
+    width: 100,
+  },
   properties: {
     X: {
       axis: webTypes.constants.AXIS.X,
@@ -129,7 +133,7 @@ const MOCK_USER_AGENT: databaseTypes.IUserAgent = {
   language: '',
   cookieEnabled: false,
 };
-const MOCK_LOCATION: string = 'location';
+const MOCK_LOCATION = 'location';
 
 const PROJECT_ID = 'projectId';
 
@@ -139,6 +143,7 @@ const MOCK_PROJECT: databaseTypes.IProject = {
   name: 'test project',
   description: 'this is a test description',
   sdtPath: 'sdtPath',
+  tags: [],
   currentVersion: 0,
   workspace: {
     _id: new mongooseTypes.ObjectId(),
@@ -192,7 +197,7 @@ describe('PROJECT ROUTES', () => {
     // route stubs
     validateSessionStub = sandbox.stub();
     validateSessionStub.resolves(MOCK_SESSION);
-    initializerStub = { init: sandbox.stub(), initedField: false };
+    initializerStub = {init: sandbox.stub(), initedField: false};
     initializerStub.init.resolves();
     getProjectStub = sandbox.stub();
     createProjectStub = sandbox.stub();
@@ -207,12 +212,12 @@ describe('PROJECT ROUTES', () => {
       updateProjectState: sandbox.stub(),
       deactivate: sandbox.stub(),
     };
-    mockActivityLogService = { createLog: sandbox.stub() };
+    mockActivityLogService = {createLog: sandbox.stub()};
 
     /************************* GET PROJECT **************************/
     // replace handler import resolution
     getProject = proxyquire.load('../lib/server/project', {
-      '@glyphx/business': {
+      business: {
         projectService: mockProjectService,
         activityLogService: mockActivityLogService,
       },
@@ -223,7 +228,7 @@ describe('PROJECT ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     getProjectRouteWrapper = proxyquire('../pages/api/project/[projectId]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -235,7 +240,7 @@ describe('PROJECT ROUTES', () => {
     /************************* CREATE PROJECT **************************/
     // replace handler import resolution
     createProject = proxyquire.load('../lib/server/project', {
-      '@glyphx/business': {
+      business: {
         projectService: mockProjectService,
         activityLogService: mockActivityLogService,
       },
@@ -246,7 +251,7 @@ describe('PROJECT ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     createProjectRouteWrapper = proxyquire('../pages/api/project/[projectId]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -258,7 +263,7 @@ describe('PROJECT ROUTES', () => {
     /************************* UPDATE PROJECT **************************/
     // replace handler import resolution
     updateProjectState = proxyquire.load('../lib/server/project', {
-      '@glyphx/business': {
+      business: {
         projectService: mockProjectService,
         activityLogService: mockActivityLogService,
       },
@@ -269,7 +274,7 @@ describe('PROJECT ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     updateProjectStateRouteWrapper = proxyquire('../pages/api/project/[projectId]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -281,7 +286,7 @@ describe('PROJECT ROUTES', () => {
     /************************* DELETE PROJECT **************************/
     // replace handler import resolution
     deleteProject = proxyquire.load('../lib/server/project', {
-      '@glyphx/business': {
+      business: {
         projectService: mockProjectService,
         activityLogService: mockActivityLogService,
       },
@@ -292,7 +297,7 @@ describe('PROJECT ROUTES', () => {
 
     // swap overridden import into handler to be able to call
     deleteProjectRouteWrapper = proxyquire('../pages/api/project/[projectId]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -303,7 +308,7 @@ describe('PROJECT ROUTES', () => {
 
     /************************* PROJECT ROUTE **************************/
     projectRoute = proxyquire('../pages/api/project/[projectId]', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -320,38 +325,38 @@ describe('PROJECT ROUTES', () => {
     sandbox.restore();
   });
 
-  context('/api/project', async function () {
+  context('/api/project', async () => {
     describe('GET handler', () => {
-      it('should get a project', async function () {
+      it('should get a project', async () => {
         mockProjectService.getProject.resolves(MOCK_PROJECT);
 
         await testApiHandler({
           handler: getProjectRouteWrapper,
           url: `/api/project/[projectId]`,
-          params: { projectId: PROJECT_ID },
-          test: async ({ fetch }) => {
+          params: {projectId: PROJECT_ID},
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
             assert.isTrue(mockProjectService.getProject.calledOnce);
             assert.strictEqual(res.status, 200);
 
-            const { data } = await res.json();
+            const {data} = await res.json();
             assert.strictEqual(data.project.name, MOCK_PROJECT.name);
           },
         });
       });
     });
     describe('CREATE handler', () => {
-      it('should create a project', async function () {
+      it('should create a project', async () => {
         mockProjectService.createProject.resolves(MOCK_PROJECT);
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
           handler: createProjectRouteWrapper,
           url: `/api/project/[projectId]`,
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const config = wrapConfig(_createDefaultProject(MOCK_WORKSPACE._id));
             const res = await fetch(config);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -359,23 +364,23 @@ describe('PROJECT ROUTES', () => {
             assert.isTrue(mockProjectService.createProject.calledOnce);
             assert.strictEqual(res.status, 200);
 
-            const { data } = await res.json();
+            const {data} = await res.json();
             assert.strictEqual(data.name, MOCK_PROJECT.name);
           },
         });
       });
     });
     describe('PUT handler', () => {
-      it('should update project state', async function () {
+      it('should update project state', async () => {
         mockProjectService.updateProjectState.resolves(MOCK_PROJECT);
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
           handler: updateProjectStateRouteWrapper,
           url: `/api/project/[projectId]`,
-          params: { projectId: PROJECT_ID },
-          test: async ({ fetch }) => {
+          params: {projectId: PROJECT_ID},
+          test: async ({fetch}) => {
             const config = wrapConfig(
               _updateProjectState(
                 PROJECT_ID.toString(),
@@ -402,23 +407,23 @@ describe('PROJECT ROUTES', () => {
             assert.isTrue(mockProjectService.updateProjectState.calledOnce);
             assert.strictEqual(res.status, 200);
 
-            const { data } = await res.json();
+            const {data} = await res.json();
             assert.strictEqual(data.project.name, MOCK_PROJECT.name);
           },
         });
       });
     });
     describe('DELETE handler', () => {
-      it('should delete a project', async function () {
+      it('should delete a project', async () => {
         mockProjectService.deactivate.resolves(MOCK_PROJECT);
-        formatUserAgentStub.returns({ agentData: MOCK_USER_AGENT, location: MOCK_LOCATION });
+        formatUserAgentStub.returns({agentData: MOCK_USER_AGENT, location: MOCK_LOCATION});
         mockActivityLogService.createLog.resolves();
 
         await testApiHandler({
           handler: deleteProjectRouteWrapper,
           url: `/api/project/[projectId]`,
-          params: { projectId: PROJECT_ID },
-          test: async ({ fetch }) => {
+          params: {projectId: PROJECT_ID},
+          test: async ({fetch}) => {
             const config = wrapConfig(_deleteProject(PROJECT_ID));
             const res = await fetch(config);
             assert.strictEqual(res.status, 200);
@@ -434,7 +439,7 @@ describe('PROJECT ROUTES', () => {
         await testApiHandler({
           handler: projectRoute,
           url: '/api/project/:id',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -452,7 +457,7 @@ describe('PROJECT ROUTES', () => {
         await testApiHandler({
           handler: projectRoute,
           url: '/api/project/:id',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPatch);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);

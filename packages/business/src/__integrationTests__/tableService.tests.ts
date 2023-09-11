@@ -8,11 +8,7 @@ describe('#tableService', () => {
     let tableName = '';
     before(async () => {
       await AthenaConnection.init();
-      const tables = await AthenaConnection.connection.runQuery(
-        'SHOW TABLES',
-        10,
-        true
-      );
+      const tables = await AthenaConnection.connection.runQuery('SHOW TABLES', 10, true);
       tableName = tables[0].tab_name as string;
       assert.isNotEmpty(tableName);
     });

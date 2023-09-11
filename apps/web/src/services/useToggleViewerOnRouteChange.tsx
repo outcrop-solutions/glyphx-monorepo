@@ -1,7 +1,5 @@
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { useSetRecoilState } from 'recoil';
-import { drawerOpenAtom } from 'state';
+import {useEffect} from 'react';
+import {useRouter} from 'next/navigation';
 
 const useToggleViewerOnRouteChange = () => {
   const router = useRouter();
@@ -10,12 +8,6 @@ const useToggleViewerOnRouteChange = () => {
   useEffect(() => {
     const handleRouteChange = () => {
       window?.core?.ToggleDrawer(false);
-    };
-
-    router.events.on('routeChangeComplete', handleRouteChange);
-
-    return () => {
-      router.events.off('routeChangeComplete', handleRouteChange);
     };
   }, [router]);
 };

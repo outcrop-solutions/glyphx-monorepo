@@ -8,11 +8,7 @@ describe('#generalPurposeFunctions/fileIngestion', () => {
   const tableName = 'testTableName';
   context('getFullTableName', () => {
     it('will return the full table name', () => {
-      const fileName = fileIngestionFunctions.getFullTableName(
-        clientId,
-        modelId,
-        tableName
-      );
+      const fileName = fileIngestionFunctions.getFullTableName(clientId, modelId, tableName);
       assert.isNotEmpty(fileName);
     });
   });
@@ -26,37 +22,22 @@ describe('#generalPurposeFunctions/fileIngestion', () => {
 
   context('getTableCsvPath', () => {
     it('will get the csv file path', () => {
-      const path = fileIngestionFunctions.getTableCsvPath(
-        clientId,
-        modelId,
-        tableName
-      );
+      const path = fileIngestionFunctions.getTableCsvPath(clientId, modelId, tableName);
       assert.isNotEmpty(path);
     });
   });
 
   context('getTableParquetPath', () => {
     it('will get the prquet file path', () => {
-      const path = fileIngestionFunctions.getTableParquetPath(
-        clientId,
-        modelId,
-        tableName
-      );
+      const path = fileIngestionFunctions.getTableParquetPath(clientId, modelId, tableName);
       assert.isNotEmpty(path);
     });
   });
 
   context('getArchiveFilePath', () => {
     it('will get the archived file path', () => {
-      const key =
-        fileIngestionFunctions.getTableCsvPath(clientId, modelId, tableName) +
-        'file.csv';
-      const path = fileIngestionFunctions.getArchiveFilePath(
-        clientId,
-        modelId,
-        key,
-        '00000000000000'
-      );
+      const key = fileIngestionFunctions.getTableCsvPath(clientId, modelId, tableName) + 'file.csv';
+      const path = fileIngestionFunctions.getArchiveFilePath(clientId, modelId, key, '00000000000000');
       assert.isNotNull(path);
     });
   });

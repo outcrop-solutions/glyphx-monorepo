@@ -1,18 +1,14 @@
 import {assert} from 'chai';
-import {aws, generalPurposeFunctions} from '@glyphx/core';
+import {aws, generalPurposeFunctions} from 'core';
 import {FileIngestor} from '../fileIngestor';
 import addFilesJson from './assets/addTables.json';
 import deleteFilesJson from './assets/deleteTables.json';
 //eslint-disable-next-line
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
 
 import {config} from '../config';
-import {
-  Initializer,
-  processTrackingService,
-  dbConnection,
-} from '@glyphx/business';
+import {Initializer, processTrackingService, dbConnection} from 'business';
 import {v4} from 'uuid';
 
 const UNIQUE_KEY = v4().replaceAll('-', '');
@@ -32,16 +28,9 @@ const INPUT_PROJECT = {
 };
 async function setupExistingAssets() {
   const payload = addFilesJson.payload as fileIngestion.IPayload;
-  fileProcessingHelpers.loadTableStreams(
-    addFilesJson.testDataDirectory,
-    payload
-  );
+  fileProcessingHelpers.loadTableStreams(addFilesJson.testDataDirectory, payload);
   await processTrackingService.createProcessTracking(PROCESS_ID2, PROCESS_NAME);
-  const fileIngestor = new FileIngestor(
-    payload,
-    addFilesJson.databaseName,
-    PROCESS_ID2
-  );
+  const fileIngestor = new FileIngestor(payload, addFilesJson.databaseName, PROCESS_ID2);
   await fileIngestor.init();
   await fileIngestor.process();
 }
@@ -88,7 +77,7 @@ describe('#fileProcessing', () => {
       payload = deleteFilesJson.payload as fileIngestion.IPayload;
       assert.isOk(payload);
 
-      fileNames = payload.fileStats.map(f => f.fileName);
+      fileNames = payload.fileStats.map((f) => f.fileName);
       assert.isAtLeast(fileNames.length, 1);
 
       s3Bucket = new aws.S3Manager(bucketName);
@@ -97,30 +86,15 @@ describe('#fileProcessing', () => {
       athenaManager = new aws.AthenaManager(databaseName);
       await athenaManager.init();
 
-      await fileProcessingHelpers.cleanupAws(
-        payload,
-        clientId,
-        modelId,
-        s3Bucket,
-        athenaManager
-      );
+      await fileProcessingHelpers.cleanupAws(payload, clientId, modelId, s3Bucket, athenaManager);
       fileProcessingHelpers.loadTableStreams(testDataDirectory, payload);
-      await processTrackingService.createProcessTracking(
-        PROCESS_ID,
-        PROCESS_NAME
-      );
+      await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
       await setupExistingAssets();
       (config as any).inited = false;
     });
 
     after(async () => {
-      await fileProcessingHelpers.cleanupAws(
-        payload,
-        clientId,
-        modelId,
-        s3Bucket,
-        athenaManager
-      );
+      await fileProcessingHelpers.cleanupAws(payload, clientId, modelId, s3Bucket, athenaManager);
       await dbConnection.models.ProjectModel.findByIdAndDelete(projectId);
       await processTrackingService.removeProcessTrackingDocument(PROCESS_ID);
       await processTrackingService.removeProcessTrackingDocument(PROCESS_ID2);
@@ -129,10 +103,7 @@ describe('#fileProcessing', () => {
       const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
       await fileIngestor.init();
       const {joinInformation} = await fileIngestor.process();
-      await fileProcessingHelpers.validateTableResults(
-        joinInformation,
-        athenaManager
-      );
+      await fileProcessingHelpers.validateTableResults(joinInformation, athenaManager);
       await fileProcessingHelpers.validateViewResults(
         athenaManager,
         `glyphx_${clientId}_${modelId}_view`,

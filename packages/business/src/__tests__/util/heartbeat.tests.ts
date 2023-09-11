@@ -3,7 +3,7 @@ import 'mocha';
 import {assert} from 'chai';
 import {Heartbeat} from '../../util';
 import {createSandbox, useFakeTimers} from 'sinon';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 
 describe('#util/heartBeat', () => {
   context('constructor', () => {
@@ -107,7 +107,7 @@ describe('#util/heartBeat', () => {
       sandbox.replace(ProcessTrackingService, 'setHeartbeat', setHeartbeatStub);
 
       let errored = false;
-      heartbeat.on('error', err => {
+      heartbeat.on('error', (err) => {
         assert.instanceOf(err, error.UnexpectedError);
         errored = true;
       });

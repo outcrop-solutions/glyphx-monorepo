@@ -10,6 +10,9 @@
     "format": {
       "outputs": []
     },
+    "format:write": {
+      "outputs": []
+    },
     "start": {
       "cache": false
     },
@@ -19,23 +22,25 @@
     "coverage": {
       "cache": false
     },
+    "db:generate": {
+      "cache": false
+    },
+    "db:seed": {
+      "cache": false
+    },
+    "db:push": {
+      "cache": false
+    },
     "clean": {
+      "cache": false
+    },
+    "type-check": {
       "cache": false
     },
     "codegen": {
       "outputs": ["./packages/examples/**", "./packages/sdks/**"]
     },
-    "db:generate": {
-      "cache": false
-    },
-    "test:db": {
-      "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
-    },
-    "test:business": {
-      "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
-    },
     "build": {
-      "dependsOn": ["^build"],
       "outputs": [".next/**", "dist/**", "build/**"]
     },
     "test": {
@@ -44,30 +49,19 @@
       "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
     },
     "integrationTest": {
+      "cache": false,
       "dependsOn": ["build"],
       "outputs": [],
-      "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
-    },
-    "web#build": {
-      "dependsOn": ["^build"],
-      "inputs": ["./src/**/*.ts", "./src/**/*.tsx"],
-      "outputs": [".next/**"]
-    },
-    "database#build": {
-      "dependsOn": ["^build"],
-      "env": ["DATABASE_URL"],
-      "outputs": ["dist/**"]
+      "inputs": ["src/**/*.tsx", "src/**/*.ts", "**/tests/**/*.ts", "**/tests/**/*.tsx"]
     },
     "dev": {
-      "cache": false
-    },
-    "web#dev": {
-      "dependsOn": ["^dev", "^build"],
       "cache": false
     }
   },
   "globalEnv": [
     "OPENAI_API_KEY",
+    "ANTHROPIC_API_KEY",
+    "HUGGINGFACE_API_KEY",
     "GITHUB_TOKEN",
     "API_ENV",
     "MONGODB_URI",
@@ -97,7 +91,11 @@
     "GOOGLE_CLIENT_SECRET",
     "NEXT_PUBLIC_PUBLISHABLE_KEY",
     "PAYMENTS_SECRET_KEY",
-    "PAYMENTS_SIGNING_SECRET"
+    "PAYMENTS_SIGNING_SECRET",
+    "NEXT_PUBLIC_POSTHOG_KEY",
+    "NEXT_PUBLIC_POSTHOG_HOST",
+    "LOG_LEVEL",
+    "DATABASE_URL"
   ],
   "globalDependencies": ["tsconfig.json"]
 }

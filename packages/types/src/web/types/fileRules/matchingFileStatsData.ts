@@ -1,4 +1,3 @@
-import {File} from 'buffer';
 import {IClientSidePayload} from '../../interfaces';
 import {Collision} from './collision';
 /**
@@ -8,6 +7,6 @@ export type MatchingFileStatsData =
   | {
       collisions: Collision[];
       payload: IClientSidePayload;
-      acceptedFiles: File[];
+      acceptedFiles: Blob[];
     }
   | false;

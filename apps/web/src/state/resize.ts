@@ -1,7 +1,7 @@
-import { atom, selector } from 'recoil';
-import { web as webTypes } from '@glyphx/types';
-import { rightSidebarControlAtom } from './ui';
-import { calcH, calcW, calcX, calcY } from './utilities';
+import {atom, selector} from 'recoil';
+import {webTypes} from 'types';
+import {rightSidebarControlAtom} from './ui';
+import {calcH, calcW, calcX, calcY} from './utilities';
 /**
  * RESIZE LOGIC
  */
@@ -42,7 +42,7 @@ export const drawerOpenAtom = atom<boolean>({
 
 export const viewerPositionSelector = selector<webTypes.IViewerPosition | false>({
   key: 'viewerPositionSelector',
-  get: ({ get }) => {
+  get: ({get}) => {
     const coords = get(leftCoordinatesAtom);
     const window = get(windowSizeAtom);
     const orientation = get(orientationAtom);

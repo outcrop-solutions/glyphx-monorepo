@@ -1,4 +1,4 @@
-import { database as databaseTypes, web as webTypes } from '@glyphx/types';
+import {databaseTypes, webTypes} from 'types';
 // PROJECT MUTATIONS
 
 /**
@@ -11,7 +11,7 @@ export const _createDefaultProject = (workspaceId: string): webTypes.IFetchConfi
   return {
     url: '/api/project/create',
     options: {
-      body: { name: 'Untitled', workspaceId },
+      body: {name: 'Untitled', workspaceId},
       method: 'POST',
     },
     successMsg: 'New project successfully created',
@@ -29,7 +29,7 @@ export const _createProject = (workspaceId: string, name: string, description: s
   return {
     url: '/api/project/create',
     options: {
-      body: { name: name, description: description, workspaceId },
+      body: {name: name, description: description, workspaceId},
       method: 'POST',
     },
     successMsg: 'New project successfully created',
@@ -64,7 +64,7 @@ export const _updateProjectState = (
   return {
     url: `/api/project/${id}`,
     options: {
-      body: { state },
+      body: {state},
       method: 'PUT',
     },
     successMsg: 'Project updated successfully',

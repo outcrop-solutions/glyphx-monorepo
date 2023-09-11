@@ -1,5 +1,5 @@
 import {processTrackingService} from '../services';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 import {EventEmitter} from 'events';
 
 export class Heartbeat extends EventEmitter {
@@ -62,10 +62,7 @@ export class Heartbeat extends EventEmitter {
     //we were already stopped internally
     if (!this.internalStop) {
       if (!this.timer)
-        throw new error.InvalidOperationError(
-          'There is no timer set.  Call start before calling stop',
-          {}
-        );
+        throw new error.InvalidOperationError('There is no timer set.  Call start before calling stop', {});
       clearTimeout(this.timer);
       this.timer = undefined;
       this.emit('stopped');

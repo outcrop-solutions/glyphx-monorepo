@@ -1,5 +1,4 @@
-import { web as webTypes, database as databaseTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
-import { Session } from 'next-auth';
+import {webTypes, databaseTypes, fileIngestionTypes} from 'types';
 
 /******************** INGESTION *********************/
 /**
@@ -15,7 +14,7 @@ export const _getSignedUploadUrls = (workspaceId: string, projectId: string, key
     url: `/api/etl/sign-upload-urls`,
     options: {
       method: 'POST',
-      body: { workspaceId, projectId, keys },
+      body: {workspaceId, projectId, keys},
     },
     successMsg: 'File successfully added',
   };
@@ -98,7 +97,7 @@ export const _ingestFiles = (payload: webTypes.IClientSidePayload): webTypes.IFe
     url: `/api/etl/ingest`,
     options: {
       method: 'POST',
-      body: { payload },
+      body: {payload},
     },
     successMsg: 'File successfully ingested',
   };
@@ -125,7 +124,7 @@ export const _createModel = (
     url: `/api/etl/glyphengine`,
     options: {
       method: 'POST',
-      body: { project, isFilter, payloadHash },
+      body: {project, isFilter, payloadHash},
     },
     successMsg: 'Model successfully generated!',
   };
@@ -145,7 +144,7 @@ export const _getSignedDataUrls = (
     url: `/api/etl/sign-data-urls`,
     options: {
       method: 'POST',
-      body: { workspaceId, projectId, payloadHash },
+      body: {workspaceId, projectId, payloadHash},
     },
     successMsg: 'Signed data packets',
   };
@@ -162,9 +161,9 @@ export const _getSignedDataUrls = (
  * @returns stringified Qt Open Project payload
  */
 export const _createOpenProject = (
-  data: { sdtUrl: string; sgnUrl: string; sgcUrl: string },
+  data: {sdtUrl: string; sgnUrl: string; sgcUrl: string},
   project: databaseTypes.IProject,
-  session: Omit<Session & { status }, 'jwt' | 'user' | 'expires'>,
+  session: Omit<databaseTypes.ISession & {status}, 'jwt' | 'user' | 'expires' | 'sessionToken'>,
   url: string,
   isCreate: boolean,
   camera?: {

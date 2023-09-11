@@ -1,8 +1,8 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { Session } from 'next-auth';
-import { Configuration, OpenAIApi } from 'openai-edge';
-import { systemMessage } from 'lib/utils/systemMessages';
-import { projectService, projectTemplateService } from '@glyphx/business';
+import type {NextApiRequest, NextApiResponse} from 'next';
+
+import {Configuration, OpenAIApi} from 'openai-edge';
+import {systemMessage} from 'lib/utils/systemMessages';
+import {projectService, projectTemplateService} from 'business';
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -17,17 +17,11 @@ const configuration = new Configuration({
  *
  */
 
-export const createCompletion = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const { payload } = req.body;
+export const createCompletion = async (req: NextApiRequest, res: NextApiResponse) => {
+  const {payload} = req.body;
   try {
     const openai = new OpenAIApi(configuration);
-    const project = await projectService.getProject(payload.modelId);
-    const templates = await projectTemplateService.getProjectTemplates(
-      {},
-      0,
-      10,
-      project.tags.map((t) => t._id)
-    );
+    const templates = await projectTemplateService.getProjectTemplates({});
 
     const messages = systemMessage(payload.fileStats, templates);
 
@@ -40,10 +34,10 @@ export const createCompletion = async (req: NextApiRequest, res: NextApiResponse
     });
 
     const result = await response.json();
-    res.status(200).json({ data: result });
+    res.status(200).json({data: result});
 
     // return new StreamingTextResponse(stream);
   } catch (error) {
-    res.status(404).json({ errors: { error: { msg: error.message } } });
+    res.status(404).json({errors: {error: {msg: error.message}}});
   }
 };

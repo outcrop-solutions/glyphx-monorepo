@@ -1,12 +1,12 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { Session } from 'next-auth';
-import { aws, generalPurposeFunctions } from '@glyphx/core';
-import { FileIngestor } from '@glyphx/fileingestion';
-import { S3_BUCKET_NAME, ATHENA_DB_NAME } from 'config/constants';
-import { formatUserAgent } from 'lib/utils/formatUserAgent';
-import { database as databaseTypes } from '@glyphx/types';
-import { processTrackingService, activityLogService, projectService } from '@glyphx/business';
-import { BasicColumnNameCleaner } from '@glyphx/fileingestion';
+import type {NextApiRequest, NextApiResponse} from 'next';
+
+import {aws, generalPurposeFunctions} from 'core';
+import {FileIngestor, BasicColumnNameCleaner} from 'fileingestion';
+import {S3_BUCKET_NAME, ATHENA_DB_NAME} from 'config/constants';
+import {formatUserAgent} from 'lib/utils/formatUserAgent';
+import {databaseTypes} from 'types';
+import {processTrackingService, activityLogService, projectService} from 'business';
+import {Session} from 'next-auth';
 /**
  * File Ingestion Key Notes
  *
@@ -62,7 +62,7 @@ import { BasicColumnNameCleaner } from '@glyphx/fileingestion';
 export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   try {
     // Extract payload
-    const { payload } = req.body;
+    const {payload} = req.body;
 
     const cleaner = new BasicColumnNameCleaner();
 
@@ -84,7 +84,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
       await s3Manager.init();
     }
 
-    let newPayload = { ...cleanPayload };
+    const newPayload = {...cleanPayload};
 
     for (let i = 0; i < newPayload.fileInfo.length; i++) {
       const stream = await s3Manager.getObjectStream(
@@ -96,19 +96,19 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     // Setup process tracking
     const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
     const PROCESS_NAME = 'testingProcessUnique';
-    const { _id: processDocumentId } = await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
+    const {_id: processDocumentId} = await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
 
     // Create file ingestor
     const fileIngestor = new FileIngestor(newPayload, ATHENA_DB_NAME, PROCESS_ID);
     if (!fileIngestor.inited) {
       await fileIngestor.init();
     }
-    const { fileInformation, fileProcessingErrors, joinInformation, viewName, status } = await fileIngestor.process();
+    const {fileInformation, fileProcessingErrors, joinInformation, viewName, status} = await fileIngestor.process();
 
-    const { agentData, location } = formatUserAgent(req);
+    const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
+      actorId: session?.user?.userId as string,
       resourceId: newPayload.modelId,
       workspaceId: newPayload.clientId,
       projectId: newPayload.modelId,
@@ -119,8 +119,8 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     });
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId,
-      resourceId: processDocumentId,
+      actorId: session?.user?.userId as string,
+      resourceId: processDocumentId as string,
       workspaceId: newPayload.clientId,
       projectId: newPayload.modelId,
       location: location,
@@ -144,6 +144,6 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     });
     // res.status(200).json({ ok: true });
   } catch (error) {
-    res.status(404).json({ errors: { error: { msg: error.message } } });
+    res.status(404).json({errors: {error: {msg: error.message}}});
   }
 };

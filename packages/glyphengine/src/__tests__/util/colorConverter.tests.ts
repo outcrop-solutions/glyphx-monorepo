@@ -25,9 +25,9 @@ describe('colorConverter', () => {
   context('convertRgbToHsv', () => {
     it('will convert rgb colors to hsv', () => {
       for (const color of COLOR_TABLE) {
-        const rgb = color.rgb.split(',').map(x => parseInt(x));
+        const rgb = color.rgb.split(',').map((x) => parseInt(x));
         const hsv = colorConverter.convertRgbToHsv(rgb[0], rgb[1], rgb[2]);
-        const expectedHsv = color.hsv.split(',').map(x => parseInt(x));
+        const expectedHsv = color.hsv.split(',').map((x) => parseInt(x));
         assert.deepEqual(hsv, expectedHsv);
       }
     });
@@ -35,9 +35,9 @@ describe('colorConverter', () => {
   context('convertHsvToRgb', () => {
     it('will convert hsv colors to rgb', () => {
       for (const color of COLOR_TABLE) {
-        const hsv = color.hsv.split(',').map(x => parseInt(x));
+        const hsv = color.hsv.split(',').map((x) => parseInt(x));
         const rgb = colorConverter.convertHsvToRgb(hsv[0], hsv[1], hsv[2]);
-        const expectedRgb = color.rgb.split(',').map(x => parseInt(x));
+        const expectedRgb = color.rgb.split(',').map((x) => parseInt(x));
         assert.deepEqual(rgb, expectedRgb);
       }
     });
@@ -45,9 +45,9 @@ describe('colorConverter', () => {
     it('will convert colors with a negative hue', () => {
       const color = {color: 'NegNavy', rgb: '0,0,128', hsv: '-120,100,50'};
 
-      const hsv = color.hsv.split(',').map(x => parseInt(x));
+      const hsv = color.hsv.split(',').map((x) => parseInt(x));
       const rgb = colorConverter.convertHsvToRgb(hsv[0], hsv[1], hsv[2]);
-      const expectedRgb = color.rgb.split(',').map(x => parseInt(x));
+      const expectedRgb = color.rgb.split(',').map((x) => parseInt(x));
       assert.deepEqual(rgb, expectedRgb);
     });
   });

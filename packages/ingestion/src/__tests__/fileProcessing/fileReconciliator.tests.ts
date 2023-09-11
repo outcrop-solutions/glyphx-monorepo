@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {FileReconciliator} from '@fileProcessing';
-import {fileIngestion} from '@glyphx/types';
+import {fileIngestionTypes} from 'types';
 
 /*
  * this is a pretty hairy test that has some built in assumptions that I won't explain here,
@@ -12,27 +12,27 @@ const FILE_INFO = [
   {
     tableName: 'table1',
     fileName: 'file1.csv',
-    operation: fileIngestion.constants.FILE_OPERATION.ADD,
+    operation: fileIngestionTypes.constants.FILE_OPERATION.ADD,
   },
   {
     tableName: 'table1',
     fileName: 'file1-1.csv',
-    operation: fileIngestion.constants.FILE_OPERATION.APPEND,
+    operation: fileIngestionTypes.constants.FILE_OPERATION.APPEND,
   },
   {
     tableName: 'table2',
     fileName: 'file2.csv',
-    operation: fileIngestion.constants.FILE_OPERATION.REPLACE,
+    operation: fileIngestionTypes.constants.FILE_OPERATION.REPLACE,
   },
   {
     tableName: 'table3',
     fileName: 'file3-1.csv',
-    operation: fileIngestion.constants.FILE_OPERATION.APPEND,
+    operation: fileIngestionTypes.constants.FILE_OPERATION.APPEND,
   },
   {
     tableName: 'table4',
     fileName: 'file4.csv',
-    operation: fileIngestion.constants.FILE_OPERATION.DELETE,
+    operation: fileIngestionTypes.constants.FILE_OPERATION.DELETE,
   },
 ] as unknown as fileIngestion.IFileInfo[];
 
@@ -73,7 +73,7 @@ const PROCESSED_FILES = [
     numberOfColumns: 4,
     columns: [],
     fileSize: 9999,
-    fileOperationType: fileIngestion.constants.FILE_OPERATION.ADD,
+    fileOperationType: fileIngestionTypes.constants.FILE_OPERATION.ADD,
   },
   {
     fileName: 'file1-1.csv',
@@ -84,7 +84,7 @@ const PROCESSED_FILES = [
     numberOfColumns: 4,
     columns: [],
     fileSize: 9999,
-    fileOperationType: fileIngestion.constants.FILE_OPERATION.APPEND,
+    fileOperationType: fileIngestionTypes.constants.FILE_OPERATION.APPEND,
   },
   {
     fileName: 'file2.csv',
@@ -95,7 +95,7 @@ const PROCESSED_FILES = [
     numberOfColumns: 4,
     columns: [],
     fileSize: 9999,
-    fileOperationType: fileIngestion.constants.FILE_OPERATION.REPLACE,
+    fileOperationType: fileIngestionTypes.constants.FILE_OPERATION.REPLACE,
   },
   {
     fileName: 'file3-1.csv',
@@ -106,7 +106,7 @@ const PROCESSED_FILES = [
     numberOfColumns: 4,
     columns: [],
     fileSize: 9999,
-    fileOperationType: fileIngestion.constants.FILE_OPERATION.APPEND,
+    fileOperationType: fileIngestionTypes.constants.FILE_OPERATION.APPEND,
   },
 ];
 
@@ -125,32 +125,18 @@ describe('#fileProcessing/FileReconciliator', () => {
       );
       //file1.csv, file1-1.csv, file2.csv, file3-1.csv, file3-csv
       assert.strictEqual(reconciledResults.allFiles.length, 5);
-      assert.isOk(
-        reconciledResults.allFiles.find(f => (f.fileName = 'file1.csv'))
-      );
-      assert.isOk(
-        reconciledResults.allFiles.find(f => (f.fileName = 'file1-1.csv'))
-      );
-      assert.isOk(
-        reconciledResults.allFiles.find(f => (f.fileName = 'file2.csv'))
-      );
-      assert.isOk(
-        reconciledResults.allFiles.find(f => (f.fileName = 'file3.csv'))
-      );
-      assert.isOk(
-        reconciledResults.allFiles.find(f => (f.fileName = 'file3-1.csv'))
-      );
+      assert.isOk(reconciledResults.allFiles.find((f) => (f.fileName = 'file1.csv')));
+      assert.isOk(reconciledResults.allFiles.find((f) => (f.fileName = 'file1-1.csv')));
+      assert.isOk(reconciledResults.allFiles.find((f) => (f.fileName = 'file2.csv')));
+      assert.isOk(reconciledResults.allFiles.find((f) => (f.fileName = 'file3.csv')));
+      assert.isOk(reconciledResults.allFiles.find((f) => (f.fileName = 'file3-1.csv')));
 
       //table1, table2, table3
       assert.strictEqual(reconciledResults.accumFiles.length, 3);
       const table1Name = `glyphx_${clientId}_${modelId}_table1`.toLowerCase();
-      const table1 = reconciledResults.accumFiles.find(
-        f => f.tableName === table1Name
-      );
+      const table1 = reconciledResults.accumFiles.find((f) => f.tableName === table1Name);
 
-      const processedTable1 = PROCESSED_FILES.filter(
-        t => t.tableName === 'table1'
-      );
+      const processedTable1 = PROCESSED_FILES.filter((t) => t.tableName === 'table1');
       const numberOfRows1 =
         processedTable1?.reduce((accum, t) => {
           return (accum += t.numberOfRows);
@@ -165,12 +151,8 @@ describe('#fileProcessing/FileReconciliator', () => {
       assert.strictEqual(table1?.fileSize, fileSize1);
 
       const table2Name = `glyphx_${clientId}_${modelId}_table2`.toLowerCase();
-      const table2 = reconciledResults.accumFiles.find(
-        f => f.tableName === table2Name
-      );
-      const processedTable2 = PROCESSED_FILES.filter(
-        t => t.tableName === 'table2'
-      );
+      const table2 = reconciledResults.accumFiles.find((f) => f.tableName === table2Name);
+      const processedTable2 = PROCESSED_FILES.filter((t) => t.tableName === 'table2');
       const numberOfRows2 =
         processedTable2?.reduce((accum, t) => {
           return (accum += t.numberOfRows);
@@ -184,16 +166,10 @@ describe('#fileProcessing/FileReconciliator', () => {
       assert.strictEqual(table2?.fileSize, fileSize2);
 
       const table3Name = `glyphx_${clientId}_${modelId}_table3`.toLowerCase();
-      const table3 = reconciledResults.accumFiles.find(
-        f => f.tableName === table3Name
-      );
-      const processedTable3 = PROCESSED_FILES.filter(
-        t => t.tableName === 'table3'
-      );
+      const table3 = reconciledResults.accumFiles.find((f) => f.tableName === table3Name);
+      const processedTable3 = PROCESSED_FILES.filter((t) => t.tableName === 'table3');
 
-      const existingTable3 = EXISTING_FILES.filter(
-        t => t.tableName === 'table3'
-      );
+      const existingTable3 = EXISTING_FILES.filter((t) => t.tableName === 'table3');
       const numberOfRows3 =
         (processedTable3?.reduce((accum, t) => {
           return (accum += t.numberOfRows);

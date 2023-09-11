@@ -3,8 +3,8 @@ import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose/mongooseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
-import {database as databaseTypes} from '@glyphx/types';
-import {error} from '@glyphx/core';
+import {databaseTypes} from 'types';
+import {error} from 'core';
 
 type ObjectId = mongooseTypes.ObjectId;
 
@@ -215,9 +215,7 @@ describe('#UserModel', () => {
       await workspaceModel.create([INPUT_WORKSPACE], {
         validateBeforeSave: false,
       });
-      const savedWorkspaceDocument = await workspaceModel
-        .findOne({name: INPUT_WORKSPACE.name})
-        .lean();
+      const savedWorkspaceDocument = await workspaceModel.findOne({name: INPUT_WORKSPACE.name}).lean();
       workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
 
       assert.isOk(workspaceId);
@@ -249,9 +247,7 @@ describe('#UserModel', () => {
       await sessionModel.create([INPUT_SESSION], {
         validateBeforeSave: false,
       });
-      const savedSessionDocument = await sessionModel
-        .findOne({sessionToken: INPUT_SESSION.sessionToken})
-        .lean();
+      const savedSessionDocument = await sessionModel.findOne({sessionToken: INPUT_SESSION.sessionToken}).lean();
       sessionId = savedSessionDocument?._id as mongooseTypes.ObjectId;
 
       sessionDocument = savedSessionDocument;
@@ -261,9 +257,7 @@ describe('#UserModel', () => {
       await sessionModel.create([INPUT_SESSION2], {
         validateBeforeSave: false,
       });
-      const savedSessionDocument2 = await sessionModel
-        .findOne({sessionToken: INPUT_SESSION2.sessionToken})
-        .lean();
+      const savedSessionDocument2 = await sessionModel.findOne({sessionToken: INPUT_SESSION2.sessionToken}).lean();
       sessionId2 = savedSessionDocument2?._id as mongooseTypes.ObjectId;
 
       assert.isOk(sessionId2);
@@ -272,9 +266,7 @@ describe('#UserModel', () => {
       await webhookModel.create([INPUT_WEBHOOKS], {
         validateBeforeSave: false,
       });
-      const savedWebhookDocument = await webhookModel
-        .findOne({name: INPUT_WEBHOOKS.name})
-        .lean();
+      const savedWebhookDocument = await webhookModel.findOne({name: INPUT_WEBHOOKS.name}).lean();
       webhookId = savedWebhookDocument?._id as mongooseTypes.ObjectId;
 
       webhookDocument = savedWebhookDocument;
@@ -284,9 +276,7 @@ describe('#UserModel', () => {
       await webhookModel.create([INPUT_WEBHOOKS2], {
         validateBeforeSave: false,
       });
-      const savedWebhookDocument2 = await webhookModel
-        .findOne({name: INPUT_WEBHOOKS2.name})
-        .lean();
+      const savedWebhookDocument2 = await webhookModel.findOne({name: INPUT_WEBHOOKS2.name}).lean();
       webhookId2 = savedWebhookDocument2?._id as mongooseTypes.ObjectId;
 
       assert.isOk(webhookId2);
@@ -294,11 +284,8 @@ describe('#UserModel', () => {
       await workspaceModel.create([INPUT_CREATED_WORKSPACE], {
         validateBeforeSave: false,
       });
-      const savedOwnedWorkspaceDocument = await workspaceModel
-        .findOne({name: INPUT_CREATED_WORKSPACE.name})
-        .lean();
-      createdWorkspaceId =
-        savedOwnedWorkspaceDocument?._id as mongooseTypes.ObjectId;
+      const savedOwnedWorkspaceDocument = await workspaceModel.findOne({name: INPUT_CREATED_WORKSPACE.name}).lean();
+      createdWorkspaceId = savedOwnedWorkspaceDocument?._id as mongooseTypes.ObjectId;
 
       createdWorkspaceDocument = savedOwnedWorkspaceDocument;
 
@@ -307,11 +294,8 @@ describe('#UserModel', () => {
       await workspaceModel.create([INPUT_CREATED_WORKSPACE2], {
         validateBeforeSave: false,
       });
-      const savedOwnedWorkspaceDocument2 = await workspaceModel
-        .findOne({name: INPUT_CREATED_WORKSPACE2.name})
-        .lean();
-      createdWorkspaceId2 =
-        savedOwnedWorkspaceDocument2?._id as mongooseTypes.ObjectId;
+      const savedOwnedWorkspaceDocument2 = await workspaceModel.findOne({name: INPUT_CREATED_WORKSPACE2.name}).lean();
+      createdWorkspaceId2 = savedOwnedWorkspaceDocument2?._id as mongooseTypes.ObjectId;
 
       assert.isOk(createdWorkspaceId2);
 
@@ -319,9 +303,7 @@ describe('#UserModel', () => {
       await projectModel.create([INPUT_PROJECT], {
         validateBeforeSave: false,
       });
-      const savedProjectDocument = await projectModel
-        .findOne({name: INPUT_PROJECT.name})
-        .lean();
+      const savedProjectDocument = await projectModel.findOne({name: INPUT_PROJECT.name}).lean();
       projectId = savedProjectDocument?._id as mongooseTypes.ObjectId;
 
       projectDocument = savedProjectDocument;
@@ -331,9 +313,7 @@ describe('#UserModel', () => {
       await projectModel.create([INPUT_PROJECT2], {
         validateBeforeSave: false,
       });
-      const savedProjectDocument2 = await projectModel
-        .findOne({name: INPUT_PROJECT2.name})
-        .lean();
+      const savedProjectDocument2 = await projectModel.findOne({name: INPUT_PROJECT2.name}).lean();
       projectId2 = savedProjectDocument2?._id as mongooseTypes.ObjectId;
 
       assert.isOk(projectId2);
@@ -345,8 +325,7 @@ describe('#UserModel', () => {
       const savedCustomerPaymentDocument = await customerPaymentModel
         .findOne({paymentId: INPUT_CUSTOMER_PAYMENT.paymentId})
         .lean();
-      customerPaymentId =
-        savedCustomerPaymentDocument?._id as mongooseTypes.ObjectId;
+      customerPaymentId = savedCustomerPaymentDocument?._id as mongooseTypes.ObjectId;
 
       customerPaymentDocument = savedCustomerPaymentDocument;
 
@@ -401,35 +380,17 @@ describe('#UserModel', () => {
       assert.isOk(userDocument);
       assert.strictEqual(userDocument.name, userInput.name);
 
-      assert.strictEqual(
-        userDocument.accounts[0]._id?.toString(),
-        accountId.toString()
-      );
+      assert.strictEqual(userDocument.accounts[0]._id?.toString(), accountId.toString());
 
-      assert.strictEqual(
-        userDocument.sessions[0]._id?.toString(),
-        sessionId.toString()
-      );
+      assert.strictEqual(userDocument.sessions[0]._id?.toString(), sessionId.toString());
 
-      assert.strictEqual(
-        userDocument.webhooks[0]._id?.toString(),
-        webhookId.toString()
-      );
+      assert.strictEqual(userDocument.webhooks[0]._id?.toString(), webhookId.toString());
 
-      assert.strictEqual(
-        userDocument.createdWorkspaces[0]._id?.toString(),
-        createdWorkspaceId.toString()
-      );
+      assert.strictEqual(userDocument.createdWorkspaces[0]._id?.toString(), createdWorkspaceId.toString());
 
-      assert.strictEqual(
-        userDocument.projects[0]._id?.toString(),
-        projectId.toString()
-      );
+      assert.strictEqual(userDocument.projects[0]._id?.toString(), projectId.toString());
 
-      assert.strictEqual(
-        userDocument.customerPayment?._id?.toString(),
-        customerPaymentId.toString()
-      );
+      assert.strictEqual(userDocument.customerPayment?._id?.toString(), customerPaymentId.toString());
 
       userId = userDocument._id as mongooseTypes.ObjectId;
     });
@@ -460,9 +421,7 @@ describe('#UserModel', () => {
       assert.isArray(users.results);
       assert.isAtLeast(users.numberOfItems, 2);
       const expectedDocumentCount =
-        users.numberOfItems <= users.itemsPerPage
-          ? users.numberOfItems
-          : users.itemsPerPage;
+        users.numberOfItems <= users.itemsPerPage ? users.numberOfItems : users.itemsPerPage;
       assert.strictEqual(users.results.length, expectedDocumentCount);
     });
 
@@ -485,10 +444,7 @@ describe('#UserModel', () => {
       const results2 = await userModel.queryUsers({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(
-        results2.results[0]?._id?.toString(),
-        lastId?.toString()
-      );
+      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
     });
 
     it('modify a user', async () => {
@@ -500,122 +456,72 @@ describe('#UserModel', () => {
 
     it('add a project to the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.addProjects(userId, [
-        projectId2,
-      ]);
+      const updatedUserDocument = await userModel.addProjects(userId, [projectId2]);
       assert.strictEqual(updatedUserDocument.projects.length, 2);
-      assert.strictEqual(
-        updatedUserDocument.projects[1]?._id?.toString(),
-        projectId2.toString()
-      );
+      assert.strictEqual(updatedUserDocument.projects[1]?._id?.toString(), projectId2.toString());
     });
 
     it('remove a project from the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.removeProjects(userId, [
-        projectId2,
-      ]);
+      const updatedUserDocument = await userModel.removeProjects(userId, [projectId2]);
       assert.strictEqual(updatedUserDocument.projects.length, 1);
-      assert.strictEqual(
-        updatedUserDocument.projects[0]?._id?.toString(),
-        projectId.toString()
-      );
+      assert.strictEqual(updatedUserDocument.projects[0]?._id?.toString(), projectId.toString());
     });
 
     it('add an account to the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.addAccounts(userId, [
-        accountId2,
-      ]);
+      const updatedUserDocument = await userModel.addAccounts(userId, [accountId2]);
       assert.strictEqual(updatedUserDocument.accounts.length, 2);
-      assert.strictEqual(
-        updatedUserDocument.accounts[1]?._id?.toString(),
-        accountId2.toString()
-      );
+      assert.strictEqual(updatedUserDocument.accounts[1]?._id?.toString(), accountId2.toString());
     });
 
     it('remove an account from the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.removeAccounts(userId, [
-        accountId2,
-      ]);
+      const updatedUserDocument = await userModel.removeAccounts(userId, [accountId2]);
       assert.strictEqual(updatedUserDocument.accounts.length, 1);
-      assert.strictEqual(
-        updatedUserDocument.accounts[0]?._id?.toString(),
-        accountId.toString()
-      );
+      assert.strictEqual(updatedUserDocument.accounts[0]?._id?.toString(), accountId.toString());
     });
 
     it('add a session to the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.addSessions(userId, [
-        sessionId2,
-      ]);
+      const updatedUserDocument = await userModel.addSessions(userId, [sessionId2]);
       assert.strictEqual(updatedUserDocument.sessions.length, 2);
-      assert.strictEqual(
-        updatedUserDocument.sessions[1]?._id?.toString(),
-        sessionId2.toString()
-      );
+      assert.strictEqual(updatedUserDocument.sessions[1]?._id?.toString(), sessionId2.toString());
     });
 
     it('remove a sassion from the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.removeSessions(userId, [
-        sessionId2,
-      ]);
+      const updatedUserDocument = await userModel.removeSessions(userId, [sessionId2]);
       assert.strictEqual(updatedUserDocument.sessions.length, 1);
-      assert.strictEqual(
-        updatedUserDocument.sessions[0]?._id?.toString(),
-        sessionId.toString()
-      );
+      assert.strictEqual(updatedUserDocument.sessions[0]?._id?.toString(), sessionId.toString());
     });
 
     it('add a webhook to the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.addWebhooks(userId, [
-        webhookId2,
-      ]);
+      const updatedUserDocument = await userModel.addWebhooks(userId, [webhookId2]);
       assert.strictEqual(updatedUserDocument.webhooks.length, 2);
-      assert.strictEqual(
-        updatedUserDocument.webhooks[1]?._id?.toString(),
-        webhookId2.toString()
-      );
+      assert.strictEqual(updatedUserDocument.webhooks[1]?._id?.toString(), webhookId2.toString());
     });
 
     it('remove a webhook from the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.removeWebhooks(userId, [
-        webhookId2,
-      ]);
+      const updatedUserDocument = await userModel.removeWebhooks(userId, [webhookId2]);
       assert.strictEqual(updatedUserDocument.webhooks.length, 1);
-      assert.strictEqual(
-        updatedUserDocument.webhooks[0]?._id?.toString(),
-        webhookId.toString()
-      );
+      assert.strictEqual(updatedUserDocument.webhooks[0]?._id?.toString(), webhookId.toString());
     });
 
     it('add an workspace to the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.addWorkspaces(userId, [
-        createdWorkspaceId2,
-      ]);
+      const updatedUserDocument = await userModel.addWorkspaces(userId, [createdWorkspaceId2]);
       assert.strictEqual(updatedUserDocument.createdWorkspaces.length, 2);
-      assert.strictEqual(
-        updatedUserDocument.createdWorkspaces[1]?._id?.toString(),
-        createdWorkspaceId2.toString()
-      );
+      assert.strictEqual(updatedUserDocument.createdWorkspaces[1]?._id?.toString(), createdWorkspaceId2.toString());
     });
 
     it('remove an workspace from the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.removeWorkspaces(userId, [
-        createdWorkspaceId2,
-      ]);
+      const updatedUserDocument = await userModel.removeWorkspaces(userId, [createdWorkspaceId2]);
       assert.strictEqual(updatedUserDocument.createdWorkspaces.length, 1);
-      assert.strictEqual(
-        updatedUserDocument.createdWorkspaces[0]?._id?.toString(),
-        createdWorkspaceId.toString()
-      );
+      assert.strictEqual(updatedUserDocument.createdWorkspaces[0]?._id?.toString(), createdWorkspaceId.toString());
     });
 
     it('remove a user', async () => {

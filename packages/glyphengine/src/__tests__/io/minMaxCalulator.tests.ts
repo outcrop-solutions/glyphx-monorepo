@@ -1,7 +1,7 @@
 import 'mocha';
 import {assert} from 'chai';
 import {createSandbox} from 'sinon';
-import {aws, error} from '@glyphx/core';
+import {aws, error} from 'core';
 import {MinMaxCalculator} from '../../io/minMaxCalulator';
 import athenaClient from '../../io/athenaClient';
 
@@ -39,13 +39,7 @@ describe('#io/minMaxCalculator', () => {
 
   context('constructor', () => {
     it('will create a new instance', () => {
-      const minMaxCalculator = new MinMaxCalculator(
-        tableName,
-        xColumn,
-        yColumn,
-        zColumn,
-        filter
-      ) as any;
+      const minMaxCalculator = new MinMaxCalculator(tableName, xColumn, yColumn, zColumn, filter) as any;
       assert.equal(minMaxCalculator.tableName, tableName);
       assert.equal(minMaxCalculator.xColumnName, xColumn);
       assert.equal(minMaxCalculator.yColumnName, yColumn);
@@ -67,13 +61,7 @@ describe('#io/minMaxCalculator', () => {
         'connection',
         () => new MockAthenaClient(minMaxData) as unknown as aws.AthenaManager
       );
-      const minMaxCalculator = new MinMaxCalculator(
-        tableName,
-        xColumn,
-        yColumn,
-        zColumn,
-        filter
-      ) as any;
+      const minMaxCalculator = new MinMaxCalculator(tableName, xColumn, yColumn, zColumn, filter) as any;
 
       await minMaxCalculator.load();
 
@@ -93,16 +81,9 @@ describe('#io/minMaxCalculator', () => {
       sandbox.replaceGetter(
         athenaClient,
         'connection',
-        () =>
-          new MockAthenaClient(minMaxData, true) as unknown as aws.AthenaManager
+        () => new MockAthenaClient(minMaxData, true) as unknown as aws.AthenaManager
       );
-      const minMaxCalculator = new MinMaxCalculator(
-        tableName,
-        xColumn,
-        yColumn,
-        zColumn,
-        filter
-      ) as any;
+      const minMaxCalculator = new MinMaxCalculator(tableName, xColumn, yColumn, zColumn, filter) as any;
       let errored = false;
       try {
         await minMaxCalculator.load();
@@ -114,19 +95,12 @@ describe('#io/minMaxCalculator', () => {
     });
 
     it('will load our data from athena without a filter', async () => {
-      const mockClient = new MockAthenaClient(
-        minMaxData
-      ) as unknown as aws.AthenaManager;
+      const mockClient = new MockAthenaClient(minMaxData) as unknown as aws.AthenaManager;
       const queryStub = sandbox.stub();
       queryStub.resolves(minMaxData);
       sandbox.replace(mockClient, 'runQuery', queryStub);
       sandbox.replaceGetter(athenaClient, 'connection', () => mockClient);
-      const minMaxCalculator = new MinMaxCalculator(
-        tableName,
-        xColumn,
-        yColumn,
-        zColumn
-      ) as any;
+      const minMaxCalculator = new MinMaxCalculator(tableName, xColumn, yColumn, zColumn) as any;
 
       await minMaxCalculator.load();
       assert.isTrue(queryStub.calledOnce);
@@ -148,13 +122,7 @@ describe('#io/minMaxCalculator', () => {
         'connection',
         () => new MockAthenaClient(minMaxData) as unknown as aws.AthenaManager
       );
-      const minMaxCalculator = new MinMaxCalculator(
-        tableName,
-        xColumn,
-        yColumn,
-        zColumn,
-        filter
-      ) as any;
+      const minMaxCalculator = new MinMaxCalculator(tableName, xColumn, yColumn, zColumn, filter) as any;
 
       assert.throws(() => minMaxCalculator.minMax, error.InvalidOperationError);
     });

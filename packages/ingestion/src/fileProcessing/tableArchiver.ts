@@ -1,8 +1,4 @@
-import {
-  aws,
-  error,
-  generalPurposeFunctions as coreFunctions,
-} from '@glyphx/core';
+import {aws, error, generalPurposeFunctions as coreFunctions} from 'core';
 import {PassThrough} from 'stream';
 import {pipeline} from 'node:stream/promises';
 
@@ -38,25 +34,14 @@ export class TableArchiver {
     this.timeStamp = coreFunctions.date.getTimeStamp();
   }
 
-  public async archiveFile(
-    key: string,
-    timestamp: string
-  ): Promise<IArchivedFileInformation> {
+  public async archiveFile(key: string, timestamp: string): Promise<IArchivedFileInformation> {
     this.isSafe;
-    const archivePath = coreFunctions.fileIngestion.getArchiveFilePath(
-      this.clientId,
-      this.modelId,
-      key,
-      timestamp
-    );
+    const archivePath = coreFunctions.fileIngestion.getArchiveFilePath(this.clientId, this.modelId, key, timestamp);
     try {
       const srcStream = await this.s3Manager?.getObjectStream(key);
       const passThrough = new PassThrough();
 
-      const uploader = this.s3Manager?.getUploadStream(
-        archivePath,
-        passThrough
-      );
+      const uploader = this.s3Manager?.getUploadStream(archivePath, passThrough);
 
       pipeline(srcStream, passThrough);
       await uploader?.done();
@@ -76,9 +61,7 @@ export class TableArchiver {
     return {fileName: key, archiveFileName: archivePath};
   }
 
-  public async archiveTable(
-    tableName: string
-  ): Promise<IArchivedTableInformation> {
+  public async archiveTable(tableName: string): Promise<IArchivedTableInformation> {
     const retval: IArchivedTableInformation = {
       tableName: tableName,
       timeStamp: this.timeStamp,
@@ -86,16 +69,8 @@ export class TableArchiver {
     };
     this.isSafe;
     try {
-      const csvPath = coreFunctions.fileIngestion.getTableCsvPath(
-        this.clientId,
-        this.modelId,
-        tableName
-      );
-      const parquetPath = coreFunctions.fileIngestion.getTableParquetPath(
-        this.clientId,
-        this.modelId,
-        tableName
-      );
+      const csvPath = coreFunctions.fileIngestion.getTableCsvPath(this.clientId, this.modelId, tableName);
+      const parquetPath = coreFunctions.fileIngestion.getTableParquetPath(this.clientId, this.modelId, tableName);
       const fileList = await this.s3Manager.listObjects(csvPath);
       fileList.push(...(await this.s3Manager.listObjects(parquetPath)));
 

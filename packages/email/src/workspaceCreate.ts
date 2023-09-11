@@ -1,7 +1,7 @@
 type Codee = string | null;
 type Name = string | null;
 
-function html({ code, name }: { code: Codee; name: Name }): string {
+function html({code, name}: {code: Codee; name: Name}): string {
   const link = `${process.env.APP_URL}/teams/invite?code=${encodeURI(code || '')}`;
 
   return `
@@ -16,7 +16,7 @@ function html({ code, name }: { code: Codee; name: Name }): string {
 `;
 }
 
-function text({ code, name }: { code: Codee; name: Name }): string {
+function text({code, name}: {code: Codee; name: Name}): string {
   const link = `${process.env.APP_URL}/teams/invite?code=${encodeURI(code || '')}`;
 
   return `
@@ -34,4 +34,4 @@ ${process.env.EMAIL_FROM}
 `;
 }
 
-export { html, text };
+export {html, text};

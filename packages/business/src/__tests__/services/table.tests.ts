@@ -3,7 +3,7 @@ import {assert} from 'chai';
 import {tableService} from '../../services';
 import {createSandbox} from 'sinon';
 import athenaConnection from '../../lib/athenaConnection';
-import {aws, error} from '@glyphx/core';
+import {aws, error} from 'core';
 
 class MockAthenaConnection {
   private readonly retrunedValue: any;
@@ -49,8 +49,7 @@ describe('#services/table', () => {
       sandbox.replaceGetter(
         athenaConnection,
         'connection',
-        () =>
-          new MockAthenaConnection(value, true) as unknown as aws.AthenaManager
+        () => new MockAthenaConnection(value, true) as unknown as aws.AthenaManager
       );
       let didPublish = false;
       function fakePublish() {

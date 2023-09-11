@@ -1,17 +1,16 @@
-import {database as databaseTypes} from '@glyphx/types';
-import {error, constants} from '@glyphx/core';
-import mongoDbConnection from 'lib/databaseConnection';
+import {databaseTypes} from 'types';
+import {error, constants} from 'core';
+import mongoDbConnection from '../lib/databaseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 
 export class TagService {
-  public static async getTag(
-    tagId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.ITag | null> {
+  public static async getTag(tagId: mongooseTypes.ObjectId | string): Promise<databaseTypes.ITag | null> {
     try {
       const id =
         tagId instanceof mongooseTypes.ObjectId
           ? tagId
-          : new mongooseTypes.ObjectId(tagId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(tagId);
       const tag = await mongoDbConnection.models.TagModel.getTagById(id);
       return tag;
     } catch (err: any) {

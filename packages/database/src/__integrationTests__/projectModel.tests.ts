@@ -3,12 +3,8 @@ import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose/mongooseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
-import {
-  database as databaseTypes,
-  web as webTypes,
-  fileIngestion as fileIngestionTypes,
-} from '@glyphx/types';
-import {error} from '@glyphx/core';
+import {databaseTypes, webTypes, fileIngestionTypes} from 'types';
+import {error} from 'core';
 
 type ObjectId = mongooseTypes.ObjectId;
 
@@ -241,9 +237,7 @@ describe('#ProjectModel', () => {
       await workspaceModel.create([INPUT_WORKSPACE], {
         validateBeforeSave: false,
       });
-      const savedWorkspaceDocument = await workspaceModel
-        .findOne({name: INPUT_WORKSPACE.name})
-        .lean();
+      const savedWorkspaceDocument = await workspaceModel.findOne({name: INPUT_WORKSPACE.name}).lean();
       workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
       workspaceDocument = savedWorkspaceDocument;
       assert.isOk(workspaceId);
@@ -251,9 +245,7 @@ describe('#ProjectModel', () => {
       await memberModel.create([INPUT_MEMBER], {
         validateBeforeSave: false,
       });
-      const savedMemberDocument = await memberModel
-        .findOne({email: INPUT_MEMBER.email})
-        .lean();
+      const savedMemberDocument = await memberModel.findOne({email: INPUT_MEMBER.email}).lean();
       memberId = savedMemberDocument?._id as mongooseTypes.ObjectId;
       memberDocument = savedMemberDocument;
       assert.isOk(memberId);
@@ -261,11 +253,8 @@ describe('#ProjectModel', () => {
       await projectTemplateModel.create([INPUT_PROJECT_TYPE], {
         validateBeforeSave: false,
       });
-      const savedProjectTemplateDocument = await projectTemplateModel
-        .findOne({name: INPUT_PROJECT_TYPE.name})
-        .lean();
-      projectTemplateId =
-        savedProjectTemplateDocument?._id as mongooseTypes.ObjectId;
+      const savedProjectTemplateDocument = await projectTemplateModel.findOne({name: INPUT_PROJECT_TYPE.name}).lean();
+      projectTemplateId = savedProjectTemplateDocument?._id as mongooseTypes.ObjectId;
 
       projectTemplateDocument = savedProjectTemplateDocument;
 
@@ -300,10 +289,7 @@ describe('#ProjectModel', () => {
 
       assert.isOk(projectDocument);
       assert.strictEqual(projectDocument.name, projectInput.name);
-      assert.strictEqual(
-        projectDocument.workspace._id?.toString(),
-        workspaceId.toString()
-      );
+      assert.strictEqual(projectDocument.workspace._id?.toString(), workspaceId.toString());
 
       projectId = projectDocument._id as mongooseTypes.ObjectId;
     });
@@ -319,10 +305,7 @@ describe('#ProjectModel', () => {
     it('modify a project', async () => {
       assert.isOk(projectId);
       const input = {description: 'a modified description'};
-      const updatedDocument = await projectModel.updateProjectById(
-        projectId,
-        input
-      );
+      const updatedDocument = await projectModel.updateProjectById(projectId, input);
       assert.strictEqual(updatedDocument.description, input.description);
     });
 
@@ -342,9 +325,7 @@ describe('#ProjectModel', () => {
       assert.isArray(projects.results);
       assert.isAtLeast(projects.numberOfItems, 2);
       const expectedDocumentCount =
-        projects.numberOfItems <= projects.itemsPerPage
-          ? projects.numberOfItems
-          : projects.itemsPerPage;
+        projects.numberOfItems <= projects.itemsPerPage ? projects.numberOfItems : projects.itemsPerPage;
       assert.strictEqual(projects.results.length, expectedDocumentCount);
     });
 
@@ -367,10 +348,7 @@ describe('#ProjectModel', () => {
       const results2 = await projectModel.queryProjects({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(
-        results2.results[0]?._id?.toString(),
-        lastId?.toString()
-      );
+      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
     });
 
     it('remove a project', async () => {

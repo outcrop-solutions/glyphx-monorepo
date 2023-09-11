@@ -3,23 +3,35 @@ import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose/mongooseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
-import {database as databaseTypes} from '@glyphx/types';
-import {error} from '@glyphx/core';
+import {databaseTypes} from 'types';
+import {error} from 'core';
 
 type ObjectId = mongooseTypes.ObjectId;
 
 const UNIQUE_KEY = v4().replaceAll('-', '');
 const INPUT_PROJECT = {
   name: 'testProject' + UNIQUE_KEY,
-  template: new mongooseTypes.ObjectId(),
-  owner: new mongooseTypes.ObjectId(),
+
+  template:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
+
+  owner:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
   files: [],
 };
 
 const INPUT_PROJECT2 = {
   name: 'testProject2' + UNIQUE_KEY,
-  template: new mongooseTypes.ObjectId(),
-  owner: new mongooseTypes.ObjectId(),
+
+  template:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
+
+  owner:
+    // @ts-ignore
+    new mongooseTypes.ObjectId(),
   files: [],
 };
 
@@ -134,9 +146,7 @@ describe('#WorkspaceModel', () => {
 
       await userModel.createUser(INPUT_USER as databaseTypes.IUser);
 
-      const savedUserDocument = await userModel
-        .findOne({name: INPUT_USER.name})
-        .lean();
+      const savedUserDocument = await userModel.findOne({name: INPUT_USER.name}).lean();
       userId = savedUserDocument?._id as mongooseTypes.ObjectId;
 
       userDocument = savedUserDocument;
@@ -145,9 +155,7 @@ describe('#WorkspaceModel', () => {
 
       await userModel.createUser(INPUT_USER2 as databaseTypes.IUser);
 
-      const savedUserDocument2 = await userModel
-        .findOne({name: INPUT_USER2.name})
-        .lean();
+      const savedUserDocument2 = await userModel.findOne({name: INPUT_USER2.name}).lean();
       userId2 = savedUserDocument2?._id as mongooseTypes.ObjectId;
 
       userDocument2 = savedUserDocument2;
@@ -155,9 +163,7 @@ describe('#WorkspaceModel', () => {
       assert.isOk(userId2);
 
       await projectModel.create([INPUT_PROJECT], {validateBeforeSave: false});
-      const savedProjectDocument = await projectModel
-        .findOne({name: INPUT_PROJECT.name})
-        .lean();
+      const savedProjectDocument = await projectModel.findOne({name: INPUT_PROJECT.name}).lean();
       projectId = savedProjectDocument?._id as mongooseTypes.ObjectId;
 
       projectDocument = savedProjectDocument;
@@ -165,9 +171,7 @@ describe('#WorkspaceModel', () => {
       assert.isOk(projectId);
 
       await projectModel.create([INPUT_PROJECT2], {validateBeforeSave: false});
-      const savedProjectDocument2 = await projectModel
-        .findOne({name: INPUT_PROJECT2.name})
-        .lean();
+      const savedProjectDocument2 = await projectModel.findOne({name: INPUT_PROJECT2.name}).lean();
       projectId2 = savedProjectDocument2?._id as mongooseTypes.ObjectId;
 
       assert.isOk(projectId2);
@@ -199,26 +203,16 @@ describe('#WorkspaceModel', () => {
       const workspaceInput = JSON.parse(JSON.stringify(INPUT_DATA));
       workspaceInput.creator = userDocument;
       workspaceInput.projects.push(projectDocument);
-      const workspaceDocument = await workspaceModel.createWorkspace(
-        workspaceInput
-      );
+      const workspaceDocument = await workspaceModel.createWorkspace(workspaceInput);
 
       assert.isOk(workspaceDocument);
       assert.strictEqual(workspaceDocument.name, workspaceInput.name);
-      assert.strictEqual(
-        workspaceDocument.creator._id?.toString(),
-        userId.toString()
-      );
+      assert.strictEqual(workspaceDocument.creator._id?.toString(), userId.toString());
 
-      assert.strictEqual(
-        workspaceDocument.projects[0].name,
-        projectDocument.name
-      );
+      assert.strictEqual(workspaceDocument.projects[0].name, projectDocument.name);
 
       //members require a workspace so we need to add them here after our workspace has been created.
-      const inputMember = JSON.parse(
-        JSON.stringify(INPUT_MEMBER)
-      ) as databaseTypes.IMember;
+      const inputMember = JSON.parse(JSON.stringify(INPUT_MEMBER)) as databaseTypes.IMember;
       inputMember.member = userDocument as databaseTypes.IUser;
       inputMember.invitedBy = userDocument as databaseTypes.IUser;
       inputMember.workspace = workspaceDocument;
@@ -227,34 +221,25 @@ describe('#WorkspaceModel', () => {
       const memberModel = mongoConnection.models.MemberModel;
       await memberModel.createWorkspaceMember(inputMember);
 
-      const savedMemberDocument = await memberModel
-        .findOne({email: inputMember.email})
-        .lean();
+      const savedMemberDocument = await memberModel.findOne({email: inputMember.email}).lean();
       memberId = savedMemberDocument?._id as mongooseTypes.ObjectId;
 
       assert.isOk(memberId);
 
-      const inputMember2 = JSON.parse(
-        JSON.stringify(INPUT_MEMBER2)
-      ) as databaseTypes.IMember;
+      const inputMember2 = JSON.parse(JSON.stringify(INPUT_MEMBER2)) as databaseTypes.IMember;
       inputMember2.member = userDocument2 as databaseTypes.IUser;
       inputMember2.invitedBy = userDocument2 as databaseTypes.IUser;
       inputMember2.workspace = workspaceDocument;
       inputMember2.email = userDocument2.email;
       await memberModel.createWorkspaceMember(inputMember2);
 
-      const savedMemberDocument2 = await memberModel
-        .findOne({email: inputMember2.email})
-        .lean();
+      const savedMemberDocument2 = await memberModel.findOne({email: inputMember2.email}).lean();
 
       memberId2 = savedMemberDocument2?._id as mongooseTypes.ObjectId;
 
       assert.isOk(memberId2);
 
-      await workspaceModel.addMembers(
-        workspaceDocument._id as mongooseTypes.ObjectId,
-        [memberId]
-      );
+      await workspaceModel.addMembers(workspaceDocument._id as mongooseTypes.ObjectId, [memberId]);
       workspaceId = workspaceDocument._id as mongooseTypes.ObjectId;
     });
 
@@ -271,9 +256,7 @@ describe('#WorkspaceModel', () => {
       const workspaceInput = JSON.parse(JSON.stringify(INPUT_DATA2));
       workspaceInput.creator = userDocument;
       workspaceInput.projects.push(projectDocument);
-      const workspaceDocument = await workspaceModel.createWorkspace(
-        workspaceInput
-      );
+      const workspaceDocument = await workspaceModel.createWorkspace(workspaceInput);
 
       assert.isOk(workspaceDocument);
       workspaceId2 = workspaceDocument._id as mongooseTypes.ObjectId;
@@ -282,9 +265,7 @@ describe('#WorkspaceModel', () => {
       assert.isArray(workspaces.results);
       assert.isAtLeast(workspaces.numberOfItems, 2);
       const expectedDocumentCount =
-        workspaces.numberOfItems <= workspaces.itemsPerPage
-          ? workspaces.numberOfItems
-          : workspaces.itemsPerPage;
+        workspaces.numberOfItems <= workspaces.itemsPerPage ? workspaces.numberOfItems : workspaces.itemsPerPage;
       assert.strictEqual(workspaces.results.length, expectedDocumentCount);
     });
 
@@ -307,72 +288,42 @@ describe('#WorkspaceModel', () => {
       const results2 = await workspaceModel.queryWorkspaces({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(
-        results2.results[0]?._id?.toString(),
-        lastId?.toString()
-      );
+      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
     });
 
     it('modify a workspace', async () => {
       assert.isOk(workspaceId);
       const input = {description: 'a modified description'};
-      const updatedDocument = await workspaceModel.updateWorkspaceById(
-        workspaceId,
-        input
-      );
+      const updatedDocument = await workspaceModel.updateWorkspaceById(workspaceId, input);
       assert.strictEqual(updatedDocument.description, input.description);
     });
 
     it('add a project to the workspace', async () => {
       assert.isOk(workspaceId);
-      const updatedWorkspaceDocument = await workspaceModel.addProjects(
-        workspaceId,
-        [projectId2]
-      );
+      const updatedWorkspaceDocument = await workspaceModel.addProjects(workspaceId, [projectId2]);
       assert.strictEqual(updatedWorkspaceDocument.projects.length, 2);
-      assert.strictEqual(
-        updatedWorkspaceDocument.projects[1]?._id?.toString(),
-        projectId2.toString()
-      );
+      assert.strictEqual(updatedWorkspaceDocument.projects[1]?._id?.toString(), projectId2.toString());
     });
 
     it('remove a project from the workspace', async () => {
       assert.isOk(workspaceId);
-      const updatedWorkspaceDocument = await workspaceModel.removeProjects(
-        workspaceId,
-        [projectId2]
-      );
+      const updatedWorkspaceDocument = await workspaceModel.removeProjects(workspaceId, [projectId2]);
       assert.strictEqual(updatedWorkspaceDocument.projects.length, 1);
-      assert.strictEqual(
-        updatedWorkspaceDocument.projects[0]?._id?.toString(),
-        projectId.toString()
-      );
+      assert.strictEqual(updatedWorkspaceDocument.projects[0]?._id?.toString(), projectId.toString());
     });
 
     it('add a member to the workspace', async () => {
       assert.isOk(workspaceId);
-      const updatedWorkspaceDocument = await workspaceModel.addMembers(
-        workspaceId,
-        [memberId2]
-      );
+      const updatedWorkspaceDocument = await workspaceModel.addMembers(workspaceId, [memberId2]);
       assert.strictEqual(updatedWorkspaceDocument.members.length, 2);
-      assert.strictEqual(
-        updatedWorkspaceDocument.members[1]?._id?.toString(),
-        memberId2.toString()
-      );
+      assert.strictEqual(updatedWorkspaceDocument.members[1]?._id?.toString(), memberId2.toString());
     });
 
     it('remove a member from the workspace', async () => {
       assert.isOk(workspaceId);
-      const updatedWorkspaceDocument = await workspaceModel.removeMembers(
-        workspaceId,
-        [memberId2]
-      );
+      const updatedWorkspaceDocument = await workspaceModel.removeMembers(workspaceId, [memberId2]);
       assert.strictEqual(updatedWorkspaceDocument.members.length, 1);
-      assert.strictEqual(
-        updatedWorkspaceDocument.members[0]?._id?.toString(),
-        memberId.toString()
-      );
+      assert.strictEqual(updatedWorkspaceDocument.members[0]?._id?.toString(), memberId.toString());
     });
 
     it('remove an workspace', async () => {

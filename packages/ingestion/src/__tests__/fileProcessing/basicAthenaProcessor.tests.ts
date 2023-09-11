@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 import {SinonSandbox, createSandbox} from 'sinon';
-import {aws, error} from '@glyphx/core';
+import {aws, error} from 'core';
 import {
   BasicAthenaProcessor,
   BasicTableSorter,
@@ -8,8 +8,8 @@ import {
   BasicHiveViewQueryPlanner,
   BasicJoinProcessor,
 } from '@fileProcessing';
-import {IJoinTableDefinition} from '@interfaces/fileProcessing';
-import {fileIngestion} from '@glyphx/types';
+import {IJoinTableDefinition} from 'interfaces/fileProcessing';
+import {fileIngestionTypes} from 'types';
 
 const MOCK_FILE_INFORMATION = [
   {
@@ -93,21 +93,10 @@ describe('fileProcessing/BasicAthenaProcessor', () => {
       const bucketName = 'someBucketName';
       const databaseName = 'someDatabaseName';
 
-      sandbox.replace(
-        aws.S3Manager.prototype,
-        'init',
-        sandbox.fake.resolves(undefined as void)
-      );
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'init',
-        sandbox.fake.resolves(undefined as void)
-      );
+      sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.resolves(undefined as void));
+      sandbox.replace(aws.AthenaManager.prototype, 'init', sandbox.fake.resolves(undefined as void));
 
-      const athenaProcessor = new BasicAthenaProcessor(
-        bucketName,
-        databaseName
-      );
+      const athenaProcessor = new BasicAthenaProcessor(bucketName, databaseName);
 
       let errored = false;
       try {
@@ -127,16 +116,9 @@ describe('fileProcessing/BasicAthenaProcessor', () => {
 
       const s3InitFake = sandbox.fake.resolves(undefined as void);
       sandbox.replace(aws.S3Manager.prototype, 'init', s3InitFake);
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'init',
-        sandbox.fake.resolves(undefined as void)
-      );
+      sandbox.replace(aws.AthenaManager.prototype, 'init', sandbox.fake.resolves(undefined as void));
 
-      const athenaProcessor = new BasicAthenaProcessor(
-        bucketName,
-        databaseName
-      );
+      const athenaProcessor = new BasicAthenaProcessor(bucketName, databaseName);
 
       let errored = false;
       try {
@@ -156,21 +138,10 @@ describe('fileProcessing/BasicAthenaProcessor', () => {
       const databaseName = 'someDatabaseName';
 
       const errorString = 'An erorr has occurred';
-      sandbox.replace(
-        aws.S3Manager.prototype,
-        'init',
-        sandbox.fake.throws(errorString)
-      );
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'init',
-        sandbox.fake.throws(errorString)
-      );
+      sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.throws(errorString));
+      sandbox.replace(aws.AthenaManager.prototype, 'init', sandbox.fake.throws(errorString));
 
-      const athenaProcessor = new BasicAthenaProcessor(
-        bucketName,
-        databaseName
-      );
+      const athenaProcessor = new BasicAthenaProcessor(bucketName, databaseName);
 
       let errored = false;
       try {
@@ -191,193 +162,82 @@ describe('fileProcessing/BasicAthenaProcessor', () => {
     const databaseName = 'someDatabaseName';
 
     beforeEach(() => {
-      sandbox.replace(
-        aws.S3Manager.prototype,
-        'init',
-        sandbox.fake.resolves(undefined as void)
-      );
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'init',
-        sandbox.fake.resolves(undefined as void)
-      );
+      sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.resolves(undefined as void));
+      sandbox.replace(aws.AthenaManager.prototype, 'init', sandbox.fake.resolves(undefined as void));
 
-      sandbox.replace(
-        BasicJoinProcessor.prototype,
-        'processColumns',
-        sandbox.fake.returns(undefined as void)
-      );
-      sandbox.replace(
-        BasicHiveViewQueryPlanner.prototype,
-        'defineView',
-        sandbox.fake.returns('I AM A VIEW QUERY')
-      );
+      sandbox.replace(BasicJoinProcessor.prototype, 'processColumns', sandbox.fake.returns(undefined as void));
+      sandbox.replace(BasicHiveViewQueryPlanner.prototype, 'defineView', sandbox.fake.returns('I AM A VIEW QUERY'));
     });
     afterEach(() => {
       sandbox.restore();
     });
     it('should process our tables', async () => {
-      sandbox.replace(
-        BasicTableSorter.prototype,
-        'sortTables',
-        sandbox.fake.returns(MOCK_FILE_INFORMATION)
-      );
+      sandbox.replace(BasicTableSorter.prototype, 'sortTables', sandbox.fake.returns(MOCK_FILE_INFORMATION));
       sandbox.replaceGetter(
         BasicJoinProcessor.prototype,
         'joinData',
-        sandbox.fake.returns([
-          {join: 'information1'},
-          {join: 'information2'},
-        ] as unknown as IJoinTableDefinition[])
+        sandbox.fake.returns([{join: 'information1'}, {join: 'information2'}] as unknown as IJoinTableDefinition[])
       );
-      sandbox.replace(
-        aws.S3Manager.prototype,
-        'listObjects',
-        sandbox.fake.resolves(['afileishere.parquet'])
-      );
-      sandbox.replace(
-        BasicHiveTableQueryPlanner.prototype,
-        'defineQuery',
-        sandbox.fake.returns('I AM A Query')
-      );
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'runQuery',
-        sandbox.fake.resolves([])
-      );
-      const athenaProcessor = new BasicAthenaProcessor(
-        bucketName,
-        databaseName
-      );
+      sandbox.replace(aws.S3Manager.prototype, 'listObjects', sandbox.fake.resolves(['afileishere.parquet']));
+      sandbox.replace(BasicHiveTableQueryPlanner.prototype, 'defineQuery', sandbox.fake.returns('I AM A Query'));
+      sandbox.replace(aws.AthenaManager.prototype, 'runQuery', sandbox.fake.resolves([]));
+      const athenaProcessor = new BasicAthenaProcessor(bucketName, databaseName);
 
-      const result = await athenaProcessor.processTables(
-        'A view',
-        MOCK_FILE_INFORMATION
-      );
+      const result = await athenaProcessor.processTables('A view', MOCK_FILE_INFORMATION);
 
       assert.isArray(result);
       assert.strictEqual(result.length, 2);
     });
     it('should not process our appended files tables', async () => {
       const copiedMock = JSON.parse(JSON.stringify(MOCK_FILE_INFORMATION));
-      copiedMock[0].fileOperationType =
-        fileIngestion.constants.FILE_OPERATION.APPEND;
-      sandbox.replace(
-        BasicTableSorter.prototype,
-        'sortTables',
-        sandbox.fake.returns(copiedMock)
-      );
+      copiedMock[0].fileOperationType = fileIngestionTypes.constants.FILE_OPERATION.APPEND;
+      sandbox.replace(BasicTableSorter.prototype, 'sortTables', sandbox.fake.returns(copiedMock));
       sandbox.replaceGetter(
         BasicJoinProcessor.prototype,
         'joinData',
-        sandbox.fake.returns([
-          {join: 'information1'},
-          {join: 'information2'},
-        ] as unknown as IJoinTableDefinition[])
+        sandbox.fake.returns([{join: 'information1'}, {join: 'information2'}] as unknown as IJoinTableDefinition[])
       );
-      sandbox.replace(
-        aws.S3Manager.prototype,
-        'listObjects',
-        sandbox.fake.resolves(['afileishere.parquet'])
-      );
+      sandbox.replace(aws.S3Manager.prototype, 'listObjects', sandbox.fake.resolves(['afileishere.parquet']));
       const defineQueryFake = sandbox.fake.returns('I am a query');
 
-      sandbox.replace(
-        BasicHiveTableQueryPlanner.prototype,
-        'defineQuery',
-        defineQueryFake
-      );
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'runQuery',
-        sandbox.fake.resolves([])
-      );
-      const athenaProcessor = new BasicAthenaProcessor(
-        bucketName,
-        databaseName
-      );
+      sandbox.replace(BasicHiveTableQueryPlanner.prototype, 'defineQuery', defineQueryFake);
+      sandbox.replace(aws.AthenaManager.prototype, 'runQuery', sandbox.fake.resolves([]));
+      const athenaProcessor = new BasicAthenaProcessor(bucketName, databaseName);
 
-      const result = await athenaProcessor.processTables(
-        'A view',
-        MOCK_FILE_INFORMATION
-      );
+      const result = await athenaProcessor.processTables('A view', MOCK_FILE_INFORMATION);
 
       assert.isArray(result);
       assert.strictEqual(result.length, 2);
       assert.strictEqual(defineQueryFake.callCount, 1);
     });
     it('should return an empty array when our join processor returns empty', async () => {
-      sandbox.replace(
-        BasicTableSorter.prototype,
-        'sortTables',
-        sandbox.fake.returns(MOCK_FILE_INFORMATION)
-      );
+      sandbox.replace(BasicTableSorter.prototype, 'sortTables', sandbox.fake.returns(MOCK_FILE_INFORMATION));
       sandbox.replaceGetter(
         BasicJoinProcessor.prototype,
         'joinData',
         sandbox.fake.returns([] as unknown as IJoinTableDefinition[])
       );
-      sandbox.replace(
-        aws.S3Manager.prototype,
-        'listObjects',
-        sandbox.fake.resolves(['afileishere.parquet'])
-      );
-      sandbox.replace(
-        BasicHiveTableQueryPlanner.prototype,
-        'defineQuery',
-        sandbox.fake.returns('I AM A Query')
-      );
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'runQuery',
-        sandbox.fake.resolves([])
-      );
-      const athenaProcessor = new BasicAthenaProcessor(
-        bucketName,
-        databaseName
-      );
+      sandbox.replace(aws.S3Manager.prototype, 'listObjects', sandbox.fake.resolves(['afileishere.parquet']));
+      sandbox.replace(BasicHiveTableQueryPlanner.prototype, 'defineQuery', sandbox.fake.returns('I AM A Query'));
+      sandbox.replace(aws.AthenaManager.prototype, 'runQuery', sandbox.fake.resolves([]));
+      const athenaProcessor = new BasicAthenaProcessor(bucketName, databaseName);
 
-      const result = await athenaProcessor.processTables(
-        'A view',
-        MOCK_FILE_INFORMATION
-      );
+      const result = await athenaProcessor.processTables('A view', MOCK_FILE_INFORMATION);
 
       assert.isArray(result);
       assert.strictEqual(result.length, 0);
     });
     it('should throw an error when the files do not exist', async () => {
-      sandbox.replace(
-        BasicTableSorter.prototype,
-        'sortTables',
-        sandbox.fake.returns(MOCK_FILE_INFORMATION)
-      );
+      sandbox.replace(BasicTableSorter.prototype, 'sortTables', sandbox.fake.returns(MOCK_FILE_INFORMATION));
       sandbox.replaceGetter(
         BasicJoinProcessor.prototype,
         'joinData',
-        sandbox.fake.returns([
-          {join: 'information1'},
-          {join: 'information2'},
-        ] as unknown as IJoinTableDefinition[])
+        sandbox.fake.returns([{join: 'information1'}, {join: 'information2'}] as unknown as IJoinTableDefinition[])
       );
-      sandbox.replace(
-        aws.S3Manager.prototype,
-        'listObjects',
-        sandbox.fake.resolves([])
-      );
-      sandbox.replace(
-        BasicHiveTableQueryPlanner.prototype,
-        'defineQuery',
-        sandbox.fake.returns('I AM A Query')
-      );
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'runQuery',
-        sandbox.fake.resolves([])
-      );
-      const athenaProcessor = new BasicAthenaProcessor(
-        bucketName,
-        databaseName
-      );
+      sandbox.replace(aws.S3Manager.prototype, 'listObjects', sandbox.fake.resolves([]));
+      sandbox.replace(BasicHiveTableQueryPlanner.prototype, 'defineQuery', sandbox.fake.returns('I AM A Query'));
+      sandbox.replace(aws.AthenaManager.prototype, 'runQuery', sandbox.fake.resolves([]));
+      const athenaProcessor = new BasicAthenaProcessor(bucketName, databaseName);
       let errored = false;
       try {
         await athenaProcessor.processTables('A view', MOCK_FILE_INFORMATION);
@@ -388,39 +248,17 @@ describe('fileProcessing/BasicAthenaProcessor', () => {
       assert.isTrue(errored);
     });
     it('should throw an error when an unexpected error is thrown', async () => {
-      sandbox.replace(
-        BasicTableSorter.prototype,
-        'sortTables',
-        sandbox.fake.returns(MOCK_FILE_INFORMATION)
-      );
+      sandbox.replace(BasicTableSorter.prototype, 'sortTables', sandbox.fake.returns(MOCK_FILE_INFORMATION));
       sandbox.replaceGetter(
         BasicJoinProcessor.prototype,
         'joinData',
-        sandbox.fake.returns([
-          {join: 'information1'},
-          {join: 'information2'},
-        ] as unknown as IJoinTableDefinition[])
+        sandbox.fake.returns([{join: 'information1'}, {join: 'information2'}] as unknown as IJoinTableDefinition[])
       );
-      sandbox.replace(
-        aws.S3Manager.prototype,
-        'listObjects',
-        sandbox.fake.resolves(['iamafile.parquet'])
-      );
-      sandbox.replace(
-        BasicHiveTableQueryPlanner.prototype,
-        'defineQuery',
-        sandbox.fake.returns('I AM A Query')
-      );
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'runQuery',
-        sandbox.fake.rejects('oops I did it again')
-      );
+      sandbox.replace(aws.S3Manager.prototype, 'listObjects', sandbox.fake.resolves(['iamafile.parquet']));
+      sandbox.replace(BasicHiveTableQueryPlanner.prototype, 'defineQuery', sandbox.fake.returns('I AM A Query'));
+      sandbox.replace(aws.AthenaManager.prototype, 'runQuery', sandbox.fake.rejects('oops I did it again'));
 
-      const athenaProcessor = new BasicAthenaProcessor(
-        bucketName,
-        databaseName
-      );
+      const athenaProcessor = new BasicAthenaProcessor(bucketName, databaseName);
       let errored = false;
       try {
         await athenaProcessor.processTables('A view', MOCK_FILE_INFORMATION);

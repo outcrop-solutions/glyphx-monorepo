@@ -34,7 +34,7 @@ export class Winston {
   private buildConfig(level: string): winston.LoggerOptions {
     let config = {};
 
-    const definedTransports = [];
+    const definedTransports: winston.transport[] = [];
 
     definedTransports.push(new transports.Console({}));
 

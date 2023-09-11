@@ -22,19 +22,15 @@ export interface IErrorTestingParameters extends Record<string, unknown> {
   errorCode: number;
 }
 
-export function testError(
-  errorToTest: any,
-  params: IErrorTestingParameters,
-  allow999 = false
-) {
+export function testError(errorToTest: any, params: IErrorTestingParameters, allow999 = false) {
   assert.isNotEmpty(params.message);
   assert.exists(params.innerError);
   assert.exists(params.errorCode);
   assert.isAbove(params.errorCode, 0);
   if (!allow999) assert.isBelow(params.errorCode, 999);
   const constructorParameters = getClassContructorParams(errorToTest);
-  constructorParameters.forEach(p => {
-    if (!KNOWN_REQUIRED_PARAMETERS.find(n => n === p)) {
+  constructorParameters.forEach((p) => {
+    if (!KNOWN_REQUIRED_PARAMETERS.find((n) => n === p)) {
       assert.exists(params[p], p);
     }
   });
@@ -53,7 +49,7 @@ export function testError(
   assert.strictEqual(err['errorCode'], params.errorCode);
   assert.strictEqual(err['innerError'], params.innerError);
   for (const key in params) {
-    if (KNOWN_REQUIRED_PARAMETERS.find(p => p === key)) {
+    if (KNOWN_REQUIRED_PARAMETERS.find((p) => p === key)) {
       continue;
     }
     assert.strictEqual(err['data'][key], params[key], key);

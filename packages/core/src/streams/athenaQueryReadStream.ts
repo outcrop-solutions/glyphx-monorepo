@@ -24,10 +24,7 @@ export class AthenaQueryReadStream extends Readable {
     let nextToken: string;
     let includeHeader = false;
     try {
-      const paginator = await this.athenaManager.getPagedQueryResults(
-        this.queryId,
-        this.pageSize
-      );
+      const paginator = await this.athenaManager.getPagedQueryResults(this.queryId, this.pageSize);
       do {
         const page = (await paginator.next()) as any;
         nextToken = page.value.NextToken;

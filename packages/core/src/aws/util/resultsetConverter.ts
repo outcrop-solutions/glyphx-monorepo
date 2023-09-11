@@ -2,11 +2,8 @@ import {ResultSet} from '@aws-sdk/client-athena';
 
 type StringConverter<T> = (input: string | undefined) => T;
 
-const PASS_THROUGH: StringConverter<string> = (input: string | undefined) =>
-  input as string;
-const STRING_TO_NUMBER: StringConverter<number | undefined> = (
-  input: string | undefined
-) => {
+const PASS_THROUGH: StringConverter<string> = (input: string | undefined) => input as string;
+const STRING_TO_NUMBER: StringConverter<number | undefined> = (input: string | undefined) => {
   if (!input) return undefined;
   else return Number(input);
 };
@@ -41,10 +38,7 @@ export class ResultSetConverter {
       mappedConverters.push({
         index: index,
         name: c.Name as string,
-        converter:
-          c.Type === 'double' || c.Type === 'bigint'
-            ? STRING_TO_NUMBER
-            : PASS_THROUGH,
+        converter: c.Type === 'double' || c.Type === 'bigint' ? STRING_TO_NUMBER : PASS_THROUGH,
       });
     });
 
@@ -55,9 +49,7 @@ export class ResultSetConverter {
 
       //istanbul ignore next
       r.Data?.forEach((d, colIndex) => {
-        obj[mappedConverters[colIndex].name] = mappedConverters[
-          colIndex
-        ].converter(d.VarCharValue as string);
+        obj[mappedConverters[colIndex].name] = mappedConverters[colIndex].converter(d.VarCharValue as string);
       });
       results.push(obj);
     });

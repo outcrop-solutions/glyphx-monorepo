@@ -2,8 +2,8 @@ import {assert} from 'chai';
 import {BasicHiveViewQueryPlanner} from '@fileProcessing';
 
 import * as joinQueryHelpers from './basicHiveQueryPlanner.tests';
-import * as fileProcessingInterfaces from '@interfaces/fileProcessing';
-import {fileIngestion} from '@glyphx/types';
+import * as fileProcessingInterfaces from 'interfaces/fileProcessing';
+import {fileIngestionTypes} from 'types';
 
 const VIEW_REGEX = 'CREATE\\s+VIEW\\s+$1\\s+AS\\s+SELECT';
 
@@ -20,7 +20,7 @@ function buildSingleJoin(): fileProcessingInterfaces.IJoinTableDefinition[] {
     tableDefinition: tableDef,
     columnIndex: 0,
     columnName: 'column1',
-    columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+    columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
     isJoinColumn: false,
     isSelectedColumn: true,
   });
@@ -29,7 +29,7 @@ function buildSingleJoin(): fileProcessingInterfaces.IJoinTableDefinition[] {
     tableDefinition: tableDef,
     columnIndex: 1,
     columnName: 'column2',
-    columnType: fileIngestion.constants.FIELD_TYPE.STRING,
+    columnType: fileIngestionTypes.constants.FIELD_TYPE.STRING,
     isJoinColumn: false,
     isSelectedColumn: true,
   });

@@ -1,16 +1,16 @@
 import * as models from './models';
 import mongoose from 'mongoose';
-import {error, secretBinders} from '@glyphx/core';
+import {bindSecrets, boundProperty, error} from 'core';
 
-@secretBinders.bindSecrets('db/mongo')
+@bindSecrets('db/mongo')
 export class MongoDbConnection {
-  @secretBinders.boundProperty()
+  @boundProperty()
   endpoint: string;
-  @secretBinders.boundProperty()
+  @boundProperty()
   database: string;
-  @secretBinders.boundProperty()
+  @boundProperty()
   user: string;
-  @secretBinders.boundProperty()
+  @boundProperty()
   password: string;
 
   private isInitedField: boolean;

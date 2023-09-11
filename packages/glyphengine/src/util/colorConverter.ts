@@ -1,9 +1,5 @@
 //Courtesy of chatGpt
-export function convertRgbToHsv(
-  inputRed: number,
-  inputGreen: number,
-  inputBlue: number
-): [number, number, number] {
+export function convertRgbToHsv(inputRed: number, inputGreen: number, inputBlue: number): [number, number, number] {
   // Make inputRed, inputGreen, and inputBlue fractions of 1
   inputRed = inputRed / 255;
   inputGreen = inputGreen / 255;
@@ -44,11 +40,7 @@ export function convertRgbToHsv(
 }
 
 //also courtasy of chatGpt
-export function convertHsvToRgb(
-  h: number,
-  s: number,
-  v: number
-): [number, number, number] {
+export function convertHsvToRgb(h: number, s: number, v: number): [number, number, number] {
   // Convert the hue to a value between 0 and 360 degrees
   let hue = h % 360;
   if (hue < 0) {

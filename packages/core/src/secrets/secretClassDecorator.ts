@@ -12,15 +12,8 @@ interface IInitializerDescription {
 
 type ValueExtractor = (input: any) => any;
 
-export function initializer(
-  target: any,
-  propertyKey: string,
-  descriptor: PropertyDescriptor
-) {
-  const initializerValue = Reflect.getMetadata(
-    'boundSecrets:initializerFunction',
-    target
-  );
+export function initializer(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  const initializerValue = Reflect.getMetadata('boundSecrets:initializerFunction', target);
 
   if (typeof descriptor.value !== 'function') {
     throw new InvalidOperationError(
@@ -36,28 +29,17 @@ export function initializer(
     );
   }
   if (descriptor.value.__proto__.constructor.name !== 'AsyncFunction') {
-    throw new InvalidOperationError(
-      'Your initializer function must return a Promise so that it can be awaited',
-      {functionName: propertyKey}
-    );
+    throw new InvalidOperationError('Your initializer function must return a Promise so that it can be awaited', {
+      functionName: propertyKey,
+    });
   }
 
-  Reflect.defineMetadata(
-    'boundSecrets:initializerFunction',
-    {name: propertyKey, descriptor: descriptor},
-    target
-  );
+  Reflect.defineMetadata('boundSecrets:initializerFunction', {name: propertyKey, descriptor: descriptor}, target);
 }
 
-function storeSecretName(
-  target: any,
-  propertyName: string,
-  secretName: string
-): void {
-  const savedSecretMeta = (Reflect.getMetadata(
-    'boundSecrets:saveSecrets',
-    target
-  ) ?? new Map<string, {secretName: string; propertyName: string}>()) as Map<
+function storeSecretName(target: any, propertyName: string, secretName: string): void {
+  const savedSecretMeta = (Reflect.getMetadata('boundSecrets:saveSecrets', target) ??
+    new Map<string, {secretName: string; propertyName: string}>()) as Map<
     string,
     {secretName: string; propertyName: string}
   >;
@@ -86,11 +68,7 @@ export function boundProperty(
   secretName?: string,
   extractor?: ValueExtractor
 ): (target: any, propertyName: string) => void;
-export function boundProperty(
-  val1?: boolean | string,
-  val2?: string | ValueExtractor,
-  val3?: ValueExtractor
-) {
+export function boundProperty(val1?: boolean | string, val2?: string | ValueExtractor, val3?: ValueExtractor) {
   return function (target: any, propertyName: string) {
     let bound = false;
     let secretName = '';
@@ -122,24 +100,11 @@ export function boundProperty(
     if (bound) storeSecretName(target, propertyName, secretName);
 
     Reflect.defineMetadata('boundSecrets:isBound', bound, target, propertyName);
-    Reflect.defineMetadata(
-      'boundSecrets:extractor',
-      extractor,
-      target,
-      propertyName
-    );
-    Reflect.defineMetadata(
-      'boundSecrets:secretName',
-      secretName,
-      target,
-      propertyName
-    );
+    Reflect.defineMetadata('boundSecrets:extractor', extractor, target, propertyName);
+    Reflect.defineMetadata('boundSecrets:secretName', secretName, target, propertyName);
 
     if (bound) {
-      const propertyDescriptor = Object.getOwnPropertyDescriptor(
-        target,
-        propertyName
-      );
+      const propertyDescriptor = Object.getOwnPropertyDescriptor(target, propertyName);
 
       if (!propertyDescriptor) {
         let value: any;
@@ -170,10 +135,7 @@ export function boundProperty(
 }
 
 function findInitializerFunction(target: any) {
-  const initDescriptor = Reflect.getMetadata(
-    'boundSecrets:initializerFunction',
-    target.prototype
-  );
+  const initDescriptor = Reflect.getMetadata('boundSecrets:initializerFunction', target.prototype);
 
   if (initDescriptor) return initDescriptor;
 
@@ -183,13 +145,10 @@ function findInitializerFunction(target: any) {
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
     if (key === 'constructor') continue;
-    const propertyDescriptor = Object.getOwnPropertyDescriptor(
-      target.prototype,
-      key
-    );
+    const propertyDescriptor = Object.getOwnPropertyDescriptor(target.prototype, key);
     if (typeof propertyDescriptor?.value !== 'function') continue;
 
-    if (INITIALIZER_NAMES.find(name => name === key.toLowerCase()))
+    if (INITIALIZER_NAMES.find((name) => name === key.toLowerCase()))
       potentialInitializer = {name: key, descriptor: propertyDescriptor};
     continue;
   }
@@ -199,8 +158,7 @@ function findInitializerFunction(target: any) {
 
 export function bindSecrets(secretName: string) {
   return function <T extends {new (...args: any[]): {}}>(target: T) {
-    const {initializer, initialInitislizerFunction} =
-      findAndValidateInitializer<T>(target);
+    const {initializer, initialInitislizerFunction} = findAndValidateInitializer<T>(target);
     //now modify our object so that we can inject the secret values/
 
     //1. we are going to swap out the intializer with our own initializer.
@@ -217,10 +175,7 @@ export function bindSecrets(secretName: string) {
   };
 }
 
-function addSecretManagerProperty<T extends {new (...args: any[]): {}}>(
-  secretName: string,
-  target: T
-) {
+function addSecretManagerProperty<T extends {new (...args: any[]): {}}>(secretName: string, target: T) {
   const secretManager = new SecretManager(secretName);
   Object.defineProperty(target.prototype, 'secretManager', {
     get: function (): SecretManager {
@@ -229,10 +184,7 @@ function addSecretManagerProperty<T extends {new (...args: any[]): {}}>(
   });
 }
 
-function addSecretNameProperty<T extends {new (...args: any[]): {}}>(
-  target: T,
-  secretName: string
-) {
+function addSecretNameProperty<T extends {new (...args: any[]): {}}>(target: T, secretName: string) {
   Object.defineProperty(target.prototype, 'secretName', {
     get: function (): string {
       return secretName;
@@ -274,9 +226,7 @@ function updateInitializer<T extends {new (...args: any[]): {}}>(
   });
 }
 
-function findAndValidateInitializer<T extends {new (...args: any[]): {}}>(
-  target: T
-) {
+function findAndValidateInitializer<T extends {new (...args: any[]): {}}>(target: T) {
   const initializer = findInitializerFunction(target);
 
   if (!initializer)
@@ -285,13 +235,10 @@ function findAndValidateInitializer<T extends {new (...args: any[]): {}}>(
       {}
     );
 
-  if (
-    initializer.descriptor.value.__proto__.constructor.name !== 'AsyncFunction'
-  ) {
-    throw new InvalidOperationError(
-      'Your initializer function must return a Promise so that it can be awaited',
-      {functionName: initializer.name}
-    );
+  if (initializer.descriptor.value.__proto__.constructor.name !== 'AsyncFunction') {
+    throw new InvalidOperationError('Your initializer function must return a Promise so that it can be awaited', {
+      functionName: initializer.name,
+    });
   }
 
   const initialInitislizerFunction = initializer.descriptor.value;
@@ -302,27 +249,19 @@ function setupPropertyGuards<T extends {new (...args: any[]): {}}>(target: T) {
   const keys = Object.getOwnPropertyNames(target.prototype);
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
-    const isBound = Reflect.getMetadata(
-      'boundSecrets:isBound',
-      target.prototype,
-      key
-    );
+    const isBound = Reflect.getMetadata('boundSecrets:isBound', target.prototype, key);
 
     if (isBound) {
-      const propertyDescriptor = Object.getOwnPropertyDescriptor(
-        target.prototype,
-        key
-      );
+      const propertyDescriptor = Object.getOwnPropertyDescriptor(target.prototype, key);
       const origGetter = propertyDescriptor?.get;
       //istanbul ignore next else
       if (origGetter) {
         Object.defineProperty(target.prototype, key, {
           get: function () {
             if (!this.inited) {
-              throw new InvalidOperationError(
-                'You must call init before accessing a secrets bound property',
-                {propertyName: key}
-              );
+              throw new InvalidOperationError('You must call init before accessing a secrets bound property', {
+                propertyName: key,
+              });
             }
             const func = origGetter.bind(this);
             return func();

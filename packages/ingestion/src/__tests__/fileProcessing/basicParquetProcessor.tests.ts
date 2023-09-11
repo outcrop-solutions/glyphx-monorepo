@@ -218,8 +218,7 @@ describe('#fileProcessing/BasicParquetProcessor', () => {
       let currentRecord = 0;
       while ((record = await cursor.next())) {
         assert.strictEqual(record.name, `field${currentRecord}`);
-        if (!(currentRecord % 2))
-          assert.strictEqual(record.value, currentRecord);
+        if (!(currentRecord % 2)) assert.strictEqual(record.value, currentRecord);
         else assert.isUndefined(record.value);
         currentRecord++;
       }

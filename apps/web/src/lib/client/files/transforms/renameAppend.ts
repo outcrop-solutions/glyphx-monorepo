@@ -1,5 +1,5 @@
-import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
-import { cleanColumnName } from './parsePayload';
+import {webTypes, fileIngestionTypes} from 'types';
+import {cleanColumnName} from './parsePayload';
 
 /**
  * Reformats payload based on APPEND (you can't append to a file/tableName that doesn't exist)
@@ -10,7 +10,7 @@ export const renameAppend = (
   payload: webTypes.IClientSidePayload,
   collisions: webTypes.Collision[]
 ): webTypes.IClientSidePayload => {
-  const updatedPayload = { ...payload };
+  const updatedPayload = {...payload};
   const renamedTables: Record<string, string> = {};
 
   collisions.forEach((collision) => {

@@ -1,8 +1,8 @@
-import type { NextApiRequest } from 'next';
-import { database as databaseTypes } from '@glyphx/types';
+import type {NextApiRequest} from 'next';
+import {databaseTypes} from 'types';
 import useragent from 'useragent';
 
-export const formatUserAgent = (req: NextApiRequest): { agentData: databaseTypes.IUserAgent; location: string } => {
+export const formatUserAgent = (req: NextApiRequest): {agentData: databaseTypes.IUserAgent; location: string} => {
   // Get the user agent from the request headers
   const userAgentString = req.headers['user-agent'];
   // Parse the user agent string using the useragent package

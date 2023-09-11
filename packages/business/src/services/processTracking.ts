@@ -1,7 +1,7 @@
-import {database as databaseTypes} from '@glyphx/types';
+import {databaseTypes} from 'types';
 import {Types as mongooseTypes} from 'mongoose';
-import {error, constants} from '@glyphx/core';
-import mongoDbConnection from 'lib/databaseConnection';
+import {error, constants} from 'core';
+import mongoDbConnection from '../lib/databaseConnection';
 
 const TIMEOUT = 900000; // 15 minutes
 
@@ -9,12 +9,10 @@ export class ProcessTrackingService {
   public static async createProcessTracking(
     processId: string,
     processName: string,
-    processStatus: databaseTypes.constants.PROCESS_STATUS = databaseTypes
-      .constants.PROCESS_STATUS.PENDING
+    processStatus: databaseTypes.constants.PROCESS_STATUS = databaseTypes.constants.PROCESS_STATUS.PENDING
   ): Promise<Pick<databaseTypes.IProcessTracking, '_id' | 'processId'>> {
     try {
-      const processTrackingModel =
-        mongoDbConnection.models.ProcessTrackingModel;
+      const processTrackingModel = mongoDbConnection.models.ProcessTrackingModel;
       const processTrackingDocument: databaseTypes.IProcessTracking = {
         processId: processId,
         processName: processName,
@@ -23,10 +21,7 @@ export class ProcessTrackingService {
         processMessages: [],
         processError: [],
       };
-      const createdDocument =
-        await processTrackingModel.createProcessTrackingDocument(
-          processTrackingDocument
-        );
+      const createdDocument = await processTrackingModel.createProcessTrackingDocument(processTrackingDocument);
       const retval = createdDocument.processId;
       return {processId: retval, _id: createdDocument._id};
     } catch (err) {
@@ -55,15 +50,11 @@ export class ProcessTrackingService {
     processTracking: databaseTypes.IProcessTracking
   ): Promise<databaseTypes.IProcessTracking> {
     if (
-      processTracking.processStatus ===
-        databaseTypes.constants.PROCESS_STATUS.PENDING ||
-      processTracking.processStatus ===
-        databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS
+      processTracking.processStatus === databaseTypes.constants.PROCESS_STATUS.PENDING ||
+      processTracking.processStatus === databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS
     ) {
       const now = new Date().getTime();
-      const startDate = (
-        processTracking.processHeartbeat ?? processTracking.processStartTime
-      ).getTime();
+      const startDate = (processTracking.processHeartbeat ?? processTracking.processStartTime).getTime();
 
       //The process appears to be hung
       if (now - startDate > TIMEOUT) {
@@ -91,30 +82,21 @@ export class ProcessTrackingService {
     processId: string | mongooseTypes.ObjectId
   ): Promise<Pick<
     databaseTypes.IProcessTracking,
-    | 'processStatus'
-    | 'processMessages'
-    | 'processError'
-    | 'processResult'
-    | 'processHeartbeat'
+    'processStatus' | 'processMessages' | 'processError' | 'processResult' | 'processHeartbeat'
   > | null> {
     try {
-      const processTrackingModel =
-        mongoDbConnection.models.ProcessTrackingModel;
+      const processTrackingModel = mongoDbConnection.models.ProcessTrackingModel;
       let processTrackingDocument: databaseTypes.IProcessTracking | null = null;
       if (processId instanceof mongooseTypes.ObjectId) {
-        processTrackingDocument =
-          (await processTrackingModel.getProcessTrackingDocumentById(
-            processId
-          )) as databaseTypes.IProcessTracking;
+        processTrackingDocument = (await processTrackingModel.getProcessTrackingDocumentById(
+          processId
+        )) as databaseTypes.IProcessTracking;
       } else {
-        processTrackingDocument =
-          (await processTrackingModel.getProcessTrackingDocumentByProcessId(
-            processId
-          )) as databaseTypes.IProcessTracking;
+        processTrackingDocument = (await processTrackingModel.getProcessTrackingDocumentByProcessId(
+          processId
+        )) as databaseTypes.IProcessTracking;
       }
-      const updatedStatus = await ProcessTrackingService.reconcileStatus(
-        processTrackingDocument
-      );
+      const updatedStatus = await ProcessTrackingService.reconcileStatus(processTrackingDocument);
       const processMessages = updatedStatus.processMessages.slice(0, 10);
       const processError = updatedStatus.processError.slice(0, 10);
 
@@ -151,15 +133,11 @@ export class ProcessTrackingService {
     message?: string
   ): Promise<void> {
     try {
-      const processTrackingModel =
-        mongoDbConnection.models.ProcessTrackingModel;
+      const processTrackingModel = mongoDbConnection.models.ProcessTrackingModel;
 
-      let updatedProcessTrackingDocument: databaseTypes.IProcessTracking | null =
-        null;
+      let updatedProcessTrackingDocument: databaseTypes.IProcessTracking | null = null;
 
-      const inputDocument: Partial<
-        Omit<databaseTypes.IProcessTracking, '_id'>
-      > = {
+      const inputDocument: Partial<Omit<databaseTypes.IProcessTracking, '_id'>> = {
         processStatus: processStatus,
       };
       if (
@@ -170,29 +148,23 @@ export class ProcessTrackingService {
         inputDocument.processResult = {};
       }
       if (processId instanceof mongooseTypes.ObjectId) {
-        updatedProcessTrackingDocument =
-          await processTrackingModel.updateProcessTrackingDocumentById(
-            processId,
-            inputDocument
-          );
+        updatedProcessTrackingDocument = await processTrackingModel.updateProcessTrackingDocumentById(
+          processId,
+          inputDocument
+        );
       } else {
-        updatedProcessTrackingDocument =
-          await processTrackingModel.updateProcessTrackingDocumentByProcessId(
-            processId,
-            inputDocument
-          );
-      }
-      if (message) {
-        await processTrackingModel.addMessagesById(
-          updatedProcessTrackingDocument!._id as mongooseTypes.ObjectId,
-          [message]
+        updatedProcessTrackingDocument = await processTrackingModel.updateProcessTrackingDocumentByProcessId(
+          processId,
+          inputDocument
         );
       }
+      if (message) {
+        await processTrackingModel.addMessagesById(updatedProcessTrackingDocument!._id as mongooseTypes.ObjectId, [
+          message,
+        ]);
+      }
     } catch (err) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -215,35 +187,22 @@ export class ProcessTrackingService {
   public static async completeProcess(
     processId: string | mongooseTypes.ObjectId,
     result: Record<string, unknown>,
-    processStatus: databaseTypes.constants.PROCESS_STATUS = databaseTypes
-      .constants.PROCESS_STATUS.COMPLETED
+    processStatus: databaseTypes.constants.PROCESS_STATUS = databaseTypes.constants.PROCESS_STATUS.COMPLETED
   ): Promise<void> {
     try {
-      const processTrackingModel =
-        mongoDbConnection.models.ProcessTrackingModel;
-      const inputDocument: Partial<
-        Omit<databaseTypes.IProcessTracking, '_id'>
-      > = {
+      const processTrackingModel = mongoDbConnection.models.ProcessTrackingModel;
+      const inputDocument: Partial<Omit<databaseTypes.IProcessTracking, '_id'>> = {
         processStatus: processStatus,
         processResult: result,
         processEndTime: new Date(),
       };
       if (processId instanceof mongooseTypes.ObjectId) {
-        await processTrackingModel.updateProcessTrackingDocumentById(
-          processId,
-          inputDocument
-        );
+        await processTrackingModel.updateProcessTrackingDocumentById(processId, inputDocument);
       } else {
-        await processTrackingModel.updateProcessTrackingDocumentByProcessId(
-          processId,
-          inputDocument
-        );
+        await processTrackingModel.updateProcessTrackingDocumentByProcessId(processId, inputDocument);
       }
     } catch (err) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -268,22 +227,14 @@ export class ProcessTrackingService {
     inputError: error.GlyphxError
   ): Promise<void> {
     try {
-      const processTrackingModel =
-        mongoDbConnection.models.ProcessTrackingModel;
+      const processTrackingModel = mongoDbConnection.models.ProcessTrackingModel;
       if (processId instanceof mongooseTypes.ObjectId) {
-        await processTrackingModel.addErrorsById(processId, [
-          inputError as unknown as Record<string, unknown>,
-        ]);
+        await processTrackingModel.addErrorsById(processId, [inputError as unknown as Record<string, unknown>]);
       } else {
-        await processTrackingModel.addErrorsByProcessId(processId, [
-          inputError as unknown as Record<string, unknown>,
-        ]);
+        await processTrackingModel.addErrorsByProcessId(processId, [inputError as unknown as Record<string, unknown>]);
       }
     } catch (err) {
-      if (
-        err instanceof error.DataNotFoundError ||
-        err instanceof error.InvalidArgumentError
-      ) {
+      if (err instanceof error.DataNotFoundError || err instanceof error.InvalidArgumentError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -302,23 +253,16 @@ export class ProcessTrackingService {
     }
   }
 
-  public static async addProcessMessage(
-    processId: string | mongooseTypes.ObjectId,
-    message: string
-  ): Promise<void> {
+  public static async addProcessMessage(processId: string | mongooseTypes.ObjectId, message: string): Promise<void> {
     try {
-      const processTrackingModel =
-        mongoDbConnection.models.ProcessTrackingModel;
+      const processTrackingModel = mongoDbConnection.models.ProcessTrackingModel;
       if (processId instanceof mongooseTypes.ObjectId) {
         await processTrackingModel.addMessagesById(processId, [message]);
       } else {
         await processTrackingModel.addMessagesByProcessId(processId, [message]);
       }
     } catch (err) {
-      if (
-        err instanceof error.DataNotFoundError ||
-        err instanceof error.InvalidArgumentError
-      ) {
+      if (err instanceof error.DataNotFoundError || err instanceof error.InvalidArgumentError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -341,21 +285,14 @@ export class ProcessTrackingService {
     processId: string | mongooseTypes.ObjectId
   ): Promise<databaseTypes.IProcessTracking | null> {
     try {
-      const processTrackingModel =
-        mongoDbConnection.models.ProcessTrackingModel;
+      const processTrackingModel = mongoDbConnection.models.ProcessTrackingModel;
       let processTrackingDocument: databaseTypes.IProcessTracking | null = null;
       if (processId instanceof mongooseTypes.ObjectId) {
-        processTrackingDocument =
-          await processTrackingModel.getProcessTrackingDocumentById(processId);
+        processTrackingDocument = await processTrackingModel.getProcessTrackingDocumentById(processId);
       } else {
-        processTrackingDocument =
-          await processTrackingModel.getProcessTrackingDocumentByProcessId(
-            processId
-          );
+        processTrackingDocument = await processTrackingModel.getProcessTrackingDocumentByProcessId(processId);
       }
-      const updatedDocument = await ProcessTrackingService.reconcileStatus(
-        processTrackingDocument!
-      );
+      const updatedDocument = await ProcessTrackingService.reconcileStatus(processTrackingDocument!);
 
       return updatedDocument;
     } catch (err) {
@@ -402,18 +339,12 @@ export class ProcessTrackingService {
     else return null;
   }
 
-  public static async removeProcessTrackingDocument(
-    processId: string | mongooseTypes.ObjectId
-  ) {
+  public static async removeProcessTrackingDocument(processId: string | mongooseTypes.ObjectId) {
     try {
       if (processId instanceof mongooseTypes.ObjectId) {
-        await mongoDbConnection.models.ProcessTrackingModel.deleteProcessTrackingDocumentById(
-          processId
-        );
+        await mongoDbConnection.models.ProcessTrackingModel.deleteProcessTrackingDocumentById(processId);
       } else {
-        await mongoDbConnection.models.ProcessTrackingModel.deleteProcessTrackingDocumentProcessId(
-          processId
-        );
+        await mongoDbConnection.models.ProcessTrackingModel.deleteProcessTrackingDocumentProcessId(processId);
       }
     } catch (err) {
       if (err instanceof error.InvalidArgumentError) {
@@ -439,21 +370,16 @@ export class ProcessTrackingService {
     try {
       const hearbeat = new Date();
       if (processId instanceof mongooseTypes.ObjectId) {
-        await mongoDbConnection.models.ProcessTrackingModel.updateProcessTrackingDocumentById(
-          processId,
-          {processHeartbeat: hearbeat}
-        );
+        await mongoDbConnection.models.ProcessTrackingModel.updateProcessTrackingDocumentById(processId, {
+          processHeartbeat: hearbeat,
+        });
       } else {
-        await mongoDbConnection.models.ProcessTrackingModel.updateProcessTrackingDocumentByProcessId(
-          processId,
-          {processHeartbeat: hearbeat}
-        );
+        await mongoDbConnection.models.ProcessTrackingModel.updateProcessTrackingDocumentByProcessId(processId, {
+          processHeartbeat: hearbeat,
+        });
       }
     } catch (err) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {

@@ -1,18 +1,13 @@
-import {error, constants} from '@glyphx/core';
-import {database as databaseTypes} from '@glyphx/types';
-import {StripeClient} from 'lib/stripe';
-import mongoDbConnection from 'lib/databaseConnection';
+import {error, constants} from 'core';
+import {databaseTypes} from 'types';
+import {StripeClient} from '../lib/stripe';
+import mongoDbConnection from '../lib/databaseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 
 export class CustomerPaymentService {
-  public static async getPayment(
-    email: string
-  ): Promise<databaseTypes.ICustomerPayment | null> {
+  public static async getPayment(email: string): Promise<databaseTypes.ICustomerPayment | null> {
     try {
-      const customerPayment =
-        await mongoDbConnection.models.CustomerPaymentModel.getCustomerPaymentByEmail(
-          email
-        );
+      const customerPayment = await mongoDbConnection.models.CustomerPaymentModel.getCustomerPaymentByEmail(email);
       return customerPayment;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -40,7 +35,8 @@ export class CustomerPaymentService {
       const id =
         customerId instanceof mongooseTypes.ObjectId
           ? customerId
-          : new mongooseTypes.ObjectId(customerId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(customerId);
       // create customer payment
       // add to the user
       // add user to the customerpayment
@@ -54,10 +50,7 @@ export class CustomerPaymentService {
       };
 
       // create customer
-      const customerPayment =
-        await mongoDbConnection.models.CustomerPaymentModel.createCustomerPayment(
-          input
-        );
+      const customerPayment = await mongoDbConnection.models.CustomerPaymentModel.createCustomerPayment(input);
 
       // connect customer to user
       await mongoDbConnection.models.UserModel.updateUserById(id, {
@@ -68,10 +61,7 @@ export class CustomerPaymentService {
 
       return customerPayment;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.DataValidationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.DataValidationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -98,10 +88,7 @@ export class CustomerPaymentService {
         {subscriptionType}
       );
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {

@@ -1,12 +1,7 @@
 import {Transform} from 'stream';
 import {IGlyph, IInputField, IProperty} from '../interfaces';
 import {SdtParser, IInputFields} from './sdtParser';
-import {
-  linearInterpolation,
-  logaritmicInterpolation,
-  convertRgbToHsv,
-  convertHsvToRgb,
-} from '../util';
+import {linearInterpolation, logaritmicInterpolation, convertRgbToHsv, convertHsvToRgb} from '../util';
 import {FUNCTION, SHAPE, TYPE} from '../constants';
 
 export class GlyphStream extends Transform {
@@ -16,11 +11,7 @@ export class GlyphStream extends Transform {
     this.sdtParser = sdtParser;
   }
 
-  _transform(
-    chunk: Record<string, unknown>,
-    encoding: string,
-    callback: Function
-  ) {
+  _transform(chunk: Record<string, unknown>, encoding: string, callback: Function) {
     const posX = this.getInterpolatedValue('Position', 'X', chunk);
     const posY = this.getInterpolatedValue('Position', 'Y', chunk);
     const posZ = this.getInterpolatedValue('Position', 'Z', chunk);
@@ -69,25 +60,13 @@ export class GlyphStream extends Transform {
     //typed structures.
     let retval = '';
     const inputFields = this.sdtParser.getInputFields();
-    const {fieldName: xFieldName, value: xValue} = this.getField(
-      'x',
-      chunk,
-      inputFields
-    );
-    const {fieldName: yFieldName, value: yValue} = this.getField(
-      'y',
-      chunk,
-      inputFields
-    );
-    const {fieldName: zFieldName, value: zValue} = this.getField(
-      'z',
-      chunk,
-      inputFields
-    );
+    const {fieldName: xFieldName, value: xValue} = this.getField('x', chunk, inputFields);
+    const {fieldName: yFieldName, value: yValue} = this.getField('y', chunk, inputFields);
+    const {fieldName: zFieldName, value: zValue} = this.getField('z', chunk, inputFields);
     //Row ids should always be ints, so let's send them across the wire
     //as such
     const rowIdValues = chunk['rowids'] as string;
-    const rowIds = rowIdValues.split('|').map(x => parseInt(x));
+    const rowIds = rowIdValues.split('|').map((x) => parseInt(x));
 
     const outObj = {
       x: {},
@@ -107,11 +86,7 @@ export class GlyphStream extends Transform {
     return retval;
   }
 
-  private getField(
-    field: string,
-    chunk: Record<string, unknown>,
-    inputFields: IInputFields
-  ) {
+  private getField(field: string, chunk: Record<string, unknown>, inputFields: IInputFields) {
     const fieldName = this.sdtParser.getInputFields()[field].field;
     let value = '';
     const chunkValue = chunk[fieldName];
@@ -131,10 +106,7 @@ export class GlyphStream extends Transform {
     return tag;
   }
 
-  private getValue(
-    inputField: IInputField,
-    values: Record<string, unknown>
-  ): number {
+  private getValue(inputField: IInputField, values: Record<string, unknown>): number {
     let value = values[inputField.field] as number;
 
     if (typeof value === 'string') {
@@ -151,53 +123,24 @@ export class GlyphStream extends Transform {
   } {
     const inputField = this.sdtParser.getInputFields().z;
     const value = this.getValue(inputField, values);
-    const propertyField = this.sdtParser.getGlyphProperty(
-      'Color',
-      'RGB'
-    ) as IProperty;
+    const propertyField = this.sdtParser.getGlyphProperty('Color', 'RGB') as IProperty;
 
     const rawMinColor = propertyField.minRgb;
-    const rawMinAsHsv = convertRgbToHsv(
-      rawMinColor[0],
-      rawMinColor[1],
-      rawMinColor[2]
-    );
+    const rawMinAsHsv = convertRgbToHsv(rawMinColor[0], rawMinColor[1], rawMinColor[2]);
     const rawMaxColor = propertyField.maxRgb;
-    const rawMaxAsHsv = convertRgbToHsv(
-      rawMaxColor[0],
-      rawMaxColor[1],
-      rawMaxColor[2]
-    );
+    const rawMaxAsHsv = convertRgbToHsv(rawMaxColor[0], rawMaxColor[1], rawMaxColor[2]);
     //this is harcoded in the template. Should we ever change it, we will need to update this.
 
     const h = Math.trunc(
-      linearInterpolation(
-        value as number,
-        inputField.min,
-        inputField.max,
-        rawMinAsHsv[0],
-        rawMaxAsHsv[0]
-      )
+      linearInterpolation(value as number, inputField.min, inputField.max, rawMinAsHsv[0], rawMaxAsHsv[0])
     );
 
     const s = Math.trunc(
-      linearInterpolation(
-        value as number,
-        inputField.min,
-        inputField.max,
-        rawMinAsHsv[1],
-        rawMaxAsHsv[1]
-      )
+      linearInterpolation(value as number, inputField.min, inputField.max, rawMinAsHsv[1], rawMaxAsHsv[1])
     );
 
     const v = Math.trunc(
-      linearInterpolation(
-        value as number,
-        inputField.min,
-        inputField.max,
-        rawMinAsHsv[2],
-        rawMaxAsHsv[2]
-      )
+      linearInterpolation(value as number, inputField.min, inputField.max, rawMinAsHsv[2], rawMaxAsHsv[2])
     );
     const [r, g, b] = convertHsvToRgb(h, s, v);
 
@@ -213,10 +156,7 @@ export class GlyphStream extends Transform {
     let retval = 0;
     const inputField = this.sdtParser.getInputFields()[field.toLowerCase()];
     const value = this.getValue(inputField, values);
-    const propertyField = this.sdtParser.getGlyphProperty(
-      property,
-      field
-    ) as IProperty;
+    const propertyField = this.sdtParser.getGlyphProperty(property, field) as IProperty;
 
     if (propertyField?.function === FUNCTION.LOGARITHMIC_INTERPOLATION) {
       retval = logaritmicInterpolation(

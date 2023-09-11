@@ -1,12 +1,9 @@
 import 'mocha';
 import {assert} from 'chai';
-import {MongoDbConnection} from '@glyphx/database';
+import {MongoDbConnection} from 'database';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
-import {
-  database as databaseTypes,
-  fileIngestion as fileIngestionTypes,
-} from '@glyphx/types';
+import {databaseTypes, fileIngestionTypes} from 'types';
 import {projectService} from '../services';
 
 type ObjectId = mongooseTypes.ObjectId;
@@ -69,7 +66,6 @@ const INPUT_DATA = {
   organization: {},
   slug: 'testSlug' + UNIQUE_KEY,
   template: {},
-  owner: {},
   state: {},
   files: [],
   viewName: 'testProjectView' + UNIQUE_KEY,
@@ -105,9 +101,7 @@ describe('#ProjectService', () => {
 
       await userModel.createUser(INPUT_USER as databaseTypes.IUser);
 
-      const savedUserDocument = await userModel
-        .findOne({name: INPUT_USER.name})
-        .lean();
+      const savedUserDocument = await userModel.findOne({name: INPUT_USER.name}).lean();
       userId = savedUserDocument?._id as mongooseTypes.ObjectId;
 
       userDocument = savedUserDocument;
@@ -117,20 +111,15 @@ describe('#ProjectService', () => {
       await projectTemplateModel.create([INPUT_PROJECT_TYPE], {
         validateBeforeSave: false,
       });
-      const savedProjectTemplateDocument = await projectTemplateModel
-        .findOne({name: INPUT_PROJECT_TYPE.name})
-        .lean();
-      projectTemplateId =
-        savedProjectTemplateDocument?._id as mongooseTypes.ObjectId;
+      const savedProjectTemplateDocument = await projectTemplateModel.findOne({name: INPUT_PROJECT_TYPE.name}).lean();
+      projectTemplateId = savedProjectTemplateDocument?._id as mongooseTypes.ObjectId;
 
       projectTemplateDocument = savedProjectTemplateDocument;
 
       assert.isOk(projectTemplateId);
 
       await stateModel.create([INPUT_STATE], {validateBeforeSave: false});
-      const savedStateDocument = await stateModel
-        .findOne({fileSystemHash: INPUT_STATE.fileSystemHash})
-        .lean();
+      const savedStateDocument = await stateModel.findOne({fileSystemHash: INPUT_STATE.fileSystemHash}).lean();
       stateId = savedStateDocument?._id as mongooseTypes.ObjectId;
 
       stateDocument = savedStateDocument;
@@ -140,22 +129,17 @@ describe('#ProjectService', () => {
       await workspaceModel.create([INPUT_WORKSPACE], {
         validateBeforeSave: false,
       });
-      const savedWorkspaceDocument = await workspaceModel
-        .findOne({name: INPUT_WORKSPACE.name})
-        .lean();
+      const savedWorkspaceDocument = await workspaceModel.findOne({name: INPUT_WORKSPACE.name}).lean();
       workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
 
       workspaceDocument = savedWorkspaceDocument;
 
       assert.isOk(workspaceId);
-      INPUT_DATA.owner = userDocument;
-      INPUT_DATA.type = projectTemplateDocument;
+      INPUT_DATA.template = projectTemplateDocument;
       INPUT_DATA.state = stateDocument;
       INPUT_DATA.workspace = workspaceDocument;
 
-      const projectDocument = await projectModel.createProject(
-        INPUT_DATA as unknown as databaseTypes.IProject
-      );
+      const projectDocument = await projectModel.createProject(INPUT_DATA as unknown as databaseTypes.IProject);
 
       projectId = projectDocument._id as unknown as mongooseTypes.ObjectId;
     });
@@ -184,18 +168,31 @@ describe('#ProjectService', () => {
 
       assert.strictEqual(project?.name, INPUT_DATA.name);
     });
-    it('will update the file stats on our project', async () => {
-      assert.isOk(projectId);
-      const updatedProject = await projectService.updateProjectFileStats(
-        projectId,
-        INPUT_FILE_STATS
-      );
-      assert.strictEqual(
-        updatedProject.files[0].fileName,
-        INPUT_FILE_STATS[0].fileName
-      );
+    it('will retreive our projects from the database', async () => {
+      const projects = await projectService.getProjects({});
+      assert.isOk(projects);
     });
+    it('will create a project', async () => {
+      const project = await projectService.createProject(INPUT_DATA);
+      assert.isOk(project);
+    });
+    it('will update our project state', async () => {
+      assert.isOk(projectId);
+      const updatedProject = await projectService.updateProject(projectId, {
+        name: INPUT_PROJECT_NAME,
+      });
+      assert.strictEqual(updatedProject.name, INPUT_PROJECT_NAME);
 
+      const savedProject = await projectService.getProject(projectId);
+
+      assert.strictEqual(savedProject?.name, INPUT_PROJECT_NAME);
+    });
+    it('will deactivate a project', async () => {
+      assert.isOk(projectId);
+      const project = await projectService.deactivate(projectId);
+
+      assert.isOk(project.deletedAt);
+    });
     it('will retreive our file stats', async () => {
       assert.isOk(projectId);
       const stats = await projectService.getProjectFileStats(projectId);
@@ -204,23 +201,56 @@ describe('#ProjectService', () => {
 
       assert.strictEqual(stats[0].fileName, INPUT_FILE_STATS[0].fileName);
     });
-
-    it('will update the view name on our project', async () => {
-      assert.isOk(projectId);
-      const updatedProject = await projectService.updateProjectView(
-        projectId,
-        INPUT_VIEW_NAME
-      );
-      assert.strictEqual(updatedProject.viewName, INPUT_VIEW_NAME);
-    });
-
     it('will retreive our viewName', async () => {
       assert.isOk(projectId);
       const viewName = await projectService.getProjectViewName(projectId);
       assert.isNotEmpty(viewName);
       assert.strictEqual(viewName, INPUT_VIEW_NAME);
     });
-    it('will update our poroject', async () => {
+    it('will update the file stats on our project', async () => {
+      assert.isOk(projectId);
+      const updatedProject = await projectService.updateProjectFileStats(projectId, INPUT_FILE_STATS);
+      assert.strictEqual(updatedProject.files[0].fileName, INPUT_FILE_STATS[0].fileName);
+    });
+    it('will update the view name on our project', async () => {
+      assert.isOk(projectId);
+      const updatedProject = await projectService.updateProjectView(projectId, INPUT_VIEW_NAME);
+      assert.strictEqual(updatedProject.viewName, INPUT_VIEW_NAME);
+    });
+    it('will update our project', async () => {
+      assert.isOk(projectId);
+      const updatedProject = await projectService.updateProject(projectId, {
+        name: INPUT_PROJECT_NAME,
+      });
+      assert.strictEqual(updatedProject.name, INPUT_PROJECT_NAME);
+
+      const savedProject = await projectService.getProject(projectId);
+
+      assert.strictEqual(savedProject?.name, INPUT_PROJECT_NAME);
+    });
+    it('will add states our project', async () => {
+      assert.isOk(projectId);
+      const updatedProject = await projectService.updateProject(projectId, {
+        name: INPUT_PROJECT_NAME,
+      });
+      assert.strictEqual(updatedProject.name, INPUT_PROJECT_NAME);
+
+      const savedProject = await projectService.getProject(projectId);
+
+      assert.strictEqual(savedProject?.name, INPUT_PROJECT_NAME);
+    });
+    it('will add tags to our project', async () => {
+      assert.isOk(projectId);
+      const updatedProject = await projectService.updateProject(projectId, {
+        name: INPUT_PROJECT_NAME,
+      });
+      assert.strictEqual(updatedProject.name, INPUT_PROJECT_NAME);
+
+      const savedProject = await projectService.getProject(projectId);
+
+      assert.strictEqual(savedProject?.name, INPUT_PROJECT_NAME);
+    });
+    it('will remove tags to our project', async () => {
       assert.isOk(projectId);
       const updatedProject = await projectService.updateProject(projectId, {
         name: INPUT_PROJECT_NAME,

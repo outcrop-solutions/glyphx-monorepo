@@ -11,15 +11,18 @@
         "args": [
           "-r",
           "ts-node/register",
-	  "-r",
-	  "tsconfig-paths/register",
+          "-r",
+          "tsconfig-paths/register",
           "--timeout",
           "999999",
           "--exit",
           "src/__tests__/**/*.tests.ts"
         ],
         "cwd": "${workspaceRoot}",
-        "env": {"TS_NODE_FILES": "true", "EMAIL_SERVER":"smtp://apikey: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@smtp.sendgrid.net:587"}
+        "env": {
+          "TS_NODE_FILES": "true",
+          "EMAIL_SERVER": "smtp://apikey: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@smtp.sendgrid.net:587"
+        }
       }
     },
     "integration_tests": {
@@ -46,6 +49,5 @@
         "env": {"TS_NODE_FILES": "true", "DOTENV_CONFIG_PATH": "src/__integrationTests__/.env.integration"}
       }
     }
-    
   }
 }

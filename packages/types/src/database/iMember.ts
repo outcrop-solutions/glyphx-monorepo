@@ -1,12 +1,7 @@
 import {Types as mongooseTypes} from 'mongoose';
 import {IUser} from './iUser';
 import {IWorkspace} from './iWorkspace';
-import {
-  INVITATION_STATUS,
-  ROLE,
-  MEMBERSHIP_TYPE,
-  PROJECT_ROLE,
-} from './constants';
+import {INVITATION_STATUS, ROLE, MEMBERSHIP_TYPE, PROJECT_ROLE} from './constants';
 import {IProject} from './iProject';
 
 // if project exists, type: PROJECT

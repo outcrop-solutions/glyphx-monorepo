@@ -1,16 +1,16 @@
 import 'mocha';
-import { assert } from 'chai';
-import { Session } from 'next-auth';
-import { createSandbox } from 'sinon';
+import {assert} from 'chai';
+
+import {createSandbox} from 'sinon';
 // where the magic happens
 import * as proxyquireType from 'proxyquire';
 const proxyquire = proxyquireType.noCallThru();
-import { testApiHandler } from 'next-test-api-route-handler';
-import { _createModel, _ingestFiles, _getSignedDataUrls, _uploadFile } from 'lib/client/mutations/core';
-import { wrapConfig } from './utilities/wrapConfig';
-import { genericDelete, genericGet, genericPost, genericPut } from './utilities/genericReqs';
-import { Types as mongooseTypes } from 'mongoose';
-import { database as databaseTypes } from '@glyphx/types';
+import {testApiHandler} from 'next-test-api-route-handler';
+import {_getSignedDataUrls} from 'lib/client/mutations/core';
+import {wrapConfig} from './utilities/wrapConfig';
+import {genericDelete, genericGet, genericPut} from './utilities/genericReqs';
+import {Types as mongooseTypes} from 'mongoose';
+import {Session} from 'next-auth';
 
 const MOCK_SESSION = {
   user: {
@@ -50,7 +50,7 @@ describe('SIGN URLS ROUTES', () => {
     // route stubs
     validateSessionStub = sandbox.stub();
     validateSessionStub.resolves(MOCK_SESSION);
-    initializerStub = { init: sandbox.stub(), initedField: false };
+    initializerStub = {init: sandbox.stub(), initedField: false};
     initializerStub.init.resolves();
 
     //   handler stubs
@@ -66,14 +66,14 @@ describe('SIGN URLS ROUTES', () => {
     /******************** ROUTE /api/workspace/team/role ********************/
     // replace handler import resolution
     signDataUrls = proxyquire.load('../lib/server/etl/signDataUrls', {
-      '@glyphx/core': {
+      core: {
         aws: mockAws,
       },
     }).signDataUrls;
 
     // swap overridden import into handler to be able to call
     signDataUrlsRouteWrapper = proxyquire('../pages/api/etl/sign-data-urls', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -84,7 +84,7 @@ describe('SIGN URLS ROUTES', () => {
 
     // for testing routing at api/workspace
     signDataUrlsRoute = proxyquire('../pages/api/etl/sign-data-urls', {
-      '@glyphx/business': {
+      business: {
         validateSession: validateSessionStub,
         Initializer: initializerStub,
       },
@@ -98,13 +98,13 @@ describe('SIGN URLS ROUTES', () => {
     sandbox.restore();
   });
 
-  context('/api/etl/sign-data-urls', async function () {
+  context('/api/etl/sign-data-urls', async () => {
     describe('FILE UPLOAD handler', () => {
-      it('should upload an accepted file user', async function () {
+      it('should upload an accepted file user', async () => {
         await testApiHandler({
           handler: signDataUrlsRouteWrapper,
           url: '/api/etl/sign-data-urls',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const config = wrapConfig(
               _getSignedDataUrls(MOCK_WORKSPACE._id.toString(), MOCK_PROJECT._id.toString(), MOCK_PAYLOAD_HASH)
             );
@@ -123,7 +123,7 @@ describe('SIGN URLS ROUTES', () => {
         await testApiHandler({
           handler: signDataUrlsRoute,
           url: '/api/etl/sign-data-urls',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -142,7 +142,7 @@ describe('SIGN URLS ROUTES', () => {
         await testApiHandler({
           handler: signDataUrlsRoute,
           url: '/api/etl/sign-data-urls',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -164,7 +164,7 @@ describe('SIGN URLS ROUTES', () => {
         await testApiHandler({
           handler: signDataUrlsRoute,
           url: '/api/etl/sign-data-urls',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -186,7 +186,7 @@ describe('SIGN URLS ROUTES', () => {
         await testApiHandler({
           handler: signDataUrlsRoute,
           url: '/api/etl/sign-data-urls',
-          test: async ({ fetch }) => {
+          test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);

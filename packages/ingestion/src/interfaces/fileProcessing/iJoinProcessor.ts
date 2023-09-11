@@ -16,11 +16,7 @@ export interface IJoinProcessor {
    * @param backingFileName - the name of the underlying file that holds the data.
    * @param columns - information about the columns in the file
    */
-  processColumns(
-    tableName: string,
-    backingFileName: string,
-    columns: IFieldDefinition[]
-  ): void;
+  processColumns(tableName: string, backingFileName: string, columns: IFieldDefinition[]): void;
 }
 
 /**

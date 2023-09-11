@@ -1,14 +1,9 @@
 import AthenaConnection from '../lib/athenaConnection';
-import {error} from '@glyphx/core';
+import {error} from 'core';
 
 export class DataService {
-  public static async getDataByGlyphxIds(
-    tableName: string,
-    glyphxIds: number[]
-  ): Promise<any[]> {
-    const query = `SELECT * FROM ${tableName} WHERE glyphx_id__ IN (${glyphxIds.join(
-      ','
-    )})`;
+  public static async getDataByGlyphxIds(tableName: string, glyphxIds: number[]): Promise<any[]> {
+    const query = `SELECT * FROM ${tableName} WHERE glyphx_id__ IN (${glyphxIds.join(',')})`;
     try {
       const results = await AthenaConnection.connection.runQuery(query);
       return results;

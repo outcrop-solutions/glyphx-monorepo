@@ -1,20 +1,18 @@
-import {database as databaseTypes, web as webTypes} from '@glyphx/types';
-import {error, constants} from '@glyphx/core';
-import mongoDbConnection from 'lib/databaseConnection';
+import {databaseTypes, webTypes} from 'types';
+import {error, constants} from 'core';
+import mongoDbConnection from '../lib/databaseConnection';
 import {Types as mongooseTypes} from 'mongoose';
-import {v4} from 'uuid';
-import {hashFileSystem} from 'util/hashFileSystem';
-import {hashPayload} from 'util/hashPayload';
+import {hashFileSystem} from '../util/hashFileSystem';
+import {hashPayload} from '../util/hashPayload';
 
 export class StateService {
-  public static async getState(
-    stateId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IState | null> {
+  public static async getState(stateId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IState | null> {
     try {
       const id =
         stateId instanceof mongooseTypes.ObjectId
           ? stateId
-          : new mongooseTypes.ObjectId(stateId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(stateId);
       const state = await mongoDbConnection.models.StateModel.getStateById(id);
       return state;
     } catch (err: any) {
@@ -47,23 +45,24 @@ export class StateService {
       const pid =
         projectId instanceof mongooseTypes.ObjectId
           ? projectId
-          : new mongooseTypes.ObjectId(projectId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(projectId);
 
       const uid =
         userId instanceof mongooseTypes.ObjectId
           ? userId
-          : new mongooseTypes.ObjectId(userId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(userId);
 
-      const project =
-        await mongoDbConnection.models.ProjectModel.getProjectById(pid);
+      const project = await mongoDbConnection.models.ProjectModel.getProjectById(pid);
 
       const pwid =
         project.workspace._id instanceof mongooseTypes.ObjectId
           ? project.workspace._id
-          : new mongooseTypes.ObjectId(project.workspace._id);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(project.workspace._id);
 
-      const workspace =
-        await mongoDbConnection.models.WorkspaceModel.getWorkspaceById(pwid);
+      const workspace = await mongoDbConnection.models.WorkspaceModel.getWorkspaceById(pwid);
 
       const user = await mongoDbConnection.models.UserModel.getUserById(uid);
 
@@ -85,9 +84,7 @@ export class StateService {
         fileSystem: [...project.files],
       };
 
-      const state = await mongoDbConnection.models.StateModel.createState(
-        input
-      );
+      const state = await mongoDbConnection.models.StateModel.createState(input);
 
       await mongoDbConnection.models.ProjectModel.updateProjectById(pid, {
         imageHash: imageHash,
@@ -97,7 +94,8 @@ export class StateService {
       const wid =
         workspace._id instanceof mongooseTypes.ObjectId
           ? workspace._id
-          : new mongooseTypes.ObjectId(workspace._id);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(workspace._id);
 
       await mongoDbConnection.models.WorkspaceModel.addStates(wid, [state]);
       await mongoDbConnection.models.ProjectModel.addStates(pid, [state]);
@@ -121,28 +119,21 @@ export class StateService {
     }
   }
 
-  public static async deleteState(
-    stateId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IState> {
+  public static async deleteState(stateId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IState> {
     try {
       const id =
         stateId instanceof mongooseTypes.ObjectId
           ? stateId
-          : new mongooseTypes.ObjectId(stateId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(stateId);
 
-      const state = await mongoDbConnection.models.StateModel.updateStateById(
-        id,
-        {
-          deletedAt: new Date(),
-        }
-      );
+      const state = await mongoDbConnection.models.StateModel.updateStateById(id, {
+        deletedAt: new Date(),
+      });
 
       return state;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -168,24 +159,19 @@ export class StateService {
       const id =
         stateId instanceof mongooseTypes.ObjectId
           ? stateId
-          : new mongooseTypes.ObjectId(stateId);
+          : // @ts-ignore
+            new mongooseTypes.ObjectId(stateId);
 
       const image = imageHash ? {imageHash} : {};
       const nameObj = name ? {name} : {};
-      const state = await mongoDbConnection.models.StateModel.updateStateById(
-        id,
-        {
-          ...image,
-          ...nameObj,
-        }
-      );
+      const state = await mongoDbConnection.models.StateModel.updateStateById(id, {
+        ...image,
+        ...nameObj,
+      });
 
       return state;
     } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
@@ -194,39 +180,6 @@ export class StateService {
           'state',
           'updateState',
           {stateId},
-          err
-        );
-        e.publish('', constants.ERROR_SEVERITY.ERROR);
-        throw e;
-      }
-    }
-  }
-
-  public static async updateUserCode(
-    userId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IUser> {
-    try {
-      const id =
-        userId instanceof mongooseTypes.ObjectId
-          ? userId
-          : new mongooseTypes.ObjectId(userId);
-      const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
-        userCode: v4().replaceAll('-', ''),
-      });
-      return user;
-    } catch (err: any) {
-      if (
-        err instanceof error.InvalidArgumentError ||
-        err instanceof error.InvalidOperationError
-      ) {
-        err.publish('', constants.ERROR_SEVERITY.WARNING);
-        throw err;
-      } else {
-        const e = new error.DataServiceError(
-          'An unexpected error occurred while updating the user. See the inner error for additional details',
-          'user',
-          'updateUser',
-          {userId},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);

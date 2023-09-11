@@ -2,7 +2,7 @@ import 'mocha';
 import {assert} from 'chai';
 import {createSandbox} from 'sinon';
 import rewire from 'rewire';
-import {aws, error} from '@glyphx/core';
+import {aws, error} from 'core';
 import athenaClient from '../../io/athenaClient';
 
 describe('#lib/athenaConnection', () => {
@@ -45,19 +45,11 @@ describe('#lib/athenaConnection', () => {
       const rw = rewire('../../io/athenaClient');
       const getSecretsMock = sandbox.stub();
       getSecretsMock.resolves(mockSecret);
-      sandbox.replace(
-        aws.SecretManager.prototype,
-        'getSecrets',
-        getSecretsMock
-      );
+      sandbox.replace(aws.SecretManager.prototype, 'getSecrets', getSecretsMock);
 
       const athenaManagerInitMock = sandbox.stub();
       athenaManagerInitMock.resolves(null as unknown as void);
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'init',
-        athenaManagerInitMock
-      );
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaManagerInitMock);
 
       const athenaClass = rw.__get__('AthenaClient');
 
@@ -77,19 +69,11 @@ describe('#lib/athenaConnection', () => {
       const rw = rewire('../../io/athenaClient');
       const getSecretsMock = sandbox.stub();
       getSecretsMock.resolves(mockSecret);
-      sandbox.replace(
-        aws.SecretManager.prototype,
-        'getSecrets',
-        getSecretsMock
-      );
+      sandbox.replace(aws.SecretManager.prototype, 'getSecrets', getSecretsMock);
 
       const athenaManagerInitMock = sandbox.stub();
       athenaManagerInitMock.resolves(null as unknown as void);
-      sandbox.replace(
-        aws.AthenaManager.prototype,
-        'init',
-        athenaManagerInitMock
-      );
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaManagerInitMock);
 
       const athenaClass = rw.__get__('AthenaClient');
 

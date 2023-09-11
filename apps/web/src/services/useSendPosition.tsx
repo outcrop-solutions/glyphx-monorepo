@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { useRecoilValue } from 'recoil';
-import { viewerPositionSelector } from 'state';
+import {useEffect} from 'react';
+import {useRecoilValue} from 'recoil';
+import {viewerPositionSelector} from 'state';
 
 export const useSendPosition = () => {
   const viewer = useRecoilValue(viewerPositionSelector);

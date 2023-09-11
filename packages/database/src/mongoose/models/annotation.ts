@@ -1,21 +1,12 @@
-import {database as databaseTypes, IQueryResult} from '@glyphx/types';
+import {databaseTypes, IQueryResult} from 'types';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
-import {
-  IAnnotationMethods,
-  IAnnotationStaticMethods,
-  IAnnotationDocument,
-  IAnnotationCreateInput,
-} from '../interfaces';
-import {error} from '@glyphx/core';
+import {IAnnotationMethods, IAnnotationStaticMethods, IAnnotationDocument, IAnnotationCreateInput} from '../interfaces';
+import {error} from 'core';
 import {UserModel} from './user';
 import {ProjectModel} from './project';
 import {StateModel} from './state';
 
-const SCHEMA = new Schema<
-  IAnnotationDocument,
-  IAnnotationStaticMethods,
-  IAnnotationMethods
->({
+const SCHEMA = new Schema<IAnnotationDocument, IAnnotationStaticMethods, IAnnotationMethods>({
   createdAt: {
     type: Date,
     required: true,
@@ -37,96 +28,85 @@ const SCHEMA = new Schema<
   stateId: {type: Schema.Types.ObjectId, required: false},
 });
 
-SCHEMA.static(
-  'annotationIdExists',
-  async (annotationId: mongooseTypes.ObjectId): Promise<boolean> => {
-    let retval = false;
-    try {
-      const result = await ANNOTATION_MODEL.findById(annotationId, ['_id']);
-      if (result) retval = true;
-    } catch (err) {
+SCHEMA.static('annotationIdExists', async (annotationId: mongooseTypes.ObjectId): Promise<boolean> => {
+  let retval = false;
+  try {
+    const result = await ANNOTATION_MODEL.findById(annotationId, ['_id']);
+    if (result) retval = true;
+  } catch (err) {
+    throw new error.DatabaseOperationError(
+      'an unexpected error occurred while trying to find the annotation.  See the inner error for additional information',
+      'mongoDb',
+      'annotationIdExists',
+      {_id: annotationId},
+      err
+    );
+  }
+  return retval;
+});
+
+SCHEMA.static('allAnnotationIdsExist', async (annotationIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
+  try {
+    const notFoundIds: mongooseTypes.ObjectId[] = [];
+    const foundIds = (await ANNOTATION_MODEL.find({_id: {$in: annotationIds}}, ['_id'])) as {
+      _id: mongooseTypes.ObjectId;
+    }[];
+
+    annotationIds.forEach((id) => {
+      if (!foundIds.find((fid) => fid._id.toString() === id.toString())) notFoundIds.push(id);
+    });
+
+    if (notFoundIds.length) {
+      throw new error.DataNotFoundError(
+        'One or more annotationIds cannot be found in the database.',
+        'annotation._id',
+        notFoundIds
+      );
+    }
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else {
       throw new error.DatabaseOperationError(
-        'an unexpected error occurred while trying to find the annotation.  See the inner error for additional information',
+        'an unexpected error occurred while trying to find the annotationIds.  See the inner error for additional information',
         'mongoDb',
-        'annotationIdExists',
-        {_id: annotationId},
+        'allAnnotationIdsExists',
+        {annotationIds: annotationIds},
         err
       );
     }
-    return retval;
   }
-);
+  return true;
+});
 
-SCHEMA.static(
-  'allAnnotationIdsExist',
-  async (annotationIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
-    try {
-      const notFoundIds: mongooseTypes.ObjectId[] = [];
-      const foundIds = (await ANNOTATION_MODEL.find(
-        {_id: {$in: annotationIds}},
-        ['_id']
-      )) as {_id: mongooseTypes.ObjectId}[];
-
-      annotationIds.forEach(id => {
-        if (!foundIds.find(fid => fid._id.toString() === id.toString()))
-          notFoundIds.push(id);
-      });
-
-      if (notFoundIds.length) {
-        throw new error.DataNotFoundError(
-          'One or more annotationIds cannot be found in the database.',
-          'annotation._id',
-          notFoundIds
-        );
-      }
-    } catch (err) {
-      if (err instanceof error.DataNotFoundError) throw err;
-      else {
-        throw new error.DatabaseOperationError(
-          'an unexpected error occurred while trying to find the annotationIds.  See the inner error for additional information',
-          'mongoDb',
-          'allAnnotationIdsExists',
-          {annotationIds: annotationIds},
-          err
-        );
-      }
+SCHEMA.static('getAnnotationById', async (annotationId: mongooseTypes.ObjectId) => {
+  try {
+    const annotationDocument = (await ANNOTATION_MODEL.findById(annotationId)
+      .populate('author')
+      .lean()) as databaseTypes.IAnnotation;
+    if (!annotationDocument) {
+      throw new error.DataNotFoundError(
+        `Could not find a annotation with the _id: ${annotationId}`,
+        'annotation_id',
+        annotationId
+      );
     }
-    return true;
-  }
-);
+    //this is added by mongoose, so we will want to remove it before returning the document
+    //to the user.
+    delete (annotationDocument as any)['__v'];
+    delete (annotationDocument as any).author['__v'];
 
-SCHEMA.static(
-  'getAnnotationById',
-  async (annotationId: mongooseTypes.ObjectId) => {
-    try {
-      const annotationDocument = (await ANNOTATION_MODEL.findById(annotationId)
-        .populate('author')
-        .lean()) as databaseTypes.IAnnotation;
-      if (!annotationDocument) {
-        throw new error.DataNotFoundError(
-          `Could not find a annotation with the _id: ${annotationId}`,
-          'annotation_id',
-          annotationId
-        );
-      }
-      //this is added by mongoose, so we will want to remove it before returning the document
-      //to the user.
-      delete (annotationDocument as any)['__v'];
-      delete (annotationDocument as any).author['__v'];
-
-      return annotationDocument;
-    } catch (err) {
-      if (err instanceof error.DataNotFoundError) throw err;
-      else
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurred while getting the annotation.  See the inner error for additional information',
-          'mongoDb',
-          'getAnnotationById',
-          err
-        );
-    }
+    return annotationDocument;
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the annotation.  See the inner error for additional information',
+        'mongoDb',
+        'getAnnotationById',
+        err
+      );
   }
-);
+});
 
 SCHEMA.static(
   'queryAnnotations',
@@ -176,11 +156,7 @@ SCHEMA.static(
 
       return retval;
     } catch (err) {
-      if (
-        err instanceof error.DataNotFoundError ||
-        err instanceof error.InvalidArgumentError
-      )
-        throw err;
+      if (err instanceof error.DataNotFoundError || err instanceof error.InvalidArgumentError) throw err;
       else
         throw new error.DatabaseOperationError(
           'An unexpected error occurred while querying the annotations.  See the inner error for additional information',
@@ -192,107 +168,98 @@ SCHEMA.static(
   }
 );
 
-SCHEMA.static(
-  'createAnnotation',
-  async (input: IAnnotationCreateInput): Promise<databaseTypes.IAnnotation> => {
-    const userId =
-      input.author instanceof mongooseTypes.ObjectId
-        ? input.author
-        : new mongooseTypes.ObjectId(input.author._id);
+SCHEMA.static('createAnnotation', async (input: IAnnotationCreateInput): Promise<databaseTypes.IAnnotation> => {
+  const userId =
+    input.author instanceof mongooseTypes.ObjectId
+      ? input.author
+      : // @ts-ignore
+        new mongooseTypes.ObjectId(input.author._id);
 
-    const userExists = await UserModel.userIdExists(userId);
-    if (!userExists)
+  const userExists = await UserModel.userIdExists(userId);
+  if (!userExists)
+    throw new error.InvalidArgumentError(
+      `A user with _id : ${userId} cannot be found`,
+      'user._id',
+      (input.author as databaseTypes.IUser)._id
+    );
+
+  let projectId;
+  //istanbul ignore else
+  if (input.projectId) {
+    projectId =
+      input.projectId instanceof mongooseTypes.ObjectId
+        ? input.projectId
+        : // @ts-ignore
+          new mongooseTypes.ObjectId(input.projectId);
+
+    const projectExists = await ProjectModel.projectIdExists(projectId);
+    if (!projectExists)
       throw new error.InvalidArgumentError(
-        `A user with _id : ${userId} cannot be found`,
-        'user._id',
-        input.author._id
+        `A project with _id : ${projectId} cannot be found`,
+        'project._id',
+        input.projectId
       );
-
-    let projectId;
-    //istanbul ignore else
-    if (input.projectId) {
-      projectId =
-        input.projectId instanceof mongooseTypes.ObjectId
-          ? input.projectId
-          : new mongooseTypes.ObjectId(input.projectId);
-
-      const projectExists = await ProjectModel.projectIdExists(projectId);
-      if (!projectExists)
-        throw new error.InvalidArgumentError(
-          `A project with _id : ${projectId} cannot be found`,
-          'project._id',
-          input.projectId
-        );
-    }
-
-    let stateId;
-    //istanbul ignore else
-    if (input.stateId) {
-      stateId =
-        input.stateId instanceof mongooseTypes.ObjectId
-          ? input.stateId
-          : new mongooseTypes.ObjectId(input.stateId);
-
-      const stateExists = await StateModel.stateIdExists(stateId);
-      if (!stateExists)
-        throw new error.InvalidArgumentError(
-          `A state with _id : ${stateId} cannot be found`,
-          'state._id',
-          input.stateId
-        );
-    }
-
-    const createDate = new Date();
-
-    const transformedDocument: IAnnotationDocument = {
-      createdAt: createDate,
-      updatedAt: createDate,
-      author: userId,
-      value: input.value,
-      stateId: input.stateId,
-      projectId: input?.projectId,
-    };
-
-    try {
-      await ANNOTATION_MODEL.validate(transformedDocument);
-    } catch (err) {
-      throw new error.DataValidationError(
-        'An error occurred while validating the annotation document.  See the inner error for additional details.',
-        'annotation',
-        transformedDocument,
-        err
-      );
-    }
-
-    try {
-      const createdDocument = (
-        await ANNOTATION_MODEL.create([transformedDocument], {
-          validateBeforeSave: false,
-        })
-      )[0];
-      return await ANNOTATION_MODEL.getAnnotationById(
-        createdDocument._id as unknown as mongooseTypes.ObjectId
-      );
-    } catch (err) {
-      throw new error.DatabaseOperationError(
-        'An unexpected error occurred wile creating the annotation. See the inner error for additional information',
-        'mongoDb',
-        'create annotation',
-        input,
-        err
-      );
-    }
   }
-);
+
+  let stateId;
+  //istanbul ignore else
+  if (input.stateId) {
+    stateId =
+      input.stateId instanceof mongooseTypes.ObjectId
+        ? input.stateId
+        : // @ts-ignore
+          new mongooseTypes.ObjectId(input.stateId);
+
+    const stateExists = await StateModel.stateIdExists(stateId);
+    if (!stateExists)
+      throw new error.InvalidArgumentError(`A state with _id : ${stateId} cannot be found`, 'state._id', input.stateId);
+  }
+
+  const createDate = new Date();
+
+  const transformedDocument: IAnnotationDocument = {
+    createdAt: createDate,
+    updatedAt: createDate,
+    author: userId,
+    value: input.value,
+    stateId: input.stateId,
+    projectId: input?.projectId,
+  };
+
+  try {
+    await ANNOTATION_MODEL.validate(transformedDocument);
+  } catch (err) {
+    throw new error.DataValidationError(
+      'An error occurred while validating the annotation document.  See the inner error for additional details.',
+      'annotation',
+      transformedDocument,
+      err
+    );
+  }
+
+  try {
+    const createdDocument = (
+      await ANNOTATION_MODEL.create([transformedDocument], {
+        validateBeforeSave: false,
+      })
+    )[0];
+    return await ANNOTATION_MODEL.getAnnotationById(createdDocument._id as unknown as mongooseTypes.ObjectId);
+  } catch (err) {
+    throw new error.DatabaseOperationError(
+      'An unexpected error occurred wile creating the annotation. See the inner error for additional information',
+      'mongoDb',
+      'create annotation',
+      input,
+      err
+    );
+  }
+});
 
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 
 delete MODELS['annotation'];
 
-const ANNOTATION_MODEL = model<IAnnotationDocument, IAnnotationStaticMethods>(
-  'annotation',
-  SCHEMA
-);
+const ANNOTATION_MODEL = model<IAnnotationDocument, IAnnotationStaticMethods>('annotation', SCHEMA);
 
 export {ANNOTATION_MODEL as AnnotationModel};

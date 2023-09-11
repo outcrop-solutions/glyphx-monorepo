@@ -1,10 +1,5 @@
 import {FIELD_TYPE} from '../../../fileIngestion/constants';
-import {
-  AXIS,
-  ACCEPTS,
-  INTERPOLATION_TYPE,
-  DIRECTION_TYPE,
-} from '../../constants';
+import {AXIS, ACCEPTS, INTERPOLATION_TYPE, DIRECTION_TYPE} from '../../constants';
 import {Filter} from '../filter';
 
 export type Property = {

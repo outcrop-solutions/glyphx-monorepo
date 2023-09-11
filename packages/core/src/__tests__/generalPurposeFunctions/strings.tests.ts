@@ -20,25 +20,19 @@ describe('#generalPurposeFunctions/string', () => {
     it('should strip the .parquet from the fileName', () => {
       const tablePrefix = 'table1';
 
-      const modifiedTableName = string.getFileNameMinusExtension(
-        `${tablePrefix}.parquet`
-      );
+      const modifiedTableName = string.getFileNameMinusExtension(`${tablePrefix}.parquet`);
       assert.strictEqual(modifiedTableName, tablePrefix);
     });
     it('should strip the .parquet.gz from the fileName', () => {
       const tablePrefix = 'table1';
 
-      const modifiedTableName = string.getFileNameMinusExtension(
-        `${tablePrefix}.parquet.gz`
-      );
+      const modifiedTableName = string.getFileNameMinusExtension(`${tablePrefix}.parquet.gz`);
       assert.strictEqual(modifiedTableName, tablePrefix);
     });
     it('should pass through a file without an extension', () => {
       const tablePrefix = 'table1';
 
-      const modifiedTableName = string.getFileNameMinusExtension(
-        `${tablePrefix}`
-      );
+      const modifiedTableName = string.getFileNameMinusExtension(`${tablePrefix}`);
       assert.strictEqual(modifiedTableName, tablePrefix);
     });
   });
@@ -47,18 +41,14 @@ describe('#generalPurposeFunctions/string', () => {
       const tablePrefix = 'table1';
       const tableExtension = 'parquet';
 
-      const extension = string.getFileNameExtension(
-        `${tablePrefix}.${tableExtension}`
-      );
+      const extension = string.getFileNameExtension(`${tablePrefix}.${tableExtension}`);
       assert.strictEqual(extension, tableExtension);
     });
     it('should strip the filename from a .parquet.gz fileName', () => {
       const tablePrefix = 'table1';
       const tableExtension = 'parquet.gz';
 
-      const extension = string.getFileNameExtension(
-        `${tablePrefix}.${tableExtension}`
-      );
+      const extension = string.getFileNameExtension(`${tablePrefix}.${tableExtension}`);
       assert.strictEqual(extension, tableExtension);
     });
     it('should return empty sring if no extension', () => {
@@ -89,10 +79,7 @@ describe('#generalPurposeFunctions/string', () => {
       assert.strictEqual(deconstructedFilePath.pathParts[4], tableName);
       assert.strictEqual(deconstructedFilePath.baseName, fileName);
       assert.strictEqual(deconstructedFilePath.extension, extension);
-      assert.strictEqual(
-        deconstructedFilePath.fileName,
-        `${fileName}.${extension}`
-      );
+      assert.strictEqual(deconstructedFilePath.fileName, `${fileName}.${extension}`);
     });
     it('should deconstruct the file path table1.csv', () => {
       const fileName = 'table1';
@@ -104,10 +91,7 @@ describe('#generalPurposeFunctions/string', () => {
       assert.strictEqual(deconstructedFilePath.pathParts.length, 0);
       assert.strictEqual(deconstructedFilePath.baseName, fileName);
       assert.strictEqual(deconstructedFilePath.extension, extension);
-      assert.strictEqual(
-        deconstructedFilePath.fileName,
-        `${fileName}.${extension}`
-      );
+      assert.strictEqual(deconstructedFilePath.fileName, `${fileName}.${extension}`);
     });
     it('should deconstruct the file path table1', () => {
       const fileName = 'table1';

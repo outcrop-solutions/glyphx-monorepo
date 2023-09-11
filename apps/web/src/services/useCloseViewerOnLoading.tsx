@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { drawerOpenAtom, showLoadingAtom } from 'state';
+import {useEffect} from 'react';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {drawerOpenAtom, showLoadingAtom} from 'state';
 
 export const useCloseViewerOnLoading = () => {
   const loading = useRecoilValue(showLoadingAtom);

@@ -1,4 +1,4 @@
-import { web as webTypes, fileIngestion as fileIngestionTypes } from '@glyphx/types';
+import {webTypes, fileIngestionTypes} from 'types';
 
 /**
  * Cleans payload in case user ops to CANCEL a FILE_OPERATION
@@ -13,12 +13,15 @@ export const cleanNoOps = (payload: webTypes.IClientSidePayload, acceptedFiles: 
   const cleanList = cleanFileInfo.map((i) => i.fileName);
 
   // Generate an array of indexes to keep
-  const indexesToKeep = payload.fileStats.reduce((acc, stat, index) => {
-    if (cleanList.includes(stat.fileName)) {
-      acc.push(index);
-    }
-    return acc;
-  }, []);
+  const indexesToKeep: number[] = payload.fileStats.reduce(
+    (acc: number[], stat: fileIngestionTypes.IFileStats, index: number) => {
+      if (cleanList.includes(stat.fileName)) {
+        acc.push(index);
+      }
+      return acc;
+    },
+    []
+  );
 
   // Filter out fileStats using the array of indexes
   const cleanFileStats = payload.fileStats.filter((_, idx) => indexesToKeep.includes(idx));
