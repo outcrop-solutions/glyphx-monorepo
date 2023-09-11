@@ -1,78 +1,81 @@
-// THIS CODE WAS AUTOMATICALLY GENERATED import 'mocha'; import {assert} from
-'chai'; import {MongoDbConnection} from 'database'; import {Types as
-mongooseTypes} from 'mongoose'; import {v4} from 'uuid'; import {databaseTypes}
-from '../../../../database'; import * as mocks from
-'../../database/mongoose/mocks' import {
-{{camelcase this.name}}Service} from '../services'; type ObjectId =
-mongooseTypes.ObjectId; const propKeys = Object.keys(mocks.MOCK_{{uppercase
-  (pascalcase this.name)
-}}) describe('#{{pascalcase this.name}}Service', () => { context('test the
-functions of the
-{{camelcase this.name}}
-service', () => { const mongoConnection = new MongoDbConnection(); const
-{{camelcase this.name}}Model = mongoConnection.models.{{singularize
-  (pascalcase this.name)
-}}Model; let
-{{camelcase this.name}}Id: ObjectId;
+// THIS CODE WAS AUTOMATICALLY GENERATED
+import 'mocha';
+import {assert} from 'chai';
+import {MongoDbConnection} from 'database';
+import {Types as mongooseTypes} from 'mongoose';
+import {v4} from 'uuid';
+import {databaseTypes} from 'types';
+import * as mocks from 'database/src/mongoose/mocks'
+import { {{camelcase this.name}}Service} from '../services';
 
-{{#each dedupedProperties}}
-  {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
-    const
-    {{camelcase this.name}}Model = mongoConnection.models.{{singularize
-      (pascalcase this.referenceTable)
-    }}Model; let
-    {{camelcase this.name}}Id: ObjectId;
-  {{/if}}
-{{/each}}
+type ObjectId = mongooseTypes.ObjectId;
 
-before(async () => { await mongoConnection.init(); const
-{{camelcase this.name}}Document = await
-{{camelcase this.name}}Model.create{{pascalcase this.name}}( mocks.MOCK_{{uppercase
-  (pascalcase this.name)
-}}
-as unknown as databaseTypes.I{{pascalcase this.name}}
-);
-{{camelcase this.name}}Id =
-{{camelcase this.name}}Document._id as unknown as mongooseTypes.ObjectId;
+const propKeys = Object.keys(mocks.MOCK_{{uppercase (pascalcase this.name)}})
 
-{{#each dedupedProperties}}
+describe('#{{pascalcase this.name}}Service', () => {
+  context('test the functions of the {{camelcase this.name}} service', () => {
+    const mongoConnection = new MongoDbConnection();
+    const {{camelcase this.name}}Model = mongoConnection.models.{{singularize (pascalcase this.name)}}Model;
+    let {{camelcase this.name}}Id: ObjectId;
 
-  {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
-    const saved{{pascalcase this.name}}Document = await
-    {{camelcase this.name}}Model.create([mocks.MOCK_{{uppercase
-      (pascalcase this.referenceTable)
-    }}], { validateBeforeSave: false, });
-    {{camelcase this.name}}Id = saved{{pascalcase this.name}}Document[0]?._id as
-    mongooseTypes.ObjectId; assert.isOk({{camelcase this.name}}Id)
+    {{#each dedupedProperties}}
+    {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+    const {{camelcase this.name}}Model = mongoConnection.models.{{singularize (pascalcase this.referenceTable)}}Model;
+    let {{camelcase this.name}}Id: ObjectId;
+    {{/if}}
+    {{/each}}
 
-  {{/if}}
-{{/each}}
-}); after(async () => { if ({{camelcase this.name}}Id) { await
-{{camelcase this.name}}Model.findByIdAndDelete({{camelcase this.name}}Id); }
-{{#each dedupedProperties}}
-  {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
-    if ({{camelcase this.name}}Id) { await
-    {{camelcase this.name}}Model.findByIdAndDelete({{camelcase this.name}}Id); }
-  {{/if}}
-{{/each}}
-}); it('will retreive our
-{{camelcase this.name}}
-from the database', async () => { const
-{{camelcase this.name}}
-= await
-{{camelcase this.name}}Service.get{{pascalcase this.name}}({{camelcase
-  this.name
-}}Id); assert.isOk({{camelcase this.name}}); }); // updates and deletes it('will
-update our
-{{camelcase this.name}}', async () => { assert.isOk({{camelcase this.name}}Id);
-const updated{{pascalcase this.name}}
-= await
-{{camelcase this.name}}Service.update{{pascalcase this.name}}({{camelcase
-  this.name
-}}Id, { deletedAt: new Date() }); assert.isOk(updated{{pascalcase
-  this.name
-}}.deletedAt); const saved{{pascalcase this.name}}
-= await
-{{camelcase this.name}}Service.get{{pascalcase this.name}}({{camelcase
-  this.name
-}}Id); assert.isOk(saved{{pascalcase this.name}}!.deletedAt); }); }); });
+    before(async () => {
+      await mongoConnection.init();
+
+      const {{camelcase this.name}}Document = await {{camelcase this.name}}Model.create{{pascalcase this.name}}(
+        // @ts-ignore
+        mocks.MOCK_{{uppercase (pascalcase this.name)}} as unknown as databaseTypes.I{{pascalcase this.name}}
+      );
+      {{camelcase this.name}}Id = {{camelcase this.name}}Document._id as unknown as mongooseTypes.ObjectId;
+
+      {{#each dedupedProperties}}
+
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      const saved{{pascalcase this.name}}Document = await {{camelcase this.name}}Model.create([mocks.MOCK_{{uppercase (pascalcase this.referenceTable)}}], {
+        validateBeforeSave: false,
+      });
+      {{camelcase this.name}}Id =  saved{{pascalcase this.name}}Document[0]?._id as mongooseTypes.ObjectId;
+      assert.isOk({{camelcase this.name}}Id)
+
+      {{/if}}
+      {{/each}}
+    });
+
+    after(async () => {
+      if ({{camelcase this.name}}Id) {
+        await {{camelcase this.name}}Model.findByIdAndDelete({{camelcase this.name}}Id);
+      }
+      {{#each dedupedProperties}}
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+       if ({{camelcase this.name}}Id) {
+        await {{camelcase this.name}}Model.findByIdAndDelete({{camelcase this.name}}Id);
+      }
+      {{/if}}
+      {{/each}}
+    });
+
+    it('will retreive our {{camelcase this.name}} from the database', async () => {
+      const {{camelcase this.name}} = await {{camelcase this.name}}Service.get{{pascalcase this.name}}({{camelcase this.name}}Id);
+      assert.isOk({{camelcase this.name}});
+    });
+
+    // updates and deletes
+    it('will update our {{camelcase this.name}}', async () => {
+      assert.isOk({{camelcase this.name}}Id);
+      const updated{{pascalcase this.name}} = await {{camelcase this.name}}Service.update{{pascalcase this.name}}({{camelcase this.name}}Id, {
+        deletedAt: new Date()
+      });
+      assert.isOk(updated{{pascalcase this.name}}.deletedAt);
+
+      const saved{{pascalcase this.name}} = await {{camelcase this.name}}Service.get{{pascalcase this.name}}({{camelcase this.name}}Id);
+
+      assert.isOk(saved{{pascalcase this.name}}!.deletedAt);
+    });
+  });
+});

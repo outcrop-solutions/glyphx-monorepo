@@ -1,3 +1,4 @@
+'use client';
 import React, {useEffect} from 'react';
 import {ConfigList} from './ConfigList';
 import {RadiusLengths} from './RadiusLengths';
