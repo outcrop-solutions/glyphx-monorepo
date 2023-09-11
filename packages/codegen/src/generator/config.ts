@@ -18,7 +18,7 @@ export const DEFAULT_CONFIG: databaseTypes.meta.ICodeGenConfig = {
     web: {
       hooks: 'web/src/lib/client/hooks',
       mutations: 'web/src/lib/client/mutations',
-      states: 'web/src/state',
+      states: 'web/src/states',
       routes: 'web/src/pages/api',
       actions: 'web/src/lib/server',
       unitTests: 'web/src/__tests__',
