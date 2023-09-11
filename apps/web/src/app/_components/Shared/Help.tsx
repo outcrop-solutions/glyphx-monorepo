@@ -67,45 +67,45 @@ export function Help() {
           <div className="text-xs font-semibold text-gray uppercase pt-1.5 pb-2 px-4">Need help?</div>
           <ul>
             <li>
-              <Link href={'#0' as Route}>
-                <a
-                  className="font-medium text-sm text-indigo-500 hover:text-indigo-600 flex items-center py-1 px-3"
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                >
-                  <svg className="w-3 h-3 fill-current text-indigo-300 shrink-0 mr-2" viewBox="0 0 12 12">
-                    <rect y="3" width="12" height="9" rx="1" />
-                    <path d="M2 0h8v2H2z" />
-                  </svg>
-                  <span>Documentation</span>
-                </a>
+              <Link
+                href={'#0' as Route}
+                className="font-medium text-sm text-indigo-500 hover:text-indigo-600 flex items-center py-1 px-3"
+                onClick={() => setDropdownOpen(!dropdownOpen)}>
+
+                <svg className="w-3 h-3 fill-current text-indigo-300 shrink-0 mr-2" viewBox="0 0 12 12">
+                  <rect y="3" width="12" height="9" rx="1" />
+                  <path d="M2 0h8v2H2z" />
+                </svg>
+                <span>Documentation</span>
+
               </Link>
             </li>
             <li>
-              <Link href={'#0' as Route}>
-                <a
-                  className="font-medium text-sm text-indigo-500 hover:text-indigo-600 flex items-center py-1 px-3"
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                >
-                  <svg className="w-3 h-3 fill-current text-indigo-300 shrink-0 mr-2" viewBox="0 0 12 12">
-                    <rect y="3" width="12" height="9" rx="1" />
-                    <path d="M2 0h8v2H2z" />
-                  </svg>
-                  <span>Documentation</span>
-                </a>
+              <Link
+                href={'#0' as Route}
+                className="font-medium text-sm text-indigo-500 hover:text-indigo-600 flex items-center py-1 px-3"
+                onClick={() => setDropdownOpen(!dropdownOpen)}>
+
+                <svg className="w-3 h-3 fill-current text-indigo-300 shrink-0 mr-2" viewBox="0 0 12 12">
+                  <rect y="3" width="12" height="9" rx="1" />
+                  <path d="M2 0h8v2H2z" />
+                </svg>
+                <span>Documentation</span>
+
               </Link>
             </li>
             <li>
-              <Link href={'#0' as Route}>
-                <a
-                  className="font-medium text-sm text-indigo-500 hover:text-indigo-600 flex items-center py-1 px-3"
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                >
-                  <svg className="w-3 h-3 fill-current text-indigo-300 shrink-0 mr-2" viewBox="0 0 12 12">
-                    <rect y="3" width="12" height="9" rx="1" />
-                    <path d="M2 0h8v2H2z" />
-                  </svg>
-                  <span>Documentation</span>
-                </a>
+              <Link
+                href={'#0' as Route}
+                className="font-medium text-sm text-indigo-500 hover:text-indigo-600 flex items-center py-1 px-3"
+                onClick={() => setDropdownOpen(!dropdownOpen)}>
+
+                <svg className="w-3 h-3 fill-current text-indigo-300 shrink-0 mr-2" viewBox="0 0 12 12">
+                  <rect y="3" width="12" height="9" rx="1" />
+                  <path d="M2 0h8v2H2z" />
+                </svg>
+                <span>Documentation</span>
+
               </Link>
             </li>
           </ul>

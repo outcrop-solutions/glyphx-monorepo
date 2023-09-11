@@ -5,7 +5,7 @@ import {createSandbox} from 'sinon';
 import mockPayload from './fileIngestionMocks.json';
 import {error, aws, generalPurposeFunctions} from 'core';
 import {BasicAthenaProcessor, BasicJoinProcessor as JoinProcessor} from '@fileProcessing';
-import {fileIngestion, databaseTypes} from 'types';
+import {fileIngestionTypes, databaseTypes} from 'types';
 import {FileUploadManager} from '../fileProcessing/fileUploadManager';
 import {
   IFileInformation,

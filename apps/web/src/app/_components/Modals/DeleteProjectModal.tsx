@@ -16,7 +16,7 @@ import {useRouter, useParams} from 'next/navigation';
 export const DeleteProjectModal = ({modalContent}: webTypes.DeleteProjectModalProps) => {
   const {mutate} = useSWRConfig();
   const params = useParams();
-  const {workspaceSlug} = params as {workspaceSlug: string};
+  const {workspaceId} = params as {workspaceId: string};
   const setModals = useSetRecoilState(modalsAtom);
 
   const [verifyProject, setVerifyProject] = useState('');
@@ -43,7 +43,7 @@ export const DeleteProjectModal = ({modalContent}: webTypes.DeleteProjectModalPr
             draft.modals.splice(0, 1);
           })
         );
-        mutate(`/api/workspace/${workspaceSlug}`);
+        mutate(`/api/workspace/${workspaceId}`);
       },
     });
   };

@@ -120,7 +120,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
 
     await activityLogService.createLog({
       actorId: session?.user?.userId as string,
-      resourceId: processDocumentId as string,
+      resourceId: processDocumentId?.toString() as string,
       workspaceId: newPayload.clientId,
       projectId: newPayload.modelId,
       location: location,

@@ -5,8 +5,8 @@ import {Providers} from './providers';
 import {authOptions} from './api/auth/[...nextauth]/route';
 
 export const metadata: Metadata = {
-  title: 'Home | Maxxed',
-  description: 'Welcome to Maxxed',
+  title: 'Home | Glyphx',
+  description: 'Welcome to Glyphx',
 };
 
 declare global {
@@ -17,6 +17,7 @@ declare global {
 
 export default async function RootLayout({children}: {children: React.ReactNode}) {
   const session = await getServerSession(authOptions);
+  console.log({session})
   return (
     <html lang="en">
       <body className="relative flex flex-col">

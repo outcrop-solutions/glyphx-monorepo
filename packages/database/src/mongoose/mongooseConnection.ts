@@ -1,6 +1,7 @@
 import * as models from './models';
 import mongoose from 'mongoose';
-import {bindSecrets, boundProperty, error} from 'core';
+import {bindSecrets, boundProperty} from 'core/src/secrets/secretClassDecorator';
+import {DatabaseOperationError} from 'core/src/error';
 
 @bindSecrets('db/mongo')
 export class MongoDbConnection {
@@ -43,7 +44,7 @@ export class MongoDbConnection {
       try {
         await mongoose.connect(encodeURI(this.connectionString));
       } catch (err) {
-        throw new error.DatabaseOperationError(
+        throw new DatabaseOperationError(
           'An error occurred while connecting to the MongoDB database instance.  See the inner exception for more details',
           'MongoDb',
           'Init',

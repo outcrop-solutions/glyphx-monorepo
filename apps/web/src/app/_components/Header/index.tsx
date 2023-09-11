@@ -3,7 +3,7 @@ import {useRouter, useParams, usePathname} from 'next/navigation';
 import {drawerOpenAtom, projectAtom} from 'state';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 
-import {Controls} from 'app/[workspaceSlug]/_components/controls';
+import {Controls} from 'app/[workspaceId]/_components/controls';
 
 import BackBtnIcon from 'public/svg/back-button-icon.svg';
 import {Route} from 'next';
@@ -15,7 +15,7 @@ const Header = () => {
 
   const router = useRouter();
   const params = useParams();
-  const {workspaceSlug} = params as {workspaceSlug: string};
+  const {workspaceId} = params as {workspaceId: string};
   const pathname = usePathname();
 
   const backPressed = () => {
@@ -28,7 +28,7 @@ const Header = () => {
   return (
     <div
       className={`flex flex-row h-[56px] sticky z-60 top-0 items-center bg-secondary-midnight justify-between pr-4 ${
-        workspaceSlug && !pathname?.includes('settings') && !project && 'pl-8 pt-2 bg-primary-dark-blue'
+        workspaceId && !pathname?.includes('settings') && !project && 'pl-8 pt-2 bg-primary-dark-blue'
       } ${project ? 'border border-gray bg-secondary-space-blue' : 'md:pt-0'}`}
     >
       {project ? (
@@ -48,11 +48,9 @@ const Header = () => {
           />
         </div>
       ) : (
-        <div
-          className={`${workspaceSlug && !pathname!.includes('settings') ? (workspaceSlug ? 'pl-0 py-3' : '') : ''}`}
-        >
+        <div className={`${workspaceId && !pathname!.includes('settings') ? (workspaceId ? 'pl-0 py-3' : '') : ''}`}>
           <p className="font-rubik font-normal text-[22px] tracking-[.01em] leading-[26px] text-white">
-            {workspaceSlug && !pathname!.includes('settings') ? `${workspaceSlug} > Recents` : 'Account Dashboard'}
+            {workspaceId && !pathname!.includes('settings') ? `${workspaceId} > Recents` : 'Account Dashboard'}
           </p>
         </div>
       )}

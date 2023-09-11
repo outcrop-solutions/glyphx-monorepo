@@ -1,18 +1,20 @@
-'use client';
-import {useEffect} from 'react';
-import {useRouter} from 'next/navigation';
-import {useSession} from 'next-auth/react';
+import { getServerSession } from 'next-auth';
+import {authOptions} from 'app/api/auth/[...nextauth]/route';
+import {Metadata} from 'next';
+import { redirect } from 'next/navigation';
 import {Route} from 'next';
 
-const AuthLayout = ({children}) => {
-  const router = useRouter();
-  const {data} = useSession();
+export const metadata: Metadata = {
+  title: 'Login | Glyphx',
+  description: 'Welcome to Glyphx',
+};
 
-  useEffect(() => {
-    if (data) {
-      router.push('/account' as Route);
-    }
-  }, [data, router]);
+export default async function AuthLayout({children}) {
+  const session = await getServerSession(authOptions);
+
+  if (session?.user) {
+    redirect(`/account` as Route);
+  }
 
   return (
     <main className="relative flex flex-col items-center bg-secondary-space-blue justify-center h-screen p-10 space-y-10">
@@ -21,4 +23,3 @@ const AuthLayout = ({children}) => {
   );
 };
 
-export default AuthLayout;

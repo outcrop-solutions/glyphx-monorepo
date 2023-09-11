@@ -13,7 +13,7 @@ import {Route} from 'next';
 export const NewProject = ({exit}) => {
   const router = useRouter();
   const params = useParams();
-  const {workspaceSlug} = params as {workspaceSlug: string};
+  const {workspaceId} = params as {workspaceId: string};
   const workspace = useRecoilValue(workspaceAtom);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -25,10 +25,10 @@ export const NewProject = ({exit}) => {
       onSuccess: (data) => {
         setLoading(false);
         exit();
-        router.push(`/account/${workspaceSlug}/${data._id}` as Route);
+        router.push(`/account/${workspaceId}/${data._id}` as Route);
       },
     });
-  }, [description, exit, name, router, workspace._id, workspaceSlug]);
+  }, [description, exit, name, router, workspace._id, workspaceId]);
 
   return (
     <div className="p-4 w-full">

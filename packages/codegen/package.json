@@ -1,5 +1,5 @@
 {
-  "name": "@glyphx/codegen",
+  "name": "codegen",
   "version": "1.0.0",
   "description": "Code generators for our monorepo",
   "main": "./dist/index.js",
@@ -61,7 +61,7 @@
     "lint-staged": "^13.0.3",
     "lodash": "^4.17.21",
     "mocha": "^10.1.0",
-    "mongoose": "^6.8.1",
+    "mongoose": "6.11.5",
     "nyc": "^15.1.0",
     "pluralize": "^8.0.0",
     "rewire": "^6.0.0",
@@ -76,7 +76,7 @@
   "dependencies": {
     "execa": "^7.1.1",
     "pascal-case": "^3.1.2",
-    "prettier": "^3.0.0",
+    "prettier": "latest",
     "zod": "^3.21.4",
     "server-only": "^0.0.1"
   }

@@ -1,18 +1,18 @@
 'use client';
 import {useEffect, useState} from 'react';
 import Link from 'next/link';
-import {getProviders, signIn, useSession} from 'next-auth/react';
+import {ClientSafeProvider, getProviders, signIn, useSession} from 'next-auth/react';
 import toast from 'react-hot-toast';
 import isEmail from 'validator/lib/isEmail';
 import {useRouter} from 'next/navigation';
 import {Route} from 'next';
 
-const Login = () => {
+export default function Login() {
   const {status} = useSession();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [isSubmitting, setSubmittingState] = useState(false);
-  const [socialProviders, setSocialProviders] = useState([]);
+  const [socialProviders, setSocialProviders] = useState([] as ClientSafeProvider[]);
   const validate = isEmail(email);
 
   const handleEmailChange = (event) => setEmail(event.target.value);
@@ -41,14 +41,16 @@ const Login = () => {
 
   useEffect(() => {
     (async () => {
-      const socialProviders = [];
-      // @ts-ignore
-      const {email, ...providers} = await getProviders();
-      for (const provider in providers) {
-        // @ts-ignore
-        socialProviders.push(providers[provider]);
+      const socialProviders = [] as ClientSafeProvider[];
+      const providers = await getProviders();
+      if (providers) {
+        // extract email provider to handle differently
+        const {email, ...rest} = providers;
+        for (const provider in rest) {
+          socialProviders.push(providers[provider]);
+        }
+        setSocialProviders([...socialProviders]);
       }
-      setSocialProviders([...socialProviders]);
     })();
   }, []);
 
@@ -56,8 +58,8 @@ const Login = () => {
     <>
       <div className="flex flex-col bg-primary-dark-blue items-center justify-center p-5 m-auto space-y-5 rounded shadow-lg md:p-10 md:w-1/3">
         <div>
-          <Link href="/">
-            <a className="text-4xl text-white font-bold">Glyphx</a>
+          <Link href="/" className="text-4xl text-white font-bold">
+            Glyphx
           </Link>
         </div>
         <div className="text-center">
@@ -96,17 +98,14 @@ const Login = () => {
                   className="py-2 bg-secondary-midnight border rounded hover:bg-gray-50 disabled:opacity-75 text-white"
                   disabled={status === 'loading'}
                   onClick={() => {
-                    // @ts-ignore
                     if (provider.name === 'Credentials') {
                       signInWithCreds();
                     } else {
-                      // @ts-ignore
                       signInWithSocial(provider.id);
                     }
                   }}
                 >
-                  {/* @ts-ignore */}
-                  {provider.name === 'Credentials' ? 'Dev Mode Sign In' : provider.name}
+                  {provider.name}
                 </button>
               ))}
             </div>
@@ -115,6 +114,4 @@ const Login = () => {
       </div>
     </>
   );
-};
-
-export default Login;
+}

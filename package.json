@@ -14,7 +14,7 @@
     "format:write": "turbo format:write",
     "dev": "rimraf apps/web/.next && dotenv -- turbo dev",
     "plop": "plop",
-    "start": "dotenv -- turbo start",
+    "start": "rimraf apps/web/.next && dotenv -- turbo start",
     "lint": "rimraf apps/web/.next && dotenv -- turbo lint",
     "fix": "rimraf apps/web/.next && dotenv -- turbo fix",
     "type-check": "dotenv -- turbo type-check",
@@ -38,7 +38,8 @@
     "eslint-config-custom": "workspace:*",
     "plop": "^3.1.2",
     "rimraf": "^3.0.2",
-    "turbo": "latest"
+    "turbo": "latest",
+    "prettier": "latest"
   },
   "packageManager": "pnpm@7.15.0",
   "dependencies": {

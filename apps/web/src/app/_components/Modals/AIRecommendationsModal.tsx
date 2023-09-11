@@ -14,7 +14,7 @@ export const AIRecommendationsModal = ({modalContent: any}) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const params = useParams();
-  const {workspaceSlug} = params as {workspaceSlug: string};
+  const {workspaceId} = params as {workspaceId: string};
   const {templates} = useRecoilValue(templatesAtom);
   const setModals = useSetRecoilState(modalsAtom);
   const {_id} = useRecoilValue(workspaceAtom);
@@ -33,11 +33,11 @@ export const AIRecommendationsModal = ({modalContent: any}) => {
               draft.modals.splice(0, 1);
             })
           );
-          router.push(`/account/${workspaceSlug}/${data._id}` as Route);
+          router.push(`/account/${workspaceId}/${data._id}` as Route);
         },
       });
     },
-    [_id, router, setModals, workspaceSlug]
+    [_id, router, setModals, workspaceId]
   );
 
   return (
