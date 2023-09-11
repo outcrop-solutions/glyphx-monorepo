@@ -18,24 +18,25 @@ export const SandboxSidebar = () => {
     }
   }, [isLoading, data, setConfigs]);
 
-  return;
-  data && (
-    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-secondary-dark-blue px-6">
-      <nav className="flex flex-1 flex-col">
-        <div className="flex flex-1 flex-col gap-y-7">
-          <div role="list" className="space-y-1 mt-10">
-            <Controls />
-            <hr className="text-white" />
-            <ConfigList />
-            <hr className="text-white" />
-            <RadiusLengths />
-            <hr className="text-white" />
-            <Toggles />
-            <hr className="text-white" />
-            <Colors />
+  return (
+    data && (
+      <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-secondary-dark-blue px-6">
+        <nav className="flex flex-1 flex-col">
+          <div className="flex flex-1 flex-col gap-y-7">
+            <div role="list" className="space-y-1 mt-10">
+              <Controls />
+              <hr className="text-white" />
+              <ConfigList />
+              <hr className="text-white" />
+              <RadiusLengths />
+              <hr className="text-white" />
+              <Toggles />
+              <hr className="text-white" />
+              <Colors />
+            </div>
           </div>
-        </div>
-      </nav>
-    </div>
+        </nav>
+      </div>
+    )
   );
 };

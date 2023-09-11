@@ -24,7 +24,7 @@ export default function ProjectLayout({children}) {
 
   return (
     <div className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
-      <Sidebar menu={menu(result?.workspace?.slug)} />
+      <Sidebar />
       <Content.Project>
         <Header />
         <div className="flex flex-row w-full h-full">

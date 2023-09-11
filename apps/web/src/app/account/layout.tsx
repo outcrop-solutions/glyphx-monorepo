@@ -23,7 +23,7 @@ export default function AccountLayout({children}) {
 
   return (
     <div className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
-      <Sidebar menu={menu(workspace?.workspace?.slug)} />
+      <Sidebar />
       <Content>
         <Toaster position="bottom-left" toastOptions={{duration: 10000}} />
         <Header />
