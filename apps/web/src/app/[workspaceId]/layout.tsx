@@ -5,7 +5,6 @@ import {Metadata, Route} from 'next';
 import Content from 'app/_components/Content';
 import Header from 'app/_components/Header';
 import Sidebar from 'app/_components/Sidebar/index';
-import menu from 'config/menu/index';
 import {getServerSession} from 'next-auth';
 import {authOptions} from 'app/api/auth/[...nextauth]/route';
 
