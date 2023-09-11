@@ -10,8 +10,8 @@
   ],
   "scripts": {
     "dev": "tsup --watch",
-    "lint": "gts lint",
-    "fix": "gts fix",
+    "lint": "eslint .",
+    "fix": "eslint . --fix",
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist",
     "copyAthenaDatabase": "ts-node ./src/copyAthenaDatabase.ts"
   },
