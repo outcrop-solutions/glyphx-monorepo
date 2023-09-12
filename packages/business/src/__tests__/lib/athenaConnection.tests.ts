@@ -3,7 +3,7 @@ import {assert} from 'chai';
 import {createSandbox} from 'sinon';
 import rewire from 'rewire';
 import {aws, error} from 'core';
-import athenaConnection from '../../../lib/athenaConnection';
+import athenaConnection from '../../lib/athenaConnection';
 
 describe('#lib/athenaConnection', () => {
   context('validate the singleton', () => {
@@ -16,7 +16,7 @@ describe('#lib/athenaConnection', () => {
   });
   context('constructor', () => {
     it('will construct a new object', () => {
-      const rw = rewire('../../../lib/athenaConnection');
+      const rw = rewire('../../lib/athenaConnection');
       const athenaClass = rw.__get__('AthenaConnection');
 
       const newObject = new athenaClass();
@@ -41,7 +41,7 @@ describe('#lib/athenaConnection', () => {
     });
 
     it('will initialize our connection', async () => {
-      const rw = rewire('../../../lib/athenaConnection');
+      const rw = rewire('../../lib/athenaConnection');
       const getSecretsMock = sandbox.stub();
       getSecretsMock.resolves(mockSecret);
       sandbox.replace(aws.SecretManager.prototype, 'getSecrets', getSecretsMock);
@@ -64,7 +64,7 @@ describe('#lib/athenaConnection', () => {
       assert.isTrue(newObject.inited);
     });
     it('will initialize our connection only once', async () => {
-      const rw = rewire('../../../lib/athenaConnection');
+      const rw = rewire('../../lib/athenaConnection');
       const getSecretsMock = sandbox.stub();
       getSecretsMock.resolves(mockSecret);
       sandbox.replace(aws.SecretManager.prototype, 'getSecrets', getSecretsMock);
