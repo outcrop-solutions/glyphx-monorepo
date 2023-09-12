@@ -2,7 +2,7 @@ import 'mocha';
 import {assert} from 'chai';
 import {aws, generalPurposeFunctions} from 'core';
 import {FileIngestor} from 'fileingestion';
-import {Initializer, processTrackingService, dbConnection} from 'business';
+import {Initializer, processTrackingService, dbConnection, s3Connection, athenaConnection} from 'business';
 
 import addFilesJson from './assets/addTables.json';
 import {v4} from 'uuid';
@@ -11,6 +11,7 @@ import * as fileProcessingHelpers from './fileProcessingHelpers';
 import {fileIngestionTypes, databaseTypes} from 'types';
 import {GlyphEngine} from '../glyphEngine';
 import {Initializer as glyphEngineInitializer} from '../init';
+import {S3Manager} from 'core/src/aws';
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
@@ -39,7 +40,7 @@ describe('GlyphEngine', () => {
     let clientId: string;
     let modelId: string;
     let testDataDirectory: string;
-    let payload: fileIngestion.IPayload;
+    let payload: fileIngestionTypes.IPayload;
     let fileNames: string[];
     let projectId: any;
     let viewName: any;
@@ -73,7 +74,7 @@ describe('GlyphEngine', () => {
       assert.isNotEmpty(testDataDirectory);
       assert.isNotEmpty(viewName);
 
-      payload = addFilesJson.payload as fileIngestion.IPayload;
+      payload = addFilesJson.payload as fileIngestionTypes.IPayload;
       payload.clientId = clientId;
       payload.modelId = modelId;
       assert.isOk(payload);
@@ -81,11 +82,9 @@ describe('GlyphEngine', () => {
       fileNames = payload.fileStats.map((f) => f.fileName);
       assert.isAtLeast(fileNames.length, 1);
 
-      s3Bucket = new aws.S3Manager(bucketName);
-      await s3Bucket.init();
+      s3Bucket = s3Connection.s3Manager;
 
-      athenaManager = new aws.AthenaManager(databaseName);
-      await athenaManager.init();
+      athenaManager = athenaConnection.connection;
 
       await fileProcessingHelpers.cleanupAws(payload, clientId, modelId, s3Bucket, athenaManager);
       fileProcessingHelpers.loadTableStreams(testDataDirectory, payload);
@@ -123,7 +122,7 @@ describe('GlyphEngine', () => {
 
     it('will run glyphEngine over our view', async () => {
       await glyphEngineInitializer.init();
-      const glyphEngine = new GlyphEngine(inputBucketName, bucketName, databaseName, PROCESS_ID);
+      const glyphEngine = new GlyphEngine(s3Bucket, s3Bucket, athenaManager, PROCESS_ID);
 
       await glyphEngine.init();
       const {sdtFileName, sgnFileName, sgcFileName} = await glyphEngine.process(data);

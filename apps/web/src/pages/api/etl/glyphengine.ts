@@ -3,6 +3,7 @@ import type {NextApiRequest, NextApiResponse} from 'next';
 import {authOptions} from 'app/api/auth/[...nextauth]/route';
 import {getServerSession} from 'next-auth/next';
 import {glyphEngine} from 'lib/server/etl/glyphEngine';
+import {Initializer} from 'business';
 
 /**
  * Implements controller of browser based FILE OPERATIONS
@@ -15,6 +16,9 @@ import {glyphEngine} from 'lib/server/etl/glyphEngine';
 export default async function engine(req: NextApiRequest, res: NextApiResponse) {
   // check for valid session
   const session = await getServerSession(req, res, authOptions);
+  if (!Initializer.initedField) {
+    await Initializer.init();
+  }
   if (!session?.user?.userId) return res.status(401).end();
 
   switch (req.method) {
