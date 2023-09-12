@@ -63,20 +63,25 @@ export class FileIngestor {
   public get inited() {
     return this.initedField;
   }
-  constructor(payload: fileIngestionTypes.IPayload, databaseName: string, processId: string) {
+  constructor(
+    payload: fileIngestionTypes.IPayload,
+    s3Manager: aws.S3Manager,
+    athenaManger: aws.AthenaManager,
+    processId: string
+  ) {
     this.clientIdField = payload.clientId;
     this.modelIdField = payload.modelId;
-    this.bucketNameField = payload.bucketName;
+    this.bucketNameField = s3Manager.bucketName;
     this.fileInfoField = payload.fileInfo;
 
-    this.databaseNameField = databaseName;
+    this.databaseNameField = athenaManger.databaseName;
     this.initedField = false;
     this.viewRemoved = false;
     this.processedFileInformation = [];
     this.processedFileErrorInformation = [];
 
-    this.s3Manager = new aws.S3Manager(this.bucketName);
-    this.athenaManager = new aws.AthenaManager(this.databaseName);
+    this.s3Manager = s3Manager;
+    this.athenaManager = athenaManger;
     this.basicAthenaProcessor = new BasicAthenaProcessor(this.bucketName, this.databaseName);
     this.tableArchver = new TableArchiver(this.clientId, this.modelId, this.s3Manager as aws.S3Manager);
 
@@ -88,8 +93,6 @@ export class FileIngestor {
   public async init() {
     if (!this.inited) {
       try {
-        await this.s3Manager.init();
-        await this.athenaManager.init();
         await this.basicAthenaProcessor.init();
         //TODO: set our file statistics here
         await businessLogicInit.init();
