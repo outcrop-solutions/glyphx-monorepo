@@ -192,7 +192,7 @@ export class GlyphEngine {
       const sdtFileName = `${prefix}/${payloadHash}.sdt`;
       await this.outputBucketField.putObject(sdtFileName, template);
 
-      const sdtParser = await SdtParser.parseSdtString(template, viewName, data);
+      const sdtParser = await SdtParser.parseSdtString(template, viewName, data, this.athenaManager);
 
       await processTrackingService.addProcessMessage(
         this.processId,

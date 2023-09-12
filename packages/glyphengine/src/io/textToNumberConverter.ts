@@ -1,25 +1,26 @@
-import athenaClient from './athenaClient';
-import {error} from 'core';
+import {error, aws} from 'core';
 
 export class TextColumnToNumberConverter {
   private readonly tableName: string;
   private readonly columnName: string;
   private readonly convertedFields: Map<string, number>;
+  private readonly athenaManager: aws.AthenaManager;
 
   public get size(): number {
     return this.convertedFields.size;
   }
 
-  constructor(tableName: string, columnName: string) {
+  constructor(tableName: string, columnName: string, athenaManager: aws.AthenaManager) {
     this.tableName = tableName;
     this.columnName = columnName;
     this.convertedFields = new Map<string, number>();
+    this.athenaManager = athenaManager;
   }
 
   public async load(): Promise<void> {
     const query = `SELECT DISTINCT ${this.columnName} FROM ${this.tableName} ORDER BY ${this.columnName}`;
 
-    const data = await athenaClient.connection.runQuery(query);
+    const data = await this.athenaManager.runQuery(query);
 
     data.forEach((row, index) => {
       this.convertedFields.set(row[this.columnName] as string, index);

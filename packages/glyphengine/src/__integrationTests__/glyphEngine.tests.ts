@@ -121,7 +121,6 @@ describe('GlyphEngine', () => {
     });
 
     it('will run glyphEngine over our view', async () => {
-      await glyphEngineInitializer.init();
       const glyphEngine = new GlyphEngine(s3Bucket, s3Bucket, athenaManager, PROCESS_ID);
 
       await glyphEngine.init();

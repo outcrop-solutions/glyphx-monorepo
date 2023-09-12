@@ -10,6 +10,7 @@ import {MinMaxCalculator} from '../../io/minMaxCalulator';
 import {Readable, Writable} from 'stream';
 import {pipeline} from 'stream/promises';
 import {IGlyph} from '../../interfaces/iGlyph';
+import {aws} from 'core';
 
 describe('#io/GlyphStream', () => {
   const mockInputData = new Map<string, string>([
@@ -105,10 +106,12 @@ describe('#io/GlyphStream', () => {
 
   const sandbox = createSandbox();
   let sdtParser: SdtParser;
-
+  let athenaManager: aws.AthenaManager;
   before(async () => {
     const stringTemplate = await helperFunctions.getMockTemplate();
-    const glyphEngine = new GlyphEngine('testBucketName', 'outputBucketName', 'databaseName', 'testProcessId');
+    let s3Manager = new aws.S3Manager('testBucketName');
+    athenaManager = new aws.AthenaManager('databaseName');
+    const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, 'testProcessId');
     const stringSdt = (glyphEngine as any).updateSdt(stringTemplate, mockInputData);
 
     const textToNumberLoadStub = sandbox.stub();
@@ -130,7 +133,7 @@ describe('#io/GlyphStream', () => {
 
     sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => mockMinMaxData);
 
-    sdtParser = (await SdtParser.parseSdtString(stringSdt, 'viewName', mockInputData)) as any;
+    sdtParser = (await SdtParser.parseSdtString(stringSdt, 'viewName', mockInputData, athenaManager)) as any;
   });
 
   after(() => {

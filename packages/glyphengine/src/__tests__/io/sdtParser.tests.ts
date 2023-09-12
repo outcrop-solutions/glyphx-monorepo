@@ -7,11 +7,11 @@ import {GlyphEngine} from '../../glyphEngine';
 import {FUNCTION, SHAPE, TYPE} from '../../constants';
 import {TextColumnToNumberConverter} from '../../io/textToNumberConverter';
 import {MinMaxCalculator} from '../../io/minMaxCalulator';
+import {aws} from 'core';
 
 describe('SdtParser', () => {
   let stringTemplate: string;
   const inputBucketName = 'testInputBucketName';
-  const outputBucketName = 'testOutputBucketName';
   const processId = 'testProcessId';
   const databaseName = 'testDatabaseName';
   const viewName = 'testViewName';
@@ -83,10 +83,13 @@ describe('SdtParser', () => {
 
     let glyphEngine: GlyphEngine;
     let stringSdt: string;
+    let athenaManager: aws.AthenaManager;
 
     before(async () => {
       stringTemplate = await helperFunctions.getMockTemplate();
-      glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      athenaManager = new aws.AthenaManager(databaseName);
+      glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
       stringSdt = (glyphEngine as any).updateSdt(stringTemplate, data);
     });
 
@@ -107,7 +110,7 @@ describe('SdtParser', () => {
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
 
-      const sdtParser = (await SdtParser.parseSdtString(stringSdt, viewName, data)) as any;
+      const sdtParser = (await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager)) as any;
 
       assert.instanceOf(sdtParser, SdtParser);
       assert.equal((sdtParser as any).viewName, viewName);
@@ -132,11 +135,14 @@ describe('SdtParser', () => {
   context('getDataSource', () => {
     let glyphEngine: GlyphEngine;
     let stringSdt: string;
+    let athenaManager: aws.AthenaManager;
     const sandbox = createSandbox();
 
     before(async () => {
       stringTemplate = await helperFunctions.getMockTemplate();
-      glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      athenaManager = new aws.AthenaManager(databaseName);
+      glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
       stringSdt = (glyphEngine as any).updateSdt(stringTemplate, data);
     });
     afterEach(() => {
@@ -155,7 +161,7 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data);
+      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const dataSource = sdtParser.getDataSource();
 
       assert.strictEqual(dataSource.tableName, viewName);
@@ -166,10 +172,14 @@ describe('SdtParser', () => {
     const sandbox = createSandbox();
 
     let glyphEngine: GlyphEngine;
+    let athenaManager: aws.AthenaManager;
+
     let stringSdt: string;
     before(async () => {
       stringTemplate = await helperFunctions.getMockTemplate();
-      glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      athenaManager = new aws.AthenaManager(databaseName);
+      glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
       stringSdt = (glyphEngine as any).updateSdt(stringTemplate, data);
     });
 
@@ -189,7 +199,7 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data);
+      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const positionX = sdtParser.getGlyphProperty('Position', 'X');
       assert.strictEqual(positionX?.function, FUNCTION.TEXT_INTERPOLATION);
       assert.strictEqual(positionX?.min, 205);
@@ -224,7 +234,7 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data);
+      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const positionX = sdtParser.getGlyphProperty('Scale', 'X');
       assert.strictEqual(positionX?.function, FUNCTION.LINEAR_INTERPOLATION);
       assert.strictEqual(positionX?.min, 1);
@@ -259,7 +269,7 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data);
+      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const transparency = sdtParser.getGlyphProperty('Color', 'Transparency');
       assert.strictEqual(transparency?.function, FUNCTION.LINEAR_INTERPOLATION);
       assert.strictEqual(transparency?.min, 0);
@@ -280,7 +290,7 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data);
+      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const rgb = sdtParser.getGlyphProperty('Color', 'RGB');
       assert.strictEqual(rgb?.function, FUNCTION.LINEAR_INTERPOLATION);
       assert.strictEqual(rgb?.min, 0);
@@ -301,7 +311,7 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data);
+      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
 
       delete (sdtParser as any).sdtAsJson.Transform.Glyphs.Glyph.Color;
 
@@ -321,7 +331,7 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data);
+      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
 
       delete (sdtParser as any).sdtAsJson.Transform.Glyphs.Glyph.Color.RGB;
 
@@ -332,11 +342,14 @@ describe('SdtParser', () => {
   context('getInputFields', () => {
     let glyphEngine: GlyphEngine;
     let stringSdt: string;
+    let athenaManager: aws.AthenaManager;
     const sandbox = createSandbox();
 
     before(async () => {
       stringTemplate = await helperFunctions.getMockTemplate();
-      glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      athenaManager = new aws.AthenaManager(databaseName);
+      glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
       stringSdt = (glyphEngine as any).updateSdt(stringTemplate, data);
     });
     afterEach(() => {
@@ -355,7 +368,7 @@ describe('SdtParser', () => {
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
 
-      const sdtParser = (await SdtParser.parseSdtString(stringSdt, viewName, data)) as any;
+      const sdtParser = (await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager)) as any;
 
       const inputFields = sdtParser.getInputFields();
       assert.strictEqual(inputFields.x.field, data.get('x_axis'));
