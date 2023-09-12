@@ -1,3 +1,4 @@
+//@ts-ignore
 import MD5 from 'crypto-js/md5';
 import {fileIngestionTypes} from 'types';
 /**

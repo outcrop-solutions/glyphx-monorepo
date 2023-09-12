@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {TableArchiver} from '@fileProcessing';
+import {TableArchiver} from '../../fileProcessing';
 import {createSandbox} from 'sinon';
 import {aws, error} from 'core';
 import {Readable} from 'stream';

@@ -7,8 +7,8 @@ import {
   BasicHiveTableQueryPlanner,
   BasicHiveViewQueryPlanner,
   BasicJoinProcessor,
-} from '@fileProcessing';
-import {IJoinTableDefinition} from 'interfaces/fileProcessing';
+} from '../../fileProcessing';
+import {IJoinTableDefinition} from '../../interfaces/fileProcessing';
 import {fileIngestionTypes} from 'types';
 
 const MOCK_FILE_INFORMATION = [

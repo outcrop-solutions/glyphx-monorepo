@@ -1,6 +1,6 @@
 import {assert} from 'chai';
-import * as fileProcessingInterfaces from 'interfaces/fileProcessing';
-import {BasicTableSorter} from '@fileProcessing';
+import * as fileProcessingInterfaces from '../../interfaces/fileProcessing';
+import {BasicTableSorter} from '../../fileProcessing';
 import {error} from 'core';
 import {fileIngestionTypes} from 'types';
 

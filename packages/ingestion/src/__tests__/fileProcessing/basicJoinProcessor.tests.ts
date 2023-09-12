@@ -1,7 +1,7 @@
 import {assert} from 'chai';
-import {BasicJoinProcessor as JoinProcessor} from '@fileProcessing';
+import {BasicJoinProcessor as JoinProcessor} from '../../fileProcessing';
 import {error} from 'core';
-import {IFieldDefinition, IJoinTableColumnDefinition} from 'interfaces/fileProcessing';
+import {IFieldDefinition, IJoinTableColumnDefinition} from '../../interfaces/fileProcessing';
 import {fileIngestionTypes} from 'types';
 import {GLYPHX_ID_COLUMN_NAME} from '../../fileProcessing/basicFileTransformer';
 

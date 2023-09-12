@@ -1,6 +1,6 @@
 import 'mocha';
 import {assert} from 'chai';
-import * as fileProcessing from '@fileProcessing';
+import * as fileProcessing from '../../fileProcessing';
 import {createSandbox} from 'sinon';
 import {aws, error} from 'core';
 import {Readable} from 'stream';
@@ -10,7 +10,7 @@ import {S3, PutObjectCommand, HeadBucketCommand} from '@aws-sdk/client-s3';
 import {Upload} from '@aws-sdk/lib-storage';
 import {tableService} from 'business';
 
-import {FILE_PROCESSING_ERROR_TYPES} from 'util/constants';
+import {FILE_PROCESSING_ERROR_TYPES} from '../../util/constants';
 
 const INPUT_DATA = [
   `col1,col2,col3,col4

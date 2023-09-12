@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {BasicParquetProcessor} from '@fileProcessing';
+import {BasicParquetProcessor} from '../../fileProcessing';
 import {Writable, Readable} from 'node:stream';
 import {pipeline} from 'node:stream/promises';
 import {ParquetEnvelopeReader, ParquetReader} from 'parquetjs';
