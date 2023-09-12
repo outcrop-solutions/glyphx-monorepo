@@ -7,7 +7,8 @@ import {StripeClient} from './lib/stripe';
 import {validateMiddleware} from './lib/validate';
 import dbConnection from './lib/databaseConnection';
 import athenaConnection from './lib/athenaConnection';
-export {initMiddleware, validateMiddleware, StripeClient, dbConnection, athenaConnection};
+import s3Connection from './lib/s3Connection';
+export {initMiddleware, validateMiddleware, StripeClient, dbConnection, athenaConnection, s3Connection};
 
 // validation
 import validateCreateWorkspace from './validation/createWorkspace';
