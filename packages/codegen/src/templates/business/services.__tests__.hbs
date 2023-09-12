@@ -1,492 +1,689 @@
-// THIS CODE WAS AUTOMATICALLY GENERATED import 'mocha'; import {assert} from
-'chai'; import {createSandbox} from 'sinon'; import {databaseTypes} from
-'../../../../database'; import {Types as mongooseTypes} from 'mongoose'; import
-{MongoDbConnection} from 'database'; import {error} from 'core'; import {
-{{camelcase this.name}}Service} from '../services'; import * as mocks from
-'../../database/mongoose/mocks' describe('#services/{{camelcase this.name}}', ()
-=> { const sandbox = createSandbox(); const dbConnection = new
-MongoDbConnection(); afterEach(() => { sandbox.restore(); }); context('create{{pascalcase
-  this.name
-}}', () => { it('will create a
-{{pascalcase this.name}}', async () => { const
-{{camelcase this.name}}Id = new mongooseTypes.ObjectId();
-{{#each dedupedProperties}}
-  const
-  {{camelcase this.name}}Id = new mongooseTypes.ObjectId();
-{{/each}}
+// THIS CODE WAS AUTOMATICALLY GENERATED
+import 'mocha';
+import {assert} from 'chai';
+import {createSandbox} from 'sinon';
+import {databaseTypes} from 'types';
+import {Types as mongooseTypes} from 'mongoose';
+import {MongoDbConnection} from 'database';
+import {error} from 'core';
+import { {{ camelcase this.name }}Service} from '../services';
+import * as mocks from 'database/src/mongoose/mocks'
 
-// create{{pascalcase this.name}}
-const create{{pascalcase this.name}}FromModelStub = sandbox.stub(); create{{pascalcase
-  this.name
-}}FromModelStub.resolves({ ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
-_id: new mongooseTypes.ObjectId(),
-{{#each properties}}
-  {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
-    {{camelcase this.name}}: { _id: new mongooseTypes.ObjectId(), __v: 1, } as
-    unknown as databaseTypes.I{{pascalcase this.referenceTable}},
-  {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
-    {{camelcase this.name}}: [],
-  {{/if}}
-{{/each}}
-} as unknown as databaseTypes.I{{pascalcase this.name}}); sandbox.replace(
-dbConnection.models.{{pascalcase this.name}}Model, 'create{{pascalcase
-  this.name
-}}', create{{pascalcase this.name}}FromModelStub ); const doc = await
-{{camelcase this.name}}Service.create{{pascalcase this.name}}( { ...mocks.MOCK_{{uppercase
-  (pascalcase this.name)
-}}, _id: new mongooseTypes.ObjectId(),
-{{#each properties}}
-  {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
-    {{camelcase this.name}}: { _id: new mongooseTypes.ObjectId(), __v: 1, } as
-    unknown as databaseTypes.I{{pascalcase this.referenceTable}},
-  {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
-    {{camelcase this.name}}: [],
-  {{/if}}
-{{/each}}
-} as unknown as databaseTypes.I{{pascalcase this.name}}
-); assert.isTrue(create{{pascalcase this.name}}FromModelStub.calledOnce); }); //
-{{camelcase this.name}}
-model fails it('will publish and rethrow an InvalidArgumentError when
-{{camelcase this.name}}
-model throws it', async () => { const errMessage = 'You have an invalid argument
-error'; const err = new error.InvalidArgumentError(errMessage, '', ''); //
-create{{pascalcase this.name}}
-const create{{pascalcase this.name}}FromModelStub = sandbox.stub(); create{{pascalcase
-  this.name
-}}FromModelStub.rejects(err) sandbox.replace( dbConnection.models.{{pascalcase
-  this.name
-}}Model, 'create{{pascalcase this.name}}', create{{pascalcase
-  this.name
-}}FromModelStub ); function fakePublish() { /*eslint-disable
-@typescript-eslint/ban-ts-comment */ //@ts-ignore assert.instanceOf(this,
-error.InvalidArgumentError); //@ts-ignore assert.strictEqual(this.message,
-errMessage); } const boundPublish = fakePublish.bind(err); const publishOverride
-= sandbox.stub(); publishOverride.callsFake(boundPublish);
-sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride); let
-errored = false; try { await
-{{camelcase this.name}}Service.create{{pascalcase this.name}}( {} ); } catch (e)
-{ assert.instanceOf(e, error.InvalidArgumentError); errored = true; }
-assert.isTrue(errored); assert.isTrue(create{{pascalcase
-  this.name
-}}FromModelStub.calledOnce); assert.isTrue(publishOverride.calledOnce); });
-it('will publish and rethrow an InvalidOperationError when
-{{camelcase this.name}}
-model throws it', async () => { const errMessage = 'You have an invalid argument
-error'; const err = new error.InvalidOperationError(errMessage, {}, ''); //
-create{{pascalcase this.name}}
-const create{{pascalcase this.name}}FromModelStub = sandbox.stub(); create{{pascalcase
-  this.name
-}}FromModelStub.rejects(err); function fakePublish() { /*eslint-disable
-@typescript-eslint/ban-ts-comment */ //@ts-ignore assert.instanceOf(this,
-error.InvalidOperationError); //@ts-ignore assert.strictEqual(this.message,
-errMessage); } const boundPublish = fakePublish.bind(err); const publishOverride
-= sandbox.stub(); publishOverride.callsFake(boundPublish);
-sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride); let
-errored = false; try { await
-{{camelcase this.name}}Service.create{{pascalcase this.name}}( {} ); } catch (e)
-{ assert.instanceOf(e, error.InvalidOperationError); errored = true; }
-assert.isTrue(errored); assert.isTrue(create{{pascalcase
-  this.name
-}}FromModelStub.calledOnce); assert.isTrue(publishOverride.calledOnce); });
-it('will publish and rethrow an DataValidationError when
-{{camelcase this.name}}
-model throws it', async () => { const create{{pascalcase
-  this.name
-}}FromModelStub = sandbox.stub(); const errMessage = 'Data validation error';
-const err = new error.DataValidationError(errMessage, '', ''); create{{pascalcase
-  this.name
-}}FromModelStub.rejects(err); sandbox.replace( dbConnection.models.{{pascalcase
-  this.name
-}}Model, 'create{{pascalcase this.name}}', create{{pascalcase
-  this.name
-}}FromModelStub ); function fakePublish() { /*eslint-disable
-@typescript-eslint/ban-ts-comment */ //@ts-ignore assert.instanceOf(this,
-error.DataValidationError); //@ts-ignore assert.strictEqual(this.message,
-errMessage); } const boundPublish = fakePublish.bind(err); const publishOverride
-= sandbox.stub(); publishOverride.callsFake(boundPublish);
-sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride); let
-errored = false; try { await
-{{camelcase this.name}}Service.create{{pascalcase this.name}}( {} ); } catch (e)
-{ assert.instanceOf(e, error.DataValidationError); errored = true; }
-assert.isTrue(errored); assert.isTrue(create{{pascalcase
-  this.name
-}}FromModelStub.calledOnce); assert.isTrue(publishOverride.calledOnce); });
-it('will publish and throw an DataServiceError when
-{{camelcase this.name}}
-model throws a DataOperationError', async () => { const create{{pascalcase
-  this.name
-}}FromModelStub = sandbox.stub(); const errMessage = 'A DataOperationError has
-occurred'; const err = new error.DatabaseOperationError( errMessage, 'mongodDb',
-'updateCustomerPaymentById' ); create{{pascalcase
-  this.name
-}}FromModelStub.rejects(err); sandbox.replace( dbConnection.models.{{pascalcase
-  this.name
-}}Model, 'create{{pascalcase this.name}}', create{{pascalcase
-  this.name
-}}FromModelStub ); function fakePublish() { /*eslint-disable
-@typescript-eslint/ban-ts-comment */ //@ts-ignore assert.instanceOf(this,
-error.DatabaseOperationError); //@ts-ignore assert.strictEqual(this.message,
-errMessage); } const boundPublish = fakePublish.bind(err); const publishOverride
-= sandbox.stub(); publishOverride.callsFake(boundPublish);
-sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride); let
-errored = false; try { await
-{{camelcase this.name}}Service.create{{pascalcase this.name}}( {} ); } catch (e)
-{ assert.instanceOf(e, error.DataServiceError); errored = true; }
-assert.isTrue(errored); assert.isTrue(create{{pascalcase
-  this.name
-}}FromModelStub.calledOnce); assert.isTrue(publishOverride.calledOnce); });
-it('will publish and throw an DataServiceError when
-{{camelcase this.name}}
-model throws a UnexpectedError', async () => { const create{{pascalcase
-  this.name
-}}FromModelStub = sandbox.stub(); const errMessage = 'An UnexpectedError has
-occurred'; const err = new error.UnexpectedError( errMessage, 'mongodDb', );
-create{{pascalcase this.name}}FromModelStub.rejects(err); sandbox.replace(
-dbConnection.models.{{pascalcase this.name}}Model, 'create{{pascalcase
-  this.name
-}}', create{{pascalcase this.name}}FromModelStub ); function fakePublish() {
-/*eslint-disable @typescript-eslint/ban-ts-comment */ //@ts-ignore
-assert.instanceOf(this, error.UnexpectedError); //@ts-ignore
-assert.strictEqual(this.message, errMessage); } const boundPublish =
-fakePublish.bind(err); const publishOverride = sandbox.stub();
-publishOverride.callsFake(boundPublish);
-sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride); let
-errored = false; try { await
-{{camelcase this.name}}Service.create{{pascalcase this.name}}( {} ); } catch (e)
-{ assert.instanceOf(e, error.DataServiceError); errored = true; }
-assert.isTrue(errored); assert.isTrue(create{{pascalcase
-  this.name
-}}FromModelStub.calledOnce); assert.isTrue(publishOverride.calledOnce); }); });
-context('get{{pascalcase this.name}}', () => { it('should get a
-{{camelcase this.name}}
-by id', async () => { const
-{{camelcase this.name}}Id = new mongooseTypes.ObjectId(); const get{{pascalcase
-  this.name
-}}FromModelStub = sandbox.stub(); get{{pascalcase
-  this.name
-}}FromModelStub.resolves({ _id:
-{{camelcase this.name}}Id, } as unknown as databaseTypes.I{{pascalcase
-  this.name
-}}); sandbox.replace( dbConnection.models.{{pascalcase this.name}}Model, 'get{{pascalcase
-  this.name
-}}ById', get{{pascalcase this.name}}FromModelStub ); const
-{{camelcase this.name}}
-= await
-{{camelcase this.name}}Service.get{{pascalcase this.name}}({{camelcase
-  this.name
-}}Id); assert.isOk({{camelcase this.name}}); assert.strictEqual({{camelcase
-  this.name
-}}?._id?.toString(),
-{{camelcase this.name}}Id.toString()); assert.isTrue(get{{pascalcase
-  this.name
-}}FromModelStub.calledOnce); }); it('should get a
-{{camelcase this.name}}
-by id when id is a string', async () => { const
-{{camelcase this.name}}Id = new mongooseTypes.ObjectId(); const get{{pascalcase
-  this.name
-}}FromModelStub = sandbox.stub(); get{{pascalcase
-  this.name
-}}FromModelStub.resolves({ _id:
-{{camelcase this.name}}Id, } as unknown as databaseTypes.I{{pascalcase
-  this.name
-}}); sandbox.replace( dbConnection.models.{{pascalcase this.name}}Model, 'get{{pascalcase
-  this.name
-}}ById', get{{pascalcase this.name}}FromModelStub ); const
-{{camelcase this.name}}
-= await
-{{camelcase this.name}}Service.get{{pascalcase this.name}}({{camelcase
-  this.name
-}}Id.toString()); assert.isOk({{camelcase this.name}}); assert.strictEqual({{camelcase
-  this.name
-}}?._id?.toString(),
-{{camelcase this.name}}Id.toString()); assert.isTrue(get{{pascalcase
-  this.name
-}}FromModelStub.calledOnce); }); it('will log the failure and return null if the
-{{camelcase this.name}}
-cannot be found', async () => { const
-{{camelcase this.name}}Id = new mongooseTypes.ObjectId(); const errMessage =
-'Cannot find the psoject'; const err = new error.DataNotFoundError( errMessage,
-'{{camelcase this.name}}Id',
-{{camelcase this.name}}Id ); const get{{pascalcase this.name}}FromModelStub =
-sandbox.stub(); get{{pascalcase this.name}}FromModelStub.rejects(err);
-sandbox.replace( dbConnection.models.{{pascalcase this.name}}Model, 'get{{pascalcase
-  this.name
-}}ById', get{{pascalcase this.name}}FromModelStub ); function fakePublish() {
-/*eslint-disable @typescript-eslint/ban-ts-comment */ //@ts-ignore
-assert.instanceOf(this, error.DataNotFoundError); /*eslint-disable
-@typescript-eslint/ban-ts-comment */ //@ts-ignore
-assert.strictEqual(this.message, errMessage); } const boundPublish =
-fakePublish.bind(err); const publishOverride = sandbox.stub();
-publishOverride.callsFake(boundPublish);
-sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride); const
-{{camelcase this.name}}
-= await
-{{camelcase this.name}}Service.get{{pascalcase this.name}}({{camelcase
-  this.name
-}}Id); assert.notOk({{camelcase this.name}}); assert.isTrue(get{{pascalcase
-  this.name
-}}FromModelStub.calledOnce); assert.isTrue(publishOverride.calledOnce); });
-it('will log the failure and throw a DatabaseService when the underlying model
-call fails', async () => { const
-{{camelcase this.name}}Id = new mongooseTypes.ObjectId(); const errMessage =
-'Something Bad has happened'; const err = new error.DatabaseOperationError(
-errMessage, 'mongoDb', 'get{{pascalcase this.name}}ById' ); const get{{pascalcase
-  this.name
-}}FromModelStub = sandbox.stub(); get{{pascalcase
-  this.name
-}}FromModelStub.rejects(err); sandbox.replace( dbConnection.models.{{pascalcase
-  this.name
-}}Model, 'get{{pascalcase this.name}}ById', get{{pascalcase
-  this.name
-}}FromModelStub ); function fakePublish() { /*eslint-disable
-@typescript-eslint/ban-ts-comment */ //@ts-ignore assert.instanceOf(this,
-error.DatabaseOperationError); //@ts-ignore assert.strictEqual(this.message,
-errMessage); } const boundPublish = fakePublish.bind(err); const publishOverride
-= sandbox.stub(); publishOverride.callsFake(boundPublish);
-sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride); let
-errored = false; try { await
-{{camelcase this.name}}Service.get{{pascalcase this.name}}({{camelcase
-  this.name
-}}Id); } catch (e) { assert.instanceOf(e, error.DataServiceError); errored =
-true; } assert.isTrue(errored); assert.isTrue(get{{pascalcase
-  this.name
-}}FromModelStub.calledOnce); assert.isTrue(publishOverride.calledOnce); }); });
-context('get{{pluralize (pascalcase this.name)}}', () => { it('should get
-{{pluralize (camelcase this.name)}}
-by filter', async () => { const
-{{camelcase this.name}}Id = new mongooseTypes.ObjectId(); const
-{{camelcase this.name}}Id2 = new mongooseTypes.ObjectId(); const
-{{camelcase this.name}}Filter = {_id:
-{{camelcase this.name}}Id}; const query{{pluralize
-  (pascalcase this.name)
-}}FromModelStub = sandbox.stub(); query{{pluralize
-  (pascalcase this.name)
-}}FromModelStub.resolves({ results: [ { ...mocks.MOCK_{{uppercase
-  (pascalcase this.name)
-}}, _id:
-{{camelcase this.name}}Id,
-{{#each properties}}
-  {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
-    {{camelcase this.name}}: { _id: new mongooseTypes.ObjectId(), __v: 1, } as
-    unknown as databaseTypes.I{{pascalcase this.referenceTable}},
-  {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
-    {{camelcase this.name}}: [],
-  {{/if}}
-{{/each}}
-} as unknown as databaseTypes.I{{pascalcase this.name}}, { ...mocks.MOCK_{{uppercase
-  (pascalcase this.name)
-}}, _id:
-{{camelcase this.name}}Id2,
-{{#each properties}}
-  {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
-    {{camelcase this.name}}: { _id: new mongooseTypes.ObjectId(), __v: 1, } as
-    unknown as databaseTypes.I{{pascalcase this.referenceTable}},
-  {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
-    {{camelcase this.name}}: [],
-  {{/if}}
-{{/each}}
-} as unknown as databaseTypes.I{{pascalcase this.name}}
-], } as unknown as databaseTypes.I{{pascalcase this.name}}[]); sandbox.replace(
-dbConnection.models.{{pascalcase this.name}}Model, 'query{{pluralize
-  (pascalcase this.name)
-}}', query{{pluralize (pascalcase this.name)}}FromModelStub ); const
-{{pluralize (camelcase this.name)}}
-= await
-{{camelcase this.name}}Service.get{{pluralize
-  (pascalcase this.name)
-}}({{camelcase this.name}}Filter); assert.isOk({{pluralize
-  (camelcase this.name)
-}}![0]); assert.strictEqual({{pluralize
-  (camelcase this.name)
-}}![0]._id?.toString(),
-{{camelcase this.name}}Id.toString()); assert.isTrue(query{{pluralize
-  (pascalcase this.name)
-}}FromModelStub.calledOnce); }); it('will log the failure and return null if the
-{{pluralize (camelcase this.name)}}
-cannot be found', async () => { const
-{{camelcase this.name}}Name = '{{camelcase this.name}}Name1'; const
-{{camelcase this.name}}Filter = {name:
-{{camelcase this.name}}Name}; const errMessage = 'Cannot find the
-{{camelcase this.name}}'; const err = new error.DataNotFoundError( errMessage,
-'name',
-{{camelcase this.name}}Filter ); const get{{pascalcase this.name}}FromModelStub
-= sandbox.stub(); get{{pascalcase this.name}}FromModelStub.rejects(err);
-sandbox.replace( dbConnection.models.{{pascalcase this.name}}Model, 'query{{pluralize
-  (pascalcase this.name)
-}}', get{{pascalcase this.name}}FromModelStub ); function fakePublish() {
-/*eslint-disable @typescript-eslint/ban-ts-comment */ //@ts-ignore
-assert.instanceOf(this, error.DataNotFoundError); /*eslint-disable
-@typescript-eslint/ban-ts-comment */ //@ts-ignore
-assert.strictEqual(this.message, errMessage); } const boundPublish =
-fakePublish.bind(err); const publishOverride = sandbox.stub();
-publishOverride.callsFake(boundPublish);
-sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride); const
-{{camelcase this.name}}
-= await
-{{camelcase this.name}}Service.get{{pluralize
-  (pascalcase this.name)
-}}({{camelcase this.name}}Filter); assert.notOk({{camelcase this.name}});
-assert.isTrue(get{{pascalcase this.name}}FromModelStub.calledOnce);
-assert.isTrue(publishOverride.calledOnce); }); it('will log the failure and
-throw a DatabaseService when the underlying model call fails', async () => {
-const
-{{camelcase this.name}}Name = '{{camelcase this.name}}Name1'; const
-{{camelcase this.name}}Filter = {name:
-{{camelcase this.name}}Name}; const errMessage = 'Something Bad has happened';
-const err = new error.DatabaseOperationError( errMessage, 'mongoDb', 'get{{pascalcase
-  this.name
-}}ByEmail' ); const get{{pascalcase this.name}}FromModelStub = sandbox.stub();
-get{{pascalcase this.name}}FromModelStub.rejects(err); sandbox.replace(
-dbConnection.models.{{pascalcase this.name}}Model, 'query{{pluralize
-  (pascalcase this.name)
-}}', get{{pascalcase this.name}}FromModelStub ); function fakePublish() {
-/*eslint-disable @typescript-eslint/ban-ts-comment */ //@ts-ignore
-assert.instanceOf(this, error.DatabaseOperationError); //@ts-ignore
-assert.strictEqual(this.message, errMessage); } const boundPublish =
-fakePublish.bind(err); const publishOverride = sandbox.stub();
-publishOverride.callsFake(boundPublish);
-sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride); let
-errored = false; try { await
-{{camelcase this.name}}Service.get{{pluralize
-  (pascalcase this.name)
-}}({{camelcase this.name}}Filter); } catch (e) { assert.instanceOf(e,
-error.DataServiceError); errored = true; } assert.isTrue(errored);
-assert.isTrue(get{{pascalcase this.name}}FromModelStub.calledOnce);
-assert.isTrue(publishOverride.calledOnce); }); }); context('update{{pascalcase
-  this.name
-}}', () => { it('will update a
-{{camelcase this.name}}', async () => { const
-{{camelcase this.name}}Id = new mongooseTypes.ObjectId(); const update{{pascalcase
-  this.name
-}}FromModelStub = sandbox.stub(); update{{pascalcase
-  this.name
-}}FromModelStub.resolves({ ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
-_id: new mongooseTypes.ObjectId(),
-{{#each properties}}
-  {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
-    {{camelcase this.name}}: { _id: new mongooseTypes.ObjectId(), __v: 1, } as
-    unknown as databaseTypes.I{{pascalcase this.referenceTable}},
-  {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
-    {{camelcase this.name}}: [],
-  {{/if}}
-{{/each}}
-} as unknown as databaseTypes.I{{pascalcase this.name}}); sandbox.replace(
-dbConnection.models.{{pascalcase this.name}}Model, 'update{{pascalcase
-  this.name
-}}ById', update{{pascalcase this.name}}FromModelStub ); const
-{{camelcase this.name}}
-= await
-{{camelcase this.name}}Service.update{{pascalcase this.name}}({{camelcase
-  this.name
-}}Id, { deletedAt: new Date(), }); assert.isOk({{camelcase this.name}});
-assert.strictEqual({{camelcase this.name}}._id,
-{{camelcase this.name}}Id); assert.isOk({{camelcase this.name}}.deletedAt);
-assert.isTrue(update{{pascalcase this.name}}FromModelStub.calledOnce); });
-it('will update a
-{{camelcase this.name}}
-when the id is a string', async () => { const
-{{camelcase this.name}}Id = new mongooseTypes.ObjectId(); const update{{pascalcase
-  this.name
-}}FromModelStub = sandbox.stub(); update{{pascalcase
-  this.name
-}}FromModelStub.resolves({ ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
-_id: new mongooseTypes.ObjectId(),
-{{#each properties}}
-  {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
-    {{camelcase this.name}}: { _id: new mongooseTypes.ObjectId(), __v: 1, } as
-    unknown as databaseTypes.I{{pascalcase this.referenceTable}},
-  {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
-    {{camelcase this.name}}: [],
-  {{/if}}
-{{/each}}
-} as unknown as databaseTypes.I{{pascalcase this.name}}); sandbox.replace(
-dbConnection.models.{{pascalcase this.name}}Model, 'update{{pascalcase
-  this.name
-}}ById', update{{pascalcase this.name}}FromModelStub ); const
-{{camelcase this.name}}
-= await
-{{camelcase this.name}}Service.update{{pascalcase this.name}}({{camelcase
-  this.name
-}}Id.toString(), { deletedAt: new Date(), }); assert.isOk({{camelcase
-  this.name
-}}); assert.strictEqual({{camelcase this.name}}._id,
-{{camelcase this.name}}Id); assert.isOk({{camelcase this.name}}.deletedAt);
-assert.isTrue(update{{pascalcase this.name}}FromModelStub.calledOnce); });
-it('will publish and rethrow an InvalidArgumentError when
-{{camelcase this.name}}
-model throws it ', async () => { const
-{{camelcase this.name}}Id = new mongooseTypes.ObjectId(); const errMessage =
-'You have an invalid argument'; const err = new
-error.InvalidArgumentError(errMessage, 'args', []); const update{{pascalcase
-  this.name
-}}FromModelStub = sandbox.stub(); update{{pascalcase
-  this.name
-}}FromModelStub.rejects(err); sandbox.replace( dbConnection.models.{{pascalcase
-  this.name
-}}Model, 'update{{pascalcase this.name}}ById', update{{pascalcase
-  this.name
-}}FromModelStub ); function fakePublish() { /*eslint-disable
-@typescript-eslint/ban-ts-comment */ //@ts-ignore assert.instanceOf(this,
-error.InvalidArgumentError); //@ts-ignore assert.strictEqual(this.message,
-errMessage); } const boundPublish = fakePublish.bind(err); const publishOverride
-= sandbox.stub(); publishOverride.callsFake(boundPublish);
-sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride); let
-errored = false; try { await
-{{camelcase this.name}}Service.update{{pascalcase this.name}}({{camelcase
-  this.name
-}}Id, {deletedAt: new Date()}); } catch (e) { assert.instanceOf(e,
-error.InvalidArgumentError); errored = true; } assert.isTrue(errored);
-assert.isTrue(update{{pascalcase this.name}}FromModelStub.calledOnce);
-assert.isTrue(publishOverride.calledOnce); }); it('will publish and rethrow an
-InvalidOperationError when
-{{camelcase this.name}}
-model throws it ', async () => { const
-{{camelcase this.name}}Id = new mongooseTypes.ObjectId(); const errMessage =
-'You tried to perform an invalid operation'; const err = new
-error.InvalidOperationError(errMessage, {}); const update{{pascalcase
-  this.name
-}}FromModelStub = sandbox.stub(); update{{pascalcase
-  this.name
-}}FromModelStub.rejects(err); sandbox.replace( dbConnection.models.{{pascalcase
-  this.name
-}}Model, 'update{{pascalcase this.name}}ById', update{{pascalcase
-  this.name
-}}FromModelStub ); function fakePublish() { /*eslint-disable
-@typescript-eslint/ban-ts-comment */ //@ts-ignore assert.instanceOf(this,
-error.InvalidOperationError); //@ts-ignore assert.strictEqual(this.message,
-errMessage); } const boundPublish = fakePublish.bind(err); const publishOverride
-= sandbox.stub(); publishOverride.callsFake(boundPublish);
-sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride); let
-errored = false; try { await
-{{camelcase this.name}}Service.update{{pascalcase this.name}}({{camelcase
-  this.name
-}}Id, {deletedAt: new Date()}); } catch (e) { assert.instanceOf(e,
-error.InvalidOperationError); errored = true; } assert.isTrue(errored);
-assert.isTrue(update{{pascalcase this.name}}FromModelStub.calledOnce);
-assert.isTrue(publishOverride.calledOnce); }); it('will publish and throw an
-DataServiceError when
-{{camelcase this.name}}
-model throws a DataOperationError ', async () => { const
-{{camelcase this.name}}Id = new mongooseTypes.ObjectId(); const errMessage = 'A
-DataOperationError has occurred'; const err = new error.DatabaseOperationError(
-errMessage, 'mongodDb', 'update{{pascalcase this.name}}ById' ); const update{{pascalcase
-  this.name
-}}FromModelStub = sandbox.stub(); update{{pascalcase
-  this.name
-}}FromModelStub.rejects(err); sandbox.replace( dbConnection.models.{{pascalcase
-  this.name
-}}Model, 'update{{pascalcase this.name}}ById', update{{pascalcase
-  this.name
-}}FromModelStub ); function fakePublish() { /*eslint-disable
-@typescript-eslint/ban-ts-comment */ //@ts-ignore assert.instanceOf(this,
-error.DatabaseOperationError); //@ts-ignore assert.strictEqual(this.message,
-errMessage); } const boundPublish = fakePublish.bind(err); const publishOverride
-= sandbox.stub(); publishOverride.callsFake(boundPublish);
-sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride); let
-errored = false; try { await
-{{camelcase this.name}}Service.update{{pascalcase this.name}}({{camelcase
-  this.name
-}}Id, {deletedAt: new Date()}); } catch (e) { assert.instanceOf(e,
-error.DataServiceError); errored = true; } assert.isTrue(errored);
-assert.isTrue(update{{pascalcase this.name}}FromModelStub.calledOnce);
-assert.isTrue(publishOverride.calledOnce); }); }); });
+describe('#services/{{ camelcase this.name }}', () => {
+  const sandbox = createSandbox();
+  const dbConnection = new MongoDbConnection();
+  afterEach(() => {
+    sandbox.restore();
+  });
+  context('create{{ pascalcase this.name }}', () => {
+    it('will create a {{ pascalcase this.name }}', async () => {
+      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId();
+      {{#each dedupedProperties}}
+      const {{camelcase this.name}}Id = new mongooseTypes.ObjectId();
+      {{/each}}
+
+      // create{{ pascalcase this.name }}
+      const create{{ pascalcase this.name }}FromModelStub = sandbox.stub();
+      create{{ pascalcase this.name }}FromModelStub.resolves({
+         ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
+        _id: new mongooseTypes.ObjectId(),
+        {{#each properties}}
+        {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+        {{camelcase this.name}}: {
+          _id: new mongooseTypes.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.I{{pascalcase this.referenceTable}},
+        {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+        {{camelcase this.name}}: [],
+        {{/if}}
+        {{/each}}  
+      } as unknown as databaseTypes.I{{ pascalcase this.name }});
+
+      sandbox.replace(
+        dbConnection.models.{{ pascalcase this.name }}Model,
+        'create{{ pascalcase this.name }}',
+        create{{ pascalcase this.name }}FromModelStub
+      );
+
+      const doc = await {{ camelcase this.name }}Service.create{{ pascalcase this.name }}(
+       {
+         ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
+        _id: new mongooseTypes.ObjectId(),
+        {{#each properties}}
+        {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+        {{camelcase this.name}}: {
+          _id: new mongooseTypes.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.I{{pascalcase this.referenceTable}},
+        {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+        {{camelcase this.name}}: [],
+        {{/if}}
+        {{/each}}  
+      } as unknown as databaseTypes.I{{ pascalcase this.name }}
+      );
+
+      assert.isTrue(create{{ pascalcase this.name }}FromModelStub.calledOnce);
+    });
+    // {{ camelcase this.name }} model fails
+    it('will publish and rethrow an InvalidArgumentError when {{ camelcase this.name }} model throws it', async () => {
+      const errMessage = 'You have an invalid argument error';
+      const err = new error.InvalidArgumentError(errMessage, '', '');
+
+      // create{{ pascalcase this.name }}
+      const create{{ pascalcase this.name }}FromModelStub = sandbox.stub();
+      create{{ pascalcase this.name }}FromModelStub.rejects(err)
+
+      sandbox.replace(
+        dbConnection.models.{{ pascalcase this.name }}Model,
+        'create{{ pascalcase this.name }}',
+        create{{ pascalcase this.name }}FromModelStub
+      );
+
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidArgumentError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await {{ camelcase this.name }}Service.create{{ pascalcase this.name }}(
+          {}
+        );
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(create{{ pascalcase this.name }}FromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and rethrow an InvalidOperationError when {{ camelcase this.name }} model throws it', async () => {
+      const errMessage = 'You have an invalid argument error';
+      const err = new error.InvalidOperationError(errMessage, {}, '');
+
+      // create{{ pascalcase this.name }}
+      const create{{ pascalcase this.name }}FromModelStub = sandbox.stub();
+      create{{ pascalcase this.name }}FromModelStub.rejects(err);
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await {{ camelcase this.name }}Service.create{{ pascalcase this.name }}(
+          {}
+        );
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(create{{ pascalcase this.name }}FromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and rethrow an DataValidationError when {{ camelcase this.name }} model throws it', async () => {
+      const create{{ pascalcase this.name }}FromModelStub = sandbox.stub();
+      const errMessage = 'Data validation error';
+      const err = new error.DataValidationError(errMessage, '', '');
+
+      create{{ pascalcase this.name }}FromModelStub.rejects(err);
+
+      sandbox.replace(
+        dbConnection.models.{{ pascalcase this.name }}Model,
+        'create{{ pascalcase this.name }}',
+        create{{ pascalcase this.name }}FromModelStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DataValidationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await {{ camelcase this.name }}Service.create{{ pascalcase this.name }}(
+          {}
+        );
+      } catch (e) {
+        assert.instanceOf(e, error.DataValidationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(create{{ pascalcase this.name }}FromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and throw an DataServiceError when {{ camelcase this.name }} model throws a DataOperationError', async () => {
+      const create{{ pascalcase this.name }}FromModelStub = sandbox.stub();
+      const errMessage = 'A DataOperationError has occurred';
+      const err = new error.DatabaseOperationError(
+        errMessage,
+        'mongodDb',
+        'updateCustomerPaymentById'
+      );
+
+      create{{ pascalcase this.name }}FromModelStub.rejects(err);
+
+      sandbox.replace(
+        dbConnection.models.{{ pascalcase this.name }}Model,
+        'create{{ pascalcase this.name }}',
+        create{{ pascalcase this.name }}FromModelStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DatabaseOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await {{ camelcase this.name }}Service.create{{ pascalcase this.name }}(
+         {}
+        );
+      } catch (e) {
+        assert.instanceOf(e, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(create{{ pascalcase this.name }}FromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and throw an DataServiceError when {{ camelcase this.name }} model throws a UnexpectedError', async () => {
+      const create{{ pascalcase this.name }}FromModelStub = sandbox.stub();
+      const errMessage = 'An UnexpectedError has occurred';
+      const err = new error.UnexpectedError(
+        errMessage,
+        'mongodDb',
+      );
+
+      create{{ pascalcase this.name }}FromModelStub.rejects(err);
+
+      sandbox.replace(
+        dbConnection.models.{{ pascalcase this.name }}Model,
+        'create{{ pascalcase this.name }}',
+        create{{ pascalcase this.name }}FromModelStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.UnexpectedError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await {{ camelcase this.name }}Service.create{{ pascalcase this.name }}(
+          {}
+        );
+      } catch (e) {
+        assert.instanceOf(e, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(create{{ pascalcase this.name }}FromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+  });
+  context('get{{ pascalcase this.name }}', () => {
+    it('should get a {{ camelcase this.name }} by id', async () => {
+      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId();
+
+      const get{{ pascalcase this.name }}FromModelStub = sandbox.stub();
+      get{{ pascalcase this.name }}FromModelStub.resolves({
+        _id: {{ camelcase this.name }}Id,
+      } as unknown as databaseTypes.I{{ pascalcase this.name }});
+      sandbox.replace(
+        dbConnection.models.{{ pascalcase this.name }}Model,
+        'get{{ pascalcase this.name }}ById',
+        get{{ pascalcase this.name }}FromModelStub
+      );
+
+      const {{ camelcase this.name }} = await {{ camelcase this.name }}Service.get{{ pascalcase this.name }}({{ camelcase this.name }}Id);
+      assert.isOk({{ camelcase this.name }});
+      assert.strictEqual({{ camelcase this.name }}?._id?.toString(), {{ camelcase this.name }}Id.toString());
+
+      assert.isTrue(get{{ pascalcase this.name }}FromModelStub.calledOnce);
+    });
+    it('should get a {{ camelcase this.name }} by id when id is a string', async () => {
+      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId();
+
+      const get{{ pascalcase this.name }}FromModelStub = sandbox.stub();
+      get{{ pascalcase this.name }}FromModelStub.resolves({
+        _id: {{ camelcase this.name }}Id,
+      } as unknown as databaseTypes.I{{ pascalcase this.name }});
+      sandbox.replace(
+        dbConnection.models.{{ pascalcase this.name }}Model,
+        'get{{ pascalcase this.name }}ById',
+        get{{ pascalcase this.name }}FromModelStub
+      );
+
+      const {{ camelcase this.name }} = await {{ camelcase this.name }}Service.get{{ pascalcase this.name }}({{ camelcase this.name }}Id.toString());
+      assert.isOk({{ camelcase this.name }});
+      assert.strictEqual({{ camelcase this.name }}?._id?.toString(), {{ camelcase this.name }}Id.toString());
+
+      assert.isTrue(get{{ pascalcase this.name }}FromModelStub.calledOnce);
+    });
+    it('will log the failure and return null if the {{ camelcase this.name }} cannot be found', async () => {
+      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId();
+      const errMessage = 'Cannot find the psoject';
+      const err = new error.DataNotFoundError(
+        errMessage,
+        '{{ camelcase this.name }}Id',
+        {{ camelcase this.name }}Id
+      );
+      const get{{ pascalcase this.name }}FromModelStub = sandbox.stub();
+      get{{ pascalcase this.name }}FromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.{{ pascalcase this.name }}Model,
+        'get{{ pascalcase this.name }}ById',
+        get{{ pascalcase this.name }}FromModelStub
+      );
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DataNotFoundError);
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      const {{ camelcase this.name }} = await {{ camelcase this.name }}Service.get{{ pascalcase this.name }}({{ camelcase this.name }}Id);
+      assert.notOk({{ camelcase this.name }});
+
+      assert.isTrue(get{{ pascalcase this.name }}FromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+
+    it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
+      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId();
+      const errMessage = 'Something Bad has happened';
+      const err = new error.DatabaseOperationError(
+        errMessage,
+        'mongoDb',
+        'get{{ pascalcase this.name }}ById'
+      );
+      const get{{ pascalcase this.name }}FromModelStub = sandbox.stub();
+      get{{ pascalcase this.name }}FromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.{{ pascalcase this.name }}Model,
+        'get{{ pascalcase this.name }}ById',
+        get{{ pascalcase this.name }}FromModelStub
+      );
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DatabaseOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await {{ camelcase this.name }}Service.get{{ pascalcase this.name }}({{ camelcase this.name }}Id);
+      } catch (e) {
+        assert.instanceOf(e, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(get{{ pascalcase this.name }}FromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+  });
+  context('get{{ pluralize (pascalcase this.name) }}', () => {
+    it('should get {{ pluralize (camelcase this.name) }} by filter', async () => {
+      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId();
+      const {{ camelcase this.name }}Id2 = new mongooseTypes.ObjectId();
+      const {{ camelcase this.name }}Filter = {_id: {{ camelcase this.name }}Id};
+
+      const query{{ pluralize (pascalcase this.name) }}FromModelStub = sandbox.stub();
+      query{{ pluralize (pascalcase this.name) }}FromModelStub.resolves({
+        results: [
+          {
+         ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
+        _id: {{ camelcase this.name }}Id,
+        {{#each properties}}
+        {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+        {{camelcase this.name}}: {
+          _id: new mongooseTypes.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.I{{pascalcase this.referenceTable}},
+        {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+        {{camelcase this.name}}: [],
+        {{/if}}
+        {{/each}}  
+        } as unknown as databaseTypes.I{{ pascalcase this.name }},
+        {
+         ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
+        _id: {{ camelcase this.name }}Id2,
+        {{#each properties}}
+        {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+        {{camelcase this.name}}: {
+          _id: new mongooseTypes.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.I{{pascalcase this.referenceTable}},
+        {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+        {{camelcase this.name}}: [],
+        {{/if}}
+        {{/each}}  
+        } as unknown as databaseTypes.I{{ pascalcase this.name }}
+        ],
+      } as unknown as databaseTypes.I{{ pascalcase this.name }}[]);
+
+      sandbox.replace(
+        dbConnection.models.{{ pascalcase this.name }}Model,
+        'query{{ pluralize (pascalcase this.name) }}',
+        query{{ pluralize (pascalcase this.name) }}FromModelStub
+      );
+
+      const {{ pluralize (camelcase this.name) }} = await {{ camelcase this.name }}Service.get{{ pluralize (pascalcase this.name) }}({{ camelcase this.name }}Filter);
+      assert.isOk({{ pluralize (camelcase this.name) }}![0]);
+      assert.strictEqual({{ pluralize (camelcase this.name) }}![0]._id?.toString(), {{ camelcase this.name }}Id.toString());
+      assert.isTrue(query{{ pluralize (pascalcase this.name) }}FromModelStub.calledOnce);
+    });
+    it('will log the failure and return null if the {{ pluralize (camelcase this.name) }} cannot be found', async () => {
+      const {{ camelcase this.name }}Name = '{{ camelcase this.name }}Name1';
+      const {{ camelcase this.name }}Filter = {name: {{ camelcase this.name }}Name};
+      const errMessage = 'Cannot find the {{ camelcase this.name }}';
+      const err = new error.DataNotFoundError(
+        errMessage,
+        'name',
+        {{ camelcase this.name }}Filter
+      );
+      const get{{ pascalcase this.name }}FromModelStub = sandbox.stub();
+      get{{ pascalcase this.name }}FromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.{{ pascalcase this.name }}Model,
+        'query{{ pluralize (pascalcase this.name) }}',
+        get{{ pascalcase this.name }}FromModelStub
+      );
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DataNotFoundError);
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      const {{ camelcase this.name }} = await {{ camelcase this.name }}Service.get{{ pluralize (pascalcase this.name) }}({{ camelcase this.name }}Filter);
+      assert.notOk({{ camelcase this.name }});
+
+      assert.isTrue(get{{ pascalcase this.name }}FromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
+      const {{ camelcase this.name }}Name = '{{ camelcase this.name }}Name1';
+      const {{ camelcase this.name }}Filter = {name: {{ camelcase this.name }}Name};
+      const errMessage = 'Something Bad has happened';
+      const err = new error.DatabaseOperationError(
+        errMessage,
+        'mongoDb',
+        'get{{ pascalcase this.name }}ByEmail'
+      );
+      const get{{ pascalcase this.name }}FromModelStub = sandbox.stub();
+      get{{ pascalcase this.name }}FromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.{{ pascalcase this.name }}Model,
+        'query{{ pluralize (pascalcase this.name) }}',
+        get{{ pascalcase this.name }}FromModelStub
+      );
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DatabaseOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await {{ camelcase this.name }}Service.get{{ pluralize (pascalcase this.name) }}({{ camelcase this.name }}Filter);
+      } catch (e) {
+        assert.instanceOf(e, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(get{{ pascalcase this.name }}FromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+  });
+  context('update{{ pascalcase this.name }}', () => {
+    it('will update a {{ camelcase this.name }}', async () => {
+      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId();
+      const update{{ pascalcase this.name }}FromModelStub = sandbox.stub();
+      update{{ pascalcase this.name }}FromModelStub.resolves({
+         ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
+        _id: new mongooseTypes.ObjectId(),
+        {{#each properties}}
+        {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+        {{camelcase this.name}}: {
+          _id: new mongooseTypes.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.I{{pascalcase this.referenceTable}},
+        {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+        {{camelcase this.name}}: [],
+        {{/if}}
+        {{/each}}  
+      } as unknown as databaseTypes.I{{ pascalcase this.name }});
+      sandbox.replace(
+        dbConnection.models.{{ pascalcase this.name }}Model,
+        'update{{ pascalcase this.name }}ById',
+        update{{ pascalcase this.name }}FromModelStub
+      );
+
+      const {{ camelcase this.name }} = await {{ camelcase this.name }}Service.update{{ pascalcase this.name }}({{ camelcase this.name }}Id, {
+        deletedAt: new Date(),
+      });
+      assert.isOk({{ camelcase this.name }});
+      assert.strictEqual({{ camelcase this.name }}._id, {{ camelcase this.name }}Id);
+      assert.isOk({{ camelcase this.name }}.deletedAt);
+      assert.isTrue(update{{ pascalcase this.name }}FromModelStub.calledOnce);
+    });
+    it('will update a {{ camelcase this.name }} when the id is a string', async () => {
+     const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId();
+      const update{{ pascalcase this.name }}FromModelStub = sandbox.stub();
+      update{{ pascalcase this.name }}FromModelStub.resolves({
+         ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
+        _id: new mongooseTypes.ObjectId(),
+        {{#each properties}}
+        {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+        {{camelcase this.name}}: {
+          _id: new mongooseTypes.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.I{{pascalcase this.referenceTable}},
+        {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+        {{camelcase this.name}}: [],
+        {{/if}}
+        {{/each}}  
+      } as unknown as databaseTypes.I{{ pascalcase this.name }});
+      sandbox.replace(
+        dbConnection.models.{{ pascalcase this.name }}Model,
+        'update{{ pascalcase this.name }}ById',
+        update{{ pascalcase this.name }}FromModelStub
+      );
+
+      const {{ camelcase this.name }} = await {{ camelcase this.name }}Service.update{{ pascalcase this.name }}({{ camelcase this.name }}Id.toString(), {
+        deletedAt: new Date(),
+      });
+      assert.isOk({{ camelcase this.name }});
+      assert.strictEqual({{ camelcase this.name }}._id, {{ camelcase this.name }}Id);
+      assert.isOk({{ camelcase this.name }}.deletedAt);
+      assert.isTrue(update{{ pascalcase this.name }}FromModelStub.calledOnce);
+    });
+    it('will publish and rethrow an InvalidArgumentError when {{ camelcase this.name }} model throws it ', async () => {
+      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId();
+      const errMessage = 'You have an invalid argument';
+      const err = new error.InvalidArgumentError(errMessage, 'args', []);
+      const update{{ pascalcase this.name }}FromModelStub = sandbox.stub();
+      update{{ pascalcase this.name }}FromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.{{ pascalcase this.name }}Model,
+        'update{{ pascalcase this.name }}ById',
+        update{{ pascalcase this.name }}FromModelStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidArgumentError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await {{ camelcase this.name }}Service.update{{ pascalcase this.name }}({{ camelcase this.name }}Id, {deletedAt: new Date()});
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(update{{ pascalcase this.name }}FromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+
+    it('will publish and rethrow an InvalidOperationError when {{ camelcase this.name }} model throws it ', async () => {
+      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId();
+      const errMessage = 'You tried to perform an invalid operation';
+      const err = new error.InvalidOperationError(errMessage, {});
+      const update{{ pascalcase this.name }}FromModelStub = sandbox.stub();
+      update{{ pascalcase this.name }}FromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.{{ pascalcase this.name }}Model,
+        'update{{ pascalcase this.name }}ById',
+        update{{ pascalcase this.name }}FromModelStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.InvalidOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await {{ camelcase this.name }}Service.update{{ pascalcase this.name }}({{ camelcase this.name }}Id, {deletedAt: new Date()});
+      } catch (e) {
+        assert.instanceOf(e, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(update{{ pascalcase this.name }}FromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will publish and throw an DataServiceError when {{ camelcase this.name }} model throws a DataOperationError ', async () => {
+      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId();
+      const errMessage = 'A DataOperationError has occurred';
+      const err = new error.DatabaseOperationError(
+        errMessage,
+        'mongodDb',
+        'update{{ pascalcase this.name }}ById'
+      );
+      const update{{ pascalcase this.name }}FromModelStub = sandbox.stub();
+      update{{ pascalcase this.name }}FromModelStub.rejects(err);
+      sandbox.replace(
+        dbConnection.models.{{ pascalcase this.name }}Model,
+        'update{{ pascalcase this.name }}ById',
+        update{{ pascalcase this.name }}FromModelStub
+      );
+
+      function fakePublish() {
+        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        //@ts-ignore
+        assert.instanceOf(this, error.DatabaseOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await {{ camelcase this.name }}Service.update{{ pascalcase this.name }}({{ camelcase this.name }}Id, {deletedAt: new Date()});
+      } catch (e) {
+        assert.instanceOf(e, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+
+      assert.isTrue(update{{ pascalcase this.name }}FromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+  });
+});

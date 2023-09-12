@@ -22,7 +22,7 @@
     "coverage": "rimraf apps/web/.next && turbo coverage",
     "clean:root": "rimraf apps/web/.next pnpm-lock.yaml node_modules target",
     "clean": "rimraf apps/web/.next && turbo clean",
-    "db:generate": "dotenv -- turbo db:generate",
+    "db:generate": "rimraf apps/web/.next && dotenv -- turbo db:generate",
     "db:push": "dotenv -- turbo db:push",
     "db:seed": "dotenv -- turbo db:seed",
     "db:update": "dotenv -- turbo db:push db:generate",

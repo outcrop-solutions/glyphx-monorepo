@@ -1,6 +1,5 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
-import {databaseTypes} from '../../../../../database';
-import {IQueryResult} from 'types'
+import {IQueryResult, databaseTypes} from 'types'
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {error} from 'core';
 import {I{{pascalcase this.name}}Document, I{{pascalcase this.name}}CreateInput, I{{pascalcase this.name}}StaticMethods, I{{pascalcase name}}Methods} from '../interfaces';
@@ -508,7 +507,6 @@ SCHEMA.static(
       const reconciledIds = await {{uppercase (pascalcase  ../this.name)}}_MODEL.validate{{pluralize (pascalcase this.name)}}({{pluralize (camelcase this.referenceTable)}});
       let dirty = false;
       reconciledIds.forEach((p: any) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         if (
           !{{camelcase ../this.name}}Document.{{camelcase this.name}}.find(
@@ -516,7 +514,6 @@ SCHEMA.static(
           )
         ) {
           dirty = true;
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           {{camelcase ../this.name}}Document.{{camelcase this.name}}.push(
             p as unknown as databaseTypes.I{{pascalcase this.referenceTable}}
@@ -572,7 +569,6 @@ SCHEMA.static(
           : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const updated{{pluralize (pascalcase this.referenceTable)}} = {{camelcase ../this.name}}Document.{{pluralize (camelcase this.referenceTable)}}.filter((p: any) => {
         let retval = true;
@@ -591,7 +587,6 @@ SCHEMA.static(
       });
 
       if (dirty) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         {{camelcase ../this.name}}Document.{{pluralize (camelcase this.referenceTable)}} =
           updated{{pluralize (pascalcase this.referenceTable)}} as unknown as databaseTypes.I{{pascalcase this.referenceTable}}[];
@@ -663,7 +658,6 @@ SCHEMA.static(
       if ({{camelcase ../this.name}}Document.{{camelcase this.name}}?.toString() !== reconciledId.toString()) {
       const reconciledId = await {{uppercase (pascalcase ../this.name)}}_MODEL.validate{{pascalcase this.name}}({{camelcase this.name}});
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         {{camelcase ../this.name}}Document.{{camelcase this.name}} = reconciledId
         await {{camelcase ../this.name}}Document.save();
@@ -704,7 +698,6 @@ SCHEMA.static(
           {{camelcase ../this.name}}Id
         );
 
-       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       {{camelcase ../this.name}}Document.{{camelcase this.name}} = undefined;
       await {{camelcase ../this.name}}Document.save();

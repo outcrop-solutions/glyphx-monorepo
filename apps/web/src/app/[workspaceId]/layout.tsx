@@ -1,7 +1,6 @@
 import {redirect} from 'next/navigation';
 import {Toaster} from 'react-hot-toast';
 import {Metadata, Route} from 'next';
-
 import Content from 'app/_components/Content';
 import Header from 'app/_components/Header';
 import Sidebar from 'app/_components/Sidebar/index';

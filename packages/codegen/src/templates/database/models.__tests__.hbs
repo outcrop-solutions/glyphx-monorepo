@@ -14,8 +14,7 @@ import { {{camelcase this.name}}Schema } from '../../../mongoose/schemas'
 {{/unless}}
 {{/if}}
 {{/each}}
-import {IQueryResult} from 'types'
-import {databaseTypes} from '../../../../../../database';
+import {IQueryResult, databaseTypes} from 'types'
 import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
