@@ -1,0 +1,59 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
+import {databaseTypes, webTypes} from 'types';
+
+const clean{{pascalcase this.name}} = ({{camelcase this.name}}: databaseTypes.I{{pascalcase this.name}}) => {
+  const clean{{pascalcase this.name}} = {...{{camelcase this.name}} };
+  delete clean{{pascalcase this.name}}.createdAt;
+  delete clean{{pascalcase this.name}}.updatedAt;
+  delete clean{{pascalcase this.name}}.deletedAt;
+  delete clean{{pascalcase this.name}}._id;
+  return clean{{pascalcase this.name}};
+};
+
+/**
+ * Creates {{pascalcase this.name}}
+ * @returns
+ */
+export const _create{{pascalcase this.name}} = ({{camelcase this.name}}: databaseTypes.I{{pascalcase this.name}}): webTypes.IFetchConfig => {
+  return {
+    url: '/api/{{camelcase this.name}}/create',
+    options: {
+      body: {{camelcase this.name}},
+      method: 'POST',
+    },
+    successMsg: 'New {{camelcase this.name}} successfully created',
+  };
+};
+
+/**
+ * Updates a {{pascalcase this.name}}
+ * @param id
+ * @param name
+ * @returns
+ */
+export const _update{{pascalcase this.name}} = (id: string, dirty{{pascalcase this.name}}: databaseTypes.I{{pascalcase this.name}}): webTypes.IFetchConfig => {
+  const {{camelcase this.name}} = clean{{pascalcase this.name}}(dirty{{pascalcase this.name}});
+  return {
+    url: `/api/{{camelcase this.name}}/${id}`,
+    options: {
+      body: { {{camelcase this.name}} },
+      method: 'PUT',
+    },
+    successMsg: '{{pascalcase this.name}} updated successfully',
+  };
+};
+
+/**
+ * Deletes a {{camelcase this.name}}
+ * @param id
+ * @returns
+ */
+export const _delete{{pascalcase this.name}} = (id: string): webTypes.IFetchConfig => {
+  return {
+    url: `/api/{{camelcase this.name}}/${id}`,
+    options: {
+      method: 'DELETE',
+    },
+    successMsg: '{{pascalcase this.name}} successfully deleted.',
+  };
+};

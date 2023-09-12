@@ -50,8 +50,8 @@ export const createState = async (req: NextApiRequest, res: NextApiResponse, ses
     if (state) {
       await activityLogService.createLog({
         actorId: session?.user?.userId as string,
-        resourceId: state._id as string,
-        workspaceId: state.workspace._id as string,
+        resourceId: state?._id?.toString() as string,
+        workspaceId: state.workspace._id?.toString() as string,
         location: location,
         userAgent: agentData,
         onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
@@ -84,8 +84,8 @@ export const updateState = async (req: NextApiRequest, res: NextApiResponse, ses
 
     await activityLogService.createLog({
       actorId: session?.user?.userId as string,
-      resourceId: state._id as string,
-      workspaceId: state.project.workspace,
+      resourceId: state._id?.toString() as string,
+      workspaceId: state.project.workspace?.toString(),
       projectId: state.project._id,
       location: location,
       userAgent: agentData,
@@ -117,8 +117,8 @@ export const deleteState = async (req: NextApiRequest, res: NextApiResponse, ses
 
     await activityLogService.createLog({
       actorId: session?.user?.userId as string,
-      resourceId: state._id as string,
-      workspaceId: state.project.workspace,
+      resourceId: state._id?.toString() as string,
+      workspaceId: state.project.workspace?.toString(),
       projectId: state.project._id,
       location: location,
       userAgent: agentData,

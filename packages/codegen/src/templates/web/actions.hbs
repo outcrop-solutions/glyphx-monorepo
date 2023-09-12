@@ -1,0 +1,123 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
+import type {NextApiRequest, NextApiResponse} from 'next';
+import type {Session} from 'next-auth';
+import { {{camelcase this.name}}Service} from 'business';
+import {error} from 'core';
+
+/**
+ * Create {{pascalcase this.name}}
+ *
+ * @note Creates a {{camelcase this.name}}
+ * @route POST /api/{{camelcase this.name}}
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ * @param session - NextAuth.js session
+ *
+ */
+
+export const create{{pascalcase this.name}} = async (req: NextApiRequest, res: NextApiResponse) => {
+  try {
+    const {{camelcase this.name}} = await {{camelcase this.name}}Service.create{{pascalcase this.name}}(req.body);
+    res.status(200).json({data: {{camelcase this.name}} });
+  } catch (error) {
+    res.status(404).json({errors: {error: {msg: error.message}} });
+  }
+};
+
+/**
+ * Get {{pascalcase this.name}}s
+ *
+ * @note returns {{camelcase this.name}}s
+ * @route GET /api/{{camelcase this.name}}s
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ * @param session - NextAuth.js session
+ *
+ */
+
+export const get{{pascalcase this.name}}s = async (req: NextApiRequest, res: NextApiResponse) => {
+  try {
+    const {{camelcase this.name}}s = await {{camelcase this.name}}Service.get{{pluralize (pascalcase this.name)}}({deletedAt: undefined});
+    res.status(200).json({data: { {{pluralize (camelcase this.name)}} }});
+  } catch (error) {
+    res.status(404).json({errors: {error: {msg: error.message} } });
+  }
+};
+
+/**
+ * Get {{pascalcase this.name}}
+ *
+ * @note returns a {{camelcase this.name}} by id
+ * @route GET /api/{{camelcase this.name}}/[{{camelcase this.name}}Id]
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ * @param session - NextAuth.js session
+ *
+ */
+
+export const get{{pascalcase this.name}} = async (req: NextApiRequest, res: NextApiResponse) => {
+  const { {{camelcase this.name}}Id} = req.query;
+  if (Array.isArray({{camelcase this.name}}Id)) {
+    return res.status(400).end('Bad request. Parameter cannot be an array.');
+  }
+  try {
+    const {{camelcase this.name}} = await {{camelcase this.name}}Service.get{{pascalcase this.name}}({{camelcase this.name}}Id as string);
+    res.status(200).json({data: { {{camelcase this.name}} }});
+  } catch (error) {
+    res.status(404).json({errors: {error: {msg: error.message} } });
+  }
+};
+
+/**
+ * Update {{pascalcase this.name}}
+ *
+ * @note returns a {{camelcase this.name}} by id
+ * @route PUT /api/{{camelcase this.name}}/[{{camelcase this.name}}Id]
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ * @param session - NextAuth.js session
+ *
+ */
+
+export const update{{pascalcase this.name}} = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
+  const { {{camelcase this.name}}Id} = req.query;
+  const { {{camelcase this.name}} } = req.body;
+  if (Array.isArray({{camelcase this.name}}Id)) {
+    return res.status(400).end('Bad request. Parameter cannot be an array.');
+  }
+  try {
+    const updated{{pascalcase this.name}} = await {{camelcase this.name}}Service.update{{pascalcase this.name}}({{camelcase this.name}}Id as string, {{camelcase this.name}});
+
+    res.status(200).json({data: { {{camelcase this.name}}: updated{{pascalcase this.name}} }});
+  } catch (error) {
+    res.status(404).json({errors: {error: {msg: error.message} } });
+  }
+};
+
+/**
+ * Delete {{pascalcase this.name}}
+ *
+ * @note  update {{camelcase this.name}} deletedAt date
+ * @route DELETE /api/{{camelcase this.name}}
+ * @param req - Next.js API Request
+ * @param res - Next.js API Response
+ * @param session - NextAuth.js session
+ *
+ */
+
+const ALLOW_DELETE = true;
+
+export const delete{{pascalcase this.name}} = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
+  const { {{camelcase this.name}}Id} = req.query;
+  if (Array.isArray({{camelcase this.name}}Id)) {
+    return res.status(400).end('Bad request. Parameter cannot be an array.');
+  }
+  try {
+    if (ALLOW_DELETE) {
+      await {{camelcase this.name}}Service.deleteModel{{pascalcase this.name}}({{camelcase this.name}}Id as string);
+    }
+    res.status(200).json({data: {email: session?.user?.email}});
+  } catch (error) {
+    res.status(404).json({errors: {error: {msg: error.message} } });
+  }
+};

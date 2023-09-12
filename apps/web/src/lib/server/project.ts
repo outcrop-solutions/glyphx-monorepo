@@ -28,7 +28,7 @@ export const createProject = async (req: NextApiRequest, res: NextApiResponse, s
 
     await activityLogService.createLog({
       actorId: session?.user?.userId as string,
-      resourceId: project._id as string,
+      resourceId: project?._id?.toString() as string,
       projectId: project._id,
       workspaceId: project.workspace._id,
       location: location,
@@ -90,7 +90,7 @@ export const updateProjectState = async (req: NextApiRequest, res: NextApiRespon
 
     await activityLogService.createLog({
       actorId: session?.user?.userId as string,
-      resourceId: project._id as string,
+      resourceId: project?._id?.toString() as string,
       projectId: project._id,
       workspaceId: project.workspace._id,
       location: location,
@@ -129,7 +129,7 @@ export const deleteProject = async (req: NextApiRequest, res: NextApiResponse, s
 
       await activityLogService.createLog({
         actorId: session?.user?.userId as string,
-        resourceId: project._id as string,
+        resourceId: project?._id?.toString() as string,
         workspaceId: project.workspace._id,
         projectId: project._id,
         location: location,

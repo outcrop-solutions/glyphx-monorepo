@@ -82,7 +82,6 @@
     "src/utils/scrollbar.js",
     "src/__tests__/utilities",
     ".next/types/**/*.ts",
-    "../../packages/database/node_modules/mongoose/types/index.d.ts"
   ],
   "exclude": [
     "node_modules"

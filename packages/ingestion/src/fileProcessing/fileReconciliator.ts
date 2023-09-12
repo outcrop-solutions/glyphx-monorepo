@@ -3,16 +3,16 @@ import {fileIngestionTypes} from 'types';
 import {generalPurposeFunctions} from 'core';
 
 export class FileReconciliator {
-  private static getDeletedTables(fileInfo: fileIngestion.IFileInfo[]) {
+  private static getDeletedTables(fileInfo: fileIngestionTypes.IFileInfo[]) {
     return fileInfo
       .filter((d) => d.operation === fileIngestionTypes.constants.FILE_OPERATION.DELETE)
       .map((d) => d.tableName);
   }
 
   private static processProcessedFiles(
-    fileInfo: fileIngestion.IFileInfo[],
+    fileInfo: fileIngestionTypes.IFileInfo[],
     processedFileInformation: IFileInformation[],
-    fileStatistics: fileIngestion.IFileStats[],
+    fileStatistics: fileIngestionTypes.IFileStats[],
     fileInfos: IFileInformation[]
   ) {
     fileInfo.forEach((f) => {
@@ -26,7 +26,7 @@ export class FileReconciliator {
   }
 
   private static processSuppliedFiles(
-    fileStatistics: fileIngestion.IFileStats[],
+    fileStatistics: fileIngestionTypes.IFileStats[],
     deletedTableNames: string[],
     fileInfos: IFileInformation[]
   ) {
@@ -102,9 +102,9 @@ export class FileReconciliator {
   public static reconcileFileInformation(
     clientId: string,
     modelId: string,
-    fileInfo: fileIngestion.IFileInfo[],
+    fileInfo: fileIngestionTypes.IFileInfo[],
     processedFileInformation: IFileInformation[],
-    fileStatistics: fileIngestion.IFileStats[]
+    fileStatistics: fileIngestionTypes.IFileStats[]
   ): {
     allFiles: IFileInformation[];
     accumFiles: IFileInformation[];

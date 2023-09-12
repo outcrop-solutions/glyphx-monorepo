@@ -5,7 +5,7 @@ import {fileIngestionTypes} from 'types';
 
 export interface IFileProcessingResult {
   status: FILE_PROCESSING_STATUS;
-  fileInformation: fileIngestion.IFileStats[];
+  fileInformation: fileIngestionTypes.IFileStats[];
   fileProcessingErrors: IFileProcessingError[];
   joinInformation: IJoinTableDefinition[];
   viewName: string;

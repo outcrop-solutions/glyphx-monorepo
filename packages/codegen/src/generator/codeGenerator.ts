@@ -240,6 +240,11 @@ export class CodeGenerator {
       await this.generateSchemas();
       await this.generateServices();
       await this.generateEntryPoints();
+      await this.generateHooks();
+      await this.generateMutations();
+      await this.generateActions();
+      await this.generateRoutes();
+      await this.generateAtoms();
 
       // STEP 3: FORMAT OUTPUT
       await this.formatDirectory(`${this.config.paths.destination}`);
@@ -711,6 +716,197 @@ export class CodeGenerator {
     }
   }
 
+  // Generate react swr hooks from databaseSchema
+  private async generateHooks(): Promise<void> {
+    try {
+      for (const table of this.databaseSchemaField.tables) {
+        await this.generateHook(table);
+      }
+    } catch (err: any) {
+      throw new error.CodeGenError(
+        'An error occurred while generating the db boilerplate at generateHooks, See inner error for details',
+        err
+      );
+    }
+  }
+
+  /**
+   * Generates a business service and unit/integration tests
+   * @param table
+   */
+  private async generateHook(table: databaseTypes.meta.ITable): Promise<void> {
+    const {paths, output, templates} = this.config;
+
+    try {
+      await Promise.all([
+        // GENERATE HOOK
+        this.sourceFromTemplate(
+          table,
+          `${paths.templates}/${templates.web.hooks.hook}`,
+          `${paths.destination}/${output.web.hooks}/use${this.toPlural(this.toPascalCase(table.name))}.ts`
+        ),
+      ]);
+    } catch (err: any) {
+      throw new error.CodeGenError(
+        'An error occurred while generating source code from templates in generateHook, See inner error for details',
+        err
+      );
+    }
+  }
+
+  // Generate api mutation object config files from databaseSchema
+  private async generateMutations(): Promise<void> {
+    try {
+      for (const table of this.databaseSchemaField.tables) {
+        await this.generateMutation(table);
+      }
+    } catch (err: any) {
+      throw new error.CodeGenError(
+        'An error occurred while generating the db boilerplate at generateMutations, See inner error for details',
+        err
+      );
+    }
+  }
+
+  /**
+   * Generates a api request config files from database table
+   * @param table
+   */
+  private async generateMutation(table: databaseTypes.meta.ITable): Promise<void> {
+    const {paths, output, templates} = this.config;
+
+    try {
+      await Promise.all([
+        // GENERATE MUTATION
+        this.sourceFromTemplate(
+          table,
+          `${paths.templates}/${templates.web.mutations.mutation}`,
+          `${paths.destination}/${output.web.mutations}/${this.toCamelCase(table.name)}.ts`
+        ),
+      ]);
+    } catch (err: any) {
+      throw new error.CodeGenError(
+        'An error occurred while generating source code from templates in generateMutation, See inner error for details',
+        err
+      );
+    }
+  }
+
+  // Generate api mutation objects from databaseSchema
+  private async generateActions(): Promise<void> {
+    try {
+      for (const table of this.databaseSchemaField.tables) {
+        await this.generateAction(table);
+      }
+    } catch (err: any) {
+      throw new error.CodeGenError(
+        'An error occurred while generating the db boilerplate at generateActions, See inner error for details',
+        err
+      );
+    }
+  }
+
+  /**
+   * Generates a api request config from database table
+   * @param table
+   */
+  private async generateAction(table: databaseTypes.meta.ITable): Promise<void> {
+    const {paths, output, templates} = this.config;
+
+    try {
+      await Promise.all([
+        // GENERATE MUTATION
+        this.sourceFromTemplate(
+          table,
+          `${paths.templates}/${templates.web.actions.action}`,
+          `${paths.destination}/${output.web.actions}/${this.toCamelCase(table.name)}.ts`
+        ),
+      ]);
+    } catch (err: any) {
+      throw new error.CodeGenError(
+        'An error occurred while generating source code from templates in generateAction, See inner error for details',
+        err
+      );
+    }
+  }
+
+  // Generates a generic public api routes
+  private async generateRoutes(): Promise<void> {
+    try {
+      for (const table of this.databaseSchemaField.tables) {
+        await this.generateRoute(table);
+      }
+    } catch (err: any) {
+      throw new error.CodeGenError(
+        'An error occurred while generating the db boilerplate at generateRoutes, See inner error for details',
+        err
+      );
+    }
+  }
+
+  /**
+   * Generates a generic authenticated public api route
+   * @param table
+   */
+  private async generateRoute(table: databaseTypes.meta.ITable): Promise<void> {
+    const {paths, output, templates} = this.config;
+
+    try {
+      await Promise.all([
+        // GENERATE ROUTE
+        this.sourceFromTemplate(
+          table,
+          `${paths.templates}/${templates.web.routes}`,
+          `${paths.destination}/${output.web.routes}/[${this.toCamelCase(table.name)}Id].ts`
+        ),
+      ]);
+    } catch (err: any) {
+      throw new error.CodeGenError(
+        'An error occurred while generating source code from templates in generateRoute, See inner error for details',
+        err
+      );
+    }
+  }
+
+  // Generates typed recoil atom state files
+  // TODO: eventually create types selectors on the relations
+  private async generateAtoms(): Promise<void> {
+    try {
+      for (const table of this.databaseSchemaField.tables) {
+        await this.generateAtom(table);
+      }
+    } catch (err: any) {
+      throw new error.CodeGenError(
+        'An error occurred while generating the db boilerplate at generateAtoms, See inner error for details',
+        err
+      );
+    }
+  }
+
+  /**
+   * Generates typed recoil atom
+   * @param table
+   */
+  private async generateAtom(table: databaseTypes.meta.ITable): Promise<void> {
+    const {paths, output, templates} = this.config;
+
+    try {
+      await Promise.all([
+        // GENERATE ATOM
+        this.sourceFromTemplate(
+          table,
+          `${paths.templates}/${templates.web.states.state}`,
+          `${paths.destination}/${output.web.states}/${this.toCamelCase(table.name)}.ts`
+        ),
+      ]);
+    } catch (err: any) {
+      throw new error.CodeGenError(
+        'An error occurred while generating source code from templates in generateAtom, See inner error for details',
+        err
+      );
+    }
+  }
+
   // Generate business services from databaseSchema
   private async generateServices(): Promise<void> {
     try {
@@ -740,7 +936,6 @@ export class CodeGenerator {
           `${paths.templates}/${templates.business.services.service}`,
           `${paths.destination}/${output.business.services}/${this.toCamelCase(table.name)}.ts`
         ),
-
         // GENERATE SERVICE TESTS
         this.sourceFromTemplate(
           table,
@@ -938,6 +1133,31 @@ export class CodeGenerator {
 
     try {
       await Promise.all([
+        // WED
+        // hooks entrypoint
+        this.sourceFromTemplate(
+          this.databaseSchemaField,
+          `${paths.templates}/${templates.web.hooks.index}`,
+          `${paths.destination}/${output.web.hooks}/index.ts`
+        ),
+        // actions entrypoint
+        this.sourceFromTemplate(
+          this.databaseSchemaField,
+          `${paths.templates}/${templates.web.actions.index}`,
+          `${paths.destination}/${output.web.actions}/index.ts`
+        ),
+        // mutations entrypoint
+        this.sourceFromTemplate(
+          this.databaseSchemaField,
+          `${paths.templates}/${templates.web.mutations.index}`,
+          `${paths.destination}/${output.web.mutations}/index.ts`
+        ),
+        // states entrypoint
+        this.sourceFromTemplate(
+          this.databaseSchemaField,
+          `${paths.templates}/${templates.web.states.index}`,
+          `${paths.destination}/${output.web.states}/index.ts`
+        ),
         // BUSINESS
         // services entrypoint
         this.sourceFromTemplate(

@@ -4,7 +4,7 @@ import {Dialog, Transition} from '@headlessui/react';
 import {MenuIcon, XIcon} from '@heroicons/react/outline';
 import {Resizable} from 're-resizable';
 import Script from 'next/script';
-import {SandboxSidebar} from 'app/_components/Sandbox/Sidebar';
+import {SandboxSidebar} from 'app/_components/Sandbox/Sandbox';
 
 export default function Sandbox() {
   const [sidebarOpen, setSidebarOpen] = useState(false);

@@ -1,0 +1,10 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
+{{#each tables}}
+import use{{pluralize (pascalcase this.name)}} from './use{{pluralize (pascalcase this.name)}}';
+{{/each}}
+
+export {
+{{#each tables}}
+use{{pluralize (pascalcase this.name)}}{{#unless @last}},{{/unless}}
+{{/each}}
+};

@@ -4,7 +4,7 @@ import {aws, generalPurposeFunctions} from 'core';
 import {FileIngestor} from '../fileIngestor';
 import addFilesJson from './assets/addTables.json';
 //eslint-disable-next-line
-import {fileIngestion, databaseTypes} from 'types';
+import {fileIngestionTypes, databaseTypes} from 'types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
 import {Initializer, processTrackingService, projectService, dbConnection} from 'business';
 import {v4} from 'uuid';

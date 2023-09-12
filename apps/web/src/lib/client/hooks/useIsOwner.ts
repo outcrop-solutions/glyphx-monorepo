@@ -4,8 +4,8 @@ import useSWR from 'swr';
 
 const useIsTeamOwner = () => {
   const params = useParams();
-  const {workspaceSlug} = params as {workspaceSlug: string};
-  const apiRoute = `/api/workspace/${workspaceSlug}/isTeamOwner`;
+  const {workspaceId} = params as {workspaceId: string};
+  const apiRoute = `/api/workspace/${workspaceId}/isTeamOwner`;
   const {data, error} = useSWR(`${apiRoute}`);
   return {
     ...data,

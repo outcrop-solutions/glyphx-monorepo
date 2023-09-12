@@ -2,10 +2,20 @@ export interface ICodeGenConfig {
   paths: {
     source: string;
     destination: string;
+    baseUrl: string;
     templates: string;
     prettier: string;
   };
   output: {
+    web: {
+      hooks: string;
+      actions: string;
+      mutations: string;
+      states: string;
+      routes: string;
+      unitTests: string;
+      integrationTests: string;
+    };
     business: {
       services: string;
       unitTests: string;
@@ -22,6 +32,27 @@ export interface ICodeGenConfig {
     };
   };
   templates: {
+    web: {
+      hooks: {
+        hook: string;
+        index: string;
+      };
+      mutations: {
+        mutation: string;
+        index: string;
+      };
+      actions: {
+        action: string;
+        index: string;
+      };
+      states: {
+        state: string;
+        index: string;
+      };
+      routes: string;
+      unitTests: string;
+      integrationTests: string;
+    };
     business: {
       services: {
         service: string;

@@ -136,11 +136,13 @@ export function SearchModal() {
                   {workspace.projects.slice(0, 5).map((value, index) => {
                     return (
                       <li key={index} className="hover:cursor-pointer">
-                        <Link href={`/${workspaceId}/${value._id}` as Route}>
-                          <a className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group">
-                            <ProjectResultIcon />
-                            <span>{value.name}</span>
-                          </a>
+                        <Link
+                          href={`/${workspaceId}/${value._id}` as Route}
+                          className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group">
+
+                          <ProjectResultIcon />
+                          <span>{value.name}</span>
+
                         </Link>
                       </li>
                     );
@@ -156,29 +158,28 @@ export function SearchModal() {
                   {queryResult.slice(0, 10).map((value, index) => {
                     return (
                       <li key={index} className="hover:cursor-pointer">
-                        <Link href={`/${workspaceId}/${value.item._id}` as Route}>
-                          <a
-                            // onClick={() => {
-                            //   setShowSearchModalOpen(false);
-                            // }}
-                            className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
-                          >
-                            <svg
-                              className="w-8 h-8 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
-                              width="24"
-                              height="24"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M10.3775 7.5L11.8775 9H18.5V16.5H6.5V7.5H10.3775ZM11 6H6.5C5.675 6 5.0075 6.675 5.0075 7.5L5 16.5C5 17.325 5.675 18 6.5 18H18.5C19.325 18 20 17.325 20 16.5V9C20 8.175 19.325 7.5 18.5 7.5H12.5L11 6Z"
-                                fill="#CECECE"
-                              />
-                            </svg>
+                        <Link
+                          href={`/${workspaceId}/${value.item._id}` as Route}
+                          // onClick={() => {
+                          //   setShowSearchModalOpen(false);
+                          // }}
+                          className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group">
 
-                            <span>{value.item.name}</span>
-                          </a>
+                          <svg
+                            className="w-8 h-8 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M10.3775 7.5L11.8775 9H18.5V16.5H6.5V7.5H10.3775ZM11 6H6.5C5.675 6 5.0075 6.675 5.0075 7.5L5 16.5C5 17.325 5.675 18 6.5 18H18.5C19.325 18 20 17.325 20 16.5V9C20 8.175 19.325 7.5 18.5 7.5H12.5L11 6Z"
+                              fill="#CECECE"
+                            />
+                          </svg>
+                          <span>{value.item.name}</span>
+
                         </Link>
                       </li>
                     );

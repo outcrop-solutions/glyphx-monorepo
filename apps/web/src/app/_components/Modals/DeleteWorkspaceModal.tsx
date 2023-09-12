@@ -20,12 +20,12 @@ export const DeleteWorkspaceModal = ({modalContent}: webTypes.DeleteWorkspaceMod
   const {mutate} = useSWRConfig();
   const router = useRouter();
   const params = useParams();
-  const {workspaceSlug} = params as {workspaceSlug: string};
+  const {workspaceId} = params as {workspaceId: string};
   const setModals = useSetRecoilState(modalsAtom);
   const setWorkspace = useSetRecoilState(workspaceAtom);
 
   const [verifyWorkspace, setVerifyWorkspace] = useState('');
-  const verifiedWorkspace = verifyWorkspace === workspaceSlug;
+  const verifiedWorkspace = verifyWorkspace === workspaceId;
   const copyToClipboard = () => toast.success('Copied to clipboard!');
 
   // local state
@@ -33,9 +33,9 @@ export const DeleteWorkspaceModal = ({modalContent}: webTypes.DeleteWorkspaceMod
 
   // mutations
   const deleteWorkspace = () => {
-    if (!Array.isArray(workspaceSlug))
+    if (!Array.isArray(workspaceId))
       api({
-        ..._deleteWorkspace(workspaceSlug),
+        ..._deleteWorkspace(workspaceId),
         setLoading: (state) =>
           setModals(
             produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
@@ -69,9 +69,9 @@ export const DeleteWorkspaceModal = ({modalContent}: webTypes.DeleteWorkspaceMod
         <span>Enter your workspace slug to continue:</span>
         <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded my-4">
           <strong>
-            <span className="overflow-x-auto">{workspaceSlug}</span>
+            <span className="overflow-x-auto">{workspaceId}</span>
           </strong>
-          <CopyToClipboard onCopy={copyToClipboard} text={workspaceSlug}>
+          <CopyToClipboard onCopy={copyToClipboard} text={workspaceId}>
             <DocumentDuplicateIcon className="w-5 h-5 cursor-pointer hover:text-blue-600" />
           </CopyToClipboard>
         </div>

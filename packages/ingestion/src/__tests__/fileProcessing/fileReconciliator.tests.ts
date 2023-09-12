@@ -34,7 +34,7 @@ const FILE_INFO = [
     fileName: 'file4.csv',
     operation: fileIngestionTypes.constants.FILE_OPERATION.DELETE,
   },
-] as unknown as fileIngestion.IFileInfo[];
+] as unknown as fileIngestionTypes.IFileInfo[];
 
 const EXISTING_FILES = [
   {

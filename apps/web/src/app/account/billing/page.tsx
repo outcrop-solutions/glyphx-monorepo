@@ -37,24 +37,24 @@ const Billing = () => {
           </Card.Footer>
         </Card>
         {/* <Modal show={showModal} title="Upgrade Subscription" toggle={toggleModal}>
-          <div className="space-y-0 text-sm text-gray-600">
-            <p>You are currently under the FREE plan</p>
-          </div>
-          <div className="flex space-x-5">
-            {products.map((product, index) => (
-              <Card key={index}>
-                <Card.Body title={product.name} subtitle={product.description}>
-                  <h3 className="text-4xl font-bold">${Number(product.prices.unit_amount / 100).toFixed(2)}</h3>
-                </Card.Body>
-                <Card.Footer>
-                  <Button className="w-full" disabled={isSubmitting} onClick={() => subscribe(product.prices.id)}>
-                    {isSubmitting ? 'Redirecting...' : `Upgrade to ${product.name}`}
-                  </Button>
-                </Card.Footer>
-              </Card>
-            ))}
-          </div>
-        </Modal> */}
+        <div className="space-y-0 text-sm text-gray-600">
+          <p>You are currently under the FREE plan</p>
+        </div>
+        <div className="flex space-x-5">
+          {products.map((product, index) => (
+            <Card key={index}>
+              <Card.Body title={product.name} subtitle={product.description}>
+                <h3 className="text-4xl font-bold">${Number(product.prices.unit_amount / 100).toFixed(2)}</h3>
+              </Card.Body>
+              <Card.Footer>
+                <Button className="w-full" disabled={isSubmitting} onClick={() => subscribe(product.prices.id)}>
+                  {isSubmitting ? 'Redirecting...' : `Upgrade to ${product.name}`}
+                </Button>
+              </Card.Footer>
+            </Card>
+          ))}
+        </div>
+      </Modal> */}
       </Content.Container>
       <Content.Divider thick />
       <Content.Title title="Invoices" subtitle="View and download invoices you may need" />
@@ -75,11 +75,9 @@ const Billing = () => {
                 <tr key={index} className="text-sm hover:bg-secondary-midnight">
                   <td className="px-3 py-5">
                     {/* @ts-ignore */}
-                    <Link href={invoice.hosted_invoice_url as Route}>
-                      <a className="text-blue-600" target="_blank">
-                        {/* @ts-ignore */}
-                        {invoice.number}
-                      </a>
+                    <Link href={invoice.hosted_invoice_url} className="text-blue-600" target="_blank">
+                      {/* @ts-ignore */}
+                      {invoice.number}
                     </Link>
                   </td>
                   <td className="py-5">
@@ -92,10 +90,8 @@ const Billing = () => {
                   <td className="py-5">{invoice.status}</td>
                   <td className="py-5">
                     {/* @ts-ignore */}
-                    <Link href={invoice.hosted_invoice_url as Route}>
-                      <a className="text-blue-600" target="_blank">
-                        &rarr;
-                      </a>
+                    <Link href={invoice.hosted_invoice_url} className="text-blue-600" target="_blank">
+                      &rarr;
                     </Link>
                   </td>
                 </tr>
