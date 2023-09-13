@@ -1,5 +1,6 @@
 import 'mocha';
 import {assert} from 'chai';
+import {Session} from 'next-auth';
 
 import {createSandbox} from 'sinon';
 // where the magic happens
@@ -57,6 +58,7 @@ const MOCK_WORKSPACE: databaseTypes.IWorkspace = {
   members: [],
   projects: [],
   states: [],
+  tags: [],
 };
 const MOCK_WORKSPACE_2: databaseTypes.IWorkspace = {
   createdAt: new Date(),
@@ -72,6 +74,7 @@ const MOCK_WORKSPACE_2: databaseTypes.IWorkspace = {
   members: [],
   projects: [],
   states: [],
+  tags: [],
 };
 
 const MOCK_WORKSPACES = [MOCK_WORKSPACE, MOCK_WORKSPACE_2];
@@ -1495,7 +1498,10 @@ describe('WORKSPACE ROUTES', () => {
           url: '/api/workspace/[workspaceSlug]/slug',
           params: {workspaceSlug: MOCK_WORKSPACE.slug},
           test: async ({fetch}) => {
-            const config = _updateWorkspaceSlug({slug: MOCK_WORKSPACE.slug, newSlug: 'NEW_SLUG'});
+            const config = _updateWorkspaceSlug({
+              workspaceId: MOCK_WORKSPACE._id?.toString() ?? '',
+              newSlug: 'NEW_SLUG',
+            });
             const res = await fetch(wrapConfig(config));
 
             assert.strictEqual(res.status, 200);
@@ -1605,7 +1611,7 @@ describe('WORKSPACE ROUTES', () => {
           handler: acceptInvitationRouteWrapper,
           url: '/api/workspace/team/accept',
           test: async ({fetch}) => {
-            const config = _acceptInvitation(MOCK_MEMBER_1._id.toString());
+            const config = _acceptInvitation(MOCK_MEMBER_1._id?.toString() ?? '');
             const res = await fetch(wrapConfig(config));
             assert.strictEqual(res.status, 200);
           },
@@ -1731,7 +1737,7 @@ describe('WORKSPACE ROUTES', () => {
           handler: declineInvitationRouteWrapper,
           url: '/api/workspace/team/decline',
           test: async ({fetch}) => {
-            const config = _declineInvitation(MOCK_MEMBER_1._id.toString());
+            const config = _declineInvitation(MOCK_MEMBER_1._id?.toString() ?? '');
             const res = await fetch(wrapConfig(config));
             assert.strictEqual(res.status, 200);
           },
@@ -1945,7 +1951,7 @@ describe('WORKSPACE ROUTES', () => {
           handler: removeMemberRouteWrapper,
           url: '/api/workspace/team/member',
           test: async ({fetch}) => {
-            const config = _removeMember(MOCK_MEMBER_1._id.toString());
+            const config = _removeMember(MOCK_MEMBER_1._id?.toString() ?? '');
             const res = await fetch(wrapConfig(config));
             assert.strictEqual(res.status, 200);
           },
@@ -2053,7 +2059,7 @@ describe('WORKSPACE ROUTES', () => {
           handler: updateRoleRouteWrapper,
           url: '/api/workspace/team/role',
           test: async ({fetch}) => {
-            const config = _updateRole(MOCK_MEMBER_1._id.toString(), databaseTypes.constants.ROLE.OWNER);
+            const config = _updateRole(MOCK_MEMBER_1._id?.toString() ?? '', databaseTypes.constants.ROLE.OWNER);
             const res = await fetch(wrapConfig(config));
             assert.strictEqual(res.status, 200);
           },

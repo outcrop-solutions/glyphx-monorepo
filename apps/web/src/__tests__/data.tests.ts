@@ -242,7 +242,9 @@ describe('DATA ROUTES', () => {
           url: '/api/data/grid',
           test: async ({fetch}) => {
             const res = await fetch(
-              wrapConfig(_getDataGrid(MOCK_WORKSPACE._id.toString(), MOCK_PROJECT._id.toString(), MOCK_TABLE_NAME))
+              wrapConfig(
+                _getDataGrid(MOCK_WORKSPACE._id?.toString() ?? '', MOCK_PROJECT._id?.toString() ?? '', MOCK_TABLE_NAME)
+              )
             );
 
             assert.strictEqual(res.status, 200);
@@ -356,7 +358,10 @@ describe('DATA ROUTES', () => {
           test: async ({fetch}) => {
             const res = await fetch(
               wrapConfig(
-                _getRowIds(MOCK_WORKSPACE._id.toString(), MOCK_PROJECT._id.toString(), MOCK_TABLE_NAME, ['0', '1'])
+                _getRowIds(MOCK_WORKSPACE._id?.toString() ?? '', MOCK_PROJECT._id?.toString() ?? '', MOCK_TABLE_NAME, [
+                  '0',
+                  '1',
+                ])
               )
             );
 

@@ -1,5 +1,6 @@
 import 'mocha';
 import {assert} from 'chai';
+import {Session} from 'next-auth';
 
 import {createSandbox} from 'sinon';
 // where the magic happens
@@ -234,7 +235,7 @@ describe('LOG ROUTES', () => {
         await testApiHandler({
           handler: getProjectLogsRouteWrapper,
           url: '/api/logs/project/[projectId]',
-          params: {projectId: MOCK_PROJECT._id.toString()},
+          params: {projectId: MOCK_PROJECT._id?.toString() ?? ''},
           test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.strictEqual(res.status, 200);
@@ -251,7 +252,7 @@ describe('LOG ROUTES', () => {
         await testApiHandler({
           handler: getProjectLogsRoute,
           url: '/api/logs/project/[projectId]',
-          params: {projectId: MOCK_PROJECT._id.toString()},
+          params: {projectId: MOCK_PROJECT._id?.toString() ?? ''},
           test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -271,7 +272,7 @@ describe('LOG ROUTES', () => {
         await testApiHandler({
           handler: getProjectLogsRoute,
           url: '/api/logs/project/[projectId]',
-          params: {projectId: MOCK_PROJECT._id.toString()},
+          params: {projectId: MOCK_PROJECT._id?.toString() ?? ''},
           test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -294,7 +295,7 @@ describe('LOG ROUTES', () => {
         await testApiHandler({
           handler: getProjectLogsRoute,
           url: '/api/logs/project/[projectId]',
-          params: {projectId: MOCK_PROJECT._id.toString()},
+          params: {projectId: MOCK_PROJECT._id?.toString() ?? ''},
           test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -317,7 +318,7 @@ describe('LOG ROUTES', () => {
         await testApiHandler({
           handler: getProjectLogsRoute,
           url: '/api/logs/project/[projectId]',
-          params: {projectId: MOCK_PROJECT._id.toString()},
+          params: {projectId: MOCK_PROJECT._id?.toString() ?? ''},
           test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -343,7 +344,7 @@ describe('LOG ROUTES', () => {
         await testApiHandler({
           handler: getWorkspaceLogsRouteWrapper,
           url: '/api/logs/workspace/[workspaceId]',
-          params: {workspaceId: MOCK_WORKSPACE._id.toString()},
+          params: {workspaceId: MOCK_WORKSPACE._id?.toString() ?? ''},
           test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.strictEqual(res.status, 200);
@@ -360,7 +361,7 @@ describe('LOG ROUTES', () => {
         await testApiHandler({
           handler: getWorkspaceLogsRoute,
           url: '/api/logs/workspace/[workspaceId]',
-          params: {workspaceId: MOCK_WORKSPACE._id.toString()},
+          params: {workspaceId: MOCK_WORKSPACE._id?.toString() ?? ''},
           test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -380,7 +381,7 @@ describe('LOG ROUTES', () => {
         await testApiHandler({
           handler: getWorkspaceLogsRoute,
           url: '/api/logs/workspace/[workspaceId]',
-          params: {workspaceId: MOCK_WORKSPACE._id.toString()},
+          params: {workspaceId: MOCK_WORKSPACE._id?.toString() ?? ''},
           test: async ({fetch}) => {
             const res = await fetch(genericDelete);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -403,7 +404,7 @@ describe('LOG ROUTES', () => {
         await testApiHandler({
           handler: getWorkspaceLogsRoute,
           url: '/api/logs/workspace/[workspaceId]',
-          params: {workspaceId: MOCK_WORKSPACE._id.toString()},
+          params: {workspaceId: MOCK_WORKSPACE._id?.toString() ?? ''},
           test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -426,7 +427,7 @@ describe('LOG ROUTES', () => {
         await testApiHandler({
           handler: getWorkspaceLogsRoute,
           url: '/api/logs/workspace/[workspaceId]',
-          params: {workspaceId: MOCK_WORKSPACE._id.toString()},
+          params: {workspaceId: MOCK_WORKSPACE._id?.toString() ?? ''},
           test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);

@@ -12,13 +12,13 @@ export const authOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(MongoClient),
   callbacks: {
     session: async ({session, user}) => {
-      if (session?.user) {
-        const customerPayment = await customerPaymentService.getPayment(user.email);
-        session.user.userId = user.id;
-        if (customerPayment) {
-          session.user.subscription = customerPayment.subscriptionType;
-        }
-      }
+      // if (session?.user) {
+      //   const customerPayment = await customerPaymentService.getPayment(user.email);
+      //   session.user.userId = user.id;
+      //   if (customerPayment) {
+      //     session.user.subscription = customerPayment.subscriptionType;
+      //   }
+      // }
       return session;
     },
   },
