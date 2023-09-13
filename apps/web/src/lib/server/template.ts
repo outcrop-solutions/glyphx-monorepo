@@ -47,7 +47,7 @@ export const createProjectFromTemplate = async (req: NextApiRequest, res: NextAp
     const result = await projectService.createProject(
       `${template.name}`,
       workspaceId,
-      session?.user?.userId as string,
+      session?.user?._id as string,
       session?.user?.email as string,
       template,
       template.description
@@ -56,7 +56,7 @@ export const createProjectFromTemplate = async (req: NextApiRequest, res: NextAp
     // const { agentData, location } = formatUserAgent(req);
 
     // await activityLogService.createLog({
-    //   actorId: session?.user?.userId,
+    //   actorId: session?.user?._id,
     //   resourceId: template._id,
     //   templateId: template._id,
     //   workspaceId: template.workspace._id,
@@ -114,7 +114,7 @@ export const updateProjectTemplate = async (req: NextApiRequest, res: NextApiRes
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId as string,
+      actorId: session?.user?._id as string,
       resourceId: template._id?.toString() as string,
       location: location,
       userAgent: agentData,
@@ -151,7 +151,7 @@ export const deleteProjectTemplate = async (req: NextApiRequest, res: NextApiRes
       const {agentData, location} = formatUserAgent(req);
 
       await activityLogService.createLog({
-        actorId: session?.user?.userId as string,
+        actorId: session?.user?._id as string,
         resourceId: template._id?.toString() as string,
         location: location,
         userAgent: agentData,

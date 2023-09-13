@@ -19,7 +19,7 @@ const dateOptions = {
   day: 'numeric',
 };
 
-export const TableView = () => {
+export const TableView = ({projects}) => {
   dayjs.extend(relativeTime);
   const router = useRouter();
   const params = useParams();
@@ -86,47 +86,45 @@ export const TableView = () => {
                   <th className="text-right pr-2">Actions</th>
                 </tr>
               </thead>
-              {workspace.projects
-                .filter((proj) => !proj.deletedAt)
-                .map((project) => (
-                  <tr className="bg-secondary-space-blue rounded py-2 px-6 border border-transparent hover:border-white hover:bg-secondary-midnight hover:cursor-pointer font-roboto font-normal text-[14px] leading-[16px] tracking-[0.01em] text-light-gray hover:text-white">
-                    <td
-                      onClick={() => {
-                        router.push(`/account/${workspaceId}/${project._id!.toString()}` as Route);
-                      }}
-                      title="Project Name"
-                      className="pl-2"
-                    >
-                      {project?.name}
-                    </td>
-                    <td
-                      onClick={() => {
-                        router.push(`/account/${workspaceId}/${project._id!.toString()}` as Route);
-                      }}
-                      title="Last Updated"
-                      className="p-2"
-                    >
-                      {new Date(project?.updatedAt).toLocaleDateString('en-US', dateOptions as any)}
-                    </td>
-                    <td
-                      onClick={() => {
-                        router.push(`/account/${workspaceId}/${project._id!.toString()}` as Route);
-                      }}
-                      title="Data Used"
-                      className="p-2"
-                    >
-                      {`${formatFileSize(sumFileSizes(project.files))}`}
-                    </td>
-                    <td className="pr-2 py-2 flex flex-row items-center justify-end space-x-1">
-                      {/* info button */}
-                      <TableItemInfoIcon
-                        onClick={() => handleControl(webTypes.constants.RIGHT_SIDEBAR_CONTROL.INFO, project)}
-                      />
-                      {/* delete button */}
-                      <DeleteProjectIcon onClick={() => deleteProject(project)} />
-                    </td>
-                  </tr>
-                ))}
+              {projects.map((project) => (
+                <tr className="bg-secondary-space-blue rounded py-2 px-6 border border-transparent hover:border-white hover:bg-secondary-midnight hover:cursor-pointer font-roboto font-normal text-[14px] leading-[16px] tracking-[0.01em] text-light-gray hover:text-white">
+                  <td
+                    onClick={() => {
+                      router.push(`/account/${workspaceId}/${project._id!.toString()}` as Route);
+                    }}
+                    title="Project Name"
+                    className="pl-2"
+                  >
+                    {project?.name}
+                  </td>
+                  <td
+                    onClick={() => {
+                      router.push(`/account/${workspaceId}/${project._id!.toString()}` as Route);
+                    }}
+                    title="Last Updated"
+                    className="p-2"
+                  >
+                    {new Date(project?.updatedAt).toLocaleDateString('en-US', dateOptions as any)}
+                  </td>
+                  <td
+                    onClick={() => {
+                      router.push(`/account/${workspaceId}/${project._id!.toString()}` as Route);
+                    }}
+                    title="Data Used"
+                    className="p-2"
+                  >
+                    {`${formatFileSize(sumFileSizes(project.files))}`}
+                  </td>
+                  <td className="pr-2 py-2 flex flex-row items-center justify-end space-x-1">
+                    {/* info button */}
+                    <TableItemInfoIcon
+                      onClick={() => handleControl(webTypes.constants.RIGHT_SIDEBAR_CONTROL.INFO, project)}
+                    />
+                    {/* delete button */}
+                    <DeleteProjectIcon onClick={() => deleteProject(project)} />
+                  </td>
+                </tr>
+              ))}
             </table>
           </div>
         </div>

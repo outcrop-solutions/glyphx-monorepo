@@ -895,6 +895,12 @@ SCHEMA.static(
   }
 );
 
+SCHEMA.virtual('id').get(function () {
+  // In the getter function, `this` is the document. Don't use arrow
+  // functions for virtual getters!
+  return this._id.toString();
+});
+
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 

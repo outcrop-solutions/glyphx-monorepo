@@ -1,7 +1,7 @@
-import { getServerSession } from 'next-auth';
+import {getServerSession} from 'next-auth';
 import {authOptions} from 'app/api/auth/[...nextauth]/route';
 import {Metadata} from 'next';
-import { redirect } from 'next/navigation';
+import {redirect} from 'next/navigation';
 import {Route} from 'next';
 
 export const metadata: Metadata = {
@@ -13,6 +13,7 @@ export default async function AuthLayout({children}) {
   const session = await getServerSession(authOptions);
 
   if (session?.user) {
+    console.log({session, auth: true});
     redirect(`/account` as Route);
   }
 
@@ -21,5 +22,4 @@ export default async function AuthLayout({children}) {
       {children}
     </main>
   );
-};
-
+}

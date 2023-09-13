@@ -5,7 +5,6 @@ import {ClientSafeProvider, getProviders, signIn, useSession} from 'next-auth/re
 import toast from 'react-hot-toast';
 import isEmail from 'validator/lib/isEmail';
 import {useRouter} from 'next/navigation';
-import {Route} from 'next';
 
 export default function Login() {
   const {status} = useSession();

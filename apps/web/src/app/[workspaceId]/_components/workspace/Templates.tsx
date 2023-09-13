@@ -44,6 +44,7 @@ export const Templates = () => {
       },
     });
   };
+
   return (
     <div className="max-w-lg mx-auto flex flex-col grow justify-center items-center">
       <div className="text-lg font-medium text-white">Create your first project</div>

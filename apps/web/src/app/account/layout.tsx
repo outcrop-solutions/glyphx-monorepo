@@ -1,31 +1,22 @@
-'use client';
-import {useEffect} from 'react';
-import {useRouter} from 'next/navigation';
-import {useSession} from 'next-auth/react';
-import {Toaster} from 'react-hot-toast';
-
+import {getServerSession} from 'next-auth/next';
 import Content from '../_components/Content';
 import Header from '../_components/Header';
 import Sidebar from '../_components/Sidebar/index';
-import menu from 'config/menu/index';
-import {useWorkspace} from 'lib';
+import {authOptions} from 'app/api/auth/[...nextauth]/route';
+import {Route} from 'next';
+import {redirect} from 'next/navigation';
 
-export default function AccountLayout({children}) {
-  const {data} = useSession();
-  const router = useRouter();
-  const {data: workspace} = useWorkspace();
+export default async function AccountLayout({children}) {
+  const session = await getServerSession(authOptions);
 
-  useEffect(() => {
-    if (!data) {
-      // router.replace('/auth/login' as Route);
-    }
-  }, [data, router]);
-
+  if (!session?.user) {
+    console.log({session, account: true});
+    redirect(`/login` as Route);
+  }
   return (
     <div className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
       <Sidebar />
       <Content>
-        <Toaster position="bottom-left" toastOptions={{duration: 10000}} />
         <Header />
         {children}
       </Content>
