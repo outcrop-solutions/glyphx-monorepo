@@ -7,7 +7,7 @@ import addFilesJson2 from './assets/addTables2.json';
 import {fileIngestionTypes} from 'types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
 
-import {Initializer, processTrackingService, dbConnection} from 'business';
+import {Initializer, processTrackingService, dbConnection, s3Connection, athenaConnection} from 'business';
 import {v4} from 'uuid';
 
 import {config} from '../config';
@@ -26,26 +26,25 @@ const INPUT_PROJECT = {
   state: {},
   files: [],
 };
+let s3Bucket: aws.S3Manager;
+let athenaManager: aws.AthenaManager;
 async function setupExistingAssets() {
-  const payload = addFilesJson.payload as fileIngestion.IPayload;
+  const payload = addFilesJson.payload as fileIngestionTypes.IPayload;
   fileProcessingHelpers.loadTableStreams(addFilesJson.testDataDirectory, payload);
   await processTrackingService.createProcessTracking(PROCESS_ID2, PROCESS_NAME);
-  const fileIngestor = new FileIngestor(payload, addFilesJson.databaseName, PROCESS_ID2);
+  const fileIngestor = new FileIngestor(payload, s3Bucket, athenaManager, PROCESS_ID2);
   await fileIngestor.init();
   await fileIngestor.process();
 }
 
 describe('#fileProcessing', () => {
   context('add table to exisitng view', () => {
-    let s3Bucket: aws.S3Manager;
-    let athenaManager: aws.AthenaManager;
-
     let bucketName: string;
     let databaseName: string;
     let clientId: string;
     let modelId: string;
     let testDataDirectory: string;
-    let payload: fileIngestion.IPayload;
+    let payload: fileIngestionTypes.IPayload;
     let fileNames: string[];
 
     let projectId: any;
@@ -74,7 +73,7 @@ describe('#fileProcessing', () => {
       assert.isNotEmpty(modelId);
       assert.isNotEmpty(testDataDirectory);
 
-      payload = addFilesJson2.payload as fileIngestion.IPayload;
+      payload = addFilesJson2.payload as fileIngestionTypes.IPayload;
       assert.isOk(payload);
 
       fileNames = payload.fileStats.map((f) => f.fileName);
@@ -100,7 +99,7 @@ describe('#fileProcessing', () => {
       await processTrackingService.removeProcessTrackingDocument(PROCESS_ID2);
     });
     it('Basic pipeline test', async () => {
-      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
+      const fileIngestor = new FileIngestor(payload, s3Bucket, athenaManager, PROCESS_ID);
       await fileIngestor.init();
       const {joinInformation} = await fileIngestor.process();
       await fileProcessingHelpers.validateTableResults(joinInformation, athenaManager);
