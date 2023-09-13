@@ -10,8 +10,6 @@ import * as fileProcessingHelpers from './fileProcessingHelpers';
 
 import {fileIngestionTypes, databaseTypes} from 'types';
 import {GlyphEngine} from '../glyphEngine';
-import {Initializer as glyphEngineInitializer} from '../init';
-import {S3Manager} from 'core/src/aws';
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
@@ -89,7 +87,7 @@ describe('GlyphEngine', () => {
       await fileProcessingHelpers.cleanupAws(payload, clientId, modelId, s3Bucket, athenaManager);
       fileProcessingHelpers.loadTableStreams(testDataDirectory, payload);
       await processTrackingService.createProcessTracking(INGESTION_PROCESS_ID, INGESTION_PROCESS_NAME);
-      const fileIngestor = new FileIngestor(payload, databaseName, INGESTION_PROCESS_ID);
+      const fileIngestor = new FileIngestor(payload, s3Bucket, athenaManager, INGESTION_PROCESS_ID);
       await fileIngestor.init();
 
       await fileIngestor.process();
