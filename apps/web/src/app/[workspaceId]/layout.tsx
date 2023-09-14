@@ -1,5 +1,4 @@
 import {Metadata, Route} from 'next';
-import Content from 'app/_components/Content';
 import Header from 'app/_components/Header';
 import Sidebar from 'app/_components/Sidebar/index';
 import {getServerSession} from 'next-auth';
@@ -12,7 +11,7 @@ export const metadata: Metadata = {
   description: 'Glyphx Workspace',
 };
 
-export default async function WorkspaceLayout({children}) {
+export default async function WorkspaceLayout({children, params}) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
@@ -27,7 +26,7 @@ export default async function WorkspaceLayout({children}) {
         <Header />
         {children}
       </div>
-      <RightSidebar />
+      {params?.workspaceId ? <RightSidebar /> : <></>}
     </div>
   );
 }

@@ -13,7 +13,7 @@ export default async function WorkspacePage({params}) {
 
   return (
     workspace && (
-      <div className="flex flex-col h-full w-full px-5 space-y-5 overflow-y-auto md:px-10 bg-transparent">
+      <div className="flex flex-col h-full w-full space-y-5 overflow-y-auto bg-transparent">
         <div className="relative flex flex-col w-full h-full">
           <div className="h-full">
             <div className="flex grow relative h-full">

@@ -38,9 +38,9 @@ export const Templates = () => {
   // mutations
   const handleCreate = async () => {
     api({
-      ..._createDefaultProject(data.workspace._id),
+      ..._createDefaultProject(data?.workspace?._id),
       onSuccess: (data) => {
-        router.push(`/account/${workspaceId}/${data._id}` as Route);
+        router.push(`/${workspaceId}/project/${data._id}` as Route);
       },
     });
   };

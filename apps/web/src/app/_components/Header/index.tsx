@@ -15,14 +15,13 @@ const Header = () => {
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const {data} = useWorkspace();
 
-  console.log({data});
   const router = useRouter();
   const params = useParams();
   const {workspaceId} = params as {workspaceId: string};
   const pathname = usePathname();
 
   const backPressed = () => {
-    router.push(`/account/${project.workspace.slug}` as Route);
+    router.push(`/${data.workspace._id.toString()}` as Route);
     setDrawer(false);
     window?.core?.ToggleDrawer(false);
     setProject(null);

@@ -69,7 +69,7 @@ export const createWorkspace = async (req: NextApiRequest, res: NextApiResponse,
       action: databaseTypes.constants.ACTION_TYPE.CREATED,
     });
 
-    res.status(200).json({data: {name, slug}});
+    res.status(200).json({data: workspace});
   } catch (error) {
     res.status(404).json({errors: {error: {msg: error.message}}});
   }
