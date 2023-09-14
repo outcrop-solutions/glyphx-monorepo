@@ -3,7 +3,7 @@ import {assert} from 'chai';
 import {createSandbox} from 'sinon';
 import rewire from 'rewire';
 import {aws, error} from 'core';
-import athenaConnection from '../../../lib/athenaConnection';
+import athenaConnection from '../../lib/athenaConnection';
 
 describe('#lib/athenaConnection', () => {
   context('validate the singleton', () => {

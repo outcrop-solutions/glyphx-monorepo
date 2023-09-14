@@ -100,13 +100,14 @@
     "ws": "8.11.0"
   },
   "peerDependencies": {
-    "mongoose": "6.11.5"
+    "mongoose": "6.11.5",
+    "@babel/types": "7.22.17"
   },
   "devDependencies": {
     "@aws-sdk/client-secrets-manager": "^3.332.0",
     "@aws-sdk/types": "3.222.0",
     "@next/eslint-plugin-next": "^13.4.19",
-    "@svgr/webpack": "^7.0.0",
+    "@svgr/webpack": "8.1.0",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.6",
     "@tailwindcss/line-clamp": "^0.4.4",
@@ -115,7 +116,7 @@
     "@types/chai-http": "^4.2.0",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.11.7",
-    "@types/react": "^18.0.22",
+    "@types/react": "18.2.21",
     "@types/react-dom": "^18.0.7",
     "@types/sinon": "^10.0.13",
     "autoprefixer": "^10.4.15",
@@ -138,6 +139,6 @@
     "tailwindcss": "^3.3.3",
     "ts-node": "^10.9.1",
     "types": "workspace:*",
-    "typescript": "4.9.5"
+    "typescript": "5.2.2"
   }
 }

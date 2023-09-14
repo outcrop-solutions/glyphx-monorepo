@@ -1,4 +1,5 @@
 // layout
+import React from 'react';
 import {RightSidebar} from './_components/rightSidebar';
 import {Initializer, workspaceService} from 'business';
 import {GridContainer} from './_components/workspace/GridContainer';
