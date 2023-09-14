@@ -1,3 +1,4 @@
+'use client';
 import {ArrowRightIcon} from '@heroicons/react/outline';
 import {_createAnnotation, api} from 'lib';
 import {useCallback, useState} from 'react';

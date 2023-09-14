@@ -28,8 +28,8 @@ export const ProjectCard = ({project}) => {
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
   const setModals = useSetRecoilState(modalsAtom);
 
-  const navigate = (slug) => {
-    router.push(`/account/${slug}/${project._id}` as Route);
+  const navigate = () => {
+    router.push(`/${workspaceId}/project/${project._id}` as Route);
   };
 
   const deleteProject = useCallback(() => {
@@ -65,7 +65,7 @@ export const ProjectCard = ({project}) => {
           <DeleteProjectIcon onClick={deleteProject} />
         </div>
       </div>
-      <div onClick={() => navigate(workspaceId)} className="flex flex-col h-full justify-between rounded-md">
+      <div onClick={() => navigate()} className="flex flex-col h-full justify-between rounded-md">
         <div className="rounded-t-md overflow-hidden h-5/6">
           <Image
             width={project?.aspectRatio?.width || 300}

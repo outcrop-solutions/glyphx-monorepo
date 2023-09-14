@@ -56,7 +56,7 @@ export const createProjectAnnotation = async (req: NextApiRequest, res: NextApiR
   }
   try {
     const annotation = await annotationService.createProjectAnnotation({
-      authorId: session.user.userId as string,
+      authorId: session.user._id as string,
       projectId: projectId as string,
       value,
     });
@@ -74,7 +74,7 @@ export const createStateAnnotation = async (req: NextApiRequest, res: NextApiRes
   }
   try {
     const annotation = await annotationService.createStateAnnotation({
-      authorId: session.user.userId as string,
+      authorId: session.user._id as string,
       stateId: stateId as string,
       value: value as string,
     });

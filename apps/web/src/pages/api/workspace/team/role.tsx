@@ -13,7 +13,7 @@ const role = async (req: NextApiRequest, res: NextApiResponse) => {
 
   // check for valid session
   const session = await getServerSession(req, res, authOptions);
-  if (!session?.user?.userId) return res.status(401).end();
+  if (!session?.user?._id) return res.status(401).end();
 
   // execute the appropriate handler
   switch (req.method) {

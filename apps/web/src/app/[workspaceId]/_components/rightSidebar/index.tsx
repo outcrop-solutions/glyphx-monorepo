@@ -1,3 +1,4 @@
+'use client';
 import {useRef, useEffect} from 'react';
 import {usePosition} from 'services/usePosition';
 import {useRecoilState, useSetRecoilState} from 'recoil';

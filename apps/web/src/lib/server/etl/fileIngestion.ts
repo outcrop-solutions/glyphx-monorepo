@@ -108,7 +108,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId as string,
+      actorId: session?.user?._id as string,
       resourceId: newPayload.modelId,
       workspaceId: newPayload.clientId,
       projectId: newPayload.modelId,
@@ -119,7 +119,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     });
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId as string,
+      actorId: session?.user?._id as string,
       resourceId: processDocumentId?.toString() as string,
       workspaceId: newPayload.clientId,
       projectId: newPayload.modelId,

@@ -1,5 +1,4 @@
 'use client';
-import 'styles/globals.css';
 import {useState, useEffect} from 'react';
 import Router from 'next/router';
 import posthog from 'posthog-js';

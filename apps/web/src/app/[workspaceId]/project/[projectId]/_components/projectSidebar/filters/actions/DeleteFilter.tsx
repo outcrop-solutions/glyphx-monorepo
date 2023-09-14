@@ -1,3 +1,4 @@
+'use client';
 export function DeleteFilter({handleDeleteFilter}) {
   return (
     <div className="flex items-center justify-center h-6 w-6">

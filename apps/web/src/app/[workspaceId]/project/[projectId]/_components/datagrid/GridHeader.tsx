@@ -1,3 +1,4 @@
+'use client';
 import {filesOpenSelector} from 'state/files';
 import {useRecoilValue} from 'recoil';
 import {FileTab} from './FileTab';

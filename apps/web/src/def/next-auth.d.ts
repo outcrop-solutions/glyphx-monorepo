@@ -8,7 +8,7 @@ declare module 'next-auth' {
     jwt: boolean;
     user: {
       /** The user's postal address. */
-      userId?: string;
+      _id?: string;
       image?: string;
       email?: string;
       name?: string;

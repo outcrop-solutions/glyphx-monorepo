@@ -24,7 +24,7 @@ export const updateRole = async (req: NextApiRequest, res: NextApiResponse, sess
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId as string,
+      actorId: session?.user?._id as string,
       resourceId: member?._id?.toString() as string,
       workspaceId: member?.workspace._id?.toString() as string,
       location: location,
@@ -56,7 +56,7 @@ export const removeMember = async (req: NextApiRequest, res: NextApiResponse, se
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId as string,
+      actorId: session?.user?._id as string,
       resourceId: member?._id?.toString() as string,
       workspaceId: member?.workspace._id?.toString() as string,
       location: location,
@@ -89,7 +89,7 @@ export const joinWorkspace = async (req: NextApiRequest, res: NextApiResponse, s
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId as string,
+      actorId: session?.user?._id as string,
       resourceId: workspace?._id?.toString() as string,
       workspaceId: workspace?._id,
       location: location,
@@ -122,7 +122,7 @@ export const declineInvitation = async (req: NextApiRequest, res: NextApiRespons
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId as string,
+      actorId: session?.user?._id as string,
       resourceId: memberId,
       workspaceId: member?.workspace._id,
       location: location,
@@ -154,7 +154,7 @@ export const acceptInvitation = async (req: NextApiRequest, res: NextApiResponse
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId as string,
+      actorId: session?.user?._id as string,
       resourceId: memberId,
       workspaceId: member?.workspace._id,
       location: location,

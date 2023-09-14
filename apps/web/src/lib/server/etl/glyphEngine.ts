@@ -139,13 +139,13 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
       //     dir: { x: 0, y: 0, z: 0 },
       //   },
       //   updatedProject._id,
-      //   session.user.userId,
+      //   session.user?._id,
       //   { height: 300, width: 300 }
       // );
 
       const {agentData, location} = formatUserAgent(req);
       await activityLogService.createLog({
-        actorId: session?.user?.userId as string,
+        actorId: session?.user?._id as string,
         resourceId: payload.model_id,
         workspaceId: payload.client_id,
         projectId: payload.model_id,

@@ -27,7 +27,6 @@ export const Property = ({axis}) => {
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
   const {handleDrop} = useProject();
 
-  console.log({accept: prop, property: true});
   const [{isOver, canDrop}, drop] = useDrop({
     accept: prop.accepts,
     drop: (item) => handleDrop(axis, item, project, false),

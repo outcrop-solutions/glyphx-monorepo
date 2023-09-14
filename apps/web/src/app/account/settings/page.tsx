@@ -69,7 +69,7 @@ export default function Settings() {
     if (data) {
       setName(data?.user?.name as SetStateAction<string>);
       setEmail(data?.user?.email as SetStateAction<string>);
-      setUserCode(data?.user?.userId as SetStateAction<string>);
+      setUserCode(data?.user?._id as SetStateAction<string>);
     }
   }, [data]);
 

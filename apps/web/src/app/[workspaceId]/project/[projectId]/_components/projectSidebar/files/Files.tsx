@@ -1,3 +1,4 @@
+'use client';
 import React, {useState} from 'react';
 import {useDropzone} from 'react-dropzone';
 import {useRecoilValue} from 'recoil';

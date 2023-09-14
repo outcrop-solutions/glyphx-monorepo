@@ -1,3 +1,4 @@
+'use client';
 import {useFocusRef} from 'services/useFocusRef';
 export function SortableHeaderCell({onSort, children, isCellSelected}) {
   const {ref, tabIndex} = useFocusRef(isCellSelected);

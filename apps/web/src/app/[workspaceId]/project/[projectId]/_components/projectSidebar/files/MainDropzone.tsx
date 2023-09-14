@@ -1,3 +1,4 @@
+'use client';
 import {useDropzone} from 'react-dropzone';
 import {PlusIcon} from '@heroicons/react/solid';
 import {useFileSystem} from 'services/useFileSystem';
