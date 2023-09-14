@@ -70,7 +70,7 @@ export const ProjectCard = ({project}) => {
           <Image
             width={project?.aspectRatio?.width || 300}
             height={project?.aspectRatio?.height || 200}
-            className="object-cover h-full rounded-md"
+            className="object-cover h-full w-full rounded-md"
             src={project.imageHash ? `data:image/png;base64,${project.imageHash}` : projectCard}
             alt=""
           />
