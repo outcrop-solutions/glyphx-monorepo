@@ -13,3 +13,4 @@ export {DataServiceError} from './dataServiceError';
 export {CodeGenError} from './codegenError';
 export {TypeCheckError} from './typeCheckError';
 export {UnexpectedError} from './unexpectedError';
+export {DbFormatterError} from './dbFormatterError';
