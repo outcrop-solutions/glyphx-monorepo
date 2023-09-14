@@ -75,7 +75,6 @@ export const GridContainer = () => {
                   ? activeState?.aspectRatio?.height
                   : project?.aspectRatio?.height || 200
               }
-              layout="responsive"
               alt="model"
             />
           </div>
