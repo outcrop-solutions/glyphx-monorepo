@@ -13,7 +13,6 @@ export default async function AuthLayout({children}) {
   const session = await getServerSession(authOptions);
 
   if (session?.user) {
-    console.log({session, auth: true});
     redirect(`/account` as Route);
   }
 

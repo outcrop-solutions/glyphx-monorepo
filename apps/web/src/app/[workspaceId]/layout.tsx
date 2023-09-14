@@ -15,7 +15,6 @@ export default async function WorkspaceLayout({children, params}) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
-    console.log({session, account: true});
     redirect(`/login` as Route);
   }
 

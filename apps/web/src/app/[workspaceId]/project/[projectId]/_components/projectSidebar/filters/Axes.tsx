@@ -21,7 +21,6 @@ export const Axes = ({axis}) => {
   const [showFilter, setShowFilter] = useState(false); //shows filter property
   const {handleDrop} = useProject();
 
-  console.log({accept: prop.accepts, axis: true});
   // eslint-disable-next-line
   const [_, drop] = useDrop({
     accept: prop.accepts,
