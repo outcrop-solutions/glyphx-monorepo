@@ -10,7 +10,7 @@ export interface IProjectTemplate {
   deletedAt?: Date;
   community?: boolean;
   name: string;
-  description: string;
+  description?: string;
   projects: IProject[];
   tags: ITag[];
   shape: Record<string, Property>;
