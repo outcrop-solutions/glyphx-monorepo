@@ -1,3 +1,4 @@
+'use client';
 import {useDrag, useDrop} from 'react-dnd';
 import {useRecoilValue} from 'recoil';
 import {webTypes} from 'types';

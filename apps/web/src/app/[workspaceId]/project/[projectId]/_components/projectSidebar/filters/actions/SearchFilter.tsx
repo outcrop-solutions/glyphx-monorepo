@@ -1,3 +1,4 @@
+'use client';
 import React, {useState, useCallback} from 'react';
 import {produce} from 'immer';
 import SearchIcon from 'public/svg/search-icon.svg';

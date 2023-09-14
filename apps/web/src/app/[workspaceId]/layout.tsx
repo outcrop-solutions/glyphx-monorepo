@@ -5,6 +5,7 @@ import Sidebar from 'app/_components/Sidebar/index';
 import {getServerSession} from 'next-auth';
 import {authOptions} from 'app/api/auth/[...nextauth]/route';
 import {redirect} from 'next/navigation';
+import {RightSidebar} from './_components/rightSidebar';
 
 export const metadata: Metadata = {
   title: 'Workspace | Glyphx',
@@ -26,6 +27,7 @@ export default async function WorkspaceLayout({children}) {
         <Header />
         {children}
       </div>
+      <RightSidebar />
     </div>
   );
 }

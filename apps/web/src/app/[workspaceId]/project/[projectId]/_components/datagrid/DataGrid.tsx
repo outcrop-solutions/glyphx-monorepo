@@ -1,3 +1,4 @@
+'use client';
 import {useMemo} from 'react';
 import BarLoader from 'react-spinners/BarLoader';
 import {DraggableHeaderRenderer} from './DraggableHeaderRenderer';

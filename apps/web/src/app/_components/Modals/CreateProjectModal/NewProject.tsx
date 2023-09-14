@@ -21,14 +21,14 @@ export const NewProject = ({exit}) => {
   const handleCreateProject = useCallback(() => {
     setLoading(true);
     api({
-      ..._createProject(workspace._id!.toString(), name, description),
+      ..._createProject(workspaceId, name, description),
       onSuccess: (data) => {
         setLoading(false);
         exit();
-        router.push(`/account/${workspaceId}/${data._id}` as Route);
+        router.push(`/${workspaceId}/project/${data._id}` as Route);
       },
     });
-  }, [description, exit, name, router, workspace._id, workspaceId]);
+  }, [description, exit, name, router, workspaceId]);
 
   return (
     <div className="p-4 w-full">

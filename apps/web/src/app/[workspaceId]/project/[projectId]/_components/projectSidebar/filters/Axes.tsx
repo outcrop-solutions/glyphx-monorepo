@@ -1,3 +1,4 @@
+'use client';
 import {useState} from 'react';
 import {useRecoilValue} from 'recoil';
 import {useDrop} from 'react-dnd';
