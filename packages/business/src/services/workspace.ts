@@ -260,10 +260,10 @@ export class WorkspaceService {
     }
   }
 
-  public static async getSiteWorkspace(slug: string): Promise<databaseTypes.IWorkspace | null> {
+  public static async getSiteWorkspace(id: string): Promise<databaseTypes.IWorkspace | null> {
     try {
       const workspace = await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
-        slug,
+        _id: id,
         deletedAt: undefined,
       });
 
@@ -273,11 +273,12 @@ export class WorkspaceService {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
       } else {
+        console.dir({err}, {depth: null});
         const e = new error.DataServiceError(
           'An unexpected error occurred while querying Workspaces. See the inner error for additional details',
           'workspace',
-          'queryWorkspace',
-          {slug},
+          'queryWorkspaces',
+          {id},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);

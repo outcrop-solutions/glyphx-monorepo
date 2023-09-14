@@ -19,7 +19,7 @@ export default async function engine(req: NextApiRequest, res: NextApiResponse) 
   if (!Initializer.initedField) {
     await Initializer.init();
   }
-  if (!session?.user?.userId) return res.status(401).end();
+  if (!session?.user?._id) return res.status(401).end();
 
   switch (req.method) {
     case webTypes.constants.HTTP_METHOD.POST:

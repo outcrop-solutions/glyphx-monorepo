@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import {useRecoilValue} from 'recoil';
 import {MainDropzone} from '../projectSidebar/files';
@@ -21,7 +22,7 @@ export const GridContainer = () => {
   const {height} = useRecoilValue(windowSizeAtom);
   const {handlePaneResize, defaultSize, maxSize, minSize, split} = useResize();
   const resize = useRecoilValue(splitPaneSizeAtom);
-  const isBrowser = !(window && window?.core);
+  const isBrowser = !window?.core;
 
   const getPaneHeight = () => {
     if (height) {

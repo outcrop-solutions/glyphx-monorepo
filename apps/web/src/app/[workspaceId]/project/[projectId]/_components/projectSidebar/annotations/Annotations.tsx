@@ -1,3 +1,4 @@
+'use client';
 import React, {useState} from 'react';
 import {AnnotationList} from './AnnotationList';
 import {useAnnotations} from 'lib/client/hooks';

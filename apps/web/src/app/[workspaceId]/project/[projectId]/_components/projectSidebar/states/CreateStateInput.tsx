@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import StateIcon from 'public/svg/state.svg';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';

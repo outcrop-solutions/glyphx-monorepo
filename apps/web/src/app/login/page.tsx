@@ -5,11 +5,11 @@ import {ClientSafeProvider, getProviders, signIn, useSession} from 'next-auth/re
 import toast from 'react-hot-toast';
 import isEmail from 'validator/lib/isEmail';
 import {useRouter} from 'next/navigation';
-import {Route} from 'next';
 
 export default function Login() {
   const {status} = useSession();
   const router = useRouter();
+  const session = useSession();
   const [email, setEmail] = useState('');
   const [isSubmitting, setSubmittingState] = useState(false);
   const [socialProviders, setSocialProviders] = useState([] as ClientSafeProvider[]);
@@ -35,9 +35,13 @@ export default function Login() {
   const signInWithSocial = (socialId) => {
     signIn(socialId);
   };
-  const signInWithCreds = async () => {
-    router.push('/account' as Route);
-  };
+
+  useEffect(() => {
+    if (session?.status === 'unauthenticated') {
+      console.dir({session}, {depth: null});
+      // router.push('/account' as Route);
+    }
+  }, [router, session]);
 
   useEffect(() => {
     (async () => {
@@ -98,11 +102,7 @@ export default function Login() {
                   className="py-2 bg-secondary-midnight border rounded hover:bg-gray-50 disabled:opacity-75 text-white"
                   disabled={status === 'loading'}
                   onClick={() => {
-                    if (provider.name === 'Credentials') {
-                      signInWithCreds();
-                    } else {
-                      signInWithSocial(provider.id);
-                    }
+                    signInWithSocial(provider.id);
                   }}
                 >
                   {provider.name}

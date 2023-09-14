@@ -1,3 +1,4 @@
+'use client';
 import React, {useCallback, useState} from 'react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {Axes} from './Axes';

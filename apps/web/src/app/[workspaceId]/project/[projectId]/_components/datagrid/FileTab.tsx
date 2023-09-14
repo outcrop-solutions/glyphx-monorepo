@@ -1,3 +1,4 @@
+'use client';
 import {useRecoilValue} from 'recoil';
 import {selectedFileIndexSelector} from 'state/files';
 import {XIcon} from '@heroicons/react/solid';

@@ -1,3 +1,4 @@
+'use client';
 import {PencilIcon, TrashIcon} from '@heroicons/react/outline';
 import {useCallback} from 'react';
 import {useSession} from 'next-auth/react';
