@@ -28,7 +28,7 @@ const INPUT_PROJECT = {
   files: [],
 };
 async function setupExistingAssets() {
-  const payload = addFilesJson.payload as fileIngestion.IPayload;
+  const payload = addFilesJson.payload as fileIngestionTypes.IPayload;
   fileProcessingHelpers.loadTableStreams(addFilesJson.testDataDirectory, payload);
   await processTrackingService.createProcessTracking(PROCESS_ID2, PROCESS_NAME);
   const fileIngestor = new FileIngestor(payload, addFilesJson.databaseName, PROCESS_ID2);
@@ -46,7 +46,7 @@ describe('#fileProcessing', () => {
     let clientId: string;
     let modelId: string;
     let testDataDirectory: string;
-    let payload: fileIngestion.IPayload;
+    let payload: fileIngestionTypes.IPayload;
     let fileNames: string[];
     let projectId: any;
 
@@ -75,7 +75,7 @@ describe('#fileProcessing', () => {
       assert.isNotEmpty(modelId);
       assert.isNotEmpty(testDataDirectory);
 
-      payload = appendFilesJson.payload as fileIngestion.IPayload;
+      payload = appendFilesJson.payload as fileIngestionTypes.IPayload;
       assert.isOk(payload);
 
       fileNames = payload.fileStats.map((f) => f.fileName);

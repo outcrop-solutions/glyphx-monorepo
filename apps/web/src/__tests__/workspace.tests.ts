@@ -18,6 +18,7 @@ import {genericDelete, genericGet, genericPatch, genericPost, genericPut} from '
 import {databaseTypes} from 'types';
 import mongoose, {Types as mongooseTypes} from 'mongoose';
 import {_acceptInvitation, _createMember, _declineInvitation, _removeMember, _updateRole} from 'lib';
+import {Session} from 'next-auth';
 // import type { PageConfig } from 'next';
 // Respect the Next.js config object if it's exported
 // const handler: typeof deactivate & { config?: PageConfig } = deactivate;
@@ -57,6 +58,7 @@ const MOCK_WORKSPACE: databaseTypes.IWorkspace = {
   members: [],
   projects: [],
   states: [],
+  tags: [],
 };
 const MOCK_WORKSPACE_2: databaseTypes.IWorkspace = {
   createdAt: new Date(),
@@ -72,6 +74,7 @@ const MOCK_WORKSPACE_2: databaseTypes.IWorkspace = {
   members: [],
   projects: [],
   states: [],
+  tags: [],
 };
 
 const MOCK_WORKSPACES = [MOCK_WORKSPACE, MOCK_WORKSPACE_2];
@@ -247,7 +250,6 @@ describe('WORKSPACE ROUTES', () => {
       getWorkspaces: sandbox.stub(),
       getWorkspacePaths: sandbox.stub(),
       inviteUsers: sandbox.stub(),
-      isWorkspaceCreator: sandbox.stub(),
       isWorkspaceOwner: sandbox.stub(),
       joinWorkspace: sandbox.stub(),
       updateWorkspaceName: sandbox.stub(),
@@ -905,7 +907,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: workspaceRouteWrapper,
           url: `/api/workspace/[workspaceSlug]`,
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -929,9 +931,9 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: workspaceRouteWrapper,
           url: `/api/workspace/[workspaceSlug]`,
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
-            const config = wrapConfig(_deleteWorkspace(MOCK_WORKSPACE.slug));
+            const config = wrapConfig(_deleteWorkspace(MOCK_WORKSPACE.slug!));
             const res = await fetch(config);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -953,7 +955,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: workspaceRoute,
           url: `/api/workspace/[workspaceSlug]`,
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -973,7 +975,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: workspaceRoute,
           url: `/api/workspace/[workspaceSlug]`,
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
             const res = await fetch(genericPatch);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -996,7 +998,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: workspaceRoute,
           url: `/api/workspace/[workspaceSlug]`,
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -1019,7 +1021,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: workspaceRoute,
           url: `/api/workspace/[workspaceSlug]`,
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
             const res = await fetch(genericPut);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -1048,9 +1050,9 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: inviteUsersRouteWrapper,
           url: '/api/workspace/[workspaceSlug]/invite',
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
-            const config = wrapConfig(_createMember({slug: MOCK_WORKSPACE.slug, members: MOCK_MEMBERS}));
+            const config = wrapConfig(_createMember({slug: MOCK_WORKSPACE.slug!, members: MOCK_MEMBERS}));
             const res = await fetch(config);
             assert.isTrue(initializerStub.init.calledOnce);
             assert.isTrue(validateSessionStub.calledOnce);
@@ -1072,7 +1074,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: inviteUsersRoute,
           url: '/api/workspace/[workspaceSlug]/invite',
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -1092,7 +1094,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: inviteUsersRoute,
           url: '/api/workspace/[workspaceSlug]/invite',
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -1163,7 +1165,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: isTeamOwnerRouteWrapper,
           url: '/api/workspace/[workspaceSlug]/isTeamOwner',
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.strictEqual(res.status, 200);
@@ -1180,7 +1182,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: isTeamOwnerRoute,
           url: '/api/workspace/[workspaceSlug]/isTeamOwner',
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -1201,7 +1203,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: isTeamOwnerRoute,
           url: '/api/workspace/[workspaceSlug]/isTeamOwner',
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -1271,7 +1273,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: getMembersRouteWrapper,
           url: '/api/workspace/[workspaceSlug]/members',
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.strictEqual(res.status, 200);
@@ -1288,7 +1290,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: getMembersRoute,
           url: '/api/workspace/[workspaceSlug]/members',
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -1308,7 +1310,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: getMembersRoute,
           url: '/api/workspace/[workspaceSlug]/members',
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -1381,9 +1383,9 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: updateWorkspaceNameRouteWrapper,
           url: '/api/workspace/[workspaceSlug]/name',
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
-            const config = _updateWorkspaceName({slug: MOCK_WORKSPACE.slug, name: 'NEW NAME'});
+            const config = _updateWorkspaceName({slug: MOCK_WORKSPACE.slug!, name: 'NEW NAME'});
             const res = await fetch(wrapConfig(config));
 
             assert.strictEqual(res.status, 200);
@@ -1400,7 +1402,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: updateWorkspaceNameRoute,
           url: '/api/workspace/[workspaceSlug]/name',
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -1420,7 +1422,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: updateWorkspaceNameRoute,
           url: '/api/workspace/[workspaceSlug]/name',
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -1493,9 +1495,9 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: updateWorkspaceSlugRouteWrapper,
           url: '/api/workspace/[workspaceSlug]/slug',
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
-            const config = _updateWorkspaceSlug({slug: MOCK_WORKSPACE.slug, newSlug: 'NEW_SLUG'});
+            const config = _updateWorkspaceSlug({workspaceId: MOCK_WORKSPACE._id!.toString(), newSlug: 'NEW_SLUG'});
             const res = await fetch(wrapConfig(config));
 
             assert.strictEqual(res.status, 200);
@@ -1512,7 +1514,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: updateWorkspaceSlugRoute,
           url: '/api/workspace/[workspaceSlug]/slug',
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
             const res = await fetch(genericGet);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -1532,7 +1534,7 @@ describe('WORKSPACE ROUTES', () => {
         await testApiHandler({
           handler: updateWorkspaceSlugRoute,
           url: '/api/workspace/[workspaceSlug]/slug',
-          params: {workspaceSlug: MOCK_WORKSPACE.slug},
+          params: {workspaceSlug: MOCK_WORKSPACE.slug!},
           test: async ({fetch}) => {
             const res = await fetch(genericPost);
             assert.isTrue(initializerStub.init.calledOnce);
@@ -1605,7 +1607,7 @@ describe('WORKSPACE ROUTES', () => {
           handler: acceptInvitationRouteWrapper,
           url: '/api/workspace/team/accept',
           test: async ({fetch}) => {
-            const config = _acceptInvitation(MOCK_MEMBER_1._id.toString());
+            const config = _acceptInvitation(MOCK_MEMBER_1._id!.toString());
             const res = await fetch(wrapConfig(config));
             assert.strictEqual(res.status, 200);
           },
@@ -1731,7 +1733,7 @@ describe('WORKSPACE ROUTES', () => {
           handler: declineInvitationRouteWrapper,
           url: '/api/workspace/team/decline',
           test: async ({fetch}) => {
-            const config = _declineInvitation(MOCK_MEMBER_1._id.toString());
+            const config = _declineInvitation(MOCK_MEMBER_1._id!.toString());
             const res = await fetch(wrapConfig(config));
             assert.strictEqual(res.status, 200);
           },
@@ -1945,7 +1947,7 @@ describe('WORKSPACE ROUTES', () => {
           handler: removeMemberRouteWrapper,
           url: '/api/workspace/team/member',
           test: async ({fetch}) => {
-            const config = _removeMember(MOCK_MEMBER_1._id.toString());
+            const config = _removeMember(MOCK_MEMBER_1._id!.toString());
             const res = await fetch(wrapConfig(config));
             assert.strictEqual(res.status, 200);
           },
@@ -2053,7 +2055,7 @@ describe('WORKSPACE ROUTES', () => {
           handler: updateRoleRouteWrapper,
           url: '/api/workspace/team/role',
           test: async ({fetch}) => {
-            const config = _updateRole(MOCK_MEMBER_1._id.toString(), databaseTypes.constants.ROLE.OWNER);
+            const config = _updateRole(MOCK_MEMBER_1._id!.toString(), databaseTypes.constants.ROLE.OWNER);
             const res = await fetch(wrapConfig(config));
             assert.strictEqual(res.status, 200);
           },

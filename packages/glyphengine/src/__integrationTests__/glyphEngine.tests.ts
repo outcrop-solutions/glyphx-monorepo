@@ -39,7 +39,7 @@ describe('GlyphEngine', () => {
     let clientId: string;
     let modelId: string;
     let testDataDirectory: string;
-    let payload: fileIngestion.IPayload;
+    let payload: fileIngestionTypes.IPayload;
     let fileNames: string[];
     let projectId: any;
     let viewName: any;
@@ -73,7 +73,7 @@ describe('GlyphEngine', () => {
       assert.isNotEmpty(testDataDirectory);
       assert.isNotEmpty(viewName);
 
-      payload = addFilesJson.payload as fileIngestion.IPayload;
+      payload = addFilesJson.payload as fileIngestionTypes.IPayload;
       payload.clientId = clientId;
       payload.modelId = modelId;
       assert.isOk(payload);
