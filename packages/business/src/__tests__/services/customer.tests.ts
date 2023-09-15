@@ -1,7 +1,7 @@
 import 'mocha';
 import {assert} from 'chai';
 import Stripe from 'stripe';
-import {StripeClient} from '../lib/stripe';
+import {StripeClient} from '../../lib/stripe';
 import {createSandbox} from 'sinon';
 import {databaseTypes} from 'types';
 import {Types as mongooseTypes} from 'mongoose';

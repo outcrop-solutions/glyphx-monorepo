@@ -6,7 +6,7 @@ import {MongoDbConnection} from 'database';
 import {databaseTypes} from 'types';
 import {Types as mongooseTypes} from 'mongoose';
 import {error} from 'core';
-import {dbConnection} from '../../../dist';
+import dbConnection from '../../lib/databaseConnection';
 describe('ProcessTrackingService', () => {
   context('createProcessTracking', () => {
     const mockProcessTracking: databaseTypes.IProcessTracking = {

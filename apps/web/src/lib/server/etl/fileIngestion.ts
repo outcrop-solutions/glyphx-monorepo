@@ -60,11 +60,7 @@ import {s3Connection} from 'business';
  *
  */
 
-export const fileIngestion = async (
-  req: NextApiRequest,
-  res: NextApiResponse,
-  session: Session & {user: {userId: string}}
-) => {
+export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   try {
     // Extract payload
     const {payload} = req.body;

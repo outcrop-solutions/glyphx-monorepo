@@ -2,7 +2,7 @@
 import 'mocha';
 import {assert} from 'chai';
 import {createSandbox} from 'sinon';
-import {databaseTypes} from '../../../../database';
+import {databaseTypes} from 'types';
 import {Types as mongooseTypes} from 'mongoose';
 import {MongoDbConnection} from 'database';
 import {error} from 'core';
@@ -64,7 +64,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig({});
+        await modelConfigService.createModelConfig({} as databaseTypes.IModelConfig);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -95,7 +95,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig({});
+        await modelConfigService.createModelConfig({} as databaseTypes.IModelConfig);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -127,7 +127,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig({});
+        await modelConfigService.createModelConfig({} as databaseTypes.IModelConfig);
       } catch (e) {
         assert.instanceOf(e, error.DataValidationError);
         errored = true;
@@ -159,7 +159,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig({});
+        await modelConfigService.createModelConfig({} as databaseTypes.IModelConfig);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -191,7 +191,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig({});
+        await modelConfigService.createModelConfig({} as databaseTypes.IModelConfig);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;

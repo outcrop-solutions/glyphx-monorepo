@@ -45,10 +45,10 @@
     "sinon": "^14.0.1",
     "ts-node": "^10.9.1",
     "tsconfig": "workspace:*",
-    "tsup": "^5.11.13",
+    "tsup": "7.2.0",
     "tsx": "^3.7.1",
     "types": "workspace:*",
-    "typescript": "4.9.5",
+    "typescript": "5.2.2",
     "uuid": "^8.3.2"
   }
 }

@@ -1,1 +1,3 @@
-export {MongoDbConnection} from './mongoose';
+import {databaseTypes} from 'types';
+
+export {MOCK_MODELCONFIG, MongoDbConnection} from './mongoose';
