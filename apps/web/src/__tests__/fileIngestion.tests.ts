@@ -45,7 +45,6 @@ const MOCK_PROJECT: databaseTypes.IProject = {
   workspace: {
     _id: new mongooseTypes.ObjectId(),
   } as unknown as databaseTypes.IWorkspace,
-  slug: 'what is a slug anyway',
   template: {
     _id: new mongooseTypes.ObjectId(),
   } as unknown as databaseTypes.IProjectTemplate,

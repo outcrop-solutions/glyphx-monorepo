@@ -12,6 +12,7 @@ import {wrapConfig} from './utilities/wrapConfig';
 import {genericDelete, genericGet, genericPut} from './utilities/genericReqs';
 import {Types as mongooseTypes} from 'mongoose';
 import {databaseTypes, webTypes, fileIngestionTypes} from 'types';
+import {Session} from 'next-auth';
 
 const MOCK_SESSION = {
   user: {
@@ -246,6 +247,10 @@ const MOCK_STATE: databaseTypes.IState = {
   name: 'mockState1',
   static: true,
   version: 0,
+  aspectRatio: {
+    height: 300,
+    width: 300,
+  },
   camera: {
     pos: {
       x: 0,

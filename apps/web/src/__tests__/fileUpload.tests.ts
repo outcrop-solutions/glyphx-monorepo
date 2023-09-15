@@ -1,6 +1,5 @@
 import 'mocha';
 import {assert} from 'chai';
-import {Session} from 'next-auth';
 import {createSandbox} from 'sinon';
 // where the magic happens
 import * as proxyquireType from 'proxyquire';
@@ -11,7 +10,7 @@ import {wrapConfig} from './utilities/wrapConfig';
 import {genericDelete, genericGet, genericPut} from './utilities/genericReqs';
 import {Types as mongooseTypes} from 'mongoose';
 import {databaseTypes, webTypes, fileIngestionTypes} from 'types';
-import type {PageConfig} from 'next';
+import {Session} from 'next-auth';
 
 const MOCK_WORKSPACE = {
   _id:
@@ -44,7 +43,6 @@ const MOCK_PROJECT: databaseTypes.IProject = {
       // @ts-ignore
       new mongooseTypes.ObjectId(),
   } as unknown as databaseTypes.IWorkspace,
-  slug: 'what is a slug anyway',
   template: {
     _id:
       // @ts-ignore

@@ -34,7 +34,6 @@ const MOCK_WORKSPACE: databaseTypes.IWorkspace = {
   workspaceCode: 'testWorkspaceCode',
   inviteCode: 'testInviteCode',
   name: 'Test Workspace',
-  slug: 'testSlug',
   description: 'a test workspace',
   creator: {
     _id: new mongooseTypes.ObjectId(),
@@ -93,7 +92,6 @@ const MOCK_PROJECT: databaseTypes.IProject = {
   workspace: {
     _id: new mongooseTypes.ObjectId(),
   } as unknown as databaseTypes.IWorkspace,
-  slug: 'what is a slug anyway',
   template: {
     _id: new mongooseTypes.ObjectId(),
   } as unknown as databaseTypes.IProjectTemplate,
@@ -242,9 +240,7 @@ describe('DATA ROUTES', () => {
           url: '/api/data/grid',
           test: async ({fetch}) => {
             const res = await fetch(
-              wrapConfig(
-                _getDataGrid(MOCK_WORKSPACE._id?.toString() ?? '', MOCK_PROJECT._id?.toString() ?? '', MOCK_TABLE_NAME)
-              )
+              wrapConfig(_getDataGrid(MOCK_WORKSPACE._id!.toString(), MOCK_PROJECT._id!.toString(), MOCK_TABLE_NAME))
             );
 
             assert.strictEqual(res.status, 200);
@@ -358,10 +354,7 @@ describe('DATA ROUTES', () => {
           test: async ({fetch}) => {
             const res = await fetch(
               wrapConfig(
-                _getRowIds(MOCK_WORKSPACE._id?.toString() ?? '', MOCK_PROJECT._id?.toString() ?? '', MOCK_TABLE_NAME, [
-                  '0',
-                  '1',
-                ])
+                _getRowIds(MOCK_WORKSPACE._id!.toString(), MOCK_PROJECT._id!.toString(), MOCK_TABLE_NAME, ['0', '1'])
               )
             );
 

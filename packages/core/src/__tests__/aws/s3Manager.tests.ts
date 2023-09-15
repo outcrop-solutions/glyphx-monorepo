@@ -93,7 +93,7 @@ describe('#aws/s3Manager', () => {
       const s3Manager = new S3Manager('Some unknown bucket');
       let threw = false;
       try {
-        s3Manager.bucket;
+        (s3Manager as any).bucket;
       } catch (err) {
         threw = true;
         assert.instanceOf(err, error.InvalidOperationError);
@@ -108,7 +108,7 @@ describe('#aws/s3Manager', () => {
       await s3Manager.init();
       let threw = false;
       try {
-        s3Manager.bucket;
+        (s3Manager as any).bucket;
       } catch (err) {
         threw = true;
       }

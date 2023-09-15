@@ -7,6 +7,7 @@ import {MongoDbConnection} from 'database';
 import {error} from 'core';
 import {projectTemplateService} from '../../services';
 import {ProjectTemplateService} from 'services/projectTemplate';
+import {webTypes, fileIngestionTypes} from 'types';
 
 describe('#services/projectTemplate', () => {
   const sandbox = createSandbox();
@@ -223,37 +224,104 @@ describe('#services/projectTemplate', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context('createTemplateFromProject', () => {
-    it('will create a ProjectTemplate from a Project', async () => {
+  context('createProjectTemplate', () => {
+    it('will create a ProjectTemplate', async () => {
       const projectTemplateId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const projectTemplateName = 'projectTemplateName1';
-      const projectId =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
-
-      const getProjectFromModelStub = sandbox.stub();
-      getProjectFromModelStub.resolves({
-        _id: projectId,
-      } as unknown as databaseTypes.IProject);
-      sandbox.replace(dbConnection.models.ProjectModel, 'getProjectById', getProjectFromModelStub);
-
-      const cleanProjectStub = sandbox.stub();
-      cleanProjectStub.resolves({
-        _id: projectId,
-      } as unknown as databaseTypes.IProject);
-      sandbox.replace(ProjectTemplateService, 'cleanProject', cleanProjectStub);
+      const projectTemplateDesc = 'projectTemplateName1';
+      const properties = {
+        X: {
+          axis: webTypes.constants.AXIS.X,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: 'Column X', // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+        Y: {
+          axis: webTypes.constants.AXIS.Y,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: 'Column Y', // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+        Z: {
+          axis: webTypes.constants.AXIS.Z,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: 'Column Z', // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+        A: {
+          axis: webTypes.constants.AXIS.A,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: 'Column 1', // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+        B: {
+          axis: webTypes.constants.AXIS.B,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: 'Column 2', // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+        C: {
+          axis: webTypes.constants.AXIS.C,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: 'Column 3', // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+      };
 
       const createProjectTemplateFromModelStub = sandbox.stub();
       createProjectTemplateFromModelStub.resolves({
         _id: projectTemplateId,
         name: projectTemplateName,
+        description: projectTemplateDesc,
+        properties,
       } as unknown as databaseTypes.IProjectTemplate);
 
       sandbox.replace(dbConnection.models.ProjectTemplateModel, 'create', createProjectTemplateFromModelStub);
 
-      await projectTemplateService.createTemplateFromProject(projectId);
+      await projectTemplateService.createProjectTemplate(
+        projectTemplateId,
+        projectTemplateName,
+        projectTemplateDesc,
+        properties
+      );
 
       assert.isTrue(createProjectTemplateFromModelStub.calledOnce);
     });
@@ -264,27 +332,86 @@ describe('#services/projectTemplate', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const projectTemplateName = 'projectTemplateName1';
-      const projectId =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
+      const projectTemplateDesc = 'projectTemplateName1';
+      const properties = {
+        X: {
+          axis: webTypes.constants.AXIS.X,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: 'Column X', // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+        Y: {
+          axis: webTypes.constants.AXIS.Y,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: 'Column Y', // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+        Z: {
+          axis: webTypes.constants.AXIS.Z,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: 'Column Z', // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+        A: {
+          axis: webTypes.constants.AXIS.A,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: 'Column 1', // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+        B: {
+          axis: webTypes.constants.AXIS.B,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: 'Column 2', // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+        C: {
+          axis: webTypes.constants.AXIS.C,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: 'Column 3', // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+      };
       const errMessage = 'Cannot find the project';
       const err = new error.DataNotFoundError(errMessage, 'projectTemplateId', projectTemplateId);
 
-      const getProjectFromModelStub = sandbox.stub();
-      getProjectFromModelStub.rejects(err);
-      sandbox.replace(dbConnection.models.ProjectModel, 'getProjectById', getProjectFromModelStub);
-
-      const cleanProjectStub = sandbox.stub();
-      cleanProjectStub.resolves({
-        _id: projectId,
-      } as unknown as databaseTypes.IProject);
-      sandbox.replace(ProjectTemplateService, 'cleanProject', cleanProjectStub);
-
       const createProjectTemplateFromModelStub = sandbox.stub();
-      createProjectTemplateFromModelStub.resolves({
-        _id: projectTemplateId,
-        name: projectTemplateName,
-      } as unknown as databaseTypes.IProjectTemplate);
+      createProjectTemplateFromModelStub.rejects(err);
 
       sandbox.replace(dbConnection.models.ProjectTemplateModel, 'create', createProjectTemplateFromModelStub);
 
@@ -301,10 +428,14 @@ describe('#services/projectTemplate', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const projectTemplate = await projectTemplateService.createTemplateFromProject(projectId);
+      const projectTemplate = await projectTemplateService.createProjectTemplate(
+        projectTemplateId,
+        projectTemplateName,
+        projectTemplateDesc,
+        properties
+      );
 
       assert.notOk(projectTemplate);
-      assert.isTrue(getProjectFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
@@ -312,27 +443,87 @@ describe('#services/projectTemplate', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const projectTemplateName = 'projectTemplateName1';
-      const projectId =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
+      const projectTemplateDesc = 'projectTemplateName1';
+      const properties = {
+        X: {
+          axis: webTypes.constants.AXIS.X,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: 'Column X', // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+        Y: {
+          axis: webTypes.constants.AXIS.Y,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: 'Column Y', // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+        Z: {
+          axis: webTypes.constants.AXIS.Z,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: 'Column Z', // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+        A: {
+          axis: webTypes.constants.AXIS.A,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: 'Column 1', // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+        B: {
+          axis: webTypes.constants.AXIS.B,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: 'Column 2', // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+        C: {
+          axis: webTypes.constants.AXIS.C,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: 'Column 3', // corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        },
+      };
+
       const errMessage = 'Something Bad has happened';
       const err = new error.DatabaseOperationError(errMessage, 'mongoDb', 'getProjectTemplateById');
 
-      const getProjectFromModelStub = sandbox.stub();
-      getProjectFromModelStub.rejects(err);
-      sandbox.replace(dbConnection.models.ProjectModel, 'getProjectById', getProjectFromModelStub);
-
-      const cleanProjectStub = sandbox.stub();
-      cleanProjectStub.resolves({
-        _id: projectId,
-      } as unknown as databaseTypes.IProject);
-      sandbox.replace(ProjectTemplateService, 'cleanProject', cleanProjectStub);
-
       const createProjectTemplateFromModelStub = sandbox.stub();
-      createProjectTemplateFromModelStub.resolves({
-        _id: projectTemplateId,
-        name: projectTemplateName,
-      } as unknown as databaseTypes.IProjectTemplate);
+      createProjectTemplateFromModelStub.rejects(err);
 
       sandbox.replace(dbConnection.models.ProjectTemplateModel, 'create', createProjectTemplateFromModelStub);
 
@@ -351,162 +542,17 @@ describe('#services/projectTemplate', () => {
 
       let errored = false;
       try {
-        await projectTemplateService.createTemplateFromProject(projectId);
+        await projectTemplateService.createProjectTemplate(
+          projectTemplateId,
+          projectTemplateName,
+          projectTemplateDesc,
+          properties
+        );
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(getProjectFromModelStub.calledOnce);
-      assert.isTrue(publishOverride.calledOnce);
-    });
-  });
-  context('cloneProjectFromTemplate', () => {
-    it('will clone a Project from a Template', async () => {
-      const projectTemplateId =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
-      const projectName = 'projectName1';
-      const projectId =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
-
-      const getProjectTemplateFromModelStub = sandbox.stub();
-      getProjectTemplateFromModelStub.resolves({
-        _id: projectTemplateId,
-      } as unknown as databaseTypes.IProjectTemplate);
-      sandbox.replace(
-        dbConnection.models.ProjectTemplateModel,
-        'getProjectTemplateById',
-        getProjectTemplateFromModelStub
-      );
-
-      const cleanProjectTemplateStub = sandbox.stub();
-      cleanProjectTemplateStub.resolves({
-        _id: projectId,
-      } as unknown as databaseTypes.IProject);
-      sandbox.replace(ProjectTemplateService, 'cleanProjectTemplate', cleanProjectTemplateStub);
-
-      const createProjectFromModelStub = sandbox.stub();
-      createProjectFromModelStub.resolves({
-        _id: projectId,
-        name: projectName,
-      } as unknown as databaseTypes.IProjectTemplate);
-
-      sandbox.replace(dbConnection.models.ProjectModel, 'create', createProjectFromModelStub);
-
-      await projectTemplateService.cloneProjectFromTemplate(projectTemplateId);
-
-      assert.isTrue(createProjectFromModelStub.calledOnce);
-    });
-    // project model fails
-    it('will log the failure and return null if the projectTemplate cannot be found', async () => {
-      const projectTemplateId =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
-      const projectName = 'projectName1';
-      const projectId =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
-      const errMessage = 'Cannot find the project';
-      const err = new error.DataNotFoundError(errMessage, 'projectTemplateId', projectTemplateId);
-
-      const getProjectTemplateFromModelStub = sandbox.stub();
-      getProjectTemplateFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.ProjectTemplateModel,
-        'getProjectTemplateById',
-        getProjectTemplateFromModelStub
-      );
-
-      const cleanProjectTemplateStub = sandbox.stub();
-      cleanProjectTemplateStub.resolves({
-        _id: projectId,
-      } as unknown as databaseTypes.IProject);
-      sandbox.replace(ProjectTemplateService, 'cleanProjectTemplate', cleanProjectTemplateStub);
-
-      const createProjectFromModelStub = sandbox.stub();
-      createProjectFromModelStub.resolves({
-        _id: projectId,
-        name: projectName,
-      } as unknown as databaseTypes.IProjectTemplate);
-
-      sandbox.replace(dbConnection.models.ProjectModel, 'create', createProjectFromModelStub);
-
-      function fakePublish() {
-        //@ts-ignore
-        assert.instanceOf(this, error.DataNotFoundError);
-
-        //@ts-ignore
-        assert.strictEqual(this.message, errMessage);
-      }
-
-      const boundPublish = fakePublish.bind(err);
-      const publishOverride = sandbox.stub();
-      publishOverride.callsFake(boundPublish);
-      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
-
-      const projectTemplate = await projectTemplateService.cloneProjectFromTemplate(projectTemplateId);
-
-      assert.notOk(projectTemplate);
-      assert.isTrue(getProjectTemplateFromModelStub.calledOnce);
-      assert.isTrue(publishOverride.calledOnce);
-    });
-    it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const projectTemplateId =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
-      const projectName = 'projectName1';
-      const projectId =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
-      const errMessage = 'Something Bad has happened';
-      const err = new error.DatabaseOperationError(errMessage, 'mongoDb', 'getProjectTemplateById');
-
-      const getProjectTemplateFromModelStub = sandbox.stub();
-      getProjectTemplateFromModelStub.rejects(err);
-      sandbox.replace(
-        dbConnection.models.ProjectTemplateModel,
-        'getProjectTemplateById',
-        getProjectTemplateFromModelStub
-      );
-
-      const cleanProjectTemplateStub = sandbox.stub();
-      cleanProjectTemplateStub.resolves({
-        _id: projectId,
-      } as unknown as databaseTypes.IProject);
-      sandbox.replace(ProjectTemplateService, 'cleanProjectTemplate', cleanProjectTemplateStub);
-
-      const createProjectFromModelStub = sandbox.stub();
-      createProjectFromModelStub.resolves({
-        _id: projectId,
-        name: projectName,
-      } as unknown as databaseTypes.IProjectTemplate);
-
-      sandbox.replace(dbConnection.models.ProjectModel, 'create', createProjectFromModelStub);
-
-      function fakePublish() {
-        //@ts-ignore
-        assert.instanceOf(this, error.DatabaseOperationError);
-
-        //@ts-ignore
-        assert.strictEqual(this.message, errMessage);
-      }
-
-      const boundPublish = fakePublish.bind(err);
-      const publishOverride = sandbox.stub();
-      publishOverride.callsFake(boundPublish);
-      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
-
-      let errored = false;
-      try {
-        await projectTemplateService.cloneProjectFromTemplate(projectTemplateId);
-      } catch (e) {
-        assert.instanceOf(e, error.DataServiceError);
-        errored = true;
-      }
-      assert.isTrue(errored);
-      assert.isTrue(getProjectTemplateFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });
@@ -1137,6 +1183,4 @@ describe('#services/projectTemplate', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context('cleanProject', () => {});
-  context('cleanProjectTemplate', () => {});
 });
