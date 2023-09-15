@@ -55,7 +55,7 @@ export async function cleanupAthenaView(clientId: string, modelId: string, athen
 }
 
 export async function cleanupAws(
-  payload: fileIngestion.IPayload,
+  payload: fileIngestionTypes.IPayload,
   clientId: string,
   modelId: string,
   s3Bucket: aws.S3Manager,
@@ -70,7 +70,7 @@ export async function cleanupAws(
   }
   await cleanupAthenaView(clientId, modelId, athenaManager);
 }
-export function loadTableStreams(testDataDirectory: string, payload: fileIngestion.IPayload) {
+export function loadTableStreams(testDataDirectory: string, payload: fileIngestionTypes.IPayload) {
   const cleanDiretoryName = generalPurposeFunctions.string.checkAndAddTrailingSlash(testDataDirectory);
   for (let i = 0; i < payload.fileInfo.length; i++) {
     const fileInfo = payload.fileInfo[i];

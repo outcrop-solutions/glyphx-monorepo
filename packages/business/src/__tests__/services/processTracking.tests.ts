@@ -6,7 +6,6 @@ import {MongoDbConnection} from 'database';
 import {databaseTypes} from 'types';
 import {Types as mongooseTypes} from 'mongoose';
 import {error} from 'core';
-import {dbConnection} from '../../../dist';
 describe('ProcessTrackingService', () => {
   context('createProcessTracking', () => {
     const mockProcessTracking: databaseTypes.IProcessTracking = {
@@ -283,6 +282,7 @@ describe('ProcessTrackingService', () => {
       processMessages: [],
       processError: [],
     };
+    const dbConnection = new MongoDbConnection();
     const sandbox = createSandbox();
 
     afterEach(() => {
@@ -561,6 +561,7 @@ describe('ProcessTrackingService', () => {
       processMessages: [],
       processError: [],
     };
+    const dbConnection = new MongoDbConnection();
     const sandbox = createSandbox();
 
     afterEach(() => {
@@ -1374,6 +1375,7 @@ describe('ProcessTrackingService', () => {
   });
 
   context('removeProcessTrackingDocument', () => {
+    const dbConnection = new MongoDbConnection();
     const sandbox = createSandbox();
     afterEach(() => {
       sandbox.restore();
@@ -1465,6 +1467,7 @@ describe('ProcessTrackingService', () => {
 
   context('setHeartbeat', () => {
     const sandbox = createSandbox();
+    const dbConnection = new MongoDbConnection();
     afterEach(() => {
       sandbox.restore();
     });
@@ -1588,6 +1591,7 @@ describe('ProcessTrackingService', () => {
 
   context('reconcileStatus', () => {
     const sandbox = createSandbox();
+    const dbConnection = new MongoDbConnection();
     const mockProcessTracking: databaseTypes.IProcessTracking = {
       processId: 'testProcessId',
       processName: 'testProcessName',

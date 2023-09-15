@@ -13,6 +13,7 @@ import {Types as mongooseTypes} from 'mongoose';
 import {databaseTypes, webTypes, fileIngestionTypes} from 'types';
 import type {PageConfig} from 'next';
 import upload, {config} from 'pages/api/etl/upload';
+import {Session} from 'next-auth';
 // Respect the Next.js config object if it's exported
 const handler: typeof upload & {config?: PageConfig} = upload;
 // handler.config = config;
@@ -48,7 +49,6 @@ const MOCK_PROJECT: databaseTypes.IProject = {
       // @ts-ignore
       new mongooseTypes.ObjectId(),
   } as unknown as databaseTypes.IWorkspace,
-  slug: 'what is a slug anyway',
   template: {
     _id:
       // @ts-ignore

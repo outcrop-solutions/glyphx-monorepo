@@ -10,7 +10,7 @@ export interface IWorkspace {
   workspaceCode: string;
   inviteCode: string;
   name: string;
-  slug: string;
+  slug?: string;
   createdAt: Date;
   updatedAt: Date;
   tags: ITag[];

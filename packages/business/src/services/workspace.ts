@@ -273,7 +273,6 @@ export class WorkspaceService {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
       } else {
-        console.dir({err}, {depth: null});
         const e = new error.DataServiceError(
           'An unexpected error occurred while querying Workspaces. See the inner error for additional details',
           'workspace',
@@ -400,15 +399,6 @@ export class WorkspaceService {
           allowDiskUse: false,
         }
       );
-      // await mongoDbConnection.models.WorkspaceModel.queryWorkspaces(
-      //   {
-      //     deletedAt: undefined,
-      //     // TODO: we need to change our database layer to be able to filter on one/many relations
-      //     // creator: userId,
-      //   },
-      //   0,
-      //   100
-      // );
 
       if (workspaces.length > 0) {
         return workspaces;
@@ -427,39 +417,6 @@ export class WorkspaceService {
           'workspace',
           'queryWorkspaces',
           {userId, email},
-          err
-        );
-        e.publish('', constants.ERROR_SEVERITY.ERROR);
-        throw e;
-      }
-    }
-  }
-
-  /**
-   * This is a utility function used to statically generate url paths for SSR with next.js
-   * @returns Promise<IWorkspacePath[] | null>
-   */
-  static async getWorkspacePaths(): Promise<IWorkspacePath[] | null> {
-    try {
-      const workspaces = (await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
-        deletedAt: undefined,
-      })) as IQueryResult<databaseTypes.IWorkspace>;
-
-      return [
-        ...workspaces.results.map((workspace) => ({
-          params: {site: workspace.slug},
-        })),
-      ];
-    } catch (err: any) {
-      if (err instanceof error.DataNotFoundError || err instanceof error.InvalidArgumentError) {
-        err.publish('', constants.ERROR_SEVERITY.WARNING);
-        return null;
-      } else {
-        const e = new error.DataServiceError(
-          'An unexpected error occurred while querying Workspaces. See the inner error for additional details',
-          'workspace',
-          'queryWorkspaces',
-          {},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);
@@ -568,13 +525,6 @@ export class WorkspaceService {
         throw e;
       }
     }
-  }
-
-  static async isWorkspaceCreator(
-    id: mongooseTypes.ObjectId | string,
-    creatorId: mongooseTypes.ObjectId | string
-  ): Promise<boolean> {
-    return id === creatorId;
   }
 
   static async isWorkspaceOwner(email: string, workspace: databaseTypes.IWorkspace): Promise<boolean> {

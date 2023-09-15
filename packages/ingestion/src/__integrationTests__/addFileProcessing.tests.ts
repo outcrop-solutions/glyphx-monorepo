@@ -35,7 +35,7 @@ describe('#fileProcessing', () => {
     let clientId: string;
     let modelId: string;
     let testDataDirectory: string;
-    let payload: fileIngestion.IPayload;
+    let payload: fileIngestionTypes.IPayload;
     let fileNames: string[];
     let projectId: any;
     let viewName: any;
@@ -66,7 +66,7 @@ describe('#fileProcessing', () => {
       assert.isNotEmpty(testDataDirectory);
       assert.isNotEmpty(viewName);
 
-      payload = addFilesJson.payload as fileIngestion.IPayload;
+      payload = addFilesJson.payload as fileIngestionTypes.IPayload;
       assert.isOk(payload);
 
       fileNames = payload.fileStats.map((f) => f.fileName);

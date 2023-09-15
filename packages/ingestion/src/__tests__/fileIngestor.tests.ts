@@ -124,7 +124,7 @@ describe('fileIngestor', () => {
   context('add tables', () => {
     const databaseName = 'testDatabaseName';
     const sandbox = createSandbox();
-    let payload: fileIngestion.IPayload;
+    let payload: fileIngestionTypes.IPayload;
     let fileIngestor: FileIngestor;
     beforeEach(async () => {
       sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
@@ -466,7 +466,7 @@ describe('fileIngestor', () => {
   context('Append a File to a table', () => {
     const databaseName = 'testDatabaseName';
     const sandbox = createSandbox();
-    let payload: fileIngestion.IPayload;
+    let payload: fileIngestionTypes.IPayload;
     let fileIngestor: FileIngestor;
     beforeEach(async () => {
       sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
@@ -811,7 +811,7 @@ describe('fileIngestor', () => {
   context('Replace A Table', () => {
     const databaseName = 'testDatabaseName';
     const sandbox = createSandbox();
-    let payload: fileIngestion.IPayload;
+    let payload: fileIngestionTypes.IPayload;
     let fileIngestor: FileIngestor;
     beforeEach(async () => {
       sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
@@ -1063,7 +1063,7 @@ describe('fileIngestor', () => {
   context('Delete a Table', () => {
     const databaseName = 'testDatabaseName';
     const sandbox = createSandbox();
-    let payload: fileIngestion.IPayload;
+    let payload: fileIngestionTypes.IPayload;
     let fileIngestor: FileIngestor;
     beforeEach(async () => {
       sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
@@ -1314,7 +1314,7 @@ describe('fileIngestor', () => {
   context('view affecting operation', () => {
     const databaseName = 'testDatabaseName';
     const sandbox = createSandbox();
-    let payload: fileIngestion.IPayload;
+    let payload: fileIngestionTypes.IPayload;
     let fileIngestor: FileIngestor;
     beforeEach(async () => {
       sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
@@ -1393,7 +1393,7 @@ describe('fileIngestor', () => {
   context('file upload has errors', () => {
     const databaseName = 'testDatabaseName';
     const sandbox = createSandbox();
-    let payload: fileIngestion.IPayload;
+    let payload: fileIngestionTypes.IPayload;
     let fileIngestor: FileIngestor;
     beforeEach(async () => {
       sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));

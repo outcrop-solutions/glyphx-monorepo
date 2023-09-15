@@ -2,12 +2,12 @@
 import 'mocha';
 import {assert} from 'chai';
 import {createSandbox} from 'sinon';
-import {databaseTypes} from '../../../../database';
+import {databaseTypes} from 'types';
 import {Types as mongooseTypes} from 'mongoose';
 import {MongoDbConnection} from 'database';
 import {error} from 'core';
 import {modelConfigService} from '../../services';
-import * as mocks from 'database';
+import * as mocks from 'database/src/mongoose/mocks';
 
 describe('#services/modelConfig', () => {
   const sandbox = createSandbox();
@@ -31,7 +31,6 @@ describe('#services/modelConfig', () => {
 
       const doc = await modelConfigService.createModelConfig({
         ...mocks.MOCK_MODELCONFIG,
-
         _id:
           // @ts-ignore
           new mongooseTypes.ObjectId(),
@@ -64,7 +63,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig({});
+        await modelConfigService.createModelConfig({} as databaseTypes.IModelConfig);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -80,6 +79,7 @@ describe('#services/modelConfig', () => {
       // createModelConfig
       const createModelConfigFromModelStub = sandbox.stub();
       createModelConfigFromModelStub.rejects(err);
+      sandbox.replace(dbConnection.models.ModelConfigModel, 'createModelConfig', createModelConfigFromModelStub);
 
       function fakePublish() {
         //@ts-ignore
@@ -95,7 +95,12 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig({});
+        await modelConfigService.createModelConfig({
+          ...mocks.MOCK_MODELCONFIG,
+          _id:
+            // @ts-ignore
+            new mongooseTypes.ObjectId(),
+        } as databaseTypes.IModelConfig);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -127,7 +132,12 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig({});
+        await modelConfigService.createModelConfig({
+          ...mocks.MOCK_MODELCONFIG,
+          _id:
+            // @ts-ignore
+            new mongooseTypes.ObjectId(),
+        } as databaseTypes.IModelConfig);
       } catch (e) {
         assert.instanceOf(e, error.DataValidationError);
         errored = true;
@@ -159,7 +169,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig({});
+        await modelConfigService.createModelConfig({} as databaseTypes.IModelConfig);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -191,7 +201,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig({});
+        await modelConfigService.createModelConfig({} as databaseTypes.IModelConfig);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -396,41 +406,36 @@ describe('#services/modelConfig', () => {
       const updateModelConfigFromModelStub = sandbox.stub();
       updateModelConfigFromModelStub.resolves({
         ...mocks.MOCK_MODELCONFIG,
-
-        _id:
-          // @ts-ignore
-          new mongooseTypes.ObjectId(),
+        _id: modelConfigId,
       } as unknown as databaseTypes.IModelConfig);
       sandbox.replace(dbConnection.models.ModelConfigModel, 'updateModelConfigById', updateModelConfigFromModelStub);
 
       const modelConfig = await modelConfigService.updateModelConfig(modelConfigId, {
-        deletedAt: new Date(),
+        name: 'newName',
       });
       assert.isOk(modelConfig);
-      assert.strictEqual(modelConfig._id, modelConfigId);
-      assert.isOk(modelConfig.deletedAt);
+      assert.strictEqual(modelConfig._id!.toString(), modelConfigId!.toString());
+      assert.isOk(modelConfig.name);
       assert.isTrue(updateModelConfigFromModelStub.calledOnce);
     });
     it('will update a modelConfig when the id is a string', async () => {
       const modelConfigId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
+
       const updateModelConfigFromModelStub = sandbox.stub();
       updateModelConfigFromModelStub.resolves({
         ...mocks.MOCK_MODELCONFIG,
-
-        _id:
-          // @ts-ignore
-          new mongooseTypes.ObjectId(),
+        _id: modelConfigId,
       } as unknown as databaseTypes.IModelConfig);
       sandbox.replace(dbConnection.models.ModelConfigModel, 'updateModelConfigById', updateModelConfigFromModelStub);
 
       const modelConfig = await modelConfigService.updateModelConfig(modelConfigId.toString(), {
-        deletedAt: new Date(),
+        name: 'newName',
       });
       assert.isOk(modelConfig);
-      assert.strictEqual(modelConfig._id, modelConfigId);
-      assert.isOk(modelConfig.deletedAt);
+      assert.strictEqual(modelConfig._id!.toString(), modelConfigId!.toString());
+      assert.isOk(modelConfig.name);
       assert.isTrue(updateModelConfigFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when modelConfig model throws it ', async () => {
