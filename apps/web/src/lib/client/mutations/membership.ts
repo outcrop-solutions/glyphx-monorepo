@@ -31,16 +31,16 @@ export const _updateRole = (
  * @param members corresponds to workspace.members in mongoDB
  */
 export const _createMember = ({
-  slug,
+  workspaceId,
   members,
   projectId,
 }: {
-  slug: string;
+  workspaceId: string;
   members: Omit<Partial<databaseTypes.IMember>, 'id'>[];
   projectId?: string;
 }): webTypes.IFetchConfig => {
   return {
-    url: `/api/workspace/${slug}/invite`,
+    url: `/api/workspace/${workspaceId}/invite`,
     options: {
       body: {
         members: members,

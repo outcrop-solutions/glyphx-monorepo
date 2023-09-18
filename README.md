@@ -10,7 +10,7 @@ git clone https://github.com/glyphx/monorepo.git
 
 Next, run `web` in development mode:
 
-```bash
+```bash to run web in development mode.
 pnpm install
 pnpm dev
 
