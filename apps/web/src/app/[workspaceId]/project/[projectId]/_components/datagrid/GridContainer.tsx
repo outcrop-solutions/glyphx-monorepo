@@ -24,6 +24,7 @@ export const GridContainer = () => {
   const resize = useRecoilValue(splitPaneSizeAtom);
   const isBrowser = !window?.core;
 
+  console.log({isBrowser, container: true});
   const getPaneHeight = () => {
     if (height) {
       if (orientation === 'vertical') {

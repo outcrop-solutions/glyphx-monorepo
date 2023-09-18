@@ -26,6 +26,8 @@ export const State = ({item, idx}) => {
   const setLoading = useSetRecoilState(showLoadingAtom);
   const isBrowser = !(window && window?.core);
 
+  console.log({state: true, isBrowser});
+
   const applyState = useCallback(async () => {
     setActiveState(idx);
 

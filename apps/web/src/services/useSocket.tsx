@@ -62,10 +62,12 @@ export const useSocket = () => {
           window.core.SendDrawerStatus.connect((status: string) => {});
           window.core.OpenProjectComplete.connect((json: string) => {
             const msg = JSON.parse(json);
+            console.log({msg});
             if (!payload.isSent && msg.isCreate) {
               payload.isSent = true;
               window?.core?.GetCameraPosition(true);
               window?.core?.TakeScreenShot('');
+              console.log({payload, window});
             }
           });
         });
