@@ -42,9 +42,11 @@ export class WorkspaceService {
   ): Promise<databaseTypes.IWorkspace | null> {
     try {
       let newSlug = slug;
-      const count = await WorkspaceService.countWorkspaces(slug);
-      if (count > 0) {
+      let count = await WorkspaceService.countWorkspaces(newSlug);
+
+      while (count > 0) {
         newSlug = `${slug}-${count}`;
+        count = await WorkspaceService.countWorkspaces(newSlug);
       }
 
       const castCreatorId =
@@ -408,22 +410,71 @@ export class WorkspaceService {
   ): Promise<databaseTypes.IWorkspace[] | null> {
     try {
       const workspaces =
-        await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
-          deletedAt: undefined,
-          // TODO: we need to change our database layer to be able to filter on one/many relations
-          // creator: userId,
-        });
-      const filteredWorkspaces = workspaces.results.filter(
-        space =>
-          space.members.filter(
-            mem =>
-              mem.email === email &&
-              mem.deletedAt === undefined &&
-              mem.status === databaseTypes.constants.INVITATION_STATUS.ACCEPTED
-          ).length > 0
-      );
-      if (filteredWorkspaces.length > 0) {
-        return filteredWorkspaces;
+        await mongoDbConnection.models.WorkspaceModel.aggregate(
+          [
+            {
+              $match: {
+                $or: [
+                  {
+                    deletedAt: {
+                      $exists: false,
+                    },
+                  },
+                  {
+                    deletedAt: null,
+                  },
+                ],
+              },
+            },
+            {
+              $lookup: {
+                from: 'members',
+                localField: 'members',
+                foreignField: '_id',
+                as: 'members',
+              },
+            },
+            {
+              $match: {
+                $and: [
+                  {
+                    'members.email': 'jp@glyphx.co',
+                  },
+                  {
+                    $or: [
+                      {
+                        'members.deletedAt': {
+                          $exists: false,
+                        },
+                      },
+                      {
+                        'members.deletedAt': null,
+                      },
+                    ],
+                  },
+                  {
+                    'members.status': 'ACCEPTED',
+                  },
+                ],
+              },
+            },
+          ],
+          {
+            allowDiskUse: false,
+          }
+        );
+      // await mongoDbConnection.models.WorkspaceModel.queryWorkspaces(
+      //   {
+      //     deletedAt: undefined,
+      //     // TODO: we need to change our database layer to be able to filter on one/many relations
+      //     // creator: userId,
+      //   },
+      //   0,
+      //   100
+      // );
+
+      if (workspaces.length > 0) {
+        return workspaces;
       } else {
         const errMsg = 'No workspaces contain the user as a member';
         const e = new error.DataNotFoundError(errMsg, 'getWorkspaces', {email});

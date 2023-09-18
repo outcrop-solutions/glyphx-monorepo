@@ -1,15 +1,20 @@
 import {IProject} from '../../../database';
 import {MODAL_CONTENT_TYPE} from '../../constants';
-import {IClientSidePayload, MatchingFileStatsData} from '../../interfaces';
+import {MatchingFileStatsData} from '../../interfaces';
 import {IDeleteProjectData} from '../../interfaces/modals/iDeleteProjectData';
 import {DuplicateColumnData} from '../fileRules/duplicateColumnData';
 import {Types as mongooseTypes} from 'mongoose';
 
 export type ModalState =
   | {
-      type: MODAL_CONTENT_TYPE.AI_UPLOAD;
+      type: MODAL_CONTENT_TYPE.AI_RECOMMENDATIONS;
       isSubmitting: boolean;
-      data: IClientSidePayload;
+      data: IProject;
+    }
+  | {
+      type: MODAL_CONTENT_TYPE.CREATE_PROJECT_TEMPLATE;
+      isSubmitting: boolean;
+      data: IProject;
     }
   | {
       type: MODAL_CONTENT_TYPE.CREATE_PROJECT;
