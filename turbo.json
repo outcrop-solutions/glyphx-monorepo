@@ -59,6 +59,7 @@
     }
   },
   "globalEnv": [
+    "GLYPHX_ENV",
     "OPENAI_API_KEY",
     "ANTHROPIC_API_KEY",
     "HUGGINGFACE_API_KEY",
@@ -95,9 +96,7 @@
     "NEXT_PUBLIC_POSTHOG_KEY",
     "NEXT_PUBLIC_POSTHOG_HOST",
     "LOG_LEVEL",
-    "DATABASE_URL",
-    "VERCEL",
-    "VERCEL_ENV"
+    "DATABASE_URL"
   ],
   "globalDependencies": ["tsconfig.json"]
 }

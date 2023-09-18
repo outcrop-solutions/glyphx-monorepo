@@ -8,8 +8,7 @@ import * as error from '../../error';
 
 describe('#aws/SecretManager', () => {
   afterEach(() => {
-    if (process.env.VERCEL_ENV) delete process.env.VERCEL_ENV;
-    if (process.env.VERCEL) delete process.env.VERCEL;
+    if (process.env.GLYPHX_ENV) delete process.env.GLYPHX_ENV;
   });
   context('constructor', () => {
     it('will build a new SecretManager object', () => {
@@ -22,16 +21,6 @@ describe('#aws/SecretManager', () => {
     });
 
     it('will build a new SecretManager object vercel no environment', () => {
-      process.env.VERCEL = '1';
-      const secretName = 'testSecretName';
-
-      const secretManager = new SecretManager(secretName);
-
-      assert.strictEqual(secretManager.secretName, `dev/${secretName}`);
-      assert.isOk(secretManager['secretsManager']);
-    });
-    it('will build a new SecretManager object no vercel production environment', () => {
-      process.env.VERCEL_ENV = 'production';
       const secretName = 'testSecretName';
 
       const secretManager = new SecretManager(secretName);
@@ -40,8 +29,7 @@ describe('#aws/SecretManager', () => {
       assert.isOk(secretManager['secretsManager']);
     });
     it('will build a new SecretManager object vercel dev environment', () => {
-      process.env.VERCEL = '1';
-      process.env.VERCEL_ENV = 'development';
+      process.env.GLYPHX_ENV = 'dev';
       const secretName = 'testSecretName';
 
       const secretManager = new SecretManager(secretName);
@@ -51,8 +39,7 @@ describe('#aws/SecretManager', () => {
     });
 
     it('will build a new SecretManager object vercel preview environment', () => {
-      process.env.VERCEL = '1';
-      process.env.VERCEL_ENV = 'preview';
+      process.env.GLYPHX_ENV = 'demo';
       const secretName = 'testSecretName';
 
       const secretManager = new SecretManager(secretName);
@@ -62,8 +49,7 @@ describe('#aws/SecretManager', () => {
     });
 
     it('will build a new SecretManager object vercel production environment', () => {
-      process.env.VERCEL = '1';
-      process.env.VERCEL_ENV = 'production';
+      process.env.GLYPHX_ENV = 'prod';
       const secretName = 'testSecretName';
 
       const secretManager = new SecretManager(secretName);
