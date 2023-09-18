@@ -1,6 +1,7 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
 import {aws} from 'core';
 import {S3_BUCKET_NAME} from 'config/constants';
+import * as business from 'business';
 /**
  * Created signed url to upload files
  *
@@ -15,10 +16,7 @@ export const signDataUrls = async (req: NextApiRequest, res: NextApiResponse) =>
   const {workspaceId, projectId, payloadHash} = req.body;
   try {
     // init S3 client
-    const s3Manager = new aws.S3Manager(S3_BUCKET_NAME);
-    if (!s3Manager.inited) {
-      await s3Manager.init();
-    }
+    const s3Manager = business.s3Connection.s3Manager;
     const urls = [
       `client/${workspaceId}/${projectId}/output/${payloadHash}.sdt`,
       `client/${workspaceId}/${projectId}/output/${payloadHash}.sgn`,

@@ -1,6 +1,5 @@
 import 'mocha';
 import {assert} from 'chai';
-
 import {createSandbox} from 'sinon';
 // where the magic happens
 import * as proxyquireType from 'proxyquire';
@@ -11,12 +10,7 @@ import {wrapConfig} from './utilities/wrapConfig';
 import {genericDelete, genericGet, genericPut} from './utilities/genericReqs';
 import {Types as mongooseTypes} from 'mongoose';
 import {databaseTypes, webTypes, fileIngestionTypes} from 'types';
-import type {PageConfig} from 'next';
-import upload, {config} from 'pages/api/etl/upload';
 import {Session} from 'next-auth';
-// Respect the Next.js config object if it's exported
-const handler: typeof upload & {config?: PageConfig} = upload;
-// handler.config = config;
 
 const MOCK_WORKSPACE = {
   _id:
@@ -150,7 +144,9 @@ const MOCK_USER_AGENT: databaseTypes.IUserAgent = {
 const MOCK_CLEAN_TABLE_NAME = 'cleanTableName';
 const MOCK_CLEAN_FILE_NAME = 'cleanFileName';
 
-const MOCK_KEY = `client/${MOCK_WORKSPACE._id.toString()}/${MOCK_PROJECT._id.toString()}/input/${MOCK_CLEAN_TABLE_NAME}/${MOCK_CLEAN_FILE_NAME}.csv`;
+const MOCK_KEY = `client/${MOCK_WORKSPACE._id.toString()}/${
+  MOCK_PROJECT._id?.toString() ?? ''
+}/input/${MOCK_CLEAN_TABLE_NAME}/${MOCK_CLEAN_FILE_NAME}.csv`;
 
 const MOCK_USER: databaseTypes.IUser = {
   userCode: 'dfkadfkljafdkalsjskldf',
@@ -272,7 +268,13 @@ describe('FILE UPLOAD ROUTE', () => {
           url: '/api/etl/upload',
           test: async ({fetch}) => {
             const config = wrapConfig(
-              _uploadFile(MOCK_ACCEPTED_FILE, MOCK_KEY, MOCK_WORKSPACE._id.toString(), MOCK_PROJECT._id.toString())
+              _uploadFile(
+                MOCK_ACCEPTED_FILE,
+                MOCK_KEY
+                /*
+                MOCK_WORKSPACE._id?.toString() ?? '',
+                MOCK_PROJECT._id.toString() ?? '' */
+              )
             );
             const res = await fetch(config);
             assert.strictEqual(res.status, 200);

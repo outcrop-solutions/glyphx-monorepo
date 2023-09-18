@@ -1,8 +1,6 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
 import {BasicColumnNameCleaner} from 'fileingestion';
-import {aws} from 'core';
-import {S3_BUCKET_NAME} from 'config/constants';
-import {fileIngestionTypes} from 'types';
+import {s3Connection} from 'business';
 /**
  * Created signed url to upload files
  *
@@ -33,10 +31,7 @@ export const signUploadUrls = async (req: NextApiRequest, res: NextApiResponse) 
     });
 
     // Add to S3
-    const s3Manager = new aws.S3Manager(S3_BUCKET_NAME);
-    if (!s3Manager.inited) {
-      await s3Manager.init();
-    }
+    const s3Manager = s3Connection.s3Manager;
     // Create an array of promises
     const promises = urls.map((url) => s3Manager.getSignedUploadUrlPromise(url));
 

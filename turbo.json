@@ -95,7 +95,9 @@
     "NEXT_PUBLIC_POSTHOG_KEY",
     "NEXT_PUBLIC_POSTHOG_HOST",
     "LOG_LEVEL",
-    "DATABASE_URL"
+    "DATABASE_URL",
+    "VERCEL",
+    "VERCEL_ENV"
   ],
   "globalDependencies": ["tsconfig.json"]
 }

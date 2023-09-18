@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import {bindSecrets, boundProperty} from 'core/src/secrets/secretClassDecorator';
 import {DatabaseOperationError} from 'core/src/error';
 
-@bindSecrets('dev/mongodb')
+@bindSecrets('db/mongo')
 export class MongoDbConnection {
   @boundProperty()
   endpoint: string;

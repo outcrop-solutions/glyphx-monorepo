@@ -7,13 +7,68 @@ import {SecretsManager, GetSecretValueCommand} from '@aws-sdk/client-secrets-man
 import * as error from '../../error';
 
 describe('#aws/SecretManager', () => {
+  afterEach(() => {
+    if (process.env.VERCEL_ENV) delete process.env.VERCEL_ENV;
+    if (process.env.VERCEL) delete process.env.VERCEL;
+  });
   context('constructor', () => {
     it('will build a new SecretManager object', () => {
       const secretName = 'testSecretName';
 
       const secretManager = new SecretManager(secretName);
 
-      assert.strictEqual(secretManager.secretName, secretName);
+      assert.strictEqual(secretManager.secretName, `dev/${secretName}`);
+      assert.isOk(secretManager['secretsManager']);
+    });
+
+    it('will build a new SecretManager object vercel no environment', () => {
+      process.env.VERCEL = '1';
+      const secretName = 'testSecretName';
+
+      const secretManager = new SecretManager(secretName);
+
+      assert.strictEqual(secretManager.secretName, `dev/${secretName}`);
+      assert.isOk(secretManager['secretsManager']);
+    });
+    it('will build a new SecretManager object no vercel production environment', () => {
+      process.env.VERCEL_ENV = 'production';
+      const secretName = 'testSecretName';
+
+      const secretManager = new SecretManager(secretName);
+
+      assert.strictEqual(secretManager.secretName, `dev/${secretName}`);
+      assert.isOk(secretManager['secretsManager']);
+    });
+    it('will build a new SecretManager object vercel dev environment', () => {
+      process.env.VERCEL = '1';
+      process.env.VERCEL_ENV = 'development';
+      const secretName = 'testSecretName';
+
+      const secretManager = new SecretManager(secretName);
+
+      assert.strictEqual(secretManager.secretName, `dev/${secretName}`);
+      assert.isOk(secretManager['secretsManager']);
+    });
+
+    it('will build a new SecretManager object vercel preview environment', () => {
+      process.env.VERCEL = '1';
+      process.env.VERCEL_ENV = 'preview';
+      const secretName = 'testSecretName';
+
+      const secretManager = new SecretManager(secretName);
+
+      assert.strictEqual(secretManager.secretName, `demo/${secretName}`);
+      assert.isOk(secretManager['secretsManager']);
+    });
+
+    it('will build a new SecretManager object vercel production environment', () => {
+      process.env.VERCEL = '1';
+      process.env.VERCEL_ENV = 'production';
+      const secretName = 'testSecretName';
+
+      const secretManager = new SecretManager(secretName);
+
+      assert.strictEqual(secretManager.secretName, `prod/${secretName}`);
       assert.isOk(secretManager['secretsManager']);
     });
   });

@@ -26,20 +26,19 @@ const INPUT_PROJECT = {
   state: {},
   files: [],
 };
+let s3Bucket: aws.S3Manager;
+let athenaManager: aws.AthenaManager;
 async function setupExistingAssets() {
   const payload = addFilesJson.payload as fileIngestionTypes.IPayload;
   fileProcessingHelpers.loadTableStreams(addFilesJson.testDataDirectory, payload);
   await processTrackingService.createProcessTracking(PROCESS_ID2, PROCESS_NAME);
-  const fileIngestor = new FileIngestor(payload, addFilesJson.databaseName, PROCESS_ID2);
+  const fileIngestor = new FileIngestor(payload, s3Bucket, athenaManager, PROCESS_ID2);
   await fileIngestor.init();
   await fileIngestor.process();
 }
 
 describe('#fileProcessing', () => {
   context('Delete file on an existing view', () => {
-    let s3Bucket: aws.S3Manager;
-    let athenaManager: aws.AthenaManager;
-
     let bucketName: string;
     let databaseName: string;
     let clientId: string;
@@ -100,7 +99,7 @@ describe('#fileProcessing', () => {
       await processTrackingService.removeProcessTrackingDocument(PROCESS_ID2);
     });
     it('Basic pipeline test', async () => {
-      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
+      const fileIngestor = new FileIngestor(payload, s3Bucket, athenaManager, PROCESS_ID);
       await fileIngestor.init();
       const {joinInformation} = await fileIngestor.process();
       await fileProcessingHelpers.validateTableResults(joinInformation, athenaManager);

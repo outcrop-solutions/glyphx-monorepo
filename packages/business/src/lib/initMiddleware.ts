@@ -1,7 +1,7 @@
-const initMiddleware = (middleware) => {
-  return (req, res) =>
+const initMiddleware = (middleware: any) => {
+  return (req: any, res: any) =>
     new Promise((resolve, reject) => {
-      middleware(req, res, (result) => (result instanceof Error ? reject(result) : resolve(result)));
+      middleware(req, res, (result: any) => (result instanceof Error ? reject(result) : resolve(result)));
     });
 };
 

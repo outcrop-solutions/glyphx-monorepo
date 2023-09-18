@@ -2,7 +2,6 @@ import 'mocha';
 import {assert} from 'chai';
 import {createSandbox} from 'sinon';
 import {TextColumnToNumberConverter} from '../../io/textToNumberConverter';
-import athenaClient from '../../io/athenaClient';
 import {error, aws} from 'core';
 
 class MockAthenaClient {
@@ -38,7 +37,8 @@ describe('TextToNumberConverter', () => {
     it('should create an instance', () => {
       const tableName = 'testTableName';
       const columnName = 'testColumnName';
-      const converter = new TextColumnToNumberConverter(tableName, columnName) as any;
+      const mockAthenaManager = new MockAthenaClient(MOCK_DATA) as unknown as aws.AthenaManager;
+      const converter = new TextColumnToNumberConverter(tableName, columnName, mockAthenaManager) as any;
       assert.strictEqual(converter.tableName, tableName);
       assert.strictEqual(converter.columnName, columnName);
     });
@@ -51,30 +51,22 @@ describe('TextToNumberConverter', () => {
     });
 
     it('will load our data from athena', async () => {
-      sandbox.replaceGetter(
-        athenaClient,
-        'connection',
-        () => new MockAthenaClient(MOCK_DATA) as unknown as aws.AthenaManager
-      );
+      const athenaManager = new MockAthenaClient(MOCK_DATA) as unknown as aws.AthenaManager;
 
       const tableName = 'testTableName';
       const columnName = 'colA';
-      const converter = new TextColumnToNumberConverter(tableName, columnName) as any;
+      const converter = new TextColumnToNumberConverter(tableName, columnName, athenaManager) as any;
 
       await converter.load();
       assert.strictEqual(converter.convertedFields.size, MOCK_DATA.length);
     });
 
     it('will pass through an error to the consumer', async () => {
-      sandbox.replaceGetter(
-        athenaClient,
-        'connection',
-        () => new MockAthenaClient(MOCK_DATA, true) as unknown as aws.AthenaManager
-      );
+      const athenaManager = new MockAthenaClient(MOCK_DATA, true) as unknown as aws.AthenaManager;
 
       const tableName = 'testTableName';
       const columnName = 'colA';
-      const converter = new TextColumnToNumberConverter(tableName, columnName) as any;
+      const converter = new TextColumnToNumberConverter(tableName, columnName, athenaManager) as any;
       let errored = false;
       try {
         await converter.load();
@@ -94,15 +86,10 @@ describe('TextToNumberConverter', () => {
       sandbox.restore();
     });
     it('will convert our value to a number', async () => {
-      sandbox.replaceGetter(
-        athenaClient,
-        'connection',
-        () => new MockAthenaClient(MOCK_DATA) as unknown as aws.AthenaManager
-      );
-
+      const athenaManager = new MockAthenaClient(MOCK_DATA) as unknown as aws.AthenaManager;
       const tableName = 'testTableName';
       const columnName = 'colA';
-      const converter = new TextColumnToNumberConverter(tableName, columnName) as any;
+      const converter = new TextColumnToNumberConverter(tableName, columnName, athenaManager) as any;
 
       await converter.load();
       const aIndex = MOCK_DATA.findIndex((row: {colA: string}) => row.colA === 'a');
@@ -113,15 +100,11 @@ describe('TextToNumberConverter', () => {
     });
 
     it('will throw a DataNotFoundError when the column value does not exist', async () => {
-      sandbox.replaceGetter(
-        athenaClient,
-        'connection',
-        () => new MockAthenaClient(MOCK_DATA) as unknown as aws.AthenaManager
-      );
+      const athenaManager = new MockAthenaClient(MOCK_DATA) as unknown as aws.AthenaManager;
 
       const tableName = 'testTableName';
       const columnName = 'colA';
-      const converter = new TextColumnToNumberConverter(tableName, columnName) as any;
+      const converter = new TextColumnToNumberConverter(tableName, columnName, athenaManager) as any;
 
       await converter.load();
       let errored = false;
@@ -141,15 +124,10 @@ describe('TextToNumberConverter', () => {
     });
 
     it('will get the size of our converted data', async () => {
-      sandbox.replaceGetter(
-        athenaClient,
-        'connection',
-        () => new MockAthenaClient(MOCK_DATA) as unknown as aws.AthenaManager
-      );
-
+      const athenaManager = new MockAthenaClient(MOCK_DATA) as unknown as aws.AthenaManager;
       const tableName = 'testTableName';
       const columnName = 'colA';
-      const converter = new TextColumnToNumberConverter(tableName, columnName) as any;
+      const converter = new TextColumnToNumberConverter(tableName, columnName, athenaManager) as any;
 
       await converter.load();
 

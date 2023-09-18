@@ -3,6 +3,7 @@ import {sdt, IDataSource, IProperty, IInputField} from '../interfaces';
 import {FUNCTION, TYPE, SHAPE} from '../constants';
 import {MinMaxCalculator} from './minMaxCalulator';
 import {TextColumnToNumberConverter} from './textToNumberConverter';
+import {aws} from 'core';
 
 export interface IInputFields {
   x: IInputField;
@@ -16,13 +17,20 @@ export class SdtParser {
   private readonly bindings: {x: string; y: string; z: string};
   private readonly shapeField: SHAPE;
   private readonly data: Map<string, string>;
+  private readonly athenaManager: aws.AthenaManager;
 
-  private constructor(parsedDocument: sdt.ISdtDocument, viewName: string, data: Map<string, string>) {
+  private constructor(
+    parsedDocument: sdt.ISdtDocument,
+    viewName: string,
+    data: Map<string, string>,
+    athenaManager: aws.AthenaManager
+  ) {
     this.sdtAsJson = parsedDocument;
     this.viewName = viewName;
     this.bindings = this.getBindings();
     this.shapeField = SHAPE.CUBE;
     this.data = data;
+    this.athenaManager = athenaManager;
   }
 
   private getBindings() {
@@ -66,7 +74,7 @@ export class SdtParser {
     };
 
     if (retval.type === TYPE.TEXT) {
-      const textToNumberConverter = new TextColumnToNumberConverter(this.viewName, retval.field);
+      const textToNumberConverter = new TextColumnToNumberConverter(this.viewName, retval.field, this.athenaManager);
       await textToNumberConverter.load();
       retval.text_to_num = textToNumberConverter;
       retval.min = 0;
@@ -80,7 +88,13 @@ export class SdtParser {
     const y = this.getSdtInpuField('y');
     const z = this.getSdtInpuField('z');
 
-    const minMaxCalculator = new MinMaxCalculator(this.viewName, x['@_field'], y['@_field'], z['@_field']);
+    const minMaxCalculator = new MinMaxCalculator(
+      this.athenaManager,
+      this.viewName,
+      x['@_field'],
+      y['@_field'],
+      z['@_field']
+    );
 
     await minMaxCalculator.load();
     const xInputField = await this.buildInputField('x', x, minMaxCalculator.minMax, this.data.get('type_x') as string);
@@ -95,7 +109,8 @@ export class SdtParser {
   public static async parseSdtString(
     sdtString: string,
     viewName: string,
-    data: Map<string, string>
+    data: Map<string, string>,
+    athenaManager: aws.AthenaManager
   ): Promise<SdtParser> {
     const options = {
       ignoreAttributes: false,
@@ -104,7 +119,7 @@ export class SdtParser {
     const parser = new XMLParser(options);
     const parsedDocument = parser.parse(sdtString);
 
-    const sdtParser = new SdtParser(parsedDocument, viewName, data);
+    const sdtParser = new SdtParser(parsedDocument, viewName, data, athenaManager);
     await sdtParser.loadInputFields();
     return sdtParser;
   }

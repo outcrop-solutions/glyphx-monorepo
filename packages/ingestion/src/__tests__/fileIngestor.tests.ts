@@ -4,7 +4,7 @@ import {FileIngestor} from '../fileIngestor';
 import {createSandbox} from 'sinon';
 import mockPayload from './fileIngestionMocks.json';
 import {error, aws, generalPurposeFunctions} from 'core';
-import {BasicAthenaProcessor, BasicJoinProcessor as JoinProcessor} from '@fileProcessing';
+import {BasicAthenaProcessor, BasicJoinProcessor as JoinProcessor} from '../fileProcessing';
 import {fileIngestionTypes, databaseTypes} from 'types';
 import {FileUploadManager} from '../fileProcessing/fileUploadManager';
 import {
@@ -12,9 +12,9 @@ import {
   IFileProcessingError,
   IJoinTableDefinition,
   IJoinTableColumnDefinition,
-} from 'interfaces/fileProcessing';
+} from '../interfaces/fileProcessing';
 import {FileReconciliator} from '../fileProcessing/fileReconciliator';
-import {FILE_PROCESSING_STATUS, FILE_PROCESSING_ERROR_TYPES} from 'util/constants';
+import {FILE_PROCESSING_STATUS, FILE_PROCESSING_ERROR_TYPES} from '../util/constants';
 import * as businessLogic from 'business';
 import {config} from '../config';
 const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
@@ -26,8 +26,9 @@ describe('fileIngestor', () => {
     it('Should build a FileIngestor object', () => {
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
       const databaseName = 'testDatabaseName';
-
-      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
+      const s3Manager = new aws.S3Manager(payload.bucketName);
+      const athenaManager = new aws.AthenaManager(databaseName);
+      const fileIngestor = new FileIngestor(payload, s3Manager, athenaManager, PROCESS_ID);
 
       assert.isOk(fileIngestor);
 
@@ -62,7 +63,11 @@ describe('fileIngestor', () => {
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
       const databaseName = 'testDatabaseName';
 
-      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
+      const s3Manager = new aws.S3Manager(payload.bucketName);
+      const athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const fileIngestor = new FileIngestor(payload, s3Manager, athenaManager, PROCESS_ID);
       await fileIngestor.init();
 
       assert.isTrue(fileIngestor.inited);
@@ -84,7 +89,11 @@ describe('fileIngestor', () => {
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
       const databaseName = 'testDatabaseName';
 
-      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
+      const s3Manager = new aws.S3Manager(payload.bucketName);
+      const athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const fileIngestor = new FileIngestor(payload, s3Manager, athenaManager, PROCESS_ID);
       await fileIngestor.init();
       await fileIngestor.init();
 
@@ -94,16 +103,20 @@ describe('fileIngestor', () => {
     });
 
     it('should throw an invalid argument error when underlying inits fail', async () => {
-      sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.rejects('An error has occurred'));
+      sandbox.replace(aws.S3Manager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
       sandbox.replace(aws.AthenaManager.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
-      sandbox.replace(BasicAthenaProcessor.prototype, 'init', sandbox.fake.resolves(true as unknown as void));
+      sandbox.replace(BasicAthenaProcessor.prototype, 'init', sandbox.fake.rejects('An error has occurred'));
       sandbox.replace(businessLogic.Initializer, 'init', sandbox.stub().resolves(null as unknown as void));
       sandbox.replace(businessLogic.projectService, 'getProjectFileStats', sandbox.stub().resolves([]));
 
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
       const databaseName = 'testDatabaseName';
 
-      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
+      const s3Manager = new aws.S3Manager(payload.bucketName);
+      const athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const fileIngestor = new FileIngestor(payload, s3Manager, athenaManager, PROCESS_ID);
 
       let hasError = false;
       try {
@@ -143,7 +156,11 @@ describe('fileIngestor', () => {
       );
       payload = JSON.parse(JSON.stringify(mockPayload)).payload;
 
-      fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
+      const s3Manager = new aws.S3Manager(payload.bucketName);
+      const athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      fileIngestor = new FileIngestor(payload, s3Manager, athenaManager, PROCESS_ID);
       await fileIngestor.init();
     });
 
@@ -488,7 +505,11 @@ describe('fileIngestor', () => {
 
       payload.fileInfo.splice(1);
       payload.fileInfo[0].operation = fileIngestionTypes.constants.FILE_OPERATION.APPEND;
-      fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
+      const s3Manager = new aws.S3Manager(payload.bucketName);
+      const athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      fileIngestor = new FileIngestor(payload, s3Manager, athenaManager, PROCESS_ID);
       await fileIngestor.init();
     });
 
@@ -834,7 +855,11 @@ describe('fileIngestor', () => {
 
       payload.fileInfo.splice(1);
       payload.fileInfo[0].operation = fileIngestionTypes.constants.FILE_OPERATION.REPLACE;
-      fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
+      const s3Manager = new aws.S3Manager(payload.bucketName);
+      const athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      fileIngestor = new FileIngestor(payload, s3Manager, athenaManager, PROCESS_ID);
       await fileIngestor.init();
     });
 
@@ -1085,7 +1110,11 @@ describe('fileIngestor', () => {
 
       payload.fileInfo.splice(1);
       payload.fileInfo[0].operation = fileIngestionTypes.constants.FILE_OPERATION.DELETE;
-      fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
+      const s3Manager = new aws.S3Manager(payload.bucketName);
+      const athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      fileIngestor = new FileIngestor(payload, s3Manager, athenaManager, PROCESS_ID);
       await fileIngestor.init();
     });
 
@@ -1334,7 +1363,11 @@ describe('fileIngestor', () => {
       );
       payload = JSON.parse(JSON.stringify(mockPayload)).payload;
 
-      fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
+      const s3Manager = new aws.S3Manager(payload.bucketName);
+      const athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      fileIngestor = new FileIngestor(payload, s3Manager, athenaManager, PROCESS_ID);
       await fileIngestor.init();
     });
 
@@ -1413,7 +1446,11 @@ describe('fileIngestor', () => {
       );
       payload = JSON.parse(JSON.stringify(mockPayload)).payload;
 
-      fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
+      const s3Manager = new aws.S3Manager(payload.bucketName);
+      const athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      fileIngestor = new FileIngestor(payload, s3Manager, athenaManager, PROCESS_ID);
       await fileIngestor.init();
     });
 
@@ -1533,7 +1570,9 @@ describe('fileIngestor', () => {
       const payload = JSON.parse(JSON.stringify(mockPayload)).payload;
       const databaseName = 'testDatabaseName';
 
-      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
+      const s3Manager = new aws.S3Manager(payload.bucketName);
+      const athenaManager = new aws.AthenaManager(databaseName);
+      const fileIngestor = new FileIngestor(payload, s3Manager, athenaManager, PROCESS_ID);
 
       const updatedJoinInformation = (fileIngestor as any).cleanJoinInformation(joinInformation);
 

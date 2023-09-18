@@ -1,5 +1,6 @@
 import 'mocha';
 import {assert} from 'chai';
+import {Session} from 'next-auth';
 
 import {createSandbox} from 'sinon';
 // where the magic happens
@@ -261,6 +262,10 @@ const MOCK_STATE: databaseTypes.IState = {
       y: 0,
       z: 0,
     },
+  },
+  aspectRatio: {
+    height: 1391,
+    width: 2421,
   },
 };
 
