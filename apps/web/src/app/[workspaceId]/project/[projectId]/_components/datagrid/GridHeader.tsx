@@ -11,6 +11,7 @@ export const GridHeader = ({data}) => {
   const filesOpen = useRecoilValue(filesOpenSelector);
   const rowIds = useRecoilValue(rowIdsAtom);
   const isBrowser = !(window && window?.core);
+  console.log({isBrowser, header: true});
 
   const exportCsv = useCallback(() => {
     const csv = toCSV(data?.rows, data?.columns?.map(({key}) => key), ',', '"');

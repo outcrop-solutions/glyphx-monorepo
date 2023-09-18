@@ -28,6 +28,7 @@ export const ModelFooter = () => {
   const [loading, setLoading] = useRecoilState(showLoadingAtom);
   const [orientation, setOrientation] = useRecoilState(orientationAtom);
   const isBrowser = !(window && window?.core);
+  console.log({isBrowser, footer: true});
 
   const handleOpenClose = useCallback(async () => {
     if (drawer && windowSize.height) {
