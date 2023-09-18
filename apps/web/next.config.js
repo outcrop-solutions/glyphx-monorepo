@@ -98,7 +98,7 @@ module.exports = {
       // config.externals = ['winston', 'crypto', 'fs', 'zlib', 'querystring', '@colors/colors', ...config.externals];
     }
 
-     // Grab the existing rule that handles SVG imports
+    // Grab the existing rule that handles SVG imports
     // @ts-ignore - this is a private property that is not typed
     const fileLoaderRule = config.module.rules.find((rule) => rule.test?.test?.('.svg'));
 
@@ -113,7 +113,7 @@ module.exports = {
       {
         test: /\.svg$/i,
         issuer: fileLoaderRule.issuer,
-        resourceQuery: { not: [...fileLoaderRule.resourceQuery.not, /url/] }, // exclude if *.svg?url
+        resourceQuery: {not: [...fileLoaderRule.resourceQuery.not, /url/]}, // exclude if *.svg?url
         use: ['@svgr/webpack'],
       }
     );
@@ -122,5 +122,14 @@ module.exports = {
     fileLoaderRule.exclude = /\.svg$/i;
 
     return config;
+  },
+  async redirects() {
+    return [
+      {
+        source: '/auth/login',
+        destination: '/login',
+        permanent: true,
+      },
+    ];
   },
 };
