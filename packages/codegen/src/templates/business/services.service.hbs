@@ -1,0 +1,311 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
+import { databaseTypes } from '../../../../database';
+import {error, constants} from '@glyphx/core';
+import {Types as mongooseTypes} from 'mongoose';
+import mongoDbConnection from 'lib/databaseConnection';
+
+export class {{pascalcase this.name}}Service {
+  public static async get{{pascalcase this.name}}(
+    {{camelcase this.name}}Id: mongooseTypes.ObjectId | string
+  ): Promise<databaseTypes.I{{pascalcase this.name}} | null> {
+    try {
+      const id =
+        {{camelcase this.name}}Id instanceof mongooseTypes.ObjectId
+          ? {{camelcase this.name}}Id
+          : new mongooseTypes.ObjectId({{camelcase this.name}}Id);
+      const {{camelcase this.name}} =
+        await mongoDbConnection.models.{{pascalcase this.name}}Model.get{{pascalcase this.name}}ById(id);
+      return {{camelcase this.name}};
+    } catch (err: any) {
+      if (err instanceof error.DataNotFoundError) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        return null;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while getting the {{camelcase this.name}}. See the inner error for additional details',
+          '{{camelcase this.name}}',
+          'get{{pascalcase this.name}}',
+          {id: {{camelcase this.name}}Id},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  public static async get{{pluralize (pascalcase this.name)}}(
+    filter?: Record<string, unknown>
+  ): Promise<databaseTypes.I{{pascalcase this.name}}[] | null> {
+    try {
+      const {{pluralize (camelcase this.name)}} =
+        await mongoDbConnection.models.{{pascalcase this.name}}Model.query{{pascalcase this.name}}s(filter);
+      return {{pluralize (camelcase this.name)}}?.results;
+    } catch (err: any) {
+      if (err instanceof error.DataNotFoundError) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        return null;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while getting {{pluralize (camelcase this.name)}}. See the inner error for additional details',
+          '{{pluralize (camelcase this.name)}}',
+          'get{{pascalcase this.name}}s',
+          {filter},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  public static async create{{pascalcase this.name}}(
+    data: Partial<databaseTypes.I{{pascalcase this.name}}>,
+  ): Promise<databaseTypes.I{{pascalcase this.name}}> {
+    try {
+      // create {{camelcase this.name}}
+      const {{camelcase this.name}} = await mongoDbConnection.models.{{pascalcase this.name}}Model.create{{pascalcase this.name}}(
+        data
+      );
+
+      return {{camelcase this.name}};
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidOperationError ||
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.DataValidationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while creating the {{camelcase this.name}}. See the inner error for additional details',
+          '{{camelcase this.name}}',
+          'create{{pascalcase this.name}}',
+          {data},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  public static async update{{pascalcase this.name}}(
+    {{camelcase this.name}}Id: mongooseTypes.ObjectId | string,
+    data: Partial<Omit<
+      databaseTypes.I{{pascalcase this.name}},
+      | '_id'
+      | 'createdAt'
+      | 'updatedAt'
+    >>
+  ): Promise<databaseTypes.I{{pascalcase this.name}}> {
+    try {
+      const id =
+        {{camelcase this.name}}Id instanceof mongooseTypes.ObjectId
+          ? {{camelcase this.name}}Id
+          : new mongooseTypes.ObjectId({{camelcase this.name}}Id);
+      const {{camelcase this.name}} =
+        await mongoDbConnection.models.{{pascalcase this.name}}Model.update{{pascalcase this.name}}ById(id, {
+          ...data
+        });
+      return {{camelcase this.name}};
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while updating the User. See the inner error for additional details',
+          'user',
+          'update{{pascalcase this.name}}',
+          { {{camelcase this.name}}Id},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  public static async delete{{pascalcase this.name}}(
+    {{camelcase this.name}}Id: mongooseTypes.ObjectId | string
+  ): Promise<databaseTypes.I{{pascalcase this.name}}> {
+    try {
+      const id =
+        {{camelcase this.name}}Id instanceof mongooseTypes.ObjectId
+          ? {{camelcase this.name}}Id
+          : new mongooseTypes.ObjectId({{camelcase this.name}}Id);
+      const {{camelcase this.name}} =
+        await mongoDbConnection.models.{{pascalcase this.name}}Model.update{{pascalcase this.name}}ById(id, {
+          deletedAt: new Date(),
+        });
+      return {{camelcase this.name}};
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while updating the User. See the inner error for additional details',
+          'user',
+          'update{{pascalcase this.name}}',
+          { {{camelcase this.name}}Id},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+{{#each properties}}
+{{#if (referenceTableExists this)}}
+{{#if (isOneToMany this.relationType)}}
+
+  public static async add{{pluralize (pascalcase this.name)}}(
+    {{camelcase ../this.name}}Id: mongooseTypes.ObjectId | string,
+    {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.I{{pascalcase ../this.name}}> {
+    try {
+      const id =
+        {{camelcase ../this.name}}Id instanceof mongooseTypes.ObjectId
+          ? {{camelcase ../this.name}}Id
+          : new mongooseTypes.ObjectId({{camelcase ../this.name}}Id);
+      const updated{{pascalcase ../this.name}} =
+        await mongoDbConnection.models.{{pascalcase ../this.name}}Model.add{{pluralize (pascalcase this.name)}}(id, {{pluralize (camelcase this.referenceTable)}});
+
+      return updated{{pascalcase ../this.name}};
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while adding {{pluralize (camelcase this.referenceTable)}} to the {{camelcase ../this.name}}. See the inner error for additional details',
+          '{{camelcase ../this.name}}',
+          'add{{pluralize (pascalcase this.name)}}',
+          {id: {{camelcase ../this.name}}Id},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  public static async remove{{pluralize (pascalcase this.name)}}(
+    {{camelcase ../this.name}}Id: mongooseTypes.ObjectId | string,
+    {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.I{{pascalcase ../this.name}}> {
+    try {
+      const id =
+         {{camelcase ../this.name}}Id instanceof mongooseTypes.ObjectId
+          ?  {{camelcase ../this.name}}Id
+          : new mongooseTypes.ObjectId( {{camelcase ../this.name}}Id);
+      const updated{{pascalcase ../this.name}} =
+        await mongoDbConnection.models.{{pascalcase this.name}}Model.remove{{pluralize (pascalcase this.name)}}(id, {{pluralize (camelcase this.referenceTable)}});
+
+      return updated{{pascalcase ../this.name}};
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while removing  {{pluralize (camelcase this.referenceTable)}} from the {{camelcase ../this.name}}. See the inner error for additional details',
+          '{{camelcase ../this.name}}',
+          'remove{{pluralize (pascalcase this.name)}}',
+          {id:  {{camelcase ../this.name}}Id},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+{{else if (isOneToOne this.relationType)}}
+
+public static async add{{pascalcase this.name}}(
+    {{camelcase ../this.name}}Id: mongooseTypes.ObjectId | string,
+    {{camelcase this.referenceTable}}: (databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.I{{pascalcase ../this.name}}> {
+    try {
+      const id =
+        {{camelcase ../this.name}}Id instanceof mongooseTypes.ObjectId
+          ? {{camelcase ../this.name}}Id
+          : new mongooseTypes.ObjectId({{camelcase ../this.name}}Id);
+      const updated{{pascalcase ../this.name}} =
+        await mongoDbConnection.models.{{pascalcase ../this.name}}Model.add{{pascalcase this.name}}(id, {{camelcase this.referenceTable}});
+
+      return updated{{pascalcase ../this.name}};
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while adding {{camelcase this.referenceTable}} to the {{camelcase ../this.name}}. See the inner error for additional details',
+          '{{camelcase ../this.name}}',
+          'add{{pascalcase this.name}}',
+          {id: {{camelcase ../this.name}}Id},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+  public static async remove{{pascalcase this.name}}(
+    {{camelcase ../this.name}}Id: mongooseTypes.ObjectId | string,
+    {{camelcase this.referenceTable}}: (databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId)[]
+  ): Promise<databaseTypes.I{{pascalcase ../this.name}}> {
+    try {
+      const id =
+         {{camelcase ../this.name}}Id instanceof mongooseTypes.ObjectId
+          ?  {{camelcase ../this.name}}Id
+          : new mongooseTypes.ObjectId( {{camelcase ../this.name}}Id);
+      const updated{{pascalcase ../this.name}} =
+        await mongoDbConnection.models.{{pascalcase this.name}}Model.remove{{pascalcase this.name}}(id, {{camelcase this.referenceTable}});
+
+      return updated{{pascalcase ../this.name}};
+    } catch (err: any) {
+      if (
+        err instanceof error.InvalidArgumentError ||
+        err instanceof error.InvalidOperationError
+      ) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        throw err;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while removing  {{camelcase this.referenceTable}} from the {{camelcase ../this.name}}. See the inner error for additional details',
+          '{{camelcase ../this.name}}',
+          'remove{{pascalcase this.name}}',
+          {id:  {{camelcase ../this.name}}Id},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
+{{/if}}
+{{/if}}
+{{/each}}
+}

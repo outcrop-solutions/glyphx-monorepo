@@ -1,0 +1,22 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
+import {databaseTypes} from '../../../../../database';
+import {Types as mongooseTypes} from 'mongoose';
+
+{{#if (or (hasOneToOne properties) (hasOneToMany properties))}}
+export interface I{{pascalcase this.name}}CreateInput
+  extends Omit<databaseTypes.I{{pascalcase this.name}}, '_id' | 'createdAt' | 'updatedAt' {{#each properties}}{{#if (and (isOneToOne this.relationType) (referenceTableExists this))}} | '{{camelcase this.name}}'{{else}}{{#if (and (isOneToMany this.relationType) (referenceTableExists this))}} | '{{camelcase this.name}}'{{/if}}{{/if}}{{/each}}> {
+    {{#each properties}}
+        {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+            {{camelcase this.name}}: mongooseTypes.ObjectId | databaseTypes.I{{pascalcase this.referenceTable}};
+        {{else}}
+            {{#if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+                {{camelcase this.name}}: (mongooseTypes.ObjectId | databaseTypes.I{{pascalcase this.referenceTable}})[];
+            {{/if}}
+        {{/if}}
+    {{/each}}
+}
+{{else}} 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface I{{pascalcase this.name}}CreateInput
+  extends Omit<databaseTypes.I{{pascalcase this.name}}, '_id' | 'createdAt' | 'updatedAt'> {}
+{{/if}}

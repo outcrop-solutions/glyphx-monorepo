@@ -702,6 +702,7 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
     const projectDocument = (await PROJECT_MODEL.findById(projectId)
       .populate('workspace')
       .populate('members')
+      .populate('template')
       .populate('tags')
       .populate({
         path: 'stateHistory',

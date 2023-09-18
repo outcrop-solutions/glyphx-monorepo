@@ -1,0 +1,21 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
+import {databaseTypes} from '../../../../../database';
+import {Types as mongooseTypes} from 'mongoose';
+
+{{#if (or (hasOneToOne properties) (hasOneToMany properties))}}
+export interface I{{pascalcase this.name}}Document
+  extends Omit<databaseTypes.I{{pascalcase this.name}}, {{#each properties}}{{#if (and (isOneToOne this.relationType) (referenceTableExists this))}} | '{{camelcase this.name}}'{{else}}{{#if (and (isOneToMany this.relationType) (referenceTableExists this))}} | '{{camelcase this.name}}'{{/if}}{{/if}}{{/each}}> {
+    {{#each properties}}
+        {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+            {{camelcase this.name}}: mongooseTypes.ObjectId;
+        {{else}}
+            {{#if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+                {{camelcase this.name}}: mongooseTypes.ObjectId[];
+            {{/if}}
+        {{/if}}
+    {{/each}}
+}
+{{else}} 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface I{{pascalcase this.name}}Document extends databaseTypes.I{{pascalcase this.name}} {}
+{{/if}}

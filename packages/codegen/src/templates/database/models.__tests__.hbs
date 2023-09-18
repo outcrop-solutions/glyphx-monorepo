@@ -1,0 +1,1537 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
+import {assert} from 'chai';
+import { {{singularize (pascalcase this.name)}}Model} from '../../../mongoose/models/{{singularize (camelcase this.name)}}'
+import * as mocks from '../../../mongoose/mocks';
+{{#each dedupedProperties}}
+{{#if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+import { {{singularize (pascalcase this.referenceTable)}}Model} from '../../../mongoose/models/{{singularize (camelcase this.referenceTable)}}'
+{{else if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+import { {{singularize (pascalcase this.referenceTable)}}Model} from '../../../mongoose/models/{{singularize (camelcase this.referenceTable)}}'
+{{else if (isSchema this.relationType)}}
+{{#unless (isRecord this)}}
+// eslint-disable-next-line import/no-duplicates
+import { {{camelcase this.name}}Schema } from '../../../mongoose/schemas'
+{{/unless}}
+{{/if}}
+{{/each}}
+import {IQueryResult} from '@glyphx/types'
+import {databaseTypes} from '../../../../../../database';
+import {error} from '@glyphx/core';
+import mongoose from 'mongoose';
+import {createSandbox} from 'sinon';
+
+describe('#mongoose/models/{{camelcase this.name}}', () => {
+  context('{{camelcase this.name}}IdExists', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return true if the {{camelcase this.name}}Id exists', async () => {
+      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves({_id: {{camelcase this.name}}Id});
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'findById', findByIdStub);
+
+      const result = await {{singularize (pascalcase this.name)}}Model.{{camelcase this.name}}IdExists({{camelcase this.name}}Id);
+
+      assert.isTrue(result);
+    });
+
+    it('should return false if the {{camelcase this.name}}Id does not exist', async () => {
+      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+      const findByIdStub = sandbox.stub();
+      findByIdStub.resolves(null);
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'findById', findByIdStub);
+
+      const result = await {{singularize (pascalcase this.name)}}Model.{{camelcase this.name}}IdExists({{camelcase this.name}}Id);
+
+      assert.isFalse(result);
+    });
+
+    it('will throw a DatabaseOperationError when the underlying database connection errors', async () => {
+      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+      const findByIdStub = sandbox.stub();
+      findByIdStub.rejects('something unexpected has happend');
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'findById', findByIdStub);
+
+      let errorred = false;
+      try {
+        await {{singularize (pascalcase this.name)}}Model.{{camelcase this.name}}IdExists({{camelcase this.name}}Id);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
+  });
+
+  context('all{{pascalcase this.name}}IdsExist', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should return true when all the {{camelcase this.name}} ids exist', async () => {
+      const {{camelcase this.name}}Ids = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const returned{{pascalcase this.name}}Ids = {{camelcase this.name}}Ids.map({{camelcase this.name}}Id => {
+        return {
+          _id: {{camelcase this.name}}Id,
+        };
+      });
+
+      const findStub = sandbox.stub();
+      findStub.resolves(returned{{pascalcase this.name}}Ids);
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'find', findStub);
+
+      assert.isTrue(await {{singularize (pascalcase this.name)}}Model.all{{pascalcase this.name}}IdsExist({{camelcase this.name}}Ids));
+      assert.isTrue(findStub.calledOnce);
+    });
+
+    it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
+      const {{camelcase this.name}}Ids = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const returned{{pascalcase this.name}}Ids = [
+        {
+          _id: {{camelcase this.name}}Ids[0],
+        },
+      ];
+
+      const findStub = sandbox.stub();
+      findStub.resolves(returned{{pascalcase this.name}}Ids);
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'find', findStub);
+      let errored = false;
+      try {
+        await {{singularize (pascalcase this.name)}}Model.all{{pascalcase this.name}}IdsExist({{camelcase this.name}}Ids);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        assert.strictEqual(
+          err.data.value[0].toString(),
+          {{camelcase this.name}}Ids[1].toString()
+        );
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(findStub.calledOnce);
+    });
+
+    it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
+      const {{camelcase this.name}}Ids = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+
+      const findStub = sandbox.stub();
+      findStub.rejects('something bad has happened');
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'find', findStub);
+      let errored = false;
+      try {
+        await {{singularize (pascalcase this.name)}}Model.all{{pascalcase this.name}}IdsExist({{camelcase this.name}}Ids);
+      } catch (err: any) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(findStub.calledOnce);
+    });
+  });
+
+  context('validateUpdateObject', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will not throw an error when no unsafe fields are present', async () => {
+      {{#each dedupedProperties}}
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      const {{camelcase this.name}}Stub = sandbox.stub();
+      {{camelcase this.name}}Stub.resolves(true);
+      sandbox.replace(
+        {{pascalcase this.referenceTable}}Model,
+        '{{camelcase this.referenceTable}}IdExists',
+        {{camelcase this.name}}Stub
+      );
+      {{/if}}
+      {{/each}}
+
+      let errored = false;
+
+      try {
+        await {{singularize (pascalcase this.name)}}Model.validateUpdateObject(mocks.MOCK_{{uppercase (pascalcase this.name)}} as unknown as Omit<Partial<databaseTypes.I{{pascalcase this.name}}>, '_id'>);
+      } catch (err) {
+        errored = true;
+      }
+      assert.isFalse(errored);
+    });
+
+    it('will not throw an error when the related fields exist in the database', async () => {
+      {{#each dedupedProperties}}
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      const {{camelcase this.name}}Stub = sandbox.stub();
+      {{camelcase this.name}}Stub.resolves(true);
+      sandbox.replace(
+        {{pascalcase this.referenceTable}}Model,
+        '{{camelcase this.referenceTable}}IdExists',
+        {{camelcase this.name}}Stub
+      );
+      {{/if}}
+      {{/each}}
+
+      let errored = false;
+
+      try {
+        await {{singularize (pascalcase this.name)}}Model.validateUpdateObject(mocks.MOCK_{{uppercase (pascalcase this.name)}} as unknown as Omit<Partial<databaseTypes.I{{pascalcase this.name}}>, '_id'>);
+      } catch (err) {
+        errored = true;
+      }
+      assert.isFalse(errored);
+      {{#if (hasOneToOne properties)}}
+      {{#each dedupedProperties}}
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      {{#if (eq this.duplicates 2)}}
+      assert.isTrue({{camelcase this.name}}Stub.calledTwice);
+      {{else}}
+      assert.isTrue({{camelcase this.name}}Stub.calledOnce);
+      {{/if}}
+      {{/if}}
+      {{/each}}
+      {{/if}}
+    });
+
+    {{#each dedupedProperties as |outerProperty outerIndex|}}
+    {{#if (and (isNotProtected outerProperty) (isOneToOne outerProperty.relationType))}}
+    it('will fail when the {{camelcase outerProperty.name}} does not exist.', async () => {
+      
+      {{#each ../dedupedProperties as |innerProperty innerIndex|}}
+      {{#if (eq outerIndex innerIndex)}}
+      {{#if (and (isOneToOne innerProperty.relationType) (referenceTableExists innerProperty))}}
+      const {{camelcase innerProperty.name}}Stub = sandbox.stub();
+      {{camelcase innerProperty.name}}Stub.resolves(false);
+      sandbox.replace(
+        {{pascalcase innerProperty.referenceTable}}Model,
+        '{{camelcase innerProperty.referenceTable}}IdExists',
+        {{camelcase innerProperty.name}}Stub
+      );
+      {{/if}}
+      {{else}}
+      {{#if (and (isOneToOne innerProperty.relationType) (referenceTableExists innerProperty))}}
+      const {{camelcase innerProperty.name}}Stub = sandbox.stub();
+      {{camelcase innerProperty.name}}Stub.resolves(true);
+      sandbox.replace(
+        {{pascalcase innerProperty.referenceTable}}Model,
+        '{{camelcase innerProperty.referenceTable}}IdExists',
+        {{camelcase innerProperty.name}}Stub
+      );
+      {{/if}}
+      {{/if}}
+      {{/each}}
+
+      let errored = false;
+
+      try {
+        await {{singularize (pascalcase ../this.name)}}Model.validateUpdateObject(mocks.MOCK_{{uppercase (pascalcase ../this.name)}} as unknown as Omit<Partial<databaseTypes.I{{pascalcase ../this.name}}>, '_id'>);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+    {{/if}}
+    {{/each}}
+
+
+    it('will fail when trying to update the _id', async () => {
+      {{#each dedupedProperties}}
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      const {{camelcase this.name}}Stub = sandbox.stub();
+      {{camelcase this.name}}Stub.resolves(true);
+      sandbox.replace(
+        {{pascalcase this.referenceTable}}Model,
+        '{{camelcase this.referenceTable}}IdExists',
+        {{camelcase this.name}}Stub
+      );
+      {{/if}}
+      {{/each}}
+
+      let errored = false;
+
+      try {
+        await {{singularize (pascalcase this.name)}}Model.validateUpdateObject({...mocks.MOCK_{{uppercase (pascalcase this.name)}}, _id: new mongoose.Types.ObjectId() } as unknown as Omit<Partial<databaseTypes.I{{pascalcase this.name}}>, '_id'>);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will fail when trying to update the createdAt', async () => {
+      {{#each dedupedProperties}}
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      const {{camelcase this.name}}Stub = sandbox.stub();
+      {{camelcase this.name}}Stub.resolves(true);
+      sandbox.replace(
+        {{pascalcase this.referenceTable}}Model,
+        '{{camelcase this.referenceTable}}IdExists',
+        {{camelcase this.name}}Stub
+      );
+      {{/if}}
+      {{/each}}
+
+      let errored = false;
+
+      try {
+        await {{singularize (pascalcase this.name)}}Model.validateUpdateObject({...mocks.MOCK_{{uppercase (pascalcase this.name)}}, createdAt: new Date() } as unknown as Omit<Partial<databaseTypes.I{{pascalcase this.name}}>, '_id'>);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will fail when trying to update the updatedAt', async () => {
+      {{#each dedupedProperties}}
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      const {{camelcase this.name}}Stub = sandbox.stub();
+      {{camelcase this.name}}Stub.resolves(true);
+      sandbox.replace(
+        {{pascalcase this.referenceTable}}Model,
+        '{{camelcase this.referenceTable}}IdExists',
+        {{camelcase this.name}}Stub
+      );
+      {{/if}}
+      {{/each}}
+
+      let errored = false;
+
+      try {
+        await {{singularize (pascalcase this.name)}}Model.validateUpdateObject({...mocks.MOCK_{{uppercase (pascalcase this.name)}}, updatedAt: new Date() }  as unknown as Omit<Partial<databaseTypes.I{{pascalcase this.name}}>, '_id'>);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+
+  context('create{{pascalcase this.name}}', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will create a {{camelcase this.name}} document', async () => {
+      {{#each properties}}
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      sandbox.replace(
+        {{singularize (pascalcase ../this.name)}}Model,
+        'validate{{pascalcase this.name}}',
+        sandbox.stub().resolves(mocks.MOCK_{{uppercase (pascalcase ../this.name)}}.{{camelcase this.name}})
+      );
+      {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+      sandbox.replace(
+        {{singularize (pascalcase ../this.name)}}Model,
+        'validate{{pluralize (pascalcase this.name)}}',
+        sandbox.stub().resolves(mocks.MOCK_{{uppercase (pascalcase ../this.name)}}.{{camelcase this.name}})
+      );
+      {{/if}}
+      {{/each}}
+
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        {{singularize (pascalcase this.name)}}Model,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'validate', sandbox.stub().resolves(true));
+      
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'get{{pascalcase this.name}}ById', stub);
+
+      const {{camelcase this.name}}Document = await {{singularize (pascalcase this.name)}}Model.create{{pascalcase this.name}}(mocks.MOCK_{{uppercase (pascalcase this.name)}});
+
+      assert.strictEqual({{camelcase this.name}}Document._id, objectId);
+      assert.isTrue(stub.calledOnce);
+    });
+
+
+    {{#each dedupedProperties as |outerProperty outerIndex|}}
+    {{#if (and (isNotProtected outerProperty) (isOneToOne outerProperty.relationType))}}
+
+    it('will rethrow a DataValidationError when the {{outerProperty.name}} validator throws one', async () => {
+      {{#each ../dedupedProperties as |innerProperty innerIndex|}}
+      {{#if (eq outerIndex innerIndex)}}
+      {{#if (and (isOneToMany innerProperty.relationType) (referenceTableExists innerProperty))}}
+      sandbox.replace(
+        {{singularize (pascalcase ../this.name)}}Model,
+        'validate{{pluralize (pascalcase innerProperty.name)}}',
+        sandbox
+          .stub()
+          .rejects(
+            new error.DataValidationError(
+              'The {{pluralize (camelcase innerProperty.name)}} does not exist',
+              '{{pluralize (camelcase innerProperty.name)}} ',
+              {}
+            )
+          )
+      );
+      {{else if (and (isOneToOne innerProperty.relationType) (referenceTableExists innerProperty))}}
+       sandbox.replace(
+        {{singularize (pascalcase ../this.name)}}Model,
+        'validate{{pascalcase innerProperty.name}}',
+        sandbox
+          .stub()
+          .rejects(
+            new error.DataValidationError(
+              'The {{camelcase innerProperty.name}} does not exist',
+              '{{camelcase innerProperty.name}} ',
+              {}
+            )
+          )
+      );
+      {{/if}}
+      {{else}}
+        {{#if (and (isOneToMany innerProperty.relationType) (referenceTableExists innerProperty))}}
+         sandbox.replace(
+        {{singularize (pascalcase ../../this.name)}}Model,
+        'validate{{pluralize (pascalcase innerProperty.name)}}',
+        sandbox.stub().resolves(mocks.MOCK_{{uppercase (pascalcase ../../this.name)}}.{{camelcase innerProperty.name}})
+        );
+        {{else if (and (isOneToOne innerProperty.relationType) (referenceTableExists innerProperty))}}
+         sandbox.replace(
+        {{singularize (pascalcase ../../this.name)}}Model,
+        'validate{{pascalcase innerProperty.name}}',
+        sandbox.stub().resolves(mocks.MOCK_{{uppercase (pascalcase ../../this.name)}}.{{camelcase innerProperty.name}})
+        );
+        {{/if}}
+      {{/if}}
+      {{/each}}
+
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        {{singularize (pascalcase ../this.name)}}Model,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'validate', sandbox.stub().resolves(true));
+      
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'get{{pascalcase ../this.name}}ById', stub);
+
+      let errored = false;
+
+      try {
+        await {{singularize (pascalcase ../this.name)}}Model.create{{pascalcase ../this.name}}(mocks.MOCK_{{uppercase (pascalcase ../this.name)}});
+      } catch (err) {
+        assert.instanceOf(err, error.DataValidationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    {{/if}}
+    {{/each}}
+
+    it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
+       {{#each properties}}
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      sandbox.replace(
+        {{singularize (pascalcase ../this.name)}}Model,
+        'validate{{pascalcase this.name}}',
+        sandbox.stub().resolves(mocks.MOCK_{{uppercase (pascalcase ../this.name)}}.{{camelcase this.name}})
+      );
+      {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+      sandbox.replace(
+        {{singularize (pascalcase ../this.name)}}Model,
+        'validate{{pluralize (pascalcase this.name)}}',
+        sandbox.stub().resolves(mocks.MOCK_{{uppercase (pascalcase ../this.name)}}.{{camelcase this.name}})
+      );
+      {{/if}}
+      {{/each}}
+
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'validate', sandbox.stub().resolves(true));
+      sandbox.replace(
+        {{singularize (pascalcase this.name)}}Model,
+        'create',
+        sandbox.stub().rejects('oops, something bad has happened')
+      );
+
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'get{{pascalcase this.name}}ById', stub);
+      let hasError = false;
+      try {
+        await {{singularize (pascalcase this.name)}}Model.create{{pascalcase this.name}}(mocks.MOCK_{{uppercase (pascalcase this.name)}});
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        hasError = true;
+      }
+      assert.isTrue(hasError);
+    });
+
+    it('will throw an Unexpected Error when create does not return an object with an _id', async () => {
+      {{#each properties}}
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      sandbox.replace(
+        {{singularize (pascalcase ../this.name)}}Model,
+        'validate{{pascalcase this.name}}',
+        sandbox.stub().resolves(mocks.MOCK_{{uppercase (pascalcase ../this.name)}}.{{camelcase this.name}})
+      );
+      {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+      sandbox.replace(
+        {{singularize (pascalcase ../this.name)}}Model,
+        'validate{{pluralize (pascalcase this.name)}}',
+        sandbox.stub().resolves(mocks.MOCK_{{uppercase (pascalcase ../this.name)}}.{{camelcase this.name}})
+      );
+      {{/if}}
+      {{/each}}
+
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'validate', sandbox.stub().resolves(true));
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'create', sandbox.stub().resolves([{}]));
+
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'get{{pascalcase this.name}}ById', stub);
+
+      let hasError = false;
+      try {
+        await {{singularize (pascalcase this.name)}}Model.create{{pascalcase this.name}}(mocks.MOCK_{{uppercase (pascalcase this.name)}});
+      } catch (err) {
+        assert.instanceOf(err, error.UnexpectedError);
+        hasError = true;
+      }
+      assert.isTrue(hasError);
+    });
+
+    it('will rethrow a DataValidationError when the validate method on the model errors', async () => {
+       {{#each properties}}
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      sandbox.replace(
+        {{singularize (pascalcase ../this.name)}}Model,
+        'validate{{pascalcase this.name}}',
+        sandbox.stub().resolves(mocks.MOCK_{{uppercase (pascalcase ../this.name)}}.{{camelcase this.name}})
+      );
+      {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+      sandbox.replace(
+        {{singularize (pascalcase ../this.name)}}Model,
+        'validate{{pluralize (pascalcase this.name)}}',
+        sandbox.stub().resolves(mocks.MOCK_{{uppercase (pascalcase ../this.name)}}.{{camelcase this.name}})
+      );
+      {{/if}}
+      {{/each}}
+
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        {{singularize (pascalcase this.name)}}Model,
+        'validate',
+        sandbox.stub().rejects('oops an error has occurred')
+      );
+      sandbox.replace(
+        {{singularize (pascalcase this.name)}}Model,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'get{{pascalcase this.name}}ById', stub);
+      let hasError = false;
+      try {
+        await {{singularize (pascalcase this.name)}}Model.create{{pascalcase this.name}}(mocks.MOCK_{{uppercase (pascalcase this.name)}});
+      } catch (err) {
+        assert.instanceOf(err, error.DataValidationError);
+        hasError = true;
+      }
+      assert.isTrue(hasError);
+    });
+  });
+
+  context('get{{pascalcase this.name}}ById', () => {
+    class MockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+      populate() {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will retreive a {{camelcase this.name}} document with the related fields populated', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new MockMongooseQuery(mocks.MOCK_{{uppercase (pascalcase this.name)}}));
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'findById', findByIdStub);
+
+      const doc = await {{singularize (pascalcase this.name)}}Model.get{{pascalcase this.name}}ById(
+        mocks.MOCK_{{uppercase (pascalcase this.name)}}._id as mongoose.Types.ObjectId
+      );
+
+      assert.isTrue(findByIdStub.calledOnce);
+      assert.isUndefined((doc as any)?.__v);
+      {{#each properties}}
+      {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+      assert.isUndefined((doc.{{camelcase this.name}} as any)?.__v);
+      {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+      assert.isUndefined((doc.{{camelcase this.name}}[0] as any)?.__v);
+      {{/if}}
+      {{/each}}
+
+      assert.strictEqual(doc._id, mocks.MOCK_{{uppercase (pascalcase this.name)}}._id);
+    });
+
+    it('will throw a DataNotFoundError when the {{camelcase this.name}} does not exist', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(new MockMongooseQuery(null));
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'findById', findByIdStub);
+
+      let errored = false;
+      try {
+        await {{singularize (pascalcase this.name)}}Model.get{{pascalcase this.name}}ById(
+          mocks.MOCK_{{uppercase (pascalcase this.name)}}._id as mongoose.Types.ObjectId
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
+      const findByIdStub = sandbox.stub();
+      findByIdStub.returns(
+        new MockMongooseQuery('something bad happened', true)
+      );
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'findById', findByIdStub);
+
+      let errored = false;
+      try {
+        await {{singularize (pascalcase this.name)}}Model.get{{pascalcase this.name}}ById(
+          mocks.MOCK_{{uppercase (pascalcase this.name)}}._id as mongoose.Types.ObjectId
+        );
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+
+  context('query{{pluralize (pascalcase this.name)}}', () => {
+    class MockMongooseQuery {
+      mockData?: any;
+      throwError?: boolean;
+      constructor(input: any, throwError = false) {
+        this.mockData = input;
+        this.throwError = throwError;
+      }
+
+      populate() {
+        return this;
+      }
+
+      async lean(): Promise<any> {
+        if (this.throwError) throw this.mockData;
+
+        return this.mockData;
+      }
+    }
+
+    const mock{{pluralize (pascalcase this.name)}} = [
+      {
+       ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
+        _id: new mongoose.Types.ObjectId(),
+        {{#each properties}}
+        {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+        {{camelcase this.name}}: {
+          _id: new mongoose.Types.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.I{{pascalcase this.referenceTable}},
+        {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+        {{camelcase this.name}}: [],
+        {{/if}}
+        {{/each}}
+      } as databaseTypes.I{{pascalcase this.name}},
+      {
+        ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
+        _id: new mongoose.Types.ObjectId(),
+        {{#each properties}}
+        {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+        {{camelcase this.name}}: {
+          _id: new mongoose.Types.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.I{{pascalcase this.referenceTable}},
+        {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+        {{camelcase this.name}}: [],
+        {{/if}}
+        {{/each}}
+      } as databaseTypes.I{{pascalcase this.name}},
+    ];
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will return the filtered {{pluralize (camelcase this.name)}}', async () => {
+      sandbox.replace(
+        {{singularize (pascalcase this.name)}}Model,
+        'count',
+        sandbox.stub().resolves(mock{{pluralize (pascalcase this.name)}}.length)
+      );
+
+      sandbox.replace(
+        {{singularize (pascalcase this.name)}}Model,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mock{{pluralize (pascalcase this.name)}}))
+      );
+
+      const results = await {{singularize (pascalcase this.name)}}Model.query{{pluralize (pascalcase this.name)}}({});
+
+      assert.strictEqual(results.numberOfItems, mock{{pluralize (pascalcase this.name)}}.length);
+      assert.strictEqual(results.page, 0);
+      assert.strictEqual(results.results.length, mock{{pluralize (pascalcase this.name)}}.length);
+      assert.isNumber(results.itemsPerPage);
+      results.results.forEach((doc: any) => {
+        assert.isUndefined((doc as any)?.__v);
+        {{#each properties}}
+        {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+        assert.isUndefined((doc.{{camelcase this.name}} as any)?.__v);
+        {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+        assert.isUndefined((doc.{{camelcase this.name}}[0] as any)?.__v);
+        {{/if}}
+        {{/each}}
+      });
+    });
+
+    it('will throw a DataNotFoundError when no values match the filter', async () => {
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'count', sandbox.stub().resolves(0));
+
+      sandbox.replace(
+        {{singularize (pascalcase this.name)}}Model,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mock{{pluralize (pascalcase this.name)}}))
+      );
+
+      let errored = false;
+      try {
+        await {{singularize (pascalcase this.name)}}Model.query{{pluralize (pascalcase this.name)}}();
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
+      sandbox.replace(
+        {{singularize (pascalcase this.name)}}Model,
+        'count',
+        sandbox.stub().resolves(mock{{pluralize (pascalcase this.name)}}.length)
+      );
+
+      sandbox.replace(
+        {{singularize (pascalcase this.name)}}Model,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mock{{pluralize (pascalcase this.name)}}))
+      );
+
+      let errored = false;
+      try {
+        await {{singularize (pascalcase this.name)}}Model.query{{pluralize (pascalcase this.name)}}({}, 1, 10);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+
+    it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
+      sandbox.replace(
+        {{singularize (pascalcase this.name)}}Model,
+        'count',
+        sandbox.stub().resolves(mock{{pluralize (pascalcase this.name)}}.length)
+      );
+
+      sandbox.replace(
+        {{singularize (pascalcase this.name)}}Model,
+        'find',
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
+      );
+
+      let errored = false;
+      try {
+        await {{singularize (pascalcase this.name)}}Model.query{{pluralize (pascalcase this.name)}}({});
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+
+      assert.isTrue(errored);
+    });
+  });
+
+  context('update{{pascalcase this.name}}ById', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('Should update a {{camelcase this.name}}', async () => {
+      const update{{pascalcase this.name}} = {
+        ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
+        deletedAt: new Date(),
+       {{#each dedupedProperties}}
+        {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
+        {{camelcase this.name}}: {
+          _id: new mongoose.Types.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.I{{pascalcase this.referenceTable}},
+        {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
+        {{camelcase this.name}}: [],
+        {{/if}}
+        {{/each}}
+      } as unknown as databaseTypes.I{{pascalcase this.name}};
+
+      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 1});
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'updateOne', updateStub);
+
+      const get{{pascalcase this.name}}Stub = sandbox.stub();
+      get{{pascalcase this.name}}Stub.resolves({_id: {{camelcase this.name}}Id});
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'get{{pascalcase this.name}}ById', get{{pascalcase this.name}}Stub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves(undefined as void);
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'validateUpdateObject', validateStub);
+
+      const result = await {{singularize (pascalcase this.name)}}Model.update{{pascalcase this.name}}ById(
+        {{camelcase this.name}}Id,
+        update{{pascalcase this.name}}
+      );
+
+      assert.strictEqual(result._id, {{camelcase this.name}}Id);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(get{{pascalcase this.name}}Stub.calledOnce);
+      assert.isTrue(validateStub.calledOnce);
+    });
+
+    it('Should update a {{camelcase this.name}} with references as ObjectIds', async () => {
+      const update{{pascalcase this.name}} = {
+        ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
+        deletedAt: new Date()
+      } as unknown as databaseTypes.I{{pascalcase this.name}};
+
+      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 1});
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'updateOne', updateStub);
+
+      const get{{pascalcase this.name}}Stub = sandbox.stub();
+      get{{pascalcase this.name}}Stub.resolves({_id: {{camelcase this.name}}Id});
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'get{{pascalcase this.name}}ById', get{{pascalcase this.name}}Stub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves(undefined as void);
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'validateUpdateObject', validateStub);
+
+      const result = await {{singularize (pascalcase this.name)}}Model.update{{pascalcase this.name}}ById(
+        {{camelcase this.name}}Id,
+        update{{pascalcase this.name}}
+      );
+
+      assert.strictEqual(result._id, {{camelcase this.name}}Id);
+      assert.isTrue(updateStub.calledOnce);
+      assert.isTrue(get{{pascalcase this.name}}Stub.calledOnce);
+      assert.isTrue(validateStub.calledOnce);
+    });
+
+    it('Will fail when the {{camelcase this.name}} does not exist', async () => {
+      const update{{pascalcase this.name}} = {
+        ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
+        deletedAt: new Date(),
+      } as unknown as databaseTypes.I{{pascalcase this.name}};
+
+      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 0});
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'updateOne', updateStub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves(true);
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'validateUpdateObject', validateStub);
+
+      const get{{pascalcase this.name}}Stub = sandbox.stub();
+      get{{pascalcase this.name}}Stub.resolves({_id: {{camelcase this.name}}Id});
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'get{{pascalcase this.name}}ById', get{{pascalcase this.name}}Stub);
+
+      let errorred = false;
+      try {
+        await {{singularize (pascalcase this.name)}}Model.update{{pascalcase this.name}}ById({{camelcase this.name}}Id, update{{pascalcase this.name}});
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
+
+    it('Will fail when validateUpdateObject fails', async () => {
+      const update{{pascalcase this.name}} = {
+       ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
+        deletedAt: new Date(),
+      } as unknown as databaseTypes.I{{pascalcase this.name}};
+
+      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.resolves({modifiedCount: 1});
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'updateOne', updateStub);
+
+      const get{{pascalcase this.name}}Stub = sandbox.stub();
+      get{{pascalcase this.name}}Stub.resolves({_id: {{camelcase this.name}}Id});
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'get{{pascalcase this.name}}ById', get{{pascalcase this.name}}Stub);
+
+      const validateStub = sandbox.stub();
+      validateStub.rejects(
+        new error.InvalidOperationError("You can't do this", {})
+      );
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'validateUpdateObject', validateStub);
+      let errorred = false;
+      try {
+        await {{singularize (pascalcase this.name)}}Model.update{{pascalcase this.name}}ById({{camelcase this.name}}Id, update{{pascalcase this.name}});
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidOperationError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
+
+    it('Will fail when a database error occurs', async () => {
+      const update{{pascalcase this.name}} = {
+       ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
+        deletedAt: new Date()
+      } as unknown as databaseTypes.I{{pascalcase this.name}};
+
+      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+
+      const updateStub = sandbox.stub();
+      updateStub.rejects('something terrible has happened');
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'updateOne', updateStub);
+
+      const get{{pascalcase this.name}}Stub = sandbox.stub();
+      get{{pascalcase this.name}}Stub.resolves({_id: {{camelcase this.name}}Id});
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'get{{pascalcase this.name}}ById', get{{pascalcase this.name}}Stub);
+
+      const validateStub = sandbox.stub();
+      validateStub.resolves(undefined as void);
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'validateUpdateObject', validateStub);
+
+      let errorred = false;
+      try {
+        await {{singularize (pascalcase this.name)}}Model.update{{pascalcase this.name}}ById({{camelcase this.name}}Id, update{{pascalcase this.name}});
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errorred = true;
+      }
+      assert.isTrue(errorred);
+    });
+  });
+
+  context('Delete a {{camelcase this.name}} document', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('should remove a {{camelcase this.name}}', async () => {
+      const deleteStub = sandbox.stub();
+      deleteStub.resolves({deletedCount: 1});
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'deleteOne', deleteStub);
+
+      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+
+      await {{singularize (pascalcase this.name)}}Model.delete{{pascalcase this.name}}ById({{camelcase this.name}}Id);
+
+      assert.isTrue(deleteStub.calledOnce);
+    });
+
+    it('should fail with an InvalidArgumentError when the {{camelcase this.name}} does not exist', async () => {
+      const deleteStub = sandbox.stub();
+      deleteStub.resolves({deletedCount: 0});
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'deleteOne', deleteStub);
+
+      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+
+      let errorred = false;
+      try {
+        await {{singularize (pascalcase this.name)}}Model.delete{{pascalcase this.name}}ById({{camelcase this.name}}Id);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errorred = true;
+      }
+
+      assert.isTrue(errorred);
+    });
+
+    it('should fail with an DatabaseOperationError when the underlying database connection throws an error', async () => {
+      const deleteStub = sandbox.stub();
+      deleteStub.rejects('something bad has happened');
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'deleteOne', deleteStub);
+
+      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+
+      let errorred = false;
+      try {
+        await {{singularize (pascalcase this.name)}}Model.delete{{pascalcase this.name}}ById({{camelcase this.name}}Id);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errorred = true;
+      }
+
+      assert.isTrue(errorred);
+    });
+  });
+
+{{#each properties}}
+{{#if (and (isOneToMany this.relationType) (hasOneToMany properties))}}
+  context('validate{{pluralize (pascalcase this.name)}}', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will validate the {{pluralize (camelcase this.name)}} where the ids are objectIds', async () => {
+      const {{camelcase this.name}}Ids = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+      const all{{pascalcase this.name}}IdsExistStub = sandbox.stub();
+      all{{pascalcase this.name}}IdsExistStub.resolves();
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'all{{pascalcase this.name}}IdsExist', all{{pascalcase this.name}}IdsExistStub);
+
+      const res = await {{singularize (pascalcase ../this.name)}}Model.validate{{pluralize (pascalcase this.name)}}({{camelcase this.name}}Ids);
+      assert.deepEqual(res, {{camelcase this.name}}Ids);
+      assert.isTrue(all{{pascalcase this.name}}IdsExistStub.calledOnce);
+    });
+
+    it('will validate the {{pluralize (camelcase this.name)}} where the ids are objects', async () => {
+      const {{camelcase this.name}}Ids = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+      const all{{pascalcase this.name}}IdsExistStub = sandbox.stub();
+      all{{pascalcase this.name}}IdsExistStub.resolves();
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'all{{pascalcase this.name}}IdsExist', all{{pascalcase this.name}}IdsExistStub);
+
+      const res = await {{singularize (pascalcase ../this.name)}}Model.validate{{ pluralize (pascalcase this.name)}}(
+        {{camelcase this.name}}Ids.map(id => ({_id: id} as databaseTypes.I{{pascalcase this.referenceTable}}))
+      );
+      assert.deepEqual(res, {{camelcase this.name}}Ids);
+      assert.isTrue(all{{pascalcase this.name}}IdsExistStub.calledOnce);
+    });
+
+    it('will wrap a DataNotFoundError in a DataValidationError', async () => {
+      const {{camelcase this.name}}Ids = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+      const all{{pascalcase this.name}}IdsExistStub = sandbox.stub();
+      all{{pascalcase this.name}}IdsExistStub.rejects(
+        new error.DataNotFoundError(
+          'The data does not exist',
+          '{{camelcase this.name}}Ids',
+          {{camelcase this.name}}Ids
+        )
+      );
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'all{{pascalcase this.name}}IdsExist', all{{pascalcase this.name}}IdsExistStub);
+
+      let errored = false;
+      try {
+        await {{singularize (pascalcase ../this.name)}}Model.validate{{ pluralize (pascalcase this.name)}}({{camelcase this.name}}Ids);
+      } catch (err) {
+        assert.instanceOf(err, error.DataValidationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will pass through a DatabaseOperationError', async () => {
+      const {{camelcase this.name}}Ids = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+      const all{{pascalcase this.name}}IdsExistStub = sandbox.stub();
+      all{{pascalcase this.name}}IdsExistStub.rejects(
+        new error.DatabaseOperationError(
+          'Something has gone horribly wrong',
+          'mongoDb',
+          ' {{singularize (pascalcase this.name)}}Model.all{{pascalcase this.name}}IdsExist',
+          {{camelcase this.name}}Ids
+        )
+      );
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'all{{pascalcase this.name}}IdsExist', all{{pascalcase this.name}}IdsExistStub);
+
+      let errored = false;
+      try {
+        await {{singularize (pascalcase ../this.name)}}Model.validate{{ pluralize (pascalcase this.name)}}({{camelcase this.name}}Ids);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+
+  context('add{{ pluralize (pascalcase this.name)}}', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will add the {{ pluralize (camelcase this.name)}} as ObjectIds', async () => {
+      const {{camelcase this.name}}Ids = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+      const {{camelcase ../this.name}}Id = new mongoose.Types.ObjectId();
+      const find{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      find{{pascalcase ../this.name}}ByIdStub.resolves({
+        _id: {{camelcase this.name}}Id,
+        {{camelcase this.name}}: [],
+        save: saveStub,
+      });
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'findById', find{{pascalcase ../this.name}}ByIdStub);
+
+      const saveStub = sandbox.stub();
+      saveStub.resolves();
+
+      const validate{{ pluralize (pascalcase this.name)}}Stub = sandbox.stub();
+      validate{{ pluralize (pascalcase this.name)}}Stub.resolves({{camelcase this.name}}Ids);
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'validate{{ pluralize (pascalcase this.name)}}', validate{{ pluralize (pascalcase this.name)}}Stub);
+
+      const get{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      get{{pascalcase ../this.name}}ByIdStub.resolves({_id: {{camelcase ../this.name}}Id, {{camelcase this.name}}: []});
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'get{{pascalcase ../this.name}}ById', get{{pascalcase ../this.name}}ByIdStub);
+
+      const res = await {{singularize (pascalcase ../this.name)}}Model.add{{ pluralize (pascalcase this.name)}}({{camelcase ../this.name}}Id, {{camelcase this.name}}Ids);
+
+      assert.isOk(res);
+      assert.isTrue(find{{pascalcase ../this.name}}ByIdStub.calledOnce);
+      assert.isTrue(validate{{ pluralize (pascalcase this.name)}}Stub.calledOnce);
+      assert.isTrue(get{{pascalcase ../this.name}}ByIdStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+    });
+
+    it('will not add the {{ pluralize (camelcase this.name)}} if they already exist on the {{camelcase ../this.name}}', async () => {
+      const {{camelcase this.name}}Ids = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+      const {{camelcase ../this.name}}Id = new mongoose.Types.ObjectId();
+      const find{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      const saveStub = sandbox.stub();
+      saveStub.resolves();
+      find{{pascalcase ../this.name}}ByIdStub.resolves({
+        _id: {{camelcase ../this.name}}Id,
+        {{camelcase this.name}}: {{camelcase this.name}}Ids,
+        save: saveStub,
+      });
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'findById', find{{pascalcase ../this.name}}ByIdStub);
+
+      const validate{{ pluralize (pascalcase this.name)}}Stub = sandbox.stub();
+      validate{{ pluralize (pascalcase this.name)}}Stub.resolves({{camelcase this.name}}Ids);
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'validate{{ pluralize (pascalcase this.name)}}', validate{{ pluralize (pascalcase this.name)}}Stub);
+
+      const get{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      get{{pascalcase ../this.name}}ByIdStub.resolves({_id: {{camelcase ../this.name}}Id, {{camelcase this.name}}: []});
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'get{{pascalcase ../this.name}}ById', get{{pascalcase ../this.name}}ByIdStub);
+
+      const res = await {{singularize (pascalcase ../this.name)}}Model.add{{ pluralize (pascalcase this.name)}}({{camelcase ../this.name}}Id, {{camelcase this.name}}Ids);
+
+      assert.isOk(res);
+      assert.isTrue(find{{pascalcase ../this.name}}ByIdStub.calledOnce);
+      assert.isTrue(validate{{ pluralize (pascalcase this.name)}}Stub.calledOnce);
+      assert.isTrue(get{{pascalcase ../this.name}}ByIdStub.calledOnce);
+      assert.isFalse(saveStub.called);
+    });
+
+    it('will add the {{ pluralize (camelcase this.name)}} as objects', async () => {
+      const {{camelcase this.name}}Ids = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+      const {{camelcase ../this.name}}Id = new mongoose.Types.ObjectId();
+      const find{{pascalcase this.name}}ByIdStub = sandbox.stub();
+      const saveStub = sandbox.stub();
+      saveStub.resolves();
+      find{{pascalcase ../this.name}}ByIdStub.resolves({
+        _id: {{camelcase ../this.name}}Id,
+        {{camelcase this.name}}: [],
+        save: saveStub,
+      });
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'findById', find{{pascalcase ../this.name}}ByIdStub);
+
+      const validate{{ pluralize (pascalcase this.name)}}Stub = sandbox.stub();
+      validate{{ pluralize (pascalcase this.name)}}Stub.resolves({{camelcase this.name}}Ids);
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'validate{{ pluralize (pascalcase this.name)}}', validate{{ pluralize (pascalcase this.name)}}Stub);
+
+      const get{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      get{{pascalcase ../this.name}}ByIdStub.resolves({_id: {{camelcase ../this.name}}Id, {{camelcase this.name}}: []});
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'get{{pascalcase ../this.name}}ById', get{{pascalcase ../this.name}}ByIdStub);
+
+      const res = await {{singularize (pascalcase ../this.name)}}Model.add{{ pluralize (pascalcase this.name)}}(
+        {{camelcase ../this.name}}Id,
+        {{camelcase this.name}}Ids.map(id => ({_id: id} as unknown as databaseTypes.I{{pascalcase this.referenceTable}}))
+      );
+
+      assert.isOk(res);
+      assert.isTrue(find{{pascalcase ../this.name}}ByIdStub.calledOnce);
+      assert.isTrue(validate{{ pluralize (pascalcase this.name)}}Stub.calledOnce);
+      assert.isTrue(get{{pascalcase ../this.name}}ByIdStub.calledOnce);
+      assert.isTrue(saveStub.calledOnce);
+    });
+
+    it('will throw an InvalidArgumentError if the input {{ pluralize (camelcase this.name)}} length === 0', async () => {
+      const {{camelcase this.name}}Ids = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+      const {{camelcase ../this.name}}Id = new mongoose.Types.ObjectId();
+      const find{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      find{{pascalcase ../this.name}}ByIdStub.resolves({
+        _id: {{camelcase ../this.name}}Id,
+        {{camelcase this.name}}: [],
+        save: () => {},
+      });
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'findById', find{{pascalcase ../this.name}}ByIdStub);
+
+      const validate{{pluralize (pascalcase this.name)}}Stub = sandbox.stub();
+      validate{{ pluralize (pascalcase this.name)}}Stub.resolves({{camelcase this.name}}Ids);
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'validate{{ pluralize (pascalcase this.name)}}', validate{{ pluralize (pascalcase this.name)}}Stub);
+
+      const get{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      get{{pascalcase ../this.name}}ByIdStub.resolves({_id: {{camelcase ../this.name}}Id, {{camelcase this.name}}: []});
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'get{{pascalcase ../this.name}}ById', get{{pascalcase ../this.name}}ByIdStub);
+      let errored = false;
+      try {
+        await {{singularize (pascalcase ../this.name)}}Model.add{{ pluralize (pascalcase this.name)}}({{camelcase ../this.name}}Id, []);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will throw an DataNotFoundError if the input {{camelcase this.name}} does not exist', async () => {
+      const {{camelcase this.name}}Ids = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+      const {{camelcase ../this.name}}Id = new mongoose.Types.ObjectId();
+      const find{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      find{{pascalcase ../this.name}}ByIdStub.resolves();
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'findById', find{{pascalcase ../this.name}}ByIdStub);
+
+      const validate{{ pluralize (pascalcase this.name)}}Stub = sandbox.stub();
+      validate{{ pluralize (pascalcase this.name)}}Stub.resolves({{camelcase this.name}}Ids);
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'validate{{ pluralize (pascalcase this.name)}}', validate{{ pluralize (pascalcase this.name)}}Stub);
+
+      const get{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      get{{pascalcase ../this.name}}ByIdStub.resolves({_id: {{camelcase ../this.name}}Id, {{camelcase this.name}}: []});
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'get{{pascalcase ../this.name}}ById', get{{pascalcase ../this.name}}ByIdStub);
+      let errored = false;
+      try {
+        await {{singularize (pascalcase ../this.name)}}Model.add{{ pluralize (pascalcase this.name)}}({{camelcase ../this.name}}Id, {{camelcase this.name}}Ids);
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will throw an DataValidationError if the {{ pluralize (camelcase this.name)}} do not exist', async () => {
+      const {{camelcase this.name}}Ids = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+      const {{camelcase ../this.name}}Id = new mongoose.Types.ObjectId();
+      const find{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      find{{pascalcase ../this.name}}ByIdStub.resolves({
+        _id: {{camelcase ../this.name}}Id,
+        {{camelcase this.name}}: [],
+        save: () => {},
+      });
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'findById', find{{pascalcase ../this.name}}ByIdStub);
+
+      const validate{{ pluralize (pascalcase this.name)}}Stub = sandbox.stub();
+      validate{{ pluralize (pascalcase this.name)}}Stub.rejects(
+        new error.DataValidationError(
+          'This data is not valid',
+          '{{ pluralize (camelcase this.name)}}',
+          {{camelcase this.name}}Ids
+        )
+      );
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'validate{{ pluralize (pascalcase this.name)}}', validate{{ pluralize (pascalcase this.name)}}Stub);
+
+      const get{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      get{{pascalcase ../this.name}}ByIdStub.resolves({_id: {{camelcase ../this.name}}Id, {{camelcase this.name}}: []});
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'get{{pascalcase ../this.name}}ById', get{{pascalcase ../this.name}}ByIdStub);
+      let errored = false;
+      try {
+        await {{singularize (pascalcase ../this.name)}}Model.add{{ pluralize (pascalcase this.name)}}({{camelcase ../this.name}}Id, {{camelcase this.name}}Ids);
+      } catch (err) {
+        assert.instanceOf(err, error.DataValidationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will throw an DatabaseOperationError if the underlying database call fails', async () => {
+      const {{camelcase this.name}}Ids = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
+      const {{camelcase ../this.name}}Id = new mongoose.Types.ObjectId();
+      const find{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      find{{pascalcase ../this.name}}ByIdStub.resolves({
+        _id: {{camelcase ../this.name}}Id,
+        {{camelcase this.name}}: [],
+        save: () => {
+          throw 'what do you think you are trying to do';
+        },
+      });
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'findById', find{{pascalcase ../this.name}}ByIdStub);
+
+      const validate{{ pluralize (pascalcase this.name)}}Stub = sandbox.stub();
+      validate{{ pluralize (pascalcase this.name)}}Stub.resolves();
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'validate{{ pluralize (pascalcase this.name)}}', validate{{ pluralize (pascalcase this.name)}}Stub);
+
+      const get{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      get{{pascalcase ../this.name}}ByIdStub.resolves({_id: {{camelcase ../this.name}}Id, {{camelcase this.name}}: []});
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'get{{pascalcase ../this.name}}ById', get{{pascalcase ../this.name}}ByIdStub);
+      let errored = false;
+      try {
+        await {{singularize (pascalcase ../this.name)}}Model.add{{ pluralize (pascalcase this.name)}}({{camelcase ../this.name}}Id, {{camelcase this.name}}Ids);
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+
+  context('remove{{ pluralize (pascalcase this.name)}}', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will remove a {{camelcase ../this.name}} {{camelcase this.name}}', async () => {
+      const {{camelcase ../this.name}}Id = new mongoose.Types.ObjectId();
+      const {{pluralize (camelcase this.name)}} = [new mongoose.Types.ObjectId()];
+      const find{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      const savedStub = sandbox.stub();
+      savedStub.resolves();
+      find{{pascalcase ../this.name}}ByIdStub.resolves({
+        _id: {{camelcase ../this.name}}Id,
+        {{camelcase this.name}}: {{ pluralize (camelcase this.name)}},
+        save: savedStub,
+      });
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'findById', find{{pascalcase ../this.name}}ByIdStub);
+
+      const get{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      get{{pascalcase ../this.name}}ByIdStub.resolves({_id: {{camelcase ../this.name}}Id, {{camelcase this.name}}: {{ pluralize (camelcase this.name)}} });
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'get{{pascalcase ../this.name}}ById', get{{pascalcase ../this.name}}ByIdStub);
+
+      const res = await {{singularize (pascalcase ../this.name)}}Model.remove{{ pluralize (pascalcase this.name)}}({{camelcase ../this.name}}Id, {{ pluralize (camelcase this.name)}});
+
+      assert.isOk(res);
+      assert.isTrue(find{{pascalcase ../this.name}}ByIdStub.calledOnce);
+      assert.isTrue(get{{pascalcase this.name}}ByIdStub.calledOnce);
+      assert.isTrue(savedStub.calledOnce);
+    });
+
+    it('will remove a {{camelcase this.name}} {{ pluralize (camelcase this.name)}} with ids as object', async () => {
+      const {{camelcase ../this.name}}Id = new mongoose.Types.ObjectId();
+      const {{ pluralize (camelcase this.name)}} = [new mongoose.Types.ObjectId()];
+      const find{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      const savedStub = sandbox.stub();
+      savedStub.resolves();
+      find{{pascalcase ../this.name}}ByIdStub.resolves({
+        _id: {{camelcase ../this.name}}Id,
+        {{camelcase this.name}}: {{ pluralize (camelcase this.name)}},
+        save: savedStub,
+      });
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'findById', find{{pascalcase ../this.name}}ByIdStub);
+
+      const get{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      get{{pascalcase ../this.name}}ByIdStub.resolves({_id: {{camelcase ../this.name}}Id, {{camelcase this.name}}: {{ pluralize (camelcase this.name)}} });
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'get{{pascalcase ../this.name}}ById', get{{pascalcase ../this.name}}ByIdStub);
+
+      const res = await {{singularize (pascalcase ../this.name)}}Model.remove{{ pluralize (pascalcase this.name)}}(
+        {{camelcase ../this.name}}Id,
+        {{ pluralize (camelcase this.name)}}.map((m: any) => {
+          return {_id: m} as unknown as databaseTypes.I{{pascalcase this.name}};
+        })
+      );
+
+      assert.isOk(res);
+      assert.isTrue(find{{pascalcase ../this.name}}ByIdStub.calledOnce);
+      assert.isTrue(get{{pascalcase ../this.name}}ByIdStub.calledOnce);
+      assert.isTrue(savedStub.calledOnce);
+    });
+
+    it('will not remove non existing {{camelcase ../this.name}} {{camelcase this.name}}', async () => {
+      const {{camelcase ../this.name}}Id = new mongoose.Types.ObjectId();
+      const {{ pluralize (camelcase this.name)}} = [new mongoose.Types.ObjectId()];
+      const find{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      const savedStub = sandbox.stub();
+      savedStub.resolves();
+      find{{pascalcase ../this.name}}ByIdStub.resolves({
+        _id: {{camelcase ../this.name}}Id,
+        {{camelcase this.name}}: {{ pluralize (camelcase this.name)}},
+        save: savedStub,
+      });
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'findById', find{{pascalcase ../this.name}}ByIdStub);
+
+      const get{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      get{{pascalcase ../this.name}}ByIdStub.resolves({_id: {{camelcase ../this.name}}Id, {{camelcase this.name}}: {{ pluralize (camelcase this.name)}} });
+      sandbox.replace({{singularize (pascalcase this.name)}}Model, 'get{{pascalcase this.name}}ById', get{{pascalcase ../this.name}}ByIdStub);
+
+      const res = await {{singularize (pascalcase ../this.name)}}Model.remove{{ pluralize (pascalcase this.name)}}({{camelcase ../this.name}}Id, [
+        new mongoose.Types.ObjectId(),
+      ]);
+
+      assert.isOk(res);
+      assert.isTrue(find{{pascalcase ../this.name}}ByIdStub.calledOnce);
+      assert.isTrue(get{{pascalcase ../this.name}}ByIdStub.calledOnce);
+      assert.isFalse(savedStub.called);
+    });
+
+    it('will throw an InvalidArgumentError when the {{camelcase this.name}} argument is empty', async () => {
+      const {{camelcase ../this.name}}Id = new mongoose.Types.ObjectId();
+      const {{ pluralize (camelcase this.name)}} = [new mongoose.Types.ObjectId()];
+      const find{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      const savedStub = sandbox.stub();
+      savedStub.resolves();
+      find{{pascalcase ../this.name}}ByIdStub.resolves({
+        _id: {{camelcase ../this.name}}Id,
+        {{camelcase this.name}}: {{ pluralize (camelcase this.name)}},
+        save: savedStub,
+      });
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'findById', find{{pascalcase ../this.name}}ByIdStub);
+
+      const get{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      get{{pascalcase ../this.name}}ByIdStub.resolves({_id: {{camelcase ../this.name}}Id, {{camelcase this.name}}: {{ pluralize (camelcase this.name)}} });
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'get{{pascalcase ../this.name}}ById', get{{pascalcase ../this.name}}ByIdStub);
+
+      let errored = false;
+      try {
+        await {{singularize (pascalcase ../this.name)}}Model.remove{{ pluralize (pascalcase this.name)}}({{camelcase ../this.name}}Id, []);
+      } catch (err) {
+        assert.instanceOf(err, error.InvalidArgumentError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will passthrough a DataNotFoundError when the {{camelcase ../this.name}} does exist ', async () => {
+      const {{camelcase ../this.name}}Id = new mongoose.Types.ObjectId();
+      const {{ pluralize (camelcase this.name)}} = [new mongoose.Types.ObjectId()];
+      const find{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      const savedStub = sandbox.stub();
+      savedStub.resolves();
+      find{{pascalcase ../this.name}}ByIdStub.resolves();
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'findById', find{{pascalcase ../this.name}}ByIdStub);
+
+      const get{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      get{{pascalcase ../this.name}}ByIdStub.resolves({_id: {{camelcase ../this.name}}Id, {{camelcase this.name}}: {{ pluralize (camelcase this.name)}} });
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'get{{pascalcase ../this.name}}ById', get{{pascalcase ../this.name}}ByIdStub);
+
+      let errored = false;
+      try {
+        await {{singularize (pascalcase ../this.name)}}Model.remove{{ pluralize (pascalcase this.name)}}({{camelcase ../this.name}}Id, {{ pluralize (camelcase this.name)}});
+      } catch (err) {
+        assert.instanceOf(err, error.DataNotFoundError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+    it('will throw a databaseOperationError when the underlying Database call fails', async () => {
+      const {{camelcase ../this.name}}Id = new mongoose.Types.ObjectId();
+      const {{ pluralize (camelcase this.name)}} = [new mongoose.Types.ObjectId()];
+      const find{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      const savedStub = sandbox.stub();
+      savedStub.rejects('The database has failed');
+      find{{pascalcase ../this.name}}ByIdStub.resolves({
+        _id: {{camelcase ../this.name}}Id,
+        {{camelcase this.name}}: {{ pluralize (camelcase this.name)}},
+        save: savedStub,
+      });
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'findById', find{{pascalcase ../this.name}}ByIdStub);
+
+      const get{{pascalcase ../this.name}}ByIdStub = sandbox.stub();
+      get{{pascalcase ../this.name}}ByIdStub.resolves({_id: {{camelcase ../this.name}}Id, {{camelcase this.name}}: {{ pluralize (camelcase this.name)}} });
+      sandbox.replace({{singularize (pascalcase ../this.name)}}Model, 'get{{pascalcase ../this.name}}ById', get{{pascalcase ../this.name}}ByIdStub);
+
+      let errored = false;
+      try {
+        await {{singularize (pascalcase ../this.name)}}Model.remove{{ pluralize (pascalcase this.name)}}({{camelcase ../this.name}}Id, {{ pluralize (camelcase this.name)}});
+      } catch (err) {
+        assert.instanceOf(err, error.DatabaseOperationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+  });
+{{else if (and (isOneToOne this.relationType) (hasOneToOne properties))}}
+{{/if}}
+{{/each}}
+});
