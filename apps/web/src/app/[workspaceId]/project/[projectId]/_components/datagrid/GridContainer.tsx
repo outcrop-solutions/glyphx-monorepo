@@ -30,6 +30,7 @@ export const GridContainer = () => {
     isBrowser = false;
   }
 
+
   console.log({isBrowser, container: true});
   const getPaneHeight = () => {
     if (height) {

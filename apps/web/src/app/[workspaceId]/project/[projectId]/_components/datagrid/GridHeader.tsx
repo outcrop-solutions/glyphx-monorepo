@@ -10,12 +10,14 @@ import {toCSV} from './to-csv';
 export const GridHeader = ({data}) => {
   const filesOpen = useRecoilValue(filesOpenSelector);
   const rowIds = useRecoilValue(rowIdsAtom);
+
   let isBrowser;
   if (typeof window !== 'undefined') {
     isBrowser = true;
   } else {
     isBrowser = false;
   }
+
   console.log({isBrowser, header: true});
 
   const exportCsv = useCallback(() => {

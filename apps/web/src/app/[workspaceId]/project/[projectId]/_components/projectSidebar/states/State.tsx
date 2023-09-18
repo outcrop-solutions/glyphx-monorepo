@@ -33,6 +33,8 @@ export const State = ({item, idx}) => {
 
   console.log({state: true, isBrowser});
 
+  console.log({state: true, isBrowser});
+
   const applyState = useCallback(async () => {
     setActiveState(idx);
 
