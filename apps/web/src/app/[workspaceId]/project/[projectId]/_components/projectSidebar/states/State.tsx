@@ -24,7 +24,12 @@ export const State = ({item, idx}) => {
   const loading = useRecoilValue(showLoadingAtom);
   const [activeState, setActiveState] = useRecoilState(activeStateAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
-  const isBrowser = !(window && window?.core);
+  let isBrowser;
+  if (typeof window !== 'undefined') {
+    isBrowser = true;
+  } else {
+    isBrowser = false;
+  }
 
   console.log({state: true, isBrowser});
 

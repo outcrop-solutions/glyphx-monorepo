@@ -22,7 +22,13 @@ export const GridContainer = () => {
   const {height} = useRecoilValue(windowSizeAtom);
   const {handlePaneResize, defaultSize, maxSize, minSize, split} = useResize();
   const resize = useRecoilValue(splitPaneSizeAtom);
-  const isBrowser = !window?.core;
+  let isBrowser;
+
+  if (typeof window !== 'undefined') {
+    isBrowser = true;
+  } else {
+    isBrowser = false;
+  }
 
   console.log({isBrowser, container: true});
   const getPaneHeight = () => {

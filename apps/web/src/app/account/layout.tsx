@@ -9,9 +9,9 @@ import {redirect} from 'next/navigation';
 export default async function AccountLayout({children}) {
   const session = await getServerSession(authOptions);
 
-  if (!session?.user) {
-    redirect(`/login` as Route);
-  }
+  // if (!session?.user) {
+  //   redirect(`/login` as Route);
+  // }
   return (
     <div className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
       <Sidebar />
