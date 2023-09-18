@@ -68,9 +68,9 @@ module.exports = {
   serverRuntimeConfig: {
     maxPayloadSize: 1024 * 1024 * 1024,
   },
-  compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
-  },
+  // compiler: {
+  //   removeConsole: process.env.NODE_ENV === 'production',
+  // },
 
   onDemandEntries: {
     // period (in ms) where the server will keep pages in the buffer

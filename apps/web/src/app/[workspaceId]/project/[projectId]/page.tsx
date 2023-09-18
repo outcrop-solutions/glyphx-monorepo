@@ -13,7 +13,7 @@ import {GridContainer} from 'app/[workspaceId]/project/[projectId]/_components/d
 import useTemplates from 'lib/client/hooks/useTemplates';
 
 const openFirstFile = (projData) => {
-  const newFiles = projData.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
+  const newFiles = projData?.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
   return {
     ...projData,
     files: [...newFiles],

@@ -27,7 +27,12 @@ export const ModelFooter = () => {
   const setResize = useSetRecoilState(splitPaneSizeAtom);
   const [loading, setLoading] = useRecoilState(showLoadingAtom);
   const [orientation, setOrientation] = useRecoilState(orientationAtom);
-  const isBrowser = !(window && window?.core);
+  let isBrowser;
+  if (typeof window !== 'undefined') {
+    isBrowser = true;
+  } else {
+    isBrowser = false;
+  }
   console.log({isBrowser, footer: true});
 
   const handleOpenClose = useCallback(async () => {
