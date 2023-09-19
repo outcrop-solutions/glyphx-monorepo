@@ -11,8 +11,6 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async session({session, user}) {
       let newSession = {...session};
-      console.log({session, user});
-      // console.log({env: process.env.GLYPHX_ENV, session, user});
       // if (process.env.GLYPHX_ENV === 'dev' && !session) {
       //   const res = await fetch('http://localhost:3000/api/authorize', {
       //     method: 'POST',

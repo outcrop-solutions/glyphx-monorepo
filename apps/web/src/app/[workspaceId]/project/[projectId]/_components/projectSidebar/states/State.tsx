@@ -31,10 +31,6 @@ export const State = ({item, idx}) => {
     isBrowser = false;
   }
 
-  console.log({state: true, isBrowser});
-
-  console.log({state: true, isBrowser});
-
   const applyState = useCallback(async () => {
     setActiveState(idx);
 
