@@ -20,3 +20,4 @@ export * from './state';
 export * from './resize';
 export * from './template';
 export * from './sandbox';
+export * from './auth';

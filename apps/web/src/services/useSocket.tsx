@@ -1,3 +1,4 @@
+'use client';
 import {useState, useEffect} from 'react';
 import {QWebChannel} from 'qwebchannel';
 import {useSetRecoilState} from 'recoil';

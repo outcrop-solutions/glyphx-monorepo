@@ -7,6 +7,7 @@ import {MongoDbConnection} from 'database';
 import {error} from 'core';
 import {userService} from '../../services';
 import {EmailClient} from 'email';
+import * as mocks from 'database/src/mongoose/mocks';
 
 describe('#services/user', () => {
   const sandbox = createSandbox();
@@ -90,6 +91,99 @@ describe('#services/user', () => {
       let errored = false;
       try {
         await userService.getUser(userId);
+      } catch (e) {
+        assert.instanceOf(e, error.DataServiceError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+      assert.isTrue(getUserFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+  });
+  context('getUsers', () => {
+    it('should get users by filter', async () => {
+      const userId = new mongooseTypes.ObjectId();
+      const userId2 = new mongooseTypes.ObjectId();
+      const userFilter = {_id: userId};
+
+      const queryUsersFromModelStub = sandbox.stub();
+      queryUsersFromModelStub.resolves({
+        results: [
+          {
+            ...mocks.MOCK_USER,
+            _id: userId,
+            customerPayment: {
+              _id: new mongooseTypes.ObjectId(),
+              __v: 1,
+            } as unknown as databaseTypes.ICustomerPayment,
+          } as unknown as databaseTypes.IUser,
+          {
+            ...mocks.MOCK_USER,
+            _id: userId2,
+            customerPayment: {
+              _id: new mongooseTypes.ObjectId(),
+              __v: 1,
+            } as unknown as databaseTypes.ICustomerPayment,
+          } as unknown as databaseTypes.IUser,
+        ],
+      } as unknown as databaseTypes.IUser[]);
+
+      sandbox.replace(dbConnection.models.UserModel, 'queryUsers', queryUsersFromModelStub);
+
+      const users = await userService.getUsers(userFilter);
+      assert.isOk(users![0]);
+      assert.strictEqual(users![0]._id?.toString(), userId.toString());
+      assert.isTrue(queryUsersFromModelStub.calledOnce);
+    });
+    it('will log the failure and return null if the users cannot be found', async () => {
+      const userName = 'userName1';
+      const userFilter = {name: userName};
+      const errMessage = 'Cannot find the user';
+      const err = new error.DataNotFoundError(errMessage, 'name', userFilter);
+      const getUserFromModelStub = sandbox.stub();
+      getUserFromModelStub.rejects(err);
+      sandbox.replace(dbConnection.models.UserModel, 'queryUsers', getUserFromModelStub);
+      function fakePublish() {
+        //@ts-ignore
+        assert.instanceOf(this, error.DataNotFoundError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      const user = await userService.getUsers(userFilter);
+      assert.notOk(user);
+
+      assert.isTrue(getUserFromModelStub.calledOnce);
+      assert.isTrue(publishOverride.calledOnce);
+    });
+    it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
+      const userName = 'userName1';
+      const userFilter = {name: userName};
+      const errMessage = 'Something Bad has happened';
+      const err = new error.DatabaseOperationError(errMessage, 'mongoDb', 'getUserByEmail');
+      const getUserFromModelStub = sandbox.stub();
+      getUserFromModelStub.rejects(err);
+      sandbox.replace(dbConnection.models.UserModel, 'queryUsers', getUserFromModelStub);
+      function fakePublish() {
+        //@ts-ignore
+        assert.instanceOf(this, error.DatabaseOperationError);
+        //@ts-ignore
+        assert.strictEqual(this.message, errMessage);
+      }
+
+      const boundPublish = fakePublish.bind(err);
+      const publishOverride = sandbox.stub();
+      publishOverride.callsFake(boundPublish);
+      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
+
+      let errored = false;
+      try {
+        await userService.getUsers(userFilter);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
