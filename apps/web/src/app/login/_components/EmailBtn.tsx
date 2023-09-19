@@ -5,9 +5,11 @@ import {signIn, useSession} from 'next-auth/react';
 import toast from 'react-hot-toast';
 import {useRecoilState} from 'recoil';
 import {authEmailAtom} from 'state';
+import {useRouter} from 'next/navigation';
 
 export const EmailBtn = () => {
   const {status} = useSession();
+  const router = useRouter();
   const [email, setEmail] = useRecoilState(authEmailAtom);
   const [isSubmitting, setSubmittingState] = useState(false);
   const validate = isEmail(email);
@@ -18,6 +20,7 @@ export const EmailBtn = () => {
     setSubmittingState(true);
     const response = await signIn('email', {email, redirect: true});
 
+    console.log({response});
     if (response?.error === null) {
       toast.success(`Please check your email (${email}) for the login link.`, {
         duration: 5000,

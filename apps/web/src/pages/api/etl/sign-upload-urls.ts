@@ -1,8 +1,8 @@
 import {webTypes} from 'types';
 import type {NextApiRequest, NextApiResponse} from 'next';
-import {authOptions} from 'app/api/auth/[...nextauth]/route';
-import {getServerSession} from 'next-auth/next';
 import {Initializer} from 'business';
+import {Session} from 'next-auth';
+import {validateSession} from 'lib/server/session';
 import {signUploadUrls} from 'lib/server/etl/signUploadUrls';
 /**
  * Implements controller of browser based FILE OPERATIONS
@@ -16,9 +16,8 @@ export default async function signUpload(req: NextApiRequest, res: NextApiRespon
   // initialize the business layer
   if (!Initializer.initedField) {
     await Initializer.init();
-  }
-  // check for valid session
-  const session = await getServerSession(req, res, authOptions);
+  } // check for valid session
+  const session = (await validateSession(req, res)) as Session;
   if (!session?.user?._id) return res.status(401).end();
   switch (req.method) {
     case webTypes.constants.HTTP_METHOD.POST:

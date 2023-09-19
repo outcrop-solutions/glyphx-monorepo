@@ -1,18 +1,20 @@
 'use client';
-import {signIn} from 'next-auth/react';
+import {signIn, useSession} from 'next-auth/react';
+import {useRouter} from 'next/navigation';
 import React from 'react';
-import {useRecoilValue} from 'recoil';
-import {authEmailAtom} from 'state';
 
 export const CredentialsBtn = () => {
-  const email = useRecoilValue(authEmailAtom);
+  const router = useRouter();
+  const {status} = useSession();
 
   return (
     <div
       className="py-2 bg-yellow rounded hover:bg-primary-yellow disabled:opacity-75 w-full text-center"
-      onClick={() => signIn('credentials', {redirect: true}, {email})}
+      onClick={() => {
+        router.push('/account');
+      }}
     >
-      Dev Sign In
+      {status === 'loading' ? 'Checking session...' : 'Dev Sign In'}
     </div>
   );
 };

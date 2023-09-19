@@ -4,8 +4,8 @@ import {useSession} from 'next-auth/react';
 import {useParams} from 'next/navigation';
 
 export const Controls = () => {
-  const {data} = useSession();
-  const isGlyphxUser = data?.user?.email?.endsWith('@glyphx.co');
+  const session = useSession();
+  const isGlyphxUser = session?.data?.user?.email?.endsWith('@glyphx.co');
   const params = useParams();
   const {projectId, workspaceId} = params as {projectId: string; workspaceId: string};
 
