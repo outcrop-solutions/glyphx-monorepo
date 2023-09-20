@@ -180,6 +180,7 @@ export const _createOpenProject = (
   }
 ) => {
   const cam = camera || {};
+
   return JSON.stringify({
     ...cam,
     projectId: project?._id,

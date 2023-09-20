@@ -98,7 +98,7 @@ export const ProjectDetails = () => {
             </div>
           </div>
           <div className="block w-full aspect-w-10 aspect-h-7 rounded-lg overflow-hidden">
-            <Image layout="fill" src="/images/projectDetails.png" alt="" className="object-cover" />
+            <Image src="/images/projectDetails.png" alt="" className="object-cover" />
           </div>
         </div>
         <div>
