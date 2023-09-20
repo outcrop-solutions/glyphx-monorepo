@@ -7,7 +7,7 @@ import {MongoDbConnection} from 'database';
 import {error} from 'core';
 import {membershipService} from '../../services';
 
-describe.only('#services/membership', () => {
+describe('#services/membership', () => {
   const sandbox = createSandbox();
   const dbConnection = new MongoDbConnection();
 
