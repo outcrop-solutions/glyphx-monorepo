@@ -7,7 +7,7 @@ import {MongoDbConnection} from 'database';
 import {error} from 'core';
 import {membershipService} from '../../services';
 
-describe('#services/membership', () => {
+describe.only('#services/membership', () => {
   const sandbox = createSandbox();
   const dbConnection = new MongoDbConnection();
 
@@ -129,23 +129,20 @@ describe('#services/membership', () => {
       queryMembersFromModelStub.resolves({
         results: [
           {
-            members: [
-              {
-                _id: memberId,
-                email: memberEmail,
-                type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
-              },
-            ] as unknown as databaseTypes.IMember[],
+            _id: memberId,
+            email: memberEmail,
+            deletedAt: undefined,
+            status: databaseTypes.constants.INVITATION_STATUS.PENDING,
+            type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
           },
-        ] as unknown as databaseTypes.IWorkspace[],
+        ] as unknown as databaseTypes.IMember[],
       });
 
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', queryMembersFromModelStub);
+      sandbox.replace(dbConnection.models.MemberModel, 'queryMembers', queryMembersFromModelStub);
 
       const members = await membershipService.getMembers(memberFilter);
       assert.isOk(members![0]);
       assert.strictEqual(members![0].email?.toString(), memberEmail.toString());
-
       assert.isTrue(queryMembersFromModelStub.calledOnce);
     });
     it('will log the failure and return null if the member cannot be found', async () => {
@@ -155,7 +152,7 @@ describe('#services/membership', () => {
       const err = new error.DataNotFoundError(errMessage, 'email', memberFilter);
       const getMembershipFromModelStub = sandbox.stub();
       getMembershipFromModelStub.rejects(err);
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', getMembershipFromModelStub);
+      sandbox.replace(dbConnection.models.MemberModel, 'queryMembers', getMembershipFromModelStub);
       function fakePublish() {
         //@ts-ignore
         assert.instanceOf(this, error.DataNotFoundError);
@@ -182,7 +179,7 @@ describe('#services/membership', () => {
       const err = new error.DatabaseOperationError(errMessage, 'mongoDb', 'getMembershipByEmail');
       const getMembershipFromModelStub = sandbox.stub();
       getMembershipFromModelStub.rejects(err);
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', getMembershipFromModelStub);
+      sandbox.replace(dbConnection.models.MemberModel, 'queryMembers', getMembershipFromModelStub);
       function fakePublish() {
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
