@@ -110,10 +110,6 @@ export const useSocket = () => {
         if (socket && socket.readyState === WebSocket.OPEN) {
           socket.close();
         }
-        // Cleanup code...
-        if (typeof window !== 'undefined') {
-          delete window.core;
-        }
       } catch (error) {
         console.error({error});
       }
