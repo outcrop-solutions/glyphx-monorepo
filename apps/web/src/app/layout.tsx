@@ -3,7 +3,6 @@ import {getServerSession} from 'next-auth/next';
 import 'globals.css';
 import {Providers} from './providers';
 import {authOptions} from './api/auth/[...nextauth]/route';
-import {redirect} from 'next/navigation';
 
 export const metadata: Metadata = {
   title: 'Home | Glyphx',

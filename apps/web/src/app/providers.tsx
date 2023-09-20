@@ -17,6 +17,7 @@ import useToggleViewerOnRouteChange from 'services/useToggleViewerOnRouteChange'
 import {Modals} from 'app/_components/Modals';
 import {Loading} from 'app/_components/Loaders/Loading';
 import {Session} from 'next-auth';
+import {AuthProviders} from 'app/_components/AuthProviders';
 
 if (typeof window !== 'undefined') {
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY as string, {
@@ -57,14 +58,16 @@ export const Providers = ({children, session}: {children: React.ReactNode; sessi
       <SWRConfig value={swrOptions}>
         <RecoilRoot>
           <PostHogProvider client={posthog}>
-            {/* @ts-ignore */}
-            <DndProvider backend={HTML5Backend}>
-              <Toaster position="bottom-left" toastOptions={{duration: 2000}} />
-              {progress && <TopBarProgress />}
-              <Modals />
-              <Loading />
-              {children}
-            </DndProvider>
+            <AuthProviders>
+              {/* @ts-ignore */}
+              <DndProvider backend={HTML5Backend}>
+                <Toaster position="bottom-left" toastOptions={{duration: 2000}} />
+                {progress && <TopBarProgress />}
+                <Modals />
+                <Loading />
+                {children}
+              </DndProvider>
+            </AuthProviders>
           </PostHogProvider>
         </RecoilRoot>
       </SWRConfig>

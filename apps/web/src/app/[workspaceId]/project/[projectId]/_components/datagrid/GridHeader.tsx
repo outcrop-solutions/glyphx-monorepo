@@ -18,8 +18,6 @@ export const GridHeader = ({data}) => {
     isBrowser = false;
   }
 
-  console.log({isBrowser, header: true});
-
   const exportCsv = useCallback(() => {
     const csv = toCSV(data?.rows, data?.columns?.map(({key}) => key), ',', '"');
     window?.core?.SendCsv(csv);
