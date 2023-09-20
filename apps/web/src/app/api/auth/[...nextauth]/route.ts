@@ -9,23 +9,11 @@ import MongoClient from 'lib/server/mongodb';
 export const authOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(MongoClient),
   callbacks: {
-    async session({session, user}) {
-      let newSession = {...session};
-      // if (process.env.GLYPHX_ENV === 'dev' && !session) {
-      //   const res = await fetch('http://localhost:3000/api/authorize', {
-      //     method: 'POST',
-      //     body: JSON.stringify({email: user.email}),
-      //     headers: {'Content-Type': 'application/json'},
-      //   });
-      //   const newUser = await res.json();
-      //   newSession = {
-      //     ...newSession,
-      //     user: {
-      //       ...newUser,
-      //     },
-      //   };
-      // }
-      return newSession;
+    session: async ({session, user}) => {
+      if (session?.user) {
+        session.user._id = user.id;
+      }
+      return session;
     },
   },
   pages: {
