@@ -1,9 +1,9 @@
 import {webTypes} from 'types';
 import type {NextApiRequest, NextApiResponse} from 'next';
-import {Session} from 'next-auth';
+import {authOptions} from 'app/api/auth/[...nextauth]/route';
+import {getServerSession} from 'next-auth/next';
 import {glyphEngine} from 'lib/server/etl/glyphEngine';
 import {Initializer} from 'business';
-import {validateSession} from 'lib/server/session';
 
 /**
  * Implements controller of browser based FILE OPERATIONS
@@ -14,11 +14,11 @@ import {validateSession} from 'lib/server/session';
  */
 
 export default async function engine(req: NextApiRequest, res: NextApiResponse) {
-  // initialize the business layer
+  // check for valid session
+  const session = await getServerSession(req, res, authOptions);
   if (!Initializer.initedField) {
     await Initializer.init();
-  } // check for valid session
-  const session = (await validateSession(req, res)) as Session;
+  }
   if (!session?.user?._id) return res.status(401).end();
 
   switch (req.method) {

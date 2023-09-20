@@ -11,6 +11,13 @@ export const GridHeader = ({data}) => {
   const filesOpen = useRecoilValue(filesOpenSelector);
   const rowIds = useRecoilValue(rowIdsAtom);
 
+  let isBrowser;
+  if (typeof window !== 'undefined') {
+    isBrowser = true;
+  } else {
+    isBrowser = false;
+  }
+
   const exportCsv = useCallback(() => {
     const csv = toCSV(data?.rows, data?.columns?.map(({key}) => key), ',', '"');
     window?.core?.SendCsv(csv);
@@ -25,7 +32,7 @@ export const GridHeader = ({data}) => {
           ))}
         </>
       )}
-      {rowIds && window && !window?.core && (
+      {rowIds && !isBrowser && (
         <div
           onClick={() => exportCsv()}
           className="group cursor-pointer flex items-center justify-between px-4 bg-gray hover:bg-yellow border-r border-t border-l border-white hover:text-black h-full"

@@ -4,7 +4,6 @@ import {api} from '../network';
 import {_getDataGrid, _getRowIds} from '../mutations';
 import {dataGridPayloadSelector, rowIdsAtom} from 'state';
 import {useRecoilValue} from 'recoil';
-import {debounce} from 'lodash';
 
 const useDataGrid = () => {
   const [data, setData] = useState(null);
@@ -29,36 +28,34 @@ const useDataGrid = () => {
     [workspaceId, projectId, tableName]
   );
 
-  const fetchDataWithRowIds = debounce(async () => {
-    setIsLoadingRowIds(true);
-    const data = await api(fetchRowIdsConfig);
-    setData(data);
-    setIsLoadingRowIds(false);
-  }, 5000);
-
   useEffect(() => {
     if (!tableName || isLoadingRowIds || !rowIds) {
       return;
     }
 
-    fetchDataWithRowIds();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rowIds, tableName, isLoadingRowIds, fetchRowIdsConfig]);
+    const fetchDataWithRowIds = async () => {
+      setIsLoadingRowIds(true);
+      const data = await api(fetchRowIdsConfig);
+      setData(data);
+      setIsLoadingRowIds(false);
+    };
 
-  const fetchDataWithoutRowIds = debounce(async () => {
-    setIsLoadingDataGrid(true);
-    const data = await api(fetchDataGridConfig);
-    setData(data);
-    setIsLoadingDataGrid(false);
-  }, 5000);
+    fetchDataWithRowIds();
+  }, [rowIds, tableName, isLoadingRowIds, fetchRowIdsConfig]);
 
   useEffect(() => {
     if (!tableName || isLoadingDataGrid || rowIds) {
       return;
     }
 
+    const fetchDataWithoutRowIds = async () => {
+      setIsLoadingDataGrid(true);
+      const data = await api(fetchDataGridConfig);
+      setData(data);
+      setIsLoadingDataGrid(false);
+    };
+
     fetchDataWithoutRowIds();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoadingDataGrid, tableName, fetchDataGridConfig, rowIds]);
 
   return {data};

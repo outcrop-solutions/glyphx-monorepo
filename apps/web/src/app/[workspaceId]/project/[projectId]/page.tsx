@@ -5,7 +5,7 @@ import {WritableDraft} from 'immer/dist/internal';
 import {webTypes} from 'types';
 import {useSetRecoilState} from 'recoil';
 import {dataGridAtom, projectAtom, rightSidebarControlAtom, templatesAtom, workspaceAtom} from 'state';
-import {useSendPosition, useWindowSize} from 'services';
+import {useSendPosition, useSocket, useWindowSize} from 'services';
 import {useCloseViewerOnModalOpen} from 'services/useCloseViewerOnModalOpen';
 import {useProject, useWorkspace} from 'lib/client/hooks';
 import {useCloseViewerOnLoading} from 'services/useCloseViewerOnLoading';
@@ -62,6 +62,8 @@ export default function Project() {
     setTemplates,
     templateData,
   ]);
+
+  useSocket();
 
   return <GridContainer />;
 }

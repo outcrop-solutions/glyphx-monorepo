@@ -33,9 +33,12 @@ export class MembershipService {
 
   public static async getMembers(filter?: Record<string, unknown>): Promise<databaseTypes.IMember[] | null> {
     try {
-      const {results} = await mongoDbConnection.models.MemberModel.queryMembers(filter);
-      if (results) {
-        return results;
+      const workspaces = await mongoDbConnection.models.WorkspaceModel.queryWorkspaces(filter);
+      if (workspaces) {
+        return (
+          workspaces.results[0].members.filter((m) => m.type === databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE) ||
+          null
+        );
       } else {
         return null;
       }
@@ -63,7 +66,6 @@ export class MembershipService {
         email,
         deletedAt: undefined,
         status: databaseTypes.constants.INVITATION_STATUS.PENDING,
-        type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
       });
       return members;
     } catch (err: any) {

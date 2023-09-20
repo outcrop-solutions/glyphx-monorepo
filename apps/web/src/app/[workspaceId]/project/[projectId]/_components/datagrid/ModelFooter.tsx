@@ -27,6 +27,13 @@ export const ModelFooter = () => {
   const setResize = useSetRecoilState(splitPaneSizeAtom);
   const [loading, setLoading] = useRecoilState(showLoadingAtom);
   const [orientation, setOrientation] = useRecoilState(orientationAtom);
+  let isBrowser;
+  if (typeof window !== 'undefined') {
+    isBrowser = true;
+  } else {
+    isBrowser = false;
+  }
+  console.log({isBrowser, footer: true});
 
   const handleOpenClose = useCallback(async () => {
     if (drawer && windowSize.height) {
@@ -36,17 +43,15 @@ export const ModelFooter = () => {
 
       setDrawer(false);
       window?.core?.ToggleDrawer(false);
-    } else if (window && !window.core) {
+    } else if (isBrowser) {
       setResize(150);
       setDrawer(true);
     } else {
       // open drawer
       const payloadHash = hashPayload(hashFileSystem(project.files), project);
-      console.log('CALLING DOWNLOAD MODEL');
       await callDownloadModel({project, payloadHash, session, url, setLoading, setDrawer, setResize});
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [drawer, project, session, setDrawer, setLoading, setOrientation, setResize, url, windowSize.height]);
+  }, [drawer, isBrowser, project, session, setDrawer, setLoading, setOrientation, setResize, url, windowSize.height]);
 
   return viewer && !(Object.keys(loading).length > 0) ? (
     <div
