@@ -374,7 +374,7 @@ export class WorkspaceService {
             $match: {
               $and: [
                 {
-                  'members.email': 'jp@glyphx.co',
+                  'members.email': email,
                 },
                 {
                   $or: [
