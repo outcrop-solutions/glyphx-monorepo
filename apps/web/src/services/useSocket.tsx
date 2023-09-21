@@ -108,7 +108,7 @@ export const useSocket = () => {
       try {
         isMounted.current = false;
         if (socket && socket.readyState === WebSocket.OPEN) {
-          socket.close();
+          // socket.close();
         }
       } catch (error) {
         console.error({error});

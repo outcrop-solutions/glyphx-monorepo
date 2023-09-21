@@ -20,7 +20,7 @@ export default function Login() {
         </div>
         <EmailBtn />
         <Providers />
-        {process.env.GLYPHX_ENV === 'dev' ? <CredentialsBtn /> : <></>}
+        {!process.env.GLYPHX_ENV ? <CredentialsBtn /> : <></>}
       </div>
     </>
   );
