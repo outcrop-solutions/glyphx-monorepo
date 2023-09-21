@@ -14,7 +14,7 @@
     "format:write": "turbo format:write",
     "dev": "rimraf apps/web/.next && dotenv -- turbo dev",
     "plop": "plop",
-    "start": "rimraf apps/web/.next && dotenv -- turbo start",
+    "start": "dotenv -- turbo start",
     "lint": "rimraf apps/web/.next && dotenv -- turbo lint",
     "fix": "rimraf apps/web/.next && dotenv -- turbo fix",
     "type-check": "dotenv -- turbo type-check",
