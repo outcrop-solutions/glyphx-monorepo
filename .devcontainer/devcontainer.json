@@ -1,8 +1,10 @@
 {
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "name": "Neovim Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
   "features": {
-    "ghcr.io/devcontainers-contrib/features/fish-apt-get:1": {},
-    "ghcr.io/devcontainers-contrib/features/neovim-apt-get:1": {}
-    
+    "ghcr.io/devcontainers/features/sshd:1": {}
   }
 }
