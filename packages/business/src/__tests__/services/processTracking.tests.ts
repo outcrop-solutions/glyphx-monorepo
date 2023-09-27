@@ -13,7 +13,7 @@ describe.only('ProcessTrackingService', () => {
       _id:
         // @ts-ignore
         new mongooseTypes.ObjectId(),
-      processId: 'testProcessId',
+      processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
@@ -170,7 +170,7 @@ describe.only('ProcessTrackingService', () => {
     it('should return the process status processId is a string', async () => {
       const getStub = sandbox.stub();
       getStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
 
       const reconcileStatusStub = sandbox.stub();
       reconcileStatusStub.resolves(mockProcessTracking);
@@ -275,7 +275,7 @@ describe.only('ProcessTrackingService', () => {
       _id:
         // @ts-ignore
         new mongooseTypes.ObjectId(),
-      processId: 'testProcessId',
+      processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
@@ -292,7 +292,7 @@ describe.only('ProcessTrackingService', () => {
     it('should update the process status using the processId as string', async () => {
       const updateStub = sandbox.stub();
       updateStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'updateProcessTrackingDocumentByProcessId', updateStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'updateProcessTrackingDocumentById', updateStub);
 
       const addMessageStub = sandbox.stub();
       addMessageStub.resolves(mockProcessTracking);
@@ -301,7 +301,7 @@ describe.only('ProcessTrackingService', () => {
       const processId = mockProcessTracking.processId;
       const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
 
-      await ProcessTrackingService.updateProcessStatus(processId.toString(), processStatus);
+      await ProcessTrackingService.updateProcessStatus(processId, processStatus);
 
       assert.isTrue(updateStub.calledOnce);
 
@@ -554,7 +554,7 @@ describe.only('ProcessTrackingService', () => {
       _id:
         // @ts-ignore
         new mongooseTypes.ObjectId(),
-      processId: 'testProcessId',
+      processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
@@ -571,13 +571,13 @@ describe.only('ProcessTrackingService', () => {
     it('should update the process to complete with the processId as a string', async () => {
       const updateStub = sandbox.stub();
       updateStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'updateProcessTrackingDocumentByProcessId', updateStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'updateProcessTrackingDocumentById', updateStub);
 
       const processId = mockProcessTracking.processId;
       const processStatus = databaseTypes.constants.PROCESS_STATUS.COMPLETED;
       const result = {text: 'I am finished'};
 
-      await ProcessTrackingService.completeProcess(processId.toString(), result, processStatus);
+      await ProcessTrackingService.completeProcess(processId, result, processStatus);
 
       assert.isTrue(updateStub.calledOnce);
 
@@ -722,7 +722,7 @@ describe.only('ProcessTrackingService', () => {
       _id:
         // @ts-ignore
         new mongooseTypes.ObjectId(),
-      processId: 'testProcessId',
+      processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
@@ -739,7 +739,7 @@ describe.only('ProcessTrackingService', () => {
     it('should add an error to the process with the processId as a string', async () => {
       const updateStub = sandbox.stub();
       updateStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addErrorsByProcessId', updateStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addErrorsById', updateStub);
 
       const processId = mockProcessTracking.processId;
       const processError = new error.GlyphxError('I am an error', 999);
@@ -874,7 +874,7 @@ describe.only('ProcessTrackingService', () => {
       _id:
         // @ts-ignore
         new mongooseTypes.ObjectId(),
-      processId: 'testProcessId',
+      processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
@@ -891,7 +891,7 @@ describe.only('ProcessTrackingService', () => {
     it('should add a message to the process with the processId as a string', async () => {
       const updateStub = sandbox.stub();
       updateStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addMessagesByProcessId', updateStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addMessagesById', updateStub);
 
       const processId = mockProcessTracking.processId;
       const message = 'I am a message';
@@ -1026,7 +1026,7 @@ describe.only('ProcessTrackingService', () => {
       _id:
         // @ts-ignore
         new mongooseTypes.ObjectId(),
-      processId: 'testProcessId',
+      processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
@@ -1073,7 +1073,7 @@ describe.only('ProcessTrackingService', () => {
     it('should return the processTracking object when processId is a string', async () => {
       const getStub = sandbox.stub();
       getStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
 
       const reconcileStatusStub = sandbox.stub();
       reconcileStatusStub.resolves(mockProcessTracking);
@@ -1191,7 +1191,7 @@ describe.only('ProcessTrackingService', () => {
       _id:
         // @ts-ignore
         new mongooseTypes.ObjectId(),
-      processId: 'testProcessId',
+      processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
@@ -1221,7 +1221,7 @@ describe.only('ProcessTrackingService', () => {
     it('should return the processTracking.processError array  when processId is a string', async () => {
       const getStub = sandbox.stub();
       getStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
 
       const processId = mockProcessTracking.processId;
       const result = await ProcessTrackingService.getProcessError(processId.toString());
@@ -1245,7 +1245,7 @@ describe.only('ProcessTrackingService', () => {
     it('should return null when processId is not found', async () => {
       const getStub = sandbox.stub();
       getStub.rejects(new error.DataNotFoundError('not found', 'key', 'value'));
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
 
       const processId = mockProcessTracking.processId;
       const result = await ProcessTrackingService.getProcessError(processId.toString());
@@ -1258,7 +1258,7 @@ describe.only('ProcessTrackingService', () => {
       _id:
         // @ts-ignore
         new mongooseTypes.ObjectId(),
-      processId: 'testProcessId',
+      processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
@@ -1291,7 +1291,7 @@ describe.only('ProcessTrackingService', () => {
     it('should return the processTracking processMessages array when processId is a string', async () => {
       const getStub = sandbox.stub();
       getStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
 
       const processId = mockProcessTracking.processId;
       const result = await ProcessTrackingService.getProcessMessages(processId.toString());
@@ -1314,7 +1314,7 @@ describe.only('ProcessTrackingService', () => {
     it('should return null when processId is not found', async () => {
       const getStub = sandbox.stub();
       getStub.rejects(new error.DataNotFoundError('not found', 'key', 'value'));
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
 
       const processId = mockProcessTracking.processId;
       const result = await ProcessTrackingService.getProcessMessages(processId.toString());
@@ -1327,7 +1327,7 @@ describe.only('ProcessTrackingService', () => {
       _id:
         // @ts-ignore
         new mongooseTypes.ObjectId(),
-      processId: 'testProcessId',
+      processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
@@ -1345,7 +1345,7 @@ describe.only('ProcessTrackingService', () => {
     it('should return the processTracking processResult object when processId is a string', async () => {
       const getStub = sandbox.stub();
       getStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
 
       const processId = mockProcessTracking.processId;
       const result = await ProcessTrackingService.getProcessResult(processId.toString());
@@ -1366,7 +1366,7 @@ describe.only('ProcessTrackingService', () => {
     it('should return null when processId is not found', async () => {
       const getStub = sandbox.stub();
       getStub.rejects(new error.DataNotFoundError('not found', 'key', 'value'));
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
 
       const processId = mockProcessTracking.processId;
       const result = await ProcessTrackingService.getProcessResult(processId.toString());
@@ -1384,10 +1384,10 @@ describe.only('ProcessTrackingService', () => {
     it('should remove the process tracking document by processId as string', async () => {
       const deleteStub = sandbox.stub();
       deleteStub.resolves();
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'deleteProcessTrackingDocumentProcessId', deleteStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'deleteProcessTrackingDocumentById', deleteStub);
 
-      const processId = 'testProcessId';
-      await ProcessTrackingService.removeProcessTrackingDocument(processId.toString());
+      const processId = new mongooseTypes.ObjectId().toString();
+      await ProcessTrackingService.removeProcessTrackingDocument(processId);
       assert.isTrue(deleteStub.calledOnce);
     });
 
@@ -1475,10 +1475,10 @@ describe.only('ProcessTrackingService', () => {
     it('should set the heartbeat with processId as string', async () => {
       const updateStub = sandbox.stub();
       updateStub.resolves();
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'updateProcessTrackingDocumentByProcessId', updateStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'updateProcessTrackingDocumentById', updateStub);
 
-      const processId = 'testProcessId';
-      await ProcessTrackingService.setHeartbeat(processId.toString());
+      const processId = new mongooseTypes.ObjectId().toString();
+      await ProcessTrackingService.setHeartbeat(processId);
       assert.isTrue(updateStub.calledOnce);
     });
 
@@ -1593,7 +1593,7 @@ describe.only('ProcessTrackingService', () => {
     const sandbox = createSandbox();
     const dbConnection = new MongoDbConnection();
     const mockProcessTracking: databaseTypes.IProcessTracking = {
-      processId: 'testProcessId',
+      processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.PENDING,
       processStartTime: new Date(),
