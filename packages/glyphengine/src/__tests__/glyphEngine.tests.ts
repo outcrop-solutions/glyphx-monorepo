@@ -585,31 +585,34 @@ describe('GlyphEngine', () => {
       const result = (glyphEngine as any).updateSdt(localString, localData);
 
       const jsonObj = parser.parse(result);
-      assert.strictEqual(jsonObj.Transform['@_id'], modelId);
-      assert.strictEqual(jsonObj.Transform.Datasources.Datasource.Host, '_data.csv');
-      assert.strictEqual(jsonObj.Transform.Datasources.Datasource.Name, '_data.csv');
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.X.Function['@_type'], 'Text Interpolation');
+      assert.strictEqual((jsonObj as any).Transform['@_id'], modelId);
+      assert.strictEqual((jsonObj as any).Transform.Datasources.Datasource.Host, '_data.csv');
+      assert.strictEqual((jsonObj as any).Transform.Datasources.Datasource.Name, '_data.csv');
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.X.Function['@_type'], 'Text Interpolation');
 
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.Y.Function['@_type'], 'Logarithmic Interpolation');
+      assert.strictEqual(
+        (jsonObj as any).Transform.Glyphs.Glyph.Position.Y.Function['@_type'],
+        'Logarithmic Interpolation'
+      );
 
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.Z.Function['@_type'], 'Linear Interpolation');
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.X.Min, 205);
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.X.Difference, -410);
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.Z.Function['@_type'], 'Linear Interpolation');
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.X.Min, 205);
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.X.Difference, -410);
 
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.Y.Min, 205);
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.X.Difference, -410);
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.Y.Min, 205);
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.X.Difference, -410);
 
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.Z.Min, 1);
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.Z.Difference, 70);
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Color.RGB.Min, '0,255,255');
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.Z.Min, 1);
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.Z.Difference, 70);
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Color.RGB.Min, '0,255,255');
 
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Color.RGB.Difference, '255,-255,-255');
-      assert.strictEqual(jsonObj.Transform.InputFields.InputField[0]['@_field'], localData.get('x_axis'));
-      assert.strictEqual(jsonObj.Transform.InputFields.InputField[1]['@_field'], localData.get('y_axis'));
-      assert.strictEqual(jsonObj.Transform.InputFields.InputField[2]['@_field'], localData.get('z_axis'));
-      assert.strictEqual(jsonObj.Transform.InputFields.InputField[0]['@_type'], 'Text');
-      assert.strictEqual(jsonObj.Transform.InputFields.InputField[1]['@_type'], 'Real');
-      assert.strictEqual(jsonObj.Transform.InputFields.InputField[2]['@_type'], 'Real');
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Color.RGB.Difference, '255,-255,-255');
+      assert.strictEqual((jsonObj as any).Transform.InputFields.InputField[0]['@_field'], localData.get('x_axis'));
+      assert.strictEqual((jsonObj as any).Transform.InputFields.InputField[1]['@_field'], localData.get('y_axis'));
+      assert.strictEqual((jsonObj as any).Transform.InputFields.InputField[2]['@_field'], localData.get('z_axis'));
+      assert.strictEqual((jsonObj as any).Transform.InputFields.InputField[0]['@_type'], 'Text');
+      assert.strictEqual((jsonObj as any).Transform.InputFields.InputField[1]['@_type'], 'Real');
+      assert.strictEqual((jsonObj as any).Transform.InputFields.InputField[2]['@_type'], 'Real');
     });
 
     it('will update the template with the correct values inverted from above', async () => {
@@ -644,31 +647,34 @@ describe('GlyphEngine', () => {
       const result = (glyphEngine as any).updateSdt(localString, localData);
 
       const jsonObj = parser.parse(result);
-      assert.strictEqual(jsonObj.Transform['@_id'], modelId);
-      assert.strictEqual(jsonObj.Transform.Datasources.Datasource.Host, '_data.csv');
-      assert.strictEqual(jsonObj.Transform.Datasources.Datasource.Name, '_data.csv');
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.X.Function['@_type'], 'Logarithmic Interpolation');
+      assert.strictEqual((jsonObj as any).Transform['@_id'], modelId);
+      assert.strictEqual((jsonObj as any).Transform.Datasources.Datasource.Host, '_data.csv');
+      assert.strictEqual((jsonObj as any).Transform.Datasources.Datasource.Name, '_data.csv');
+      assert.strictEqual(
+        (jsonObj as any).Transform.Glyphs.Glyph.Position.X.Function['@_type'],
+        'Logarithmic Interpolation'
+      );
 
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.Y.Function['@_type'], 'Text Interpolation');
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.Y.Function['@_type'], 'Text Interpolation');
 
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.Z.Function['@_type'], 'Text Interpolation');
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.X.Min, -205);
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.X.Difference, 410);
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.Z.Function['@_type'], 'Text Interpolation');
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.X.Min, -205);
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.X.Difference, 410);
 
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.Y.Min, -205);
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.X.Difference, 410);
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.Y.Min, -205);
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.X.Difference, 410);
 
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.Z.Min, 70);
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.Z.Difference, -70);
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Color.RGB.Min, '255,0,0');
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.Z.Min, 70);
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.Z.Difference, -70);
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Color.RGB.Min, '255,0,0');
 
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Color.RGB.Difference, '-255,255,255');
-      assert.strictEqual(jsonObj.Transform.InputFields.InputField[0]['@_field'], localData.get('x_axis'));
-      assert.strictEqual(jsonObj.Transform.InputFields.InputField[1]['@_field'], localData.get('y_axis'));
-      assert.strictEqual(jsonObj.Transform.InputFields.InputField[2]['@_field'], localData.get('z_axis'));
-      assert.strictEqual(jsonObj.Transform.InputFields.InputField[0]['@_type'], 'Real');
-      assert.strictEqual(jsonObj.Transform.InputFields.InputField[1]['@_type'], 'Text');
-      assert.strictEqual(jsonObj.Transform.InputFields.InputField[2]['@_type'], 'Text');
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Color.RGB.Difference, '-255,255,255');
+      assert.strictEqual((jsonObj as any).Transform.InputFields.InputField[0]['@_field'], localData.get('x_axis'));
+      assert.strictEqual((jsonObj as any).Transform.InputFields.InputField[1]['@_field'], localData.get('y_axis'));
+      assert.strictEqual((jsonObj as any).Transform.InputFields.InputField[2]['@_field'], localData.get('z_axis'));
+      assert.strictEqual((jsonObj as any).Transform.InputFields.InputField[0]['@_type'], 'Real');
+      assert.strictEqual((jsonObj as any).Transform.InputFields.InputField[1]['@_type'], 'Text');
+      assert.strictEqual((jsonObj as any).Transform.InputFields.InputField[2]['@_type'], 'Text');
     });
     it('will update the template with the correct values if our directions are omitted', async () => {
       const localString = stringTemplate;
@@ -699,31 +705,34 @@ describe('GlyphEngine', () => {
       const result = (glyphEngine as any).updateSdt(localString, localData);
 
       const jsonObj = parser.parse(result);
-      assert.strictEqual(jsonObj.Transform['@_id'], modelId);
-      assert.strictEqual(jsonObj.Transform.Datasources.Datasource.Host, '_data.csv');
-      assert.strictEqual(jsonObj.Transform.Datasources.Datasource.Name, '_data.csv');
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.X.Function['@_type'], 'Text Interpolation');
+      assert.strictEqual((jsonObj as any).Transform['@_id'], modelId);
+      assert.strictEqual((jsonObj as any).Transform.Datasources.Datasource.Host, '_data.csv');
+      assert.strictEqual((jsonObj as any).Transform.Datasources.Datasource.Name, '_data.csv');
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.X.Function['@_type'], 'Text Interpolation');
 
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.Y.Function['@_type'], 'Logarithmic Interpolation');
+      assert.strictEqual(
+        (jsonObj as any).Transform.Glyphs.Glyph.Position.Y.Function['@_type'],
+        'Logarithmic Interpolation'
+      );
 
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.Z.Function['@_type'], 'Linear Interpolation');
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.X.Min, -205);
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.X.Difference, 410);
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.Z.Function['@_type'], 'Linear Interpolation');
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.X.Min, -205);
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.X.Difference, 410);
 
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.Y.Min, -205);
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.X.Difference, 410);
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.Y.Min, -205);
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.X.Difference, 410);
 
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.Z.Min, 1);
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Position.Z.Difference, 70);
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Color.RGB.Min, '0,255,255');
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.Z.Min, 1);
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Position.Z.Difference, 70);
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Color.RGB.Min, '0,255,255');
 
-      assert.strictEqual(jsonObj.Transform.Glyphs.Glyph.Color.RGB.Difference, '255,-255,-255');
-      assert.strictEqual(jsonObj.Transform.InputFields.InputField[0]['@_field'], localData.get('x_axis'));
-      assert.strictEqual(jsonObj.Transform.InputFields.InputField[1]['@_field'], localData.get('y_axis'));
-      assert.strictEqual(jsonObj.Transform.InputFields.InputField[2]['@_field'], localData.get('z_axis'));
-      assert.strictEqual(jsonObj.Transform.InputFields.InputField[0]['@_type'], 'Text');
-      assert.strictEqual(jsonObj.Transform.InputFields.InputField[1]['@_type'], 'Real');
-      assert.strictEqual(jsonObj.Transform.InputFields.InputField[2]['@_type'], 'Real');
+      assert.strictEqual((jsonObj as any).Transform.Glyphs.Glyph.Color.RGB.Difference, '255,-255,-255');
+      assert.strictEqual((jsonObj as any).Transform.InputFields.InputField[0]['@_field'], localData.get('x_axis'));
+      assert.strictEqual((jsonObj as any).Transform.InputFields.InputField[1]['@_field'], localData.get('y_axis'));
+      assert.strictEqual((jsonObj as any).Transform.InputFields.InputField[2]['@_field'], localData.get('z_axis'));
+      assert.strictEqual((jsonObj as any).Transform.InputFields.InputField[0]['@_type'], 'Text');
+      assert.strictEqual((jsonObj as any).Transform.InputFields.InputField[1]['@_type'], 'Real');
+      assert.strictEqual((jsonObj as any).Transform.InputFields.InputField[2]['@_type'], 'Real');
     });
   });
 

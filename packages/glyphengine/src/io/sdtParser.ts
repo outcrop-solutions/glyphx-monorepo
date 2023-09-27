@@ -4,6 +4,7 @@ import {FUNCTION, TYPE, SHAPE} from '../constants';
 import {MinMaxCalculator} from './minMaxCalulator';
 import {TextColumnToNumberConverter} from './textToNumberConverter';
 import {aws} from 'core';
+import {ISdtDocument} from 'interfaces/sdt';
 
 export interface IInputFields {
   x: IInputField;
@@ -119,7 +120,7 @@ export class SdtParser {
     const parser = new XMLParser(options);
     const parsedDocument = parser.parse(sdtString);
 
-    const sdtParser = new SdtParser(parsedDocument, viewName, data, athenaManager);
+    const sdtParser = new SdtParser(parsedDocument as unknown as ISdtDocument, viewName, data, athenaManager);
     await sdtParser.loadInputFields();
     return sdtParser;
   }

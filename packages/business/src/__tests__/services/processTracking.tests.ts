@@ -7,7 +7,7 @@ import {databaseTypes} from 'types';
 import {Types as mongooseTypes} from 'mongoose';
 import {error} from 'core';
 
-describe('ProcessTrackingService', () => {
+describe.only('ProcessTrackingService', () => {
   context('createProcessTracking', () => {
     const mockProcessTracking: databaseTypes.IProcessTracking = {
       _id:
@@ -120,8 +120,9 @@ describe('ProcessTrackingService', () => {
 
   context('getProcessStatus', () => {
     const mockProcessTracking: databaseTypes.IProcessTracking = {
+      _id: new mongooseTypes.ObjectId(),
       id: new mongooseTypes.ObjectId().toString(),
-      processId: 'testProcessId',
+      processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
@@ -176,7 +177,7 @@ describe('ProcessTrackingService', () => {
       sandbox.replace(ProcessTrackingService as any, 'reconcileStatus', reconcileStatusStub);
 
       const processId = mockProcessTracking.processId;
-      const result = await ProcessTrackingService.getProcessStatus(processId.toString());
+      const result = await ProcessTrackingService.getProcessStatus(processId);
       assert.isOk(result);
       assert.strictEqual(result?.processStatus, mockProcessTracking.processStatus);
       assert.strictEqual(result?.processError.length, 10);
@@ -197,8 +198,8 @@ describe('ProcessTrackingService', () => {
       reconcileStatusStub.resolves(mockProcessTracking);
       sandbox.replace(ProcessTrackingService as any, 'reconcileStatus', reconcileStatusStub);
 
-      const processId = mockProcessTracking._id as mongooseTypes.ObjectId;
-      const result = await ProcessTrackingService.getProcessStatus(processId.toString());
+      const processId = mockProcessTracking.id;
+      const result = await ProcessTrackingService.getProcessStatus(processId!);
       assert.isOk(result);
       assert.strictEqual(result?.processStatus, mockProcessTracking.processStatus);
       assert.strictEqual(result?.processError.length, 10);
