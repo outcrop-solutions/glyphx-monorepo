@@ -1,6 +1,6 @@
 import {aws, bindSecrets, boundProperty, initializer, error} from 'core';
 
-@bindSecrets('dev/athena')
+@bindSecrets('db/athena')
 class AthenaConnection {
   @boundProperty()
   private databaseName: string;

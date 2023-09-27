@@ -247,7 +247,7 @@ export class CodeGenerator {
       await this.generateAtoms();
 
       // STEP 3: FORMAT OUTPUT
-      await this.formatDirectory(`${this.config.paths.destination}`);
+      // await this.formatDirectory(`${this.config.paths.destination}`);
     } catch (err: any) {
       if (err instanceof error.TypeCheckError || err instanceof error.FileParseError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);

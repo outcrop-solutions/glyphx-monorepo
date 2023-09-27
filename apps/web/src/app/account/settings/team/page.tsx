@@ -61,7 +61,7 @@ const Team = () => {
 
   const invite = () => {
     api({
-      ..._createMember({slug: workspace.slug, members}),
+      ..._createMember({workspaceId: workspace?._id?.toString() as string, members}),
       setLoading: (value) => setSubmittingState(value as unknown as SetStateAction<boolean>),
 
       onSuccess: () => {

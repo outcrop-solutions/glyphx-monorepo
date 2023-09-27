@@ -7,6 +7,7 @@ import {MemberModel} from './member';
 import {ProjectModel} from './project';
 import {StateModel} from './state';
 import {TagModel} from './tag';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<IWorkspaceDocument, IWorkspaceStaticMethods, IWorkspaceMethods>({
   workspaceCode: {type: String, required: true},

@@ -5,6 +5,7 @@ import {error} from 'core';
 import {UserModel} from './user';
 import {ProjectModel} from './project';
 import {WorkspaceModel} from './workspace';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<IMemberDocument, IMemberStaticMethods, IMemberMethods>({
   email: {type: String, required: true},
@@ -156,15 +157,8 @@ SCHEMA.static('getMemberById', async (memberId: mongooseTypes.ObjectId, hasProje
     if (!memberDocument) {
       throw new error.DataNotFoundError(`Could not find a member with the _id: ${memberId}`, 'member_id', memberId);
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (memberDocument as any)['__v'];
-    delete (memberDocument as any).member['__v'];
-    delete (memberDocument as any).invitedBy['__v'];
-    delete (memberDocument as any).workspace['__v'];
-    delete (memberDocument as any)?.project?.__v;
-
-    return memberDocument;
+    const format = new DBFormatter();
+    return format.toJS(memberDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -204,17 +198,14 @@ SCHEMA.static('queryMembers', async (filter: Record<string, unknown> = {}, page 
       .populate('invitedBy')
       .populate('workspace')
       .lean()) as databaseTypes.IMember[];
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    memberDocuments.forEach((doc: any) => {
-      delete (doc as any)['__v'];
-      delete (doc as any)?.member?.__v;
-      delete (doc as any)?.invitedBy?.__v;
-      delete (doc as any)?.workspace?.__v;
+
+    const format = new DBFormatter();
+    const members = memberDocuments.map((doc: any) => {
+      return format.toJS(doc);
     });
 
     const retval: IQueryResult<databaseTypes.IMember> = {
-      results: memberDocuments,
+      results: members as unknown as databaseTypes.IMember[],
       numberOfItems: count,
       page: page,
       itemsPerPage: itemsPerPage,

@@ -4,6 +4,7 @@ import {SUBSCRIPTION_TYPE} from './constants';
 
 export interface ICustomerPayment {
   _id?: mongooseTypes.ObjectId;
+  id?: string;
   paymentId: string;
   email?: string;
   subscriptionType: SUBSCRIPTION_TYPE;

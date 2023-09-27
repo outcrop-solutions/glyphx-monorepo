@@ -41,7 +41,7 @@ export const createState = async (req: NextApiRequest, res: NextApiResponse, ses
       name,
       camera,
       projectId,
-      session?.user?.userId as string,
+      session?.user?._id as string,
       aspectRatio,
       imageHash
     );
@@ -49,7 +49,7 @@ export const createState = async (req: NextApiRequest, res: NextApiResponse, ses
 
     if (state) {
       await activityLogService.createLog({
-        actorId: session?.user?.userId as string,
+        actorId: session?.user?._id as string,
         resourceId: state?._id?.toString() as string,
         workspaceId: state.workspace._id?.toString() as string,
         location: location,
@@ -83,7 +83,7 @@ export const updateState = async (req: NextApiRequest, res: NextApiResponse, ses
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId as string,
+      actorId: session?.user?._id as string,
       resourceId: state._id?.toString() as string,
       workspaceId: state.project.workspace?.toString(),
       projectId: state.project._id,
@@ -116,7 +116,7 @@ export const deleteState = async (req: NextApiRequest, res: NextApiResponse, ses
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId as string,
+      actorId: session?.user?._id as string,
       resourceId: state._id?.toString() as string,
       workspaceId: state.project.workspace?.toString(),
       projectId: state.project._id,

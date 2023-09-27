@@ -5,7 +5,7 @@ import {WritableDraft} from 'immer/dist/internal';
 import {webTypes} from 'types';
 import {useSetRecoilState} from 'recoil';
 import {dataGridAtom, projectAtom, rightSidebarControlAtom, templatesAtom, workspaceAtom} from 'state';
-import {useSendPosition, useSocket, useWindowSize} from 'services';
+import {useSendPosition, useWindowSize} from 'services';
 import {useCloseViewerOnModalOpen} from 'services/useCloseViewerOnModalOpen';
 import {useProject, useWorkspace} from 'lib/client/hooks';
 import {useCloseViewerOnLoading} from 'services/useCloseViewerOnLoading';
@@ -13,7 +13,7 @@ import {GridContainer} from 'app/[workspaceId]/project/[projectId]/_components/d
 import useTemplates from 'lib/client/hooks/useTemplates';
 
 const openFirstFile = (projData) => {
-  const newFiles = projData.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
+  const newFiles = projData?.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
   return {
     ...projData,
     files: [...newFiles],
@@ -62,8 +62,6 @@ export default function Project() {
     setTemplates,
     templateData,
   ]);
-
-  useSocket();
 
   return <GridContainer />;
 }

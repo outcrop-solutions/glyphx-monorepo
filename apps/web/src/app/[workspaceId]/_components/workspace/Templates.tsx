@@ -38,12 +38,13 @@ export const Templates = () => {
   // mutations
   const handleCreate = async () => {
     api({
-      ..._createDefaultProject(data.workspace._id),
+      ..._createDefaultProject(data?.workspace?._id),
       onSuccess: (data) => {
-        router.push(`/account/${workspaceId}/${data._id}` as Route);
+        router.push(`/${workspaceId}/project/${data._id}` as Route);
       },
     });
   };
+
   return (
     <div className="max-w-lg mx-auto flex flex-col grow justify-center items-center">
       <div className="text-lg font-medium text-white">Create your first project</div>

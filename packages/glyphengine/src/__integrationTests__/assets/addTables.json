@@ -1,12 +1,12 @@
 {
   "testDataDirectory": "./testData",
-  "databaseName": "jpstestdatabase",
-  "bucketName": "jps-test-bucket",
-  "inputBucketName": "jps-test-bucket",
+  "databaseName": "glyphxdev",
+  "bucketName": "glyphx-dev",
+  "inputBucketName": "glyphx-dev",
   "payload": {
     "clientId": "testclientid",
     "modelId": "testmodelid",
-    "bucketName": "jps-test-bucket",
+    "bucketName": "glyphx-dev",
     "fileStats": [
       {
         "fileName": "Table1.csv",

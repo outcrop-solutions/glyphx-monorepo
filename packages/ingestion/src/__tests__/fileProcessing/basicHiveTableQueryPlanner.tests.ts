@@ -1,8 +1,8 @@
 import 'mocha';
 import {assert} from 'chai';
-import {BasicHiveTableQueryPlanner} from '@fileProcessing';
-import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from 'util/constants';
-import * as fileProcessingInterfaces from 'interfaces/fileProcessing';
+import {BasicHiveTableQueryPlanner} from '../../fileProcessing';
+import {FILE_STORAGE_TYPES, COMPRESSION_TYPES} from '../../util/constants';
+import * as fileProcessingInterfaces from '../../interfaces/fileProcessing';
 import {fileIngestionTypes} from 'types';
 
 function removeDoubleSpaces(input: string): string {

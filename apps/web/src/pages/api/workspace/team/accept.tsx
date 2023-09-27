@@ -1,8 +1,8 @@
 import {webTypes} from 'types';
-import {authOptions} from 'app/api/auth/[...nextauth]/route';
-import {getServerSession} from 'next-auth/next';
 import {NextApiRequest, NextApiResponse} from 'next';
 import {Initializer} from 'business';
+import {Session} from 'next-auth';
+import {validateSession} from 'lib/server/session';
 import {acceptInvitation} from 'lib/server/team';
 
 const accept = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -10,10 +10,9 @@ const accept = async (req: NextApiRequest, res: NextApiResponse) => {
   if (!Initializer.initedField) {
     await Initializer.init();
   }
-
   // check for valid session
-  const session = await getServerSession(req, res, authOptions);
-  if (!session?.user?.userId) return res.status(401).end();
+  const session = (await validateSession(req, res)) as Session;
+  if (!session?.user?._id) return res.status(401).end();
 
   // execute the appropriate handler
   switch (req.method) {

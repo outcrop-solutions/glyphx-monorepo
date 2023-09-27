@@ -172,7 +172,7 @@ describe('#mongoose/models/account', () => {
 
       const result = await AccountModel.updateAccountById(accountId, updateAccount);
 
-      assert.strictEqual(result._id, accountId);
+      assert.strictEqual(result.id, accountId.toString());
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(getAccountStub.calledOnce);
       assert.isFalse(getUserStub.called);
@@ -203,7 +203,7 @@ describe('#mongoose/models/account', () => {
 
       const result = await AccountModel.updateAccountById(accountId, updateAccount);
 
-      assert.strictEqual(result._id, accountId);
+      assert.strictEqual(result.id, accountId.toString());
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(getAccountStub.calledOnce);
       assert.isTrue(getUserStub.calledOnce);
@@ -574,8 +574,7 @@ describe('#mongoose/models/account', () => {
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
       assert.isUndefined((doc.user as any).__v);
-
-      assert.strictEqual(doc._id, mockAccount._id);
+      assert.strictEqual(doc._id?.toString(), mockAccount.id);
     });
 
     it('will throw a DataNotFoundError when the account does not exist', async () => {

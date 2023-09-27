@@ -1,31 +1,20 @@
-'use client';
 // layout
-import Content from 'app/_components/Content';
-import {useWorkspace} from 'lib';
-import {useEffect} from 'react';
-import {useSetRecoilState} from 'recoil';
-
-// Hooks
-import {useRecoilValue} from 'recoil';
-import {showProjectsGridViewAtom, workspaceAtom} from 'state';
-import {GridView, PinnedProjects, TableView, Templates} from './_components/workspace';
+import React from 'react';
 import {RightSidebar} from './_components/rightSidebar';
+import {Initializer, workspaceService} from 'business';
+import {GridContainer} from './_components/workspace/GridContainer';
+import {PinnedProjects, Templates} from './_components/workspace';
 
-export default function Workspace() {
-  const {data, isLoading} = useWorkspace();
-  const setWorkspace = useSetRecoilState(workspaceAtom);
-  // hydrate recoil state
-  useEffect(() => {
-    if (!isLoading) {
-      setWorkspace(data.workspace);
-    }
-  }, [data, isLoading, setWorkspace]);
-  const isGridView = useRecoilValue(showProjectsGridViewAtom);
-  const workspace = useRecoilValue(workspaceAtom);
+export default async function WorkspacePage({params}) {
+  const workspaceId = params?.workspaceId;
+  await Initializer.init();
+  const workspace = await workspaceService.getSiteWorkspace(workspaceId);
+
+  const projects = workspace?.projects && workspace.projects.filter((proj) => !proj.deletedAt);
 
   return (
-    data && (
-      <Content.Container>
+    workspace && (
+      <div className="flex flex-col h-full w-full space-y-5 overflow-y-auto bg-transparent">
         <div className="relative flex flex-col w-full h-full">
           <div className="h-full">
             <div className="flex grow relative h-full">
@@ -33,7 +22,7 @@ export default function Workspace() {
                 <div className="px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
                   <PinnedProjects />
                   {workspace?.projects && workspace.projects.filter((proj) => !proj.deletedAt)?.length > 0 ? (
-                    <>{isGridView ? <GridView /> : <TableView />}</>
+                    <GridContainer projects={projects} />
                   ) : (
                     <Templates />
                   )}
@@ -43,7 +32,7 @@ export default function Workspace() {
             </div>
           </div>
         </div>
-      </Content.Container>
+      </div>
     )
   );
-};
+}

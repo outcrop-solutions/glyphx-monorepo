@@ -41,15 +41,13 @@ describe('GlyphEngine', () => {
   context('constructor', () => {
     it('will construct a new GlyphEngineObject', () => {
       const inputBucketName = 'testInputBucketName';
-      const outputBucketName = 'testOutputBucketName';
       const databaseName = 'testDatabaseName';
       const processId = 'testProcessId';
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
 
       assert.isOk(glyphEngine);
-      assert.strictEqual((glyphEngine as any).inputBucketNameField, inputBucketName);
-      assert.strictEqual((glyphEngine as any).outputBucketNameField, outputBucketName);
-      assert.strictEqual((glyphEngine as any).databaseNameField, databaseName);
       assert.strictEqual((glyphEngine as any).processId, processId);
 
       assert.isNotEmpty((glyphEngine as any).templateKey);
@@ -84,16 +82,17 @@ describe('GlyphEngine', () => {
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishStub);
 
       const inputBucketName = 'testInputBucketName';
-      const outputBucketName = 'testOutputBucketName';
       const databaseName = 'testDatabaseName';
       const processId = 'testProcessId';
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
 
       await glyphEngine.init();
 
       assert.isTrue((glyphEngine as any).initedField);
-      assert.isTrue(s3BucketInitStub.calledTwice);
-      assert.isTrue(athenaInitStub.calledOnce);
       assert.isTrue(loggerInitStub.calledOnce);
       assert.isTrue(publishStub.notCalled);
     });
@@ -115,17 +114,18 @@ describe('GlyphEngine', () => {
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishStub);
 
       const inputBucketName = 'testInputBucketName';
-      const outputBucketName = 'testOutputBucketName';
       const databaseName = 'testDatabaseName';
       const processId = 'testProcessId';
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
 
       await glyphEngine.init();
       await glyphEngine.init();
 
       assert.isTrue((glyphEngine as any).initedField);
-      assert.isTrue(s3BucketInitStub.calledTwice);
-      assert.isTrue(athenaInitStub.calledOnce);
       assert.isTrue(loggerInitStub.calledOnce);
       assert.isTrue(publishStub.notCalled);
     });
@@ -133,7 +133,7 @@ describe('GlyphEngine', () => {
       const innerError = new Error('testError');
 
       const s3BucketInitStub = sandbox.stub();
-      s3BucketInitStub.rejects(innerError);
+      s3BucketInitStub.resolves();
       sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
 
       const athenaInitStub = sandbox.stub();
@@ -141,17 +141,20 @@ describe('GlyphEngine', () => {
       sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
 
       const loggerInitStub = sandbox.stub();
-      loggerInitStub.resolves();
+      loggerInitStub.rejects(innerError);
       sandbox.replace(logging.Logger, 'init', loggerInitStub);
 
       const publishStub = sandbox.stub();
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishStub);
 
       const inputBucketName = 'testInputBucketName';
-      const outputBucketName = 'testOutputBucketName';
       const databaseName = 'testDatabaseName';
       const processId = 'testProcessId';
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
       let errored = false;
       try {
         await glyphEngine.init();
@@ -167,17 +170,32 @@ describe('GlyphEngine', () => {
 
   context('cleanupData', () => {
     const inputBucketName = 'testInputBucketName';
-    const outputBucketName = 'testOutputBucketName';
     const databaseName = 'testDatabaseName';
     const processId = 'testProcessId';
+    const sandbox = createSandbox();
+    afterEach(() => {
+      sandbox.restore();
+    });
     const data: Map<string, string> = new Map<string, string>([
       ['x_axis', 'some.random x value'],
       ['y_axis', 'some.random y value'],
       ['z_axis', 'some.random z value'],
     ]);
-    it('will cleanup the data', () => {
+    it('will cleanup the data', async () => {
       const localData = new Map<string, string>(data);
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
       (glyphEngine as any).cleanupData(localData);
       assert.strictEqual(localData.get('x_axis'), 'somerandom_x_value');
       assert.strictEqual(localData.get('y_axis'), 'somerandom_y_value');
@@ -192,9 +210,20 @@ describe('GlyphEngine', () => {
       assert.strictEqual(localData.get('z_direction'), 'ASC');
     });
 
-    it('will set the values of x_axis, y_axis and z_axis to empty streing if they are not present in the data', () => {
+    it('will set the values of x_axis, y_axis and z_axis to empty streing if they are not present in the data', async () => {
       const localData = new Map<string, string>();
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
       (glyphEngine as any).cleanupData(localData);
 
       assert.strictEqual(localData.get('x_axis'), '');
@@ -209,7 +238,7 @@ describe('GlyphEngine', () => {
       assert.strictEqual(localData.get('y_direction'), 'ASC');
       assert.strictEqual(localData.get('z_direction'), 'ASC');
     });
-    it('will not set func and direction if they are already set', () => {
+    it('will not set func and direction if they are already set', async () => {
       const localData = new Map<string, string>(data);
       localData.set('x_func', 'LOG');
       localData.set('y_func', 'LOG');
@@ -218,7 +247,18 @@ describe('GlyphEngine', () => {
       localData.set('y_direction', 'DESC');
       localData.set('z_direction', 'DESC');
 
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
       (glyphEngine as any).cleanupData(localData);
       assert.strictEqual(localData.get('x_axis'), 'somerandom_x_value');
       assert.strictEqual(localData.get('y_axis'), 'somerandom_y_value');
@@ -238,7 +278,6 @@ describe('GlyphEngine', () => {
     const sandbox = createSandbox();
 
     const inputBucketName = 'testInputBucketName';
-    const outputBucketName = 'testOutputBucketName';
     const databaseName = 'testDatabaseName';
     const processId = 'testProcessId';
     const clientName = 'testClientName';
@@ -277,7 +316,18 @@ describe('GlyphEngine', () => {
       projectStub.resolves(mockProject);
       sandbox.replace(projectService, 'getProject', projectStub);
 
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
 
       await (glyphEngine as any).getDataTypes('testViewname', localData);
       assert.strictEqual(localData.get('type_x'), 'string');
@@ -310,7 +360,18 @@ describe('GlyphEngine', () => {
       projectStub.resolves(mockProject);
       sandbox.replace(projectService, 'getProject', projectStub);
 
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
 
       await (glyphEngine as any).getDataTypes('testViewname', localData);
       assert.strictEqual(localData.get('type_x'), 'string');
@@ -334,7 +395,18 @@ describe('GlyphEngine', () => {
       const publishStub = sandbox.stub();
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishStub);
 
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
       let errored = false;
       try {
         await (glyphEngine as any).getDataTypes(clientName, modelName, localData);
@@ -370,7 +442,18 @@ describe('GlyphEngine', () => {
       projectStub.resolves(undefined);
       sandbox.replace(projectService, 'getProject', projectStub);
 
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
       let errored = false;
       try {
         await (glyphEngine as any).getDataTypes('testViewname', localData);
@@ -386,7 +469,6 @@ describe('GlyphEngine', () => {
     const sandbox = createSandbox();
     const fileData = 'now is the time for all good men to come to the aid of their country';
     const inputBucketName = 'testInputBucketName';
-    const outputBucketName = 'testOutputBucketName';
     const databaseName = 'testDatabaseName';
     const processId = 'testProcessId';
 
@@ -401,7 +483,18 @@ describe('GlyphEngine', () => {
       getObjectStub.resolves(fileStream);
       sandbox.replace(aws.S3Manager.prototype, 'getObjectStream', getObjectStub);
 
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
 
       const result = await (glyphEngine as any).getTemplateAsString();
       assert.strictEqual(result, fileData);
@@ -415,7 +508,18 @@ describe('GlyphEngine', () => {
       const publishStub = sandbox.stub();
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishStub);
 
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
       let errored = false;
       try {
         await (glyphEngine as any).getTemplateAsString();
@@ -440,11 +544,16 @@ describe('GlyphEngine', () => {
     };
 
     const parser = new XMLParser(options);
+    const sandbox = createSandbox();
     before(async () => {
       stringTemplate = await helperFunctions.getMockTemplate();
     });
 
-    it('will update the template with the correct values', () => {
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will update the template with the correct values', async () => {
       const localString = stringTemplate;
       const localData = new Map<string, string>([
         ['type_x', 'string'],
@@ -461,7 +570,18 @@ describe('GlyphEngine', () => {
         ['z_direction', 'ASC'],
         ['model_id', modelId],
       ]);
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
       const result = (glyphEngine as any).updateSdt(localString, localData);
 
       const jsonObj = parser.parse(result);
@@ -492,7 +612,7 @@ describe('GlyphEngine', () => {
       assert.strictEqual(jsonObj.Transform.InputFields.InputField[2]['@_type'], 'Real');
     });
 
-    it('will update the template with the correct values inverted from above', () => {
+    it('will update the template with the correct values inverted from above', async () => {
       const localString = stringTemplate;
       const localData = new Map<string, string>([
         ['type_x', 'number'],
@@ -509,7 +629,18 @@ describe('GlyphEngine', () => {
         ['z_direction', 'DESC'],
         ['model_id', modelId],
       ]);
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
       const result = (glyphEngine as any).updateSdt(localString, localData);
 
       const jsonObj = parser.parse(result);
@@ -539,7 +670,7 @@ describe('GlyphEngine', () => {
       assert.strictEqual(jsonObj.Transform.InputFields.InputField[1]['@_type'], 'Text');
       assert.strictEqual(jsonObj.Transform.InputFields.InputField[2]['@_type'], 'Text');
     });
-    it('will update the template with the correct values if our directions are omitted', () => {
+    it('will update the template with the correct values if our directions are omitted', async () => {
       const localString = stringTemplate;
       const localData = new Map<string, string>([
         ['type_x', 'string'],
@@ -553,7 +684,18 @@ describe('GlyphEngine', () => {
         ['z_func', 'LIN'],
         ['model_id', modelId],
       ]);
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId);
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
       const result = (glyphEngine as any).updateSdt(localString, localData);
 
       const jsonObj = parser.parse(result);
@@ -610,10 +752,20 @@ describe('GlyphEngine', () => {
       sandbox.replace(QueryRunner.prototype, 'startQuery', startQueryStub);
 
       const inputBucketName = 'testInputBucketName';
-      const outputBucketName = 'testOutputBucketName';
       const databaseName = 'testDatabaseName';
       const processId = 'testProcessId';
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId) as any;
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId) as any;
 
       await glyphEngine.startQuery(data, viewName);
       assert.strictEqual(glyphEngine.queryId, queryId);
@@ -644,7 +796,18 @@ describe('GlyphEngine', () => {
       const databaseName = 'testDatabaseName';
       const processId = 'testProcessId';
 
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId) as any;
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId) as any;
       let errored = false;
       try {
         await glyphEngine.startQuery(data, viewName);
@@ -677,7 +840,18 @@ describe('GlyphEngine', () => {
       const databaseName = 'testDatabaseName';
       const processId = 'testProcessId';
 
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId) as any;
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId) as any;
 
       const viewName = 'testViewName';
       const xcolumn = 'testXColumn';
@@ -707,7 +881,18 @@ describe('GlyphEngine', () => {
       const databaseName = 'testDatabaseName';
       const processId = 'testProcessId';
 
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId) as any;
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId) as any;
 
       const viewName = 'testViewName';
       const xcolumn = 'testXColumn';
@@ -737,7 +922,18 @@ describe('GlyphEngine', () => {
       const databaseName = 'testDatabaseName';
       const processId = 'testProcessId';
 
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId) as any;
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId) as any;
 
       const viewName = 'testViewName';
       const xcolumn = 'testXColumn';
@@ -782,11 +978,21 @@ describe('GlyphEngine', () => {
       const sdtParser = {} as unknown as SdtParser;
 
       const inputBucketName = 'testInputBucketName';
-      const outputBucketName = 'testOutputBucketName';
       const databaseName = 'testDatabaseName';
       const processId = 'testProcessId';
 
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId) as any;
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId) as any;
 
       const projectStub = sandbox.stub();
       projectStub.resolves(mockProject);
@@ -814,10 +1020,20 @@ describe('GlyphEngine', () => {
       const sdtParser = {} as unknown as SdtParser;
 
       const inputBucketName = 'testInputBucketName';
-      const outputBucketName = 'testOutputBucketName';
       const databaseName = 'testDatabaseName';
       const processId = 'testProcessId';
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId) as any;
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId) as any;
       let errored = false;
       try {
         await glyphEngine.processData(prefix, sdtParser);
@@ -911,7 +1127,18 @@ describe('GlyphEngine', () => {
       heartBeatStub.returns(null as unknown as void);
       sandbox.replace(Heartbeat.prototype, 'stop', hertbeatStopStub);
       const processId = 'testProcessId';
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId) as any;
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId) as any;
 
       const result = await glyphEngine.process(data);
       assert.isNotEmpty(result.sgnFileName);
@@ -1008,7 +1235,18 @@ describe('GlyphEngine', () => {
       sandbox.replace(Heartbeat.prototype, 'stop', hertbeatStopStub);
 
       const processId = 'testProcessId';
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId) as any;
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId) as any;
 
       let errored = false;
       try {
@@ -1095,7 +1333,18 @@ describe('GlyphEngine', () => {
       sandbox.replace(Heartbeat.prototype, 'stop', hertbeatStopStub);
 
       const processId = 'testProcessId';
-      const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId) as any;
+      const s3BucketInitStub = sandbox.stub();
+      s3BucketInitStub.resolves();
+      sandbox.replace(aws.S3Manager.prototype, 'init', s3BucketInitStub);
+
+      const athenaInitStub = sandbox.stub();
+      athenaInitStub.resolves();
+      sandbox.replace(aws.AthenaManager.prototype, 'init', athenaInitStub);
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      let athenaManager = new aws.AthenaManager(databaseName);
+      await s3Manager.init();
+      await athenaManager.init();
+      const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId) as any;
 
       let didPublish = false;
       function fakePublish() {
@@ -1120,11 +1369,15 @@ describe('GlyphEngine', () => {
 
   context('validateInput', () => {
     const inputBucketName = 'testInputBucketName';
-    const outputBucketName = 'testOutputBucketName';
     const databaseName = 'testDatabaseName';
 
     const processId = 'testProcessId';
-    const glyphEngine = new GlyphEngine(inputBucketName, outputBucketName, databaseName, processId) as any;
+    const glyphEngine = new GlyphEngine(
+      null as unknown as aws.S3Manager,
+      null as unknown as aws.S3Manager,
+      null as unknown as aws.AthenaManager,
+      processId
+    ) as any;
     it('will succeed when all fields are present', () => {
       const data: Map<string, string> = new Map([
         ['model_id', 'testModelId'],

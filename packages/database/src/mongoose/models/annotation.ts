@@ -5,6 +5,7 @@ import {error} from 'core';
 import {UserModel} from './user';
 import {ProjectModel} from './project';
 import {StateModel} from './state';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<IAnnotationDocument, IAnnotationStaticMethods, IAnnotationMethods>({
   createdAt: {
@@ -90,12 +91,9 @@ SCHEMA.static('getAnnotationById', async (annotationId: mongooseTypes.ObjectId) 
         annotationId
       );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (annotationDocument as any)['__v'];
-    delete (annotationDocument as any).author['__v'];
 
-    return annotationDocument;
+    const format = new DBFormatter();
+    return format.toJS(annotationDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -140,15 +138,14 @@ SCHEMA.static(
       })
         .populate('author')
         .lean()) as databaseTypes.IAnnotation[];
-      //this is added by mongoose, so we will want to remove it before returning the document
-      //to the user.
-      annotationDocuments?.forEach((doc: any) => {
-        delete (doc as any)['__v'];
-        delete (doc as any)?.author?.__v;
+
+      const format = new DBFormatter();
+      const formattedAnnotations = annotationDocuments?.map((doc: any) => {
+        return format.toJS(doc);
       });
 
       const retval: IQueryResult<databaseTypes.IAnnotation> = {
-        results: annotationDocuments,
+        results: formattedAnnotations as unknown as databaseTypes.IAnnotation[],
         numberOfItems: count,
         page: page,
         itemsPerPage: itemsPerPage,

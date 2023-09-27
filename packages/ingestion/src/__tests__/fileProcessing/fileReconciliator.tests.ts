@@ -1,5 +1,5 @@
 import {assert} from 'chai';
-import {FileReconciliator} from '@fileProcessing';
+import {FileReconciliator} from '../../fileProcessing';
 import {fileIngestionTypes} from 'types';
 
 /*

@@ -3,7 +3,14 @@ import {generalPurposeFunctions} from 'core';
 
 import {GlyphEngine} from 'glyphengine';
 import {ATHENA_DB_NAME, S3_BUCKET_NAME} from 'config/constants';
-import {processTrackingService, activityLogService, projectService, stateService} from 'business';
+import {
+  processTrackingService,
+  activityLogService,
+  projectService,
+  stateService,
+  athenaConnection,
+  s3Connection,
+} from 'business';
 import {databaseTypes, webTypes} from 'types';
 import {formatUserAgent} from 'lib/utils/formatUserAgent';
 import {generateFilterQuery} from 'lib/client/helpers';
@@ -105,7 +112,12 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
       await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
 
       // construct GlyphEngine
-      const glyphEngine = new GlyphEngine(S3_BUCKET_NAME, S3_BUCKET_NAME, ATHENA_DB_NAME, PROCESS_ID);
+      const glyphEngine = new GlyphEngine(
+        s3Connection.s3Manager,
+        s3Connection.s3Manager,
+        athenaConnection.connection,
+        PROCESS_ID
+      );
       await glyphEngine.init();
 
       let data: Map<string, string>;
@@ -139,13 +151,13 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
       //     dir: { x: 0, y: 0, z: 0 },
       //   },
       //   updatedProject._id,
-      //   session.user.userId,
+      //   session.user?._id,
       //   { height: 300, width: 300 }
       // );
 
       const {agentData, location} = formatUserAgent(req);
       await activityLogService.createLog({
-        actorId: session?.user?.userId as string,
+        actorId: session?.user?._id as string,
         resourceId: payload.model_id,
         workspaceId: payload.client_id,
         projectId: payload.model_id,

@@ -1,6 +1,6 @@
 import {assert} from 'chai';
-import {BasicHiveQueryPlanner} from '@fileProcessing';
-import * as fileProcessingInterfaces from 'interfaces/fileProcessing';
+import {BasicHiveQueryPlanner} from '../../fileProcessing';
+import * as fileProcessingInterfaces from '../../interfaces/fileProcessing';
 import {fileIngestionTypes} from 'types';
 
 //$1 = our tableName -- this is case sensitive

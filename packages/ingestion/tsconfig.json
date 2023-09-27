@@ -1,8 +1,10 @@
 {
+
   "extends": "tsconfig/node18.json",
   "compilerOptions": {
     "baseUrl": "./src",
+    "resolveJsonModule": true
   },
-  "include": ["src/**/*.ts", "**/*.tsx", "tsup.config.ts"],
+  "include": ["src/**/*.ts", "**/*.tsx", "tsup.config.ts", "src/**/*.d.ts"],
   "exclude": ["src/__tests__/**"]
 }

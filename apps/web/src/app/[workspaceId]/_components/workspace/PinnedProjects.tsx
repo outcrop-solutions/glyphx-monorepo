@@ -1,19 +1,11 @@
-'use client';
-import useTemplates from 'lib/client/hooks/useTemplates';
-import Button from 'app/_components/Button';
 import PinnedIcon from 'public/svg/pinned-icon.svg';
-import {useState} from 'react';
-import {useSetRecoilState} from 'recoil';
-import {modalsAtom} from 'state';
-import {WritableDraft} from 'immer/dist/internal';
-import {webTypes} from 'types';
-import produce from 'immer';
+import {TemplatePreviewBtn} from './TemplatePreviewBtn';
+import {Initializer} from 'business/src/init';
+import {ProjectTemplateService} from 'business/src/services/projectTemplate';
 
-export const PinnedProjects = () => {
-  const {data} = useTemplates();
-  const setModals = useSetRecoilState(modalsAtom);
-  const [loading] = useState(false);
-  const {templates} = data;
+export const PinnedProjects = async () => {
+  await Initializer.init();
+  const templates = await ProjectTemplateService.getProjectTemplates({});
 
   return (
     <div className="pt-8 mb-8 relative">
@@ -24,7 +16,7 @@ export const PinnedProjects = () => {
         {templates &&
           templates.map((template) => (
             <li
-              key={template._id}
+              key={template._id?.toString()}
               className="relative group col-span-1 shadow-sm rounded border border-transparent bg-secondary-space-blue hover:cursor-pointer hover:border-white flex items-center justify-between"
             >
               <div className="flex items-center max-w-full">
@@ -36,23 +28,7 @@ export const PinnedProjects = () => {
                 </div>
               </div>
               <div className="hidden group-hover:flex absolute right-2">
-                <Button
-                  className=""
-                  disabled={loading}
-                  onClick={() =>
-                    setModals(
-                      produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-                        draft.modals.push({
-                          type: webTypes.constants.MODAL_CONTENT_TYPE.TEMPLATE_PREVIEW,
-                          isSubmitting: false,
-                          data: template,
-                        });
-                      })
-                    )
-                  }
-                >
-                  <span>View</span>
-                </Button>
+                <TemplatePreviewBtn template={template} />
               </div>
             </li>
           ))}

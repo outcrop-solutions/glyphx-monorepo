@@ -7,11 +7,13 @@ import {Controls} from 'app/[workspaceId]/_components/controls';
 
 import BackBtnIcon from 'public/svg/back-button-icon.svg';
 import {Route} from 'next';
+import {useWorkspace} from 'lib';
 
 const Header = () => {
   const project = useRecoilValue(projectAtom);
   const setProject = useSetRecoilState(projectAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
+  const {data} = useWorkspace();
 
   const router = useRouter();
   const params = useParams();
@@ -19,7 +21,7 @@ const Header = () => {
   const pathname = usePathname();
 
   const backPressed = () => {
-    router.push(`/account/${project.workspace.slug}` as Route);
+    router.push(`/${data.workspace._id.toString()}` as Route);
     setDrawer(false);
     window?.core?.ToggleDrawer(false);
     setProject(null);
@@ -50,7 +52,7 @@ const Header = () => {
       ) : (
         <div className={`${workspaceId && !pathname!.includes('settings') ? (workspaceId ? 'pl-0 py-3' : '') : ''}`}>
           <p className="font-rubik font-normal text-[22px] tracking-[.01em] leading-[26px] text-white">
-            {workspaceId && !pathname!.includes('settings') ? `${workspaceId} > Recents` : 'Account Dashboard'}
+            {data && !pathname!.includes('settings') ? `${data?.workspace?.slug} > Recents` : 'Account Dashboard'}
           </p>
         </div>
       )}

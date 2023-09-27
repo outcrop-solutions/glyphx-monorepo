@@ -6,7 +6,14 @@ import addFilesJson from './assets/addTables.json';
 //eslint-disable-next-line
 import {fileIngestionTypes, databaseTypes} from 'types';
 import * as fileProcessingHelpers from './fileProcessingHelpers';
-import {Initializer, processTrackingService, projectService, dbConnection} from 'business';
+import {
+  Initializer,
+  processTrackingService,
+  projectService,
+  dbConnection,
+  athenaConnection,
+  s3Connection,
+} from 'business';
 import {v4} from 'uuid';
 import {config} from '../config';
 const UNIQUE_KEY = v4().replaceAll('-', '');
@@ -35,7 +42,7 @@ describe('#fileProcessing', () => {
     let clientId: string;
     let modelId: string;
     let testDataDirectory: string;
-    let payload: fileIngestion.IPayload;
+    let payload: fileIngestionTypes.IPayload;
     let fileNames: string[];
     let projectId: any;
     let viewName: any;
@@ -66,17 +73,15 @@ describe('#fileProcessing', () => {
       assert.isNotEmpty(testDataDirectory);
       assert.isNotEmpty(viewName);
 
-      payload = addFilesJson.payload as fileIngestion.IPayload;
+      payload = addFilesJson.payload as fileIngestionTypes.IPayload;
       assert.isOk(payload);
 
       fileNames = payload.fileStats.map((f) => f.fileName);
       assert.isAtLeast(fileNames.length, 1);
 
-      s3Bucket = new aws.S3Manager(bucketName);
-      await s3Bucket.init();
+      s3Bucket = s3Connection.s3Manager;
 
-      athenaManager = new aws.AthenaManager(databaseName);
-      await athenaManager.init();
+      athenaManager = athenaConnection.connection;
 
       await fileProcessingHelpers.cleanupAws(payload, clientId, modelId, s3Bucket, athenaManager);
       fileProcessingHelpers.loadTableStreams(testDataDirectory, payload);
@@ -92,7 +97,7 @@ describe('#fileProcessing', () => {
 
     it('Basic pipeline test', async () => {
       console.log('stuff spun up ok');
-      const fileIngestor = new FileIngestor(payload, databaseName, PROCESS_ID);
+      const fileIngestor = new FileIngestor(payload, s3Bucket, athenaManager, PROCESS_ID);
       await fileIngestor.init();
       const {fileInformation, joinInformation, viewName: savedViewName, status} = await fileIngestor.process();
       await fileProcessingHelpers.validateTableResults(joinInformation, athenaManager);

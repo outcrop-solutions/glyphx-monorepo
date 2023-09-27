@@ -9,6 +9,7 @@ import {ProjectTemplateModel} from './projectTemplate';
 import {aspectSchema, fileStatsSchema} from '../schemas';
 import {embeddedStateSchema} from '../schemas/embeddedState';
 import {TagModel} from './tag';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<IProjectDocument, IProjectStaticMethods, IProjectMethods>({
   createdAt: {
@@ -694,6 +695,12 @@ SCHEMA.static('deleteProjectById', async (projectId: mongooseTypes.ObjectId): Pr
         err
       );
   }
+});
+
+SCHEMA.virtual('id').get(function () {
+  // In the getter function, `this` is the document. Don't use arrow
+  // functions for virtual getters!
+  return this._id.toString();
 });
 
 // define the object that holds Mongoose models

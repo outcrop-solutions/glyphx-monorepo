@@ -9,7 +9,17 @@ export class SecretManager {
   }
 
   constructor(secretName: string) {
-    this.secretNameField = secretName;
+    let environment = 'dev';
+    if (process.env.GLYPHX_ENV === 'prod') {
+      environment = 'prod';
+    } else if (process.env.GLYPHX_ENV === 'demo') {
+      environment = 'demo';
+    } else {
+      environment = 'dev';
+    }
+    
+    this.secretNameField = `${environment}/${secretName}`;
+
     //TODO: we need to figure out how we want to handle secret configurations
     this.secretsManager = new SecretsManager({});
   }

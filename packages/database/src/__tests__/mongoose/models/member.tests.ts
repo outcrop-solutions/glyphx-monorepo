@@ -1015,7 +1015,7 @@ describe('#mongoose/models/member', () => {
       assert.isUndefined((doc.invitedBy as any).__v);
       assert.isUndefined((doc.workspace as any).__v);
 
-      assert.strictEqual(doc._id, mockMember._id);
+      assert.strictEqual(doc.id, mockMember._id?.toString());
     });
 
     it('will retreive a member document with the member, invitedBy and workspace populated has project = true', async () => {
@@ -1031,7 +1031,7 @@ describe('#mongoose/models/member', () => {
       assert.isUndefined((doc.invitedBy as any).__v);
       assert.isUndefined((doc.workspace as any).__v);
 
-      assert.strictEqual(doc._id, mockMember._id);
+      assert.strictEqual(doc.id, mockMember._id?.toString());
     });
 
     it('will retreive a member document with the member, invitedBy and workspace populated has project = false', async () => {
@@ -1047,7 +1047,7 @@ describe('#mongoose/models/member', () => {
       assert.isUndefined((doc.invitedBy as any).__v);
       assert.isUndefined((doc.workspace as any).__v);
 
-      assert.strictEqual(doc._id, mockMember._id);
+      assert.strictEqual(doc.id, mockMember._id?.toString());
     });
 
     it('will throw a DataNotFoundError when the member does not exist', async () => {

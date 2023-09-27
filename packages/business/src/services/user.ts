@@ -33,6 +33,28 @@ export class UserService {
     }
   }
 
+  public static async getUsers(filter?: Record<string, unknown>): Promise<databaseTypes.IUser[] | null> {
+    try {
+      const users = await mongoDbConnection.models.UserModel.queryUsers(filter);
+      return users?.results;
+    } catch (err: any) {
+      if (err instanceof error.DataNotFoundError) {
+        err.publish('', constants.ERROR_SEVERITY.WARNING);
+        return null;
+      } else {
+        const e = new error.DataServiceError(
+          'An unexpected error occurred while getting users. See the inner error for additional details',
+          'users',
+          'getUsers',
+          {filter},
+          err
+        );
+        e.publish('', constants.ERROR_SEVERITY.ERROR);
+        throw e;
+      }
+    }
+  }
+
   public static async deactivate(userId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IUser> {
     try {
       const id =

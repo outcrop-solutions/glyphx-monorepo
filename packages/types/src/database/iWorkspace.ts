@@ -7,10 +7,11 @@ import {ITag} from './iTag';
 
 export interface IWorkspace {
   _id?: mongooseTypes.ObjectId;
+  id?: string;
   workspaceCode: string;
   inviteCode: string;
   name: string;
-  slug: string;
+  slug?: string;
   createdAt: Date;
   updatedAt: Date;
   tags: ITag[];

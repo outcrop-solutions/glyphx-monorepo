@@ -1,9 +1,9 @@
 import {assert} from 'chai';
 import {aws, error, generalPurposeFunctions} from 'core';
 import {createReadStream} from 'fs';
-import {IJoinTableDefinition} from 'interfaces/fileProcessing';
+import {IJoinTableDefinition} from '../interfaces/fileProcessing';
 import {fileIngestionTypes} from 'types';
-import {GLYPHX_ID_COLUMN_NAME} from 'fileProcessing/basicFileTransformer';
+import {GLYPHX_ID_COLUMN_NAME} from '../fileProcessing/basicFileTransformer';
 export async function removeS3File(filePath: string, s3Bucket: aws.S3Manager) {
   await s3Bucket.removeObject(filePath);
 
@@ -57,7 +57,7 @@ export async function cleanupAthenaView(clientId: string, modelId: string, athen
 }
 
 export async function cleanupAws(
-  payload: fileIngestion.IPayload,
+  payload: fileIngestionTypes.IPayload,
   clientId: string,
   modelId: string,
   s3Bucket: aws.S3Manager,
@@ -72,7 +72,7 @@ export async function cleanupAws(
   }
   await cleanupAthenaView(clientId, modelId, athenaManager);
 }
-export function loadTableStreams(testDataDirectory: string, payload: fileIngestion.IPayload) {
+export function loadTableStreams(testDataDirectory: string, payload: fileIngestionTypes.IPayload) {
   const cleanDiretoryName = generalPurposeFunctions.string.checkAndAddTrailingSlash(testDataDirectory);
   for (let i = 0; i < payload.fileInfo.length; i++) {
     const fileInfo = payload.fileInfo[i];

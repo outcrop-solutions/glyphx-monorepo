@@ -2,6 +2,7 @@ import {IQueryResult, databaseTypes} from 'types';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {IVerificationTokenMethods, IVerificationTokenStaticMethods, IVerificationTokenDocument} from '../interfaces';
 import {error} from 'core';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<IVerificationTokenDocument, IVerificationTokenStaticMethods, IVerificationTokenMethods>({
   identifier: {type: String, required: true},

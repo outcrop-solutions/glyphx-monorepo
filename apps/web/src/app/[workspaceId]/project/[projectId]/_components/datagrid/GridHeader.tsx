@@ -1,3 +1,4 @@
+'use client';
 import {filesOpenSelector} from 'state/files';
 import {useRecoilValue} from 'recoil';
 import {FileTab} from './FileTab';
@@ -9,7 +10,6 @@ import {toCSV} from './to-csv';
 export const GridHeader = ({data}) => {
   const filesOpen = useRecoilValue(filesOpenSelector);
   const rowIds = useRecoilValue(rowIdsAtom);
-  const isBrowser = !(window && window?.core);
 
   const exportCsv = useCallback(() => {
     const csv = toCSV(data?.rows, data?.columns?.map(({key}) => key), ',', '"');
@@ -25,7 +25,7 @@ export const GridHeader = ({data}) => {
           ))}
         </>
       )}
-      {rowIds && !isBrowser && (
+      {rowIds && window && !window?.core && (
         <div
           onClick={() => exportCsv()}
           className="group cursor-pointer flex items-center justify-between px-4 bg-gray hover:bg-yellow border-r border-t border-l border-white hover:text-black h-full"

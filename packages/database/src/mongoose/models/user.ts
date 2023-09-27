@@ -9,6 +9,7 @@ import {WebhookModel} from './webhook';
 import {MemberModel} from './member';
 import {WorkspaceModel} from './workspace';
 import {CustomerPaymentModel} from './customerPayment';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
   userCode: {type: String, required: false},

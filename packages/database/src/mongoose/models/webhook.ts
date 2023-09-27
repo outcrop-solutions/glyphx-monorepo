@@ -3,6 +3,7 @@ import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {IWebhookMethods, IWebhookStaticMethods, IWebhookDocument, IWebhookCreateInput} from '../interfaces';
 import {error} from 'core';
 import {UserModel} from './user';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<IWebhookDocument, IWebhookStaticMethods, IWebhookMethods>({
   createdAt: {

@@ -1,6 +1,6 @@
 import 'mocha';
 import {assert} from 'chai';
-import {BasicColumnNameCleaner} from '@fileProcessing';
+import {BasicColumnNameCleaner} from '../../fileProcessing';
 
 describe('#fileProcessing/BasicColumnNameCleaner', () => {
   context('cleanColmnName', () => {

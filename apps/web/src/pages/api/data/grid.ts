@@ -2,18 +2,17 @@ import {webTypes} from 'types';
 import {Initializer} from 'business';
 import {NextApiRequest, NextApiResponse} from 'next';
 import {getDataByTableName} from 'lib/server/data';
-import {authOptions} from 'app/api/auth/[...nextauth]/route';
-import {getServerSession} from 'next-auth';
+import {Session} from 'next-auth';
+import {validateSession} from 'lib/server/session';
 
 const data = async (req: NextApiRequest, res: NextApiResponse) => {
   // initialize the glyphengine layer
   if (!Initializer.initedField) {
     await Initializer.init();
   }
-
   // check for valid session
-  const session = await getServerSession(req, res, authOptions);
-  if (!session?.user?.userId) return res.status(401).end();
+  const session = (await validateSession(req, res)) as Session;
+  if (!session?.user?._id) return res.status(401).end();
 
   switch (req.method) {
     case webTypes.constants.HTTP_METHOD.POST:

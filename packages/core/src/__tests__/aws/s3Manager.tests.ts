@@ -77,6 +77,46 @@ describe('#aws/s3Manager', () => {
     });
   });
 
+  context('getBucket', () => {
+    let s3Mock: any;
+
+    beforeEach(() => {
+      /* eslint-disable-next-line */
+      //@ts-ignore
+      s3Mock = mockClient(S3Client);
+    });
+
+    afterEach(() => {
+      s3Mock.restore();
+    });
+    it('should fail when S3Manager has not been inited', async () => {
+      const s3Manager = new S3Manager('Some unknown bucket');
+      let threw = false;
+      try {
+        (s3Manager as any).bucket;
+      } catch (err) {
+        threw = true;
+        assert.instanceOf(err, error.InvalidOperationError);
+      }
+
+      assert.isTrue(threw);
+    });
+    it('should not fail when S3Manager has been inited', async () => {
+      s3Mock.on(HeadBucketCommand).resolves(true as any);
+
+      const s3Manager = new S3Manager('Some unknown bucket');
+      await s3Manager.init();
+      let threw = false;
+      try {
+        (s3Manager as any).bucket;
+      } catch (err) {
+        threw = true;
+      }
+
+      assert.isFalse(threw);
+    });
+  });
+
   context('listObjects', () => {
     let s3Mock: any;
 

@@ -28,7 +28,12 @@ export function initializer(target: any, propertyKey: string, descriptor: Proper
       {methodName: initializerValue.methodName}
     );
   }
-  if (descriptor.value.__proto__.constructor.name !== 'AsyncFunction') {
+  //With the way that this is being transpiled on the front end (just for testing) the name is
+  //being set as Function and not AsyncFunction.  This looks like it gives us another way
+  //to check and see if we are async.
+  const AsyncFunction = (async () => {}).constructor;
+  const isAsync = descriptor.value.__proto__.constructor instanceof AsyncFunction;
+  if (descriptor.value.__proto__.constructor.name !== 'AsyncFunction' && !isAsync) {
     throw new InvalidOperationError('Your initializer function must return a Promise so that it can be awaited', {
       functionName: propertyKey,
     });
@@ -235,7 +240,12 @@ function findAndValidateInitializer<T extends {new (...args: any[]): {}}>(target
       {}
     );
 
-  if (initializer.descriptor.value.__proto__.constructor.name !== 'AsyncFunction') {
+  //With the way that this is being transpiled on the front end (just for testing) the name is
+  //being set as Function and not AsyncFunction.  This looks like it gives us another way
+  //to check and see if we are async.
+  const AsyncFunction = (async () => {}).constructor;
+  const isAsync = initializer.descriptor.value.__proto__.constructor instanceof AsyncFunction;
+  if (initializer.descriptor.value.__proto__.constructor.name !== 'AsyncFunction' && !isAsync) {
     throw new InvalidOperationError('Your initializer function must return a Promise so that it can be awaited', {
       functionName: initializer.name,
     });

@@ -17,13 +17,13 @@ export class StripeClient {
       throw e;
     }
   }
-  static async createCustomer(email) {
+  static async createCustomer(email: string) {
     return await StripeClient.stripe?.customers.create({
       email,
     });
   }
 
-  static async getInvoices(customer) {
+  static async getInvoices(customer: any) {
     const invoices = await StripeClient.stripe.invoices.list({customer});
     return invoices?.data;
   }
@@ -33,9 +33,9 @@ export class StripeClient {
       StripeClient.stripe.products.list(),
       StripeClient.stripe.prices.list(),
     ]);
-    const productPrices = {};
-    prices?.data.map((price) => (productPrices[price.product] = price));
-    products?.data.map((product) => (product.prices = productPrices[product.id]));
+    const productPrices = {} as any;
+    prices?.data.map((price: any) => (productPrices[price.product] = price));
+    products?.data.map((product: any) => (product.prices = productPrices[product.id]));
     return products?.data.reverse();
   }
 }

@@ -5,6 +5,7 @@ import {error} from 'core';
 import {ProjectModel} from './project';
 import {WorkspaceModel} from './workspace';
 import {ProjectTemplateModel} from './projectTemplate';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<ITagDocument, ITagStaticMethods, ITagMethods>({
   createdAt: {

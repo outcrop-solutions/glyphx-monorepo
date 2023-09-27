@@ -6,6 +6,7 @@ import {ProjectModel} from './project';
 import {projectTemplateShapeValidator} from '../validators';
 import {IProjectTemplateCreateInput} from '../interfaces/iProjectTemplateCreateInput';
 import {TagModel} from './tag';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<IProjectTemplateDocument, IProjectTemplateStaticMethods, IProjectTemplateMethods>({
   createdAt: {

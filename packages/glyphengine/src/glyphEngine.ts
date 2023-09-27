@@ -12,13 +12,10 @@ import {processTrackingService, Heartbeat, projectService} from 'business';
 
 export class GlyphEngine {
   private readonly templateKey: string;
-  private readonly inputBucketNameField: string;
-  private readonly outputBucketNameField: string;
 
   private readonly inputBucketField: aws.S3Manager;
   private readonly outputBucketField: aws.S3Manager;
 
-  private readonly databaseNameField: string;
   private readonly athenaManager: aws.AthenaManager;
 
   private readonly processId: string;
@@ -27,17 +24,18 @@ export class GlyphEngine {
   private queryId?: string;
   private initedField: boolean;
 
-  constructor(inputBucketName: string, outputBucketName: string, databaseName: string, processId: string) {
+  constructor(
+    inputS3Manager: aws.S3Manager,
+    outputS3Manager: aws.S3Manager,
+    athenaManager: aws.AthenaManager,
+    processId: string
+  ) {
     this.templateKey = 'templates/template_new.sdt';
 
-    this.inputBucketNameField = inputBucketName;
-    this.outputBucketNameField = outputBucketName;
+    this.inputBucketField = inputS3Manager;
+    this.outputBucketField = outputS3Manager;
 
-    this.inputBucketField = new aws.S3Manager(this.inputBucketNameField);
-    this.outputBucketField = new aws.S3Manager(this.outputBucketNameField);
-
-    this.databaseNameField = databaseName;
-    this.athenaManager = new aws.AthenaManager(this.databaseNameField);
+    this.athenaManager = athenaManager;
 
     this.processId = processId;
     this.initedField = false;
@@ -46,9 +44,6 @@ export class GlyphEngine {
   public async init(): Promise<void> {
     if (!this.initedField) {
       try {
-        await this.inputBucketField.init();
-        await this.outputBucketField.init();
-        await this.athenaManager.init();
         await logging.Logger.init();
         this.initedField = true;
       } catch (err) {
@@ -197,7 +192,7 @@ export class GlyphEngine {
       const sdtFileName = `${prefix}/${payloadHash}.sdt`;
       await this.outputBucketField.putObject(sdtFileName, template);
 
-      const sdtParser = await SdtParser.parseSdtString(template, viewName, data);
+      const sdtParser = await SdtParser.parseSdtString(template, viewName, data, this.athenaManager);
 
       await processTrackingService.addProcessMessage(
         this.processId,
@@ -287,7 +282,7 @@ export class GlyphEngine {
     const zCol = data.get('z_axis') as string;
     const filter = (data.get('filter') as string) ?? undefined;
 
-    this.queryRunner = new QueryRunner(this.databaseNameField, viewName, xCol, yCol, zCol, filter);
+    this.queryRunner = new QueryRunner(this.athenaManager.databaseName, viewName, xCol, yCol, zCol, filter);
     await this.queryRunner.init();
     this.queryId = await this.queryRunner.startQuery();
   }

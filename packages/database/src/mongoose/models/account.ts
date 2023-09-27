@@ -3,6 +3,7 @@ import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {IAccountMethods, IAccountStaticMethods, IAccountDocument, IAccountCreateInput} from '../interfaces';
 import {error} from 'core';
 import {UserModel} from './user';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<IAccountDocument, IAccountStaticMethods, IAccountMethods>({
   type: {
@@ -96,12 +97,9 @@ SCHEMA.static('getAccountById', async (accountId: mongooseTypes.ObjectId) => {
     if (!accountDocument) {
       throw new error.DataNotFoundError(`Could not find a account with the _id: ${accountId}`, 'account_id', accountId);
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (accountDocument as any)['__v'];
-    delete (accountDocument as any).user['__v'];
 
-    return accountDocument;
+    const format = new DBFormatter();
+    return format.toJS(accountDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -139,15 +137,16 @@ SCHEMA.static('queryAccounts', async (filter: Record<string, unknown> = {}, page
     })
       .populate('user')
       .lean()) as databaseTypes.IAccount[];
+
+    const format = new DBFormatter();
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
-    accountDocuments?.forEach((doc: any) => {
-      delete (doc as any)['__v'];
-      delete (doc as any)?.user?.__v;
+    const formattedAccounts = accountDocuments?.map((doc: databaseTypes.IAccount) => {
+      return format.toJS(doc);
     });
 
     const retval: IQueryResult<databaseTypes.IAccount> = {
-      results: accountDocuments,
+      results: formattedAccounts as unknown as databaseTypes.IAccount[],
       numberOfItems: count,
       page: page,
       itemsPerPage: itemsPerPage,
@@ -220,7 +219,8 @@ SCHEMA.static(
   ): Promise<databaseTypes.IAccount> => {
     await ACCOUNT_MODEL.updateAccountWithFilter({_id: accountId}, account);
     const retval = await ACCOUNT_MODEL.getAccountById(accountId);
-    return retval;
+    const format = new DBFormatter();
+    return format.toJS(retval);
   }
 );
 

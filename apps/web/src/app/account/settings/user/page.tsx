@@ -38,7 +38,7 @@ const General = () => {
   const changeName = (event) => {
     event.preventDefault();
     api({
-      ..._updateWorkspaceName({slug: workspace.slug, name}),
+      ..._updateWorkspaceName({slug: workspace.slug as string, name}),
       setLoading: (state) => setSubmittingState(state as boolean),
     });
   };
@@ -56,7 +56,7 @@ const General = () => {
 
   useEffect(() => {
     setName(workspace?.name);
-    setSlug(workspace?.slug);
+    setSlug(workspace.slug!);
   }, [workspace]);
 
   return (

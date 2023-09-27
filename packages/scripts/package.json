@@ -1,0 +1,54 @@
+{
+  "name": "scripts",
+  "version": "1.0.0",
+  "description": "A collection of general purpose scripts for working with the GlyphX codebase and environments.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/**"
+  ],
+  "scripts": {
+    "dev": "tsup --watch",
+    "lint": "eslint .",
+    "fix": "eslint . --fix",
+    "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist",
+    "copyAthenaDatabase": "ts-node ./src/copyAthenaDatabase.ts"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "author": "JP Burford",
+  "devDependencies": {
+    "@aws-sdk/types": "3.292.0",
+    "eslint-config-custom": "workspace:*",
+    "tsconfig": "workspace:*",
+    "types": "workspace:*",
+    "@types/node": "^18.11.7",
+    "@typescript-eslint/eslint-plugin": "^5.46.1",
+    "@typescript-eslint/parser": "^5.42.0",
+    "eslint": "^8.12.0",
+    "eslint-import-resolver-node": "^0.3.7",
+    "eslint-import-resolver-typescript": "^3.5.2",
+    "eslint-plugin-filename-rules": "^1.2.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "gts": "^3.1.0",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.1.0",
+    "typescript": "4.9.5"
+  },
+  "dependencies": {
+    "@aws-sdk/client-athena": "3.292.0",
+    "@aws-sdk/client-s3": "3.292.0",
+    "@aws-sdk/client-secrets-manager": "3.292.0",
+    "@aws-sdk/lib-storage": "3.292.0",
+    "@aws-sdk/signature-v4-crt": "3.292.0",
+    "core": "workspace:*",
+    "database": "workspace:*",
+    "dotenv": "^16.0.3",
+    "mongoose": "^6.8.1",
+    "winston": "^3.8.2"
+  }
+}

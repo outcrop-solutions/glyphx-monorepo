@@ -3,6 +3,7 @@ import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {ISessionMethods, ISessionStaticMethods, ISessionDocument, ISessionCreateInput} from '../interfaces';
 import {error} from 'core';
 import {UserModel} from './user';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<ISessionDocument, ISessionStaticMethods, ISessionMethods>({
   sessionToken: {type: String, required: true},

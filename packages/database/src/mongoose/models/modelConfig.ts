@@ -18,6 +18,7 @@ import {
   yAxisColorSchema,
   zAxisColorSchema,
 } from '../schemas';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<IModelConfigDocument, IModelConfigStaticMethods, IModelConfigMethods>({
   createdAt: {
@@ -263,11 +264,8 @@ SCHEMA.static('getModelConfigById', async (modelConfigId: mongooseTypes.ObjectId
         modelConfigId
       );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (modelConfigDocument as any)['__v'];
-
-    return modelConfigDocument;
+    const format = new DBFormatter();
+    return format.toJS(modelConfigDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -315,14 +313,14 @@ SCHEMA.static('queryModelConfigs', async (filter: Record<string, unknown> = {}, 
       .populate('z_axis_color')
       .lean()) as databaseTypes.IModelConfig[];
 
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    modelConfigDocuments.forEach((doc: any) => {
-      delete (doc as any)['__v'];
+    const format = new DBFormatter();
+
+    const configs = modelConfigDocuments.map((doc: any) => {
+      return format.toJS(doc);
     });
 
     const retval: IQueryResult<databaseTypes.IModelConfig> = {
-      results: modelConfigDocuments,
+      results: configs as unknown as databaseTypes.IModelConfig[],
       numberOfItems: count,
       page: page,
       itemsPerPage: itemsPerPage,

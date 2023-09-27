@@ -9,6 +9,7 @@ import {ICustomerPayment} from './iCustomerPayment';
 
 export interface IUser {
   _id?: mongooseTypes.ObjectId;
+  id?: string;
   userCode: string;
   name: string;
   username: string;

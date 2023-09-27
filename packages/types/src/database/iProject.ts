@@ -9,6 +9,7 @@ import {ITag} from './iTag';
 
 export interface IProject {
   _id?: mongooseTypes.ObjectId;
+  id?: string;
   createdAt: Date;
   updatedAt: Date;
   name: string;

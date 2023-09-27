@@ -1,3 +1,4 @@
+'use client';
 import {PencilIcon, TrashIcon} from '@heroicons/react/outline';
 import {useCallback} from 'react';
 import {useSession} from 'next-auth/react';
@@ -23,12 +24,10 @@ export const State = ({item, idx}) => {
   const loading = useRecoilValue(showLoadingAtom);
   const [activeState, setActiveState] = useRecoilState(activeStateAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
-  const isBrowser = !(window && window?.core);
-
   const applyState = useCallback(async () => {
     setActiveState(idx);
 
-    if (isBrowser) {
+    if (window && !window?.core) {
       setResize(150);
       setDrawer(true);
       return;
@@ -73,7 +72,7 @@ export const State = ({item, idx}) => {
         },
       });
     }
-  }, [idx, isBrowser, loading, project, session, setActiveState, setDrawer, setLoading, setResize, url]);
+  }, [idx, loading, project, session, setActiveState, setDrawer, setLoading, setResize, url]);
 
   const deleteState = useCallback(() => {
     setModals(
@@ -111,7 +110,9 @@ export const State = ({item, idx}) => {
       className="p-2 group-states hover:bg-secondary-midnight hover:text-white last:mb-0 flex items-center justify-between cursor-pointer relative z-60"
     >
       <div className="hidden group-states-hover:flex absolute p-2 rounded border bg-primary-dark-blue w-56 h-56 bottom-16 z-60">
-        {item.imageHash && <Image alt="state" layout="fill" src={`data:image/png;base64,${item.imageHash}`} />}
+        {item.imageHash && (
+          <Image alt="state" width={300} height={200} src={`data:image/png;base64,${item.imageHash}`} />
+        )}
       </div>
       <div className="flex items-center justify-center h-6 w-6">
         {activeState === idx ? <StateIcon className="" /> : <ActiveStateIcon />}

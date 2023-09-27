@@ -7,13 +7,54 @@ import {SecretsManager, GetSecretValueCommand} from '@aws-sdk/client-secrets-man
 import * as error from '../../error';
 
 describe('#aws/SecretManager', () => {
+  afterEach(() => {
+    if (process.env.GLYPHX_ENV) delete process.env.GLYPHX_ENV;
+  });
   context('constructor', () => {
     it('will build a new SecretManager object', () => {
       const secretName = 'testSecretName';
 
       const secretManager = new SecretManager(secretName);
 
-      assert.strictEqual(secretManager.secretName, secretName);
+      assert.strictEqual(secretManager.secretName, `dev/${secretName}`);
+      assert.isOk(secretManager['secretsManager']);
+    });
+
+    it('will build a new SecretManager object vercel no environment', () => {
+      const secretName = 'testSecretName';
+
+      const secretManager = new SecretManager(secretName);
+
+      assert.strictEqual(secretManager.secretName, `dev/${secretName}`);
+      assert.isOk(secretManager['secretsManager']);
+    });
+    it('will build a new SecretManager object vercel dev environment', () => {
+      process.env.GLYPHX_ENV = 'dev';
+      const secretName = 'testSecretName';
+
+      const secretManager = new SecretManager(secretName);
+
+      assert.strictEqual(secretManager.secretName, `dev/${secretName}`);
+      assert.isOk(secretManager['secretsManager']);
+    });
+
+    it('will build a new SecretManager object vercel preview environment', () => {
+      process.env.GLYPHX_ENV = 'demo';
+      const secretName = 'testSecretName';
+
+      const secretManager = new SecretManager(secretName);
+
+      assert.strictEqual(secretManager.secretName, `demo/${secretName}`);
+      assert.isOk(secretManager['secretsManager']);
+    });
+
+    it('will build a new SecretManager object vercel production environment', () => {
+      process.env.GLYPHX_ENV = 'prod';
+      const secretName = 'testSecretName';
+
+      const secretManager = new SecretManager(secretName);
+
+      assert.strictEqual(secretManager.secretName, `prod/${secretName}`);
       assert.isOk(secretManager['secretsManager']);
     });
   });

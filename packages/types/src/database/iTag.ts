@@ -5,6 +5,7 @@ import {IWorkspace} from './iWorkspace';
 
 export interface ITag {
   _id?: mongooseTypes.ObjectId;
+  id?: string;
   createdAt: Date;
   updatedAt: Date;
   workspaces: IWorkspace[];

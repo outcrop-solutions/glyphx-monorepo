@@ -2,7 +2,7 @@ import mongoose, {Types as mongooseTypes, Model} from 'mongoose';
 
 import {IQueryResult, databaseTypes} from 'types';
 import {IProcessTrackingMethods, IProcessTrackingStaticMethods, IProcessTrackingDocument} from '../interfaces';
-
+import {DBFormatter} from '../../lib/format';
 import {error} from 'core';
 
 const SCHEMA = new mongoose.Schema<IProcessTrackingDocument, IProcessTrackingStaticMethods, IProcessTrackingMethods>({
@@ -172,11 +172,8 @@ SCHEMA.static(
           filter
         );
       }
-      //this is added by mongoose, so we will want to remove it before returning the document
-      //to the user.
-      delete (processTrackingDocument as any)['__v'];
-
-      return processTrackingDocument;
+      const format = new DBFormatter();
+      return format.toJS(processTrackingDocument);
     } catch (err) {
       if (err instanceof error.DataNotFoundError) throw err;
       else
@@ -223,14 +220,15 @@ SCHEMA.static(
         skip: skip,
         limit: itemsPerPage,
       }).lean()) as databaseTypes.IProcessTracking[];
-      //this is added by mongoose, so we will want to remove it before returning the document
-      //to the user.
-      processTrackingDocuments.forEach((doc: any) => {
-        delete (doc as any)['__v'];
+
+      const format = new DBFormatter();
+
+      const processObjects = processTrackingDocuments.map((doc: any) => {
+        return format.toJS(doc);
       });
 
       const retval: IQueryResult<databaseTypes.IProcessTracking> = {
-        results: processTrackingDocuments,
+        results: processObjects as unknown as databaseTypes.IProcessTracking[],
         numberOfItems: count,
         page: page,
         itemsPerPage: itemsPerPage,

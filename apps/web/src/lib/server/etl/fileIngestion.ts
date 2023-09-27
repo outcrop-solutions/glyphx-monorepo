@@ -1,12 +1,12 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
 
-import {aws, generalPurposeFunctions} from 'core';
+import {generalPurposeFunctions} from 'core';
 import {FileIngestor, BasicColumnNameCleaner} from 'fileingestion';
-import {S3_BUCKET_NAME, ATHENA_DB_NAME} from 'config/constants';
 import {formatUserAgent} from 'lib/utils/formatUserAgent';
 import {databaseTypes} from 'types';
-import {processTrackingService, activityLogService, projectService} from 'business';
+import {processTrackingService, activityLogService, projectService, athenaConnection} from 'business';
 import {Session} from 'next-auth';
+import {s3Connection} from 'business';
 /**
  * File Ingestion Key Notes
  *
@@ -79,10 +79,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     };
 
     // Add to S3
-    const s3Manager = new aws.S3Manager(S3_BUCKET_NAME);
-    if (!s3Manager.inited) {
-      await s3Manager.init();
-    }
+    const s3Manager = s3Connection.s3Manager;
 
     const newPayload = {...cleanPayload};
 
@@ -99,7 +96,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     const {_id: processDocumentId} = await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
 
     // Create file ingestor
-    const fileIngestor = new FileIngestor(newPayload, ATHENA_DB_NAME, PROCESS_ID);
+    const fileIngestor = new FileIngestor(newPayload, s3Manager, athenaConnection.connection, PROCESS_ID);
     if (!fileIngestor.inited) {
       await fileIngestor.init();
     }
@@ -108,7 +105,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId as string,
+      actorId: session?.user?._id as string,
       resourceId: newPayload.modelId,
       workspaceId: newPayload.clientId,
       projectId: newPayload.modelId,
@@ -119,7 +116,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     });
 
     await activityLogService.createLog({
-      actorId: session?.user?.userId as string,
+      actorId: session?.user?._id as string,
       resourceId: processDocumentId?.toString() as string,
       workspaceId: newPayload.clientId,
       projectId: newPayload.modelId,

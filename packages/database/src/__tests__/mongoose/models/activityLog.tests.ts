@@ -166,8 +166,7 @@ describe('#mongoose/models/activityLog', () => {
 
       const result = await ActivityLogModel.getActivityLogById(MOCK_ACTIVITY_LOG._id as mongoose.Types.ObjectId);
       assert.isOk(result);
-      assert.strictEqual(result._id?.toString(), MOCK_ACTIVITY_LOG._id?.toString());
-
+      assert.strictEqual(result.id, MOCK_ACTIVITY_LOG._id?.toString());
       assert.isUndefined((result as any).__v);
       assert.isUndefined((result as any).actor.__v);
       assert.isUndefined((result as any).resource.__v);

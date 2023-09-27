@@ -6,6 +6,7 @@ import {cameraSchema, fileStatsSchema, propertySchema} from '../schemas';
 import {ProjectModel} from './project';
 import {UserModel} from './user';
 import {WorkspaceModel} from './workspace';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
   createdAt: {

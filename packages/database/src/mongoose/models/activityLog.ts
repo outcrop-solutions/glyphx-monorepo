@@ -16,6 +16,7 @@ import {MemberModel} from './member';
 import {WebhookModel} from './webhook';
 import {WorkspaceModel} from './workspace';
 import {ProcessTrackingModel} from './processTracking';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<IActivityLogDocument, IActivityLogStaticMethods, IActivityLogMethods>({
   createdAt: {
@@ -115,13 +116,8 @@ SCHEMA.static('getActivityLogById', async (activityLogId: mongooseTypes.ObjectId
         activityLogId
       );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (activityLogDocument as any)['__v'];
-    delete (activityLogDocument as any).actor['__v'];
-    delete (activityLogDocument as any).resource['__v'];
-
-    return activityLogDocument;
+    const format = new DBFormatter();
+    return format.toJS(activityLogDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -167,16 +163,14 @@ SCHEMA.static(
         .populate('actor')
         .populate('resource')
         .lean()) as databaseTypes.IActivityLog[];
-      //this is added by mongoose, so we will want to remove it before returning the document
-      //to the user.
-      activityLogDocuments?.forEach((doc: any) => {
-        delete (doc as any)['__v'];
-        delete (doc as any)?.actor?.__v;
-        delete (doc as any)?.resource?.__v;
+
+      const format = new DBFormatter();
+      const formattedActivityLogs = activityLogDocuments?.map((doc: databaseTypes.IActivityLog) => {
+        return format.toJS(doc);
       });
 
       const retval: IQueryResult<databaseTypes.IActivityLog> = {
-        results: activityLogDocuments,
+        results: formattedActivityLogs as unknown as databaseTypes.IActivityLog[],
         numberOfItems: count,
         page: page,
         itemsPerPage: itemsPerPage,

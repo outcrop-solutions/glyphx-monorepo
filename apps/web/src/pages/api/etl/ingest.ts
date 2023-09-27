@@ -1,8 +1,8 @@
 import {webTypes} from 'types';
-import {authOptions} from 'app/api/auth/[...nextauth]/route';
-import {getServerSession} from 'next-auth/next';
 import {NextApiRequest, NextApiResponse} from 'next';
 import {Initializer} from 'business';
+import {Session} from 'next-auth';
+import {validateSession} from 'lib/server/session';
 import {fileIngestion} from 'lib/server/etl/fileIngestion';
 
 /**
@@ -27,10 +27,9 @@ export default async function fileIngest(req: NextApiRequest, res: NextApiRespon
   // initialize the business layer
   if (!Initializer.initedField) {
     await Initializer.init();
-  }
-  // check for valid session
-  const session = await getServerSession(req, res, authOptions);
-  if (!session?.user?.userId) return res.status(401).end();
+  } // check for valid session
+  const session = (await validateSession(req, res)) as Session;
+  if (!session?.user?._id) return res.status(401).end();
   switch (req.method) {
     case webTypes.constants.HTTP_METHOD.POST:
       return fileIngestion(req, res, session);

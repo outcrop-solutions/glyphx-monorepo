@@ -257,8 +257,7 @@ describe('#mongoose/models/customerPayment', () => {
       assert.isUndefined((doc as any).__v);
       assert.isUndefined((doc.customer as any).__v);
 
-      assert.strictEqual(doc._id, mockCustomerPayment._id);
-      // assert.isTrue(getCustomerPaymentStub.calledOnce);
+      assert.strictEqual(doc.id, mockCustomerPayment._id?.toString());
     });
 
     it('should update an existing customerPaymentByStripeId', async () => {
@@ -317,8 +316,7 @@ describe('#mongoose/models/customerPayment', () => {
       assert.isUndefined((doc as any).__v);
       assert.isUndefined((doc.customer as any).__v);
 
-      assert.strictEqual(doc._id, mockCustomerPayment._id);
-      // assert.isTrue(getCustomerPaymentStub.calledOnce);
+      assert.strictEqual(doc.id, mockCustomerPayment._id?.toString());
     });
 
     it('should update an existing customerPayment changing the customer', async () => {
@@ -658,7 +656,7 @@ describe('#mongoose/models/customerPayment', () => {
       assert.isUndefined((doc as any).__v);
       assert.isUndefined((doc.customer as any).__v);
 
-      assert.strictEqual(doc._id, mockCustomerPayment._id);
+      assert.strictEqual(doc.id, mockCustomerPayment._id?.toString());
     });
 
     it('will retreive a customerPayment document by id with the customer populated', async () => {
@@ -672,7 +670,7 @@ describe('#mongoose/models/customerPayment', () => {
       assert.isUndefined((doc as any).__v);
       assert.isUndefined((doc.customer as any).__v);
 
-      assert.strictEqual(doc._id, mockCustomerPayment._id);
+      assert.strictEqual(doc.id, mockCustomerPayment._id?.toString());
     });
 
     it('will retreive a customerPayment document by email with the customer populated', async () => {

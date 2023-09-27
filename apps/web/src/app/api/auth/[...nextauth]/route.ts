@@ -1,11 +1,9 @@
 import NextAuth from 'next-auth';
-import type {NextAuthOptions} from 'next-auth/index';
+import type {Awaitable, NextAuthOptions, SessionStrategy, User} from 'next-auth/index';
 import {MongoDBAdapter} from '@next-auth/mongodb-adapter';
-import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import EmailProvider from 'next-auth/providers/email';
 import {signInHtml, signInText, EmailClient} from 'email';
-import {customerPaymentService} from 'business';
 import MongoClient from 'lib/server/mongodb';
 
 export const authOptions: NextAuthOptions = {
@@ -13,11 +11,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     session: async ({session, user}) => {
       if (session?.user) {
-        const customerPayment = await customerPaymentService.getPayment(user.email);
-        session.user.userId = user.id;
-        if (customerPayment) {
-          session.user.subscription = customerPayment.subscriptionType;
-        }
+        session.user._id = user.id;
       }
       return session;
     },
@@ -26,14 +20,6 @@ export const authOptions: NextAuthOptions = {
     signIn: '/login',
   },
   debug: !(process.env.NODE_ENV === 'production'),
-  events: {
-    signIn: async ({user, isNewUser}) => {
-      // const customerPayment = await getPayment(user.email);
-      // if (isNewUser || customerPayment === null || user.createdAt === null) {
-      //   await Promise.all([createPaymentAccount(user.email, user.id)]);
-      // }
-    },
-  },
   providers: [
     EmailProvider({
       from: process.env.EMAIL_FROM,
@@ -56,6 +42,6 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET || undefined,
 };
 
-const handler = NextAuth(authOptions);
+const auth = NextAuth(authOptions);
 
-export {handler as GET, handler as POST};
+export {auth as GET, auth as POST};

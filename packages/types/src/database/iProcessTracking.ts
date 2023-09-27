@@ -3,6 +3,7 @@ import * as constants from './constants';
 
 export interface IProcessTracking {
   _id?: mongooseTypes.ObjectId;
+  id?: string;
   processId: string;
   processName: string;
   processStatus: constants.PROCESS_STATUS;

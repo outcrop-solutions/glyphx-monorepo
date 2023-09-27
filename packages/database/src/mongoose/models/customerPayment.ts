@@ -8,6 +8,7 @@ import {
 } from '../interfaces';
 import {error} from 'core';
 import {UserModel} from './user';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<ICustomerPaymentDocument, ICustomerPaymentStaticMethods, ICustomerPaymentMethods>({
   paymentId: {type: String, required: true},
@@ -116,12 +117,8 @@ SCHEMA.static('getCustomerPaymentByFilter', async (filter: Record<string, unknow
         filter
       );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (customerPaymentDocument as any)['__v'];
-    delete (customerPaymentDocument as any).customer['__v'];
-
-    return customerPaymentDocument;
+    const format = new DBFormatter();
+    return format.toJS(customerPaymentDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -163,15 +160,13 @@ SCHEMA.static('queryCustomerPayments', async (filter: Record<string, unknown> = 
       .populate('customer')
       .lean()) as databaseTypes.ICustomerPayment[];
 
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    paymentDocuments.forEach((doc: any) => {
-      delete (doc as any)['__v'];
-      delete (doc as any)?.customer?.__v;
+    const format = new DBFormatter();
+    const formattedPayments = paymentDocuments.map((doc: any) => {
+      return format.toJS(doc);
     });
 
     const retval: IQueryResult<databaseTypes.ICustomerPayment> = {
-      results: paymentDocuments,
+      results: formattedPayments as unknown as databaseTypes.ICustomerPayment[],
       numberOfItems: count,
       page: page,
       itemsPerPage: itemsPerPage,

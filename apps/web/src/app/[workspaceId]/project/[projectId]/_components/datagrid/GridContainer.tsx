@@ -1,4 +1,5 @@
-import React from 'react';
+'use client';
+import React, {useEffect, useState} from 'react';
 import {useRecoilValue} from 'recoil';
 import {MainDropzone} from '../projectSidebar/files';
 import SplitPane from 'react-split-pane';
@@ -13,6 +14,11 @@ import useDataGrid from 'lib/client/hooks/useDataGrid';
 import Image from 'next/image';
 
 export const GridContainer = () => {
+  const [isClientSide, setIsClientSide] = useState(false); // Initialize as false
+
+  useEffect(() => {
+    setIsClientSide(true); // Set to true when component mounts on the client side
+  }, []);
   const {data} = useDataGrid();
   const openFiles = useRecoilValue(filesOpenSelector);
   const activeState = useRecoilValue(stateSelector);
@@ -21,7 +27,6 @@ export const GridContainer = () => {
   const {height} = useRecoilValue(windowSizeAtom);
   const {handlePaneResize, defaultSize, maxSize, minSize, split} = useResize();
   const resize = useRecoilValue(splitPaneSizeAtom);
-  const isBrowser = !(window && window?.core);
 
   const getPaneHeight = () => {
     if (height) {
@@ -58,7 +63,7 @@ export const GridContainer = () => {
             <MainDropzone />
           )}
         </div>
-        {isBrowser && project?.imageHash ? (
+        {isClientSide && !window?.core && project?.imageHash ? (
           <div className={`${orientation === 'vertical' ? 'w-full' : 'h-2/3 w-2/3'} object-scale-down p-20 mx-auto`}>
             <Image
               src={
@@ -74,7 +79,6 @@ export const GridContainer = () => {
                   ? activeState?.aspectRatio?.height
                   : project?.aspectRatio?.height || 200
               }
-              layout="responsive"
               alt="model"
             />
           </div>

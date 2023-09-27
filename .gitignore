@@ -62,3 +62,4 @@ output.log
 #artifacts from logging tests
 Foo.bar
 
+packages/codegen/src/output

@@ -46,7 +46,7 @@ export const Info = () => {
           <CloseProjectInfoIcon />
         </div>
       </div>
-      <Image width={233} height={169} layout="responsive" src={projectCard} alt="Sample Project" />
+      <Image width={233} height={169} src={projectCard} alt="Sample Project" />
       <div className="mt-2 pl-4 pr-4">
         <p className="text-light-gray font-roboto font-medium text-[14px] leading-[16.41px]">Owner</p>
         <div className="flex flex-row justify-between items-center mt-2 ">

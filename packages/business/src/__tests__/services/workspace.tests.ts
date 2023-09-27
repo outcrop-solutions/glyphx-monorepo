@@ -70,7 +70,7 @@ describe('#services/workspace', () => {
         new mongooseTypes.ObjectId();
       const workspaceName = 'testWorkspaceName';
       const workspaceSlug = 'testWorkspaceSlug';
-      const count = 1;
+      const count = 0;
       const creatorId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
@@ -156,97 +156,6 @@ describe('#services/workspace', () => {
         new mongooseTypes.ObjectId();
       const workspaceName = 'testWorkspaceName';
       const workspaceSlug = 'testWorkspaceSlug';
-      const count = 1;
-      const creatorId =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
-      const creatorEmail = 'testUserEmail';
-      const inviteCode = v4().replaceAll('-', '');
-      const workspaceCode = v4().replaceAll('-', '');
-
-      const countWorkspacesFromServiceStub = sandbox.stub();
-      countWorkspacesFromServiceStub.resolves(count as unknown as number);
-      sandbox.replace(workspaceService, 'countWorkspaces', countWorkspacesFromServiceStub);
-
-      const createWorkspaceFromModelStub = sandbox.stub();
-      createWorkspaceFromModelStub.resolves({
-        _id: workspaceId,
-        inviteCode,
-        workspaceCode,
-        slug: `${workspaceSlug}-${count}`,
-        creator: {
-          _id: creatorId,
-          email: creatorEmail,
-        } as unknown as databaseTypes.IUser,
-      } as unknown as databaseTypes.IWorkspace);
-
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'createWorkspace', createWorkspaceFromModelStub);
-
-      const createMemberFromModelStub = sandbox.stub();
-      createMemberFromModelStub.resolves({
-        _id: workspaceId,
-        email: creatorEmail,
-        inviter: creatorEmail,
-        workspace: {
-          _id: workspaceId,
-        } as unknown as databaseTypes.IWorkspace,
-        invitedBy: {
-          _id: creatorId,
-          email: creatorEmail,
-        } as unknown as databaseTypes.IUser,
-        member: {
-          _id: creatorId,
-          email: creatorEmail,
-        } as unknown as databaseTypes.IUser,
-      } as unknown as databaseTypes.IWorkspace);
-
-      sandbox.replace(dbConnection.models.MemberModel, 'createWorkspaceMember', createMemberFromModelStub);
-
-      const addMembersFromWorkspaceModel = sandbox.stub();
-      addMembersFromWorkspaceModel.resolves({
-        _id: workspaceId,
-        inviteCode,
-        workspaceCode,
-        slug: `${workspaceSlug}-${count}`,
-        creator: {
-          _id: creatorId,
-          email: creatorEmail,
-        } as unknown as databaseTypes.IUser,
-      } as unknown as databaseTypes.IWorkspace);
-
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'addMembers', addMembersFromWorkspaceModel);
-
-      const addMembershipFromUserModel = sandbox.stub();
-      addMembershipFromUserModel.resolves();
-      sandbox.replace(dbConnection.models.UserModel, 'addMembership', addMembershipFromUserModel);
-
-      const addWorkspacesFromUserModel = sandbox.stub();
-      addWorkspacesFromUserModel.resolves();
-      sandbox.replace(dbConnection.models.UserModel, 'addWorkspaces', addWorkspacesFromUserModel);
-
-      const sendStub = sandbox.stub();
-      sendStub.resolves();
-      sandbox.replace(EmailClient, 'sendMail', sendStub);
-
-      const doc = await workspaceService.createWorkspace(
-        creatorId.toString(),
-        creatorEmail,
-        workspaceName,
-        workspaceSlug
-      );
-
-      assert.isTrue(createWorkspaceFromModelStub.calledOnce);
-      assert.isTrue(countWorkspacesFromServiceStub.calledOnce);
-      assert.isTrue(sendStub.calledOnce);
-      assert.strictEqual(`${workspaceSlug}-${count}`, doc?.slug);
-      assert.strictEqual(doc?.creator._id, creatorId);
-    });
-    it('will create Workspace with user associated as creator with correct slug when count is 0', async () => {
-      const workspaceId =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
-      const workspaceName = 'testWorkspaceName';
-      const workspaceSlug = 'testWorkspaceSlug';
       const count = 0;
       const creatorId =
         // @ts-ignore
@@ -307,13 +216,13 @@ describe('#services/workspace', () => {
 
       sandbox.replace(dbConnection.models.WorkspaceModel, 'addMembers', addMembersFromWorkspaceModel);
 
-      const addWorkspacesFromUserModel = sandbox.stub();
-      addWorkspacesFromUserModel.resolves();
-      sandbox.replace(dbConnection.models.UserModel, 'addWorkspaces', addWorkspacesFromUserModel);
-
       const addMembershipFromUserModel = sandbox.stub();
       addMembershipFromUserModel.resolves();
       sandbox.replace(dbConnection.models.UserModel, 'addMembership', addMembershipFromUserModel);
+
+      const addWorkspacesFromUserModel = sandbox.stub();
+      addWorkspacesFromUserModel.resolves();
+      sandbox.replace(dbConnection.models.UserModel, 'addWorkspaces', addWorkspacesFromUserModel);
 
       const sendStub = sandbox.stub();
       sendStub.resolves();
@@ -377,7 +286,7 @@ describe('#services/workspace', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const creatorEmail = 'testUserEmail';
-      const count = 1;
+      const count = 0;
       const errMessage = 'You have an invalid document';
       const err = new error.DataValidationError(errMessage, 'IWorkspaceDocument', true);
 
@@ -421,7 +330,7 @@ describe('#services/workspace', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const creatorEmail = 'testUserEmail';
-      const count = 1;
+      const count = 0;
       const errMessage = 'You have an invalid document';
       const err = new error.UnexpectedError(errMessage);
 
@@ -464,7 +373,7 @@ describe('#services/workspace', () => {
       const creatorId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const count = 1;
+      const count = 0;
       const creatorEmail = 'testUserEmail';
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateWorkspaceById');
@@ -1330,14 +1239,13 @@ describe('#services/workspace', () => {
       const workspaceId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const workspaceSlug = 'testSlug';
 
       const queryWorkspacesFromModelStub = sandbox.stub();
       queryWorkspacesFromModelStub.resolves({
         results: [
           {
             _id: workspaceId,
-            slug: workspaceSlug,
+            deletedAt: undefined,
           },
         ] as unknown as databaseTypes.IWorkspace[],
         numberOfItems: 1,
@@ -1345,9 +1253,9 @@ describe('#services/workspace', () => {
 
       sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', queryWorkspacesFromModelStub);
 
-      const workspace = await workspaceService.getSiteWorkspace(workspaceSlug);
+      const workspace = await workspaceService.getSiteWorkspace(workspaceId.toString());
       assert.isOk(workspace);
-      assert.strictEqual(workspace?.slug?.toString(), workspaceSlug.toString());
+      assert.strictEqual(workspace?._id?.toString(), workspaceId.toString());
 
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
@@ -1670,25 +1578,22 @@ describe('#services/workspace', () => {
       const workspaceSlug = 'testSlug';
 
       const queryWorkspacesFromModelStub = sandbox.stub();
-      queryWorkspacesFromModelStub.resolves({
-        results: [
-          {
-            _id: workspaceId,
-            slug: workspaceSlug,
-            members: [
-              {
-                _id: userId,
-                email: userEmail,
-                status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
-                deletedAt: undefined,
-              } as unknown as databaseTypes.IUser,
-            ],
-          },
-        ] as unknown as databaseTypes.IWorkspace[],
-        numberOfItems: 1,
-      });
+      queryWorkspacesFromModelStub.resolves([
+        {
+          _id: workspaceId,
+          slug: workspaceSlug,
+          members: [
+            {
+              _id: userId,
+              email: userEmail,
+              status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
+              deletedAt: undefined,
+            } as unknown as databaseTypes.IUser,
+          ],
+        },
+      ] as unknown as databaseTypes.IWorkspace[]);
 
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', queryWorkspacesFromModelStub);
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'aggregate', queryWorkspacesFromModelStub);
 
       const workspaces = await workspaceService.getWorkspaces(userId, userEmail);
       assert.isOk(workspaces);
@@ -1710,25 +1615,9 @@ describe('#services/workspace', () => {
       const workspaceSlug = 'testSlug';
 
       const queryWorkspacesFromModelStub = sandbox.stub();
-      queryWorkspacesFromModelStub.resolves({
-        results: [
-          {
-            _id: workspaceId,
-            slug: workspaceSlug,
-            members: [
-              {
-                _id: differentUserId,
-                email: 'differentemail@gmail.com',
-                status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
-                deletedAt: null,
-              } as unknown as databaseTypes.IUser,
-            ],
-          },
-        ] as unknown as databaseTypes.IWorkspace[],
-        numberOfItems: 1,
-      });
+      queryWorkspacesFromModelStub.resolves([]);
 
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', queryWorkspacesFromModelStub);
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'aggregate', queryWorkspacesFromModelStub);
 
       const workspaces = await workspaceService.getWorkspaces(userId, userEmail);
       assert.isNotOk(workspaces);
@@ -1742,31 +1631,11 @@ describe('#services/workspace', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const workspaceId =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
-      const workspaceSlug = 'testSlug';
 
       const queryWorkspacesFromModelStub = sandbox.stub();
-      queryWorkspacesFromModelStub.resolves({
-        results: [
-          {
-            _id: workspaceId,
-            slug: workspaceSlug,
-            members: [
-              {
-                _id: differentUserId,
-                email: userEmail,
-                status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
-                deletedAt: new Date(),
-              } as unknown as databaseTypes.IUser,
-            ],
-          },
-        ],
-        numberOfItems: 1,
-      } as unknown as databaseTypes.IWorkspace[]);
+      queryWorkspacesFromModelStub.resolves([]);
 
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', queryWorkspacesFromModelStub);
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'aggregate', queryWorkspacesFromModelStub);
 
       const workspaces = await workspaceService.getWorkspaces(userId, userEmail);
       assert.isNotOk(workspaces);
@@ -1782,7 +1651,7 @@ describe('#services/workspace', () => {
       const err = new error.DataNotFoundError(errMessage, 'email', {userEmail});
       const getWorkspaceFromModelStub = sandbox.stub();
       getWorkspaceFromModelStub.rejects(err);
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', getWorkspaceFromModelStub);
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'aggregate', getWorkspaceFromModelStub);
       function fakePublish() {
         //@ts-ignore
         assert.instanceOf(this, error.DataNotFoundError);
@@ -1815,7 +1684,7 @@ describe('#services/workspace', () => {
       });
       const getWorkspaceFromModelStub = sandbox.stub();
       getWorkspaceFromModelStub.rejects(err);
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', getWorkspaceFromModelStub);
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'aggregate', getWorkspaceFromModelStub);
       function fakePublish() {
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
@@ -1842,10 +1711,10 @@ describe('#services/workspace', () => {
         new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
       const errMessage = 'Something bad has happened';
-      const err = new error.DatabaseOperationError(errMessage, 'mongoDb', 'queryWorkspaces');
+      const err = new error.DatabaseOperationError(errMessage, 'mongoDb', 'aggregate');
       const getWorkspaceFromModelStub = sandbox.stub();
       getWorkspaceFromModelStub.rejects(err);
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', getWorkspaceFromModelStub);
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'aggregate', getWorkspaceFromModelStub);
       function fakePublish() {
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
@@ -1861,127 +1730,6 @@ describe('#services/workspace', () => {
       let errored = false;
       try {
         await workspaceService.getWorkspaces(userId, userEmail);
-      } catch (e) {
-        assert.instanceOf(e, error.DataServiceError);
-        errored = true;
-      }
-      assert.isTrue(errored);
-      assert.isTrue(getWorkspaceFromModelStub.calledOnce);
-      assert.isTrue(publishOverride.calledOnce);
-    });
-  });
-  context('getWorkspacePaths', () => {
-    it('should get workspace paths compatible with what nextjs expects', async () => {
-      const workspaceId =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
-      const workspaceSlug = 'testSlug';
-      const numItems = 1;
-
-      const queryWorkspacesFromModelStub = sandbox.stub();
-      queryWorkspacesFromModelStub.resolves({
-        results: [
-          {
-            _id: workspaceId,
-            slug: workspaceSlug,
-          },
-        ] as unknown as databaseTypes.IWorkspace[],
-        numberOfItems: numItems,
-      });
-
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', queryWorkspacesFromModelStub);
-
-      const paths = await workspaceService.getWorkspacePaths();
-
-      assert.isOk(paths);
-      assert.strictEqual(paths?.length, numItems);
-      assert.deepStrictEqual(paths![0], {
-        params: {site: workspaceSlug},
-      });
-      assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
-    });
-    it('will log the failure, return null and publish DataNotFoundError if the underlying model throws one', async () => {
-      const workspaceSlug = 'testSlug';
-      const errMessage = 'Cannot find the workspace';
-
-      const err = new error.DataNotFoundError(errMessage, 'slug', {
-        slug: workspaceSlug,
-      });
-
-      const getWorkspaceFromModelStub = sandbox.stub();
-      getWorkspaceFromModelStub.rejects(err);
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', getWorkspaceFromModelStub);
-      function fakePublish() {
-        //@ts-ignore
-        assert.instanceOf(this, error.DataNotFoundError);
-
-        //@ts-ignore
-        assert.strictEqual(this.message, errMessage);
-      }
-
-      const boundPublish = fakePublish.bind(err);
-      const publishOverride = sandbox.stub();
-      publishOverride.callsFake(boundPublish);
-      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
-
-      const paths = await workspaceService.getWorkspacePaths();
-
-      assert.notOk(paths);
-
-      assert.isTrue(getWorkspaceFromModelStub.calledOnce);
-      assert.isTrue(publishOverride.calledOnce);
-    });
-    it('will log the failure, return null and publish InvalidArgumentError if the underlying model throws one', async () => {
-      const workspaceSlug = 'testSlug';
-      const errMessage = 'Something went wrong';
-
-      const err = new error.InvalidArgumentError(errMessage, 'slug', {
-        slug: workspaceSlug,
-      });
-      const getWorkspaceFromModelStub = sandbox.stub();
-      getWorkspaceFromModelStub.rejects(err);
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', getWorkspaceFromModelStub);
-      function fakePublish() {
-        //@ts-ignore
-        assert.instanceOf(this, error.InvalidArgumentError);
-
-        //@ts-ignore
-        assert.strictEqual(this.message, errMessage);
-      }
-
-      const boundPublish = fakePublish.bind(err);
-      const publishOverride = sandbox.stub();
-      publishOverride.callsFake(boundPublish);
-      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
-
-      const paths = await workspaceService.getWorkspacePaths();
-
-      assert.notOk(paths);
-
-      assert.isTrue(getWorkspaceFromModelStub.calledOnce);
-      assert.isTrue(publishOverride.calledOnce);
-    });
-    it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const errMessage = 'Something bad has happened';
-      const err = new error.DatabaseOperationError(errMessage, 'mongoDb', 'queryWorkspaces');
-      const getWorkspaceFromModelStub = sandbox.stub();
-      getWorkspaceFromModelStub.rejects(err);
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', getWorkspaceFromModelStub);
-      function fakePublish() {
-        //@ts-ignore
-        assert.instanceOf(this, error.DatabaseOperationError);
-        //@ts-ignore
-        assert.strictEqual(this.message, errMessage);
-      }
-
-      const boundPublish = fakePublish.bind(err);
-      const publishOverride = sandbox.stub();
-      publishOverride.callsFake(boundPublish);
-      sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
-
-      let errored = false;
-      try {
-        await workspaceService.getWorkspacePaths();
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -2725,26 +2473,6 @@ describe('#services/workspace', () => {
       assert.isTrue(createMembersFromModel.calledOnce);
       assert.isTrue(addMembersFromWorkspaceModel.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
-    });
-  });
-  context('isWorkspaceCreator', () => {
-    it('should return true when creatorId and Id are equal', async () => {
-      const creatorId =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
-      const result = await workspaceService.isWorkspaceCreator(creatorId, creatorId);
-      assert.isTrue(result);
-    });
-    it('should return false when creatorId and Id are not equal', async () => {
-      const creatorId =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
-      const id =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
-
-      const result = await workspaceService.isWorkspaceCreator(id, creatorId);
-      assert.isFalse(result);
     });
   });
   context('isWorkspaceOwner', () => {

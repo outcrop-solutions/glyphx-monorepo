@@ -5,12 +5,13 @@ import {Property} from '../web';
 
 export interface IProjectTemplate {
   _id?: mongooseTypes.ObjectId;
+  id?: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
   community?: boolean;
   name: string;
-  description: string;
+  description?: string;
   projects: IProject[];
   tags: ITag[];
   shape: Record<string, Property>;
