@@ -30,7 +30,7 @@ describe('#services/membership', () => {
 
       sandbox.replace(dbConnection.models.MemberModel, 'getMemberById', getMembershipFromModelStub);
 
-      const member = await membershipService.getMember(memberId);
+      const member = await membershipService.getMember(memberId.toString());
       assert.isOk(member);
       assert.strictEqual(member?._id?.toString(), memberId.toString());
 
@@ -78,7 +78,7 @@ describe('#services/membership', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const member = await membershipService.getMember(memberId);
+      const member = await membershipService.getMember(memberId.toString());
       assert.notOk(member);
 
       assert.isTrue(getMembershipFromModelStub.calledOnce);
@@ -107,7 +107,7 @@ describe('#services/membership', () => {
 
       let errored = false;
       try {
-        await membershipService.getMember(memberId);
+        await membershipService.getMember(memberId.toString());
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -300,7 +300,7 @@ describe('#services/membership', () => {
 
       sandbox.replace(dbConnection.models.MemberModel, 'updateMemberById', updateMembershipFromModelStub);
 
-      await membershipService.remove(memberId);
+      await membershipService.remove(memberId.toString());
       assert.isTrue(updateMembershipFromModelStub.calledOnce);
     });
     it('will delete a member by updating the deletedAt property when memberId is a string', async () => {
@@ -317,7 +317,7 @@ describe('#services/membership', () => {
 
       sandbox.replace(dbConnection.models.MemberModel, 'updateMemberById', updateMembershipFromModelStub);
 
-      await membershipService.remove(memberId.toString());
+      await membershipService.remove(memberId.toString().toString());
       assert.isTrue(updateMembershipFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when member model throws it ', async () => {
@@ -345,7 +345,7 @@ describe('#services/membership', () => {
 
       let errored = false;
       try {
-        await membershipService.remove(memberId);
+        await membershipService.remove(memberId.toString());
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -379,7 +379,7 @@ describe('#services/membership', () => {
 
       let errored = false;
       try {
-        await membershipService.remove(memberId);
+        await membershipService.remove(memberId.toString());
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -413,7 +413,7 @@ describe('#services/membership', () => {
 
       let errored = false;
       try {
-        await membershipService.remove(memberId);
+        await membershipService.remove(memberId.toString());
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -439,7 +439,7 @@ describe('#services/membership', () => {
 
       sandbox.replace(dbConnection.models.MemberModel, 'updateMemberById', updateMembershipFromModelStub);
 
-      await membershipService.updateRole(memberId, teamRole);
+      await membershipService.updateRole(memberId.toString(), teamRole);
       assert.isTrue(updateMembershipFromModelStub.calledOnce);
     });
     it('will update a member teamRole when memberId is a string', async () => {
@@ -456,7 +456,7 @@ describe('#services/membership', () => {
 
       sandbox.replace(dbConnection.models.MemberModel, 'updateMemberById', updateMembershipFromModelStub);
 
-      await membershipService.updateRole(memberId.toString(), teamRole);
+      await membershipService.updateRole(memberId.toString().toString(), teamRole);
       assert.isTrue(updateMembershipFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when member model throws it ', async () => {
@@ -484,7 +484,7 @@ describe('#services/membership', () => {
 
       let errored = false;
       try {
-        await membershipService.updateRole(memberId, teamRole);
+        await membershipService.updateRole(memberId.toString(), teamRole);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -519,7 +519,7 @@ describe('#services/membership', () => {
 
       let errored = false;
       try {
-        await membershipService.updateRole(memberId, teamRole);
+        await membershipService.updateRole(memberId.toString(), teamRole);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -554,7 +554,7 @@ describe('#services/membership', () => {
 
       let errored = false;
       try {
-        await membershipService.updateRole(memberId, teamRole);
+        await membershipService.updateRole(memberId.toString(), teamRole);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -580,7 +580,7 @@ describe('#services/membership', () => {
 
       sandbox.replace(dbConnection.models.MemberModel, 'updateMemberById', updateMembershipFromModelStub);
 
-      await membershipService.updateStatus(memberId, status);
+      await membershipService.updateStatus(memberId.toString(), status);
       assert.isTrue(updateMembershipFromModelStub.calledOnce);
     });
     it('will update a member status when memberId is a string', async () => {
@@ -597,7 +597,7 @@ describe('#services/membership', () => {
 
       sandbox.replace(dbConnection.models.MemberModel, 'updateMemberById', updateMembershipFromModelStub);
 
-      await membershipService.updateStatus(memberId.toString(), status);
+      await membershipService.updateStatus(memberId.toString().toString(), status);
       assert.isTrue(updateMembershipFromModelStub.calledOnce);
     });
     it('will publish and rethrow an InvalidArgumentError when member model throws it ', async () => {
@@ -625,7 +625,7 @@ describe('#services/membership', () => {
 
       let errored = false;
       try {
-        await membershipService.updateStatus(memberId, status);
+        await membershipService.updateStatus(memberId.toString(), status);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -660,7 +660,7 @@ describe('#services/membership', () => {
 
       let errored = false;
       try {
-        await membershipService.updateStatus(memberId, status);
+        await membershipService.updateStatus(memberId.toString(), status);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -695,7 +695,7 @@ describe('#services/membership', () => {
 
       let errored = false;
       try {
-        await membershipService.updateStatus(memberId, status);
+        await membershipService.updateStatus(memberId.toString(), status);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;

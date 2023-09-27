@@ -234,7 +234,7 @@ export class WorkspaceService {
   public static async getSiteWorkspace(id: string): Promise<databaseTypes.IWorkspace | null> {
     try {
       const workspace = await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
-        _id: id,
+        id: id,
         deletedAt: undefined,
       });
 

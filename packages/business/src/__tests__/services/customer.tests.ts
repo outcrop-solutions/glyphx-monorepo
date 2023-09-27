@@ -113,9 +113,7 @@ describe('#services/customer', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const customerPaymentEmail = 'testemail@gmail.com';
-      const userId =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId().toString();
       const stripeId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
@@ -139,9 +137,9 @@ describe('#services/customer', () => {
         email: customerPaymentEmail,
         subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
         customer: {
-          _id: userId,
+          id: userId,
           customerPayment: {
-            _id: customerPaymentId,
+            id: customerPaymentId,
           },
         },
       } as unknown as databaseTypes.ICustomerPayment);
@@ -153,8 +151,8 @@ describe('#services/customer', () => {
 
       const updateUserStub = sandbox.stub();
       updateUserStub.resolves({
-        _id: userId,
-        customerPayment: {_id: customerPaymentId, email: customerPaymentEmail},
+        id: userId,
+        customerPayment: {id: customerPaymentId, email: customerPaymentEmail},
       } as unknown as databaseTypes.IUser);
       sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserStub);
 
@@ -163,7 +161,7 @@ describe('#services/customer', () => {
       assert.isTrue(createCustomerPaymentFromModelStub.calledOnce);
       assert.isTrue(updateUserStub.calledOnce);
       assert.isOk(doc.customer.customerPayment);
-      assert.strictEqual(doc?.customer._id, userId);
+      assert.strictEqual(doc?.customer.id, userId);
     });
     it('will createCustomerPayment with user associated as customer when customerId is a string', async () => {
       const customerPaymentId =
@@ -268,7 +266,7 @@ describe('#services/customer', () => {
 
       let errored = false;
       try {
-        await customerPaymentService.createPaymentAccount(customerPaymentEmail, customerPaymentId);
+        await customerPaymentService.createPaymentAccount(customerPaymentEmail, customerPaymentId.toString());
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -324,7 +322,7 @@ describe('#services/customer', () => {
 
       let errored = false;
       try {
-        await customerPaymentService.createPaymentAccount(customerPaymentEmail, customerPaymentId);
+        await customerPaymentService.createPaymentAccount(customerPaymentEmail, customerPaymentId.toString());
       } catch (e) {
         assert.instanceOf(e, error.DataValidationError);
         errored = true;
@@ -380,7 +378,7 @@ describe('#services/customer', () => {
 
       let errored = false;
       try {
-        await customerPaymentService.createPaymentAccount(customerPaymentEmail, customerPaymentId);
+        await customerPaymentService.createPaymentAccount(customerPaymentEmail, customerPaymentId.toString());
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;

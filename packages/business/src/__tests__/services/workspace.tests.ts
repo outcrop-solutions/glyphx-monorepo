@@ -142,7 +142,12 @@ describe('#services/workspace', () => {
       sendStub.resolves();
       sandbox.replace(EmailClient, 'sendMail', sendStub);
 
-      const doc = await workspaceService.createWorkspace(creatorId, creatorEmail, workspaceName, workspaceSlug);
+      const doc = await workspaceService.createWorkspace(
+        creatorId.toString(),
+        creatorEmail,
+        workspaceName,
+        workspaceSlug
+      );
 
       assert.isTrue(createWorkspaceFromModelStub.calledOnce);
       assert.isTrue(countWorkspacesFromServiceStub.calledOnce);
@@ -269,7 +274,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.createWorkspace(creatorId, creatorEmail, workspaceName, workspaceSlug);
+        await workspaceService.createWorkspace(creatorId.toString(), creatorEmail, workspaceName, workspaceSlug);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -312,7 +317,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.createWorkspace(creatorId, creatorEmail, workspaceName, workspaceSlug);
+        await workspaceService.createWorkspace(creatorId.toString(), creatorEmail, workspaceName, workspaceSlug);
       } catch (e) {
         assert.instanceOf(e, error.DataValidationError);
         errored = true;
@@ -356,7 +361,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.createWorkspace(creatorId, creatorEmail, workspaceName, workspaceSlug);
+        await workspaceService.createWorkspace(creatorId.toString(), creatorEmail, workspaceName, workspaceSlug);
       } catch (e) {
         assert.instanceOf(e, error.UnexpectedError);
         errored = true;
@@ -400,7 +405,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.createWorkspace(creatorId, creatorEmail, workspaceName, workspaceSlug);
+        await workspaceService.createWorkspace(creatorId.toString(), creatorEmail, workspaceName, workspaceSlug);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -470,7 +475,7 @@ describe('#services/workspace', () => {
 
       sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectWithFilter', updateProjectWithFilterStub);
 
-      const doc = await workspaceService.deleteWorkspace(userId, userEmail, workspaceSlug);
+      const doc = await workspaceService.deleteWorkspace(userId.toString(), userEmail, workspaceSlug);
 
       assert.isOk(doc);
       assert.isTrue(getWorkspaceFromModelStub.calledOnce);
@@ -576,7 +581,7 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const slug = await workspaceService.deleteWorkspace(userId, userEmail, workspaceSlug);
+      const slug = await workspaceService.deleteWorkspace(userId.toString(), userEmail, workspaceSlug);
 
       assert.notOk(slug);
 
@@ -612,7 +617,7 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const slug = await workspaceService.deleteWorkspace(userId, userEmail, workspaceSlug);
+      const slug = await workspaceService.deleteWorkspace(userId.toString(), userEmail, workspaceSlug);
 
       assert.notOk(slug);
 
@@ -648,7 +653,7 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const slug = await workspaceService.deleteWorkspace(userId, userEmail, workspaceSlug);
+      const slug = await workspaceService.deleteWorkspace(userId.toString(), userEmail, workspaceSlug);
 
       assert.notOk(slug);
 
@@ -684,7 +689,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.deleteWorkspace(userId, userEmail, workspaceSlug);
+        await workspaceService.deleteWorkspace(userId.toString(), userEmail, workspaceSlug);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -745,7 +750,7 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const slug = await workspaceService.deleteWorkspace(userId, userEmail, workspaceSlug);
+      const slug = await workspaceService.deleteWorkspace(userId.toString(), userEmail, workspaceSlug);
 
       assert.notOk(slug);
 
@@ -802,7 +807,7 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const slug = await workspaceService.deleteWorkspace(userId, userEmail, workspaceSlug);
+      const slug = await workspaceService.deleteWorkspace(userId.toString(), userEmail, workspaceSlug);
 
       assert.notOk(slug);
 
@@ -852,7 +857,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.deleteWorkspace(userId, userEmail, workspaceSlug);
+        await workspaceService.deleteWorkspace(userId.toString(), userEmail, workspaceSlug);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -895,7 +900,7 @@ describe('#services/workspace', () => {
 
       sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', queryWorkspacesFromModelStub);
 
-      const workspace = await workspaceService.getOwnWorkspace(userId, userEmail, workspaceSlug);
+      const workspace = await workspaceService.getOwnWorkspace(userId.toString(), userEmail, workspaceSlug);
       assert.isOk(workspace);
       assert.strictEqual(workspace?.slug?.toString(), workspaceSlug.toString());
 
@@ -935,7 +940,7 @@ describe('#services/workspace', () => {
 
       sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', queryWorkspacesFromModelStub);
 
-      const workspace = await workspaceService.getOwnWorkspace(userId, userEmail, workspaceSlug);
+      const workspace = await workspaceService.getOwnWorkspace(userId.toString(), userEmail, workspaceSlug);
       assert.isNotOk(workspace);
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
@@ -973,7 +978,7 @@ describe('#services/workspace', () => {
 
       sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', queryWorkspacesFromModelStub);
 
-      const workspace = await workspaceService.getOwnWorkspace(userId, userEmail, workspaceSlug);
+      const workspace = await workspaceService.getOwnWorkspace(userId.toString(), userEmail, workspaceSlug);
       assert.isNotOk(workspace);
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
@@ -1011,7 +1016,7 @@ describe('#services/workspace', () => {
 
       sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', queryWorkspacesFromModelStub);
 
-      const workspace = await workspaceService.getOwnWorkspace(userId, userEmail, workspaceSlug);
+      const workspace = await workspaceService.getOwnWorkspace(userId.toString(), userEmail, workspaceSlug);
       assert.isNotOk(workspace);
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
@@ -1040,7 +1045,7 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const workspace = await workspaceService.getOwnWorkspace(userId, userEmail, workspaceSlug);
+      const workspace = await workspaceService.getOwnWorkspace(userId.toString(), userEmail, workspaceSlug);
 
       assert.notOk(workspace);
 
@@ -1074,7 +1079,7 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const workspace = await workspaceService.getOwnWorkspace(userId, userEmail, workspaceSlug);
+      const workspace = await workspaceService.getOwnWorkspace(userId.toString(), userEmail, workspaceSlug);
 
       assert.notOk(workspace);
 
@@ -1106,7 +1111,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.getOwnWorkspace(userId, userEmail, workspaceSlug);
+        await workspaceService.getOwnWorkspace(userId.toString(), userEmail, workspaceSlug);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -1383,7 +1388,7 @@ describe('#services/workspace', () => {
 
       sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', queryWorkspacesFromModelStub);
 
-      const workspace = await workspaceService.getWorkspace(userId, userEmail, workspaceSlug);
+      const workspace = await workspaceService.getWorkspace(userId.toString(), userEmail, workspaceSlug);
       assert.isOk(workspace);
       assert.strictEqual(workspace?.slug?.toString(), workspaceSlug.toString());
 
@@ -1423,7 +1428,7 @@ describe('#services/workspace', () => {
 
       sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', queryWorkspacesFromModelStub);
 
-      const workspace = await workspaceService.getWorkspace(userId, userEmail, workspaceSlug);
+      const workspace = await workspaceService.getWorkspace(userId.toString(), userEmail, workspaceSlug);
       assert.isNotOk(workspace);
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
@@ -1461,7 +1466,7 @@ describe('#services/workspace', () => {
 
       sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', queryWorkspacesFromModelStub);
 
-      const workspace = await workspaceService.getWorkspace(userId, userEmail, workspaceSlug);
+      const workspace = await workspaceService.getWorkspace(userId.toString(), userEmail, workspaceSlug);
       assert.isNotOk(workspace);
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
@@ -1490,7 +1495,7 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const workspace = await workspaceService.getWorkspace(userId, userEmail, workspaceSlug);
+      const workspace = await workspaceService.getWorkspace(userId.toString(), userEmail, workspaceSlug);
 
       assert.notOk(workspace);
 
@@ -1524,7 +1529,7 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const workspace = await workspaceService.getWorkspace(userId, userEmail, workspaceSlug);
+      const workspace = await workspaceService.getWorkspace(userId.toString(), userEmail, workspaceSlug);
 
       assert.notOk(workspace);
 
@@ -1556,7 +1561,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.getWorkspace(userId, userEmail, workspaceSlug);
+        await workspaceService.getWorkspace(userId.toString(), userEmail, workspaceSlug);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -1595,7 +1600,7 @@ describe('#services/workspace', () => {
 
       sandbox.replace(dbConnection.models.WorkspaceModel, 'aggregate', queryWorkspacesFromModelStub);
 
-      const workspaces = await workspaceService.getWorkspaces(userId, userEmail);
+      const workspaces = await workspaceService.getWorkspaces(userId.toString(), userEmail);
       assert.isOk(workspaces);
       assert.strictEqual(workspaces![0]?.slug?.toString(), workspaceSlug.toString());
 
@@ -1619,7 +1624,7 @@ describe('#services/workspace', () => {
 
       sandbox.replace(dbConnection.models.WorkspaceModel, 'aggregate', queryWorkspacesFromModelStub);
 
-      const workspaces = await workspaceService.getWorkspaces(userId, userEmail);
+      const workspaces = await workspaceService.getWorkspaces(userId.toString(), userEmail);
       assert.isNotOk(workspaces);
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
@@ -1637,7 +1642,7 @@ describe('#services/workspace', () => {
 
       sandbox.replace(dbConnection.models.WorkspaceModel, 'aggregate', queryWorkspacesFromModelStub);
 
-      const workspaces = await workspaceService.getWorkspaces(userId, userEmail);
+      const workspaces = await workspaceService.getWorkspaces(userId.toString(), userEmail);
       assert.isNotOk(workspaces);
       assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
     });
@@ -1665,7 +1670,7 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const workspaces = await workspaceService.getWorkspaces(userId, userEmail);
+      const workspaces = await workspaceService.getWorkspaces(userId.toString(), userEmail);
 
       assert.notOk(workspaces);
 
@@ -1698,7 +1703,7 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const workspaces = await workspaceService.getWorkspaces(userId, userEmail);
+      const workspaces = await workspaceService.getWorkspaces(userId.toString(), userEmail);
 
       assert.notOk(workspaces);
 
@@ -1729,7 +1734,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.getWorkspaces(userId, userEmail);
+        await workspaceService.getWorkspaces(userId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -1802,7 +1807,12 @@ describe('#services/workspace', () => {
       sendStub.resolves();
       sandbox.replace(EmailClient, 'sendMail', sendStub);
 
-      const result = await workspaceService.inviteUsers(userId, userEmail, members, `${workspaceSlug}-${count}`);
+      const result = await workspaceService.inviteUsers(
+        userId.toString(),
+        userEmail,
+        members,
+        `${workspaceSlug}-${count}`
+      );
 
       assert.isTrue(getWorkspaceFromServiceStub.calledOnce);
       assert.isTrue(getUserFromModelStub.calledOnce);
@@ -1925,7 +1935,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.inviteUsers(userId, userEmail, members, `${workspaceSlug}-${count}`);
+        await workspaceService.inviteUsers(userId.toString(), userEmail, members, `${workspaceSlug}-${count}`);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -1975,7 +1985,12 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const memberResult = await workspaceService.inviteUsers(userId, userEmail, members, `${workspaceSlug}-${count}`);
+      const memberResult = await workspaceService.inviteUsers(
+        userId.toString(),
+        userEmail,
+        members,
+        `${workspaceSlug}-${count}`
+      );
 
       assert.isNotOk(memberResult);
       assert.isTrue(getWorkspaceFromServiceStub.calledOnce);
@@ -2032,7 +2047,12 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const memberResult = await workspaceService.inviteUsers(userId, userEmail, members, `${workspaceSlug}-${count}`);
+      const memberResult = await workspaceService.inviteUsers(
+        userId.toString(),
+        userEmail,
+        members,
+        `${workspaceSlug}-${count}`
+      );
 
       assert.isNotOk(memberResult);
       assert.isTrue(getWorkspaceFromServiceStub.calledOnce);
@@ -2090,7 +2110,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.inviteUsers(userId, userEmail, members, `${workspaceSlug}-${count}`);
+        await workspaceService.inviteUsers(userId.toString(), userEmail, members, `${workspaceSlug}-${count}`);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -2160,7 +2180,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.inviteUsers(userId, userEmail, members, `${workspaceSlug}-${count}`);
+        await workspaceService.inviteUsers(userId.toString(), userEmail, members, `${workspaceSlug}-${count}`);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -2239,7 +2259,12 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const memberResult = await workspaceService.inviteUsers(userId, userEmail, members, `${workspaceSlug}-${count}`);
+      const memberResult = await workspaceService.inviteUsers(
+        userId.toString(),
+        userEmail,
+        members,
+        `${workspaceSlug}-${count}`
+      );
 
       assert.isNotOk(memberResult);
       assert.isTrue(getWorkspaceFromServiceStub.calledOnce);
@@ -2312,7 +2337,12 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const memberResult = await workspaceService.inviteUsers(userId, userEmail, members, `${workspaceSlug}-${count}`);
+      const memberResult = await workspaceService.inviteUsers(
+        userId.toString(),
+        userEmail,
+        members,
+        `${workspaceSlug}-${count}`
+      );
 
       assert.isNotOk(memberResult);
       assert.isTrue(getWorkspaceFromServiceStub.calledOnce);
@@ -2385,7 +2415,12 @@ describe('#services/workspace', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const memberResult = await workspaceService.inviteUsers(userId, userEmail, members, `${workspaceSlug}-${count}`);
+      const memberResult = await workspaceService.inviteUsers(
+        userId.toString(),
+        userEmail,
+        members,
+        `${workspaceSlug}-${count}`
+      );
 
       assert.isNotOk(memberResult);
       assert.isTrue(getWorkspaceFromServiceStub.calledOnce);
@@ -2461,7 +2496,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.inviteUsers(userId, userEmail, members, `${workspaceSlug}-${count}`);
+        await workspaceService.inviteUsers(userId.toString(), userEmail, members, `${workspaceSlug}-${count}`);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -3789,7 +3824,7 @@ describe('#services/workspace', () => {
       sandbox.replace(dbConnection.models.WorkspaceModel, 'updateWorkspaceById', updateWorkspaceFromModelStub);
 
       const workspaceName = await workspaceService.updateWorkspaceName(
-        userId,
+        userId.toString(),
         userEmail,
         newWorkspaceName,
         workspaceSlug
@@ -3832,7 +3867,7 @@ describe('#services/workspace', () => {
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
       const workspaceName = await workspaceService.updateWorkspaceName(
-        userId,
+        userId.toString(),
         userEmail,
         newWorkspaceName,
         workspaceSlug
@@ -3874,7 +3909,7 @@ describe('#services/workspace', () => {
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
       const workspaceName = await workspaceService.updateWorkspaceName(
-        userId,
+        userId.toString(),
         userEmail,
         newWorkspaceName,
         workspaceSlug
@@ -3916,7 +3951,7 @@ describe('#services/workspace', () => {
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
       const workspaceName = await workspaceService.updateWorkspaceName(
-        userId,
+        userId.toString(),
         userEmail,
         newWorkspaceName,
         workspaceSlug
@@ -3957,7 +3992,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.updateWorkspaceName(userId, userEmail, newWorkspaceName, workspaceSlug);
+        await workspaceService.updateWorkspaceName(userId.toString(), userEmail, newWorkspaceName, workspaceSlug);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -4018,7 +4053,7 @@ describe('#services/workspace', () => {
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
       const workspaceName = await workspaceService.updateWorkspaceName(
-        userId,
+        userId.toString(),
         userEmail,
         newWorkspaceName,
         workspaceSlug
@@ -4081,7 +4116,7 @@ describe('#services/workspace', () => {
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
       const workspaceName = await workspaceService.updateWorkspaceName(
-        userId,
+        userId.toString(),
         userEmail,
         newWorkspaceName,
         workspaceSlug
@@ -4136,7 +4171,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.updateWorkspaceName(userId, userEmail, newWorkspaceName, workspaceSlug);
+        await workspaceService.updateWorkspaceName(userId.toString(), userEmail, newWorkspaceName, workspaceSlug);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -4202,7 +4237,7 @@ describe('#services/workspace', () => {
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
       const workspaceName = await workspaceService.updateWorkspaceName(
-        userId,
+        userId.toString(),
         userEmail,
         newWorkspaceName,
         workspaceSlug
@@ -4262,7 +4297,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.updateWorkspaceName(userId, userEmail, newWorkspaceName, workspaceSlug);
+        await workspaceService.updateWorkspaceName(userId.toString(), userEmail, newWorkspaceName, workspaceSlug);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -4322,7 +4357,7 @@ describe('#services/workspace', () => {
       sandbox.replace(dbConnection.models.WorkspaceModel, 'updateWorkspaceById', updateWorkspaceFromModelStub);
 
       const workspaceSlugResult = await workspaceService.updateWorkspaceSlug(
-        userId,
+        userId.toString(),
         userEmail,
         newWorkspaceSlug,
         workspaceSlug
@@ -4366,7 +4401,7 @@ describe('#services/workspace', () => {
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
       const workspaceName = await workspaceService.updateWorkspaceSlug(
-        userId,
+        userId.toString(),
         userEmail,
         newWorkspaceSlug,
         workspaceSlug
@@ -4408,7 +4443,7 @@ describe('#services/workspace', () => {
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
       const workspaceName = await workspaceService.updateWorkspaceSlug(
-        userId,
+        userId.toString(),
         userEmail,
         newWorkspaceSlug,
         workspaceSlug
@@ -4450,7 +4485,7 @@ describe('#services/workspace', () => {
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
       const workspaceName = await workspaceService.updateWorkspaceSlug(
-        userId,
+        userId.toString(),
         userEmail,
         newWorkspaceSlug,
         workspaceSlug
@@ -4491,7 +4526,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.updateWorkspaceSlug(userId, userEmail, newWorkspaceSlug, workspaceSlug);
+        await workspaceService.updateWorkspaceSlug(userId.toString(), userEmail, newWorkspaceSlug, workspaceSlug);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -4552,7 +4587,7 @@ describe('#services/workspace', () => {
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
       const workspaceName = await workspaceService.updateWorkspaceSlug(
-        userId,
+        userId.toString(),
         userEmail,
         newWorkspaceSlug,
         workspaceSlug
@@ -4615,7 +4650,7 @@ describe('#services/workspace', () => {
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
       const workspaceName = await workspaceService.updateWorkspaceSlug(
-        userId,
+        userId.toString(),
         userEmail,
         newWorkspaceSlug,
         workspaceSlug
@@ -4670,7 +4705,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.updateWorkspaceSlug(userId, userEmail, newWorkspaceSlug, workspaceSlug);
+        await workspaceService.updateWorkspaceSlug(userId.toString(), userEmail, newWorkspaceSlug, workspaceSlug);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -4736,7 +4771,7 @@ describe('#services/workspace', () => {
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
       const workspaceName = await workspaceService.updateWorkspaceSlug(
-        userId,
+        userId.toString(),
         userEmail,
         newWorkspaceSlug,
         workspaceSlug
@@ -4796,7 +4831,7 @@ describe('#services/workspace', () => {
 
       let errored = false;
       try {
-        await workspaceService.updateWorkspaceSlug(userId, userEmail, newWorkspaceSlug, workspaceSlug);
+        await workspaceService.updateWorkspaceSlug(userId.toString(), userEmail, newWorkspaceSlug, workspaceSlug);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;

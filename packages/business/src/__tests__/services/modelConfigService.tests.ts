@@ -223,7 +223,7 @@ describe('#services/modelConfig', () => {
       } as unknown as databaseTypes.IModelConfig);
       sandbox.replace(dbConnection.models.ModelConfigModel, 'getModelConfigById', getModelConfigFromModelStub);
 
-      const modelConfig = await modelConfigService.getModelConfig(modelConfigId);
+      const modelConfig = await modelConfigService.getModelConfig(modelConfigId.toString());
       assert.isOk(modelConfig);
       assert.strictEqual(modelConfig?._id?.toString(), modelConfigId.toString());
 
@@ -240,7 +240,7 @@ describe('#services/modelConfig', () => {
       } as unknown as databaseTypes.IModelConfig);
       sandbox.replace(dbConnection.models.ModelConfigModel, 'getModelConfigById', getModelConfigFromModelStub);
 
-      const modelConfig = await modelConfigService.getModelConfig(modelConfigId.toString());
+      const modelConfig = await modelConfigService.getModelConfig(modelConfigId.toString().toString());
       assert.isOk(modelConfig);
       assert.strictEqual(modelConfig?._id?.toString(), modelConfigId.toString());
 
@@ -268,7 +268,7 @@ describe('#services/modelConfig', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const modelConfig = await modelConfigService.getModelConfig(modelConfigId);
+      const modelConfig = await modelConfigService.getModelConfig(modelConfigId.toString());
       assert.notOk(modelConfig);
 
       assert.isTrue(getModelConfigFromModelStub.calledOnce);
@@ -298,7 +298,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.getModelConfig(modelConfigId);
+        await modelConfigService.getModelConfig(modelConfigId.toString());
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -410,7 +410,7 @@ describe('#services/modelConfig', () => {
       } as unknown as databaseTypes.IModelConfig);
       sandbox.replace(dbConnection.models.ModelConfigModel, 'updateModelConfigById', updateModelConfigFromModelStub);
 
-      const modelConfig = await modelConfigService.updateModelConfig(modelConfigId, {
+      const modelConfig = await modelConfigService.updateModelConfig(modelConfigId.toString(), {
         name: 'newName',
       });
       assert.isOk(modelConfig);
@@ -430,7 +430,7 @@ describe('#services/modelConfig', () => {
       } as unknown as databaseTypes.IModelConfig);
       sandbox.replace(dbConnection.models.ModelConfigModel, 'updateModelConfigById', updateModelConfigFromModelStub);
 
-      const modelConfig = await modelConfigService.updateModelConfig(modelConfigId.toString(), {
+      const modelConfig = await modelConfigService.updateModelConfig(modelConfigId.toString().toString(), {
         name: 'newName',
       });
       assert.isOk(modelConfig);
@@ -462,7 +462,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.updateModelConfig(modelConfigId, {
+        await modelConfigService.updateModelConfig(modelConfigId.toString(), {
           deletedAt: new Date(),
         });
       } catch (e) {
@@ -498,7 +498,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.updateModelConfig(modelConfigId, {
+        await modelConfigService.updateModelConfig(modelConfigId.toString(), {
           deletedAt: new Date(),
         });
       } catch (e) {
@@ -533,7 +533,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.updateModelConfig(modelConfigId, {
+        await modelConfigService.updateModelConfig(modelConfigId.toString(), {
           deletedAt: new Date(),
         });
       } catch (e) {
