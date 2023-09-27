@@ -550,7 +550,7 @@ SCHEMA.static('createUser', async (input: IUserCreateInput) => {
     );
 });
 
-SCHEMA.static('deleteUserById', async (id: mongooseTypes.ObjectId): Promise<void> => {
+SCHEMA.static('deleteUserById', async (id: string): Promise<void> => {
   try {
     const results = await USER_MODEL.deleteOne({_id: id});
     if (results.deletedCount !== 1)

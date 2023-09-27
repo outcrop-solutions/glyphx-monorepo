@@ -6,7 +6,7 @@ export interface IWebhookStaticMethods extends Model<databaseTypes.IWebhook, {},
   webhookIdExists(webhookId: mongooseTypes.ObjectId): Promise<boolean>;
   allWebhookIdsExist(webhookIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createWebhook(input: IWebhookCreateInput): Promise<databaseTypes.IWebhook>;
-  getWebhookById(webhookId: mongooseTypes.ObjectId): Promise<databaseTypes.IWebhook>;
+  getWebhookById(webhookId: string): Promise<databaseTypes.IWebhook>;
   queryWebhooks(
     filter?: Record<string, unknown>,
     page?: number,
@@ -17,9 +17,9 @@ export interface IWebhookStaticMethods extends Model<databaseTypes.IWebhook, {},
     webhook: Omit<Partial<databaseTypes.IWebhook>, '_id'>
   ): Promise<void>;
   updateWebhookById(
-    webhookId: mongooseTypes.ObjectId,
+    webhookId: string,
     webhook: Omit<Partial<databaseTypes.IWebhook>, '_id'>
   ): Promise<databaseTypes.IWebhook>;
-  deleteWebhookById(sessionId: mongooseTypes.ObjectId): Promise<void>;
+  deleteWebhookById(sessionId: string): Promise<void>;
   validateUpdateObject(webhook: Omit<Partial<databaseTypes.IWebhook>, '_id'>): Promise<void>;
 }

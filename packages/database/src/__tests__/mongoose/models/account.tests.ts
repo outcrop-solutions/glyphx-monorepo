@@ -37,10 +37,10 @@ const MOCK_ACCOUNT_USER_ID = {
   session_state: databaseTypes.constants.SESSION_STATE.NEW,
   oauth_token_secret: 'tokensecret',
   oauth_token: 'oauthToken',
-  user: new mongoose.Types.ObjectId(),
+  user: new mongoose.Types.ObjectId().toString(),
 };
 
-describe('#mongoose/models/account', () => {
+describe.only('#mongoose/models/account', () => {
   context('createAccount', () => {
     const sandbox = createSandbox();
 
@@ -170,7 +170,7 @@ describe('#mongoose/models/account', () => {
       getAccountStub.resolves({_id: accountId});
       sandbox.replace(AccountModel, 'getAccountById', getAccountStub);
 
-      const result = await AccountModel.updateAccountById(accountId, updateAccount);
+      const result = await AccountModel.updateAccountById(accountId.toString(), updateAccount);
 
       assert.strictEqual(result.id, accountId.toString());
       assert.isTrue(updateStub.calledOnce);
@@ -201,7 +201,7 @@ describe('#mongoose/models/account', () => {
       getAccountStub.resolves({_id: accountId});
       sandbox.replace(AccountModel, 'getAccountById', getAccountStub);
 
-      const result = await AccountModel.updateAccountById(accountId, updateAccount);
+      const result = await AccountModel.updateAccountById(accountId.toString(), updateAccount);
 
       assert.strictEqual(result.id, accountId.toString());
       assert.isTrue(updateStub.calledOnce);
@@ -226,7 +226,7 @@ describe('#mongoose/models/account', () => {
       sandbox.replace(AccountModel, 'getAccountById', getAccouuntStub);
       let errorred = false;
       try {
-        await AccountModel.updateAccountById(accountId, updateAccount);
+        await AccountModel.updateAccountById(accountId.toString(), updateAccount);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -257,7 +257,7 @@ describe('#mongoose/models/account', () => {
       sandbox.replace(AccountModel, 'getAccountById', getAccountStub);
       let errorred = false;
       try {
-        await AccountModel.updateAccountById(accountId, updateAccount);
+        await AccountModel.updateAccountById(accountId.toString(), updateAccount);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errorred = true;
@@ -282,7 +282,7 @@ describe('#mongoose/models/account', () => {
       sandbox.replace(AccountModel, 'getAccountById', getAccountStub);
       let errorred = false;
       try {
-        await AccountModel.updateAccountById(accountId, updateAccount);
+        await AccountModel.updateAccountById(accountId.toString(), updateAccount);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -366,7 +366,7 @@ describe('#mongoose/models/account', () => {
 
       const accountId = new mongoose.Types.ObjectId();
 
-      await AccountModel.deleteAccountById(accountId);
+      await AccountModel.deleteAccountById(accountId.toString());
 
       assert.isTrue(deleteStub.calledOnce);
     });
@@ -379,7 +379,7 @@ describe('#mongoose/models/account', () => {
 
       let errorred = false;
       try {
-        await AccountModel.deleteAccountById(accountId);
+        await AccountModel.deleteAccountById(accountId.toString());
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -397,7 +397,7 @@ describe('#mongoose/models/account', () => {
 
       let errorred = false;
       try {
-        await AccountModel.deleteAccountById(accountId);
+        await AccountModel.deleteAccountById(accountId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -569,7 +569,7 @@ describe('#mongoose/models/account', () => {
       findByIdStub.returns(new MockMongooseQuery(mockAccount));
       sandbox.replace(AccountModel, 'findById', findByIdStub);
 
-      const doc = await AccountModel.getAccountById(mockAccount._id as mongoose.Types.ObjectId);
+      const doc = await AccountModel.getAccountById(mockAccount._id!.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
@@ -584,7 +584,7 @@ describe('#mongoose/models/account', () => {
 
       let errored = false;
       try {
-        await AccountModel.getAccountById(mockAccount._id as mongoose.Types.ObjectId);
+        await AccountModel.getAccountById(mockAccount._id!.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -600,7 +600,7 @@ describe('#mongoose/models/account', () => {
 
       let errored = false;
       try {
-        await AccountModel.getAccountById(mockAccount._id as mongoose.Types.ObjectId);
+        await AccountModel.getAccountById(mockAccount._id!.toString());
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;

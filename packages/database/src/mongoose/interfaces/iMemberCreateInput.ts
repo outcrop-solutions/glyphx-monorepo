@@ -1,13 +1,12 @@
 import {databaseTypes} from 'types';
-import {Types as mongooseTypes} from 'mongoose';
 
 export interface IMemberCreateInput
   extends Omit<
     databaseTypes.IMember,
     '_id' | 'createdAt' | 'updatedAt' | 'invitedAt' | 'joinedAt' | 'member' | 'invitedBy' | 'workspace' | 'project'
   > {
-  member: mongooseTypes.ObjectId | databaseTypes.IUser;
-  invitedBy: mongooseTypes.ObjectId | databaseTypes.IUser;
-  workspace: mongooseTypes.ObjectId | databaseTypes.IWorkspace;
-  project?: mongooseTypes.ObjectId | databaseTypes.IProject;
+  member: string | databaseTypes.IUser;
+  invitedBy: string | databaseTypes.IUser;
+  workspace: string | databaseTypes.IWorkspace;
+  project?: string | databaseTypes.IProject;
 }
