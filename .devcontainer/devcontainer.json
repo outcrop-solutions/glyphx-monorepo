@@ -1,0 +1,8 @@
+{
+  "name": "Neovim Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "features": {}
+}
