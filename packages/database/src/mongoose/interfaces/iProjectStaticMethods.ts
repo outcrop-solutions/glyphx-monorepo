@@ -28,9 +28,9 @@ export interface IProjectStaticMethods extends Model<databaseTypes.IProject, {},
   removeTags(projectId: string, tags: (databaseTypes.ITag | string)[]): Promise<databaseTypes.IProject>;
   deleteProjectById(projectId: string): Promise<void>;
   validateUpdateObject(project: Omit<Partial<databaseTypes.IProject>, '_id'>): Promise<void>;
-  validateTemplate(input: databaseTypes.IProjectTemplate | string): Promise<string>;
-  validateWorkspace(input: databaseTypes.IWorkspace | string): Promise<string>;
-  validateMembers(input: (databaseTypes.IMember | string)[]): Promise<string[]>;
-  validateStates(input: (databaseTypes.IState | string)[]): Promise<string[]>;
-  validateTags(input: (databaseTypes.ITag | string)[]): Promise<string[]>;
+  validateTemplate(input: databaseTypes.IProjectTemplate | string): Promise<mongooseTypes.ObjectId>;
+  validateWorkspace(input: databaseTypes.IWorkspace | string): Promise<mongooseTypes.ObjectId>;
+  validateMembers(input: (databaseTypes.IMember | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateStates(input: (databaseTypes.IState | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateTags(input: (databaseTypes.ITag | string)[]): Promise<mongooseTypes.ObjectId[]>;
 }

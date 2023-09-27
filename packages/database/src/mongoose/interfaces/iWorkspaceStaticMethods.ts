@@ -16,13 +16,13 @@ export interface IWorkspaceStaticMethods extends Model<databaseTypes.IWorkspace,
   updateWorkspaceById(id: string, input: Partial<databaseTypes.IWorkspace>): Promise<databaseTypes.IWorkspace>;
   deleteWorkspaceById(workspaceId: string): Promise<void>;
   validateUpdateObject(input: Partial<databaseTypes.IWorkspace>): Promise<boolean>;
-  validateMembers(members: (databaseTypes.IMember | string)[]): Promise<string[]>;
-  validateProjects(projects: (databaseTypes.IProject | string)[]): Promise<string[]>;
-  validateUser(user: databaseTypes.IUser | string): Promise<string>;
+  validateMembers(members: (databaseTypes.IMember | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateProjects(projects: (databaseTypes.IProject | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateUser(user: databaseTypes.IUser | string): Promise<mongooseTypes.ObjectId>;
   addProjects(workspaceId: string, projects: (databaseTypes.IProject | string)[]): Promise<databaseTypes.IWorkspace>;
   removeProjects(workspaceId: string, projects: (databaseTypes.IProject | string)[]): Promise<databaseTypes.IWorkspace>;
-  validateStates(states: (databaseTypes.IState | string)[]): Promise<string[]>;
-  validateTags(tags: (databaseTypes.ITag | string)[]): Promise<string[]>;
+  validateStates(states: (databaseTypes.IState | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateTags(tags: (databaseTypes.ITag | string)[]): Promise<mongooseTypes.ObjectId[]>;
   addStates(workspaceId: string, states: (databaseTypes.IState | string)[]): Promise<databaseTypes.IWorkspace>;
   removeStates(workspaceId: string, states: (databaseTypes.IState | string)[]): Promise<databaseTypes.IWorkspace>;
   addMembers(workspaceId: string, members: (databaseTypes.IMember | string)[]): Promise<databaseTypes.IWorkspace>;

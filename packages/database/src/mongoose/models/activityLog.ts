@@ -103,7 +103,7 @@ SCHEMA.static('allActivityLogIdsExist', async (activityLogIds: mongooseTypes.Obj
   return true;
 });
 
-SCHEMA.static('getActivityLogById', async (activityLogId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getActivityLogById', async (activityLogId: string) => {
   try {
     const activityLogDocument = (await ACTIVITY_LOG_MODEL.findById(activityLogId)
       .populate('actor')
@@ -333,7 +333,7 @@ SCHEMA.static('createActivityLog', async (input: IActivityLogCreateInput): Promi
         validateBeforeSave: false,
       })
     )[0];
-    return await ACTIVITY_LOG_MODEL.getActivityLogById(createdDocument._id as unknown as mongooseTypes.ObjectId);
+    return await ACTIVITY_LOG_MODEL.getActivityLogById(createdDocument._id.toString());
   } catch (err) {
     throw new error.DatabaseOperationError(
       'An unexpected error occurred wile creating the activityLog. See the inner error for additional information',

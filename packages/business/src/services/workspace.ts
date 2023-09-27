@@ -4,6 +4,7 @@ import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
+import {DBFormatter} from 'database/src/lib/format';
 
 export class WorkspaceService {
   public static async countWorkspaces(slug: string): Promise<number> {
@@ -401,7 +402,8 @@ export class WorkspaceService {
       );
 
       if (workspaces.length > 0) {
-        return workspaces;
+        const format = new DBFormatter();
+        return format.toJS(workspaces);
       } else {
         const errMsg = 'No workspaces contain the user as a member';
         const e = new error.DataNotFoundError(errMsg, 'getWorkspaces', {email});

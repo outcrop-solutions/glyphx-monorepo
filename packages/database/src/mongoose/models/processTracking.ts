@@ -127,7 +127,7 @@ SCHEMA.static(
           validateBeforeSave: false,
         })
       )[0];
-      return await PROCESS_TRACKING_MODEL.getProcessTrackingDocumentById(createdDocument._id);
+      return await PROCESS_TRACKING_MODEL.getProcessTrackingDocumentById(createdDocument._id.toString());
     } catch (err) {
       throw new error.DatabaseOperationError(
         'An unexpected error occurred wile creating the process tracking document. See the inner error for additional information',
@@ -142,7 +142,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'getProcessTrackingDocumentById',
-  async (processTrackingId: mongooseTypes.ObjectId): Promise<databaseTypes.IProcessTracking> => {
+  async (processTrackingId: string): Promise<databaseTypes.IProcessTracking> => {
     return await PROCESS_TRACKING_MODEL.getProcessTrackingDocumentByFilter({
       _id: processTrackingId,
     });
@@ -288,7 +288,7 @@ SCHEMA.static(
 SCHEMA.static(
   'updateProcessTrackingDocumentById',
   async (
-    processTrackingDocumentId: mongooseTypes.ObjectId,
+    processTrackingDocumentId: string,
     processTrackingDocument: Omit<Partial<databaseTypes.IProcessTracking>, '_id'>
   ): Promise<databaseTypes.IProcessTracking> => {
     await PROCESS_TRACKING_MODEL.updateProcessTrackingDocumentWithFilter(
@@ -337,14 +337,11 @@ SCHEMA.static('deleteProcessTrackingDocumentByFilter', async (filter: Record<str
       );
   }
 });
-SCHEMA.static(
-  'deleteProcessTrackingDocumentById',
-  async (processTrackingDocumentId: mongooseTypes.ObjectId): Promise<void> => {
-    await PROCESS_TRACKING_MODEL.deleteProcessTrackingDocumentByFilter({
-      _id: processTrackingDocumentId,
-    });
-  }
-);
+SCHEMA.static('deleteProcessTrackingDocumentById', async (processTrackingDocumentId: string): Promise<void> => {
+  await PROCESS_TRACKING_MODEL.deleteProcessTrackingDocumentByFilter({
+    _id: processTrackingDocumentId,
+  });
+});
 SCHEMA.static('deleteProcessTrackingDocumentProcessId', async (processId: string): Promise<void> => {
   await PROCESS_TRACKING_MODEL.deleteProcessTrackingDocumentByFilter({
     processId: processId,
@@ -381,10 +378,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'addErrorsById',
-  async (
-    processTrackingId: mongooseTypes.ObjectId,
-    errors: Record<string, unknown>[]
-  ): Promise<databaseTypes.IProcessTracking> => {
+  async (processTrackingId: string, errors: Record<string, unknown>[]): Promise<databaseTypes.IProcessTracking> => {
     return await PROCESS_TRACKING_MODEL.addErrorsByFilter({_id: processTrackingId}, errors);
   }
 );
@@ -434,7 +428,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'addMessagesById',
-  async (processTrackingId: mongooseTypes.ObjectId, messages: string[]): Promise<databaseTypes.IProcessTracking> => {
+  async (processTrackingId: string, messages: string[]): Promise<databaseTypes.IProcessTracking> => {
     return await PROCESS_TRACKING_MODEL.addMessagesByFilter({_id: processTrackingId}, messages);
   }
 );

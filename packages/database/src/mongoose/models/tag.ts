@@ -87,7 +87,7 @@ SCHEMA.static('allTagIdsExist', async (tagIds: mongooseTypes.ObjectId[]): Promis
   return true;
 });
 
-SCHEMA.static('getTagById', async (tagId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getTagById', async (tagId: string) => {
   try {
     const tagDocument = (await TAG_MODEL.findById(tagId)
       .populate('workspaces')
@@ -167,11 +167,11 @@ SCHEMA.static('queryTags', async (filter: Record<string, unknown> = {}, page = 0
 
 SCHEMA.static(
   'validateProjects',
-  async (projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]> => {
+  async (projects: (databaseTypes.IProject | string)[]): Promise<mongooseTypes.ObjectId[]> => {
     const projectIds: mongooseTypes.ObjectId[] = [];
     projects.forEach((p) => {
-      if (p instanceof mongooseTypes.ObjectId) projectIds.push(p);
-      else projectIds.push(p._id as mongooseTypes.ObjectId);
+      if (typeof p === 'string') projectIds.push(new mongooseTypes.ObjectId(p));
+      else projectIds.push(new mongooseTypes.ObjectId(p.id));
     });
     try {
       await ProjectModel.allProjectIdsExist(projectIds);
@@ -192,11 +192,11 @@ SCHEMA.static(
 
 SCHEMA.static(
   'validateWorkspaces',
-  async (workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]> => {
+  async (workspaces: (databaseTypes.IWorkspace | string)[]): Promise<mongooseTypes.ObjectId[]> => {
     const workspaceIds: mongooseTypes.ObjectId[] = [];
     workspaces.forEach((p) => {
-      if (p instanceof mongooseTypes.ObjectId) workspaceIds.push(p);
-      else workspaceIds.push(p._id as mongooseTypes.ObjectId);
+      if (typeof p === 'string') workspaceIds.push(new mongooseTypes.ObjectId(p));
+      else workspaceIds.push(new mongooseTypes.ObjectId(p.id));
     });
     try {
       await WorkspaceModel.allWorkspaceIdsExist(workspaceIds);
@@ -217,11 +217,11 @@ SCHEMA.static(
 
 SCHEMA.static(
   'validateTemplates',
-  async (templates: (databaseTypes.IProjectTemplate | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]> => {
+  async (templates: (databaseTypes.IProjectTemplate | string)[]): Promise<mongooseTypes.ObjectId[]> => {
     const templateIds: mongooseTypes.ObjectId[] = [];
     templates.forEach((p) => {
-      if (p instanceof mongooseTypes.ObjectId) templateIds.push(p);
-      else templateIds.push(p._id as mongooseTypes.ObjectId);
+      if (typeof p === 'string') templateIds.push(new mongooseTypes.ObjectId(p));
+      else templateIds.push(new mongooseTypes.ObjectId(p.id));
     });
     try {
       await ProjectTemplateModel.allProjectTemplateIdsExist(templateIds);
@@ -289,7 +289,7 @@ SCHEMA.static('createTag', async (input: Omit<databaseTypes.ITag, '_id'>): Promi
       );
     }
   }
-  if (id) return await TAG_MODEL.getTagById(id);
+  if (id) return await TAG_MODEL.getTagById(id.toString());
   else
     throw new error.UnexpectedError(
       'An unexpected error has occurred and the project type may not have been created.  I have no other information to provide.'
@@ -366,13 +366,13 @@ SCHEMA.static(
 
 SCHEMA.static(
   'updateTagById',
-  async (tagId: mongooseTypes.ObjectId, tag: Omit<Partial<databaseTypes.ITag>, '_id'>): Promise<databaseTypes.ITag> => {
+  async (tagId: string, tag: Omit<Partial<databaseTypes.ITag>, '_id'>): Promise<databaseTypes.ITag> => {
     await TAG_MODEL.updateTagWithFilter({_id: tagId}, tag);
-    return await TAG_MODEL.getTagById(tagId);
+    return await TAG_MODEL.getTagById(tagId.toString());
   }
 );
 
-SCHEMA.static('deleteTagById', async (tagId: mongooseTypes.ObjectId): Promise<void> => {
+SCHEMA.static('deleteTagById', async (tagId: string): Promise<void> => {
   try {
     const results = await TAG_MODEL.deleteOne({
       _id: tagId,
@@ -398,10 +398,7 @@ SCHEMA.static('deleteTagById', async (tagId: mongooseTypes.ObjectId): Promise<vo
 
 SCHEMA.static(
   'addProjects',
-  async (
-    tagId: mongooseTypes.ObjectId,
-    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.ITag> => {
+  async (tagId: string, projects: (databaseTypes.IProject | string)[]): Promise<databaseTypes.ITag> => {
     try {
       if (!projects.length)
         throw new error.InvalidArgumentError('You must supply at least one projectId', 'projects', projects);
@@ -442,10 +439,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'removeProjects',
-  async (
-    tagId: mongooseTypes.ObjectId,
-    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.ITag> => {
+  async (tagId: string, projects: (databaseTypes.IProject | string)[]): Promise<databaseTypes.ITag> => {
     try {
       if (!projects.length)
         throw new error.InvalidArgumentError('You must supply at least one projectId', 'projects', projects);
@@ -455,7 +449,7 @@ SCHEMA.static(
 
       const reconciledIds = projects.map((i) =>
         //istanbul ignore next
-        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
+        typeof i === 'string' ? new mongooseTypes.ObjectId(i) : new mongooseTypes.ObjectId(i.id)
       );
       let dirty = false;
       const updatedProjects = tagDocument.projects.filter((p) => {
@@ -495,10 +489,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'addWorkspaces',
-  async (
-    tagId: mongooseTypes.ObjectId,
-    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.ITag> => {
+  async (tagId: string, workspaces: (databaseTypes.IWorkspace | string)[]): Promise<databaseTypes.ITag> => {
     try {
       if (!workspaces.length)
         throw new error.InvalidArgumentError('You must supply at least one projectId', 'workspaces', workspaces);
@@ -539,10 +530,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'removeWorkspaces',
-  async (
-    tagId: mongooseTypes.ObjectId,
-    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.ITag> => {
+  async (tagId: string, workspaces: (databaseTypes.IWorkspace | string)[]): Promise<databaseTypes.ITag> => {
     try {
       if (!workspaces.length)
         throw new error.InvalidArgumentError('You must supply at least one projectId', 'workspaces', workspaces);
@@ -552,7 +540,7 @@ SCHEMA.static(
 
       const reconciledIds = workspaces.map((i) =>
         //istanbul ignore next
-        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
+        typeof i === 'string' ? new mongooseTypes.ObjectId(i) : new mongooseTypes.ObjectId(i.id)
       );
       let dirty = false;
       const updatedWorkspaces = tagDocument.workspaces.filter((p: any) => {
@@ -592,10 +580,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'addTemplates',
-  async (
-    tagId: mongooseTypes.ObjectId,
-    templates: (databaseTypes.IProjectTemplate | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.ITag> => {
+  async (tagId: string, templates: (databaseTypes.IProjectTemplate | string)[]): Promise<databaseTypes.ITag> => {
     try {
       if (!templates.length)
         throw new error.InvalidArgumentError('You must supply at least one projectId', 'projects', templates);
@@ -636,10 +621,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'removeTemplates',
-  async (
-    tagId: mongooseTypes.ObjectId,
-    templates: (databaseTypes.IProjectTemplate | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.ITag> => {
+  async (tagId: string, templates: (databaseTypes.IProjectTemplate | string)[]): Promise<databaseTypes.ITag> => {
     try {
       if (!templates.length)
         throw new error.InvalidArgumentError('You must supply at least one templateId', 'templates', templates);
@@ -649,7 +631,7 @@ SCHEMA.static(
 
       const reconciledIds = templates.map((i) =>
         //istanbul ignore next
-        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
+        typeof i === 'string' ? new mongooseTypes.ObjectId(i) : new mongooseTypes.ObjectId(i.id)
       );
       let dirty = false;
       const updatedTemplates = tagDocument.templates.filter((p) => {

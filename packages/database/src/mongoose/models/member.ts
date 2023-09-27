@@ -71,8 +71,8 @@ SCHEMA.static(
   async (
     memberEmail: string,
     type: databaseTypes.constants.MEMBERSHIP_TYPE,
-    workspaceId: mongooseTypes.ObjectId,
-    projectId?: mongooseTypes.ObjectId
+    workspaceId: string,
+    projectId?: string
   ): Promise<boolean> => {
     let retval = false;
     try {
@@ -137,7 +137,7 @@ SCHEMA.static('allMemberIdsExist', async (memberIds: mongooseTypes.ObjectId[]): 
   return true;
 });
 
-SCHEMA.static('getMemberById', async (memberId: mongooseTypes.ObjectId, hasProject?: boolean) => {
+SCHEMA.static('getMemberById', async (memberId: string, hasProject?: boolean) => {
   try {
     let memberDocument;
     if (hasProject) {
@@ -227,31 +227,33 @@ SCHEMA.static('queryMembers', async (filter: Record<string, unknown> = {}, page 
 SCHEMA.static(
   'validateProjectMember',
   async (
-    member: databaseTypes.IUser | mongooseTypes.ObjectId,
-    workspace: databaseTypes.IWorkspace | mongooseTypes.ObjectId,
-    project: databaseTypes.IProject | mongooseTypes.ObjectId
-  ): Promise<databaseTypes.IUser> => {
-    const userId = member instanceof mongooseTypes.ObjectId ? member : (member._id as mongooseTypes.ObjectId);
+    member: databaseTypes.IUser | string,
+    workspace: databaseTypes.IWorkspace | string,
+    project: databaseTypes.IProject | string
+  ): Promise<mongooseTypes.ObjectId> => {
+    const userId =
+      typeof member === 'string' ? new mongooseTypes.ObjectId(member) : new mongooseTypes.ObjectId(member.id);
     if (!(await UserModel.userIdExists(userId))) {
       throw new error.InvalidArgumentError(`The user : ${userId} does not exist`, 'userId', userId);
     }
-    const projectId = project instanceof mongooseTypes.ObjectId ? project : (project._id as mongooseTypes.ObjectId);
+    const projectId =
+      typeof project === 'string' ? new mongooseTypes.ObjectId(project) : new mongooseTypes.ObjectId(project.id);
     if (!(await ProjectModel.projectIdExists(projectId))) {
       throw new error.InvalidArgumentError(`The project : ${projectId} does not exist`, 'projectId', projectId);
     }
     const workspaceId =
-      workspace instanceof mongooseTypes.ObjectId ? workspace : (workspace._id as mongooseTypes.ObjectId);
+      typeof workspace === 'string' ? new mongooseTypes.ObjectId(workspace) : new mongooseTypes.ObjectId(workspace.id);
     if (!(await WorkspaceModel.workspaceIdExists(workspaceId))) {
       throw new error.InvalidArgumentError(`The workspace : ${workspaceId} does not exist`, 'workspaceId', workspaceId);
     }
 
-    const user = await UserModel.getUserById(userId);
+    const user = await UserModel.getUserById(userId.toString());
 
     const memberExists = await MEMBER_MODEL.memberExists(
       user?.email as string,
       databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
-      workspaceId,
-      projectId
+      workspaceId.toString(),
+      projectId.toString()
     );
 
     if (memberExists)
@@ -260,30 +262,30 @@ SCHEMA.static(
         'member.email',
         (user as databaseTypes.IUser).email
       );
-    return user;
+    return userId;
   }
 );
 
 SCHEMA.static(
   'validateWorkspaceMember',
   async (
-    member: databaseTypes.IUser | mongooseTypes.ObjectId,
-    workspace: databaseTypes.IWorkspace | mongooseTypes.ObjectId
-  ): Promise<databaseTypes.IUser> => {
-    const userId = member instanceof mongooseTypes.ObjectId ? member : (member._id as mongooseTypes.ObjectId);
+    member: databaseTypes.IUser | string,
+    workspace: databaseTypes.IWorkspace | string
+  ): Promise<mongooseTypes.ObjectId> => {
+    const userId =
+      typeof member === 'string' ? new mongooseTypes.ObjectId(member) : new mongooseTypes.ObjectId(member.id);
     if (!(await UserModel.userIdExists(userId))) {
       throw new error.InvalidArgumentError(`The user : ${userId} does not exist`, 'userId', userId);
     }
-
     const workspaceId =
-      workspace instanceof mongooseTypes.ObjectId ? workspace : (workspace._id as mongooseTypes.ObjectId);
+      typeof workspace === 'string' ? new mongooseTypes.ObjectId(workspace) : new mongooseTypes.ObjectId(workspace.id);
 
-    const user = await UserModel.getUserById(userId);
+    const user = await UserModel.getUserById(userId.toString());
 
     const memberExists = await MEMBER_MODEL.memberExists(
       user?.email as string,
       databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
-      workspaceId
+      workspaceId.toString()
     );
 
     if (memberExists)
@@ -292,14 +294,15 @@ SCHEMA.static(
         'member.email',
         (user as databaseTypes.IUser).email
       );
-    return user;
+    return userId;
   }
 );
 
 SCHEMA.static(
   'validateWorkspace',
-  async (input: databaseTypes.IWorkspace | mongooseTypes.ObjectId): Promise<mongooseTypes.ObjectId> => {
-    const workspaceId = input instanceof mongooseTypes.ObjectId ? input : (input._id as mongooseTypes.ObjectId);
+  async (input: databaseTypes.IWorkspace | string): Promise<mongooseTypes.ObjectId> => {
+    const workspaceId =
+      typeof input === 'string' ? new mongooseTypes.ObjectId(input) : new mongooseTypes.ObjectId(input.id);
     if (!(await WorkspaceModel.workspaceIdExists(workspaceId))) {
       throw new error.InvalidArgumentError(`The workspace : ${workspaceId} does not exist`, 'workspaceId', workspaceId);
     }
@@ -307,16 +310,14 @@ SCHEMA.static(
   }
 );
 
-SCHEMA.static(
-  'validateProject',
-  async (input: databaseTypes.IProject | mongooseTypes.ObjectId): Promise<mongooseTypes.ObjectId> => {
-    const projectId = input instanceof mongooseTypes.ObjectId ? input : (input._id as mongooseTypes.ObjectId);
-    if (!(await ProjectModel.projectIdExists(projectId))) {
-      throw new error.InvalidArgumentError(`The project : ${projectId} does not exist`, 'projectId', projectId);
-    }
-    return projectId;
+SCHEMA.static('validateProject', async (input: databaseTypes.IProject | string): Promise<mongooseTypes.ObjectId> => {
+  const projectId =
+    typeof input === 'string' ? new mongooseTypes.ObjectId(input) : new mongooseTypes.ObjectId(input.id);
+  if (!(await ProjectModel.projectIdExists(projectId))) {
+    throw new error.InvalidArgumentError(`The project : ${projectId} does not exist`, 'projectId', projectId);
   }
-);
+  return projectId;
+});
 
 SCHEMA.static('createWorkspaceMember', async (input: IMemberCreateInput): Promise<databaseTypes.IMember> => {
   const [workspaceId, invitedBy, member] = await Promise.all([
@@ -358,7 +359,7 @@ SCHEMA.static('createWorkspaceMember', async (input: IMemberCreateInput): Promis
         validateBeforeSave: false,
       })
     )[0];
-    return await MEMBER_MODEL.getMemberById(createdDocument._id, false);
+    return await MEMBER_MODEL.getMemberById(createdDocument._id.toString(), false);
   } catch (err) {
     throw new error.DatabaseOperationError(
       'An unexpected error occurred wile creating the member. See the inner error for additional information',
@@ -371,19 +372,11 @@ SCHEMA.static('createWorkspaceMember', async (input: IMemberCreateInput): Promis
 });
 
 SCHEMA.static('createProjectMember', async (input: IMemberCreateInput): Promise<databaseTypes.IMember> => {
-  const [workspaceId, invitedBy, member, projectId] = await Promise.all([
+  const [workspaceId, invitedBy, memberId, projectId] = await Promise.all([
     MEMBER_MODEL.validateWorkspace(input.workspace),
-    MEMBER_MODEL.validateProjectMember(
-      input.invitedBy,
-      input.workspace,
-      input.project as unknown as mongooseTypes.ObjectId | databaseTypes.IProject
-    ),
-    MEMBER_MODEL.validateProjectMember(
-      input.member,
-      input.workspace,
-      input.project as unknown as mongooseTypes.ObjectId | databaseTypes.IProject
-    ),
-    MEMBER_MODEL.validateProject(input.project as unknown as mongooseTypes.ObjectId | databaseTypes.IProject),
+    MEMBER_MODEL.validateProjectMember(input.invitedBy, input.workspace, input.project!),
+    MEMBER_MODEL.validateProjectMember(input.member, input.workspace, input.project!),
+    MEMBER_MODEL.validateProject(input.project!),
   ]);
 
   const createDate = new Date();
@@ -399,7 +392,7 @@ SCHEMA.static('createProjectMember', async (input: IMemberCreateInput): Promise<
     status: input.status ?? databaseTypes.constants.INVITATION_STATUS.PENDING,
     teamRole: input.teamRole ?? databaseTypes.constants.ROLE.MEMBER,
     projectRole: input.projectRole ?? databaseTypes.constants.PROJECT_ROLE.READ_ONLY,
-    member: member,
+    member: memberId,
     invitedBy: invitedBy,
     workspace: workspaceId,
     project: projectId,
@@ -422,7 +415,7 @@ SCHEMA.static('createProjectMember', async (input: IMemberCreateInput): Promise<
         validateBeforeSave: false,
       })
     )[0];
-    return await MEMBER_MODEL.getMemberById(createdDocument._id);
+    return await MEMBER_MODEL.getMemberById(createdDocument._id.toString());
   } catch (err) {
     throw new error.DatabaseOperationError(
       'An unexpected error occurred wile creating the member. See the inner error for additional information',
@@ -499,7 +492,7 @@ SCHEMA.static(
     member: Omit<Partial<databaseTypes.IMember>, '_id'>
   ): Promise<databaseTypes.IMember> => {
     await MEMBER_MODEL.updateMemberWithFilter({_id: memberId}, member);
-    const retval = await MEMBER_MODEL.getMemberById(memberId);
+    const retval = await MEMBER_MODEL.getMemberById(memberId.toString());
     return retval;
   }
 );

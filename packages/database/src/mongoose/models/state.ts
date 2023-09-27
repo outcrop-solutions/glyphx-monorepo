@@ -8,6 +8,7 @@ import {UserModel} from './user';
 import {WorkspaceModel} from './workspace';
 import {DBFormatter} from '../../lib/format';
 
+// TODO: validateUser, validateProject
 const SCHEMA = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
   createdAt: {
     type: Date,
@@ -103,10 +104,9 @@ SCHEMA.static('createState', async (input: IStateCreateInput): Promise<databaseT
   let id: undefined | mongooseTypes.ObjectId = undefined;
   try {
     const workspaceId =
-      input.workspace instanceof mongooseTypes.ObjectId
-        ? input.workspace
-        : // @ts-ignore
-          new mongooseTypes.ObjectId(input.workspace._id);
+      typeof input.workspace === 'string'
+        ? new mongooseTypes.ObjectId(input.workspace)
+        : new mongooseTypes.ObjectId(input.workspace.id);
 
     const workspaceExists = await WorkspaceModel.workspaceIdExists(workspaceId);
     if (!workspaceExists) {
@@ -118,10 +118,9 @@ SCHEMA.static('createState', async (input: IStateCreateInput): Promise<databaseT
     }
 
     const projectId =
-      input.project instanceof mongooseTypes.ObjectId
-        ? input.project
-        : // @ts-ignore
-          new mongooseTypes.ObjectId(input.project._id);
+      typeof input.project === 'string'
+        ? new mongooseTypes.ObjectId(input.project)
+        : new mongooseTypes.ObjectId(input.project.id);
 
     const projectExists = await ProjectModel.projectIdExists(projectId);
     if (!projectExists) {
@@ -133,10 +132,9 @@ SCHEMA.static('createState', async (input: IStateCreateInput): Promise<databaseT
     }
 
     const userId =
-      input.createdBy instanceof mongooseTypes.ObjectId
-        ? input.createdBy
-        : // @ts-ignore
-          new mongooseTypes.ObjectId(input.createdBy._id);
+      typeof input.createdBy === 'string'
+        ? new mongooseTypes.ObjectId(input.createdBy)
+        : new mongooseTypes.ObjectId(input.createdBy.id);
 
     const creatorExists = await UserModel.userIdExists(userId);
     if (!creatorExists) {
@@ -187,7 +185,7 @@ SCHEMA.static('createState', async (input: IStateCreateInput): Promise<databaseT
     }
   }
   //istanbul ignore else
-  if (id) return await STATE_MODEL.getStateById(id);
+  if (id) return await STATE_MODEL.getStateById(id.toString());
   else
     throw new error.UnexpectedError(
       'An unexpected error has occurred and the state may not have been created.  I have no other information to provide.'
@@ -251,16 +249,13 @@ SCHEMA.static(
 
 SCHEMA.static(
   'updateStateById',
-  async (
-    stateId: mongooseTypes.ObjectId,
-    state: Omit<Partial<databaseTypes.IState>, '_id'>
-  ): Promise<databaseTypes.IState> => {
+  async (stateId: string, state: Omit<Partial<databaseTypes.IState>, '_id'>): Promise<databaseTypes.IState> => {
     await STATE_MODEL.updateStateWithFilter({_id: stateId}, state);
     return await STATE_MODEL.getStateById(stateId);
   }
 );
 
-SCHEMA.static('deleteStateById', async (stateId: mongooseTypes.ObjectId): Promise<void> => {
+SCHEMA.static('deleteStateById', async (stateId: string): Promise<void> => {
   try {
     const results = await STATE_MODEL.deleteOne({_id: stateId});
     if (results.deletedCount !== 1)
@@ -282,7 +277,7 @@ SCHEMA.static('deleteStateById', async (stateId: mongooseTypes.ObjectId): Promis
   }
 });
 
-SCHEMA.static('getStateById', async (stateId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getStateById', async (stateId: string) => {
   try {
     const stateDocument = (await STATE_MODEL.findById(stateId)
       .populate('workspace')

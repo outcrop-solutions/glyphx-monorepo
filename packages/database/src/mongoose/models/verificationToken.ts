@@ -69,7 +69,7 @@ SCHEMA.static(
   }
 );
 
-SCHEMA.static('getVerificationTokenById', async (verificationTokenId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getVerificationTokenById', async (verificationTokenId: string) => {
   try {
     const verificationTokenDocument = (await VERIFICATION_TOKEN_MODEL.findById(
       verificationTokenId
@@ -174,7 +174,7 @@ SCHEMA.static(
           validateBeforeSave: false,
         })
       )[0];
-      return await VERIFICATION_TOKEN_MODEL.getVerificationTokenById(createdDocument._id);
+      return await VERIFICATION_TOKEN_MODEL.getVerificationTokenById(createdDocument._id.toString());
     } catch (err) {
       throw new error.DatabaseOperationError(
         'An unexpected error occurred wile creating the verificationToken. See the inner error for additional information',
@@ -238,7 +238,7 @@ SCHEMA.static(
 SCHEMA.static(
   'updateVerificationTokenById',
   async (
-    verificationTokenId: mongooseTypes.ObjectId,
+    verificationTokenId: string,
     verificationToken: Omit<Partial<databaseTypes.IVerificationToken>, '_id'>
   ): Promise<databaseTypes.IVerificationToken> => {
     await VERIFICATION_TOKEN_MODEL.updateVerificationTokenWithFilter({_id: verificationTokenId}, verificationToken);
@@ -247,7 +247,7 @@ SCHEMA.static(
   }
 );
 
-SCHEMA.static('deleteVerificationTokenById', async (verificationTokenId: mongooseTypes.ObjectId): Promise<void> => {
+SCHEMA.static('deleteVerificationTokenById', async (verificationTokenId: string): Promise<void> => {
   try {
     const results = await VERIFICATION_TOKEN_MODEL.deleteOne({
       _id: verificationTokenId,

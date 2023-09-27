@@ -15,9 +15,9 @@ export interface ITagStaticMethods extends Model<databaseTypes.ITag, {}, ITagMet
   updateTagWithFilter(filter: Record<string, unknown>, tag: Omit<Partial<databaseTypes.ITag>, '_id'>): Promise<void>;
   updateTagById(tagId: string, tag: Omit<Partial<databaseTypes.ITag>, '_id'>): Promise<databaseTypes.ITag>;
   deleteTagById(tagId: string): Promise<void>;
-  validateWorkspaces(projects: (databaseTypes.IWorkspace | string)[]): Promise<string[]>;
-  validateProjects(projects: (databaseTypes.IProject | string)[]): Promise<string[]>;
-  validateTemplates(templates: (databaseTypes.IProjectTemplate | string)[]): Promise<string[]>;
+  validateWorkspaces(projects: (databaseTypes.IWorkspace | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateProjects(projects: (databaseTypes.IProject | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateTemplates(templates: (databaseTypes.IProjectTemplate | string)[]): Promise<mongooseTypes.ObjectId[]>;
   validateUpdateObject(tag: Omit<Partial<databaseTypes.ITag>, '_id'>): void;
   addProjects(tagId: string, projects: (databaseTypes.IProject | string)[]): Promise<databaseTypes.ITag>;
   removeProjects(tagId: string, projects: (databaseTypes.IProject | string)[]): Promise<databaseTypes.ITag>;

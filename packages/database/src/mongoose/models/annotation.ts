@@ -79,7 +79,7 @@ SCHEMA.static('allAnnotationIdsExist', async (annotationIds: mongooseTypes.Objec
   return true;
 });
 
-SCHEMA.static('getAnnotationById', async (annotationId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getAnnotationById', async (annotationId: string) => {
   try {
     const annotationDocument = (await ANNOTATION_MODEL.findById(annotationId)
       .populate('author')
@@ -240,7 +240,7 @@ SCHEMA.static('createAnnotation', async (input: IAnnotationCreateInput): Promise
         validateBeforeSave: false,
       })
     )[0];
-    return await ANNOTATION_MODEL.getAnnotationById(createdDocument._id as unknown as mongooseTypes.ObjectId);
+    return await ANNOTATION_MODEL.getAnnotationById(createdDocument._id.toString());
   } catch (err) {
     throw new error.DatabaseOperationError(
       'An unexpected error occurred wile creating the annotation. See the inner error for additional information',

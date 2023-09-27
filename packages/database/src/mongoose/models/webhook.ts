@@ -73,7 +73,7 @@ SCHEMA.static('allWebhookIdsExist', async (webhookIds: mongooseTypes.ObjectId[])
   return true;
 });
 
-SCHEMA.static('getWebhookById', async (webhookId: mongooseTypes.ObjectId): Promise<databaseTypes.IWebhook> => {
+SCHEMA.static('getWebhookById', async (webhookId: string): Promise<databaseTypes.IWebhook> => {
   try {
     const webhookDocument = (await WEBHOOK_MODEL.findById(webhookId).populate('user').lean()) as databaseTypes.IWebhook;
     if (!webhookDocument) {
@@ -148,20 +148,18 @@ SCHEMA.static('queryWebhooks', async (filter: Record<string, unknown> = {}, page
 });
 
 SCHEMA.static('createWebhook', async (input: IWebhookCreateInput): Promise<databaseTypes.IWebhook> => {
-  const userExists = await UserModel.userIdExists(input.user._id as mongooseTypes.ObjectId);
+  const userId =
+    typeof input.user === 'string' ? new mongooseTypes.ObjectId(input.user) : new mongooseTypes.ObjectId(input.user.id);
+  const userExists = await UserModel.userIdExists(userId);
   if (!userExists)
-    throw new error.InvalidArgumentError(
-      `A user with _id : ${input.user._id} cannot be found`,
-      'user._id',
-      input.user._id
-    );
+    throw new error.InvalidArgumentError(`A user with _id : ${userId} cannot be found`, 'user._id', userId);
   const createDate = new Date();
   const transformedDocument: IWebhookDocument = {
     createdAt: createDate,
     updatedAt: createDate,
     name: input.name,
     url: input.url,
-    user: input.user._id as mongooseTypes.ObjectId,
+    user: userId,
   };
 
   try {
@@ -181,7 +179,7 @@ SCHEMA.static('createWebhook', async (input: IWebhookCreateInput): Promise<datab
         validateBeforeSave: false,
       })
     )[0];
-    return await WEBHOOK_MODEL.getWebhookById(createdDocument._id);
+    return await WEBHOOK_MODEL.getWebhookById(createdDocument._id.toString());
   } catch (err) {
     throw new error.DatabaseOperationError(
       'An unexpected error occurred wile creating the Webhook. See the inner error for additional information',
@@ -249,17 +247,14 @@ SCHEMA.static(
 
 SCHEMA.static(
   'updateWebhookById',
-  async (
-    webhookId: mongooseTypes.ObjectId,
-    webhook: Omit<Partial<databaseTypes.IWebhook>, '_id'>
-  ): Promise<databaseTypes.IWebhook> => {
+  async (webhookId: string, webhook: Omit<Partial<databaseTypes.IWebhook>, '_id'>): Promise<databaseTypes.IWebhook> => {
     await WEBHOOK_MODEL.updateWebhookWithFilter({_id: webhookId}, webhook);
     const retval = await WEBHOOK_MODEL.getWebhookById(webhookId);
     return retval;
   }
 );
 
-SCHEMA.static('deleteWebhookById', async (webhookId: mongooseTypes.ObjectId): Promise<void> => {
+SCHEMA.static('deleteWebhookById', async (webhookId: string): Promise<void> => {
   try {
     const results = await WEBHOOK_MODEL.deleteOne({_id: webhookId});
     if (results.deletedCount !== 1)

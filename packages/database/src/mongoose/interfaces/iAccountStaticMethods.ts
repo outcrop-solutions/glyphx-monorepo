@@ -4,8 +4,8 @@ import {IAccountMethods} from './iAccountMethods';
 import {IAccountCreateInput} from './iAccountCreateInput';
 
 export interface IAccountStaticMethods extends Model<databaseTypes.IAccount, {}, IAccountMethods> {
-  accountIdExists(accountId: mongooseTypes.ObjectId): Promise<boolean>; // private to db layer
-  allAccountIdsExist(accountIds: mongooseTypes.ObjectId[]): Promise<boolean>; // private to db layer
+  accountIdExists(accountId: mongooseTypes.ObjectId): Promise<boolean>;
+  allAccountIdsExist(accountIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createAccount(input: IAccountCreateInput): Promise<databaseTypes.IAccount>;
   getAccountById(accountId: string): Promise<databaseTypes.IAccount>;
   queryAccounts(

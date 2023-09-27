@@ -22,8 +22,8 @@ export interface IProjectTemplateStaticMethods
     projectTemplate: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>
   ): Promise<databaseTypes.IProjectTemplate>;
   deleteProjectTemplateById(projectTemplateId: string): Promise<void>;
-  validateProjects(projects: (databaseTypes.IProject | string)[]): Promise<string[]>;
-  validateTags(tags: (databaseTypes.ITag | string)[]): Promise<string[]>;
+  validateProjects(projects: (databaseTypes.IProject | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateTags(tags: (databaseTypes.ITag | string)[]): Promise<mongooseTypes.ObjectId[]>;
   validateUpdateObject(projectTemplate: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>): void;
   addProjects(
     projectTemplateId: string,

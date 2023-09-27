@@ -19,13 +19,13 @@ export interface IUserStaticMethods extends Model<databaseTypes.IUser, {}, IUser
     filter: Record<string, unknown>,
     user: Partial<databaseTypes.IUser>
   ): Promise<databaseTypes.IUser>;
-  validateAccounts(accounts: (databaseTypes.IAccount | string)[]): Promise<string[]>;
-  validateSessions(sessions: (databaseTypes.ISession | string)[]): Promise<string[]>;
-  validateWebhooks(webhooks: (databaseTypes.IWebhook | string)[]): Promise<string[]>;
-  validateMembership(members: (databaseTypes.IMember | string)[]): Promise<string[]>;
-  validateWorkspaces(workspaces: (databaseTypes.IWorkspace | string)[]): Promise<string[]>;
-  validateProjects(projects: (databaseTypes.IProject | string)[]): Promise<string[]>;
-  validateCustomerPayment(payment?: databaseTypes.ICustomerPayment | string): Promise<string>;
+  validateAccounts(accounts: (databaseTypes.IAccount | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateSessions(sessions: (databaseTypes.ISession | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateWebhooks(webhooks: (databaseTypes.IWebhook | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateMembership(members: (databaseTypes.IMember | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateWorkspaces(workspaces: (databaseTypes.IWorkspace | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateProjects(projects: (databaseTypes.IProject | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateCustomerPayment(payment?: databaseTypes.ICustomerPayment | string): Promise<mongooseTypes.ObjectId>;
   validateUpdateObject(input: Omit<Partial<databaseTypes.IUser>, '_id'>): Promise<boolean>;
   addProjects(userId: string, projects: (databaseTypes.IProject | string)[]): Promise<databaseTypes.IUser>;
   removeProjects(userId: string, accounts: (databaseTypes.IProject | string)[]): Promise<databaseTypes.IUser>;

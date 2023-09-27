@@ -22,17 +22,17 @@ export interface IMemberStaticMethods extends Model<databaseTypes.IMember, {}, I
   ): Promise<IQueryResult<databaseTypes.IMember>>;
   updateMemberById(id: string, member: Partial<databaseTypes.IMember>): Promise<databaseTypes.IMember>;
   deleteMemberById(id: string): Promise<void>;
-  validateWorkspace(input: databaseTypes.IWorkspace | string): Promise<string>;
+  validateWorkspace(input: databaseTypes.IWorkspace | string): Promise<mongooseTypes.ObjectId>;
   validateWorkspaceMember(
     member: databaseTypes.IUser | string,
     workspace: databaseTypes.IWorkspace | string
-  ): Promise<string>;
+  ): Promise<mongooseTypes.ObjectId>;
   validateProjectMember(
     member: databaseTypes.IUser | string,
     workspace: databaseTypes.IWorkspace | string,
     project: databaseTypes.IProject | string
-  ): Promise<string>;
-  validateProject(input: databaseTypes.IProject | string): Promise<string>;
+  ): Promise<mongooseTypes.ObjectId>;
+  validateProject(input: databaseTypes.IProject | string): Promise<mongooseTypes.ObjectId>;
   updateMemberWithFilter(
     filter: Record<string, unknown>,
     member: Partial<databaseTypes.IMember>

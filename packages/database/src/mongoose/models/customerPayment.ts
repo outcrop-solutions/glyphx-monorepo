@@ -87,7 +87,7 @@ SCHEMA.static('allCustomerPaymentIdsExist', async (customerPaymentIds: mongooseT
   return true;
 });
 
-SCHEMA.static('getCustomerPaymentById', async (customerPaymentId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getCustomerPaymentById', async (customerPaymentId: string) => {
   return await CUSTOMER_PAYMENT_MODEL.getCustomerPaymentByFilter({
     _id: customerPaymentId,
   });
@@ -189,10 +189,9 @@ SCHEMA.static(
   'createCustomerPayment',
   async (input: ICustomerPaymentCreateInput): Promise<databaseTypes.ICustomerPayment> => {
     const customerId =
-      input.customer instanceof mongooseTypes.ObjectId
-        ? input.customer
-        : // @ts-ignore
-          new mongooseTypes.ObjectId(input.customer._id);
+      typeof input.customer === 'string'
+        ? new mongooseTypes.ObjectId(input.customer)
+        : new mongooseTypes.ObjectId(input.customer.id);
 
     const userExists = await UserModel.userIdExists(customerId);
 
@@ -231,7 +230,7 @@ SCHEMA.static(
           validateBeforeSave: false,
         })
       )[0];
-      return await CUSTOMER_PAYMENT_MODEL.getCustomerPaymentById(createdDocument._id);
+      return await CUSTOMER_PAYMENT_MODEL.getCustomerPaymentById(createdDocument._id.toString());
     } catch (err) {
       throw new error.DatabaseOperationError(
         'An unexpected error occurred wile creating the customerPayment. See the inner error for additional information',
@@ -302,7 +301,7 @@ SCHEMA.static(
 SCHEMA.static(
   'updateCustomerPaymentById',
   async (
-    customerPaymentId: mongooseTypes.ObjectId,
+    customerPaymentId: string,
     customerPayment: Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>
   ): Promise<databaseTypes.ICustomerPayment> => {
     await CUSTOMER_PAYMENT_MODEL.updateCustomerPaymentWithFilter({_id: customerPaymentId}, customerPayment);
@@ -323,7 +322,7 @@ SCHEMA.static(
   }
 );
 
-SCHEMA.static('deleteCustomerPaymentById', async (customerPaymentId: mongooseTypes.ObjectId): Promise<void> => {
+SCHEMA.static('deleteCustomerPaymentById', async (customerPaymentId: string): Promise<void> => {
   try {
     const results = await CUSTOMER_PAYMENT_MODEL.deleteOne({
       _id: customerPaymentId,

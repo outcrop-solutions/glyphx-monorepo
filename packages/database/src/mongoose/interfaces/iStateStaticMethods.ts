@@ -18,7 +18,7 @@ export interface IStateStaticMethods extends Model<databaseTypes.IState, {}, ISt
   ): Promise<void>;
   updateStateById(stateId: string, state: Omit<Partial<databaseTypes.IState>, '_id'>): Promise<databaseTypes.IState>;
   deleteStateById(stateId: string): Promise<void>;
-  validateProject(project: databaseTypes.IProject | string): Promise<string>;
-  validateUser(user: databaseTypes.IUser | string): Promise<string>;
+  validateProject(project: databaseTypes.IProject | string): Promise<mongooseTypes.ObjectId>;
+  validateUser(user: databaseTypes.IUser | string): Promise<mongooseTypes.ObjectId>;
   validateUpdateObject(state: Omit<Partial<databaseTypes.IState>, '_id'>): Promise<void>;
 }

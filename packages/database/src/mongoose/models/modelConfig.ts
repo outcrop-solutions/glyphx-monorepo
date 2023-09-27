@@ -239,7 +239,7 @@ SCHEMA.static('createModelConfig', async (input: IModelConfigCreateInput): Promi
       );
     }
   }
-  if (id) return await MODELCONFIG_MODEL.getModelConfigById(id);
+  if (id) return await MODELCONFIG_MODEL.getModelConfigById(id.toString());
   else
     throw new error.UnexpectedError(
       'An unexpected error has occurred and the modelConfig may not have been created.  I have no other information to provide.'
@@ -247,7 +247,7 @@ SCHEMA.static('createModelConfig', async (input: IModelConfigCreateInput): Promi
 });
 
 // READ
-SCHEMA.static('getModelConfigById', async (modelConfigId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getModelConfigById', async (modelConfigId: string) => {
   try {
     const modelConfigDocument = (await MODELCONFIG_MODEL.findById(modelConfigId)
       .populate('min_color')
@@ -381,7 +381,7 @@ SCHEMA.static(
 SCHEMA.static(
   'updateModelConfigById',
   async (
-    modelConfigId: mongooseTypes.ObjectId,
+    modelConfigId: string,
     modelConfig: Omit<Partial<databaseTypes.IModelConfig>, '_id'>
   ): Promise<databaseTypes.IModelConfig> => {
     await MODELCONFIG_MODEL.updateModelConfigWithFilter({_id: modelConfigId}, modelConfig);
@@ -390,7 +390,7 @@ SCHEMA.static(
 );
 
 // DELETE
-SCHEMA.static('deleteModelConfigById', async (modelConfigId: mongooseTypes.ObjectId): Promise<void> => {
+SCHEMA.static('deleteModelConfigById', async (modelConfigId: string): Promise<void> => {
   try {
     const results = await MODELCONFIG_MODEL.deleteOne({_id: modelConfigId});
     if (results.deletedCount !== 1)
