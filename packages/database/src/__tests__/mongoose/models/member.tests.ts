@@ -54,7 +54,7 @@ const MOCK_MEMBER_IDS = {
   workspace: new mongoose.Types.ObjectId(),
 } as unknown as databaseTypes.IMember;
 
-describe.only('#mongoose/models/member', () => {
+describe('#mongoose/models/member', () => {
   context('memberIdExists', () => {
     const sandbox = createSandbox();
 
@@ -1283,7 +1283,7 @@ describe.only('#mongoose/models/member', () => {
       sandbox.replace(ProjectModel, 'projectIdExists', projectIdExistsStub);
 
       const res = await MemberModel.validateProject({
-        _id: projectId,
+        id: projectId.toString(),
       } as unknown as databaseTypes.IProject);
       assert.strictEqual(res.toString(), projectId.toString());
       assert.isTrue(projectIdExistsStub.calledOnce);
@@ -1383,9 +1383,9 @@ describe.only('#mongoose/models/member', () => {
       sandbox.replace(MemberModel, 'memberExists', memberExistsStub);
 
       const res = await MemberModel.validateProjectMember(
-        {_id: memberId} as unknown as databaseTypes.IUser,
-        {_id: workspoaceId} as unknown as databaseTypes.IWorkspace,
-        {_id: projectId} as unknown as databaseTypes.IProject
+        {id: memberId} as unknown as databaseTypes.IUser,
+        {id: workspoaceId} as unknown as databaseTypes.IWorkspace,
+        {id: projectId} as unknown as databaseTypes.IProject
       );
 
       assert.isOk(res);

@@ -660,10 +660,10 @@ describe('#mongoose/models/workspace', () => {
     it('should return an array of ids when the members can be validated', async () => {
       const inputMembers = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IMember,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IMember,
       ];
 
@@ -675,7 +675,7 @@ describe('#mongoose/models/workspace', () => {
 
       assert.strictEqual(results.length, inputMembers.length);
       results.forEach((r) => {
-        const foundId = inputMembers.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputMembers.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
@@ -746,10 +746,10 @@ describe('#mongoose/models/workspace', () => {
     it('should return an array of ids when the tags can be validated', async () => {
       const inputTags = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.ITag,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.ITag,
       ];
 
@@ -761,7 +761,7 @@ describe('#mongoose/models/workspace', () => {
 
       assert.strictEqual(results.length, inputTags.length);
       results.forEach((r) => {
-        const foundId = inputTags.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputTags.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
@@ -830,10 +830,10 @@ describe('#mongoose/models/workspace', () => {
     it('should return an array of ids when the projects can be validated', async () => {
       const inputProjects = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IProject,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IProject,
       ];
 
@@ -845,7 +845,7 @@ describe('#mongoose/models/workspace', () => {
 
       assert.strictEqual(results.length, inputProjects.length);
       results.forEach((r) => {
-        const foundId = inputProjects.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputProjects.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
@@ -1283,7 +1283,7 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
       const updatedWorkspace = await WorkspaceModel.removeProjects(workspaceId.toString(), [
-        {_id: projectId} as unknown as databaseTypes.IProject,
+        {id: projectId.toString()} as unknown as databaseTypes.IProject,
       ]);
 
       assert.strictEqual(updatedWorkspace._id, workspaceId);
@@ -1677,7 +1677,7 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
       const updatedWorkspace = await WorkspaceModel.removeMembers(workspaceId.toString(), [
-        {_id: userId} as unknown as databaseTypes.IMember,
+        {id: userId.toString()} as unknown as databaseTypes.IMember,
       ]);
 
       assert.strictEqual(updatedWorkspace._id, workspaceId);
@@ -2071,7 +2071,7 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
       const updatedWorkspace = await WorkspaceModel.removeTags(workspaceId.toString(), [
-        {_id: tagId} as unknown as databaseTypes.ITag,
+        {id: tagId.toString()} as unknown as databaseTypes.ITag,
       ]);
 
       assert.strictEqual(updatedWorkspace._id, workspaceId);
@@ -2376,7 +2376,7 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(UserModel, 'userIdExists', idExistsStub);
 
       const result = await WorkspaceModel.validateUser({
-        _id: userId,
+        id: userId.toString(),
       } as unknown as databaseTypes.IUser);
 
       assert.strictEqual(result.toString(), userId.toString());
@@ -2718,8 +2718,8 @@ describe('#mongoose/models/workspace', () => {
 
       const res = await WorkspaceModel.removeStates(
         workspaceId.toString(),
-        states.map((member) => {
-          return {_id: member} as unknown as databaseTypes.IState;
+        states.map((state) => {
+          return {id: state} as unknown as databaseTypes.IState;
         })
       );
 

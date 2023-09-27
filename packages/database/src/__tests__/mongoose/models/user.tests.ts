@@ -771,10 +771,10 @@ describe('#mongoose/models/user', () => {
     it('should return an array of ids when the projects can be validated', async () => {
       const inputProjects = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IProject,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IProject,
       ];
 
@@ -786,7 +786,7 @@ describe('#mongoose/models/user', () => {
 
       assert.strictEqual(results.length, inputProjects.length);
       results.forEach((r) => {
-        const foundId = inputProjects.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputProjects.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
@@ -856,16 +856,16 @@ describe('#mongoose/models/user', () => {
 
     it('should return an ids when the customerPayment can be validated', async () => {
       const inputPayment = {
-        _id: new mongoose.Types.ObjectId(),
+        id: new mongoose.Types.ObjectId().toString(),
       } as unknown as databaseTypes.ICustomerPayment;
 
       const customerPaymentIdExistStub = sandbox.stub();
       customerPaymentIdExistStub.resolves(true);
       sandbox.replace(CustomerPaymentModel, 'customerPaymentIdExists', customerPaymentIdExistStub);
 
-      const results = await UserModel.validateCustomerPayment(inputPayment.toString());
+      const result = await UserModel.validateCustomerPayment(inputPayment.id);
 
-      assert.strictEqual(results.toString(), inputPayment._id?.toString());
+      assert.strictEqual(result.toString(), inputPayment.id);
     });
 
     it('should return an id when the customerPaymentId can be validated ', async () => {
@@ -930,10 +930,10 @@ describe('#mongoose/models/user', () => {
     it('should return an array of ids when the accounts can be validated', async () => {
       const inputAccounts = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IAccount,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IAccount,
       ];
 
@@ -945,7 +945,7 @@ describe('#mongoose/models/user', () => {
 
       assert.strictEqual(results.length, inputAccounts.length);
       results.forEach((r) => {
-        const foundId = inputAccounts.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputAccounts.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
@@ -1016,10 +1016,10 @@ describe('#mongoose/models/user', () => {
     it('should return an array of ids when the sessions can be validated', async () => {
       const inputSessions = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.ISession,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.ISession,
       ];
 
@@ -1031,7 +1031,7 @@ describe('#mongoose/models/user', () => {
 
       assert.strictEqual(results.length, inputSessions.length);
       results.forEach((r) => {
-        const foundId = inputSessions.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputSessions.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
@@ -1102,10 +1102,10 @@ describe('#mongoose/models/user', () => {
     it('should return an array of ids when the memberships can be validated', async () => {
       const inputMembers = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IMember,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IMember,
       ];
 
@@ -1117,7 +1117,7 @@ describe('#mongoose/models/user', () => {
 
       assert.strictEqual(results.length, inputMembers.length);
       results.forEach((r) => {
-        const foundId = inputMembers.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputMembers.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
@@ -1188,10 +1188,10 @@ describe('#mongoose/models/user', () => {
     it('should return an array of ids when the webhooks can be validated', async () => {
       const inputWebhooks = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IWebhook,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IWebhook,
       ];
 
@@ -1203,7 +1203,7 @@ describe('#mongoose/models/user', () => {
 
       assert.strictEqual(results.length, inputWebhooks.length);
       results.forEach((r) => {
-        const foundId = inputWebhooks.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputWebhooks.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
@@ -1274,10 +1274,10 @@ describe('#mongoose/models/user', () => {
     it('should return an array of ids when the workspaces can be validated', async () => {
       const inputWorkspaces = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IWorkspace,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IWorkspace,
       ];
 
@@ -1289,7 +1289,7 @@ describe('#mongoose/models/user', () => {
 
       assert.strictEqual(results.length, inputWorkspaces.length);
       results.forEach((r) => {
-        const foundId = inputWorkspaces.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputWorkspaces.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });

@@ -1,17 +1,11 @@
 import {databaseTypes} from 'types';
 import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
-import {Types as mongooseTypes} from 'mongoose';
 
 export class ActivityLogService {
-  public static async getLog(logId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IActivityLog | null> {
+  public static async getLog(logId: string): Promise<databaseTypes.IActivityLog | null> {
     try {
-      const id =
-        logId instanceof mongooseTypes.ObjectId
-          ? logId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(logId);
-      const log = await mongoDbConnection.models.ActivityLogModel.getActivityLogById(id);
+      const log = await mongoDbConnection.models.ActivityLogModel.getActivityLogById(logId);
       return log;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -32,27 +26,21 @@ export class ActivityLogService {
   }
 
   public static async getLogs(
-    resourceId: mongooseTypes.ObjectId | string | undefined,
+    resourceId: string | undefined,
     type:
       | typeof databaseTypes.constants.RESOURCE_MODEL.PROJECT
       | typeof databaseTypes.constants.RESOURCE_MODEL.WORKSPACE
   ): Promise<databaseTypes.IActivityLog[] | null> {
     try {
-      const id =
-        resourceId instanceof mongooseTypes.ObjectId
-          ? resourceId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(resourceId);
-
       let logs;
       if (type === databaseTypes.constants.RESOURCE_MODEL.PROJECT) {
         logs = await mongoDbConnection.models.ActivityLogModel.queryActivityLogs({
-          projectId: id,
+          projectId: resourceId,
           onModel: {$ne: 'processTracking'},
         });
       } else {
         logs = await mongoDbConnection.models.ActivityLogModel.queryActivityLogs({
-          workspaceId: id,
+          workspaceId: resourceId,
           onModel: {$ne: 'processTracking'},
         });
       }
@@ -85,54 +73,25 @@ export class ActivityLogService {
     onModel,
     action,
   }: {
-    actorId: mongooseTypes.ObjectId | string;
-    resourceId: mongooseTypes.ObjectId | string;
+    actorId: string;
+    resourceId: string;
     location: string;
     userAgent: databaseTypes.IUserAgent;
     onModel: databaseTypes.constants.RESOURCE_MODEL;
     action: databaseTypes.constants.ACTION_TYPE;
-    workspaceId?: mongooseTypes.ObjectId | string;
-    projectId?: mongooseTypes.ObjectId | string;
+    workspaceId?: string;
+    projectId?: string;
   }): Promise<databaseTypes.IActivityLog | null> {
     try {
-      const actorCastId =
-        actorId instanceof mongooseTypes.ObjectId
-          ? actorId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(actorId);
-      const resourceCastId =
-        resourceId instanceof mongooseTypes.ObjectId
-          ? resourceId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(resourceId);
-
-      let spaceCastId;
-      if (workspaceId) {
-        spaceCastId =
-          workspaceId instanceof mongooseTypes.ObjectId
-            ? workspaceId
-            : // @ts-ignore
-              new mongooseTypes.ObjectId(workspaceId);
-      }
-
-      let projCastId;
-      if (projectId) {
-        projCastId =
-          projectId instanceof mongooseTypes.ObjectId
-            ? projectId
-            : // @ts-ignore
-              new mongooseTypes.ObjectId(projectId);
-      }
-
       const input = {
-        actor: actorCastId,
+        actor: actorId,
         location,
         userAgent: {...userAgent},
         onModel: onModel,
         action: action,
-        resource: resourceCastId,
-        workspaceId: spaceCastId,
-        projectId: projCastId,
+        resource: resourceId,
+        workspaceId: workspaceId,
+        projectId: projectId,
       };
 
       const log = await mongoDbConnection.models.ActivityLogModel.createActivityLog(input);

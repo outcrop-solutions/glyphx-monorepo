@@ -40,7 +40,7 @@ const MOCK_ACCOUNT_USER_ID = {
   user: new mongoose.Types.ObjectId().toString(),
 };
 
-describe.only('#mongoose/models/account', () => {
+describe('#mongoose/models/account', () => {
   context('createAccount', () => {
     const sandbox = createSandbox();
 

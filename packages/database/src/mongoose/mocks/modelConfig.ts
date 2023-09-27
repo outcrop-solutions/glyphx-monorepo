@@ -1,7 +1,8 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {IModelConfigDocument} from '../interfaces';
-
+import {Types as mongooseTypes} from 'mongoose';
 export const MOCK_MODELCONFIG = {
+  _id: new mongooseTypes.ObjectId(),
   name: 'name',
   current: 'current',
   minColor: {},

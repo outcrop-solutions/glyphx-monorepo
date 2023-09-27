@@ -112,7 +112,7 @@ const MOCK_STATE_IDS = {
   properties: {},
 } as unknown as databaseTypes.IState;
 
-describe.only('#mongoose/models/state', () => {
+describe('#mongoose/models/state', () => {
   context('stateIdExists', () => {
     const sandbox = createSandbox();
     afterEach(() => {

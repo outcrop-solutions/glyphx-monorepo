@@ -2,7 +2,7 @@ import {ProjectTemplateModel} from '../../../mongoose/models/projectTemplate';
 import {ProjectModel} from '../../../mongoose/models/project';
 import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
 import {error} from 'core';
-import mongoose from 'mongoose';
+import mongoose, {Types as mongooseTypes} from 'mongoose';
 import {createSandbox} from 'sinon';
 import {assert} from 'chai';
 import {TagModel} from '../../../mongoose/models';
@@ -584,10 +584,10 @@ describe('#mongoose/models/projectTemplate', () => {
     it('should return an array of ids when the projects can be validated', async () => {
       const inputProjects = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IProject,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IProject,
       ];
 
@@ -599,7 +599,7 @@ describe('#mongoose/models/projectTemplate', () => {
 
       assert.strictEqual(results.length, inputProjects.length);
       results.forEach((r) => {
-        const foundId = inputProjects.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputProjects.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
@@ -670,10 +670,10 @@ describe('#mongoose/models/projectTemplate', () => {
     it('should return an array of ids when the tags can be validated', async () => {
       const inputTags = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.ITag,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.ITag,
       ];
 
@@ -685,7 +685,7 @@ describe('#mongoose/models/projectTemplate', () => {
 
       assert.strictEqual(results.length, inputTags.length);
       results.forEach((r) => {
-        const foundId = inputTags.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputTags.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
@@ -764,6 +764,7 @@ describe('#mongoose/models/projectTemplate', () => {
     }
 
     const mockProjectTemplate: databaseTypes.IProjectTemplate = {
+      _id: new mongooseTypes.ObjectId(),
       createdAt: new Date(),
       updatedAt: new Date(),
       name: 'testProjectTemplate',

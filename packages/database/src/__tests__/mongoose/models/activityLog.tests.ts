@@ -11,7 +11,7 @@ import {ProcessTrackingModel} from '../../../mongoose/models/processTracking';
 import {CustomerPaymentModel} from '../../../mongoose/models/customerPayment';
 import {databaseTypes} from 'types';
 import {error} from 'core';
-import mongoose from 'mongoose';
+import mongoose, {Types as mongooseTypes} from 'mongoose';
 import {createSandbox} from 'sinon';
 
 class MockMongooseQuery {
@@ -32,6 +32,7 @@ class MockMongooseQuery {
   }
 }
 const MOCK_ACTIVITY_LOG = {
+  _id: new mongooseTypes.ObjectId(),
   createdAt: new Date(),
   updatedAt: new Date(),
   actor: {

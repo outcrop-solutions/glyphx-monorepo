@@ -58,7 +58,7 @@ const MOCK_NULLISH_PROJECT = {
   viewName: undefined,
 } as unknown as databaseTypes.IProject;
 
-describe.only('#mongoose/models/project', () => {
+describe('#mongoose/models/project', () => {
   context('projectIdExists', () => {
     const sandbox = createSandbox();
 
@@ -916,7 +916,7 @@ describe.only('#mongoose/models/project', () => {
       sandbox.replace(ProjectTemplateModel, 'projectTemplateIdExists', idExistsStub);
 
       const result = await ProjectModel.validateTemplate({
-        _id: projectTemplateId,
+        id: projectTemplateId.toString(),
       } as unknown as databaseTypes.IProjectTemplate);
 
       assert.strictEqual(result.toString(), projectTemplateId.toString());
@@ -967,7 +967,7 @@ describe.only('#mongoose/models/project', () => {
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', idExistsStub);
 
       const result = await ProjectModel.validateWorkspace({
-        _id: workspaceId,
+        id: workspaceId.toString(),
       } as unknown as databaseTypes.IWorkspace);
 
       assert.strictEqual(result.toString(), workspaceId.toString());
@@ -1528,7 +1528,7 @@ describe.only('#mongoose/models/project', () => {
       const savedStub = sandbox.stub();
       savedStub.resolves();
       findProjectByIdStub.resolves({
-        _id: projectId,
+        id: projectId.toString(),
         members: members,
         save: savedStub,
       });
@@ -1541,7 +1541,7 @@ describe.only('#mongoose/models/project', () => {
       const res = await ProjectModel.removeMembers(
         projectId.toString(),
         members.map((member) => {
-          return {_id: member} as unknown as databaseTypes.IMember;
+          return {id: member} as unknown as databaseTypes.IMember;
         })
       );
 
@@ -1681,7 +1681,7 @@ describe.only('#mongoose/models/project', () => {
       sandbox.replace(MemberModel, 'allMemberIdsExist', allMemberIdsExistStub);
 
       const res = await ProjectModel.validateMembers(
-        members.map((member) => ({_id: member}) as unknown as databaseTypes.IMember)
+        members.map((member) => ({id: member}) as unknown as databaseTypes.IMember)
       );
       assert.deepEqual(res[0]._id.toString(), members[0]);
       assert.isTrue(allMemberIdsExistStub.calledOnce);
@@ -2010,8 +2010,8 @@ describe.only('#mongoose/models/project', () => {
 
       const res = await ProjectModel.removeStates(
         projectId.toString(),
-        states.map((member) => {
-          return {_id: member} as unknown as databaseTypes.IState;
+        states.map((state) => {
+          return {id: state.toString()} as unknown as databaseTypes.IState;
         })
       );
 

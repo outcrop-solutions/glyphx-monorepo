@@ -512,10 +512,10 @@ describe('#mongoose/models/tag', () => {
     it('should return an array of ids when the projects can be validated', async () => {
       const inputProjects = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IProject,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IProject,
       ];
 
@@ -527,7 +527,7 @@ describe('#mongoose/models/tag', () => {
 
       assert.strictEqual(results.length, inputProjects.length);
       results.forEach((r) => {
-        const foundId = inputProjects.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputProjects.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
@@ -598,10 +598,10 @@ describe('#mongoose/models/tag', () => {
     it('should return an array of ids when the workspaces can be validated', async () => {
       const inputWorkspaces = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IWorkspace,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IWorkspace,
       ];
 
@@ -613,7 +613,7 @@ describe('#mongoose/models/tag', () => {
 
       assert.strictEqual(results.length, inputWorkspaces.length);
       results.forEach((r) => {
-        const foundId = inputWorkspaces.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputWorkspaces.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
@@ -621,10 +621,10 @@ describe('#mongoose/models/tag', () => {
     it('should return an array of ids when the workspaceIds can be validated ', async () => {
       const inputWorkspaces = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IWorkspace,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IWorkspace,
       ];
 
@@ -636,7 +636,7 @@ describe('#mongoose/models/tag', () => {
 
       assert.strictEqual(results.length, inputWorkspaces.length);
       results.forEach((r) => {
-        const foundId = inputWorkspaces.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputWorkspaces.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
@@ -698,10 +698,10 @@ describe('#mongoose/models/tag', () => {
     it('should return an array of ids when the templates can be validated', async () => {
       const inputTemplates = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IProjectTemplate,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IProjectTemplate,
       ];
 
@@ -713,7 +713,7 @@ describe('#mongoose/models/tag', () => {
 
       assert.strictEqual(results.length, inputTemplates.length);
       results.forEach((r) => {
-        const foundId = inputTemplates.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputTemplates.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
@@ -721,10 +721,10 @@ describe('#mongoose/models/tag', () => {
     it('should return an array of ids when the templateIds can be validated ', async () => {
       const inputTemplates = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IProjectTemplate,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IProjectTemplate,
       ];
 
@@ -736,7 +736,7 @@ describe('#mongoose/models/tag', () => {
 
       assert.strictEqual(results.length, inputTemplates.length);
       results.forEach((r) => {
-        const foundId = inputTemplates.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputTemplates.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });

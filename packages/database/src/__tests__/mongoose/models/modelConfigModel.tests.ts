@@ -130,22 +130,11 @@ describe('#mongoose/models/modelConfig', () => {
     it('will not throw an error when no unsafe fields are present', async () => {
       let errored = false;
 
+      const safeMock = {...mocks.MOCK_MODELCONFIG};
+      delete safeMock['_id'];
       try {
         await ModelConfigModel.validateUpdateObject(
-          mocks.MOCK_MODELCONFIG as unknown as Omit<Partial<databaseTypes.IModelConfig>, '_id'>
-        );
-      } catch (err) {
-        errored = true;
-      }
-      assert.isFalse(errored);
-    });
-
-    it('will not throw an error when the related fields exist in the database', async () => {
-      let errored = false;
-
-      try {
-        await ModelConfigModel.validateUpdateObject(
-          mocks.MOCK_MODELCONFIG as unknown as Omit<Partial<databaseTypes.IModelConfig>, '_id'>
+          safeMock as unknown as Omit<Partial<databaseTypes.IModelConfig>, '_id'>
         );
       } catch (err) {
         errored = true;
@@ -313,7 +302,7 @@ describe('#mongoose/models/modelConfig', () => {
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any)?.__v);
 
-      assert.strictEqual(doc._id, mocks.MOCK_MODELCONFIG._id);
+      assert.strictEqual(doc.id, mocks.MOCK_MODELCONFIG._id!.toString());
     });
 
     it('will throw a DataNotFoundError when the modelConfig does not exist', async () => {

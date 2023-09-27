@@ -2,7 +2,7 @@ import {EmailClient, workspaceCreateHtml, workspaceCreateText, inviteHtml, invit
 import {IWorkspacePath, databaseTypes, IQueryResult} from 'types';
 import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
-import {Types as mongooseTypes} from 'mongoose';
+
 import {v4} from 'uuid';
 import {DBFormatter} from 'database/src/lib/format';
 
@@ -25,7 +25,7 @@ export class WorkspaceService {
   }
 
   public static async createWorkspace(
-    creatorId: mongooseTypes.ObjectId | string,
+    creatorId: string,
     email: string,
     name: string,
     slug: string
@@ -39,24 +39,15 @@ export class WorkspaceService {
         count = await WorkspaceService.countWorkspaces(newSlug);
       }
 
-      const castCreatorId =
-        typeof creatorId === 'string'
-          ? // @ts-ignore
-            new mongooseTypes.ObjectId(creatorId)
-          : creatorId;
-
       const input = {
         workspaceCode: v4().replaceAll('-', ''),
         inviteCode: v4().replaceAll('-', ''),
-        creator: castCreatorId,
+        creator: creatorId,
         name,
         slug: newSlug,
       } as unknown as Omit<databaseTypes.IWorkspace, '_id'>;
 
       const workspace = await mongoDbConnection.models.WorkspaceModel.createWorkspace(input);
-
-      const workspaceId =
-        workspace instanceof mongooseTypes.ObjectId ? workspace : (workspace._id as mongooseTypes.ObjectId);
 
       const member = await mongoDbConnection.models.MemberModel.createWorkspaceMember({
         inviter: email,
@@ -65,18 +56,15 @@ export class WorkspaceService {
         type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
         status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
         teamRole: databaseTypes.constants.ROLE.OWNER,
-        member: {_id: castCreatorId} as unknown as databaseTypes.IUser,
-        invitedBy: {_id: castCreatorId} as unknown as databaseTypes.IUser,
-        workspace: {_id: workspaceId} as unknown as databaseTypes.IWorkspace,
-      } as unknown as databaseTypes.IMember);
+        member: creatorId,
+        invitedBy: creatorId,
+        workspace: workspace.id!,
+      });
 
-      const newWorkspace = await mongoDbConnection.models.WorkspaceModel.addMembers(
-        workspace?._id as unknown as mongooseTypes.ObjectId,
-        [member]
-      );
+      const newWorkspace = await mongoDbConnection.models.WorkspaceModel.addMembers(workspace.id!, [member]);
 
-      await mongoDbConnection.models.UserModel.addMembership(castCreatorId, [member]);
-      await mongoDbConnection.models.UserModel.addWorkspaces(castCreatorId, [newWorkspace]);
+      await mongoDbConnection.models.UserModel.addMembership(creatorId, [member]);
+      await mongoDbConnection.models.UserModel.addWorkspaces(creatorId, [newWorkspace]);
 
       await EmailClient.sendMail({
         html: workspaceCreateHtml({code: workspace.inviteCode, name}),
@@ -105,27 +93,14 @@ export class WorkspaceService {
   }
 
   public static async deleteWorkspace(
-    userId: mongooseTypes.ObjectId | string,
+    userId: string,
     email: string,
     slug: string
   ): Promise<databaseTypes.IWorkspace | null> {
     try {
-      const id =
-        userId instanceof mongooseTypes.ObjectId
-          ? userId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(userId);
-
       const workspace = await WorkspaceService.getOwnWorkspace(userId, email, slug);
 
       if (workspace) {
-        const workId = workspace._id;
-        const workspaceId =
-          workId instanceof mongooseTypes.ObjectId
-            ? workId
-            : // @ts-ignore
-              new mongooseTypes.ObjectId(workId);
-
         // delete workspace
         await mongoDbConnection.models.WorkspaceModel.updateWorkspaceByFilter(
           {slug: slug},
@@ -135,18 +110,17 @@ export class WorkspaceService {
         );
 
         // remove workspace and membership from user
-        await mongoDbConnection.models.UserModel.removeWorkspaces(id, [workspaceId]);
-
-        const userMember = workspace.members.filter((mem: any) => mem.member.toString() === id.toString());
+        await mongoDbConnection.models.UserModel.removeWorkspaces(userId, [workspace.id!]);
+        const userMember = workspace.members.filter((mem: any) => mem.member.toString() === userId);
 
         if (userMember?.length > 0) {
-          await mongoDbConnection.models.UserModel.removeMembership(id, [...userMember]);
+          await mongoDbConnection.models.UserModel.removeMembership(userId, [...userMember]);
         }
 
         if (workspace?.members?.length > 0) {
           // delete all associated members
           await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
-            {workspace: workspaceId},
+            {workspace: workspace.id},
             {deletedAt: new Date()}
           );
         }
@@ -154,7 +128,7 @@ export class WorkspaceService {
         if (workspace?.projects?.length > 0) {
           // delete all projects associated with workspace
           await mongoDbConnection.models.ProjectModel.updateProjectWithFilter(
-            {workspace: workspaceId},
+            {workspace: workspace.id},
             {deletedAt: new Date()}
           );
         }
@@ -194,11 +168,7 @@ export class WorkspaceService {
    * @returns Promise<databaseTypes.IWorkspace | null>
    */
 
-  static async getOwnWorkspace(
-    userId: mongooseTypes.ObjectId | string,
-    email: string,
-    slug: string
-  ): Promise<databaseTypes.IWorkspace | null> {
+  static async getOwnWorkspace(userId: string, email: string, slug: string): Promise<databaseTypes.IWorkspace | null> {
     // @jp: we need a clean way to implement filter on related records here
     try {
       const workspaces = await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
@@ -296,11 +266,7 @@ export class WorkspaceService {
    * @returns Promise<databaseTypes.IWorkspace | null>
    */
 
-  static async getWorkspace(
-    userId: mongooseTypes.ObjectId | string,
-    email: string,
-    slug: string
-  ): Promise<databaseTypes.IWorkspace | null> {
+  static async getWorkspace(userId: string, email: string, slug: string): Promise<databaseTypes.IWorkspace | null> {
     // @jp: we need a clean way to implement filter on related records here
     try {
       const workspaces = await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
@@ -342,10 +308,7 @@ export class WorkspaceService {
    * @param email //user's email
    * @returns Promise<databaseTypes.IWorkspace | null>
    */
-  static async getWorkspaces(
-    userId: mongooseTypes.ObjectId | string,
-    email: string
-  ): Promise<databaseTypes.IWorkspace[] | null> {
+  static async getWorkspaces(userId: string, email: string): Promise<databaseTypes.IWorkspace[] | null> {
     try {
       const workspaces = await mongoDbConnection.models.WorkspaceModel.aggregate(
         [
@@ -437,7 +400,7 @@ export class WorkspaceService {
    * @returns Promise<databaseTypes.IWorkspace | null>
    */
   static async inviteUsers(
-    userId: mongooseTypes.ObjectId | string,
+    userId: string,
     email: string,
     members: {
       email: string;
@@ -452,13 +415,7 @@ export class WorkspaceService {
       const workspace = await WorkspaceService.getOwnWorkspace(userId, email, slug);
       const inviter = email;
 
-      const id =
-        userId instanceof mongooseTypes.ObjectId
-          ? userId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(userId);
-
-      const invitedBy = await mongoDbConnection.models.UserModel.getUserById(id);
+      const invitedBy = await mongoDbConnection.models.UserModel.getUserById(userId);
 
       if (workspace) {
         const membersList = members.map(
@@ -468,21 +425,18 @@ export class WorkspaceService {
             invitedAt: new Date(),
             status: databaseTypes.constants.INVITATION_STATUS.PENDING,
             teamRole,
-            invitedBy: invitedBy._id,
-            workspace: workspace._id,
+            invitedBy: invitedBy.id,
+            workspace: workspace.id,
           })
         );
 
         const createdMembers = await mongoDbConnection.models.MemberModel.create(membersList);
-
         const memberIds = createdMembers.map((mem) => {
-          return mem._id;
+          return mem._id.toString(); // FIXME: This should be added to the db layer as createMany()
         });
+
         await Promise.all([
-          mongoDbConnection.models.WorkspaceModel.addMembers(
-            workspace._id as mongooseTypes.ObjectId,
-            memberIds as unknown as mongooseTypes.ObjectId[]
-          ),
+          mongoDbConnection.models.WorkspaceModel.addMembers(workspace.id!, [...memberIds]),
           EmailClient.sendMail({
             html: inviteHtml({
               code: workspace.inviteCode,
@@ -554,7 +508,7 @@ export class WorkspaceService {
         memberExists = await mongoDbConnection.models.MemberModel.memberExists(
           email,
           databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
-          workspaces.results[0]._id as unknown as mongooseTypes.ObjectId
+          workspaces.results[0].id!
         );
 
         const input = {
@@ -575,10 +529,7 @@ export class WorkspaceService {
           member = await mongoDbConnection.models.MemberModel.updateMemberWithFilter({email}, input);
         }
 
-        const workspace = await mongoDbConnection.models.WorkspaceModel.addMembers(
-          workspaces.results[0]._id as unknown as mongooseTypes.ObjectId,
-          [member]
-        );
+        const workspace = await mongoDbConnection.models.WorkspaceModel.addMembers(workspaces.results[0].id!, [member]);
 
         return workspace;
       } else {
@@ -607,22 +558,14 @@ export class WorkspaceService {
     }
   }
 
-  static async updateWorkspaceName(
-    userId: mongooseTypes.ObjectId | string,
-    email: string,
-    name: string,
-    slug: string
-  ): Promise<string | null> {
+  static async updateWorkspaceName(userId: string, email: string, name: string, slug: string): Promise<string | null> {
     try {
       const workspace = await WorkspaceService.getOwnWorkspace(userId, email, slug);
 
       if (workspace) {
-        const newWorkspace = await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(
-          workspace._id as unknown as mongooseTypes.ObjectId,
-          {
-            name,
-          }
-        );
+        const newWorkspace = await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(workspace.id!, {
+          name,
+        });
         return newWorkspace.name;
       } else {
         throw new error.DataNotFoundError('Unable to find workspace', 'workspace', {userId, email, slug});
@@ -649,22 +592,14 @@ export class WorkspaceService {
     }
   }
 
-  static async updateWorkspaceSlug(
-    userId: mongooseTypes.ObjectId | string,
-    email: string,
-    newSlug: string,
-    pathSlug: string
-  ) {
+  static async updateWorkspaceSlug(userId: string, email: string, newSlug: string, pathSlug: string) {
     try {
       const workspace = await WorkspaceService.getOwnWorkspace(userId, email, pathSlug);
 
       if (workspace) {
-        await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(
-          workspace._id as unknown as mongooseTypes.ObjectId,
-          {
-            slug: newSlug.toLowerCase(),
-          }
-        );
+        await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(workspace.id!, {
+          slug: newSlug.toLowerCase(),
+        });
         return newSlug.toLowerCase();
       } else {
         throw new error.DataNotFoundError('Unable to find workspace', 'workspace', {
@@ -696,17 +631,11 @@ export class WorkspaceService {
   }
 
   public static async addTags(
-    workspaceId: mongooseTypes.ObjectId | string,
-    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+    workspaceId: string,
+    tags: (databaseTypes.ITag | string)[]
   ): Promise<databaseTypes.IWorkspace> {
     try {
-      const id =
-        workspaceId instanceof mongooseTypes.ObjectId
-          ? workspaceId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(workspaceId);
-      const updatedWorkspace = await mongoDbConnection.models.WorkspaceModel.addTags(id, tags);
-
+      const updatedWorkspace = await mongoDbConnection.models.WorkspaceModel.addTags(workspaceId, tags);
       return updatedWorkspace;
     } catch (err: any) {
       if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
