@@ -255,7 +255,7 @@ describe('#mongoose/models/workspace', () => {
       validateUpdateObjectStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'validateUpdateObject', validateUpdateObjectStub);
 
-      const result = await WorkspaceModel.updateWorkspaceById(workspaceId, updateWorkspace);
+      const result = await WorkspaceModel.updateWorkspaceById(workspaceId.toString(), updateWorkspace);
 
       assert.strictEqual(result._id, workspaceId);
       assert.isTrue(updateStub.calledOnce);
@@ -285,7 +285,7 @@ describe('#mongoose/models/workspace', () => {
       validateUpdateObjectStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'validateUpdateObject', validateUpdateObjectStub);
 
-      const result = await WorkspaceModel.updateWorkspaceById(workspaceId, updateWorkspace);
+      const result = await WorkspaceModel.updateWorkspaceById(workspaceId.toString(), updateWorkspace);
 
       assert.strictEqual(result._id, workspaceId);
       assert.isTrue(updateStub.calledOnce);
@@ -319,7 +319,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errorred = false;
       try {
-        await WorkspaceModel.updateWorkspaceById(workspaceId, updateWorkspace);
+        await WorkspaceModel.updateWorkspaceById(workspaceId.toString(), updateWorkspace);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -349,7 +349,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errorred = false;
       try {
-        await WorkspaceModel.updateWorkspaceById(workspaceId, updateWorkspace);
+        await WorkspaceModel.updateWorkspaceById(workspaceId.toString(), updateWorkspace);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errorred = true;
@@ -378,7 +378,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errorred = false;
       try {
-        await WorkspaceModel.updateWorkspaceById(workspaceId, updateWorkspace);
+        await WorkspaceModel.updateWorkspaceById(workspaceId.toString(), updateWorkspace);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -405,7 +405,7 @@ describe('#mongoose/models/workspace', () => {
 
     it('will fail when trying to update projects', async () => {
       const inputWorkspace = {
-        projects: [new mongoose.Types.ObjectId()],
+        projects: [new mongoose.Types.ObjectId().toString()],
         members: [],
       } as unknown as databaseTypes.IWorkspace;
 
@@ -422,7 +422,7 @@ describe('#mongoose/models/workspace', () => {
     it('will fail when trying to update members', async () => {
       const inputWorkspace = {
         projects: [],
-        members: [new mongoose.Types.ObjectId()],
+        members: [new mongoose.Types.ObjectId().toString()],
       } as unknown as databaseTypes.IWorkspace;
 
       let errored = false;
@@ -542,7 +542,7 @@ describe('#mongoose/models/workspace', () => {
 
       const workspaceId = new mongoose.Types.ObjectId();
 
-      await WorkspaceModel.deleteWorkspaceById(workspaceId);
+      await WorkspaceModel.deleteWorkspaceById(workspaceId.toString());
 
       assert.isTrue(deleteStub.calledOnce);
     });
@@ -556,7 +556,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errorred = false;
       try {
-        await WorkspaceModel.deleteWorkspaceById(workspaceId);
+        await WorkspaceModel.deleteWorkspaceById(workspaceId.toString());
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -574,7 +574,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errorred = false;
       try {
-        await WorkspaceModel.deleteWorkspaceById(workspaceId);
+        await WorkspaceModel.deleteWorkspaceById(workspaceId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -681,7 +681,7 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('should return an array of ids when the memberIds can be validated ', async () => {
-      const inputMembers = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const inputMembers = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
 
       const allMemberIdsExistStub = sandbox.stub();
       allMemberIdsExistStub.resolves(true);
@@ -691,13 +691,13 @@ describe('#mongoose/models/workspace', () => {
 
       assert.strictEqual(results.length, inputMembers.length);
       results.forEach((r) => {
-        const foundId = inputMembers.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputMembers.find((p) => p === r.toString());
         assert.isOk(foundId);
       });
     });
 
     it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
-      const inputMembers = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const inputMembers = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
 
       const allMemberIdsExistStub = sandbox.stub();
       allMemberIdsExistStub.rejects(
@@ -717,7 +717,7 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('should rethrow an error from the underlying connection', async () => {
-      const inputMembers = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const inputMembers = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
 
       const errorText = 'something bad has happened';
 
@@ -767,7 +767,7 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('should return an array of ids when the tagIds can be validated ', async () => {
-      const inputTags = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const inputTags = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
 
       const allTagIdsExistStub = sandbox.stub();
       allTagIdsExistStub.resolves(true);
@@ -777,13 +777,13 @@ describe('#mongoose/models/workspace', () => {
 
       assert.strictEqual(results.length, inputTags.length);
       results.forEach((r) => {
-        const foundId = inputTags.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputTags.find((p) => p === r.toString());
         assert.isOk(foundId);
       });
     });
 
     it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
-      const inputTags = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const inputTags = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
 
       const allTagIdsExistStub = sandbox.stub();
       allTagIdsExistStub.rejects(new error.DataNotFoundError('the user ids cannot be found', 'userIds', inputTags));
@@ -801,7 +801,7 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('should rethrow an error from the underlying connection', async () => {
-      const inputTags = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const inputTags = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
 
       const errorText = 'something bad has happened';
 
@@ -851,7 +851,7 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('should return an array of ids when the projectIds can be validated ', async () => {
-      const inputProjects = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const inputProjects = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
 
       const allProjectIdsExistStub = sandbox.stub();
       allProjectIdsExistStub.resolves(true);
@@ -861,13 +861,13 @@ describe('#mongoose/models/workspace', () => {
 
       assert.strictEqual(results.length, inputProjects.length);
       results.forEach((r) => {
-        const foundId = inputProjects.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputProjects.find((p) => p === r.toString());
         assert.isOk(foundId);
       });
     });
 
     it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
-      const inputProjects = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const inputProjects = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
 
       const allProjectIdsExistStub = sandbox.stub();
       allProjectIdsExistStub.rejects(
@@ -887,7 +887,7 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('should rethrow an error from the underlying connection', async () => {
-      const inputProjects = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const inputProjects = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
 
       const errorText = 'something bad has happened';
 
@@ -970,7 +970,7 @@ describe('#mongoose/models/workspace', () => {
       findByIdStub.returns(new MockMongooseQuery(mockWorkspace));
       sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
-      const doc = await WorkspaceModel.getWorkspaceById(mockWorkspace._id as mongoose.Types.ObjectId);
+      const doc = await WorkspaceModel.getWorkspaceById(mockWorkspace._id!.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
@@ -993,7 +993,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.getWorkspaceById(mockWorkspace._id as mongoose.Types.ObjectId);
+        await WorkspaceModel.getWorkspaceById(mockWorkspace._id!.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1009,7 +1009,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.getWorkspaceById(mockWorkspace._id as mongoose.Types.ObjectId);
+        await WorkspaceModel.getWorkspaceById(mockWorkspace._id!.toString());
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1048,7 +1048,7 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves(localMockOrg);
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const updatedWorkspace = await WorkspaceModel.addProjects(orgId, [projectId]);
+      const updatedWorkspace = await WorkspaceModel.addProjects(orgId.toString(), [projectId.toString()]);
 
       assert.strictEqual(updatedWorkspace._id, orgId);
       assert.strictEqual(updatedWorkspace.projects[0].toString(), projectId.toString());
@@ -1081,7 +1081,7 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves(localMockOrg);
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const updatedWorkspace = await WorkspaceModel.addProjects(orgId, [projectId]);
+      const updatedWorkspace = await WorkspaceModel.addProjects(orgId.toString(), [projectId.toString()]);
 
       assert.strictEqual(updatedWorkspace._id, orgId);
       assert.strictEqual(updatedWorkspace.projects[0].toString(), projectId.toString());
@@ -1116,7 +1116,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.addProjects(orgId, [projectId]);
+        await WorkspaceModel.addProjects(orgId.toString(), [projectId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1151,7 +1151,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.addProjects(orgId, [projectId]);
+        await WorkspaceModel.addProjects(orgId.toString(), [projectId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         errored = true;
@@ -1184,7 +1184,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.addProjects(workspaceId, [projectId]);
+        await WorkspaceModel.addProjects(workspaceId.toString(), [projectId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1217,7 +1217,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.addProjects(workspaceId, []);
+        await WorkspaceModel.addProjects(workspaceId.toString(), []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1253,7 +1253,7 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const updatedWorkspace = await WorkspaceModel.removeProjects(workspaceId, [projectId]);
+      const updatedWorkspace = await WorkspaceModel.removeProjects(workspaceId.toString(), [projectId.toString()]);
 
       assert.strictEqual(updatedWorkspace._id, workspaceId);
       assert.strictEqual(updatedWorkspace.projects.length, 0);
@@ -1282,7 +1282,7 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const updatedWorkspace = await WorkspaceModel.removeProjects(workspaceId, [
+      const updatedWorkspace = await WorkspaceModel.removeProjects(workspaceId.toString(), [
         {_id: projectId} as unknown as databaseTypes.IProject,
       ]);
 
@@ -1312,7 +1312,9 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const updatedWorkspace = await WorkspaceModel.removeProjects(orgId, [new mongoose.Types.ObjectId()]);
+      const updatedWorkspace = await WorkspaceModel.removeProjects(orgId.toString(), [
+        new mongoose.Types.ObjectId().toString(),
+      ]);
 
       assert.strictEqual(updatedWorkspace._id, orgId);
       assert.strictEqual(updatedWorkspace.projects.length, 1);
@@ -1343,7 +1345,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.removeProjects(orgId, [projectId]);
+        await WorkspaceModel.removeProjects(orgId.toString(), [projectId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1373,7 +1375,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.removeProjects(workspaceId, [projectId]);
+        await WorkspaceModel.removeProjects(workspaceId.toString(), [projectId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1403,7 +1405,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.removeProjects(orgId, []);
+        await WorkspaceModel.removeProjects(orgId.toString(), []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1442,7 +1444,7 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves(localMockOrg);
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const updatedWorkspace = await WorkspaceModel.addMembers(orgId, [userId]);
+      const updatedWorkspace = await WorkspaceModel.addMembers(orgId.toString(), [userId.toString()]);
 
       assert.strictEqual(updatedWorkspace._id, orgId);
       assert.strictEqual(updatedWorkspace.members[0].toString(), userId.toString());
@@ -1475,7 +1477,7 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves(localMockOrg);
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const updatedWorkspace = await WorkspaceModel.addMembers(orgId, [userId]);
+      const updatedWorkspace = await WorkspaceModel.addMembers(orgId.toString(), [userId.toString()]);
 
       assert.strictEqual(updatedWorkspace._id, orgId);
       assert.strictEqual(updatedWorkspace.members[0].toString(), userId.toString());
@@ -1510,7 +1512,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.addMembers(orgId, [userId]);
+        await WorkspaceModel.addMembers(orgId.toString(), [userId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1543,7 +1545,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.addMembers(orgId, [userId]);
+        await WorkspaceModel.addMembers(orgId.toString(), [userId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         errored = true;
@@ -1576,7 +1578,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.addMembers(workspaceId, [userId]);
+        await WorkspaceModel.addMembers(workspaceId.toString(), [userId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1609,7 +1611,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.addMembers(workspaceId, []);
+        await WorkspaceModel.addMembers(workspaceId.toString(), []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1645,7 +1647,7 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const updatedWorkspace = await WorkspaceModel.removeMembers(workspaceId, [userId]);
+      const updatedWorkspace = await WorkspaceModel.removeMembers(workspaceId.toString(), [userId.toString()]);
 
       assert.strictEqual(updatedWorkspace._id, workspaceId);
       assert.strictEqual(updatedWorkspace.members.length, 0);
@@ -1674,7 +1676,7 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const updatedWorkspace = await WorkspaceModel.removeMembers(workspaceId, [
+      const updatedWorkspace = await WorkspaceModel.removeMembers(workspaceId.toString(), [
         {_id: userId} as unknown as databaseTypes.IMember,
       ]);
 
@@ -1704,7 +1706,9 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const updatedWorkspace = await WorkspaceModel.removeMembers(orgId, [new mongoose.Types.ObjectId()]);
+      const updatedWorkspace = await WorkspaceModel.removeMembers(orgId.toString(), [
+        new mongoose.Types.ObjectId().toString(),
+      ]);
 
       assert.strictEqual(updatedWorkspace._id, orgId);
       assert.strictEqual(updatedWorkspace.members.length, 1);
@@ -1735,7 +1739,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.removeMembers(orgId, [userId]);
+        await WorkspaceModel.removeMembers(orgId.toString(), [userId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1765,7 +1769,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.removeMembers(workspaceId, [userId]);
+        await WorkspaceModel.removeMembers(workspaceId.toString(), [userId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1795,7 +1799,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.removeMembers(orgId, []);
+        await WorkspaceModel.removeMembers(orgId.toString(), []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1823,7 +1827,7 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const validateTagsStub = sandbox.stub();
-      validateTagsStub.resolves([tagId]);
+      validateTagsStub.resolves([tagId.toString()]);
       sandbox.replace(WorkspaceModel, 'validateTags', validateTagsStub);
 
       const saveStub = sandbox.stub();
@@ -1834,7 +1838,7 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves(localMockOrg);
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const updatedWorkspace = await WorkspaceModel.addTags(orgId, [tagId]);
+      const updatedWorkspace = await WorkspaceModel.addTags(orgId.toString(), [tagId.toString()]);
 
       assert.strictEqual(updatedWorkspace._id, orgId);
       assert.strictEqual(updatedWorkspace.tags[0].toString(), tagId.toString());
@@ -1856,7 +1860,7 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const validateTagsStub = sandbox.stub();
-      validateTagsStub.resolves([tagId]);
+      validateTagsStub.resolves([tagId.toString()]);
       sandbox.replace(WorkspaceModel, 'validateTags', validateTagsStub);
 
       const saveStub = sandbox.stub();
@@ -1867,7 +1871,7 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves(localMockOrg);
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const updatedWorkspace = await WorkspaceModel.addTags(orgId, [tagId]);
+      const updatedWorkspace = await WorkspaceModel.addTags(orgId.toString(), [tagId.toString()]);
 
       assert.strictEqual(updatedWorkspace._id, orgId);
       assert.strictEqual(updatedWorkspace.tags[0].toString(), tagId.toString());
@@ -1889,7 +1893,7 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const validateTagsStub = sandbox.stub();
-      validateTagsStub.resolves([tagId]);
+      validateTagsStub.resolves([tagId.toString()]);
       sandbox.replace(WorkspaceModel, 'validateTags', validateTagsStub);
 
       const saveStub = sandbox.stub();
@@ -1902,7 +1906,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.addTags(orgId, [tagId]);
+        await WorkspaceModel.addTags(orgId.toString(), [tagId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1935,7 +1939,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.addTags(orgId, [tagId]);
+        await WorkspaceModel.addTags(orgId.toString(), [tagId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         errored = true;
@@ -1955,7 +1959,7 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const validateTagsStub = sandbox.stub();
-      validateTagsStub.resolves([tagId]);
+      validateTagsStub.resolves([tagId.toString()]);
       sandbox.replace(WorkspaceModel, 'validateTags', validateTagsStub);
 
       const saveStub = sandbox.stub();
@@ -1968,7 +1972,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.addTags(workspaceId, [tagId]);
+        await WorkspaceModel.addTags(workspaceId.toString(), [tagId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1988,7 +1992,7 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
       const validateTagsStub = sandbox.stub();
-      validateTagsStub.resolves([tagId]);
+      validateTagsStub.resolves([tagId.toString()]);
       sandbox.replace(WorkspaceModel, 'validateTags', validateTagsStub);
 
       const saveStub = sandbox.stub();
@@ -2001,7 +2005,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.addTags(workspaceId, []);
+        await WorkspaceModel.addTags(workspaceId.toString(), []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -2037,7 +2041,7 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const updatedWorkspace = await WorkspaceModel.removeTags(workspaceId, [tagId]);
+      const updatedWorkspace = await WorkspaceModel.removeTags(workspaceId.toString(), [tagId.toString()]);
 
       assert.strictEqual(updatedWorkspace._id, workspaceId);
       assert.strictEqual(updatedWorkspace.tags.length, 0);
@@ -2066,7 +2070,7 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const updatedWorkspace = await WorkspaceModel.removeTags(workspaceId, [
+      const updatedWorkspace = await WorkspaceModel.removeTags(workspaceId.toString(), [
         {_id: tagId} as unknown as databaseTypes.ITag,
       ]);
 
@@ -2096,7 +2100,9 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves(localMockWorkspace);
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const updatedWorkspace = await WorkspaceModel.removeTags(orgId, [new mongoose.Types.ObjectId()]);
+      const updatedWorkspace = await WorkspaceModel.removeTags(orgId.toString(), [
+        new mongoose.Types.ObjectId().toString(),
+      ]);
 
       assert.strictEqual(updatedWorkspace._id, orgId);
       assert.strictEqual(updatedWorkspace.tags.length, 1);
@@ -2127,7 +2133,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.removeTags(orgId, [tagId]);
+        await WorkspaceModel.removeTags(orgId.toString(), [tagId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -2157,7 +2163,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.removeTags(workspaceId, [tagId]);
+        await WorkspaceModel.removeTags(workspaceId.toString(), [tagId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -2187,7 +2193,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.removeTags(orgId, []);
+        await WorkspaceModel.removeTags(orgId.toString(), []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -2356,7 +2362,7 @@ describe('#mongoose/models/workspace', () => {
       idExistsStub.resolves(true);
       sandbox.replace(UserModel, 'userIdExists', idExistsStub);
 
-      const result = await WorkspaceModel.validateUser(userId);
+      const result = await WorkspaceModel.validateUser(userId.toString());
 
       assert.strictEqual(result.toString(), userId.toString());
       assert.isTrue(idExistsStub.calledOnce);
@@ -2384,7 +2390,7 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(UserModel, 'userIdExists', idExistsStub);
       let errored = false;
       try {
-        await WorkspaceModel.validateUser(userId);
+        await WorkspaceModel.validateUser(userId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         errored = true;
@@ -2400,29 +2406,18 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('will validate the states where the ids are objectIds', async () => {
-      const stateIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const stateIds = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
       const allStateIdsExistStub = sandbox.stub();
       allStateIdsExistStub.resolves();
       sandbox.replace(StateModel, 'allStateIdsExist', allStateIdsExistStub);
 
       const res = await WorkspaceModel.validateStates(stateIds);
-      assert.deepEqual(res, stateIds);
-      assert.isTrue(allStateIdsExistStub.calledOnce);
-    });
-
-    it('will validate the states where the ids are objects', async () => {
-      const stateIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
-      const allStateIdsExistStub = sandbox.stub();
-      allStateIdsExistStub.resolves();
-      sandbox.replace(StateModel, 'allStateIdsExist', allStateIdsExistStub);
-
-      const res = await WorkspaceModel.validateStates(stateIds.map((id) => ({_id: id}) as databaseTypes.IState));
-      assert.deepEqual(res, stateIds);
+      assert.deepEqual(res[0]._id.toString(), stateIds[0]);
       assert.isTrue(allStateIdsExistStub.calledOnce);
     });
 
     it('will wrap a DataNotFoundError in a DataValidationError', async () => {
-      const stateIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const stateIds = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
       const allStateIdsExistStub = sandbox.stub();
       allStateIdsExistStub.rejects(new error.DataNotFoundError('The data does not exist', 'stateIds', stateIds));
       sandbox.replace(StateModel, 'allStateIdsExist', allStateIdsExistStub);
@@ -2438,7 +2433,7 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('will pass through a DatabaseOperationError', async () => {
-      const stateIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const stateIds = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
       const allStateIdsExistStub = sandbox.stub();
       allStateIdsExistStub.rejects(
         new error.DatabaseOperationError(
@@ -2469,7 +2464,7 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('will add the states as ObjectIds', async () => {
-      const stateIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const stateIds = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
       const workspaceId = new mongoose.Types.ObjectId();
       const findWorkspaceByIdStub = sandbox.stub();
       const saveStub = sandbox.stub();
@@ -2489,7 +2484,7 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves({_id: workspaceId, states: []});
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const res = await WorkspaceModel.addStates(workspaceId, stateIds);
+      const res = await WorkspaceModel.addStates(workspaceId.toString(), stateIds);
 
       assert.isOk(res);
       assert.isTrue(findWorkspaceByIdStub.calledOnce);
@@ -2499,7 +2494,7 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('will not add the states if they already exist on the workspace', async () => {
-      const stateIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const stateIds = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
       const workspaceId = new mongoose.Types.ObjectId();
       const findWorkspaceByIdStub = sandbox.stub();
       const saveStub = sandbox.stub();
@@ -2519,7 +2514,7 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves({_id: workspaceId, states: []});
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const res = await WorkspaceModel.addStates(workspaceId, stateIds);
+      const res = await WorkspaceModel.addStates(workspaceId.toString(), stateIds);
 
       assert.isOk(res);
       assert.isTrue(findWorkspaceByIdStub.calledOnce);
@@ -2529,7 +2524,7 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('will add the states as objects', async () => {
-      const stateIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const stateIds = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
       const workspaceId = new mongoose.Types.ObjectId();
       const findWorkspaceByIdStub = sandbox.stub();
       const saveStub = sandbox.stub();
@@ -2550,7 +2545,7 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
       const res = await WorkspaceModel.addStates(
-        workspaceId,
+        workspaceId.toString(),
         stateIds.map((id) => ({_id: id}) as unknown as databaseTypes.IState)
       );
 
@@ -2562,7 +2557,7 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('will throw an InvalidArgumentError if the input states length === 0', async () => {
-      const stateIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const stateIds = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
       const workspaceId = new mongoose.Types.ObjectId();
       const findWorkspaceByIdStub = sandbox.stub();
       findWorkspaceByIdStub.resolves({
@@ -2581,7 +2576,7 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
       let errored = false;
       try {
-        await WorkspaceModel.addStates(workspaceId, []);
+        await WorkspaceModel.addStates(workspaceId.toString(), []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -2590,7 +2585,7 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('will throw an DataNotFoundError if the input workspace does not exist', async () => {
-      const stateIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const stateIds = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
       const workspaceId = new mongoose.Types.ObjectId();
       const findWorkspaceByIdStub = sandbox.stub();
       findWorkspaceByIdStub.resolves();
@@ -2605,7 +2600,7 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
       let errored = false;
       try {
-        await WorkspaceModel.addStates(workspaceId, stateIds);
+        await WorkspaceModel.addStates(workspaceId.toString(), stateIds);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -2614,7 +2609,7 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('will throw an DataValidationError if the states do not exist', async () => {
-      const stateIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const stateIds = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
       const workspaceId = new mongoose.Types.ObjectId();
       const findWorkspaceByIdStub = sandbox.stub();
       findWorkspaceByIdStub.resolves({
@@ -2633,7 +2628,7 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
       let errored = false;
       try {
-        await WorkspaceModel.addStates(workspaceId, stateIds);
+        await WorkspaceModel.addStates(workspaceId.toString(), stateIds);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         errored = true;
@@ -2642,7 +2637,7 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('will throw an DatabaseOperationError if the underlying database call fails', async () => {
-      const stateIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const stateIds = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
       const workspaceId = new mongoose.Types.ObjectId();
       const findWorkspaceByIdStub = sandbox.stub();
       findWorkspaceByIdStub.resolves({
@@ -2663,7 +2658,7 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
       let errored = false;
       try {
-        await WorkspaceModel.addStates(workspaceId, stateIds);
+        await WorkspaceModel.addStates(workspaceId.toString(), stateIds);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -2681,7 +2676,7 @@ describe('#mongoose/models/workspace', () => {
 
     it('will remove a workspace state', async () => {
       const workspaceId = new mongoose.Types.ObjectId();
-      const states = [new mongoose.Types.ObjectId()];
+      const states = [new mongoose.Types.ObjectId().toString()];
       const findWorkspaceByIdStub = sandbox.stub();
       const savedStub = sandbox.stub();
       savedStub.resolves();
@@ -2696,7 +2691,7 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves({_id: workspaceId, states: states});
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const res = await WorkspaceModel.removeStates(workspaceId, states);
+      const res = await WorkspaceModel.removeStates(workspaceId.toString(), states);
 
       assert.isOk(res);
       assert.isTrue(findWorkspaceByIdStub.calledOnce);
@@ -2706,7 +2701,7 @@ describe('#mongoose/models/workspace', () => {
 
     it('will remove a Workspace states with ids as object', async () => {
       const workspaceId = new mongoose.Types.ObjectId();
-      const states = [new mongoose.Types.ObjectId()];
+      const states = [new mongoose.Types.ObjectId().toString()];
       const findWorkspaceByIdStub = sandbox.stub();
       const savedStub = sandbox.stub();
       savedStub.resolves();
@@ -2722,7 +2717,7 @@ describe('#mongoose/models/workspace', () => {
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
       const res = await WorkspaceModel.removeStates(
-        workspaceId,
+        workspaceId.toString(),
         states.map((member) => {
           return {_id: member} as unknown as databaseTypes.IState;
         })
@@ -2736,7 +2731,7 @@ describe('#mongoose/models/workspace', () => {
 
     it('will not remove non existing project state', async () => {
       const workspaceId = new mongoose.Types.ObjectId();
-      const states = [new mongoose.Types.ObjectId()];
+      const states = [new mongoose.Types.ObjectId().toString()];
       const findWorkspaceByIdStub = sandbox.stub();
       const savedStub = sandbox.stub();
       savedStub.resolves();
@@ -2751,7 +2746,7 @@ describe('#mongoose/models/workspace', () => {
       getWorkspaceByIdStub.resolves({_id: workspaceId, states: states});
       sandbox.replace(WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdStub);
 
-      const res = await WorkspaceModel.removeStates(workspaceId, [new mongoose.Types.ObjectId()]);
+      const res = await WorkspaceModel.removeStates(workspaceId.toString(), [new mongoose.Types.ObjectId().toString()]);
 
       assert.isOk(res);
       assert.isTrue(findWorkspaceByIdStub.calledOnce);
@@ -2761,7 +2756,7 @@ describe('#mongoose/models/workspace', () => {
 
     it('will throw an InvalidArgumentError when the state argument is empty', async () => {
       const workspaceId = new mongoose.Types.ObjectId();
-      const states = [new mongoose.Types.ObjectId()];
+      const states = [new mongoose.Types.ObjectId().toString()];
       const findWorkspaceByIdStub = sandbox.stub();
       const savedStub = sandbox.stub();
       savedStub.resolves();
@@ -2778,7 +2773,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.removeStates(workspaceId, []);
+        await WorkspaceModel.removeStates(workspaceId.toString(), []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -2788,7 +2783,7 @@ describe('#mongoose/models/workspace', () => {
 
     it('will passthrough a DataNotFoundError when the Workspace does exist ', async () => {
       const workspaceId = new mongoose.Types.ObjectId();
-      const states = [new mongoose.Types.ObjectId()];
+      const states = [new mongoose.Types.ObjectId().toString()];
       const findWorkspaceByIdStub = sandbox.stub();
       const savedStub = sandbox.stub();
       savedStub.resolves();
@@ -2801,7 +2796,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.removeStates(workspaceId, states);
+        await WorkspaceModel.removeStates(workspaceId.toString(), states);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -2811,7 +2806,7 @@ describe('#mongoose/models/workspace', () => {
 
     it('will throw a databaseOperationError when the underlying Database call fails', async () => {
       const workspaceId = new mongoose.Types.ObjectId();
-      const states = [new mongoose.Types.ObjectId()];
+      const states = [new mongoose.Types.ObjectId().toString()];
       const findWorkspaceByIdStub = sandbox.stub();
       const savedStub = sandbox.stub();
       savedStub.rejects('The database has failed');
@@ -2828,7 +2823,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.removeStates(workspaceId, states);
+        await WorkspaceModel.removeStates(workspaceId.toString(), states);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;

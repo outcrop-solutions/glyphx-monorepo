@@ -371,7 +371,7 @@ describe.only('#mongoose/models/state', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(StateModel, 'validateUpdateObject', validateStub);
 
-      const result = await StateModel.updateStateById(stateId, updateState);
+      const result = await StateModel.updateStateById(stateId.toString(), updateState);
 
       assert.strictEqual(result._id, stateId);
       assert.isTrue(updateStub.calledOnce);
@@ -396,7 +396,7 @@ describe.only('#mongoose/models/state', () => {
 
       let errorred = false;
       try {
-        await StateModel.updateStateById(stateId, updateState);
+        await StateModel.updateStateById(stateId.toString(), updateState);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -424,7 +424,7 @@ describe.only('#mongoose/models/state', () => {
       sandbox.replace(StateModel, 'validateUpdateObject', validateStub);
       let errorred = false;
       try {
-        await StateModel.updateStateById(stateId, updateState);
+        await StateModel.updateStateById(stateId.toString(), updateState);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errorred = true;
@@ -453,7 +453,7 @@ describe.only('#mongoose/models/state', () => {
 
       let errorred = false;
       try {
-        await StateModel.updateStateById(stateId, updateState);
+        await StateModel.updateStateById(stateId.toString(), updateState);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -547,7 +547,7 @@ describe.only('#mongoose/models/state', () => {
 
       const stateId = new mongoose.Types.ObjectId();
 
-      await StateModel.deleteStateById(stateId);
+      await StateModel.deleteStateById(stateId.toString());
 
       assert.isTrue(deleteStub.calledOnce);
     });
@@ -561,7 +561,7 @@ describe.only('#mongoose/models/state', () => {
 
       let errorred = false;
       try {
-        await StateModel.deleteStateById(stateId);
+        await StateModel.deleteStateById(stateId.toString());
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -579,7 +579,7 @@ describe.only('#mongoose/models/state', () => {
 
       let errorred = false;
       try {
-        await StateModel.deleteStateById(stateId);
+        await StateModel.deleteStateById(stateId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -661,7 +661,7 @@ describe.only('#mongoose/models/state', () => {
       findByIdStub.returns(new MockMongooseQuery(mockState));
       sandbox.replace(StateModel, 'findById', findByIdStub);
 
-      const doc = await StateModel.getStateById(mockState._id as mongoose.Types.ObjectId);
+      const doc = await StateModel.getStateById(mockState._id!.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
@@ -676,7 +676,7 @@ describe.only('#mongoose/models/state', () => {
 
       let errored = false;
       try {
-        await StateModel.getStateById(mockState._id as mongoose.Types.ObjectId);
+        await StateModel.getStateById(mockState._id!.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -692,7 +692,7 @@ describe.only('#mongoose/models/state', () => {
 
       let errored = false;
       try {
-        await StateModel.getStateById(mockState._id as mongoose.Types.ObjectId);
+        await StateModel.getStateById(mockState._id!.toString());
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;

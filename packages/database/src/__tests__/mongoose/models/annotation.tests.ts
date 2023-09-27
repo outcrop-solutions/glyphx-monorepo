@@ -132,7 +132,7 @@ describe('#mongoose/models/annotation', () => {
       findByIdStub.returns(new MockMongooseQuery(MOCK_ANNOTATION));
       sandbox.replace(AnnotationModel, 'findById', findByIdStub);
 
-      const result = await AnnotationModel.getAnnotationById(new mongoose.Types.ObjectId());
+      const result = await AnnotationModel.getAnnotationById(new mongoose.Types.ObjectId().toString());
       assert.isObject(result);
 
       assert.isUndefined((result as any).__v);
@@ -146,7 +146,7 @@ describe('#mongoose/models/annotation', () => {
 
       let errored = false;
       try {
-        await AnnotationModel.getAnnotationById(new mongoose.Types.ObjectId());
+        await AnnotationModel.getAnnotationById(new mongoose.Types.ObjectId().toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -161,7 +161,7 @@ describe('#mongoose/models/annotation', () => {
 
       let errored = false;
       try {
-        await AnnotationModel.getAnnotationById(new mongoose.Types.ObjectId());
+        await AnnotationModel.getAnnotationById(new mongoose.Types.ObjectId().toString());
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -321,7 +321,7 @@ describe('#mongoose/models/annotation', () => {
 
     it('will create an annotation using objectId for the author id and other ids as strings', async () => {
       const input = {...MOCK_ANNOTATION} as IAnnotationCreateInput;
-      input.author = new mongoose.Types.ObjectId();
+      input.author = new mongoose.Types.ObjectId().toString();
       input.projectId = new mongoose.Types.ObjectId().toString();
       input.stateId = new mongoose.Types.ObjectId().toString();
 
@@ -361,7 +361,7 @@ describe('#mongoose/models/annotation', () => {
 
     it('will throw an InvalidArgumentError when the author does not exist.', async () => {
       const input = {...MOCK_ANNOTATION} as IAnnotationCreateInput;
-      input.author = new mongoose.Types.ObjectId();
+      input.author = new mongoose.Types.ObjectId().toString();
       input.projectId = new mongoose.Types.ObjectId();
       input.stateId = new mongoose.Types.ObjectId();
 
@@ -401,7 +401,7 @@ describe('#mongoose/models/annotation', () => {
 
     it('will throw an InvalidArgumentError when the project does not exist.', async () => {
       const input = {...MOCK_ANNOTATION} as IAnnotationCreateInput;
-      input.author = new mongoose.Types.ObjectId();
+      input.author = new mongoose.Types.ObjectId().toString();
       input.projectId = new mongoose.Types.ObjectId();
       input.stateId = new mongoose.Types.ObjectId();
 
@@ -441,7 +441,7 @@ describe('#mongoose/models/annotation', () => {
 
     it('will throw an InvalidArgumentError when the state does not exist.', async () => {
       const input = {...MOCK_ANNOTATION} as IAnnotationCreateInput;
-      input.author = new mongoose.Types.ObjectId();
+      input.author = new mongoose.Types.ObjectId().toString();
       input.projectId = new mongoose.Types.ObjectId();
       input.stateId = new mongoose.Types.ObjectId();
 
@@ -481,7 +481,7 @@ describe('#mongoose/models/annotation', () => {
 
     it('will throw an DataValidationError when the input is not valid.', async () => {
       const input = {...MOCK_ANNOTATION} as IAnnotationCreateInput;
-      input.author = new mongoose.Types.ObjectId();
+      input.author = new mongoose.Types.ObjectId().toString();
       input.projectId = new mongoose.Types.ObjectId();
       input.stateId = new mongoose.Types.ObjectId();
 
@@ -521,7 +521,7 @@ describe('#mongoose/models/annotation', () => {
 
     it('will throw an DatabaseOperationError when the underlyong create fails.', async () => {
       const input = {...MOCK_ANNOTATION} as IAnnotationCreateInput;
-      input.author = new mongoose.Types.ObjectId();
+      input.author = new mongoose.Types.ObjectId().toString();
       input.projectId = new mongoose.Types.ObjectId();
       input.stateId = new mongoose.Types.ObjectId();
 

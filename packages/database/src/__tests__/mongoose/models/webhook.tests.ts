@@ -174,7 +174,7 @@ describe('#mongoose/models/webhook', () => {
       getWebhookStub.resolves({_id: webhookId});
       sandbox.replace(WebhookModel, 'getWebhookById', getWebhookStub);
 
-      const result = await WebhookModel.updateWebhookById(webhookId, updateWebhook);
+      const result = await WebhookModel.updateWebhookById(webhookId.toString(), updateWebhook);
 
       assert.strictEqual(result._id, webhookId);
       assert.isTrue(updateStub.calledOnce);
@@ -204,7 +204,7 @@ describe('#mongoose/models/webhook', () => {
       getWebhookStub.resolves({_id: webhookId});
       sandbox.replace(WebhookModel, 'getWebhookById', getWebhookStub);
 
-      const result = await WebhookModel.updateWebhookById(webhookId, updateWebhook);
+      const result = await WebhookModel.updateWebhookById(webhookId.toString(), updateWebhook);
 
       assert.strictEqual(result._id, webhookId);
       assert.isTrue(updateStub.calledOnce);
@@ -228,7 +228,7 @@ describe('#mongoose/models/webhook', () => {
       sandbox.replace(WebhookModel, 'getWebhookById', getWebhookStub);
       let errorred = false;
       try {
-        await WebhookModel.updateWebhookById(webhookId, updateWebhook);
+        await WebhookModel.updateWebhookById(webhookId.toString(), updateWebhook);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -241,7 +241,7 @@ describe('#mongoose/models/webhook', () => {
         name: 'test webhook',
       };
 
-      const wehookId = new mongoose.Types.ObjectId();
+      const webhookId = new mongoose.Types.ObjectId();
 
       sandbox.replace(
         WebhookModel,
@@ -254,11 +254,11 @@ describe('#mongoose/models/webhook', () => {
       sandbox.replace(WebhookModel, 'updateOne', updateStub);
 
       const getWebhookStub = sandbox.stub();
-      getWebhookStub.resolves({_id: wehookId});
+      getWebhookStub.resolves({_id: webhookId});
       sandbox.replace(WebhookModel, 'getWebhookById', getWebhookStub);
       let errorred = false;
       try {
-        await WebhookModel.updateWebhookById(wehookId, updateWebhook);
+        await WebhookModel.updateWebhookById(webhookId.toString(), updateWebhook);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errorred = true;
@@ -282,7 +282,7 @@ describe('#mongoose/models/webhook', () => {
       sandbox.replace(WebhookModel, 'getWebhookById', getWebhookStub);
       let errorred = false;
       try {
-        await WebhookModel.updateWebhookById(webhookId, updateWebhook);
+        await WebhookModel.updateWebhookById(webhookId.toString(), updateWebhook);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -411,7 +411,7 @@ describe('#mongoose/models/webhook', () => {
 
       const webhookId = new mongoose.Types.ObjectId();
 
-      await WebhookModel.deleteWebhookById(webhookId);
+      await WebhookModel.deleteWebhookById(webhookId.toString());
 
       assert.isTrue(deleteStub.calledOnce);
     });
@@ -425,7 +425,7 @@ describe('#mongoose/models/webhook', () => {
 
       let errorred = false;
       try {
-        await WebhookModel.deleteWebhookById(webhookId);
+        await WebhookModel.deleteWebhookById(webhookId.toString());
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -443,7 +443,7 @@ describe('#mongoose/models/webhook', () => {
 
       let errorred = false;
       try {
-        await WebhookModel.deleteWebhookById(webhookId);
+        await WebhookModel.deleteWebhookById(webhookId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -562,7 +562,7 @@ describe('#mongoose/models/webhook', () => {
       findByIdStub.returns(new MockMongooseQuery(mockWebHook));
       sandbox.replace(WebhookModel, 'findById', findByIdStub);
 
-      const doc = await WebhookModel.getWebhookById(mockWebHook._id as mongoose.Types.ObjectId);
+      const doc = await WebhookModel.getWebhookById(mockWebHook._id!.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
@@ -578,7 +578,7 @@ describe('#mongoose/models/webhook', () => {
 
       let errored = false;
       try {
-        await WebhookModel.getWebhookById(mockWebHook._id as mongoose.Types.ObjectId);
+        await WebhookModel.getWebhookById(mockWebHook._id!.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -594,7 +594,7 @@ describe('#mongoose/models/webhook', () => {
 
       let errored = false;
       try {
-        await WebhookModel.getWebhookById(mockWebHook._id as mongoose.Types.ObjectId);
+        await WebhookModel.getWebhookById(mockWebHook._id!.toString());
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;

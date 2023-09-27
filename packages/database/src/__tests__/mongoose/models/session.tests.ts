@@ -172,7 +172,7 @@ describe('#mongoose/models/session', () => {
       getSessionStub.resolves({_id: sessionId});
       sandbox.replace(SessionModel, 'getSessionById', getSessionStub);
 
-      const result = await SessionModel.updateSessionById(sessionId, updateSession);
+      const result = await SessionModel.updateSessionById(sessionId.toString(), updateSession);
 
       assert.strictEqual(result._id, sessionId);
       assert.isTrue(updateStub.calledOnce);
@@ -202,7 +202,7 @@ describe('#mongoose/models/session', () => {
       getSessionStub.resolves({_id: sessionId});
       sandbox.replace(SessionModel, 'getSessionById', getSessionStub);
 
-      const result = await SessionModel.updateSessionById(sessionId, updateSession);
+      const result = await SessionModel.updateSessionById(sessionId.toString(), updateSession);
 
       assert.strictEqual(result._id, sessionId);
       assert.isTrue(updateStub.calledOnce);
@@ -226,7 +226,7 @@ describe('#mongoose/models/session', () => {
       sandbox.replace(SessionModel, 'getSessionById', getSessionStub);
       let errorred = false;
       try {
-        await SessionModel.updateSessionById(sessionId, updateSession);
+        await SessionModel.updateSessionById(sessionId.toString(), updateSession);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -256,7 +256,7 @@ describe('#mongoose/models/session', () => {
       sandbox.replace(SessionModel, 'getSessionById', getSessionStub);
       let errorred = false;
       try {
-        await SessionModel.updateSessionById(sessionId, updateSession);
+        await SessionModel.updateSessionById(sessionId.toString(), updateSession);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errorred = true;
@@ -280,7 +280,7 @@ describe('#mongoose/models/session', () => {
       sandbox.replace(SessionModel, 'getSessionById', getSessionStub);
       let errorred = false;
       try {
-        await SessionModel.updateSessionById(sessionId, updateSession);
+        await SessionModel.updateSessionById(sessionId.toString(), updateSession);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -366,7 +366,7 @@ describe('#mongoose/models/session', () => {
 
       const sessionId = new mongoose.Types.ObjectId();
 
-      await SessionModel.deleteSessionById(sessionId);
+      await SessionModel.deleteSessionById(sessionId.toString());
 
       assert.isTrue(deleteStub.calledOnce);
     });
@@ -380,7 +380,7 @@ describe('#mongoose/models/session', () => {
 
       let errorred = false;
       try {
-        await SessionModel.deleteSessionById(sessionId);
+        await SessionModel.deleteSessionById(sessionId.toString());
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -398,7 +398,7 @@ describe('#mongoose/models/session', () => {
 
       let errorred = false;
       try {
-        await SessionModel.deleteSessionById(sessionId);
+        await SessionModel.deleteSessionById(sessionId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -515,7 +515,7 @@ describe('#mongoose/models/session', () => {
       findByIdStub.returns(new MockMongooseQuery(mockSession));
       sandbox.replace(SessionModel, 'findById', findByIdStub);
 
-      const doc = await SessionModel.getSessionById(mockSession._id as mongoose.Types.ObjectId);
+      const doc = await SessionModel.getSessionById(mockSession._id!.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
@@ -531,7 +531,7 @@ describe('#mongoose/models/session', () => {
 
       let errored = false;
       try {
-        await SessionModel.getSessionById(mockSession._id as mongoose.Types.ObjectId);
+        await SessionModel.getSessionById(mockSession._id!.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -547,7 +547,7 @@ describe('#mongoose/models/session', () => {
 
       let errored = false;
       try {
-        await SessionModel.getSessionById(mockSession._id as mongoose.Types.ObjectId);
+        await SessionModel.getSessionById(mockSession._id!.toString());
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
