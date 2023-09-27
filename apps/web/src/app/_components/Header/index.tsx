@@ -21,7 +21,7 @@ const Header = () => {
   const pathname = usePathname();
 
   const backPressed = () => {
-    router.push(`/${data.workspace._id.toString()}` as Route);
+    router.push(`/${data.workspace.id}` as Route);
     setDrawer(false);
     window?.core?.ToggleDrawer(false);
     setProject(null);

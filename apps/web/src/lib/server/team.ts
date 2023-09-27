@@ -19,14 +19,14 @@ export const updateRole = async (req: NextApiRequest, res: NextApiResponse, sess
   const {memberId, role} = req.body;
   try {
     const member = await membershipService.getMember(memberId);
-    await membershipService.updateRole(member?._id?.toString() as string, role);
+    await membershipService.updateRole(member?.id, role);
 
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
-      resourceId: member?._id?.toString() as string,
-      workspaceId: member?.workspace._id?.toString() as string,
+      actorId: session?.user?.id,
+      resourceId: member?.id,
+      workspaceId: member?.workspace.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
@@ -56,9 +56,9 @@ export const removeMember = async (req: NextApiRequest, res: NextApiResponse, se
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
-      resourceId: member?._id?.toString() as string,
-      workspaceId: member?.workspace._id?.toString() as string,
+      actorId: session?.user?.id,
+      resourceId: member?.id,
+      workspaceId: member?.workspace.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
@@ -89,9 +89,9 @@ export const joinWorkspace = async (req: NextApiRequest, res: NextApiResponse, s
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
-      resourceId: workspace?._id?.toString() as string,
-      workspaceId: workspace?._id,
+      actorId: session?.user?.id,
+      resourceId: workspace?.id,
+      workspaceId: workspace?.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
@@ -122,9 +122,9 @@ export const declineInvitation = async (req: NextApiRequest, res: NextApiRespons
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
+      actorId: session?.user?.id,
       resourceId: memberId,
-      workspaceId: member?.workspace._id,
+      workspaceId: member?.workspace.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
@@ -154,9 +154,9 @@ export const acceptInvitation = async (req: NextApiRequest, res: NextApiResponse
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
+      actorId: session?.user?.id,
       resourceId: memberId,
-      workspaceId: member?.workspace._id,
+      workspaceId: member?.workspace.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,

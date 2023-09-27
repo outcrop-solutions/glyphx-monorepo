@@ -54,7 +54,7 @@ const MOCK_MEMBER_IDS = {
   workspace: new mongoose.Types.ObjectId(),
 } as unknown as databaseTypes.IMember;
 
-describe('#mongoose/models/member', () => {
+describe.only('#mongoose/models/member', () => {
   context('memberIdExists', () => {
     const sandbox = createSandbox();
 

@@ -6,7 +6,7 @@ export const validateSession = async (req, res) => {
   if (!session && !process.env.GLYPHX_ENV) {
     return {
       user: {
-        _id: '645aa1458d6a87808abf59db',
+        id: '645aa1458d6a87808abf59db',
         name: 'James Graham',
         email: 'james@glyphx.co',
       },

@@ -29,7 +29,7 @@ export const ProjectCard = ({project}) => {
   const setModals = useSetRecoilState(modalsAtom);
 
   const navigate = () => {
-    router.push(`/${workspaceId}/project/${project._id}` as Route);
+    router.push(`/${workspaceId}/project/${project.id}` as Route);
   };
 
   const deleteProject = useCallback(() => {
@@ -38,7 +38,7 @@ export const ProjectCard = ({project}) => {
         draft.modals.push({
           type: webTypes.constants.MODAL_CONTENT_TYPE.DELETE_PROJECT,
           isSubmitting: false,
-          data: {projectId: project._id, projectName: project.name},
+          data: {projectId: project.id, projectName: project.name},
         });
       })
     );

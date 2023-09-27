@@ -86,9 +86,9 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
     const properties = project.state.properties;
 
     const payload = {
-      model_id: project._id,
+      model_id: project.id,
       payload_hash: payloadHash,
-      client_id: project.workspace._id,
+      client_id: project.workspace.id,
       x_axis: properties[webTypes.constants.AXIS.X]['key'],
       y_axis: properties[webTypes.constants.AXIS.Y]['key'],
       z_axis: properties[webTypes.constants.AXIS.Z]['key'],
@@ -140,7 +140,7 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
       // process glyph engine
       const {sdtFileName, sgnFileName, sgcFileName} = await glyphEngine.process(data);
 
-      const updatedProject = await projectService.updateProjectState(project._id, project.state);
+      const updatedProject = await projectService.updateProjectState(project.id, project.state);
 
       const name = new Date().toISOString();
       // add new state to project to prevent redundant glyphengine runs
@@ -150,14 +150,14 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
       //     pos: { x: 0, y: 0, z: 0 },
       //     dir: { x: 0, y: 0, z: 0 },
       //   },
-      //   updatedProject._id,
-      //   session.user?._id,
+      //   updatedProject.id,
+      //   session.user?.id,
       //   { height: 300, width: 300 }
       // );
 
       const {agentData, location} = formatUserAgent(req);
       await activityLogService.createLog({
-        actorId: session?.user?._id as string,
+        actorId: session?.user?.id,
         resourceId: payload.model_id,
         workspaceId: payload.client_id,
         projectId: payload.model_id,

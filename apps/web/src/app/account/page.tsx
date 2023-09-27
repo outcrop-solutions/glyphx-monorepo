@@ -29,7 +29,7 @@ export default function Welcome() {
   };
 
   const navigate = (workspace) => {
-    router.replace(`/${workspace._id}` as Route);
+    router.replace(`/${workspace.id}` as Route);
   };
 
   return (

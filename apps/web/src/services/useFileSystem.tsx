@@ -100,7 +100,7 @@ export const useFileSystem = () => {
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       // parse payload
-      const payload = await parsePayload(project.workspace._id, project._id, acceptedFiles);
+      const payload = await parsePayload(project.workspace.id, project.id, acceptedFiles);
 
       // check file against FILE_RULES before upload
       const modals = runRulesEngine(payload, project.files, acceptedFiles);
@@ -124,7 +124,7 @@ export const useFileSystem = () => {
         const keys = payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
 
         const data = await api({
-          ..._getSignedUploadUrls(project.workspace._id.toString(), project._id.toString(), keys),
+          ..._getSignedUploadUrls(project.workspace.id, project.id, keys),
           returnData: true,
         });
 
@@ -176,7 +176,7 @@ export const useFileSystem = () => {
                 draft.processEndTime = new Date();
               })
             );
-            mutate(`/api/project/${project._id}`);
+            mutate(`/api/project/${project.id}`);
           },
           onError: () => {
             setLoading(

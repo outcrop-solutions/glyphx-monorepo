@@ -137,12 +137,11 @@ export function SearchModal() {
                     return (
                       <li key={index} className="hover:cursor-pointer">
                         <Link
-                          href={`/${workspaceId}/${value._id}` as Route}
-                          className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group">
-
+                          href={`/${workspaceId}/${value.id}` as Route}
+                          className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
+                        >
                           <ProjectResultIcon />
                           <span>{value.name}</span>
-
                         </Link>
                       </li>
                     );
@@ -159,12 +158,12 @@ export function SearchModal() {
                     return (
                       <li key={index} className="hover:cursor-pointer">
                         <Link
-                          href={`/${workspaceId}/${value.item._id}` as Route}
+                          href={`/${workspaceId}/${value.item.id}` as Route}
                           // onClick={() => {
                           //   setShowSearchModalOpen(false);
                           // }}
-                          className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group">
-
+                          className="flex items-center p-2 text-gray hover:text-white hover:bg-indigo-500 rounded group"
+                        >
                           <svg
                             className="w-8 h-8 fill-current text-gray group-hover:text-white group-hover:text-opacity-50 shrink-0 mr-3"
                             width="24"
@@ -179,7 +178,6 @@ export function SearchModal() {
                             />
                           </svg>
                           <span>{value.item.name}</span>
-
                         </Link>
                       </li>
                     );

@@ -106,12 +106,8 @@ SCHEMA.static('getProjectTemplateById', async (projectTemplateId: mongooseTypes.
         projectTemplateId
       );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (projectTemplateDocument as any)['__v'];
-    projectTemplateDocument.projects.forEach((p) => delete (p as any)['__v']);
-
-    return projectTemplateDocument;
+    const format = new DBFormatter();
+    return format.toJS(projectTemplateDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -160,16 +156,14 @@ SCHEMA.static(
         .populate('projects')
         .populate('tags')
         .lean()) as databaseTypes.IProjectTemplate[];
-      //this is added by mongoose, so we will want to remove it before returning the document
-      //to the user.
-      projectTemplateDocuments.forEach((doc: any) => {
-        delete (doc as any)?.__v;
-        doc.projects?.forEach((p: any) => delete (p as any)?.__v);
-        doc.tags?.forEach((t: any) => delete (t as any)?.__v);
+
+      const format = new DBFormatter();
+      const templates = projectTemplateDocuments.map((doc: any) => {
+        return format.toJS(doc);
       });
 
       const retval: IQueryResult<databaseTypes.IProjectTemplate> = {
-        results: projectTemplateDocuments,
+        results: templates as unknown as databaseTypes.IProjectTemplate[],
         numberOfItems: count,
         page: page,
         itemsPerPage: itemsPerPage,

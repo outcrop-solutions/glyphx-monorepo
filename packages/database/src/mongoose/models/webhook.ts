@@ -83,12 +83,8 @@ SCHEMA.static('getWebhookById', async (webhookId: mongooseTypes.ObjectId): Promi
         webhookId
       );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (webhookDocument as any)['__v'];
-    delete (webhookDocument as any).user['__v'];
-
-    return webhookDocument;
+    const format = new DBFormatter();
+    return format.toJS(webhookDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -126,15 +122,13 @@ SCHEMA.static('queryWebhooks', async (filter: Record<string, unknown> = {}, page
 
       .populate('user')
       .lean()) as databaseTypes.IWebhook[];
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    webhookDocuments.forEach((doc: any) => {
-      delete (doc as any)['__v'];
-      delete (doc as any).user['__v'];
+    const format = new DBFormatter();
+    const webhooks = webhookDocuments.map((doc: any) => {
+      return format.toJS(doc);
     });
 
     const retval: IQueryResult<databaseTypes.IWebhook> = {
-      results: webhookDocuments,
+      results: webhooks as unknown as databaseTypes.IWebhook[],
       numberOfItems: count,
       page: page,
       itemsPerPage: itemsPerPage,

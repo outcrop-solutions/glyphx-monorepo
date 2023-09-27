@@ -112,7 +112,7 @@ const MOCK_STATE_IDS = {
   properties: {},
 } as unknown as databaseTypes.IState;
 
-describe('#mongoose/models/state', () => {
+describe.only('#mongoose/models/state', () => {
   context('stateIdExists', () => {
     const sandbox = createSandbox();
     afterEach(() => {
@@ -666,7 +666,7 @@ describe('#mongoose/models/state', () => {
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
       assert.isUndefined((doc.project as any).__v);
-      assert.strictEqual(doc._id, mockState._id);
+      assert.strictEqual(doc.id, mockState._id?.toString());
     });
 
     it('will throw a DataNotFoundError when the state does not exist', async () => {

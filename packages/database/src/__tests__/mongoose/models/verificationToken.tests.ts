@@ -421,7 +421,7 @@ describe('#mongoose/models/verificationToken', () => {
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
 
-      assert.strictEqual(doc._id, mockVerificationToken._id);
+      assert.strictEqual(doc.id, mockVerificationToken._id?.toString());
     });
 
     it('will throw a DataNotFoundError when the verificationToken does not exist', async () => {

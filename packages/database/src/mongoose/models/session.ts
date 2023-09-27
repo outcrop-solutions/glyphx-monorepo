@@ -72,12 +72,8 @@ SCHEMA.static('getSessionById', async (sessionId: mongooseTypes.ObjectId) => {
     if (!sessionDocument) {
       throw new error.DataNotFoundError(`Could not find a session with the _id: ${sessionId}`, 'session_id', sessionId);
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (sessionDocument as any)['__v'];
-    delete (sessionDocument as any).user['__v'];
-
-    return sessionDocument;
+    const format = new DBFormatter();
+    return format.toJS(sessionDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -115,15 +111,13 @@ SCHEMA.static('querySessions', async (filter: Record<string, unknown> = {}, page
       .populate('user')
       .lean()) as databaseTypes.ISession[];
 
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    sessionDocuments.forEach((doc: any) => {
-      delete (doc as any)?.__v;
-      delete (doc as any)?.user?.__v;
+    const format = new DBFormatter();
+    const sessions = sessionDocuments.map((doc: any) => {
+      return format.toJS(doc);
     });
 
     const retval: IQueryResult<databaseTypes.ISession> = {
-      results: sessionDocuments,
+      results: sessions as unknown as databaseTypes.ISession[],
       numberOfItems: count,
       page: page,
       itemsPerPage: itemsPerPage,

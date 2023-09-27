@@ -46,7 +46,7 @@ const General = () => {
   const changeSlug = (event) => {
     event.preventDefault();
     api({
-      ..._updateWorkspaceSlug({workspaceId: workspace._id!.toString(), newSlug: slug}),
+      ..._updateWorkspaceSlug({workspaceId: workspace.id!, newSlug: slug}),
       setLoading: (state) => setSubmittingState(state as boolean),
       onSuccess: (data) => {
         router.replace(`/account/${data?.slug}/settings/general` as Route);

@@ -97,14 +97,9 @@ SCHEMA.static('getTagById', async (tagId: mongooseTypes.ObjectId) => {
     if (!tagDocument) {
       throw new error.DataNotFoundError(`Could not find a tag with the _id: ${tagId}`, 'tag._id', tagId);
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (tagDocument as any)['__v'];
-    tagDocument.workspaces.forEach((p) => delete (p as any)['__v']);
-    tagDocument.projects.forEach((p) => delete (p as any)['__v']);
-    tagDocument.templates.forEach((p) => delete (p as any)['__v']);
+    const format = new DBFormatter();
 
-    return tagDocument;
+    return format.toJS(tagDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -144,17 +139,14 @@ SCHEMA.static('queryTags', async (filter: Record<string, unknown> = {}, page = 0
       .populate('projects')
       .populate('templates')
       .lean()) as databaseTypes.ITag[];
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    tagDocuments.forEach((doc: any) => {
-      delete (doc as any)?.__v;
-      doc.workspaces?.forEach((p: any) => delete (p as any)?.__v);
-      doc.projects?.forEach((p: any) => delete (p as any)?.__v);
-      doc.templates?.forEach((p: any) => delete (p as any)?.__v);
+
+    const format = new DBFormatter();
+    const tags = tagDocuments.map((doc: any) => {
+      return format.toJS(doc);
     });
 
     const retval: IQueryResult<databaseTypes.ITag> = {
-      results: tagDocuments,
+      results: tags as unknown as databaseTypes.ITag[],
       numberOfItems: count,
       page: page,
       itemsPerPage: itemsPerPage,

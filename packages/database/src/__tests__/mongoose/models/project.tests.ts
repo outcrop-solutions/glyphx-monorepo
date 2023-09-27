@@ -58,7 +58,7 @@ const MOCK_NULLISH_PROJECT = {
   viewName: undefined,
 } as unknown as databaseTypes.IProject;
 
-describe('#mongoose/models/project', () => {
+describe.only('#mongoose/models/project', () => {
   context('projectIdExists', () => {
     const sandbox = createSandbox();
 

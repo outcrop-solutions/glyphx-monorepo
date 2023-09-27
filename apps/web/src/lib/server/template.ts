@@ -47,7 +47,7 @@ export const createProjectFromTemplate = async (req: NextApiRequest, res: NextAp
     const result = await projectService.createProject(
       `${template.name}`,
       workspaceId,
-      session?.user?._id as string,
+      session?.user?.id,
       session?.user?.email as string,
       template,
       template.description
@@ -56,10 +56,10 @@ export const createProjectFromTemplate = async (req: NextApiRequest, res: NextAp
     // const { agentData, location } = formatUserAgent(req);
 
     // await activityLogService.createLog({
-    //   actorId: session?.user?._id,
-    //   resourceId: template._id,
-    //   templateId: template._id,
-    //   workspaceId: template.workspace._id,
+    //   actorId: session?.user?.id,
+    //   resourceId: template.id,
+    //   templateId: template.id,
+    //   workspaceId: template.workspace.id,
     //   location: location,
     //   userAgent: agentData,
     //   onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT_TEMPLATE,
@@ -114,8 +114,8 @@ export const updateProjectTemplate = async (req: NextApiRequest, res: NextApiRes
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
-      resourceId: template._id?.toString() as string,
+      actorId: session?.user?.id,
+      resourceId: template.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT_TEMPLATE,
@@ -151,8 +151,8 @@ export const deleteProjectTemplate = async (req: NextApiRequest, res: NextApiRes
       const {agentData, location} = formatUserAgent(req);
 
       await activityLogService.createLog({
-        actorId: session?.user?._id as string,
-        resourceId: template._id?.toString() as string,
+        actorId: session?.user?.id,
+        resourceId: template.id,
         location: location,
         userAgent: agentData,
         onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT_TEMPLATE,

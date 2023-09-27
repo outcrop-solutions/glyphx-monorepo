@@ -1522,7 +1522,7 @@ describe('#mongoose/models/user', () => {
       doc.createdWorkspaces.forEach((o: any) => assert.isUndefined((o as any)['__v']));
       doc.projects.forEach((p: any) => assert.isUndefined((p as any)['__v']));
 
-      assert.strictEqual(doc._id, mockUser._id);
+      assert.strictEqual(doc.id, mockUser._id?.toString());
     });
 
     it('will throw a DataNotFoundError when the user does not exist', async () => {

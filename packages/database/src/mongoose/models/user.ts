@@ -102,23 +102,14 @@ SCHEMA.static('queryUsers', async (filter: Record<string, unknown> = {}, page = 
       .populate('customerPayment')
       .populate('webhooks')
       .lean()) as databaseTypes.IUser[];
-    //
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    userDocuments?.forEach((doc: any) => {
-      delete (doc as any)?.__v;
-      delete (doc as any).customerPayment?.__v;
-      (doc as any).accounts?.forEach((p: any) => delete (p as any)?.__v);
-      (doc as any).sessions?.forEach((p: any) => delete (p as any)?.__v);
-      (doc as any).membership?.forEach((p: any) => delete (p as any)?.__v);
-      (doc as any).invitedMembers?.forEach((p: any) => delete (p as any)?.__v);
-      (doc as any).createdWorkspaces?.forEach((p: any) => delete (p as any)?.__v);
-      (doc as any).projects?.forEach((p: any) => delete (p as any)?.__v);
-      (doc as any).webhooks?.forEach((p: any) => delete (p as any)?.__v);
+
+    const format = new DBFormatter();
+    const users = userDocuments?.map((doc: any) => {
+      return format.toJS(doc);
     });
 
     const retval: IQueryResult<databaseTypes.IUser> = {
-      results: userDocuments,
+      results: users as unknown as databaseTypes.IUser[],
       numberOfItems: count,
       page: page,
       itemsPerPage: itemsPerPage,
@@ -471,19 +462,8 @@ SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
     if (!userDocument) {
       throw new error.DataNotFoundError(`Could not find a user with the _id: ${userId}`, 'user_id', userId);
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (userDocument as any)['__v'];
-    delete (userDocument as any).customerPayment?.__v;
-    userDocument.accounts?.forEach((a: any) => delete (a as any)['__v']);
-    userDocument.sessions?.forEach((s: any) => delete (s as any)['__v']);
-    userDocument.membership?.forEach((m: any) => delete (m as any)['__v']);
-    userDocument.invitedMembers?.forEach((i: any) => delete (i as any)['__v']);
-    userDocument.webhooks?.forEach((w: any) => delete (w as any)['__v']);
-    userDocument.createdWorkspaces?.forEach((c: any) => delete (c as any)['__v']);
-    userDocument.projects?.forEach((p: any) => delete (p as any)['__v']);
-
-    return userDocument;
+    const format = new DBFormatter();
+    return format.toJS(userDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else

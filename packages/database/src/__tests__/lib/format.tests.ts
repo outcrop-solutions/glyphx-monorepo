@@ -5,7 +5,7 @@ import {DBFormatter} from '../../lib/format';
 import {createSandbox} from 'sinon';
 import {error} from 'core';
 
-describe.only('#lib/format', () => {
+describe('#lib/format', () => {
   context('DBFormatter', () => {
     const format = new DBFormatter();
     const sandbox = createSandbox();

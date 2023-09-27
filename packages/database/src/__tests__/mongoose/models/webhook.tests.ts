@@ -568,7 +568,7 @@ describe('#mongoose/models/webhook', () => {
       assert.isUndefined((doc as any).__v);
       assert.isUndefined((doc.user as any).__v);
 
-      assert.strictEqual(doc._id, mockWebHook._id);
+      assert.strictEqual(doc.id, mockWebHook._id?.toString());
     });
 
     it('will throw a DataNotFoundError when the webhook does not exist', async () => {

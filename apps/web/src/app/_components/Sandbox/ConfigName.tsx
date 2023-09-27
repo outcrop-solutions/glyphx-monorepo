@@ -20,7 +20,7 @@ export const ConfigName = ({config, idx}) => {
 
   const saveChanges = useCallback(async () => {
     await api({
-      ..._updateConfig(config?._id.toString(), config as databaseTypes.IModelConfig),
+      ..._updateConfig(config?.id, config as databaseTypes.IModelConfig),
       setLoading: (loading) => setConfigDirty(loading as boolean),
       onSuccess: () => setSelected(false),
     });
@@ -40,9 +40,9 @@ export const ConfigName = ({config, idx}) => {
 
   const handleDelete = useCallback(async () => {
     await api({
-      ..._deleteConfig(config._id),
+      ..._deleteConfig(config.id),
     });
-  }, [config._id]);
+  }, [config.id]);
 
   return (
     <ClickAwayListener onClickAway={() => setSelected(false)}>

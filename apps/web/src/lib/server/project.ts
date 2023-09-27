@@ -20,17 +20,17 @@ export const createProject = async (req: NextApiRequest, res: NextApiResponse, s
     const project = await projectService.createProject(
       name,
       workspaceId,
-      session?.user?._id as string,
+      session?.user?.id,
       session?.user?.email as string
     );
 
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
-      resourceId: project?._id?.toString() as string,
-      projectId: project._id,
-      workspaceId: project.workspace._id,
+      actorId: session?.user?.id,
+      resourceId: project?.id,
+      projectId: project.id,
+      workspaceId: project.workspace.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
@@ -89,10 +89,10 @@ export const updateProjectState = async (req: NextApiRequest, res: NextApiRespon
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
-      resourceId: project?._id?.toString() as string,
-      projectId: project._id,
-      workspaceId: project.workspace._id,
+      actorId: session?.user?.id,
+      resourceId: project?.id,
+      projectId: project.id,
+      workspaceId: project.workspace.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
@@ -128,10 +128,10 @@ export const deleteProject = async (req: NextApiRequest, res: NextApiResponse, s
       const {agentData, location} = formatUserAgent(req);
 
       await activityLogService.createLog({
-        actorId: session?.user?._id as string,
-        resourceId: project?._id?.toString() as string,
-        workspaceId: project.workspace._id,
-        projectId: project._id,
+        actorId: session?.user?.id,
+        resourceId: project?.id,
+        workspaceId: project.workspace.id,
+        projectId: project.id,
         location: location,
         userAgent: agentData,
         onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,

@@ -51,7 +51,7 @@ export const createWorkspace = async (req: NextApiRequest, res: NextApiResponse,
     await validateCreateWorkspace(req, res);
     const slug = slugify(name.toLowerCase());
     const workspace = await workspaceService.createWorkspace(
-      session?.user?._id as string,
+      session?.user?.id,
       session?.user?.email as string,
       name,
       slug
@@ -60,9 +60,9 @@ export const createWorkspace = async (req: NextApiRequest, res: NextApiResponse,
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
-      resourceId: workspace?._id?.toString() as string,
-      workspaceId: workspace?._id,
+      actorId: session?.user?.id,
+      resourceId: workspace?.id,
+      workspaceId: workspace?.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
@@ -97,7 +97,7 @@ export const updateWorkspaceSlug = async (req: NextApiRequest, res: NextApiRespo
   try {
     await validateUpdateWorkspaceSlug(req, res);
     const workspace = await workspaceService.updateWorkspaceSlug(
-      session?.user?._id as string,
+      session?.user?.id,
       session?.user?.email as string,
       slug,
       workspaceSlug as string
@@ -106,7 +106,7 @@ export const updateWorkspaceSlug = async (req: NextApiRequest, res: NextApiRespo
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
+      actorId: session?.user?.id,
       resourceId: workspace as string,
       workspaceId: workspace!,
       location: location,
@@ -143,7 +143,7 @@ export const updateWorkspaceName = async (req: NextApiRequest, res: NextApiRespo
   try {
     const updatedName = await validateUpdateWorkspaceName(req, res);
     const workspace = await workspaceService.updateWorkspaceName(
-      session?.user?._id as string,
+      session?.user?.id,
       session?.user?.email as string,
       name,
       workspaceSlug as string
@@ -151,7 +151,7 @@ export const updateWorkspaceName = async (req: NextApiRequest, res: NextApiRespo
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
+      actorId: session?.user?.id,
       resourceId: workspace as string,
       workspaceId: workspace as string,
       location: location,
@@ -212,7 +212,7 @@ export const inviteUsers = async (req: NextApiRequest, res: NextApiResponse, ses
   try {
     // @ts-ignore
     const {members: memberData, workspace} = await workspaceService.inviteUsers(
-      session?.user?._id as string,
+      session?.user?.id,
       session?.user?.email as string,
       members,
       workspaceSlug as string
@@ -221,9 +221,9 @@ export const inviteUsers = async (req: NextApiRequest, res: NextApiResponse, ses
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
-      resourceId: workspace._id,
-      workspaceId: workspace._id,
+      actorId: session?.user?.id,
+      resourceId: workspace.id,
+      workspaceId: workspace.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
@@ -256,16 +256,16 @@ export const deleteWorkspace = async (req: NextApiRequest, res: NextApiResponse,
 
   try {
     const workspace = await workspaceService.deleteWorkspace(
-      session.user._id as string,
+      session.user.id,
       session.user.email as string,
       workspaceSlug as string
     );
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
-      resourceId: workspace?._id?.toString() as string,
-      workspaceId: workspace?._id?.toString() as string,
+      actorId: session?.user?.id,
+      resourceId: workspace?.id,
+      workspaceId: workspace?.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
@@ -296,7 +296,7 @@ export const isTeamOwner = async (req: NextApiRequest, res: NextApiResponse, ses
 
   try {
     const workspace = await workspaceService.getWorkspace(
-      session?.user?._id as string,
+      session?.user?.id,
       session?.user?.email as string,
       workspaceSlug as string
     );

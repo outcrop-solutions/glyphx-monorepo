@@ -183,8 +183,8 @@ export const _createOpenProject = (
 
   return JSON.stringify({
     ...cam,
-    projectId: project?._id,
-    workspaceId: project?.workspace._id,
+    projectId: project?.id,
+    workspaceId: project?.workspace.id,
     sdtUrl: data.sdtUrl,
     sgnUrl: data.sgnUrl,
     sgcUrl: data.sgcUrl,

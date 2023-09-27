@@ -19,12 +19,12 @@ export const updateName = async (req: NextApiRequest, res: NextApiResponse, sess
   const {name} = req.body;
   try {
     await validateUpdateName(req, res);
-    const user = await userService.updateName(session?.user?._id as string, name);
+    const user = await userService.updateName(session?.user?.id, name);
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
-      resourceId: user._id?.toString() as string,
+      actorId: session?.user?.id,
+      resourceId: user.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.USER,
@@ -51,12 +51,12 @@ export const updateEmail = async (req: NextApiRequest, res: NextApiResponse, ses
   const {email} = req.body;
   try {
     await validateUpdateEmail(req, res);
-    const user = await userService.updateEmail(session?.user?._id as string, email, session?.user?.email as string);
+    const user = await userService.updateEmail(session?.user?.id, email, session?.user?.email as string);
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
-      resourceId: user._id?.toString() as string,
+      actorId: session?.user?.id,
+      resourceId: user.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.USER,
@@ -85,12 +85,12 @@ const ALLOW_DEACTIVATION = true;
 export const deactivateUser = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   try {
     if (ALLOW_DEACTIVATION) {
-      const user = await userService.deactivate(session?.user?._id as string);
+      const user = await userService.deactivate(session?.user?.id);
       const {agentData, location} = formatUserAgent(req);
 
       await activityLogService.createLog({
-        actorId: session?.user?._id as string,
-        resourceId: user._id?.toString() as string,
+        actorId: session?.user?.id,
+        resourceId: user.id,
         location: location,
         userAgent: agentData,
         onModel: databaseTypes.constants.RESOURCE_MODEL.USER,

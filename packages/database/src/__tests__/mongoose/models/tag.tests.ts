@@ -851,7 +851,7 @@ describe('#mongoose/models/tag', () => {
       assert.isUndefined((doc as any).__v);
       doc.projects.forEach((p) => assert.isUndefined((p as any).__v));
 
-      assert.strictEqual(doc._id, mockTag._id);
+      assert.strictEqual(doc.id, mockTag._id?.toString());
     });
 
     it('will throw a DataNotFoundError when the tag does not exist', async () => {

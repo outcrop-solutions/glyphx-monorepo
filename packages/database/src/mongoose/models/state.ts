@@ -292,14 +292,9 @@ SCHEMA.static('getStateById', async (stateId: mongooseTypes.ObjectId) => {
     if (!stateDocument) {
       throw new error.DataNotFoundError(`Could not find a state with the _id: ${stateId}`, 'state_id', stateId);
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (stateDocument as any)['__v'];
-    delete (stateDocument as any).workspace?.__v;
-    delete (stateDocument as any).project?.__v;
-    delete (stateDocument as any).createdBy?.__v;
+    const format = new DBFormatter();
 
-    return stateDocument;
+    return format.toJS(stateDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -338,17 +333,14 @@ SCHEMA.static('queryStates', async (filter: Record<string, unknown> = {}, page =
       .populate('project')
       .populate('createdBy')
       .lean()) as databaseTypes.IState[];
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    stateDocuments.forEach((doc: any) => {
-      delete (doc as any)?.__v;
-      delete (doc as any)?.workspace?.__v;
-      delete (doc as any)?.project?.__v;
-      delete (doc as any)?.createdBy?.__v;
+
+    const format = new DBFormatter();
+    const states = stateDocuments.map((doc: any) => {
+      return format.toJS(doc);
     });
 
     const retval: IQueryResult<databaseTypes.IState> = {
-      results: stateDocuments,
+      results: states as unknown as databaseTypes.IState[],
       numberOfItems: count,
       page: page,
       itemsPerPage: itemsPerPage,

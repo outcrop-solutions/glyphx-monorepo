@@ -521,7 +521,7 @@ describe('#mongoose/models/session', () => {
       assert.isUndefined((doc as any).__v);
       assert.isUndefined((doc.user as any).__v);
 
-      assert.strictEqual(doc._id, mockSession._id);
+      assert.strictEqual(doc.id, mockSession._id?.toString());
     });
 
     it('will throw a DataNotFoundError when the session does not exist', async () => {

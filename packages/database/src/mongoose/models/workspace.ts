@@ -477,12 +477,8 @@ SCHEMA.static('getWorkspaceById', async (workspaceId: mongooseTypes.ObjectId): P
         'workspace._id',
         workspaceId
       );
-    delete (workspaceDocument as any)['__v'];
-    delete (workspaceDocument as any).creator?.__v;
-    workspaceDocument.members?.forEach((m: any) => delete (m as any)['__v']);
-    workspaceDocument.projects?.forEach((p: any) => delete (p as any)['__v']);
-
-    return workspaceDocument;
+    const format = new DBFormatter();
+    return format.toJS(workspaceDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -531,22 +527,13 @@ SCHEMA.static('queryWorkspaces', async (filter: Record<string, unknown> = {}, pa
         },
       })
       .lean()) as databaseTypes.IWorkspace[];
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    workspaceDocuments.forEach((doc: any) => {
-      delete (doc as any)['__v'];
-      delete (doc as any).creator['__v'];
-      (doc as any).members?.map((mem: any) => delete mem['__v']);
-      (doc as any).projects?.map((proj: any) => {
-        delete proj['__v'];
-        proj?.members?.map((m: any) => {
-          delete m['__v'];
-        });
-      });
+    const format = new DBFormatter();
+    const workspaces = workspaceDocuments.map((doc: any) => {
+      return format.toJS(doc);
     });
 
     const retval: IQueryResult<databaseTypes.IWorkspace> = {
-      results: workspaceDocuments,
+      results: workspaces as unknown as databaseTypes.IWorkspace[],
       numberOfItems: count,
       page: page,
       itemsPerPage: itemsPerPage,

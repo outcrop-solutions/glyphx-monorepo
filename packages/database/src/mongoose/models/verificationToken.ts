@@ -81,11 +81,8 @@ SCHEMA.static('getVerificationTokenById', async (verificationTokenId: mongooseTy
         verificationTokenId
       );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (verificationTokenDocument as any)['__v'];
-
-    return verificationTokenDocument;
+    const format = new DBFormatter();
+    return format.toJS(verificationTokenDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -125,14 +122,14 @@ SCHEMA.static('queryVerificationTokens', async (filter: Record<string, unknown> 
       skip: skip,
       limit: itemsPerPage,
     }).lean()) as databaseTypes.IVerificationToken[];
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    verificationTokenDocuments.forEach((doc: any) => {
-      delete (doc as any)['__v'];
+
+    const format = new DBFormatter();
+    const tokens = verificationTokenDocuments.map((doc: any) => {
+      return format.toJS(doc);
     });
 
     const retval: IQueryResult<databaseTypes.IVerificationToken> = {
-      results: verificationTokenDocuments,
+      results: tokens as unknown as databaseTypes.IVerificationToken[],
       numberOfItems: count,
       page: page,
       itemsPerPage: itemsPerPage,

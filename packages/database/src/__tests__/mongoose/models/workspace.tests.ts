@@ -983,7 +983,7 @@ describe('#mongoose/models/workspace', () => {
         assert.isUndefined((p as any).__v);
       });
 
-      assert.strictEqual(doc._id, mockWorkspace._id);
+      assert.strictEqual(doc.id, mockWorkspace._id?.toString());
     });
 
     it('will throw a DataNotFoundError when the workspace does not exist', async () => {
@@ -2416,7 +2416,7 @@ describe('#mongoose/models/workspace', () => {
       allStateIdsExistStub.resolves();
       sandbox.replace(StateModel, 'allStateIdsExist', allStateIdsExistStub);
 
-      const res = await WorkspaceModel.validateStates(stateIds.map((id) => ({_id: id} as databaseTypes.IState)));
+      const res = await WorkspaceModel.validateStates(stateIds.map((id) => ({_id: id}) as databaseTypes.IState));
       assert.deepEqual(res, stateIds);
       assert.isTrue(allStateIdsExistStub.calledOnce);
     });

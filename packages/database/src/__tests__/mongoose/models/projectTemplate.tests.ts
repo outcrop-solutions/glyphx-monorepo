@@ -862,7 +862,7 @@ describe('#mongoose/models/projectTemplate', () => {
       assert.isUndefined((doc as any).__v);
       doc.projects.forEach((p) => assert.isUndefined((p as any).__v));
 
-      assert.strictEqual(doc._id, mockProjectTemplate._id);
+      assert.strictEqual(doc.id, mockProjectTemplate._id?.toString());
     });
 
     it('will throw a DataNotFoundError when the projectTemplate does not exist', async () => {

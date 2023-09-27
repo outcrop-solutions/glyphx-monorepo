@@ -5,7 +5,7 @@ const cleanConfig = (config) => {
   delete cleanConfig.createdAt;
   delete cleanConfig.updatedAt;
   delete cleanConfig.deletedAt;
-  delete cleanConfig._id;
+  delete cleanConfig.id;
   return cleanConfig;
 };
 

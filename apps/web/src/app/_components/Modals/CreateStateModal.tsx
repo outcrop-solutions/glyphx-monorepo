@@ -36,7 +36,7 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
       api({
         ..._createState(
           name,
-          modalContent.data._id as unknown as string,
+          modalContent.data.id as unknown as string,
           camera as unknown as webTypes.Camera,
           {
             width: (viewerPosition as webTypes.IViewerPosition).w,
@@ -67,11 +67,11 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
               draft.modals.splice(0, 1);
             })
           );
-          mutate(`/api/project/${modalContent.data._id}`);
+          mutate(`/api/project/${modalContent.data.id}`);
         },
       });
     }
-  }, [camera, modalContent.data._id, name, setCamera, setModals, setProject, mutate, image, setImage, viewerPosition]);
+  }, [camera, modalContent.data.id, name, setCamera, setModals, setProject, mutate, image, setImage, viewerPosition]);
 
   return (
     <div className="flex flex-col items-stretch justify-center px-4 py-8 space-y-5 bg-secondary-midnight rounded-md text-white">
