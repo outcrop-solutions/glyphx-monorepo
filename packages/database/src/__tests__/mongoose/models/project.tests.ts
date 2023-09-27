@@ -852,7 +852,7 @@ describe('#mongoose/models/project', () => {
       assert.isUndefined((doc.stateHistory[0] as any).__v);
       assert.isUndefined((doc.stateHistory[0].camera as any).__v);
 
-      assert.strictEqual(doc._id, mockProject._id);
+      assert.strictEqual(doc.id, mockProject._id?.toString());
     });
 
     it('will throw a DataNotFoundError when the project does not exist', async () => {

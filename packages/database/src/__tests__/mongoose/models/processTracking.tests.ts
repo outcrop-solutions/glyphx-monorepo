@@ -14,7 +14,7 @@ const MOCK_PROCESS_TRACKING_DOCUMENT = {
   processError: [],
 } as databaseTypes.IProcessTracking;
 
-describe.only('#mongoose/models/processTracking', () => {
+describe('#mongoose/models/processTracking', () => {
   context('processTrackingIdExists', () => {
     const sandbox = createSandbox();
 
@@ -483,9 +483,10 @@ describe.only('#mongoose/models/processTracking', () => {
     });
   });
 
-  context.only('getProcessTrackingDocumentById', () => {
+  context('getProcessTrackingDocumentById', () => {
     const mockProcessTrackingDocument = {
       _id: new mongoose.Types.ObjectId(),
+      id: '65140364b2c504f0aba1b99c', // to mock the formatter
       processId: new mongoose.Types.ObjectId().toString(),
       processName: 'test process1',
       processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
@@ -511,8 +512,7 @@ describe.only('#mongoose/models/processTracking', () => {
       );
 
       assert.isTrue(findByFilterStub.calledOnce);
-
-      assert.strictEqual(doc.id, mockProcessTrackingDocument._id?.toString());
+      assert.strictEqual(doc.id, mockProcessTrackingDocument.id);
     });
 
     it('will re-throw a DataNotFoundError when the process tracking document does not exist', async () => {

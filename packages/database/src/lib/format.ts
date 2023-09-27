@@ -17,17 +17,23 @@ export class DBFormatter {
     try {
       const newObject: Record<string, unknown> = {};
       for (const key in object) {
-        // exclud __v
+        // exclude __v
         if (key === '__v') continue;
         const value = object[key];
         // convert ObjectId to string
         if (key === '_id') {
           newObject.id = value.toHexString();
-          // recurse if valid object
-        } else if (
+        }
+        // handle arrays
+        else if (Array.isArray(value)) {
+          newObject[key] = value.map((item) => {
+            return this.toJS(item);
+          });
+        }
+        // recurse if valid object
+        else if (
           typeof value === 'object' &&
           value !== null &&
-          !Array.isArray(value) &&
           !(value instanceof Date) &&
           !(value instanceof mongooseTypes.ObjectId)
         ) {
@@ -61,6 +67,10 @@ export class DBFormatter {
         if (key === 'id') continue;
         else if (typeof value === 'object' && value !== null && !Array.isArray(value) && !(value instanceof Date)) {
           newObject[key] = this.toMongo(value);
+        } else if (Array.isArray(value)) {
+          newObject[key] = value.map((item) => {
+            return this.toMongo(item);
+          });
         } else {
           newObject[key] = value;
         }

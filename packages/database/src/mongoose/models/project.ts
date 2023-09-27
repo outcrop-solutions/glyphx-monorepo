@@ -594,20 +594,8 @@ SCHEMA.static('getProjectById', async (projectId: mongooseTypes.ObjectId) => {
     if (!projectDocument) {
       throw new error.DataNotFoundError(`Could not find a project with the _id: ${projectId}`, 'project_id', projectId);
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (projectDocument as any)['__v'];
-    delete (projectDocument as any).workspace?.['__v'];
-    delete (projectDocument as any).template?.['__v'];
-
-    projectDocument.members?.forEach((m: any) => delete (m as any)['__v']);
-    projectDocument.tags?.forEach((t: any) => delete (t as any)['__v']);
-    projectDocument.stateHistory?.forEach((s: any) => {
-      delete (s as any)['__v'];
-      delete (s as any).camera?.__v;
-    });
-
-    return projectDocument;
+    const format = new DBFormatter();
+    return format.toJS(projectDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -647,16 +635,13 @@ SCHEMA.static('queryProjects', async (filter: Record<string, unknown> = {}, page
       .populate('template')
       .lean()) as databaseTypes.IProject[];
 
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    projectDocuments.forEach((doc: any) => {
-      delete (doc as any)['__v'];
-      delete (doc as any)?.workspace?.__v;
-      delete (doc as any)?.template?.__v;
+    const format = new DBFormatter();
+    const projects = projectDocuments.map((doc: any) => {
+      return format.toJS(doc);
     });
 
     const retval: IQueryResult<databaseTypes.IProject> = {
-      results: projectDocuments,
+      results: projects as unknown as databaseTypes.IProject[],
       numberOfItems: count,
       page: page,
       itemsPerPage: itemsPerPage,
@@ -695,12 +680,6 @@ SCHEMA.static('deleteProjectById', async (projectId: mongooseTypes.ObjectId): Pr
         err
       );
   }
-});
-
-SCHEMA.virtual('id').get(function () {
-  // In the getter function, `this` is the document. Don't use arrow
-  // functions for virtual getters!
-  return this._id.toString();
 });
 
 // define the object that holds Mongoose models

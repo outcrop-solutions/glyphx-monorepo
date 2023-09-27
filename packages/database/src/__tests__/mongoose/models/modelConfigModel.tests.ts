@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 import * as mocks from '../../../mongoose/mocks';
 
-describe.only('#mongoose/models/modelConfig', () => {
+describe('#mongoose/models/modelConfig', () => {
   context('modelConfigIdExists', () => {
     const sandbox = createSandbox();
 

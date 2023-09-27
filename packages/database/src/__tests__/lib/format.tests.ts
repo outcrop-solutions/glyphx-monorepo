@@ -5,7 +5,7 @@ import {DBFormatter} from '../../lib/format';
 import {createSandbox} from 'sinon';
 import {error} from 'core';
 
-describe('#lib/format', () => {
+describe.only('#lib/format', () => {
   context('DBFormatter', () => {
     const format = new DBFormatter();
     const sandbox = createSandbox();
@@ -41,7 +41,7 @@ describe('#lib/format', () => {
         assert.isUndefined(jsObject.idTest._id);
       });
 
-      it('Should return a plain js object when documents are nested', () => {
+      it('Should return a plain js object when documents are nested objects', () => {
         const mongoObject = {
           idTest: {
             _id: new mongooseTypes.ObjectId(),
@@ -78,6 +78,48 @@ describe('#lib/format', () => {
         assert.isUndefined(jsObject.idTest.recursive._id);
         // @ts-ignore
         assert.isUndefined(jsObject.idTest.recursive.__v);
+      });
+      it('Should return a plain js object when documents are nested arrays', () => {
+        const mongoObject = {
+          idTest: [
+            {
+              _id: new mongooseTypes.ObjectId(),
+              test: 'value',
+              recursive: {
+                _id: new mongooseTypes.ObjectId(),
+                __v: 6,
+                test: 'nested value',
+              },
+            },
+          ],
+          vTest: [
+            {
+              _id: new mongooseTypes.ObjectId(),
+              __v: 6,
+              test: 'valu2e',
+            },
+          ],
+        };
+
+        const jsObject = format.toJS(mongoObject);
+
+        // @ts-ignore
+        assert.isUndefined(jsObject.vTest[0].__v);
+        // @ts-ignore
+        assert.isString(jsObject.vTest[0].id);
+        // @ts-ignore
+        assert.isUndefined(jsObject.vTest[0]._id);
+        // @ts-ignore
+        assert.isString(jsObject.idTest[0].id);
+        // @ts-ignore
+        assert.isUndefined(jsObject.idTest[0]._id);
+
+        // @ts-ignore
+        assert.isString(jsObject.idTest[0].recursive.id);
+        // @ts-ignore
+        assert.isUndefined(jsObject.idTest[0].recursive._id);
+        // @ts-ignore
+        assert.isUndefined(jsObject.idTest[0].recursive.__v);
       });
 
       it('should throw a DbFormatterError when toHexString fails', () => {
@@ -150,6 +192,29 @@ describe('#lib/format', () => {
         assert.isUndefined(result.nested.id);
         //  @ts-ignore
         assert.strictEqual(result.nested.field, 'value');
+      });
+
+      it('should handle nested arrays', () => {
+        const result = format.toMongo({
+          id: 'a'.repeat(24),
+          nested: [
+            {
+              id: 'b'.repeat(24),
+              field: 'value',
+            },
+          ],
+        });
+        assert.instanceOf(result._id, mongooseTypes.ObjectId);
+        assert.strictEqual(result._id.toString(), 'a'.repeat(24));
+        assert.isUndefined(result.id);
+        //  @ts-ignore
+        assert.instanceOf(result.nested[0]._id, mongooseTypes.ObjectId);
+        //  @ts-ignore
+        assert.strictEqual(result.nested[0]._id.toString(), 'b'.repeat(24));
+        //  @ts-ignore
+        assert.isUndefined(result.nested[0].id);
+        //  @ts-ignore
+        assert.strictEqual(result.nested[0].field, 'value');
       });
 
       it('should leave other fields unchanged', () => {
