@@ -100,7 +100,6 @@
     "ws": "8.11.0"
   },
   "peerDependencies": {
-    "mongoose": "6.11.5",
     "@babel/types": "7.22.17"
   },
   "devDependencies": {
