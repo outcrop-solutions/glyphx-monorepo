@@ -25,7 +25,7 @@ const SCHEMA = new Schema<IProjectTemplateDocument, IProjectTemplateStaticMethod
       () => new Date(),
   },
   name: {type: String, required: true},
-  description: {type: String, required: true},
+  description: {type: String, required: false},
   projects: {
     type: [mongooseTypes.ObjectId],
     required: true,

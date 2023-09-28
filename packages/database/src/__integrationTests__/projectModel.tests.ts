@@ -5,6 +5,7 @@ import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {databaseTypes, webTypes, fileIngestionTypes} from 'types';
 import {error} from 'core';
+import {DBFormatter} from '../lib/format';
 
 type ObjectId = mongooseTypes.ObjectId;
 
@@ -218,10 +219,11 @@ const INPUT_PROJECT_TYPE = {
 describe('#ProjectModel', () => {
   context('test the crud functions of the project model', () => {
     const mongoConnection = new MongoDbConnection();
+    const format = new DBFormatter();
     const projectModel = mongoConnection.models.ProjectModel;
-    let projectId: ObjectId;
+    let projectId: string;
     let memberId: ObjectId;
-    let projectId2: ObjectId;
+    let projectId2: string;
     let workspaceId: ObjectId;
     let projectTemplateId: ObjectId;
     let workspaceDocument: any;
@@ -285,27 +287,27 @@ describe('#ProjectModel', () => {
       projectInput.workspace = workspaceDocument;
       projectInput.template = projectTemplateDocument;
 
-      const projectDocument = await projectModel.createProject(projectInput);
+      const projectDocument = await projectModel.createProject(format.toJS(projectInput));
 
       assert.isOk(projectDocument);
       assert.strictEqual(projectDocument.name, projectInput.name);
-      assert.strictEqual(projectDocument.workspace._id?.toString(), workspaceId.toString());
+      assert.strictEqual(projectDocument.workspace.id, workspaceId.toString());
 
-      projectId = projectDocument._id as mongooseTypes.ObjectId;
+      projectId = projectDocument.id!;
     });
 
     it('retreive a project', async () => {
       assert.isOk(projectId);
-      const project = await projectModel.getProjectById(projectId);
+      const project = await projectModel.getProjectById(projectId.toString());
 
       assert.isOk(project);
-      assert.strictEqual(project._id?.toString(), projectId.toString());
+      assert.strictEqual(project.id, projectId.toString());
     });
 
     it('modify a project', async () => {
       assert.isOk(projectId);
       const input = {description: 'a modified description'};
-      const updatedDocument = await projectModel.updateProjectById(projectId, input);
+      const updatedDocument = await projectModel.updateProjectById(projectId.toString(), input);
       assert.strictEqual(updatedDocument.description, input.description);
     });
 
@@ -315,11 +317,11 @@ describe('#ProjectModel', () => {
       projectInput.workspace = workspaceDocument;
       projectInput.type = projectTemplateDocument;
 
-      const projectDocument = await projectModel.createProject(projectInput);
+      const projectDocument = await projectModel.createProject(format.toJS(projectInput));
 
       assert.isOk(projectDocument);
 
-      projectId2 = projectDocument._id as mongooseTypes.ObjectId;
+      projectId2 = projectDocument.id!;
 
       const projects = await projectModel.queryProjects();
       assert.isArray(projects.results);
@@ -343,27 +345,27 @@ describe('#ProjectModel', () => {
       const results = await projectModel.queryProjects({}, 0, 1);
       assert.strictEqual(results.results.length, 1);
 
-      const lastId = results.results[0]?._id;
+      const lastId = results.results[0]?.id;
 
       const results2 = await projectModel.queryProjects({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(results2.results[0]?.id, lastId?.toString());
     });
 
     it('remove a project', async () => {
       assert.isOk(projectId);
-      await projectModel.deleteProjectById(projectId);
+      await projectModel.deleteProjectById(projectId.toString());
       let errored = false;
       try {
-        await projectModel.getProjectById(projectId);
+        await projectModel.getProjectById(projectId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
       }
 
       assert.isTrue(errored);
-      projectId = null as unknown as ObjectId;
+      projectId = null as unknown as string;
     });
   });
 });

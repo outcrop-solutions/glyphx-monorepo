@@ -22,7 +22,7 @@ export class DBFormatter {
         const value = object[key];
         // convert ObjectId to string
         if (key === '_id') {
-          newObject.id = value.toHexString();
+          newObject.id = value.toString();
         }
         // handle arrays
         else if (Array.isArray(value)) {
