@@ -80,48 +80,80 @@ export default function Sandbox() {
         </div>
         <main className="lg:ml-72 p-8 h-full">
           <Script id="run-model" type="module">
-            {`import init, { ModelRunner } from '../../../../../pkg/glyphx_cube_model.js';
+            {`import init, { ModelRunner } from '/pkg/glyphx_cube_model.js';
       async function run() {
+	let isDragRotate = false;
         await init();
         console.log('WASM Loaded');
         const modelRunner = new ModelRunner();
 
         console.log('ModelRunner created');
-        // Get the button element
+	
+	
+        const canvas = document.getElementById('glyphx-cube-model');
 
-        const moveLeftButton = document.getElementById('move-left-button');
-        const moveRightButton = document.getElementById('move-right-button');
-        const moveForwardButton = document.getElementById('move-forward-button');
-        const moveBackwardButton = document.getElementById('move-backward-button');
+            canvas.addEventListener('mousedown', e => {
+                isDragRotate = true;
+            });
 
-        moveLeftButton.addEventListener('click', function onClick() {
-          console.log('Move Left Button Clicked');
+            canvas.addEventListener('mousemove', e => {
+                if (isDragRotate === true) {
+		    //Here we invert our x and y to get the rotation to match
+		    const rotation = -e.movementX;
+                     modelRunner.add_yaw(rotation);
+		     modelRunner.add_pitch(e.movementY);
 
-          modelRunner.move_left();
-        });
+                }
+            });
 
-        moveRightButton.addEventListener('click', function onClick() {
-          console.log('Move Right Button Clicked');
+            canvas.addEventListener('mouseup', e => {
+                if (isDragRotate === true) {
+                    isDragRotate = false;
+                }
+            });
 
-          modelRunner.move_right();
-        });
+            canvas.addEventListener('wheel', e => {
+		console.log("wheel event");
+                e.preventDefault();
+		modelRunner.add_distance(-e.deltaY);
+            }, true);
 
-        moveForwardButton.addEventListener('click', function onClick() {
-          console.log('Move Forward Button Clicked');
+	
+	// Get the button element
+        // const moveLeftButton = document.getElementById('move-left-button');
+        // const moveRightButton = document.getElementById('move-right-button');
+        // const moveForwardButton = document.getElementById('move-forward-button');
+        // const moveBackwardButton = document.getElementById('move-backward-button');
 
-          modelRunner.move_forward();
-        });
+         //moveLeftButton.addEventListener('click', function onClick() {
+         //  console.log('Move Left Button Clicked');
 
-        moveBackwardButton.addEventListener('click', function onClick() {
-          console.log('Move Backward Button Clicked');
+          // modelRunner.move_left();
+         //});
 
-          modelRunner.move_back();
-        });
+        // moveRightButton.addEventListener('click', function onClick() {
+        //   console.log('Move Right Button Clicked');
 
-        window.addEventListener('model-event', (event) => {
-          console.log('Model Event Received');
-          console.log({ event });
-        });
+        //   modelRunner.move_right();
+        // });
+
+        // moveForwardButton.addEventListener('click', function onClick() {
+        //   console.log('Move Forward Button Clicked');
+
+        //   modelRunner.move_forward();
+        // });
+
+        // moveBackwardButton.addEventListener('click', function onClick() {
+        //   console.log('Move Backward Button Clicked');
+
+        //   modelRunner.move_back();
+        // });
+
+        // window.addEventListener('model-event', (event) => {
+        //   console.log('Model Event Received');
+        //   console.log({ event });
+        // });
+
         await modelRunner.run();
       }
       run();`}
