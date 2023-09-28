@@ -115,7 +115,7 @@ export const updateProjectTemplate = async (req: NextApiRequest, res: NextApiRes
 
     await activityLogService.createLog({
       actorId: session?.user?.id,
-      resourceId: template.id,
+      resourceId: template.id!,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT_TEMPLATE,
@@ -152,7 +152,7 @@ export const deleteProjectTemplate = async (req: NextApiRequest, res: NextApiRes
 
       await activityLogService.createLog({
         actorId: session?.user?.id,
-        resourceId: template.id,
+        resourceId: template.id!,
         location: location,
         userAgent: agentData,
         onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT_TEMPLATE,

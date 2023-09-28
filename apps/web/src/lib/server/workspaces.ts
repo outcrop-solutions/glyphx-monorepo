@@ -14,7 +14,7 @@ import {membershipService, workspaceService} from 'business';
  */
 
 export const getWorkspaces = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const workspaces = await workspaceService.getWorkspaces(session?.user?.id, session?.user?.email as string);
+  const workspaces = await workspaceService.getWorkspaces(session?.user?.id!, session?.user?.email as string);
   res.status(200).json({data: {workspaces}});
 };
 

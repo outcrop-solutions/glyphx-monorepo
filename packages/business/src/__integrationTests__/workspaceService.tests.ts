@@ -76,7 +76,7 @@ const INPUT_CUSTOMER_PAYMENT: Partial<databaseTypes.ICustomerPayment> = {
   updatedAt: new Date(),
 };
 
-describe.only('#WorkspaceService', () => {
+describe('#WorkspaceService', () => {
   const mongoConnection = new MongoDbConnection();
 
   context('test the functions of the workspace service', () => {

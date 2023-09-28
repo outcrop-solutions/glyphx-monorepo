@@ -61,7 +61,7 @@ export const createWorkspace = async (req: NextApiRequest, res: NextApiResponse,
 
     await activityLogService.createLog({
       actorId: session?.user?.id,
-      resourceId: workspace?.id,
+      resourceId: workspace?.id!,
       workspaceId: workspace?.id,
       location: location,
       userAgent: agentData,
@@ -263,8 +263,8 @@ export const deleteWorkspace = async (req: NextApiRequest, res: NextApiResponse,
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.id,
-      resourceId: workspace?.id,
+      actorId: session?.user?.id!,
+      resourceId: workspace?.id!,
       workspaceId: workspace?.id,
       location: location,
       userAgent: agentData,

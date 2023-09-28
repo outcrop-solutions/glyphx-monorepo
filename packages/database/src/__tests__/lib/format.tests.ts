@@ -4,11 +4,16 @@ import {Types as mongooseTypes} from 'mongoose';
 import {DBFormatter} from '../../lib/format';
 import {createSandbox} from 'sinon';
 import {error} from 'core';
+import {MongoDbConnection} from '../../mongoose';
 
 describe('#lib/format', () => {
   context('DBFormatter', () => {
+    const mongoConnection = new MongoDbConnection();
     const format = new DBFormatter();
     const sandbox = createSandbox();
+    before(async () => {
+      await mongoConnection.init();
+    });
     afterEach(() => {
       sandbox.restore();
     });
@@ -39,6 +44,82 @@ describe('#lib/format', () => {
         assert.isString(jsObject.idTest.id);
         // @ts-ignore
         assert.isUndefined(jsObject.idTest._id);
+      });
+      it('Should return a plain js object when relations are ObjectIds', () => {
+        const mongoObject = {
+          idTest: {
+            _id: new mongooseTypes.ObjectId(),
+            test: 'value',
+            creator: new mongooseTypes.ObjectId(),
+          },
+          vTest: {
+            _id: new mongooseTypes.ObjectId(),
+            __v: 6,
+            test: 'valu2e',
+            projects: [new mongooseTypes.ObjectId(), new mongooseTypes.ObjectId()],
+          },
+        };
+
+        const jsObject = format.toJS(mongoObject);
+
+        // @ts-ignore
+        assert.isUndefined(jsObject.vTest.__v);
+        // @ts-ignore
+        assert.isString(jsObject.vTest.id);
+        // @ts-ignore
+        assert.isUndefined(jsObject.vTest._id);
+        // @ts-ignore
+        assert.isString(jsObject.idTest.id);
+        // @ts-ignore
+        assert.isUndefined(jsObject.idTest._id);
+      });
+      it('Should return a plain js object when initial value is an array', () => {
+        const mongoArray = [
+          {
+            idTest: {
+              _id: new mongooseTypes.ObjectId(),
+              test: 'value',
+              creator: new mongooseTypes.ObjectId(),
+            },
+            vTest: {
+              _id: new mongooseTypes.ObjectId(),
+              __v: 6,
+              test: 'value2',
+              projects: [new mongooseTypes.ObjectId(), new mongooseTypes.ObjectId()],
+            },
+          },
+          {
+            idTest: {
+              _id: new mongooseTypes.ObjectId(),
+              test: 'value3',
+              creator: new mongooseTypes.ObjectId(),
+            },
+            vTest: {
+              _id: new mongooseTypes.ObjectId(),
+              __v: 6,
+              test: 'value4',
+              projects: [new mongooseTypes.ObjectId(), new mongooseTypes.ObjectId()],
+            },
+          },
+        ];
+
+        const jsArray = format.toJS(mongoArray);
+
+        // @ts-ignore
+        assert.isUndefined(jsArray[0].vTest.__v);
+        // @ts-ignore
+        assert.isString(jsArray[0].vTest.id);
+        // @ts-ignore
+        assert.isUndefined(jsArray[0].vTest._id);
+        // @ts-ignore
+        assert.strictEqual(jsArray[0].vTest.test, mongoArray[0].vTest.test);
+
+        // @ts-ignore
+        assert.isString(jsArray[1].idTest.id);
+        // @ts-ignore
+        assert.isUndefined(jsArray[1].idTest._id);
+        // @ts-ignore
+        assert.strictEqual(jsArray[1].vTest.test, mongoArray[1].vTest.test);
       });
 
       it('Should return a plain js object when documents are nested objects', () => {
@@ -79,6 +160,7 @@ describe('#lib/format', () => {
         // @ts-ignore
         assert.isUndefined(jsObject.idTest.recursive.__v);
       });
+
       it('Should return a plain js object when documents are nested arrays', () => {
         const mongoObject = {
           idTest: [
@@ -122,9 +204,9 @@ describe('#lib/format', () => {
         assert.isUndefined(jsObject.idTest[0].recursive.__v);
       });
 
-      it('should throw a DbFormatterError when toHexString fails', () => {
+      it('should throw a DbFormatterError when toString fails', () => {
         const errMessage = 'to Hex failed';
-        sandbox.stub(mongooseTypes.ObjectId.prototype, 'toHexString').throws(new Error(errMessage));
+        sandbox.stub(mongooseTypes.ObjectId.prototype, 'toString').throws(new Error(errMessage));
 
         const mongoObject = {
           idTest: {

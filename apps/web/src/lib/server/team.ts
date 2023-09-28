@@ -19,13 +19,13 @@ export const updateRole = async (req: NextApiRequest, res: NextApiResponse, sess
   const {memberId, role} = req.body;
   try {
     const member = await membershipService.getMember(memberId);
-    await membershipService.updateRole(member?.id, role);
+    await membershipService.updateRole(member?.id!, role);
 
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
       actorId: session?.user?.id,
-      resourceId: member?.id,
+      resourceId: member?.id!,
       workspaceId: member?.workspace.id,
       location: location,
       userAgent: agentData,
@@ -57,7 +57,7 @@ export const removeMember = async (req: NextApiRequest, res: NextApiResponse, se
 
     await activityLogService.createLog({
       actorId: session?.user?.id,
-      resourceId: member?.id,
+      resourceId: member?.id!,
       workspaceId: member?.workspace.id,
       location: location,
       userAgent: agentData,
@@ -90,7 +90,7 @@ export const joinWorkspace = async (req: NextApiRequest, res: NextApiResponse, s
 
     await activityLogService.createLog({
       actorId: session?.user?.id,
-      resourceId: workspace?.id,
+      resourceId: workspace?.id!,
       workspaceId: workspace?.id,
       location: location,
       userAgent: agentData,

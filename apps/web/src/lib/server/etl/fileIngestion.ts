@@ -93,7 +93,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     // Setup process tracking
     const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
     const PROCESS_NAME = 'testingProcessUnique';
-    const {_id: processDocumentId} = await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
+    const {id: processDocumentId} = await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
 
     // Create file ingestor
     const fileIngestor = new FileIngestor(newPayload, s3Manager, athenaConnection.connection, PROCESS_ID);
@@ -105,7 +105,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.id,
+      actorId: session?.user?.id!,
       resourceId: newPayload.modelId,
       workspaceId: newPayload.clientId,
       projectId: newPayload.modelId,
@@ -116,7 +116,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     });
 
     await activityLogService.createLog({
-      actorId: session?.user?.id,
+      actorId: session?.user?.id!,
       resourceId: processDocumentId?.toString() as string,
       workspaceId: newPayload.clientId,
       projectId: newPayload.modelId,

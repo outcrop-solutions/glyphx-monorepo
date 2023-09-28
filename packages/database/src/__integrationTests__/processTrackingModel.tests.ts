@@ -28,7 +28,7 @@ const INPUT_DATA2 = {
   processError: [],
 };
 
-describe.only('#processTrackingModel', () => {
+describe('#processTrackingModel', () => {
   context('test the crud functions of the processTracking model', () => {
     const mongoConnection = new MongoDbConnection();
     const format = new DBFormatter();

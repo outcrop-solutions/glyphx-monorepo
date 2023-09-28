@@ -363,7 +363,6 @@ export class WorkspaceService {
           allowDiskUse: false,
         }
       );
-
       if (workspaces.length > 0) {
         const format = new DBFormatter();
         return format.toJS(workspaces);

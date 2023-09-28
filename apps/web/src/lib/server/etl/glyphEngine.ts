@@ -157,7 +157,7 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
 
       const {agentData, location} = formatUserAgent(req);
       await activityLogService.createLog({
-        actorId: session?.user?.id,
+        actorId: session?.user?.id!,
         resourceId: payload.model_id,
         workspaceId: payload.client_id,
         projectId: payload.model_id,
