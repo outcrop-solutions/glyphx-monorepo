@@ -8,12 +8,8 @@ import {projectTemplateService} from '../services';
 
 type ObjectId = mongooseTypes.ObjectId;
 
-const UNIQUE_KEY = v4().replaceAll('-', '');
-
 const INPUT_PROJECT_TEMPLATE: databaseTypes.IProjectTemplate = {
-  _id:
-    // @ts-ignore
-    new mongooseTypes.ObjectId(),
+  _id: new mongooseTypes.ObjectId(),
   createdAt: new Date(),
   updatedAt: new Date(),
   name: 'projectTemplateTest',

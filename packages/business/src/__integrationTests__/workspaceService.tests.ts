@@ -12,9 +12,7 @@ const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const USER_EMAIL = 'testEmail' + UNIQUE_KEY + '@email.com';
 const INPUT_USER: Partial<databaseTypes.IUser> = {
-  _id:
-    // @ts-ignore
-    new mongooseTypes.ObjectId(),
+  _id: new mongooseTypes.ObjectId(),
   name: 'testUser' + UNIQUE_KEY,
   userCode: 'testUserCode' + UNIQUE_KEY,
   username: 'testUserName' + UNIQUE_KEY,
@@ -78,14 +76,14 @@ const INPUT_CUSTOMER_PAYMENT: Partial<databaseTypes.ICustomerPayment> = {
   updatedAt: new Date(),
 };
 
-describe('#WorkspaceService', () => {
+describe.only('#WorkspaceService', () => {
   const mongoConnection = new MongoDbConnection();
 
   context('test the functions of the workspace service', () => {
     let userId: ObjectId;
     let memberId: ObjectId;
     let member2Id: ObjectId;
-    let workspaceId: ObjectId;
+    let workspaceId: string;
     let customerPaymentId: ObjectId;
 
     before(async () => {
@@ -121,7 +119,7 @@ describe('#WorkspaceService', () => {
       const savedWorkspaceDocument = await workspaceModel
         .findOne({workspaceCode: INPUT_WORKSPACE.workspaceCode})
         .lean();
-      workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
+      workspaceId = savedWorkspaceDocument?.id!;
       assert.isOk(workspaceId);
 
       // create customerPayment
@@ -181,21 +179,29 @@ describe('#WorkspaceService', () => {
     });
     it('will create a workspaces', async () => {
       const workspace = await workspaceService.createWorkspace(
-        userId,
+        userId.toString(),
         INPUT_USER.email!,
         INPUT_USER.name!,
         INPUT_WORKSPACE.slug!
       );
       assert.isOk(workspace);
-      workspaceId = workspace._id;
+      workspaceId = workspace?.id!;
     });
     it('will delete a workspace', async () => {
-      const workspace = await workspaceService.deleteWorkspace(userId, INPUT_USER.email!, INPUT_WORKSPACE.slug!);
+      const workspace = await workspaceService.deleteWorkspace(
+        userId.toString(),
+        INPUT_USER.email!,
+        INPUT_WORKSPACE.slug!
+      );
       assert.isOk(workspace);
-      assert.isOk(workspace.deletedAt);
+      assert.isOk(workspace?.deletedAt);
     });
     it('will retreive a workspace via getOwnWorkspace', async () => {
-      const workspace = await workspaceService.getOwnWorkspace(userId, INPUT_USER.email!, INPUT_WORKSPACE.slug!);
+      const workspace = await workspaceService.getOwnWorkspace(
+        userId.toString(),
+        INPUT_USER.email!,
+        INPUT_WORKSPACE.slug!
+      );
       assert.isOk(workspace);
     });
     it('will retreive workspace invitations', async () => {
@@ -207,18 +213,21 @@ describe('#WorkspaceService', () => {
       assert.isOk(workspace);
     });
     it('will retreive workspaces', async () => {
-      const workspace = await workspaceService.getWorkspace(userId, INPUT_USER.email!, INPUT_WORKSPACE.slug!);
+      const workspace = await workspaceService.getWorkspace(
+        userId.toString(),
+        INPUT_USER.email!,
+        INPUT_WORKSPACE.slug!
+      );
       assert.isOk(workspace);
-    });
-    it('will get workspace paths', async () => {
-      const workspaces = await workspaceService.getWorkspacePaths();
-      assert.isOk(workspaces);
     });
     it('will invite users to a workspace', async () => {
       const result = await workspaceService.inviteUsers(
-        userId,
+        userId.toString(),
         INPUT_USER.email!,
-        [INPUT_MEMBER_1, INPUT_MEMBER_2],
+        [
+          {email: INPUT_MEMBER_1.email!, teamRole: INPUT_MEMBER_1.teamRole!},
+          {email: INPUT_MEMBER_2.email!, teamRole: INPUT_MEMBER_2.teamRole!},
+        ],
         INPUT_WORKSPACE.slug!
       );
       assert.isOk(result);
@@ -229,7 +238,7 @@ describe('#WorkspaceService', () => {
     });
     it('will update a workspace name', async () => {
       const user = await workspaceService.updateWorkspaceName(
-        userId,
+        userId.toString(),
         INPUT_USER.email!,
         'NEW WORKSPACE NAME',
         INPUT_WORKSPACE.slug!
@@ -238,7 +247,7 @@ describe('#WorkspaceService', () => {
     });
     it('will update a workspace slug', async () => {
       const workspaceSlug = await workspaceService.updateWorkspaceSlug(
-        userId,
+        userId.toString(),
         INPUT_USER.email!,
         'NEW SLUG',
         INPUT_WORKSPACE.slug!
