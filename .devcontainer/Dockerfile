@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/devcontainers/universal:2
 RUN apt-get update -y
-RUN apt-get install -y fish pciutils neofetch bat 
+RUN apt-get install -y fish pciutils neofetch bat ripgrep
 RUN npm install -g typescript pnpm
 RUN pip install pynvim
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
