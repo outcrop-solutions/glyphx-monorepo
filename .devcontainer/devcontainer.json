@@ -1,5 +1,6 @@
 {
   "name": "Neovim Dev Container",
   "image": "docker.io/jpburford/glyphx_devcontainer:latest",
+  "forwardPorts": [ 3000 ],
   "features": {}
 }
