@@ -7,7 +7,7 @@ export const validateSession = async (req, res) => {
     return {
       user: {
         id: '645aa1458d6a87808abf59db',
-        name: 'James Graham',
+        name: 'James Test',
         email: 'james@glyphx.co',
       },
       expires: new Date().toISOString(),

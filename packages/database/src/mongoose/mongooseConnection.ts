@@ -1,4 +1,5 @@
 import * as models from './models';
+import {MongoClient} from 'mongodb';
 import mongoose from 'mongoose';
 import {bindSecrets, boundProperty} from 'core/src/secrets/secretClassDecorator';
 import {DatabaseOperationError} from 'core/src/error';
@@ -26,6 +27,14 @@ export class MongoDbConnection {
   }
   get connectionString(): string {
     return this.connectionStringField;
+  }
+
+  /**
+   * Native mongo driver is required by next-auth, mongoose connection is used for all other DB operations
+   */
+  get connectionPromise(): Promise<MongoClient> {
+    const uri = `mongodb+srv://${this.user}:${this.password}@${this.database}.${this.endpoint}?retryWrites=true&w=majority`;
+    return MongoClient.connect(encodeURI(uri), {});
   }
 
   constructor() {

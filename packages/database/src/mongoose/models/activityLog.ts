@@ -192,10 +192,9 @@ SCHEMA.static(
 
 SCHEMA.static('createActivityLog', async (input: IActivityLogCreateInput): Promise<databaseTypes.IActivityLog> => {
   const userId =
-    input.actor instanceof mongooseTypes.ObjectId
-      ? input.actor
-      : // @ts-ignore
-        new mongooseTypes.ObjectId(input.actor._id);
+    typeof input.actor === 'string'
+      ? new mongooseTypes.ObjectId(input.actor)
+      : new mongooseTypes.ObjectId(input.actor.id);
 
   const userExists = await UserModel.userIdExists(userId);
   if (!userExists)
@@ -205,10 +204,9 @@ SCHEMA.static('createActivityLog', async (input: IActivityLogCreateInput): Promi
   //istanbul ignore else
   if (input.workspaceId) {
     workspaceId =
-      input.workspaceId instanceof mongooseTypes.ObjectId
-        ? input.workspaceId
-        : // @ts-ignore
-          new mongooseTypes.ObjectId(input.workspaceId);
+      typeof input.workspaceId === 'string'
+        ? new mongooseTypes.ObjectId(input.workspaceId)
+        : new mongooseTypes.ObjectId();
 
     const workspaceExists = await WorkspaceModel.workspaceIdExists(workspaceId);
     if (!workspaceExists)
@@ -221,10 +219,9 @@ SCHEMA.static('createActivityLog', async (input: IActivityLogCreateInput): Promi
 
   let resourceExists;
   const resourceId =
-    input.resource instanceof mongooseTypes.ObjectId
-      ? input.resource
-      : // @ts-ignore
-        new mongooseTypes.ObjectId(input.resource._id);
+    typeof input.resource === 'string'
+      ? new mongooseTypes.ObjectId(input.resource)
+      : new mongooseTypes.ObjectId(input.resource.id);
 
   switch (input.onModel) {
     case databaseTypes.constants.RESOURCE_MODEL.USER:

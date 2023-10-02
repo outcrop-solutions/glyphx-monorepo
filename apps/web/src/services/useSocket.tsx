@@ -68,7 +68,6 @@ export const useSocket = () => {
                 payload.current.isSent = true;
                 window?.core?.GetCameraPosition(true);
                 window?.core?.TakeScreenShot('');
-                console.log({payload, window});
               }
             });
           });
@@ -94,7 +93,6 @@ export const useSocket = () => {
 
       ws.onmessage = (event) => {
         try {
-          console.log({event});
           // Handle the message if needed
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);

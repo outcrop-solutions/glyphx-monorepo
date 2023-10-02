@@ -15,7 +15,6 @@ import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
 
-import isEmail from 'validator/lib/isEmail';
 import {_updateUserName, _updateUserEmail, api} from 'lib/client';
 import {modalsAtom} from 'state';
 
@@ -23,12 +22,11 @@ export default function Settings() {
   const {data} = useSession();
   const setModals = useSetRecoilState(modalsAtom);
 
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(' ');
   const [isSubmitting, setSubmittingState] = useState(false);
   const [name, setName] = useState('');
   const [userCode, setUserCode] = useState('');
   const validName = name?.length > 0 && name?.length <= 32;
-  const validEmail = isEmail(email);
   // local state
   const handleEmailChange = (event) => setEmail(event.target.value);
   const handleNameChange = (event) => setName(event.target.value);
@@ -40,6 +38,7 @@ export default function Settings() {
     event.preventDefault();
     api({..._updateUserName(name), setLoading: (state) => setSubmittingState(state as boolean)});
   };
+
   const changeEmail = (event) => {
     event.preventDefault();
     const result = confirm('Are you sure you want to update your email address?');
@@ -117,7 +116,7 @@ export default function Settings() {
             </Card.Body>
             <Card.Footer>
               <small>We will email you to verify the change</small>
-              <Button className="" disabled={!validEmail || isSubmitting} onClick={changeEmail}>
+              <Button className="" disabled={isSubmitting} onClick={changeEmail}>
                 Save
               </Button>
             </Card.Footer>

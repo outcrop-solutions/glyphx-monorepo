@@ -1,13 +1,21 @@
 import NextAuth from 'next-auth';
-import type {Awaitable, NextAuthOptions, SessionStrategy, User} from 'next-auth/index';
+import type {NextAuthOptions} from 'next-auth/index';
+import {Initializer, dbConnection} from 'business';
 import {MongoDBAdapter} from '@next-auth/mongodb-adapter';
 import GoogleProvider from 'next-auth/providers/google';
 import EmailProvider from 'next-auth/providers/email';
 import {signInHtml, signInText, EmailClient} from 'email';
-import MongoClient from 'lib/server/mongodb';
+
+const getConnectionPromise = (async () => {
+  // initialize the business layer
+  if (!Initializer.initedField) {
+    await Initializer.init();
+  }
+  return dbConnection.connectionPromise;
+})();
 
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(MongoClient),
+  adapter: MongoDBAdapter(getConnectionPromise),
   callbacks: {
     session: async ({session, user}) => {
       if (session?.user) {

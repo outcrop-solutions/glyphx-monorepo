@@ -19,6 +19,10 @@ export default function Welcome() {
     api({
       ..._acceptInvitation(memberId),
       setLoading: (state) => setSubmittingState(state as boolean),
+      onSuccess: (data) => {
+        console.log({data});
+        // router.replace(`/${data.workspace.id}` as Route);
+      },
     });
   };
   const decline = (memberId) => {
