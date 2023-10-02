@@ -53,7 +53,7 @@ export const FileDecisionModal = ({modalContent}: webTypes.FileDecisionsModalPro
     const keys = finalPayload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
 
     const {signedUrls} = await api({
-      ..._getSignedUploadUrls(project.workspace._id.toString(), project._id.toString(), keys),
+      ..._getSignedUploadUrls(project.workspace.id, project.id, keys),
       returnData: true,
     });
 

@@ -36,7 +36,7 @@ export const CreateWorkspaceModal = ({modalContent}: webTypes.CreateWorkspaceMod
             draft.modals.splice(0, 1);
           })
         );
-        router.replace(`/${result._id.toString()}` as Route);
+        router.replace(`/${result.id}` as Route);
       },
     });
   };

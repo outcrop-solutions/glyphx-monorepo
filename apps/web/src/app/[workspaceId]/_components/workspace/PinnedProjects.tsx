@@ -16,7 +16,7 @@ export const PinnedProjects = async () => {
         {templates &&
           templates.map((template) => (
             <li
-              key={template._id?.toString()}
+              key={template.id}
               className="relative group col-span-1 shadow-sm rounded border border-transparent bg-secondary-space-blue hover:cursor-pointer hover:border-white flex items-center justify-between"
             >
               <div className="flex items-center max-w-full">

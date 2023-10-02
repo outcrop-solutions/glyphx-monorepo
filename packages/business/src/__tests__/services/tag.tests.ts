@@ -25,7 +25,7 @@ describe('#services/tag', () => {
       } as unknown as databaseTypes.IUser);
       sandbox.replace(dbConnection.models.TagModel, 'getTagById', getTagFromModelStub);
 
-      const tag = await tagService.getTag(tagId);
+      const tag = await tagService.getTag(tagId.toString());
       assert.isOk(tag);
       assert.strictEqual(tag?._id?.toString(), tagId.toString());
 
@@ -70,7 +70,7 @@ describe('#services/tag', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const tag = await tagService.getTag(tagId);
+      const tag = await tagService.getTag(tagId.toString());
       assert.notOk(tag);
 
       assert.isTrue(getTagFromModelStub.calledOnce);
@@ -99,7 +99,7 @@ describe('#services/tag', () => {
 
       let errored = false;
       try {
-        await tagService.getTag(tagId);
+        await tagService.getTag(tagId.toString());
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;

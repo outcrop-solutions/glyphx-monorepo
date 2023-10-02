@@ -250,15 +250,14 @@ describe('#mongoose/models/customerPayment', () => {
       findStub.returns(new MockMongooseQuery(mockCustomerPayment));
       sandbox.replace(CustomerPaymentModel, 'findOne', findStub);
 
-      const doc = await CustomerPaymentModel.updateCustomerPaymentById(customerId, updateCustomerPayment);
+      const doc = await CustomerPaymentModel.updateCustomerPaymentById(customerId.toString(), updateCustomerPayment);
 
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(findStub.calledOnce);
       assert.isUndefined((doc as any).__v);
       assert.isUndefined((doc.customer as any).__v);
 
-      assert.strictEqual(doc._id, mockCustomerPayment._id);
-      // assert.isTrue(getCustomerPaymentStub.calledOnce);
+      assert.strictEqual(doc.id, mockCustomerPayment._id?.toString());
     });
 
     it('should update an existing customerPaymentByStripeId', async () => {
@@ -317,8 +316,7 @@ describe('#mongoose/models/customerPayment', () => {
       assert.isUndefined((doc as any).__v);
       assert.isUndefined((doc.customer as any).__v);
 
-      assert.strictEqual(doc._id, mockCustomerPayment._id);
-      // assert.isTrue(getCustomerPaymentStub.calledOnce);
+      assert.strictEqual(doc.id, mockCustomerPayment._id?.toString());
     });
 
     it('should update an existing customerPayment changing the customer', async () => {
@@ -390,7 +388,7 @@ describe('#mongoose/models/customerPayment', () => {
 
       let errorred = false;
       try {
-        await CustomerPaymentModel.updateCustomerPaymentById(customerPaymentId, updateCustomerPayment);
+        await CustomerPaymentModel.updateCustomerPaymentById(customerPaymentId.toString(), updateCustomerPayment);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errorred = true;
@@ -411,7 +409,7 @@ describe('#mongoose/models/customerPayment', () => {
 
       let errorred = false;
       try {
-        await CustomerPaymentModel.updateCustomerPaymentById(customerPaymentId, updateCustomerPayment);
+        await CustomerPaymentModel.updateCustomerPaymentById(customerPaymentId.toString(), updateCustomerPayment);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -497,7 +495,7 @@ describe('#mongoose/models/customerPayment', () => {
 
       const customerPaymentId = new mongoose.Types.ObjectId();
 
-      await CustomerPaymentModel.deleteCustomerPaymentById(customerPaymentId);
+      await CustomerPaymentModel.deleteCustomerPaymentById(customerPaymentId.toString());
 
       assert.isTrue(deleteStub.calledOnce);
     });
@@ -511,7 +509,7 @@ describe('#mongoose/models/customerPayment', () => {
 
       let errorred = false;
       try {
-        await CustomerPaymentModel.deleteCustomerPaymentById(customerPaymentId);
+        await CustomerPaymentModel.deleteCustomerPaymentById(customerPaymentId.toString());
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -529,7 +527,7 @@ describe('#mongoose/models/customerPayment', () => {
 
       let errorred = false;
       try {
-        await CustomerPaymentModel.deleteCustomerPaymentById(customerPaymentId);
+        await CustomerPaymentModel.deleteCustomerPaymentById(customerPaymentId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -658,7 +656,7 @@ describe('#mongoose/models/customerPayment', () => {
       assert.isUndefined((doc as any).__v);
       assert.isUndefined((doc.customer as any).__v);
 
-      assert.strictEqual(doc._id, mockCustomerPayment._id);
+      assert.strictEqual(doc.id, mockCustomerPayment._id?.toString());
     });
 
     it('will retreive a customerPayment document by id with the customer populated', async () => {
@@ -666,13 +664,13 @@ describe('#mongoose/models/customerPayment', () => {
       findStub.returns(new MockMongooseQuery(mockCustomerPayment));
       sandbox.replace(CustomerPaymentModel, 'findOne', findStub);
 
-      const doc = await CustomerPaymentModel.getCustomerPaymentById(mockCustomerPayment._id as mongooseTypes.ObjectId);
+      const doc = await CustomerPaymentModel.getCustomerPaymentById(mockCustomerPayment._id!.toString());
 
       assert.isTrue(findStub.calledOnce);
       assert.isUndefined((doc as any).__v);
       assert.isUndefined((doc.customer as any).__v);
 
-      assert.strictEqual(doc._id, mockCustomerPayment._id);
+      assert.strictEqual(doc.id, mockCustomerPayment._id?.toString());
     });
 
     it('will retreive a customerPayment document by email with the customer populated', async () => {

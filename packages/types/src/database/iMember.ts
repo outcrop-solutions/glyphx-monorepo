@@ -7,6 +7,7 @@ import {IProject} from './iProject';
 // if project exists, type: PROJECT
 export interface IMember {
   _id?: mongooseTypes.ObjectId;
+  id?: string;
   email: string;
   inviter: string;
   type: MEMBERSHIP_TYPE; // PROJECT ? project present : project: undefined

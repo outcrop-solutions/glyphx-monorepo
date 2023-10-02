@@ -15,7 +15,7 @@ export const GridView = ({projects}) => {
       {/* Cards */}
       <div className="grid grid-cols-12 gap-6 bg-primary-blue pb-20">
         {projects.map((project) => {
-          return <ProjectCard key={project._id!.toString()} project={project} />;
+          return <ProjectCard key={project.id!} project={project} />;
         })}
       </div>
     </>

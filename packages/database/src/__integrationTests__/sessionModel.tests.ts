@@ -5,6 +5,7 @@ import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {databaseTypes} from 'types';
 import {error} from 'core';
+import {DBFormatter} from '../lib/format';
 
 type ObjectId = mongooseTypes.ObjectId;
 
@@ -43,9 +44,10 @@ const INPUT_DATA2 = {
 describe('#sessionModel', () => {
   context('test the crud functions of the session model', () => {
     const mongoConnection = new MongoDbConnection();
+    const format = new DBFormatter();
     const sessionModel = mongoConnection.models.SessionModel;
-    let sessionId: ObjectId;
-    let sessionId2: ObjectId;
+    let sessionId: string;
+    let sessionId2: string;
     let userId: ObjectId;
     let userDocument: any;
     before(async () => {
@@ -77,31 +79,31 @@ describe('#sessionModel', () => {
     it('add a new session', async () => {
       const sessionInput = JSON.parse(JSON.stringify(INPUT_DATA));
       sessionInput.user = userDocument;
-      const sessionDocument = await sessionModel.createSession(sessionInput);
+      const sessionDocument = await sessionModel.createSession(format.toJS(sessionInput));
 
       assert.isOk(sessionDocument);
       assert.strictEqual(sessionDocument.sessionToken, sessionInput.sessionToken);
-      assert.strictEqual(sessionDocument.user._id?.toString(), userId.toString());
+      assert.strictEqual(sessionDocument.user.id, userId.toString());
 
-      sessionId = sessionDocument._id as mongooseTypes.ObjectId;
+      sessionId = sessionDocument.id!;
     });
 
     it('retreive a session', async () => {
       assert.isOk(sessionId);
-      const session = await sessionModel.getSessionById(sessionId);
+      const session = await sessionModel.getSessionById(sessionId.toString());
 
       assert.isOk(session);
-      assert.strictEqual(session._id?.toString(), sessionId.toString());
+      assert.strictEqual(session.id, sessionId.toString());
     });
 
     it('Get multiple sessions without a filter', async () => {
       assert.isOk(sessionId);
       const sessionInput = JSON.parse(JSON.stringify(INPUT_DATA2));
       sessionInput.user = userDocument;
-      const sessionDocument = await sessionModel.createSession(sessionInput);
+      const sessionDocument = await sessionModel.createSession(format.toJS(sessionInput));
 
       assert.isOk(sessionDocument);
-      sessionId2 = sessionDocument._id as mongooseTypes.ObjectId;
+      sessionId2 = sessionDocument.id!;
 
       const sessions = await sessionModel.querySessions();
       assert.isArray(sessions.results);
@@ -120,7 +122,7 @@ describe('#sessionModel', () => {
       assert.strictEqual(results.results[0]?.sessionToken, INPUT_DATA.sessionToken);
     });
 
-    it('pagesessions', async () => {
+    it('page sessions', async () => {
       assert.isOk(sessionId2);
       const results = await sessionModel.querySessions({}, 0, 1);
       assert.strictEqual(results.results.length, 1);
@@ -130,7 +132,7 @@ describe('#sessionModel', () => {
       const results2 = await sessionModel.querySessions({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(results2.results[0]?.id, lastId?.toString());
     });
 
     it('modify a Session', async () => {
@@ -142,17 +144,17 @@ describe('#sessionModel', () => {
 
     it('remove a session', async () => {
       assert.isOk(sessionId);
-      await sessionModel.deleteSessionById(sessionId);
+      await sessionModel.deleteSessionById(sessionId.toString());
       let errored = false;
       try {
-        await sessionModel.getSessionById(sessionId);
+        await sessionModel.getSessionById(sessionId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
       }
 
       assert.isTrue(errored);
-      sessionId = null as unknown as ObjectId;
+      sessionId = null as unknown as string;
     });
   });
 });

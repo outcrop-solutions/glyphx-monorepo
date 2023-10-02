@@ -5,6 +5,7 @@ import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {databaseTypes} from 'types';
 import {error} from 'core';
+import {DBFormatter} from '../lib/format';
 
 type ObjectId = mongooseTypes.ObjectId;
 
@@ -50,9 +51,10 @@ const INPUT_DATA2 = {
 describe('#customerPaymentModel', () => {
   context('test the crud functions of the customerPayment model', () => {
     const mongoConnection = new MongoDbConnection();
+    const format = new DBFormatter();
     const customerPaymentModel = mongoConnection.models.CustomerPaymentModel;
-    let customerPaymentId: ObjectId;
-    let customerPaymentId2: ObjectId;
+    let customerPaymentId: string;
+    let customerPaymentId2: string;
     let userId: ObjectId;
     let userDocument: any;
     before(async () => {
@@ -84,13 +86,15 @@ describe('#customerPaymentModel', () => {
     it('add a new customerPayment', async () => {
       const customerPaymentInput = JSON.parse(JSON.stringify(INPUT_DATA));
       customerPaymentInput.customer = userDocument;
-      const customerPaymentDocument = await customerPaymentModel.createCustomerPayment(customerPaymentInput);
+      const customerPaymentDocument = await customerPaymentModel.createCustomerPayment(
+        format.toJS(customerPaymentInput)
+      );
 
       assert.isOk(customerPaymentDocument);
       assert.strictEqual(customerPaymentDocument.paymentId, customerPaymentInput.paymentId);
-      assert.strictEqual(customerPaymentDocument.customer._id?.toString(), userId.toString());
+      assert.strictEqual(customerPaymentDocument.customer.id, userId.toString());
 
-      customerPaymentId = customerPaymentDocument._id as mongooseTypes.ObjectId;
+      customerPaymentId = customerPaymentDocument.id!;
     });
 
     it('retreive a customerPayment', async () => {
@@ -98,7 +102,7 @@ describe('#customerPaymentModel', () => {
       const customerPayment = await customerPaymentModel.getCustomerPaymentById(customerPaymentId);
 
       assert.isOk(customerPayment);
-      assert.strictEqual(customerPayment._id?.toString(), customerPaymentId.toString());
+      assert.strictEqual(customerPayment.id, customerPaymentId.toString());
     });
 
     it('retreive a customerPayment by email', async () => {
@@ -106,14 +110,14 @@ describe('#customerPaymentModel', () => {
       const customerPayment = await customerPaymentModel.getCustomerPaymentByEmail(INPUT_DATA.email);
 
       assert.isOk(customerPayment);
-      assert.strictEqual(customerPayment._id?.toString(), customerPaymentId.toString());
+      assert.strictEqual(customerPayment.id, customerPaymentId.toString());
       assert.strictEqual(customerPayment.email, INPUT_DATA.email);
     });
 
     it('modify a CustomerPayment', async () => {
       assert.isOk(customerPaymentId);
       const input = {paymentId: 'a modified CustomerPayment Token'};
-      const updatedDocument = await customerPaymentModel.updateCustomerPaymentById(customerPaymentId, input);
+      const updatedDocument = await customerPaymentModel.updateCustomerPaymentById(customerPaymentId.toString(), input);
       assert.strictEqual(updatedDocument.paymentId, input.paymentId);
     });
 
@@ -121,10 +125,10 @@ describe('#customerPaymentModel', () => {
       assert.isOk(customerPaymentId);
       const paymentInput = JSON.parse(JSON.stringify(INPUT_DATA2));
       paymentInput.customer = userDocument;
-      const paymentDocument = await customerPaymentModel.createCustomerPayment(paymentInput);
+      const paymentDocument = await customerPaymentModel.createCustomerPayment(format.toJS(paymentInput));
 
       assert.isOk(paymentDocument);
-      customerPaymentId2 = paymentDocument._id as mongooseTypes.ObjectId;
+      customerPaymentId2 = paymentDocument.id!;
 
       const payments = await customerPaymentModel.queryCustomerPayments();
       assert.isArray(payments.results);
@@ -140,7 +144,7 @@ describe('#customerPaymentModel', () => {
         customer: userId,
       });
       assert.strictEqual(results.results.length, 2);
-      assert.strictEqual(results.results[0]?.customer?._id?.toString(), userId.toString());
+      assert.strictEqual(results.results[0]?.customer?.id, userId.toString());
     });
 
     it('page customerPayments', async () => {
@@ -148,27 +152,27 @@ describe('#customerPaymentModel', () => {
       const results = await customerPaymentModel.queryCustomerPayments({}, 0, 1);
       assert.strictEqual(results.results.length, 1);
 
-      const lastId = results.results[0]?._id;
+      const lastId = results.results[0]?.id;
 
       const results2 = await customerPaymentModel.queryCustomerPayments({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(results2.results[0]?.id, lastId?.toString());
     });
 
     it('remove a customerPayment', async () => {
       assert.isOk(customerPaymentId);
-      await customerPaymentModel.deleteCustomerPaymentById(customerPaymentId);
+      await customerPaymentModel.deleteCustomerPaymentById(customerPaymentId.toString());
       let errored = false;
       try {
-        await customerPaymentModel.getCustomerPaymentById(customerPaymentId);
+        await customerPaymentModel.getCustomerPaymentById(customerPaymentId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
       }
 
       assert.isTrue(errored);
-      customerPaymentId = null as unknown as ObjectId;
+      customerPaymentId = null as unknown as string;
     });
   });
 });

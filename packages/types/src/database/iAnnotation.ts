@@ -3,6 +3,7 @@ import {IUser} from './iUser';
 
 export interface IAnnotation {
   _id?: string | mongooseTypes.ObjectId;
+  id?: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;

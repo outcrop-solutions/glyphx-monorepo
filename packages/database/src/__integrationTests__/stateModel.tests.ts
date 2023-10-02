@@ -5,6 +5,7 @@ import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {webTypes, fileIngestionTypes} from 'types';
 import {error} from 'core';
+import {DBFormatter} from '../lib/format';
 
 type ObjectId = mongooseTypes.ObjectId;
 
@@ -432,9 +433,10 @@ const INPUT_DATA2 = {
 describe('#StateModel', () => {
   context('test the crud functions of the state model', () => {
     const mongoConnection = new MongoDbConnection();
+    const format = new DBFormatter();
     const stateModel = mongoConnection.models.StateModel;
-    let stateId: ObjectId;
-    let stateId2: ObjectId;
+    let stateId: string;
+    let stateId2: string;
     let userId: ObjectId;
     let userId2: ObjectId;
     let workspaceId: ObjectId;
@@ -508,7 +510,7 @@ describe('#StateModel', () => {
       stateInput.workspace = workspaceDocument;
       stateInput.project = projectDocument;
       stateInput.createdBy = userDocument;
-      const stateDocument = await stateModel.createState(stateInput);
+      const stateDocument = await stateModel.createState(format.toJS(stateInput));
 
       assert.isOk(stateDocument);
       assert.strictEqual(stateDocument.fileSystemHash, stateInput.fileSystemHash);
@@ -516,15 +518,15 @@ describe('#StateModel', () => {
       assert.strictEqual(stateDocument.project.name, projectDocument.name);
       assert.strictEqual(stateDocument.createdBy.name, userDocument.name);
 
-      stateId = stateDocument._id as mongooseTypes.ObjectId;
+      stateId = stateDocument.id!;
     });
 
     it('retreive a state ', async () => {
       assert.isOk(stateId);
-      const state = await stateModel.getStateById(stateId);
+      const state = await stateModel.getStateById(stateId.toString());
 
       assert.isOk(state);
-      assert.strictEqual(state._id?.toString(), stateId.toString());
+      assert.strictEqual(state.id, stateId.toString());
     });
 
     it('Get multiple states without a filter', async () => {
@@ -533,10 +535,10 @@ describe('#StateModel', () => {
       stateInput.project = projectDocument;
       stateInput.workspace = workspaceDocument;
       stateInput.createdBy = userDocument;
-      const stateDocument = await stateModel.createState(stateInput);
+      const stateDocument = await stateModel.createState(format.toJS(stateInput));
 
       assert.isOk(stateDocument);
-      stateId2 = stateDocument._id as mongooseTypes.ObjectId;
+      stateId2 = stateDocument.id!;
 
       const states = await stateModel.queryStates();
       assert.isArray(states.results);
@@ -560,34 +562,34 @@ describe('#StateModel', () => {
       const results = await stateModel.queryStates({}, 0, 1);
       assert.strictEqual(results.results.length, 1);
 
-      const lastId = results.results[0]?._id;
+      const lastId = results.results[0]?.id;
 
       const results2 = await stateModel.queryStates({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(results2.results[0]?.id, lastId?.toString());
     });
 
     it('modify a state', async () => {
       assert.isOk(stateId);
       const input = {fileSystemHash: 'a modified hash'};
-      const updatedDocument = await stateModel.updateStateById(stateId, input);
+      const updatedDocument = await stateModel.updateStateById(stateId.toString(), input);
       assert.strictEqual(updatedDocument.fileSystemHash, input.fileSystemHash);
     });
 
     it('remove a state', async () => {
       assert.isOk(stateId);
-      await stateModel.deleteStateById(stateId);
+      await stateModel.deleteStateById(stateId.toString());
       let errored = false;
       try {
-        await stateModel.getStateById(stateId);
+        await stateModel.getStateById(stateId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
       }
 
       assert.isTrue(errored);
-      stateId = null as unknown as ObjectId;
+      stateId = null as unknown as string;
     });
   });
 });

@@ -1,21 +1,12 @@
 import {databaseTypes} from 'types';
 import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
-import {Types as mongooseTypes} from 'mongoose';
 
 export class AnnotationService {
-  public static async getStateAnnotations(
-    stateId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IAnnotation[] | null> {
+  public static async getStateAnnotations(stateId: string): Promise<databaseTypes.IAnnotation[] | null> {
     try {
-      const id =
-        stateId instanceof mongooseTypes.ObjectId
-          ? stateId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(stateId);
-
       const annotations = await mongoDbConnection.models.AnnotationModel.queryAnnotations({
-        stateId: id,
+        stateId: stateId,
       });
 
       return annotations?.results;
@@ -37,18 +28,10 @@ export class AnnotationService {
     }
   }
 
-  public static async getProjectAnnotations(
-    projectId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IAnnotation[] | null> {
+  public static async getProjectAnnotations(projectId: string): Promise<databaseTypes.IAnnotation[] | null> {
     try {
-      const id =
-        projectId instanceof mongooseTypes.ObjectId
-          ? projectId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(projectId);
-
       const annotations = await mongoDbConnection.models.AnnotationModel.queryAnnotations({
-        projectId: id,
+        projectId: projectId,
       });
 
       return annotations?.results;
@@ -75,25 +58,14 @@ export class AnnotationService {
     stateId,
     value,
   }: {
-    authorId: mongooseTypes.ObjectId | string;
-    stateId: mongooseTypes.ObjectId | string;
+    authorId: string;
+    stateId: string;
     value: string;
   }): Promise<databaseTypes.IAnnotation | null> {
     try {
-      const authorCastId =
-        authorId instanceof mongooseTypes.ObjectId
-          ? authorId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(authorId);
-      const stateCastId =
-        stateId instanceof mongooseTypes.ObjectId
-          ? stateId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(stateId);
-
       const input = {
-        author: authorCastId,
-        stateId: stateCastId,
+        author: authorId,
+        stateId: stateId,
         value: value,
       };
 
@@ -125,25 +97,14 @@ export class AnnotationService {
     projectId,
     value,
   }: {
-    authorId: mongooseTypes.ObjectId | string;
-    projectId: mongooseTypes.ObjectId | string;
+    authorId: string;
+    projectId: string;
     value: string;
   }): Promise<databaseTypes.IAnnotation | null> {
     try {
-      const authorCastId =
-        authorId instanceof mongooseTypes.ObjectId
-          ? authorId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(authorId);
-      const projectCastId =
-        projectId instanceof mongooseTypes.ObjectId
-          ? projectId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(projectId);
-
       const input = {
-        author: authorCastId,
-        projectId: projectCastId,
+        author: authorId,
+        projectId: projectId,
         value: value,
       };
 

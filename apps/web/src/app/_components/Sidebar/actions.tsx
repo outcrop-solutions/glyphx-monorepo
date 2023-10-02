@@ -14,7 +14,7 @@ const Actions = () => {
 
   // local state
   const handleWorkspaceChange = (workspace) => {
-    router.replace(`/${workspace?._id}` as Route);
+    router.replace(`/${workspace?.id}` as Route);
   };
 
   return (

@@ -6,7 +6,7 @@ export interface IProjectStaticMethods extends Model<databaseTypes.IProject, {},
   projectIdExists(projectId: mongooseTypes.ObjectId): Promise<boolean>;
   allProjectIdsExist(projectIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createProject(input: IProjectCreateInput): Promise<databaseTypes.IProject>;
-  getProjectById(projectId: mongooseTypes.ObjectId): Promise<databaseTypes.IProject>;
+  getProjectById(projectId: string): Promise<databaseTypes.IProject>;
   queryProjects(
     filter?: Record<string, unknown>,
     page?: number,
@@ -17,38 +17,20 @@ export interface IProjectStaticMethods extends Model<databaseTypes.IProject, {},
     project: Omit<Partial<databaseTypes.IProject>, '_id'>
   ): Promise<void>;
   updateProjectById(
-    projectId: mongooseTypes.ObjectId,
+    projectId: string,
     project: Omit<Partial<databaseTypes.IProject>, '_id'>
   ): Promise<databaseTypes.IProject>;
-  addMembers(
-    projectId: mongooseTypes.ObjectId,
-    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IProject>;
-  removeMembers(
-    projectId: mongooseTypes.ObjectId,
-    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IProject>;
-  addStates(
-    projectId: mongooseTypes.ObjectId,
-    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IProject>;
-  removeStates(
-    projectId: mongooseTypes.ObjectId,
-    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IProject>;
-  addTags(
-    projectId: mongooseTypes.ObjectId,
-    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IProject>;
-  removeTags(
-    projectId: mongooseTypes.ObjectId,
-    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IProject>;
-  deleteProjectById(projectId: mongooseTypes.ObjectId): Promise<void>;
+  addMembers(projectId: string, members: (databaseTypes.IMember | string)[]): Promise<databaseTypes.IProject>;
+  removeMembers(projectId: string, members: (databaseTypes.IMember | string)[]): Promise<databaseTypes.IProject>;
+  addStates(projectId: string, states: (databaseTypes.IState | string)[]): Promise<databaseTypes.IProject>;
+  removeStates(projectId: string, states: (databaseTypes.IState | string)[]): Promise<databaseTypes.IProject>;
+  addTags(projectId: string, tags: (databaseTypes.ITag | string)[]): Promise<databaseTypes.IProject>;
+  removeTags(projectId: string, tags: (databaseTypes.ITag | string)[]): Promise<databaseTypes.IProject>;
+  deleteProjectById(projectId: string): Promise<void>;
   validateUpdateObject(project: Omit<Partial<databaseTypes.IProject>, '_id'>): Promise<void>;
-  validateTemplate(input: databaseTypes.IProjectTemplate | mongooseTypes.ObjectId): Promise<mongooseTypes.ObjectId>;
-  validateWorkspace(input: databaseTypes.IWorkspace | mongooseTypes.ObjectId): Promise<mongooseTypes.ObjectId>;
-  validateMembers(input: (databaseTypes.IMember | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]>;
-  validateStates(input: (databaseTypes.IState | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]>;
-  validateTags(input: (databaseTypes.ITag | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateTemplate(input: databaseTypes.IProjectTemplate | string): Promise<mongooseTypes.ObjectId>;
+  validateWorkspace(input: databaseTypes.IWorkspace | string): Promise<mongooseTypes.ObjectId>;
+  validateMembers(input: (databaseTypes.IMember | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateStates(input: (databaseTypes.IState | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateTags(input: (databaseTypes.ITag | string)[]): Promise<mongooseTypes.ObjectId[]>;
 }

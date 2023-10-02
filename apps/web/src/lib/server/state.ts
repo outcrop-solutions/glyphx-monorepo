@@ -37,21 +37,14 @@ export const getState = async (req: NextApiRequest, res: NextApiResponse) => {
 export const createState = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const {name, camera, projectId, imageHash, aspectRatio} = req.body;
   try {
-    const state = await stateService.createState(
-      name,
-      camera,
-      projectId,
-      session?.user?._id as string,
-      aspectRatio,
-      imageHash
-    );
+    const state = await stateService.createState(name, camera, projectId, session?.user?.id, aspectRatio, imageHash);
     const {agentData, location} = formatUserAgent(req);
 
     if (state) {
       await activityLogService.createLog({
-        actorId: session?.user?._id as string,
-        resourceId: state?._id?.toString() as string,
-        workspaceId: state.workspace._id?.toString() as string,
+        actorId: session?.user?.id,
+        resourceId: state?.id!,
+        workspaceId: state.workspace.id,
         location: location,
         userAgent: agentData,
         onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
@@ -83,10 +76,10 @@ export const updateState = async (req: NextApiRequest, res: NextApiResponse, ses
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
-      resourceId: state._id?.toString() as string,
+      actorId: session?.user?.id,
+      resourceId: state.id!,
       workspaceId: state.project.workspace?.toString(),
-      projectId: state.project._id,
+      projectId: state.project.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
@@ -116,10 +109,10 @@ export const deleteState = async (req: NextApiRequest, res: NextApiResponse, ses
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
-      resourceId: state._id?.toString() as string,
+      actorId: session?.user?.id,
+      resourceId: state.id!,
       workspaceId: state.project.workspace?.toString(),
-      projectId: state.project._id,
+      projectId: state.project.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,

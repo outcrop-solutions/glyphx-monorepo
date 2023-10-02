@@ -2,18 +2,15 @@
 import 'mocha';
 import {assert} from 'chai';
 import {MongoDbConnection} from 'database';
-import {Types as mongooseTypes} from 'mongoose';
 import {databaseTypes} from 'types';
 import * as mocks from 'database';
 import {modelConfigService} from '../services';
-
-type ObjectId = mongooseTypes.ObjectId;
 
 describe('#ModelConfigService', () => {
   context('test the functions of the modelConfig service', () => {
     const mongoConnection = new MongoDbConnection();
     const modelConfigModel = mongoConnection.models.ModelConfigModel;
-    let modelConfigId: ObjectId;
+    let modelConfigId: string;
 
     before(async () => {
       await mongoConnection.init();
@@ -21,7 +18,7 @@ describe('#ModelConfigService', () => {
       const modelConfigDocument = await modelConfigModel.createModelConfig(
         mocks.MOCK_MODELCONFIG as unknown as databaseTypes.IModelConfig
       );
-      modelConfigId = modelConfigDocument._id as unknown as mongooseTypes.ObjectId;
+      modelConfigId = modelConfigDocument.id!;
     });
 
     after(async () => {
@@ -30,6 +27,7 @@ describe('#ModelConfigService', () => {
       }
     });
 
+    // retreives
     it('will retreive our modelConfig from the database', async () => {
       const modelConfig = await modelConfigService.getModelConfig(modelConfigId);
       assert.isOk(modelConfig);

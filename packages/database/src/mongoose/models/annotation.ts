@@ -5,6 +5,7 @@ import {error} from 'core';
 import {UserModel} from './user';
 import {ProjectModel} from './project';
 import {StateModel} from './state';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<IAnnotationDocument, IAnnotationStaticMethods, IAnnotationMethods>({
   createdAt: {
@@ -78,7 +79,7 @@ SCHEMA.static('allAnnotationIdsExist', async (annotationIds: mongooseTypes.Objec
   return true;
 });
 
-SCHEMA.static('getAnnotationById', async (annotationId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getAnnotationById', async (annotationId: string) => {
   try {
     const annotationDocument = (await ANNOTATION_MODEL.findById(annotationId)
       .populate('author')
@@ -90,12 +91,9 @@ SCHEMA.static('getAnnotationById', async (annotationId: mongooseTypes.ObjectId) 
         annotationId
       );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (annotationDocument as any)['__v'];
-    delete (annotationDocument as any).author['__v'];
 
-    return annotationDocument;
+    const format = new DBFormatter();
+    return format.toJS(annotationDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -140,15 +138,14 @@ SCHEMA.static(
       })
         .populate('author')
         .lean()) as databaseTypes.IAnnotation[];
-      //this is added by mongoose, so we will want to remove it before returning the document
-      //to the user.
-      annotationDocuments?.forEach((doc: any) => {
-        delete (doc as any)['__v'];
-        delete (doc as any)?.author?.__v;
+
+      const format = new DBFormatter();
+      const formattedAnnotations = annotationDocuments?.map((doc: any) => {
+        return format.toJS(doc);
       });
 
       const retval: IQueryResult<databaseTypes.IAnnotation> = {
-        results: annotationDocuments,
+        results: formattedAnnotations as unknown as databaseTypes.IAnnotation[],
         numberOfItems: count,
         page: page,
         itemsPerPage: itemsPerPage,
@@ -243,7 +240,7 @@ SCHEMA.static('createAnnotation', async (input: IAnnotationCreateInput): Promise
         validateBeforeSave: false,
       })
     )[0];
-    return await ANNOTATION_MODEL.getAnnotationById(createdDocument._id as unknown as mongooseTypes.ObjectId);
+    return await ANNOTATION_MODEL.getAnnotationById(createdDocument._id.toString());
   } catch (err) {
     throw new error.DatabaseOperationError(
       'An unexpected error occurred wile creating the annotation. See the inner error for additional information',

@@ -274,7 +274,7 @@ describe('#mongoose/models/tag', () => {
       getTagStub.resolves({_id: tagId});
       sandbox.replace(TagModel, 'getTagById', getTagStub);
 
-      const result = await TagModel.updateTagById(tagId, updateTag);
+      const result = await TagModel.updateTagById(tagId.toString(), updateTag);
 
       assert.strictEqual(result._id, tagId);
       assert.isTrue(updateStub.calledOnce);
@@ -298,7 +298,7 @@ describe('#mongoose/models/tag', () => {
 
       let errorred = false;
       try {
-        await TagModel.updateTagById(tagId, updateTag);
+        await TagModel.updateTagById(tagId.toString(), updateTag);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -328,7 +328,7 @@ describe('#mongoose/models/tag', () => {
       );
       let errorred = false;
       try {
-        await TagModel.updateTagById(tagId, updateTag);
+        await TagModel.updateTagById(tagId.toString(), updateTag);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errorred = true;
@@ -353,7 +353,7 @@ describe('#mongoose/models/tag', () => {
 
       let errorred = false;
       try {
-        await TagModel.updateTagById(tagId, updateTag);
+        await TagModel.updateTagById(tagId.toString(), updateTag);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -460,7 +460,7 @@ describe('#mongoose/models/tag', () => {
 
       const tagId = new mongoose.Types.ObjectId();
 
-      await TagModel.deleteTagById(tagId);
+      await TagModel.deleteTagById(tagId.toString());
 
       assert.isTrue(deleteStub.calledOnce);
     });
@@ -474,7 +474,7 @@ describe('#mongoose/models/tag', () => {
 
       let errorred = false;
       try {
-        await TagModel.deleteTagById(tagId);
+        await TagModel.deleteTagById(tagId.toString());
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -492,7 +492,7 @@ describe('#mongoose/models/tag', () => {
 
       let errorred = false;
       try {
-        await TagModel.deleteTagById(tagId);
+        await TagModel.deleteTagById(tagId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -512,10 +512,10 @@ describe('#mongoose/models/tag', () => {
     it('should return an array of ids when the projects can be validated', async () => {
       const inputProjects = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IProject,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IProject,
       ];
 
@@ -527,13 +527,13 @@ describe('#mongoose/models/tag', () => {
 
       assert.strictEqual(results.length, inputProjects.length);
       results.forEach((r) => {
-        const foundId = inputProjects.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputProjects.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
 
     it('should return an array of ids when the projectIds can be validated ', async () => {
-      const inputProjects = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const inputProjects = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
 
       const allProjectIdsExistStub = sandbox.stub();
       allProjectIdsExistStub.resolves(true);
@@ -543,13 +543,13 @@ describe('#mongoose/models/tag', () => {
 
       assert.strictEqual(results.length, inputProjects.length);
       results.forEach((r) => {
-        const foundId = inputProjects.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputProjects.find((p) => p === r.toString());
         assert.isOk(foundId);
       });
     });
 
     it('should throw a Data Validation Error when one of the ids cannot be found ', async () => {
-      const inputProjects = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const inputProjects = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
 
       const allProjectIdsExistStub = sandbox.stub();
       allProjectIdsExistStub.rejects(
@@ -569,7 +569,7 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('should rethrow an error from the underlying connection', async () => {
-      const inputProjects = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const inputProjects = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
 
       const errorText = 'something bad has happened';
 
@@ -598,10 +598,10 @@ describe('#mongoose/models/tag', () => {
     it('should return an array of ids when the workspaces can be validated', async () => {
       const inputWorkspaces = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IWorkspace,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IWorkspace,
       ];
 
@@ -613,7 +613,7 @@ describe('#mongoose/models/tag', () => {
 
       assert.strictEqual(results.length, inputWorkspaces.length);
       results.forEach((r) => {
-        const foundId = inputWorkspaces.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputWorkspaces.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
@@ -621,10 +621,10 @@ describe('#mongoose/models/tag', () => {
     it('should return an array of ids when the workspaceIds can be validated ', async () => {
       const inputWorkspaces = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IWorkspace,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IWorkspace,
       ];
 
@@ -636,7 +636,7 @@ describe('#mongoose/models/tag', () => {
 
       assert.strictEqual(results.length, inputWorkspaces.length);
       results.forEach((r) => {
-        const foundId = inputWorkspaces.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputWorkspaces.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
@@ -669,7 +669,7 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('should rethrow an error from the underlying connection', async () => {
-      const inputWorkspaces = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const inputWorkspaces = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
 
       const errorText = 'something bad has happened';
 
@@ -698,10 +698,10 @@ describe('#mongoose/models/tag', () => {
     it('should return an array of ids when the templates can be validated', async () => {
       const inputTemplates = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IProjectTemplate,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IProjectTemplate,
       ];
 
@@ -713,7 +713,7 @@ describe('#mongoose/models/tag', () => {
 
       assert.strictEqual(results.length, inputTemplates.length);
       results.forEach((r) => {
-        const foundId = inputTemplates.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputTemplates.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
@@ -721,10 +721,10 @@ describe('#mongoose/models/tag', () => {
     it('should return an array of ids when the templateIds can be validated ', async () => {
       const inputTemplates = [
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IProjectTemplate,
         {
-          _id: new mongoose.Types.ObjectId(),
+          id: new mongoose.Types.ObjectId().toString(),
         } as unknown as databaseTypes.IProjectTemplate,
       ];
 
@@ -736,7 +736,7 @@ describe('#mongoose/models/tag', () => {
 
       assert.strictEqual(results.length, inputTemplates.length);
       results.forEach((r) => {
-        const foundId = inputTemplates.find((p) => p._id?.toString() === r.toString());
+        const foundId = inputTemplates.find((p) => p.id === r.toString());
         assert.isOk(foundId);
       });
     });
@@ -769,7 +769,7 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('should rethrow an error from the underlying connection', async () => {
-      const inputTemplates = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const inputTemplates = [new mongoose.Types.ObjectId().toString(), new mongoose.Types.ObjectId().toString()];
 
       const errorText = 'something bad has happened';
 
@@ -845,13 +845,13 @@ describe('#mongoose/models/tag', () => {
       findByIdStub.returns(new MockMongooseQuery(mockTag));
       sandbox.replace(TagModel, 'findById', findByIdStub);
 
-      const doc = await TagModel.getTagById(mockTag._id as mongoose.Types.ObjectId);
+      const doc = await TagModel.getTagById(mockTag._id!.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
       doc.projects.forEach((p) => assert.isUndefined((p as any).__v));
 
-      assert.strictEqual(doc._id, mockTag._id);
+      assert.strictEqual(doc.id, mockTag._id?.toString());
     });
 
     it('will throw a DataNotFoundError when the tag does not exist', async () => {
@@ -861,7 +861,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.getTagById(mockTag._id as mongoose.Types.ObjectId);
+        await TagModel.getTagById(mockTag._id!.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -877,7 +877,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.getTagById(mockTag._id as mongoose.Types.ObjectId);
+        await TagModel.getTagById(mockTag._id!.toString());
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -917,7 +917,7 @@ describe('#mongoose/models/tag', () => {
       getTagByIdStub.resolves(localMockTag);
       sandbox.replace(TagModel, 'getTagById', getTagByIdStub);
 
-      const updatedTag = await TagModel.addProjects(projTypeId, [projectId]);
+      const updatedTag = await TagModel.addProjects(projTypeId.toString(), [projectId.toString()]);
 
       assert.strictEqual(updatedTag._id, projTypeId);
       assert.strictEqual(updatedTag.projects[0].toString(), projectId.toString());
@@ -951,7 +951,7 @@ describe('#mongoose/models/tag', () => {
       getTagByIdStub.resolves(localMockTag);
       sandbox.replace(TagModel, 'getTagById', getTagByIdStub);
 
-      const updatedTag = await TagModel.addProjects(tagId, [projectId]);
+      const updatedTag = await TagModel.addProjects(tagId.toString(), [projectId.toString()]);
 
       assert.strictEqual(updatedTag._id, tagId);
       assert.strictEqual(updatedTag.projects[0].toString(), projectId.toString());
@@ -987,7 +987,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.addProjects(tagId, [projectId]);
+        await TagModel.addProjects(tagId.toString(), [projectId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1023,7 +1023,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.addProjects(projTypeId, [projectId]);
+        await TagModel.addProjects(projTypeId.toString(), [projectId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         errored = true;
@@ -1057,7 +1057,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.addProjects(tagId, [projectId]);
+        await TagModel.addProjects(tagId.toString(), [projectId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1067,9 +1067,9 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('will throw an invalid argument error when the projects array is empty', async () => {
-      const projectTypwId = new mongoose.Types.ObjectId();
+      const projectTypeId = new mongoose.Types.ObjectId();
       const localMockTag = JSON.parse(JSON.stringify(MOCK_TAG));
-      localMockTag._id = projectTypwId;
+      localMockTag._id = projectTypeId;
       localMockTag.projects = [];
       const projectId = new mongoose.Types.ObjectId();
 
@@ -1091,7 +1091,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.addProjects(projectTypwId, []);
+        await TagModel.addProjects(projectTypeId.toString(), []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1128,7 +1128,7 @@ describe('#mongoose/models/tag', () => {
       getTagByIdStub.resolves(localMockTag);
       sandbox.replace(TagModel, 'getTagById', getTagByIdStub);
 
-      const updatedTag = await TagModel.removeProjects(projTypeId, [projectId]);
+      const updatedTag = await TagModel.removeProjects(projTypeId.toString(), [projectId.toString()]);
 
       assert.strictEqual(updatedTag._id, projTypeId);
       assert.strictEqual(updatedTag.projects.length, 0);
@@ -1158,7 +1158,9 @@ describe('#mongoose/models/tag', () => {
       getTagByIdStub.resolves(localMockTag);
       sandbox.replace(TagModel, 'getTagById', getTagByIdStub);
 
-      const updatedTag = await TagModel.removeProjects(projTypeId, [new mongoose.Types.ObjectId()]);
+      const updatedTag = await TagModel.removeProjects(projTypeId.toString(), [
+        new mongoose.Types.ObjectId().toString(),
+      ]);
 
       assert.strictEqual(updatedTag._id, projTypeId);
       assert.strictEqual(updatedTag.projects.length, 1);
@@ -1190,7 +1192,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.removeProjects(projTypeId, [projectId]);
+        await TagModel.removeProjects(projTypeId.toString(), [projectId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1221,7 +1223,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.removeProjects(tagId, [projectId]);
+        await TagModel.removeProjects(tagId.toString(), [projectId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1251,7 +1253,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.removeProjects(tagId, []);
+        await TagModel.removeProjects(tagId.toString(), []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1291,7 +1293,7 @@ describe('#mongoose/models/tag', () => {
       getTagByIdStub.resolves(localMockTag);
       sandbox.replace(TagModel, 'getTagById', getTagByIdStub);
 
-      const updatedTag = await TagModel.addTemplates(tagId, [templateId]);
+      const updatedTag = await TagModel.addTemplates(tagId.toString(), [templateId.toString()]);
 
       assert.strictEqual(updatedTag._id, tagId);
       assert.strictEqual(updatedTag.templates[0].toString(), templateId.toString());
@@ -1325,7 +1327,7 @@ describe('#mongoose/models/tag', () => {
       getTagByIdStub.resolves(localMockTag);
       sandbox.replace(TagModel, 'getTagById', getTagByIdStub);
 
-      const updatedTag = await TagModel.addTemplates(tagId, [templateId]);
+      const updatedTag = await TagModel.addTemplates(tagId.toString(), [templateId.toString()]);
 
       assert.strictEqual(updatedTag._id, tagId);
       assert.strictEqual(updatedTag.templates[0].toString(), templateId.toString());
@@ -1361,7 +1363,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.addTemplates(tagId, [templateId]);
+        await TagModel.addTemplates(tagId.toString(), [templateId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1397,7 +1399,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.addTemplates(tagId, [templateId]);
+        await TagModel.addTemplates(tagId.toString(), [templateId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         errored = true;
@@ -1431,7 +1433,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.addTemplates(tagId, [projectId]);
+        await TagModel.addTemplates(tagId.toString(), [projectId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1465,7 +1467,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.addTemplates(tagId, []);
+        await TagModel.addTemplates(tagId.toString(), []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1502,7 +1504,7 @@ describe('#mongoose/models/tag', () => {
       getTagByIdStub.resolves(localMockTag);
       sandbox.replace(TagModel, 'getTagById', getTagByIdStub);
 
-      const updatedTag = await TagModel.removeTemplates(tagId, [templateId]);
+      const updatedTag = await TagModel.removeTemplates(tagId.toString(), [templateId.toString()]);
 
       assert.strictEqual(updatedTag._id, tagId);
       assert.strictEqual(updatedTag.templates.length, 0);
@@ -1532,7 +1534,7 @@ describe('#mongoose/models/tag', () => {
       getTagByIdStub.resolves(localMockTag);
       sandbox.replace(TagModel, 'getTagById', getTagByIdStub);
 
-      const updatedTag = await TagModel.removeTemplates(tagId, [new mongoose.Types.ObjectId()]);
+      const updatedTag = await TagModel.removeTemplates(tagId.toString(), [new mongoose.Types.ObjectId().toString()]);
 
       assert.strictEqual(updatedTag._id, tagId);
       assert.strictEqual(updatedTag.projects.length, 1);
@@ -1564,7 +1566,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.removeTemplates(tagId, [templateId]);
+        await TagModel.removeTemplates(tagId.toString(), [templateId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1595,7 +1597,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.removeTemplates(tagId, [projectId]);
+        await TagModel.removeTemplates(tagId.toString(), [projectId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1625,7 +1627,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.removeTemplates(tagId, []);
+        await TagModel.removeTemplates(tagId.toString(), []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1665,7 +1667,7 @@ describe('#mongoose/models/tag', () => {
       getTagByIdStub.resolves(localMockTag);
       sandbox.replace(TagModel, 'getTagById', getTagByIdStub);
 
-      const updatedTag = await TagModel.addWorkspaces(tagId, [templateId]);
+      const updatedTag = await TagModel.addWorkspaces(tagId.toString(), [templateId.toString()]);
 
       assert.strictEqual(updatedTag._id, tagId);
       assert.strictEqual(updatedTag.workspaces[0].toString(), templateId.toString());
@@ -1699,7 +1701,7 @@ describe('#mongoose/models/tag', () => {
       getTagByIdStub.resolves(localMockTag);
       sandbox.replace(TagModel, 'getTagById', getTagByIdStub);
 
-      const updatedTag = await TagModel.addWorkspaces(tagId, [workspaceId]);
+      const updatedTag = await TagModel.addWorkspaces(tagId.toString(), [workspaceId.toString()]);
 
       assert.strictEqual(updatedTag._id, tagId);
       assert.strictEqual(updatedTag.workspaces[0].toString(), workspaceId.toString());
@@ -1735,7 +1737,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.addWorkspaces(tagId, [workspaceId]);
+        await TagModel.addWorkspaces(tagId.toString(), [workspaceId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1771,7 +1773,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.addWorkspaces(tagId, [workspaceId]);
+        await TagModel.addWorkspaces(tagId.toString(), [workspaceId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         errored = true;
@@ -1805,7 +1807,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.addWorkspaces(tagId, [workspaceId]);
+        await TagModel.addWorkspaces(tagId.toString(), [workspaceId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1839,7 +1841,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.addWorkspaces(tagId, []);
+        await TagModel.addWorkspaces(tagId.toString(), []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1876,7 +1878,7 @@ describe('#mongoose/models/tag', () => {
       getTagByIdStub.resolves(localMockTag);
       sandbox.replace(TagModel, 'getTagById', getTagByIdStub);
 
-      const updatedTag = await TagModel.removeWorkspaces(tagId, [workspaceId]);
+      const updatedTag = await TagModel.removeWorkspaces(tagId.toString(), [workspaceId.toString()]);
 
       assert.strictEqual(updatedTag._id, tagId);
       assert.strictEqual(updatedTag.workspaces.length, 0);
@@ -1906,7 +1908,7 @@ describe('#mongoose/models/tag', () => {
       getTagByIdStub.resolves(localMockTag);
       sandbox.replace(TagModel, 'getTagById', getTagByIdStub);
 
-      const updatedTag = await TagModel.removeWorkspaces(tagId, [new mongoose.Types.ObjectId()]);
+      const updatedTag = await TagModel.removeWorkspaces(tagId.toString(), [new mongoose.Types.ObjectId().toString()]);
 
       assert.strictEqual(updatedTag._id, tagId);
       assert.strictEqual(updatedTag.projects.length, 1);
@@ -1938,7 +1940,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.removeWorkspaces(tagId, [workspaceId]);
+        await TagModel.removeWorkspaces(tagId.toString(), [workspaceId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1969,7 +1971,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.removeWorkspaces(tagId, [projectId]);
+        await TagModel.removeWorkspaces(tagId.toString(), [projectId.toString()]);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1999,7 +2001,7 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.removeWorkspaces(tagId, []);
+        await TagModel.removeWorkspaces(tagId.toString(), []);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;

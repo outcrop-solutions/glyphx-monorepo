@@ -61,7 +61,7 @@ const Team = () => {
 
   const invite = () => {
     api({
-      ..._createMember({workspaceId: workspace?._id?.toString() as string, members}),
+      ..._createMember({workspaceId: workspace?.id!, members}),
       setLoading: (value) => setSubmittingState(value as unknown as SetStateAction<boolean>),
 
       onSuccess: () => {
@@ -231,7 +231,7 @@ const Team = () => {
                                                 disabled={isSubmitting}
                                                 onChange={(event) =>
                                                   changeRole(
-                                                    member._id,
+                                                    member.id,
                                                     event.target.value as unknown as
                                                       | databaseTypes.constants.ROLE
                                                       | databaseTypes.constants.PROJECT_ROLE
@@ -255,7 +255,7 @@ const Team = () => {
                                       <Menu.Item>
                                         <button
                                           className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-red-600 rounded hover:bg-red-600 hover:text-white"
-                                          onClick={() => removeMember(member?._id)}
+                                          onClick={() => removeMember(member?.id)}
                                         >
                                           <span>Remove Team Member</span>
                                         </button>

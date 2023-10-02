@@ -49,7 +49,7 @@ export const State = ({item, idx}) => {
       );
 
       await api({
-        ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), payloadHash),
+        ..._getSignedDataUrls(project?.workspace.id, project?.id, payloadHash),
         onSuccess: (data) => {
           if (window?.core) {
             setResize(150);
@@ -81,7 +81,7 @@ export const State = ({item, idx}) => {
           type: webTypes.constants.MODAL_CONTENT_TYPE.DELETE_STATE,
           isSubmitting: false,
           data: {
-            id: item._id,
+            id: item.id,
             name: item.name,
           },
         });
@@ -96,7 +96,7 @@ export const State = ({item, idx}) => {
           type: webTypes.constants.MODAL_CONTENT_TYPE.UPDATE_STATE,
           isSubmitting: false,
           data: {
-            id: item._id,
+            id: item.id,
             name: item.name,
           },
         });

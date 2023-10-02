@@ -13,6 +13,7 @@ import {IProcessTracking} from './iProcessTracking';
 
 export interface IActivityLog {
   _id?: string | mongooseTypes.ObjectId;
+  id?: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;

@@ -21,7 +21,6 @@ describe('#TagService', () => {
 
   context('test the functions of the tag service', () => {
     let tagId: ObjectId;
-    // let tagDocument;
 
     before(async () => {
       await mongoConnection.init();
@@ -31,8 +30,6 @@ describe('#TagService', () => {
 
       const savedTagDocument = await tagModel.findOne({value: INPUT_TAG.value}).lean();
       tagId = savedTagDocument?._id as mongooseTypes.ObjectId;
-
-      //   tagDocument = savedTagDocument;
 
       assert.isOk(tagId);
     });
@@ -47,7 +44,7 @@ describe('#TagService', () => {
     });
 
     it('will retreive our tag from the database', async () => {
-      const tag = await tagService.getTag(tagId);
+      const tag = await tagService.getTag(tagId.toString());
       assert.isOk(tag);
 
       assert.strictEqual(tag?.value, INPUT_TAG.value);

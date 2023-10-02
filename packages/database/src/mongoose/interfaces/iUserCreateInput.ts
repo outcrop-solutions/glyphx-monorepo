@@ -1,5 +1,4 @@
 import {databaseTypes} from 'types';
-import {Types as mongooseTypes} from 'mongoose';
 /**
  * This interface is created to allow lookups to work with our IUser interface in mongoDb.
  * This will omit the types from IUser which are lookups and coalesce them to either objectIds
@@ -20,12 +19,12 @@ export interface IUserCreateInput
     | 'projects'
     | 'customerPayment'
   > {
-  accounts: (mongooseTypes.ObjectId | databaseTypes.IAccount)[];
-  sessions: (mongooseTypes.ObjectId | databaseTypes.ISession)[];
-  membership: (mongooseTypes.ObjectId | databaseTypes.IMember)[];
-  invitedMembers: (mongooseTypes.ObjectId | databaseTypes.IMember)[];
-  createdWorkspaces: (mongooseTypes.ObjectId | databaseTypes.IWorkspace)[];
-  webhooks: (mongooseTypes.ObjectId | databaseTypes.IWebhook)[];
-  projects: (mongooseTypes.ObjectId | databaseTypes.IProject)[];
-  customerPayment?: mongooseTypes.ObjectId | databaseTypes.ICustomerPayment;
+  accounts: (string | databaseTypes.IAccount)[];
+  sessions: (string | databaseTypes.ISession)[];
+  membership: (string | databaseTypes.IMember)[];
+  invitedMembers: (string | databaseTypes.IMember)[];
+  createdWorkspaces: (string | databaseTypes.IWorkspace)[];
+  webhooks: (string | databaseTypes.IWebhook)[];
+  projects: (string | databaseTypes.IProject)[];
+  customerPayment?: string | databaseTypes.ICustomerPayment;
 }

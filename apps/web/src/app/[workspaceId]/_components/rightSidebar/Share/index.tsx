@@ -24,7 +24,7 @@ export const Share = () => {
    * Copies Model Link to clipboard
    */
   function copyLinkToClipBoard() {
-    navigator.clipboard.writeText('https://app.glyphx.co/share/' + selectedProject._id);
+    navigator.clipboard.writeText('https://app.glyphx.co/share/' + selectedProject.id);
     setShareText(true);
     setTimeout(() => {
       //take away text after 3 seconds
@@ -86,7 +86,7 @@ export const Share = () => {
               <span className="inline-block mr-2">
                 <CopyToClipboard
                   onCopy={copyToClipboard}
-                  text={`https://app.glyphx.co/share/${sidebarControl?.data?._id}`}
+                  text={`https://app.glyphx.co/share/${sidebarControl?.data?.id}`}
                 >
                   <CopyToClipboardIcon />
                 </CopyToClipboard>

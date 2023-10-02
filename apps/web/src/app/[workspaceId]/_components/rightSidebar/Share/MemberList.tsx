@@ -8,7 +8,7 @@ export const MemberList = ({size, members}) => {
         {members.length > 0 ? (
           <>
             {members.map((mem, idx) => (
-              <li key={mem?._id}>
+              <li key={mem?.id}>
                 <div className="flex items-center justify-between mb-2 w-full">
                   <div className="flex items-center">
                     <div

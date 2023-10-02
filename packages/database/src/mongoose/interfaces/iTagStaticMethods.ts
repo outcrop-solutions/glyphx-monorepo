@@ -6,48 +6,23 @@ export interface ITagStaticMethods extends Model<databaseTypes.ITag, {}, ITagMet
   tagIdExists(tagId: mongooseTypes.ObjectId): Promise<boolean>;
   allTagIdsExist(tagIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createTag(input: ITagCreateInput): Promise<databaseTypes.ITag>;
-  getTagById(tagId: mongooseTypes.ObjectId): Promise<databaseTypes.ITag>;
+  getTagById(tagId: string): Promise<databaseTypes.ITag>;
   queryTags(
     filter?: Record<string, unknown>,
     page?: number,
     itemsPerPage?: number
   ): Promise<IQueryResult<databaseTypes.ITag>>;
   updateTagWithFilter(filter: Record<string, unknown>, tag: Omit<Partial<databaseTypes.ITag>, '_id'>): Promise<void>;
-  updateTagById(
-    tagId: mongooseTypes.ObjectId,
-    tag: Omit<Partial<databaseTypes.ITag>, '_id'>
-  ): Promise<databaseTypes.ITag>;
-  deleteTagById(tagId: mongooseTypes.ObjectId): Promise<void>;
-  validateWorkspaces(
-    projects: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
-  ): Promise<mongooseTypes.ObjectId[]>;
-  validateProjects(projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]>;
-  validateTemplates(
-    templates: (databaseTypes.IProjectTemplate | mongooseTypes.ObjectId)[]
-  ): Promise<mongooseTypes.ObjectId[]>;
+  updateTagById(tagId: string, tag: Omit<Partial<databaseTypes.ITag>, '_id'>): Promise<databaseTypes.ITag>;
+  deleteTagById(tagId: string): Promise<void>;
+  validateWorkspaces(projects: (databaseTypes.IWorkspace | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateProjects(projects: (databaseTypes.IProject | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateTemplates(templates: (databaseTypes.IProjectTemplate | string)[]): Promise<mongooseTypes.ObjectId[]>;
   validateUpdateObject(tag: Omit<Partial<databaseTypes.ITag>, '_id'>): void;
-  addProjects(
-    tagId: mongooseTypes.ObjectId,
-    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.ITag>;
-  removeProjects(
-    tagId: mongooseTypes.ObjectId,
-    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.ITag>;
-  addWorkspaces(
-    tagId: mongooseTypes.ObjectId,
-    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.ITag>;
-  removeWorkspaces(
-    tagId: mongooseTypes.ObjectId,
-    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.ITag>;
-  addTemplates(
-    tagId: mongooseTypes.ObjectId,
-    templates: (databaseTypes.IProjectTemplate | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.ITag>;
-  removeTemplates(
-    tagId: mongooseTypes.ObjectId,
-    templates: (databaseTypes.IProjectTemplate | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.ITag>;
+  addProjects(tagId: string, projects: (databaseTypes.IProject | string)[]): Promise<databaseTypes.ITag>;
+  removeProjects(tagId: string, projects: (databaseTypes.IProject | string)[]): Promise<databaseTypes.ITag>;
+  addWorkspaces(tagId: string, workspaces: (databaseTypes.IWorkspace | string)[]): Promise<databaseTypes.ITag>;
+  removeWorkspaces(tagId: string, workspaces: (databaseTypes.IWorkspace | string)[]): Promise<databaseTypes.ITag>;
+  addTemplates(tagId: string, templates: (databaseTypes.IProjectTemplate | string)[]): Promise<databaseTypes.ITag>;
+  removeTemplates(tagId: string, templates: (databaseTypes.IProjectTemplate | string)[]): Promise<databaseTypes.ITag>;
 }
