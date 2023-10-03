@@ -7,7 +7,7 @@ export interface IActivityLogStaticMethods extends Model<databaseTypes.IActivity
   activityLogIdExists(activityLogId: mongooseTypes.ObjectId): Promise<boolean>;
   allActivityLogIdsExist(activityLogIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createActivityLog(input: IActivityLogCreateInput): Promise<databaseTypes.IActivityLog>;
-  getActivityLogById(activityLogId: mongooseTypes.ObjectId): Promise<databaseTypes.IActivityLog>;
+  getActivityLogById(activityLogId: string): Promise<databaseTypes.IActivityLog>;
   queryActivityLogs(
     filter?: Record<string, unknown>,
     page?: number,

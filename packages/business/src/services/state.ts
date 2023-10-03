@@ -1,19 +1,13 @@
 import {databaseTypes, webTypes} from 'types';
 import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
-import {Types as mongooseTypes} from 'mongoose';
 import {hashFileSystem} from '../util/hashFileSystem';
 import {hashPayload} from '../util/hashPayload';
 
 export class StateService {
-  public static async getState(stateId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IState | null> {
+  public static async getState(stateId: string): Promise<databaseTypes.IState | null> {
     try {
-      const id =
-        stateId instanceof mongooseTypes.ObjectId
-          ? stateId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(stateId);
-      const state = await mongoDbConnection.models.StateModel.getStateById(id);
+      const state = await mongoDbConnection.models.StateModel.getStateById(stateId);
       return state;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -36,36 +30,15 @@ export class StateService {
   public static async createState(
     name: string,
     camera: webTypes.Camera,
-    projectId: mongooseTypes.ObjectId | string,
-    userId: mongooseTypes.ObjectId | string,
+    projectId: string,
+    userId: string,
     aspectRatio: webTypes.Aspect,
     imageHash?: string
   ): Promise<databaseTypes.IState | null> {
     try {
-      const pid =
-        projectId instanceof mongooseTypes.ObjectId
-          ? projectId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(projectId);
-
-      const uid =
-        userId instanceof mongooseTypes.ObjectId
-          ? userId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(userId);
-
-      const project = await mongoDbConnection.models.ProjectModel.getProjectById(pid);
-
-      const pwid =
-        project.workspace._id instanceof mongooseTypes.ObjectId
-          ? project.workspace._id
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(project.workspace._id);
-
-      const workspace = await mongoDbConnection.models.WorkspaceModel.getWorkspaceById(pwid);
-
-      const user = await mongoDbConnection.models.UserModel.getUserById(uid);
-
+      const project = await mongoDbConnection.models.ProjectModel.getProjectById(projectId);
+      const workspace = await mongoDbConnection.models.WorkspaceModel.getWorkspaceById(project.workspace.id!);
+      const user = await mongoDbConnection.models.UserModel.getUserById(userId);
       const image = imageHash ? {imageHash} : {};
 
       const input = {
@@ -86,19 +59,13 @@ export class StateService {
 
       const state = await mongoDbConnection.models.StateModel.createState(input);
 
-      await mongoDbConnection.models.ProjectModel.updateProjectById(pid, {
+      await mongoDbConnection.models.ProjectModel.updateProjectById(projectId, {
         imageHash: imageHash,
         aspectRatio: aspectRatio,
       });
 
-      const wid =
-        workspace._id instanceof mongooseTypes.ObjectId
-          ? workspace._id
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(workspace._id);
-
-      await mongoDbConnection.models.WorkspaceModel.addStates(wid, [state]);
-      await mongoDbConnection.models.ProjectModel.addStates(pid, [state]);
+      await mongoDbConnection.models.WorkspaceModel.addStates(workspace.id!, [state]);
+      await mongoDbConnection.models.ProjectModel.addStates(projectId, [state]);
 
       return state;
     } catch (err: any) {
@@ -119,15 +86,9 @@ export class StateService {
     }
   }
 
-  public static async deleteState(stateId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IState> {
+  public static async deleteState(stateId: string): Promise<databaseTypes.IState> {
     try {
-      const id =
-        stateId instanceof mongooseTypes.ObjectId
-          ? stateId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(stateId);
-
-      const state = await mongoDbConnection.models.StateModel.updateStateById(id, {
+      const state = await mongoDbConnection.models.StateModel.updateStateById(stateId, {
         deletedAt: new Date(),
       });
 
@@ -150,21 +111,11 @@ export class StateService {
     }
   }
 
-  public static async updateState(
-    stateId: mongooseTypes.ObjectId | string,
-    name?: string,
-    imageHash?: string
-  ): Promise<databaseTypes.IState> {
+  public static async updateState(stateId: string, name?: string, imageHash?: string): Promise<databaseTypes.IState> {
     try {
-      const id =
-        stateId instanceof mongooseTypes.ObjectId
-          ? stateId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(stateId);
-
       const image = imageHash ? {imageHash} : {};
       const nameObj = name ? {name} : {};
-      const state = await mongoDbConnection.models.StateModel.updateStateById(id, {
+      const state = await mongoDbConnection.models.StateModel.updateStateById(stateId, {
         ...image,
         ...nameObj,
       });

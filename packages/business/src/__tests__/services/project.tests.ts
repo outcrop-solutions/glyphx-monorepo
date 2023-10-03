@@ -25,7 +25,7 @@ describe('#services/project', () => {
       } as unknown as databaseTypes.IProject);
       sandbox.replace(dbConnection.models.ProjectModel, 'getProjectById', getProjectFromModelStub);
 
-      const project = await projectService.getProject(projectId);
+      const project = await projectService.getProject(projectId.toString());
       assert.isOk(project);
       assert.strictEqual(project?._id?.toString(), projectId.toString());
 
@@ -71,7 +71,7 @@ describe('#services/project', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const project = await projectService.getProject(projectId);
+      const project = await projectService.getProject(projectId.toString());
       assert.notOk(project);
 
       assert.isTrue(getProjectFromModelStub.calledOnce);
@@ -101,7 +101,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.getProject(projectId);
+        await projectService.getProject(projectId.toString());
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -181,7 +181,12 @@ describe('#services/project', () => {
 
       sandbox.replace(dbConnection.models.WorkspaceModel, 'addProjects', updateWorkspaceStub);
 
-      const doc = await projectService.createProject(projectName, workspaceId, memberId.toString(), memberEmail);
+      const doc = await projectService.createProject(
+        projectName,
+        workspaceId.toString(),
+        memberId.toString(),
+        memberEmail
+      );
 
       assert.isTrue(createProjectFromModelStub.calledOnce);
       assert.isTrue(createProjectMemberFromModelStub.calledOnce);
@@ -258,7 +263,7 @@ describe('#services/project', () => {
 
       sandbox.replace(dbConnection.models.WorkspaceModel, 'addProjects', updateWorkspaceStub);
 
-      const doc = await projectService.createProject(projectName, workspaceId.toString(), userId, userEmail);
+      const doc = await projectService.createProject(projectName, workspaceId.toString(), userId.toString(), userEmail);
 
       assert.isTrue(createProjectFromModelStub.calledOnce);
       assert.isTrue(updateUserStub.calledOnce);
@@ -334,7 +339,7 @@ describe('#services/project', () => {
 
       sandbox.replace(dbConnection.models.WorkspaceModel, 'addProjects', updateWorkspaceStub);
 
-      const doc = await projectService.createProject(projectName, userId.toString(), workspaceId, userEmail);
+      const doc = await projectService.createProject(projectName, userId.toString(), workspaceId.toString(), userEmail);
 
       assert.isTrue(createProjectFromModelStub.calledOnce);
       assert.isTrue(updateUserStub.calledOnce);
@@ -375,7 +380,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId, userEmail);
+        await projectService.createProject(projectName, userId.toString(), workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.DataValidationError);
         errored = true;
@@ -416,7 +421,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId.toString(), userEmail);
+        await projectService.createProject(projectName, userId.toString(), workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -457,7 +462,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId.toString(), userEmail);
+        await projectService.createProject(projectName, userId.toString(), workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -522,7 +527,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId, userEmail);
+        await projectService.createProject(projectName, userId.toString(), workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -586,7 +591,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId.toString(), userEmail);
+        await projectService.createProject(projectName, userId.toString(), workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -650,7 +655,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId.toString(), userEmail);
+        await projectService.createProject(projectName, userId.toString(), workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -726,7 +731,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId, userEmail);
+        await projectService.createProject(projectName, userId.toString(), workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -801,7 +806,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId.toString(), userEmail);
+        await projectService.createProject(projectName, userId.toString(), workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -876,7 +881,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId.toString(), userEmail);
+        await projectService.createProject(projectName, userId.toString(), workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -961,7 +966,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId, userEmail);
+        await projectService.createProject(projectName, userId.toString(), workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -1046,7 +1051,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId.toString(), userEmail);
+        await projectService.createProject(projectName, userId.toString(), workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -1131,7 +1136,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.createProject(projectName, userId, workspaceId.toString(), userEmail);
+        await projectService.createProject(projectName, userId.toString(), workspaceId.toString(), userEmail);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -1248,7 +1253,7 @@ describe('#services/project', () => {
       } as unknown as databaseTypes.IProject);
       sandbox.replace(dbConnection.models.ProjectModel, 'getProjectById', getProjectFromModelStub);
 
-      const projectFileStats = await projectService.getProjectFileStats(projectId);
+      const projectFileStats = await projectService.getProjectFileStats(projectId.toString());
       assert.isOk(projectFileStats);
       assert.strictEqual(projectFileStats[0].fileName, fileStats.fileName);
 
@@ -1264,7 +1269,7 @@ describe('#services/project', () => {
       } as unknown as databaseTypes.IProject);
       sandbox.replace(dbConnection.models.ProjectModel, 'getProjectById', getProjectFromModelStub);
 
-      const projectFileStats = await projectService.getProjectFileStats(projectId);
+      const projectFileStats = await projectService.getProjectFileStats(projectId.toString());
       assert.isOk(projectFileStats);
       assert.isArray(projectFileStats);
       assert.strictEqual(projectFileStats.length, 0);
@@ -1285,7 +1290,7 @@ describe('#services/project', () => {
       } as unknown as databaseTypes.IProject);
       sandbox.replace(dbConnection.models.ProjectModel, 'getProjectById', getProjectFromModelStub);
 
-      const projectViewName = await projectService.getProjectViewName(projectId);
+      const projectViewName = await projectService.getProjectViewName(projectId.toString());
       assert.isOk(projectViewName);
       assert.strictEqual(projectViewName, viewName);
 
@@ -1301,7 +1306,7 @@ describe('#services/project', () => {
       } as unknown as databaseTypes.IProject);
       sandbox.replace(dbConnection.models.ProjectModel, 'getProjectById', getProjectFromModelStub);
 
-      const viewName = await projectService.getProjectViewName(projectId);
+      const viewName = await projectService.getProjectViewName(projectId.toString());
       assert.isString(viewName);
       assert.isEmpty(viewName);
 
@@ -1328,7 +1333,7 @@ describe('#services/project', () => {
       } as unknown as databaseTypes.IProject);
       sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
-      const project = await projectService.updateProjectFileStats(projectId, [fileStats]);
+      const project = await projectService.updateProjectFileStats(projectId.toString(), [fileStats]);
       assert.isOk(project);
       assert.strictEqual(project._id, projectId);
       assert.strictEqual(project.files[0].fileName, fileStats.fileName);
@@ -1393,7 +1398,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.updateProjectFileStats(projectId, [fileStats]);
+        await projectService.updateProjectFileStats(projectId.toString(), [fileStats]);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -1436,7 +1441,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.updateProjectFileStats(projectId, [fileStats]);
+        await projectService.updateProjectFileStats(projectId.toString(), [fileStats]);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -1478,7 +1483,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.updateProjectFileStats(projectId, [fileStats]);
+        await projectService.updateProjectFileStats(projectId.toString(), [fileStats]);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -1502,7 +1507,7 @@ describe('#services/project', () => {
       } as unknown as databaseTypes.IProject);
       sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
-      const project = await projectService.updateProjectView(projectId, viewName);
+      const project = await projectService.updateProjectView(projectId.toString(), viewName);
       assert.isOk(project);
       assert.strictEqual(project._id, projectId);
       assert.strictEqual(project.viewName, viewName);
@@ -1553,7 +1558,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.updateProjectView(projectId, viewName);
+        await projectService.updateProjectView(projectId.toString(), viewName);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -1589,7 +1594,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.updateProjectView(projectId, viewName);
+        await projectService.updateProjectView(projectId.toString(), viewName);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -1624,7 +1629,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.updateProjectView(projectId, viewName);
+        await projectService.updateProjectView(projectId.toString(), viewName);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -1648,7 +1653,7 @@ describe('#services/project', () => {
       } as unknown as databaseTypes.IProject);
       sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
-      const project = await projectService.updateProject(projectId, {
+      const project = await projectService.updateProject(projectId.toString(), {
         viewName: viewName,
       });
       assert.isOk(project);
@@ -1669,7 +1674,7 @@ describe('#services/project', () => {
       } as unknown as databaseTypes.IProject);
       sandbox.replace(dbConnection.models.ProjectModel, 'updateProjectById', updateProjectFromModelStub);
 
-      const project = await projectService.updateProject(projectId.toString(), {
+      const project = await projectService.updateProject(projectId.toString().toString(), {
         viewName: viewName,
       });
       assert.isOk(project);
@@ -1703,7 +1708,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.updateProject(projectId, {viewName: viewName});
+        await projectService.updateProject(projectId.toString(), {viewName: viewName});
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -1739,7 +1744,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.updateProject(projectId, {viewName});
+        await projectService.updateProject(projectId.toString(), {viewName});
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -1774,7 +1779,7 @@ describe('#services/project', () => {
 
       let errored = false;
       try {
-        await projectService.updateProject(projectId, {viewName: viewName});
+        await projectService.updateProject(projectId.toString(), {viewName: viewName});
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;

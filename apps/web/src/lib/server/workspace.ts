@@ -51,7 +51,7 @@ export const createWorkspace = async (req: NextApiRequest, res: NextApiResponse,
     await validateCreateWorkspace(req, res);
     const slug = slugify(name.toLowerCase());
     const workspace = await workspaceService.createWorkspace(
-      session?.user?._id as string,
+      session?.user?.id,
       session?.user?.email as string,
       name,
       slug
@@ -60,9 +60,9 @@ export const createWorkspace = async (req: NextApiRequest, res: NextApiResponse,
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
-      resourceId: workspace?._id?.toString() as string,
-      workspaceId: workspace?._id,
+      actorId: session?.user?.id,
+      resourceId: workspace?.id!,
+      workspaceId: workspace?.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
@@ -88,34 +88,29 @@ export const createWorkspace = async (req: NextApiRequest, res: NextApiResponse,
 
 export const updateWorkspaceSlug = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const {slug} = req.body;
-  const {workspaceSlug} = req.query;
+  const {workspaceId} = req.query;
 
-  if (Array.isArray(workspaceSlug)) {
+  if (Array.isArray(workspaceId)) {
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
 
   try {
     await validateUpdateWorkspaceSlug(req, res);
-    const workspace = await workspaceService.updateWorkspaceSlug(
-      session?.user?._id as string,
-      session?.user?.email as string,
-      slug,
-      workspaceSlug as string
-    );
+    const workspace = await workspaceService.updateWorkspaceSlug(workspaceId as string, slug);
 
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
-      resourceId: workspace as string,
-      workspaceId: workspace!,
+      actorId: session?.user?.id,
+      resourceId: workspaceId!,
+      workspaceId: workspaceId,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
       action: databaseTypes.constants.ACTION_TYPE.UPDATED,
     });
 
-    res.status(200).json({data: {slug: slug}});
+    res.status(200).json({data: {workspace}});
   } catch (error) {
     res.status(404).json({errors: {error: {msg: error.message}}});
   }
@@ -134,26 +129,21 @@ export const updateWorkspaceSlug = async (req: NextApiRequest, res: NextApiRespo
 
 export const updateWorkspaceName = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const {name} = req.body;
-  const {workspaceSlug} = req.query;
+  const {workspaceId} = req.query;
 
-  if (Array.isArray(workspaceSlug)) {
+  if (Array.isArray(workspaceId)) {
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
 
   try {
     const updatedName = await validateUpdateWorkspaceName(req, res);
-    const workspace = await workspaceService.updateWorkspaceName(
-      session?.user?._id as string,
-      session?.user?.email as string,
-      name,
-      workspaceSlug as string
-    );
+    await workspaceService.updateWorkspaceName(session?.user?.id, session?.user?.email as string, name, workspaceId!);
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
-      resourceId: workspace as string,
-      workspaceId: workspace as string,
+      actorId: session?.user?.id,
+      resourceId: workspaceId as string,
+      workspaceId: workspaceId as string,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
@@ -203,27 +193,27 @@ export const getMembers = async (req: NextApiRequest, res: NextApiResponse) => {
 
 export const inviteUsers = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const {members} = req.body;
-  const {workspaceSlug} = req.query;
+  const {workspaceId} = req.query;
 
-  if (Array.isArray(workspaceSlug)) {
+  if (Array.isArray(workspaceId)) {
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
 
   try {
     // @ts-ignore
     const {members: memberData, workspace} = await workspaceService.inviteUsers(
-      session?.user?._id as string,
+      session?.user?.id,
       session?.user?.email as string,
       members,
-      workspaceSlug as string
+      workspaceId as string
     );
 
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
-      resourceId: workspace._id,
-      workspaceId: workspace._id,
+      actorId: session?.user?.id,
+      resourceId: workspace.id,
+      workspaceId: workspace.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
@@ -256,16 +246,16 @@ export const deleteWorkspace = async (req: NextApiRequest, res: NextApiResponse,
 
   try {
     const workspace = await workspaceService.deleteWorkspace(
-      session.user._id as string,
+      session.user.id,
       session.user.email as string,
       workspaceSlug as string
     );
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?._id as string,
-      resourceId: workspace?._id?.toString() as string,
-      workspaceId: workspace?._id?.toString() as string,
+      actorId: session?.user?.id!,
+      resourceId: workspace?.id!,
+      workspaceId: workspace?.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
@@ -288,22 +278,18 @@ export const deleteWorkspace = async (req: NextApiRequest, res: NextApiResponse,
  */
 
 export const isTeamOwner = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {workspaceSlug} = req.query;
+  const {workspaceId} = req.query;
 
-  if (Array.isArray(workspaceSlug)) {
+  if (Array.isArray(workspaceId)) {
     return res.status(400).end('Query parameter is invalid');
   }
 
   try {
-    const workspace = await workspaceService.getWorkspace(
-      session?.user?._id as string,
-      session?.user?.email as string,
-      workspaceSlug as string
-    );
+    const workspace = await workspaceService.getWorkspace(session?.user?.email as string, workspaceId as string);
 
     if (workspace) {
       const isTeamOwner = await workspaceService.isWorkspaceOwner(session?.user?.email as string, workspace);
-      const inviteLink = `${process.env.APP_URL || 'http://localhost:3000'}/teams/invite?code=${encodeURI(
+      const inviteLink = `${process.env.APP_URL || 'http://localhost:3000'}/${workspace?.id}/teams?code=${encodeURI(
         workspace?.inviteCode
       )}`;
 

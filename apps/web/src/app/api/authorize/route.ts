@@ -14,7 +14,7 @@ const authorize = async (req: Request) => {
 
     // format user to next-auth shape
     // TODO: remove this when db formatter goes into production
-    const newUser = {...user, id: user?._id?.toString()};
+    const newUser = {...user, id: user?.id};
     return NextResponse.json({...newUser});
   } catch (error) {
     return null;

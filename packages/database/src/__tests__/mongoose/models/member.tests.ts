@@ -8,6 +8,7 @@ import {error} from 'core';
 import mongoose, {Types as mongooseTypes} from 'mongoose';
 import {createSandbox} from 'sinon';
 import {IMemberCreateInput} from '../../../mongoose/interfaces';
+import {DBFormatter} from '../../../lib/format';
 
 const MOCK_MEMBER: databaseTypes.IMember = {
   email: 'jamesmurdockgraham@gmail.com',
@@ -120,7 +121,7 @@ describe('#mongoose/models/member', () => {
       const result = await MemberModel.memberExists(
         memberEmail,
         databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
-        projectId
+        projectId.toString()
       );
 
       assert.isTrue(result);
@@ -138,7 +139,7 @@ describe('#mongoose/models/member', () => {
       const result = await MemberModel.memberExists(
         memberEmail,
         databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
-        projectId
+        projectId.toString()
       );
 
       assert.isFalse(result);
@@ -156,7 +157,7 @@ describe('#mongoose/models/member', () => {
       const result = await MemberModel.memberExists(
         memberEmail,
         databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
-        projectId
+        projectId.toString()
       );
 
       assert.isTrue(result);
@@ -174,7 +175,7 @@ describe('#mongoose/models/member', () => {
       const result = await MemberModel.memberExists(
         memberEmail,
         databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
-        projectId
+        projectId.toString()
       );
 
       assert.isFalse(result);
@@ -191,7 +192,11 @@ describe('#mongoose/models/member', () => {
 
       let errorred = false;
       try {
-        await MemberModel.memberExists(memberEmail, databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT, projectId);
+        await MemberModel.memberExists(
+          memberEmail,
+          databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+          projectId.toString()
+        );
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -485,12 +490,16 @@ describe('#mongoose/models/member', () => {
       const memberId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
-      updateStub.resolves({modifiedCount: 1});
-      sandbox.replace(MemberModel, 'updateOne', updateStub);
+      updateStub.resolves({
+        toObject: () => ({_id: memberId, email: 'jp@glyphx.co'}), // Sample data
+      });
+      sandbox.replace(MemberModel, 'findOneAndUpdate', updateStub);
 
       const getUserStub = sandbox.stub();
       getUserStub.resolves(true);
       sandbox.replace(UserModel, 'userIdExists', getUserStub);
+
+      sandbox.stub(DBFormatter.prototype, 'toJS').returns({id: memberId.toString(), email: 'jp@glyphx.co'});
 
       const getWorkspaceStub = sandbox.stub();
       getUserStub.resolves(true);
@@ -500,7 +509,7 @@ describe('#mongoose/models/member', () => {
       getMemberStub.resolves({_id: memberId});
       sandbox.replace(MemberModel, 'getMemberById', getMemberStub);
 
-      const result = await MemberModel.updateMemberById(memberId, updateMember);
+      const result = await MemberModel.updateMemberById(memberId.toString(), updateMember);
 
       assert.strictEqual(result._id, memberId);
       assert.isTrue(updateStub.calledOnce);
@@ -520,9 +529,12 @@ describe('#mongoose/models/member', () => {
       const memberId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
-      updateStub.resolves({modifiedCount: 1});
-      sandbox.replace(MemberModel, 'updateOne', updateStub);
+      updateStub.resolves({
+        toObject: () => ({_id: memberId, email: 'jp@glyphx.co'}), // Sample data
+      });
+      sandbox.replace(MemberModel, 'findOneAndUpdate', updateStub);
 
+      sandbox.stub(DBFormatter.prototype, 'toJS').returns({id: memberId.toString(), email: 'jp@glyphx.co'});
       const getUserStub = sandbox.stub();
       getUserStub.resolves(true);
       sandbox.replace(UserModel, 'userIdExists', getUserStub);
@@ -531,7 +543,7 @@ describe('#mongoose/models/member', () => {
       getMemberStub.resolves({_id: memberId});
       sandbox.replace(MemberModel, 'getMemberById', getMemberStub);
 
-      const result = await MemberModel.updateMemberById(memberId, updateMember);
+      const result = await MemberModel.updateMemberById(memberId.toString(), updateMember);
 
       assert.strictEqual(result._id, memberId);
       assert.isTrue(updateStub.calledOnce);
@@ -550,8 +562,12 @@ describe('#mongoose/models/member', () => {
       const memberId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
-      updateStub.resolves({modifiedCount: 1});
-      sandbox.replace(MemberModel, 'updateOne', updateStub);
+      updateStub.resolves({
+        toObject: () => ({_id: memberId, email: 'jp@glyphx.co'}), // Sample data
+      });
+      sandbox.replace(MemberModel, 'findOneAndUpdate', updateStub);
+
+      sandbox.stub(DBFormatter.prototype, 'toJS').returns({id: memberId.toString(), email: 'jp@glyphx.co'});
 
       const getUserStub = sandbox.stub();
       getUserStub.resolves(true);
@@ -561,7 +577,7 @@ describe('#mongoose/models/member', () => {
       getMemberStub.resolves({_id: memberId});
       sandbox.replace(MemberModel, 'getMemberById', getMemberStub);
 
-      const result = await MemberModel.updateMemberById(memberId, updateMember);
+      const result = await MemberModel.updateMemberById(memberId.toString(), updateMember);
 
       assert.strictEqual(result._id, memberId);
       assert.isTrue(updateStub.calledOnce);
@@ -580,8 +596,12 @@ describe('#mongoose/models/member', () => {
       const memberId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
-      updateStub.resolves({modifiedCount: 1});
-      sandbox.replace(MemberModel, 'updateOne', updateStub);
+      updateStub.resolves({
+        toObject: () => ({_id: memberId, email: 'jp@glyphx.co'}), // Sample data
+      });
+      sandbox.replace(MemberModel, 'findOneAndUpdate', updateStub);
+
+      sandbox.stub(DBFormatter.prototype, 'toJS').returns({id: memberId.toString(), email: 'jp@glyphx.co'});
 
       const getWorkspaceStub = sandbox.stub();
       getWorkspaceStub.resolves(true);
@@ -591,7 +611,7 @@ describe('#mongoose/models/member', () => {
       getMemberStub.resolves({_id: memberId});
       sandbox.replace(MemberModel, 'getMemberById', getMemberStub);
 
-      const result = await MemberModel.updateMemberById(memberId, updateMember);
+      const result = await MemberModel.updateMemberById(memberId.toString(), updateMember);
 
       assert.strictEqual(result._id, memberId);
       assert.isTrue(updateStub.calledOnce);
@@ -608,15 +628,15 @@ describe('#mongoose/models/member', () => {
       const memberId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
-      updateStub.resolves({modifiedCount: 0});
-      sandbox.replace(MemberModel, 'updateOne', updateStub);
+      updateStub.resolves(null);
+      sandbox.replace(MemberModel, 'findOneAndUpdate', updateStub);
 
       const getMemberStub = sandbox.stub();
       getMemberStub.resolves({_id: memberId});
       sandbox.replace(MemberModel, 'getMemberById', getMemberStub);
       let errorred = false;
       try {
-        await MemberModel.updateMemberById(memberId, updateMember);
+        await MemberModel.updateMemberById(memberId.toString(), updateMember);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -638,15 +658,19 @@ describe('#mongoose/models/member', () => {
       );
 
       const updateStub = sandbox.stub();
-      updateStub.resolves({modifiedCount: 1});
-      sandbox.replace(MemberModel, 'updateOne', updateStub);
+      updateStub.resolves({
+        toObject: () => ({_id: memberId, email: 'jp@glyphx.co'}), // Sample data
+      });
+      sandbox.replace(MemberModel, 'findOneAndUpdate', updateStub);
+
+      sandbox.stub(DBFormatter.prototype, 'toJS').returns({id: memberId.toString(), email: 'jp@glyphx.co'});
 
       const getMemberStub = sandbox.stub();
       getMemberStub.resolves({_id: memberId});
       sandbox.replace(MemberModel, 'getMemberById', getMemberStub);
       let errorred = false;
       try {
-        await MemberModel.updateMemberById(memberId, updateMember);
+        await MemberModel.updateMemberById(memberId.toString(), updateMember);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errorred = true;
@@ -663,14 +687,14 @@ describe('#mongoose/models/member', () => {
 
       const updateStub = sandbox.stub();
       updateStub.rejects('something really bad has happened');
-      sandbox.replace(MemberModel, 'updateOne', updateStub);
+      sandbox.replace(MemberModel, 'findOneAndUpdate', updateStub);
 
       const getMemberStub = sandbox.stub();
       getMemberStub.resolves({_id: memberId});
       sandbox.replace(MemberModel, 'getMemberById', getMemberStub);
       let errorred = false;
       try {
-        await MemberModel.updateMemberById(memberId, updateMember);
+        await MemberModel.updateMemberById(memberId.toString(), updateMember);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -840,7 +864,7 @@ describe('#mongoose/models/member', () => {
 
       const memberId = new mongoose.Types.ObjectId();
 
-      await MemberModel.deleteMemberById(memberId);
+      await MemberModel.deleteMemberById(memberId.toString());
 
       assert.isTrue(deleteStub.calledOnce);
     });
@@ -854,7 +878,7 @@ describe('#mongoose/models/member', () => {
 
       let errorred = false;
       try {
-        await MemberModel.deleteMemberById(memberId);
+        await MemberModel.deleteMemberById(memberId.toString());
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -872,7 +896,7 @@ describe('#mongoose/models/member', () => {
 
       let errorred = false;
       try {
-        await MemberModel.deleteMemberById(memberId);
+        await MemberModel.deleteMemberById(memberId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -1007,7 +1031,7 @@ describe('#mongoose/models/member', () => {
       findByIdStub.returns(new MockMongooseQuery(mockMember));
       sandbox.replace(MemberModel, 'findById', findByIdStub);
 
-      const doc = await MemberModel.getMemberById(mockMember._id as mongoose.Types.ObjectId);
+      const doc = await MemberModel.getMemberById(mockMember._id!.toString());
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
@@ -1015,7 +1039,7 @@ describe('#mongoose/models/member', () => {
       assert.isUndefined((doc.invitedBy as any).__v);
       assert.isUndefined((doc.workspace as any).__v);
 
-      assert.strictEqual(doc._id, mockMember._id);
+      assert.strictEqual(doc.id, mockMember._id?.toString());
     });
 
     it('will retreive a member document with the member, invitedBy and workspace populated has project = true', async () => {
@@ -1023,7 +1047,7 @@ describe('#mongoose/models/member', () => {
       findByIdStub.returns(new MockMongooseQuery(mockMember));
       sandbox.replace(MemberModel, 'findById', findByIdStub);
 
-      const doc = await MemberModel.getMemberById(mockMember._id as mongoose.Types.ObjectId, true);
+      const doc = await MemberModel.getMemberById(mockMember._id!.toString(), true);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
@@ -1031,7 +1055,7 @@ describe('#mongoose/models/member', () => {
       assert.isUndefined((doc.invitedBy as any).__v);
       assert.isUndefined((doc.workspace as any).__v);
 
-      assert.strictEqual(doc._id, mockMember._id);
+      assert.strictEqual(doc.id, mockMember._id?.toString());
     });
 
     it('will retreive a member document with the member, invitedBy and workspace populated has project = false', async () => {
@@ -1039,7 +1063,7 @@ describe('#mongoose/models/member', () => {
       findByIdStub.returns(new MockMongooseQuery(mockMember));
       sandbox.replace(MemberModel, 'findById', findByIdStub);
 
-      const doc = await MemberModel.getMemberById(mockMember._id as mongoose.Types.ObjectId, false);
+      const doc = await MemberModel.getMemberById(mockMember._id!.toString(), false);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any).__v);
@@ -1047,7 +1071,7 @@ describe('#mongoose/models/member', () => {
       assert.isUndefined((doc.invitedBy as any).__v);
       assert.isUndefined((doc.workspace as any).__v);
 
-      assert.strictEqual(doc._id, mockMember._id);
+      assert.strictEqual(doc.id, mockMember._id?.toString());
     });
 
     it('will throw a DataNotFoundError when the member does not exist', async () => {
@@ -1057,7 +1081,7 @@ describe('#mongoose/models/member', () => {
 
       let errored = false;
       try {
-        await MemberModel.getMemberById(mockMember._id as mongoose.Types.ObjectId);
+        await MemberModel.getMemberById(mockMember._id!.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -1073,7 +1097,7 @@ describe('#mongoose/models/member', () => {
 
       let errored = false;
       try {
-        await MemberModel.getMemberById(mockMember._id as mongoose.Types.ObjectId);
+        await MemberModel.getMemberById(mockMember._id!.toString());
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -1267,7 +1291,7 @@ describe('#mongoose/models/member', () => {
       projectIdExistsStub.resolves(true);
       sandbox.replace(ProjectModel, 'projectIdExists', projectIdExistsStub);
 
-      const res = await MemberModel.validateProject(projectId);
+      const res = await MemberModel.validateProject(projectId.toString());
       assert.strictEqual(res.toString(), projectId.toString());
       assert.isTrue(projectIdExistsStub.calledOnce);
     });
@@ -1279,7 +1303,7 @@ describe('#mongoose/models/member', () => {
       sandbox.replace(ProjectModel, 'projectIdExists', projectIdExistsStub);
 
       const res = await MemberModel.validateProject({
-        _id: projectId,
+        id: projectId.toString(),
       } as unknown as databaseTypes.IProject);
       assert.strictEqual(res.toString(), projectId.toString());
       assert.isTrue(projectIdExistsStub.calledOnce);
@@ -1293,7 +1317,7 @@ describe('#mongoose/models/member', () => {
 
       let errored = false;
       try {
-        await MemberModel.validateProject(projectId);
+        await MemberModel.validateProject(projectId.toString());
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1312,7 +1336,7 @@ describe('#mongoose/models/member', () => {
     it('will validate the project member with ids as objectIds', async () => {
       const memberId = new mongoose.Types.ObjectId();
       const projectId = new mongoose.Types.ObjectId();
-      const workspoaceId = new mongoose.Types.ObjectId();
+      const workspaceId = new mongoose.Types.ObjectId();
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(true);
       sandbox.replace(UserModel, 'userIdExists', userIdExistsStub);
@@ -1336,7 +1360,11 @@ describe('#mongoose/models/member', () => {
       memberExistsStub.resolves(false);
       sandbox.replace(MemberModel, 'memberExists', memberExistsStub);
 
-      const res = await MemberModel.validateProjectMember(memberId, workspoaceId, projectId);
+      const res = await MemberModel.validateProjectMember(
+        memberId.toString(),
+        workspaceId.toString(),
+        projectId.toString()
+      );
 
       assert.isOk(res);
       assert.strictEqual(res._id.toString(), memberId.toString());
@@ -1375,9 +1403,9 @@ describe('#mongoose/models/member', () => {
       sandbox.replace(MemberModel, 'memberExists', memberExistsStub);
 
       const res = await MemberModel.validateProjectMember(
-        {_id: memberId} as unknown as databaseTypes.IUser,
-        {_id: workspoaceId} as unknown as databaseTypes.IWorkspace,
-        {_id: projectId} as unknown as databaseTypes.IProject
+        {id: memberId} as unknown as databaseTypes.IUser,
+        {id: workspoaceId} as unknown as databaseTypes.IWorkspace,
+        {id: projectId} as unknown as databaseTypes.IProject
       );
 
       assert.isOk(res);
@@ -1581,8 +1609,8 @@ describe('#mongoose/models/member', () => {
       sandbox.replace(MemberModel, 'memberExists', memberExistsStub);
 
       const res = await MemberModel.validateWorkspaceMember(
-        new mongoose.Types.ObjectId(),
-        new mongoose.Types.ObjectId()
+        new mongoose.Types.ObjectId().toString(),
+        new mongoose.Types.ObjectId().toString()
       );
       assert.isOk(res);
       assert.isObject(res);
@@ -1638,7 +1666,10 @@ describe('#mongoose/models/member', () => {
 
       let errored = false;
       try {
-        await MemberModel.validateWorkspaceMember(new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId());
+        await MemberModel.validateWorkspaceMember(
+          new mongoose.Types.ObjectId().toString(),
+          new mongoose.Types.ObjectId().toString()
+        );
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1664,7 +1695,10 @@ describe('#mongoose/models/member', () => {
 
       let errored = false;
       try {
-        await MemberModel.validateWorkspaceMember(new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId());
+        await MemberModel.validateWorkspaceMember(
+          new mongoose.Types.ObjectId().toString(),
+          new mongoose.Types.ObjectId().toString()
+        );
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -1712,10 +1746,10 @@ describe('#mongoose/models/member', () => {
       sandbox.replace(MemberModel, 'getMemberById', getMemberByIdStub);
 
       const input = {...MOCK_MEMBER} as IMemberCreateInput;
-      input.invitedBy = invitedById;
-      input.workspace = workspaceId;
-      input.member = memberId;
-      input.project = projectId;
+      input.invitedBy = invitedById.toString();
+      input.workspace = workspaceId.toString();
+      input.member = memberId.toString();
+      input.project = projectId.toString();
 
       const res = await MemberModel.createProjectMember(input);
       assert.strictEqual(res._id?.toString(), memberDocumentId.toString());
@@ -1759,10 +1793,10 @@ describe('#mongoose/models/member', () => {
       sandbox.replace(MemberModel, 'getMemberById', getMemberByIdStub);
 
       const input = {...MOCK_MEMBER} as IMemberCreateInput;
-      input.invitedBy = invitedById;
-      input.workspace = workspaceId;
-      input.member = memberId;
-      input.project = projectId;
+      input.invitedBy = invitedById.toString();
+      input.workspace = workspaceId.toString();
+      input.member = memberId.toString();
+      input.project = projectId.toString();
 
       let errored = false;
       try {
@@ -1806,10 +1840,10 @@ describe('#mongoose/models/member', () => {
       sandbox.replace(MemberModel, 'getMemberById', getMemberByIdStub);
 
       const input = {...MOCK_MEMBER} as IMemberCreateInput;
-      input.invitedBy = invitedById;
-      input.workspace = workspaceId;
-      input.member = memberId;
-      input.project = projectId;
+      input.invitedBy = invitedById.toString();
+      input.workspace = workspaceId.toString();
+      input.member = memberId.toString();
+      input.project = projectId.toString();
 
       let errored = false;
       try {

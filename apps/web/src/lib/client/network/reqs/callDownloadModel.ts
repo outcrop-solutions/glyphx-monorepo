@@ -11,7 +11,7 @@ export const callDownloadModel = async ({project, payloadHash, session, url, set
     })
   );
   await api({
-    ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), payloadHash),
+    ..._getSignedDataUrls(project?.workspace.id, project?.id, payloadHash),
     onSuccess: (data) => {
       if (window?.core) {
         setResize(150);

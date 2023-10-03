@@ -47,7 +47,7 @@ export const DeleteStateModal = ({modalContent}: webTypes.DeleteStateModalProps)
         );
         setProject(
           produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-            draft.stateHistory.filter((state) => state._id !== modalContent.data.id);
+            draft.stateHistory.filter((state) => state.id !== modalContent.data.id);
           })
         );
       },

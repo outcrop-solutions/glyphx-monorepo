@@ -28,16 +28,16 @@ export const callCreateModel = async ({
     ..._createModel(project, isFilter, payloadHash),
     silentFail: true,
     onSuccess: (data) => {
-      mutate(`/api/project/${project._id}`);
+      mutate(`/api/project/${project.id}`);
       setLoading(
         produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
           draft.processName = 'Fetching Data...';
         })
       );
       api({
-        ..._getSignedDataUrls(project?.workspace._id.toString(), project?._id.toString(), payloadHash),
+        ..._getSignedDataUrls(project?.workspace.id, project?.id, payloadHash),
         onSuccess: (data) => {
-          mutate(`/api/project/${project._id}`);
+          mutate(`/api/project/${project.id}`);
           setLoading({});
           if (window?.core) {
             setResize(150);

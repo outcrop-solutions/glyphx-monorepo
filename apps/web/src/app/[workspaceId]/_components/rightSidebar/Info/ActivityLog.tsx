@@ -6,7 +6,7 @@ import {rightSidebarControlAtom} from 'state';
 
 export const ActivityLog = () => {
   const sidebarControl = useRecoilValue(rightSidebarControlAtom);
-  const {isLoading, data} = useProjectLogs(sidebarControl.data._id);
+  const {isLoading, data} = useProjectLogs(sidebarControl.data.id);
 
   return !isLoading ? (
     <div className="mt-4 pl-4 pr-4 font-roboto">

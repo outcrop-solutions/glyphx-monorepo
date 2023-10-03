@@ -6,7 +6,7 @@ export interface IStateStaticMethods extends Model<databaseTypes.IState, {}, ISt
   stateIdExists(stateId: mongooseTypes.ObjectId): Promise<boolean>;
   allStateIdsExist(stateIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createState(input: IStateCreateInput): Promise<databaseTypes.IState>;
-  getStateById(stateId: mongooseTypes.ObjectId): Promise<databaseTypes.IState>;
+  getStateById(stateId: string): Promise<databaseTypes.IState>;
   queryStates(
     filter?: Record<string, unknown>,
     page?: number,
@@ -16,12 +16,9 @@ export interface IStateStaticMethods extends Model<databaseTypes.IState, {}, ISt
     filter: Record<string, unknown>,
     state: Omit<Partial<databaseTypes.IState>, '_id'>
   ): Promise<void>;
-  updateStateById(
-    stateId: mongooseTypes.ObjectId,
-    state: Omit<Partial<databaseTypes.IState>, '_id'>
-  ): Promise<databaseTypes.IState>;
-  deleteStateById(stateId: mongooseTypes.ObjectId): Promise<void>;
-  validateProject(project: databaseTypes.IProject | mongooseTypes.ObjectId): Promise<mongooseTypes.ObjectId>;
-  validateUser(user: databaseTypes.IUser | mongooseTypes.ObjectId): Promise<mongooseTypes.ObjectId>;
+  updateStateById(stateId: string, state: Omit<Partial<databaseTypes.IState>, '_id'>): Promise<databaseTypes.IState>;
+  deleteStateById(stateId: string): Promise<void>;
+  validateProject(project: databaseTypes.IProject | string): Promise<mongooseTypes.ObjectId>;
+  validateUser(user: databaseTypes.IUser | string): Promise<mongooseTypes.ObjectId>;
   validateUpdateObject(state: Omit<Partial<databaseTypes.IState>, '_id'>): Promise<void>;
 }

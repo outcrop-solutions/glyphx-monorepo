@@ -27,7 +27,7 @@ export const States = () => {
       api({
         ..._createState(
           name,
-          project._id as unknown as string,
+          project.id as unknown as string,
           camera as unknown as webTypes.Camera,
           {
             width: (viewerPosition as webTypes.IViewerPosition).w || 300,
@@ -45,12 +45,12 @@ export const States = () => {
           setCamera({});
           setImage({imageHash: false});
           setAddState(false);
-          mutate(`/api/project/${project._id}`);
+          mutate(`/api/project/${project.id}`);
         },
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [camera, name, setCamera, setProject, mutate, image, setImage, project?._id, setAddState]);
+  }, [camera, name, setCamera, setProject, mutate, image, setImage, project?.id, setAddState]);
 
   const createState = () => setAddState(true);
 

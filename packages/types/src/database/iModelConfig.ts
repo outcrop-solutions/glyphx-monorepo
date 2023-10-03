@@ -3,6 +3,7 @@ import {Color} from '../web';
 
 export interface IModelConfig {
   _id?: mongooseTypes.ObjectId;
+  id?: string;
   deletedAt?: Date;
   updatedAt: Date;
   createdAt: Date;

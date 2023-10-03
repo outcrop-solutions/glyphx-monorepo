@@ -15,7 +15,7 @@
       "@/pages/*": ["src/pages/*"],
       "@/hooks/*": ["src/hooks/*"],
       "@/providers/*": ["src/providers/*"],
-      "@/state/*": ["src/state/*"],
+      "@/state/*": ["./src/state/*"],
       "@/services/*": ["src/services/*"],
       "@/utils/*": ["src/utils/*"]
     },

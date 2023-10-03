@@ -1,20 +1,13 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {databaseTypes} from 'types';
 import {error, constants} from 'core';
-import {Types as mongooseTypes} from 'mongoose';
+
 import mongoDbConnection from '../lib/databaseConnection';
 
 export class ModelConfigService {
-  public static async getModelConfig(
-    modelConfigId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IModelConfig | null> {
+  public static async getModelConfig(modelConfigId: string): Promise<databaseTypes.IModelConfig | null> {
     try {
-      const id =
-        modelConfigId instanceof mongooseTypes.ObjectId
-          ? modelConfigId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(modelConfigId);
-      const modelConfig = await mongoDbConnection.models.ModelConfigModel.getModelConfigById(id);
+      const modelConfig = await mongoDbConnection.models.ModelConfigModel.getModelConfigById(modelConfigId);
       return modelConfig;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -85,17 +78,11 @@ export class ModelConfigService {
   }
 
   public static async updateModelConfig(
-    modelConfigId: mongooseTypes.ObjectId | string,
+    modelConfigId: string,
     data: Partial<Omit<databaseTypes.IModelConfig, '_id' | 'createdAt' | 'updatedAt'>>
   ): Promise<databaseTypes.IModelConfig> {
     try {
-      const id =
-        modelConfigId instanceof mongooseTypes.ObjectId
-          ? modelConfigId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(modelConfigId);
-
-      const modelConfig = await mongoDbConnection.models.ModelConfigModel.updateModelConfigById(id, {
+      const modelConfig = await mongoDbConnection.models.ModelConfigModel.updateModelConfigById(modelConfigId, {
         ...data,
       });
       return modelConfig;
@@ -117,16 +104,9 @@ export class ModelConfigService {
     }
   }
 
-  public static async deleteModelConfig(
-    modelConfigId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IModelConfig> {
+  public static async deleteModelConfig(modelConfigId: string): Promise<databaseTypes.IModelConfig> {
     try {
-      const id =
-        modelConfigId instanceof mongooseTypes.ObjectId
-          ? modelConfigId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(modelConfigId);
-      const modelConfig = await mongoDbConnection.models.ModelConfigModel.updateModelConfigById(id, {
+      const modelConfig = await mongoDbConnection.models.ModelConfigModel.updateModelConfigById(modelConfigId, {
         deletedAt: new Date(),
       });
       return modelConfig;

@@ -18,10 +18,11 @@ const Header = () => {
   const router = useRouter();
   const params = useParams();
   const {workspaceId} = params as {workspaceId: string};
+  const {projectId} = params as {projectId: string};
   const pathname = usePathname();
 
   const backPressed = () => {
-    router.push(`/${data.workspace._id.toString()}` as Route);
+    router.push(`/${data.workspace.id}` as Route);
     setDrawer(false);
     window?.core?.ToggleDrawer(false);
     setProject(null);
@@ -30,7 +31,11 @@ const Header = () => {
   return (
     <div
       className={`flex flex-row h-[56px] sticky z-60 top-0 items-center bg-secondary-midnight justify-between pr-4 ${
-        workspaceId && !pathname?.includes('settings') && !project && 'pl-8 pt-2 bg-primary-dark-blue'
+        workspaceId && !projectId
+          ? 'bg-primary-dark-blue pl-8 pt-4 mt-0'
+          : pathname?.includes('billing') || pathname?.includes('settings') || pathname === '/account'
+          ? 'mt-4'
+          : 'mt-0'
       } ${project ? 'border border-gray bg-secondary-space-blue' : 'md:pt-0'}`}
     >
       {project ? (

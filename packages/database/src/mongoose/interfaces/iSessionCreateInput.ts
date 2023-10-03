@@ -1,6 +1,5 @@
 import {databaseTypes} from 'types';
-import {Types as mongooseTypes} from 'mongoose';
 
 export interface ISessionCreateInput extends Omit<databaseTypes.ISession, 'user' | '_id'> {
-  user: mongooseTypes.ObjectId | databaseTypes.IUser;
+  user: string | databaseTypes.IUser;
 }

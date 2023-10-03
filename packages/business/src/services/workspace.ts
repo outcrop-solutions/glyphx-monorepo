@@ -2,8 +2,9 @@ import {EmailClient, workspaceCreateHtml, workspaceCreateText, inviteHtml, invit
 import {IWorkspacePath, databaseTypes, IQueryResult} from 'types';
 import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
-import {Types as mongooseTypes} from 'mongoose';
+
 import {v4} from 'uuid';
+import {DBFormatter} from 'database/src/lib/format';
 
 export class WorkspaceService {
   public static async countWorkspaces(slug: string): Promise<number> {
@@ -24,7 +25,7 @@ export class WorkspaceService {
   }
 
   public static async createWorkspace(
-    creatorId: mongooseTypes.ObjectId | string,
+    creatorId: string,
     email: string,
     name: string,
     slug: string
@@ -38,24 +39,15 @@ export class WorkspaceService {
         count = await WorkspaceService.countWorkspaces(newSlug);
       }
 
-      const castCreatorId =
-        typeof creatorId === 'string'
-          ? // @ts-ignore
-            new mongooseTypes.ObjectId(creatorId)
-          : creatorId;
-
       const input = {
         workspaceCode: v4().replaceAll('-', ''),
         inviteCode: v4().replaceAll('-', ''),
-        creator: castCreatorId,
+        creator: creatorId,
         name,
         slug: newSlug,
       } as unknown as Omit<databaseTypes.IWorkspace, '_id'>;
 
       const workspace = await mongoDbConnection.models.WorkspaceModel.createWorkspace(input);
-
-      const workspaceId =
-        workspace instanceof mongooseTypes.ObjectId ? workspace : (workspace._id as mongooseTypes.ObjectId);
 
       const member = await mongoDbConnection.models.MemberModel.createWorkspaceMember({
         inviter: email,
@@ -64,18 +56,15 @@ export class WorkspaceService {
         type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
         status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
         teamRole: databaseTypes.constants.ROLE.OWNER,
-        member: {_id: castCreatorId} as unknown as databaseTypes.IUser,
-        invitedBy: {_id: castCreatorId} as unknown as databaseTypes.IUser,
-        workspace: {_id: workspaceId} as unknown as databaseTypes.IWorkspace,
-      } as unknown as databaseTypes.IMember);
+        member: creatorId,
+        invitedBy: creatorId,
+        workspace: workspace.id!,
+      });
 
-      const newWorkspace = await mongoDbConnection.models.WorkspaceModel.addMembers(
-        workspace?._id as unknown as mongooseTypes.ObjectId,
-        [member]
-      );
+      const newWorkspace = await mongoDbConnection.models.WorkspaceModel.addMembers(workspace.id!, [member]);
 
-      await mongoDbConnection.models.UserModel.addMembership(castCreatorId, [member]);
-      await mongoDbConnection.models.UserModel.addWorkspaces(castCreatorId, [newWorkspace]);
+      await mongoDbConnection.models.UserModel.addMembership(creatorId, [member]);
+      await mongoDbConnection.models.UserModel.addWorkspaces(creatorId, [newWorkspace]);
 
       await EmailClient.sendMail({
         html: workspaceCreateHtml({code: workspace.inviteCode, name}),
@@ -104,27 +93,14 @@ export class WorkspaceService {
   }
 
   public static async deleteWorkspace(
-    userId: mongooseTypes.ObjectId | string,
+    userId: string,
     email: string,
     slug: string
   ): Promise<databaseTypes.IWorkspace | null> {
     try {
-      const id =
-        userId instanceof mongooseTypes.ObjectId
-          ? userId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(userId);
-
       const workspace = await WorkspaceService.getOwnWorkspace(userId, email, slug);
 
       if (workspace) {
-        const workId = workspace._id;
-        const workspaceId =
-          workId instanceof mongooseTypes.ObjectId
-            ? workId
-            : // @ts-ignore
-              new mongooseTypes.ObjectId(workId);
-
         // delete workspace
         await mongoDbConnection.models.WorkspaceModel.updateWorkspaceByFilter(
           {slug: slug},
@@ -134,18 +110,17 @@ export class WorkspaceService {
         );
 
         // remove workspace and membership from user
-        await mongoDbConnection.models.UserModel.removeWorkspaces(id, [workspaceId]);
-
-        const userMember = workspace.members.filter((mem: any) => mem.member.toString() === id.toString());
+        await mongoDbConnection.models.UserModel.removeWorkspaces(userId, [workspace.id!]);
+        const userMember = workspace.members.filter((mem: any) => mem.member.toString() === userId);
 
         if (userMember?.length > 0) {
-          await mongoDbConnection.models.UserModel.removeMembership(id, [...userMember]);
+          await mongoDbConnection.models.UserModel.removeMembership(userId, [...userMember]);
         }
 
         if (workspace?.members?.length > 0) {
           // delete all associated members
           await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
-            {workspace: workspaceId},
+            {workspace: workspace.id},
             {deletedAt: new Date()}
           );
         }
@@ -153,7 +128,7 @@ export class WorkspaceService {
         if (workspace?.projects?.length > 0) {
           // delete all projects associated with workspace
           await mongoDbConnection.models.ProjectModel.updateProjectWithFilter(
-            {workspace: workspaceId},
+            {workspace: workspace.id},
             {deletedAt: new Date()}
           );
         }
@@ -193,11 +168,7 @@ export class WorkspaceService {
    * @returns Promise<databaseTypes.IWorkspace | null>
    */
 
-  static async getOwnWorkspace(
-    userId: mongooseTypes.ObjectId | string,
-    email: string,
-    slug: string
-  ): Promise<databaseTypes.IWorkspace | null> {
+  static async getOwnWorkspace(userId: string, email: string, slug: string): Promise<databaseTypes.IWorkspace | null> {
     // @jp: we need a clean way to implement filter on related records here
     try {
       const workspaces = await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
@@ -264,7 +235,6 @@ export class WorkspaceService {
     try {
       const workspace = await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
         _id: id,
-        deletedAt: undefined,
       });
 
       return workspace.results[0];
@@ -295,16 +265,11 @@ export class WorkspaceService {
    * @returns Promise<databaseTypes.IWorkspace | null>
    */
 
-  static async getWorkspace(
-    userId: mongooseTypes.ObjectId | string,
-    email: string,
-    slug: string
-  ): Promise<databaseTypes.IWorkspace | null> {
-    // @jp: we need a clean way to implement filter on related records here
+  static async getWorkspace(email: string, id: string): Promise<databaseTypes.IWorkspace | null> {
     try {
       const workspaces = await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
         deletedAt: undefined,
-        slug,
+        _id: id,
       });
       const filteredWorkspaces = workspaces.results.filter(
         (space) => space.members.filter((mem) => mem.email === email && mem.deletedAt === undefined).length > 0
@@ -341,10 +306,7 @@ export class WorkspaceService {
    * @param email //user's email
    * @returns Promise<databaseTypes.IWorkspace | null>
    */
-  static async getWorkspaces(
-    userId: mongooseTypes.ObjectId | string,
-    email: string
-  ): Promise<databaseTypes.IWorkspace[] | null> {
+  static async getWorkspaces(userId: string, email: string): Promise<databaseTypes.IWorkspace[] | null> {
     try {
       const workspaces = await mongoDbConnection.models.WorkspaceModel.aggregate(
         [
@@ -399,9 +361,9 @@ export class WorkspaceService {
           allowDiskUse: false,
         }
       );
-
       if (workspaces.length > 0) {
-        return workspaces;
+        const format = new DBFormatter();
+        return format.toJS(workspaces);
       } else {
         const errMsg = 'No workspaces contain the user as a member';
         const e = new error.DataNotFoundError(errMsg, 'getWorkspaces', {email});
@@ -435,52 +397,44 @@ export class WorkspaceService {
    * @returns Promise<databaseTypes.IWorkspace | null>
    */
   static async inviteUsers(
-    userId: mongooseTypes.ObjectId | string,
+    userId: string,
     email: string,
     members: {
       email: string;
       teamRole: databaseTypes.constants.ROLE;
     }[],
-    slug: string
+    workspaceId: string
   ): Promise<{
     members: Partial<databaseTypes.IMember>[] | null;
     workspace: databaseTypes.IWorkspace | null;
   } | null> {
     try {
-      const workspace = await WorkspaceService.getOwnWorkspace(userId, email, slug);
+      const workspace = await WorkspaceService.getWorkspace(email, workspaceId);
       const inviter = email;
 
-      const id =
-        userId instanceof mongooseTypes.ObjectId
-          ? userId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(userId);
-
-      const invitedBy = await mongoDbConnection.models.UserModel.getUserById(id);
+      const invitedBy = await mongoDbConnection.models.UserModel.getUserById(userId);
 
       if (workspace) {
         const membersList = members.map(
           ({email, teamRole}: {email: string; teamRole: databaseTypes.constants.ROLE}) => ({
             email,
             inviter,
+            type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
             invitedAt: new Date(),
             status: databaseTypes.constants.INVITATION_STATUS.PENDING,
             teamRole,
-            invitedBy: invitedBy._id,
-            workspace: workspace._id,
+            invitedBy: invitedBy.id,
+            workspace: workspace.id,
           })
         );
 
         const createdMembers = await mongoDbConnection.models.MemberModel.create(membersList);
-
         const memberIds = createdMembers.map((mem) => {
-          return mem._id;
+          return mem._id.toString(); // FIXME: This should be added to the db layer as createMany()
         });
+
         await Promise.all([
-          mongoDbConnection.models.WorkspaceModel.addMembers(
-            workspace._id as mongooseTypes.ObjectId,
-            memberIds as unknown as mongooseTypes.ObjectId[]
-          ),
+          mongoDbConnection.models.WorkspaceModel.addMembers(workspace.id!, [...memberIds]),
           EmailClient.sendMail({
             html: inviteHtml({
               code: workspace.inviteCode,
@@ -494,13 +448,13 @@ export class WorkspaceService {
             to: members.map((member) => member.email),
           }),
         ]);
+
         return {members: createdMembers, workspace: workspace};
       } else {
         const errMsg = 'No workspace found';
         const e = new error.DataNotFoundError(errMsg, 'getOwnWorkspace', {
           userId,
           email,
-          slug,
         });
         throw e;
       }
@@ -518,7 +472,7 @@ export class WorkspaceService {
           'An unexpected error occurred while querying Workspaces. See the inner error for additional details',
           'workspace',
           'queryWorkspaces',
-          {userId, email, members, slug},
+          {userId, email, members},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);
@@ -540,43 +494,52 @@ export class WorkspaceService {
     return isTeamOwner;
   }
 
-  static async joinWorkspace(workspaceCode: string, email: string): Promise<databaseTypes.IWorkspace | null> {
+  static async joinWorkspace(
+    inviteCode: string,
+    email: string,
+    memberId: string,
+    invitedBy: string
+  ): Promise<databaseTypes.IWorkspace | null> {
     try {
       const workspaces = await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
         deletedAt: undefined,
-        workspaceCode,
+        inviteCode: inviteCode,
       });
 
-      let memberExists, member;
+      let memberExists;
+      let member;
       if (workspaces && workspaces.results) {
+        // does the member email / workspace combo exist?
         memberExists = await mongoDbConnection.models.MemberModel.memberExists(
           email,
           databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
-          workspaces.results[0]._id as unknown as mongooseTypes.ObjectId
+          workspaces.results[0].id!
         );
 
         const input = {
           workspace: workspaces.results[0],
-          type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
           inviter: workspaces.results[0].creator.email,
+          type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
+          member: memberId,
           invitedAt: new Date(),
           joinedAt: new Date(),
           email,
           status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
-        } as Omit<databaseTypes.IMember, '_id'>;
+        };
 
-        if (memberExists) {
+        if (!memberExists) {
           // create member
-          member = await mongoDbConnection.models.MemberModel.createWorkspaceMember(input);
+          const createInput = {...input, invitedBy: invitedBy};
+          member = await mongoDbConnection.models.MemberModel.createWorkspaceMember(createInput);
         } else {
           // update member
-          member = await mongoDbConnection.models.MemberModel.updateMemberWithFilter({email}, input);
+          member = await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
+            {email},
+            input as unknown as Omit<Partial<databaseTypes.IMember>, '_id'>
+          );
         }
 
-        const workspace = await mongoDbConnection.models.WorkspaceModel.addMembers(
-          workspaces.results[0]._id as unknown as mongooseTypes.ObjectId,
-          [member]
-        );
+        const workspace = await mongoDbConnection.models.WorkspaceModel.addMembers(workspaces.results[0].id!, [member]);
 
         return workspace;
       } else {
@@ -596,7 +559,7 @@ export class WorkspaceService {
           'An unexpected error occurred while querying Workspaces. See the inner error for additional details',
           'workspace',
           'queryWorkspaces',
-          {workspaceCode, email},
+          {inviteCode, email},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);
@@ -606,25 +569,16 @@ export class WorkspaceService {
   }
 
   static async updateWorkspaceName(
-    userId: mongooseTypes.ObjectId | string,
+    userId: string,
     email: string,
     name: string,
-    slug: string
+    workspaceId: string
   ): Promise<string | null> {
     try {
-      const workspace = await WorkspaceService.getOwnWorkspace(userId, email, slug);
-
-      if (workspace) {
-        const newWorkspace = await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(
-          workspace._id as unknown as mongooseTypes.ObjectId,
-          {
-            name,
-          }
-        );
-        return newWorkspace.name;
-      } else {
-        throw new error.DataNotFoundError('Unable to find workspace', 'workspace', {userId, email, slug});
-      }
+      const newWorkspace = await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(workspaceId, {
+        name,
+      });
+      return newWorkspace.name;
     } catch (err: any) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -638,7 +592,7 @@ export class WorkspaceService {
           'An unexpected error occurred while querying Workspaces. See the inner error for additional details',
           'workspace',
           'updateWorkspaces',
-          {userId, email, name, slug},
+          {userId, email, name, workspaceId},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);
@@ -647,30 +601,12 @@ export class WorkspaceService {
     }
   }
 
-  static async updateWorkspaceSlug(
-    userId: mongooseTypes.ObjectId | string,
-    email: string,
-    newSlug: string,
-    pathSlug: string
-  ) {
+  static async updateWorkspaceSlug(workspaceId: string, newSlug: string) {
     try {
-      const workspace = await WorkspaceService.getOwnWorkspace(userId, email, pathSlug);
-
-      if (workspace) {
-        await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(
-          workspace._id as unknown as mongooseTypes.ObjectId,
-          {
-            slug: newSlug.toLowerCase(),
-          }
-        );
-        return newSlug.toLowerCase();
-      } else {
-        throw new error.DataNotFoundError('Unable to find workspace', 'workspace', {
-          userId,
-          email,
-          slug: newSlug.toLowerCase(),
-        });
-      }
+      const workspace = await mongoDbConnection.models.WorkspaceModel.updateWorkspaceById(workspaceId, {
+        slug: newSlug.toLowerCase(),
+      });
+      return workspace;
     } catch (err: any) {
       if (
         err instanceof error.DataNotFoundError ||
@@ -684,7 +620,7 @@ export class WorkspaceService {
           'An unexpected error occurred while querying Workspaces. See the inner error for additional details',
           'workspace',
           'queryWorkspaces',
-          {userId, email, newSlug, pathSlug},
+          {newSlug},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);
@@ -694,17 +630,11 @@ export class WorkspaceService {
   }
 
   public static async addTags(
-    workspaceId: mongooseTypes.ObjectId | string,
-    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+    workspaceId: string,
+    tags: (databaseTypes.ITag | string)[]
   ): Promise<databaseTypes.IWorkspace> {
     try {
-      const id =
-        workspaceId instanceof mongooseTypes.ObjectId
-          ? workspaceId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(workspaceId);
-      const updatedWorkspace = await mongoDbConnection.models.WorkspaceModel.addTags(id, tags);
-
+      const updatedWorkspace = await mongoDbConnection.models.WorkspaceModel.addTags(workspaceId, tags);
       return updatedWorkspace;
     } catch (err: any) {
       if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {

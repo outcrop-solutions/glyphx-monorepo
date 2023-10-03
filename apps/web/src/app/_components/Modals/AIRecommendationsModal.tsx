@@ -17,12 +17,12 @@ export const AIRecommendationsModal = ({modalContent: any}) => {
   const {workspaceId} = params as {workspaceId: string};
   const {templates} = useRecoilValue(templatesAtom);
   const setModals = useSetRecoilState(modalsAtom);
-  const {_id} = useRecoilValue(workspaceAtom);
+  const {id} = useRecoilValue(workspaceAtom);
   // mutations
   const getTemplate = useCallback(
     (template) => {
       api({
-        ..._createProjectFromTemplate(_id!.toString(), template),
+        ..._createProjectFromTemplate(id!, template),
         setLoading: (state) => {
           setLoading(state as boolean);
         },
@@ -33,11 +33,11 @@ export const AIRecommendationsModal = ({modalContent: any}) => {
               draft.modals.splice(0, 1);
             })
           );
-          router.push(`/account/${workspaceId}/${data._id}` as Route);
+          router.push(`/account/${workspaceId}/${data.id}` as Route);
         },
       });
     },
-    [_id, router, setModals, workspaceId]
+    [id, router, setModals, workspaceId]
   );
 
   return (

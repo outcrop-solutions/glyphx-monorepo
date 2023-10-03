@@ -2,18 +2,13 @@ import {EmailClient, updateHtml, updateText} from 'email';
 import {databaseTypes} from 'types';
 import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
-import {Types as mongooseTypes} from 'mongoose';
+
 import {v4} from 'uuid';
 
 export class UserService {
-  public static async getUser(userId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IUser | null> {
+  public static async getUser(userId: string): Promise<databaseTypes.IUser | null> {
     try {
-      const id =
-        userId instanceof mongooseTypes.ObjectId
-          ? userId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(userId);
-      const user = await mongoDbConnection.models.UserModel.getUserById(id);
+      const user = await mongoDbConnection.models.UserModel.getUserById(userId);
       return user;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -55,21 +50,15 @@ export class UserService {
     }
   }
 
-  public static async deactivate(userId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IUser> {
+  public static async deactivate(userId: string): Promise<databaseTypes.IUser> {
     try {
-      const id =
-        userId instanceof mongooseTypes.ObjectId
-          ? userId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(userId);
-
-      const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
+      const user = await mongoDbConnection.models.UserModel.updateUserById(userId, {
         deletedAt: new Date(),
       });
 
       // delete associated workspaces
       await mongoDbConnection.models.WorkspaceModel.updateWorkspaceByFilter(
-        {creator: user._id},
+        {creator: userId},
         {
           deletedAt: new Date(),
         }
@@ -77,7 +66,7 @@ export class UserService {
 
       // delete associated memberships
       await mongoDbConnection.models.MemberModel.updateMemberWithFilter(
-        {member: user._id},
+        {member: userId},
         {
           deletedAt: new Date(),
         }
@@ -111,19 +100,9 @@ export class UserService {
     }
   }
 
-  public static async updateEmail(
-    userId: mongooseTypes.ObjectId | string,
-    email: string,
-    previousEmail: string
-  ): Promise<databaseTypes.IUser> {
+  public static async updateEmail(userId: string, email: string, previousEmail: string): Promise<databaseTypes.IUser> {
     try {
-      const id =
-        userId instanceof mongooseTypes.ObjectId
-          ? userId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(userId);
-
-      const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
+      const user = await mongoDbConnection.models.UserModel.updateUserById(userId, {
         email,
         emailVerified: undefined,
       });
@@ -163,14 +142,9 @@ export class UserService {
     }
   }
 
-  public static async updateName(userId: mongooseTypes.ObjectId | string, name: string): Promise<databaseTypes.IUser> {
+  public static async updateName(userId: string, name: string): Promise<databaseTypes.IUser> {
     try {
-      const id =
-        userId instanceof mongooseTypes.ObjectId
-          ? userId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(userId);
-      const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
+      const user = await mongoDbConnection.models.UserModel.updateUserById(userId, {
         name,
       });
       return user;
@@ -192,14 +166,9 @@ export class UserService {
     }
   }
 
-  public static async updateUserCode(userId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IUser> {
+  public static async updateUserCode(userId: string): Promise<databaseTypes.IUser> {
     try {
-      const id =
-        userId instanceof mongooseTypes.ObjectId
-          ? userId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(userId);
-      const user = await mongoDbConnection.models.UserModel.updateUserById(id, {
+      const user = await mongoDbConnection.models.UserModel.updateUserById(userId, {
         userCode: v4().replaceAll('-', ''),
       });
       return user;

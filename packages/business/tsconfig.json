@@ -6,8 +6,7 @@
     "baseUrl": "./src",
     "noImplicitAny": false,
     "experimentalDecorators": true, // required for correct next transpilation
-    "emitDecoratorMetadata": true,
-    "suppressImplicitAnyIndexErrors": true
+    "emitDecoratorMetadata": true
   },
   "paths": {
     "@/constants/*": ["src/constants/*"],

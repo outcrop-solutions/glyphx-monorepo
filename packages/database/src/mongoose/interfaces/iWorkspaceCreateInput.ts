@@ -1,14 +1,13 @@
 import {databaseTypes} from 'types';
-import {Types as mongooseTypes} from 'mongoose';
 
 export interface IWorkspaceCreateInput
   extends Omit<
     databaseTypes.IWorkspace,
     '_id' | 'createdAt' | 'updatedAt' | 'creator' | 'members' | 'projects' | 'states' | 'tags'
   > {
-  creator: mongooseTypes.ObjectId | databaseTypes.IUser;
-  members: (mongooseTypes.ObjectId | databaseTypes.IMember)[];
-  projects: (mongooseTypes.ObjectId | databaseTypes.IProject)[];
-  tags: (mongooseTypes.ObjectId | databaseTypes.ITag)[];
-  states: (mongooseTypes.ObjectId | databaseTypes.IState)[];
+  creator: string | databaseTypes.IUser;
+  members: (string | databaseTypes.IMember)[];
+  projects: (string | databaseTypes.IProject)[];
+  tags: (string | databaseTypes.ITag)[];
+  states: (string | databaseTypes.IState)[];
 }

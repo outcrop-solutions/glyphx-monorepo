@@ -4,6 +4,7 @@ import {MongoDbConnection} from '../mongoose/mongooseConnection';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {error} from 'core';
+import {DBFormatter} from '../lib/format';
 
 type ObjectId = mongooseTypes.ObjectId;
 
@@ -23,9 +24,10 @@ const INPUT_DATA2 = {
 describe('#verificationTokenModel', () => {
   context('test the crud functions of the verificationToken model', () => {
     const mongoConnection = new MongoDbConnection();
+    const format = new DBFormatter();
     const verificationTokenModel = mongoConnection.models.VerificationTokenModel;
-    let verificationTokenId: ObjectId;
-    let verificationTokenId2: ObjectId;
+    let verificationTokenId: string;
+    let verificationTokenId2: string;
     before(async () => {
       await mongoConnection.init();
     });
@@ -42,29 +44,33 @@ describe('#verificationTokenModel', () => {
 
     it('add a new verificationToken', async () => {
       const verificationTokenInput = JSON.parse(JSON.stringify(INPUT_DATA));
-      const verificationTokenDocument = await verificationTokenModel.createVerificationToken(verificationTokenInput);
+      const verificationTokenDocument = await verificationTokenModel.createVerificationToken(
+        format.toJS(verificationTokenInput)
+      );
 
       assert.isOk(verificationTokenDocument);
       assert.strictEqual(verificationTokenDocument.identifier, verificationTokenInput.identifier);
 
-      verificationTokenId = verificationTokenDocument._id as mongooseTypes.ObjectId;
+      verificationTokenId = verificationTokenDocument.id!;
     });
 
     it('retreive a verificationToken', async () => {
       assert.isOk(verificationTokenId);
-      const verificationToken = await verificationTokenModel.getVerificationTokenById(verificationTokenId);
+      const verificationToken = await verificationTokenModel.getVerificationTokenById(verificationTokenId.toString());
 
       assert.isOk(verificationToken);
-      assert.strictEqual(verificationToken._id?.toString(), verificationTokenId.toString());
+      assert.strictEqual(verificationToken.id, verificationTokenId.toString());
     });
 
     it('Get multiple verification tokens without a filter', async () => {
       assert.isOk(verificationTokenId);
       const verificationTokenInput = JSON.parse(JSON.stringify(INPUT_DATA2));
-      const verificationTokenDocument = await verificationTokenModel.createVerificationToken(verificationTokenInput);
+      const verificationTokenDocument = await verificationTokenModel.createVerificationToken(
+        format.toJS(verificationTokenInput)
+      );
 
       assert.isOk(verificationTokenDocument);
-      verificationTokenId2 = verificationTokenDocument._id as mongooseTypes.ObjectId;
+      verificationTokenId2 = verificationTokenDocument.id!;
 
       const verificationTokens = await verificationTokenModel.queryVerificationTokens();
       assert.isArray(verificationTokens.results);
@@ -90,33 +96,36 @@ describe('#verificationTokenModel', () => {
       const results = await verificationTokenModel.queryVerificationTokens({}, 0, 1);
       assert.strictEqual(results.results.length, 1);
 
-      const lastId = results.results[0]?._id;
+      const lastId = results.results[0]?.id;
 
       const results2 = await verificationTokenModel.queryVerificationTokens({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(results2.results[0]?.id, lastId?.toString());
     });
     it('modify a VerificationToken', async () => {
       assert.isOk(verificationTokenId);
       const input = {identifier: 'a modified VerificationToken Token'};
-      const updatedDocument = await verificationTokenModel.updateVerificationTokenById(verificationTokenId, input);
+      const updatedDocument = await verificationTokenModel.updateVerificationTokenById(
+        verificationTokenId.toString(),
+        input
+      );
       assert.strictEqual(updatedDocument.identifier, input.identifier);
     });
 
     it('remove a verificationToken', async () => {
       assert.isOk(verificationTokenId);
-      await verificationTokenModel.deleteVerificationTokenById(verificationTokenId);
+      await verificationTokenModel.deleteVerificationTokenById(verificationTokenId.toString());
       let errored = false;
       try {
-        await verificationTokenModel.getVerificationTokenById(verificationTokenId);
+        await verificationTokenModel.getVerificationTokenById(verificationTokenId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
       }
 
       assert.isTrue(errored);
-      verificationTokenId = null as unknown as ObjectId;
+      verificationTokenId = null as unknown as string;
     });
   });
 });

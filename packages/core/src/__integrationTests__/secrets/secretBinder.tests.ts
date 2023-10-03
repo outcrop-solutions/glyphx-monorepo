@@ -19,7 +19,7 @@ describe('#integrationTests/secrets/basicSecret', () => {
       //1. create our test secret with a random name for this test.
       await mgr.createSecret({
         SecretString: JSON.stringify(SECRET),
-        Name: SECRET_NAME,
+        Name: 'dev/' + SECRET_NAME,
       });
     });
 
@@ -28,7 +28,7 @@ describe('#integrationTests/secrets/basicSecret', () => {
       //command so we are going to wait 5 seconds to make sure that it shows up.
       await new Promise((resolve) => setTimeout(resolve, 5000));
       const definedSecrets = await (mgr.listSecrets({
-        Filters: [{Key: 'name', Values: [SECRET_NAME]}],
+        Filters: [{Key: 'name', Values: ['dev/' + SECRET_NAME]}],
       }) as Promise<any>);
 
       assert.strictEqual(definedSecrets.SecretList.length, 1);

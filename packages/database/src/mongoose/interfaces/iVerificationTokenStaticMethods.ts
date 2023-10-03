@@ -8,7 +8,7 @@ export interface IVerificationTokenStaticMethods
   createVerificationToken(
     input: Omit<databaseTypes.IVerificationToken, '_id'>
   ): Promise<databaseTypes.IVerificationToken>;
-  getVerificationTokenById(verificationTokenId: mongooseTypes.ObjectId): Promise<databaseTypes.IVerificationToken>;
+  getVerificationTokenById(verificationTokenId: string): Promise<databaseTypes.IVerificationToken>;
   queryVerificationTokens(
     filter?: Record<string, unknown>,
     page?: number,
@@ -19,9 +19,9 @@ export interface IVerificationTokenStaticMethods
     verificationToken: Omit<Partial<databaseTypes.IVerificationToken>, '_id'>
   ): Promise<void>;
   updateVerificationTokenById(
-    verificationTokenId: mongooseTypes.ObjectId,
+    verificationTokenId: string,
     verificationToken: Omit<Partial<databaseTypes.IVerificationToken>, '_id'>
   ): Promise<databaseTypes.IVerificationToken>;
-  deleteVerificationTokenById(sessionId: mongooseTypes.ObjectId): Promise<void>;
+  deleteVerificationTokenById(sessionId: string): Promise<void>;
   validateUpdateObject(verificationToken: Omit<Partial<databaseTypes.IVerificationToken>, '_id'>): Promise<void>;
 }

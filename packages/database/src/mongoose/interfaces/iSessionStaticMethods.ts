@@ -6,7 +6,7 @@ export interface ISessionStaticMethods extends Model<databaseTypes.ISession, {},
   sessionIdExists(sessionId: mongooseTypes.ObjectId): Promise<boolean>;
   allSessionIdsExist(sessionIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createSession(input: ISessionCreateInput): Promise<databaseTypes.ISession>;
-  getSessionById(sessionId: mongooseTypes.ObjectId): Promise<databaseTypes.ISession>;
+  getSessionById(sessionId: string): Promise<databaseTypes.ISession>;
   querySessions(
     filter?: Record<string, unknown>,
     page?: number,
@@ -17,9 +17,9 @@ export interface ISessionStaticMethods extends Model<databaseTypes.ISession, {},
     session: Omit<Partial<databaseTypes.ISession>, '_id'>
   ): Promise<void>;
   updateSessionById(
-    sessionId: mongooseTypes.ObjectId,
+    sessionId: string,
     session: Omit<Partial<databaseTypes.ISession>, '_id'>
   ): Promise<databaseTypes.ISession>;
-  deleteSessionById(sessionId: mongooseTypes.ObjectId): Promise<void>;
+  deleteSessionById(sessionId: string): Promise<void>;
   validateUpdateObject(session: Omit<Partial<databaseTypes.ISession>, '_id'>): Promise<void>;
 }

@@ -39,9 +39,9 @@ export const _deleteWorkspace = (slug: string): webTypes.IFetchConfig => {
  * @param slug corresponds to workspace.slug in mongoDB
  * @param name corresponds to workspace.name in mongoDB
  */
-export const _updateWorkspaceName = ({slug, name}: {slug: string; name: string}): webTypes.IFetchConfig => {
+export const _updateWorkspaceName = ({id, name}: {id: string; name: string}): webTypes.IFetchConfig => {
   return {
-    url: `/api/workspace/${slug}/name`,
+    url: `/api/workspace/${id}/name`,
     options: {
       body: {name},
       method: 'PUT',

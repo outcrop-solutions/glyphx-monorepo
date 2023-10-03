@@ -1,17 +1,11 @@
 import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
 import {error, constants} from 'core';
-import {Types as mongooseTypes} from 'mongoose';
 import mongoDbConnection from '../lib/databaseConnection';
 
 export class ProjectService {
-  public static async getProject(projectId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IProject | null> {
+  public static async getProject(projectId: string): Promise<databaseTypes.IProject | null> {
     try {
-      const id =
-        projectId instanceof mongooseTypes.ObjectId
-          ? projectId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(projectId);
-      const project = await mongoDbConnection.models.ProjectModel.getProjectById(id);
+      const project = await mongoDbConnection.models.ProjectModel.getProjectById(projectId);
       return project;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -55,41 +49,25 @@ export class ProjectService {
 
   public static async createProject(
     name: string,
-    workspaceId: mongooseTypes.ObjectId | string,
-    userId: mongooseTypes.ObjectId | string,
+    workspaceId: string,
+    userId: string,
     email: string,
     template?: databaseTypes.IProjectTemplate,
     description?: string
   ): Promise<databaseTypes.IProject> {
     try {
-      const workspaceCastId =
-        workspaceId instanceof mongooseTypes.ObjectId
-          ? workspaceId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(workspaceId);
-
-      let projectTemplateCastId;
+      let templateId;
 
       if (template) {
-        projectTemplateCastId =
-          template?._id instanceof mongooseTypes.ObjectId
-            ? template._id
-            : // @ts-ignore
-              new mongooseTypes.ObjectId(template._id);
+        templateId = typeof template === 'string' ? template : template.id;
       }
-
-      const creatorCastId =
-        userId instanceof mongooseTypes.ObjectId
-          ? userId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(userId);
 
       // TODO: requires getProjectTemplate service
       const input = {
         name,
         description: description ?? '',
-        workspace: workspaceCastId,
-        template: projectTemplateCastId,
+        workspace: workspaceId,
+        template: templateId,
         files: [],
         members: [],
         stateHistory: [],
@@ -183,29 +161,23 @@ export class ProjectService {
         joinedAt: new Date(),
         status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
         projectRole: databaseTypes.constants.PROJECT_ROLE.OWNER,
-        member: {_id: creatorCastId} as unknown as databaseTypes.IUser,
-        invitedBy: {_id: creatorCastId} as unknown as databaseTypes.IUser,
-        project: project as unknown as databaseTypes.IProject,
-        workspace: {
-          _id: workspaceCastId,
-        } as unknown as databaseTypes.IWorkspace,
-      } as unknown as databaseTypes.IMember;
+        member: userId,
+        invitedBy: userId,
+        project: project,
+        workspace: workspaceId,
+      };
 
       // create default project membership
       const member = await mongoDbConnection.models.MemberModel.createProjectMember(memberInput);
 
       // add member to project
-      await mongoDbConnection.models.ProjectModel.addMembers(project?._id as unknown as mongooseTypes.ObjectId, [
-        member,
-      ]);
+      await mongoDbConnection.models.ProjectModel.addMembers(project.id!, [member]);
 
       // add member to user
-      await mongoDbConnection.models.UserModel.addMembership(creatorCastId as unknown as mongooseTypes.ObjectId, [
-        member,
-      ]);
+      await mongoDbConnection.models.UserModel.addMembership(userId, [member]);
 
       // connect project to workspace
-      await mongoDbConnection.models.WorkspaceModel.addProjects(workspaceCastId, [project]);
+      await mongoDbConnection.models.WorkspaceModel.addProjects(workspaceId, [project]);
 
       return project;
     } catch (err: any) {
@@ -231,7 +203,7 @@ export class ProjectService {
   }
 
   public static async updateProjectState(
-    projectId: mongooseTypes.ObjectId | string,
+    projectId: string,
     state: Omit<
       databaseTypes.IState,
       | 'project'
@@ -249,12 +221,7 @@ export class ProjectService {
     >
   ): Promise<databaseTypes.IProject> {
     try {
-      const id =
-        projectId instanceof mongooseTypes.ObjectId
-          ? projectId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(projectId);
-      const project = await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
+      const project = await mongoDbConnection.models.ProjectModel.updateProjectById(projectId, {
         state: state,
       });
       return project;
@@ -276,14 +243,9 @@ export class ProjectService {
     }
   }
 
-  public static async deactivate(projectId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IProject> {
+  public static async deactivate(projectId: string): Promise<databaseTypes.IProject> {
     try {
-      const id =
-        projectId instanceof mongooseTypes.ObjectId
-          ? projectId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(projectId);
-      const project = await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
+      const project = await mongoDbConnection.models.ProjectModel.updateProjectById(projectId, {
         deletedAt: new Date(),
       });
       return project;
@@ -305,29 +267,22 @@ export class ProjectService {
     }
   }
 
-  public static async getProjectFileStats(
-    id: mongooseTypes.ObjectId | string
-  ): Promise<fileIngestionTypes.IFileStats[]> {
+  public static async getProjectFileStats(id: string): Promise<fileIngestionTypes.IFileStats[]> {
     const project = await ProjectService.getProject(id);
     return project?.files ?? [];
   }
 
-  public static async getProjectViewName(id: mongooseTypes.ObjectId | string): Promise<string> {
+  public static async getProjectViewName(id: string): Promise<string> {
     const project = await ProjectService.getProject(id);
     return project?.viewName ?? '';
   }
 
   public static async updateProjectFileStats(
-    projectId: mongooseTypes.ObjectId | string,
+    projectId: string,
     fileStats: fileIngestionTypes.IFileStats[]
   ): Promise<databaseTypes.IProject> {
     try {
-      const id =
-        projectId instanceof mongooseTypes.ObjectId
-          ? projectId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(projectId);
-      const updatedProject = await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
+      const updatedProject = await mongoDbConnection.models.ProjectModel.updateProjectById(projectId, {
         files: fileStats,
       });
 
@@ -350,17 +305,9 @@ export class ProjectService {
     }
   }
 
-  public static async updateProjectView(
-    projectId: mongooseTypes.ObjectId | string,
-    viewName: string
-  ): Promise<databaseTypes.IProject> {
+  public static async updateProjectView(projectId: string, viewName: string): Promise<databaseTypes.IProject> {
     try {
-      const id =
-        projectId instanceof mongooseTypes.ObjectId
-          ? projectId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(projectId);
-      const updatedProject = await mongoDbConnection.models.ProjectModel.updateProjectById(id, {
+      const updatedProject = await mongoDbConnection.models.ProjectModel.updateProjectById(projectId, {
         viewName: viewName,
       });
 
@@ -384,16 +331,11 @@ export class ProjectService {
   }
 
   public static async updateProject(
-    projectId: mongooseTypes.ObjectId | string,
+    projectId: string,
     update: Omit<Partial<databaseTypes.IProject>, '_id' | 'createdAt' | 'updatedAt'>
   ): Promise<databaseTypes.IProject> {
     try {
-      const id =
-        projectId instanceof mongooseTypes.ObjectId
-          ? projectId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(projectId);
-      const updatedProject = await mongoDbConnection.models.ProjectModel.updateProjectById(id, update);
+      const updatedProject = await mongoDbConnection.models.ProjectModel.updateProjectById(projectId, update);
 
       return updatedProject;
     } catch (err: any) {
@@ -414,17 +356,9 @@ export class ProjectService {
     }
   }
 
-  public static async addStates(
-    projectId: mongooseTypes.ObjectId | string,
-    states: (databaseTypes.IState | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IProject> {
+  public static async addStates(projectId: string, states: databaseTypes.IState[]): Promise<databaseTypes.IProject> {
     try {
-      const id =
-        projectId instanceof mongooseTypes.ObjectId
-          ? projectId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(projectId);
-      const updatedProject = await mongoDbConnection.models.ProjectModel.addStates(id, states);
+      const updatedProject = await mongoDbConnection.models.ProjectModel.addStates(projectId, states);
 
       return updatedProject;
     } catch (err: any) {
@@ -445,17 +379,9 @@ export class ProjectService {
     }
   }
 
-  public static async addTags(
-    projectId: mongooseTypes.ObjectId | string,
-    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IProject> {
+  public static async addTags(projectId: string, tags: databaseTypes.ITag[]): Promise<databaseTypes.IProject> {
     try {
-      const id =
-        projectId instanceof mongooseTypes.ObjectId
-          ? projectId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(projectId);
-      const updatedProject = await mongoDbConnection.models.ProjectModel.addTags(id, tags);
+      const updatedProject = await mongoDbConnection.models.ProjectModel.addTags(projectId, tags);
 
       return updatedProject;
     } catch (err: any) {
@@ -475,17 +401,9 @@ export class ProjectService {
       }
     }
   }
-  public static async removeTags(
-    projectId: mongooseTypes.ObjectId | string,
-    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IProject> {
+  public static async removeTags(projectId: string, tags: databaseTypes.ITag[]): Promise<databaseTypes.IProject> {
     try {
-      const id =
-        projectId instanceof mongooseTypes.ObjectId
-          ? projectId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(projectId);
-      const updatedProject = await mongoDbConnection.models.ProjectModel.removeTags(id, tags);
+      const updatedProject = await mongoDbConnection.models.ProjectModel.removeTags(projectId, tags);
 
       return updatedProject;
     } catch (err: any) {

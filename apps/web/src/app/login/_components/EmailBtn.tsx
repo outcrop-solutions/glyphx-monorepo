@@ -1,6 +1,5 @@
 'use client';
 import React, {useState} from 'react';
-import isEmail from 'validator/lib/isEmail';
 import {signIn, useSession} from 'next-auth/react';
 import toast from 'react-hot-toast';
 import {useRecoilState} from 'recoil';
@@ -12,7 +11,6 @@ export const EmailBtn = () => {
   const router = useRouter();
   const [email, setEmail] = useRecoilState(authEmailAtom);
   const [isSubmitting, setSubmittingState] = useState(false);
-  const validate = isEmail(email);
   const handleEmailChange = (event) => setEmail(event.target.value);
 
   const signInWithEmail = async (event) => {
@@ -40,7 +38,7 @@ export const EmailBtn = () => {
       />
       <button
         className="py-2 bg-yellow rounded hover:bg-primary-yellow disabled:opacity-75"
-        disabled={status === 'loading' || !validate || isSubmitting}
+        disabled={status === 'loading' || isSubmitting}
         onClick={signInWithEmail}
       >
         {status === 'loading' ? 'Checking session...' : isSubmitting ? 'Sending the link...' : 'Send the Magic Link'}

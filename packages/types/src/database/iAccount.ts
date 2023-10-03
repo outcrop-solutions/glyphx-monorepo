@@ -4,6 +4,7 @@ import {ACCOUNT_TYPE, ACCOUNT_PROVIDER, TOKEN_TYPE, SESSION_STATE} from './const
 
 export interface IAccount {
   _id?: mongooseTypes.ObjectId;
+  id?: string;
   type: ACCOUNT_TYPE;
   userId?: string;
   provider: ACCOUNT_PROVIDER;

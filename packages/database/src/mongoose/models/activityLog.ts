@@ -16,6 +16,7 @@ import {MemberModel} from './member';
 import {WebhookModel} from './webhook';
 import {WorkspaceModel} from './workspace';
 import {ProcessTrackingModel} from './processTracking';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<IActivityLogDocument, IActivityLogStaticMethods, IActivityLogMethods>({
   createdAt: {
@@ -102,7 +103,7 @@ SCHEMA.static('allActivityLogIdsExist', async (activityLogIds: mongooseTypes.Obj
   return true;
 });
 
-SCHEMA.static('getActivityLogById', async (activityLogId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getActivityLogById', async (activityLogId: string) => {
   try {
     const activityLogDocument = (await ACTIVITY_LOG_MODEL.findById(activityLogId)
       .populate('actor')
@@ -115,13 +116,8 @@ SCHEMA.static('getActivityLogById', async (activityLogId: mongooseTypes.ObjectId
         activityLogId
       );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (activityLogDocument as any)['__v'];
-    delete (activityLogDocument as any).actor['__v'];
-    delete (activityLogDocument as any).resource['__v'];
-
-    return activityLogDocument;
+    const format = new DBFormatter();
+    return format.toJS(activityLogDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -167,16 +163,14 @@ SCHEMA.static(
         .populate('actor')
         .populate('resource')
         .lean()) as databaseTypes.IActivityLog[];
-      //this is added by mongoose, so we will want to remove it before returning the document
-      //to the user.
-      activityLogDocuments?.forEach((doc: any) => {
-        delete (doc as any)['__v'];
-        delete (doc as any)?.actor?.__v;
-        delete (doc as any)?.resource?.__v;
+
+      const format = new DBFormatter();
+      const formattedActivityLogs = activityLogDocuments?.map((doc: databaseTypes.IActivityLog) => {
+        return format.toJS(doc);
       });
 
       const retval: IQueryResult<databaseTypes.IActivityLog> = {
-        results: activityLogDocuments,
+        results: formattedActivityLogs as unknown as databaseTypes.IActivityLog[],
         numberOfItems: count,
         page: page,
         itemsPerPage: itemsPerPage,
@@ -198,10 +192,9 @@ SCHEMA.static(
 
 SCHEMA.static('createActivityLog', async (input: IActivityLogCreateInput): Promise<databaseTypes.IActivityLog> => {
   const userId =
-    input.actor instanceof mongooseTypes.ObjectId
-      ? input.actor
-      : // @ts-ignore
-        new mongooseTypes.ObjectId(input.actor._id);
+    typeof input.actor === 'string'
+      ? new mongooseTypes.ObjectId(input.actor)
+      : new mongooseTypes.ObjectId(input.actor.id);
 
   const userExists = await UserModel.userIdExists(userId);
   if (!userExists)
@@ -211,10 +204,9 @@ SCHEMA.static('createActivityLog', async (input: IActivityLogCreateInput): Promi
   //istanbul ignore else
   if (input.workspaceId) {
     workspaceId =
-      input.workspaceId instanceof mongooseTypes.ObjectId
-        ? input.workspaceId
-        : // @ts-ignore
-          new mongooseTypes.ObjectId(input.workspaceId);
+      typeof input.workspaceId === 'string'
+        ? new mongooseTypes.ObjectId(input.workspaceId)
+        : new mongooseTypes.ObjectId();
 
     const workspaceExists = await WorkspaceModel.workspaceIdExists(workspaceId);
     if (!workspaceExists)
@@ -227,10 +219,9 @@ SCHEMA.static('createActivityLog', async (input: IActivityLogCreateInput): Promi
 
   let resourceExists;
   const resourceId =
-    input.resource instanceof mongooseTypes.ObjectId
-      ? input.resource
-      : // @ts-ignore
-        new mongooseTypes.ObjectId(input.resource._id);
+    typeof input.resource === 'string'
+      ? new mongooseTypes.ObjectId(input.resource)
+      : new mongooseTypes.ObjectId(input.resource.id);
 
   switch (input.onModel) {
     case databaseTypes.constants.RESOURCE_MODEL.USER:
@@ -339,7 +330,7 @@ SCHEMA.static('createActivityLog', async (input: IActivityLogCreateInput): Promi
         validateBeforeSave: false,
       })
     )[0];
-    return await ACTIVITY_LOG_MODEL.getActivityLogById(createdDocument._id as unknown as mongooseTypes.ObjectId);
+    return await ACTIVITY_LOG_MODEL.getActivityLogById(createdDocument._id.toString());
   } catch (err) {
     throw new error.DatabaseOperationError(
       'An unexpected error occurred wile creating the activityLog. See the inner error for additional information',

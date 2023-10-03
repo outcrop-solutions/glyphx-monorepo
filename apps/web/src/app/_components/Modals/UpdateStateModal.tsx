@@ -44,7 +44,7 @@ export const UpdateStateModal = ({modalContent}: webTypes.UpdateStateModalProps)
         setProject(
           produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
             draft.stateHistory.map((state) => {
-              if (state._id === modalContent.data.id) {
+              if (state.id === modalContent.data.id) {
                 state.name === name;
               } else {
                 return state;

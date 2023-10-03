@@ -25,7 +25,7 @@ describe('#services/user', () => {
       } as unknown as databaseTypes.IUser);
       sandbox.replace(dbConnection.models.UserModel, 'getUserById', getUserFromModelStub);
 
-      const user = await userService.getUser(userId);
+      const user = await userService.getUser(userId.toString());
       assert.isOk(user);
       assert.strictEqual(user?._id?.toString(), userId.toString());
 
@@ -63,7 +63,7 @@ describe('#services/user', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const user = await userService.getUser(userId);
+      const user = await userService.getUser(userId.toString());
       assert.notOk(user);
 
       assert.isTrue(getUserFromModelStub.calledOnce);
@@ -90,7 +90,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.getUser(userId);
+        await userService.getUser(userId.toString());
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -220,7 +220,7 @@ describe('#services/user', () => {
         updateCustomerPaymentFromModelStub
       );
 
-      const user = await userService.deactivate(userId);
+      const user = await userService.deactivate(userId.toString());
       assert.isOk(user);
       assert.strictEqual(user._id, userId);
       assert.strictEqual(user.deletedAt, deletedAt);
@@ -283,7 +283,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.deactivate(userId);
+        await userService.deactivate(userId.toString());
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -315,7 +315,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.deactivate(userId);
+        await userService.deactivate(userId.toString());
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -347,7 +347,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.deactivate(userId);
+        await userService.deactivate(userId.toString());
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -389,7 +389,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.deactivate(userId);
+        await userService.deactivate(userId.toString());
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -430,7 +430,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.deactivate(userId);
+        await userService.deactivate(userId.toString());
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -471,7 +471,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.deactivate(userId);
+        await userService.deactivate(userId.toString());
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -518,7 +518,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.deactivate(userId);
+        await userService.deactivate(userId.toString());
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -564,7 +564,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.deactivate(userId);
+        await userService.deactivate(userId.toString());
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -610,7 +610,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.deactivate(userId);
+        await userService.deactivate(userId.toString());
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -666,7 +666,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.deactivate(userId);
+        await userService.deactivate(userId.toString());
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -721,7 +721,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.deactivate(userId);
+        await userService.deactivate(userId.toString());
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -776,7 +776,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.deactivate(userId);
+        await userService.deactivate(userId.toString());
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -820,7 +820,7 @@ describe('#services/user', () => {
         updateCustomerPaymentFromModelStub
       );
 
-      const user = await userService.updateEmail(userId, email, previousEmail);
+      const user = await userService.updateEmail(userId.toString(), email, previousEmail);
       assert.isOk(user);
       assert.strictEqual(user._id, userId);
       assert.strictEqual(user.email, email);
@@ -892,7 +892,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.updateEmail(userId, email, previousEmail);
+        await userService.updateEmail(userId.toString(), email, previousEmail);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -926,7 +926,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.updateEmail(userId, email, previousEmail);
+        await userService.updateEmail(userId.toString(), email, previousEmail);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -960,7 +960,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.updateEmail(userId, email, previousEmail);
+        await userService.updateEmail(userId.toString(), email, previousEmail);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -1007,7 +1007,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.updateEmail(userId, email, previousEmail);
+        await userService.updateEmail(userId.toString(), email, previousEmail);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -1055,7 +1055,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.updateEmail(userId, email, previousEmail);
+        await userService.updateEmail(userId.toString(), email, previousEmail);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -1103,7 +1103,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.updateEmail(userId, email, previousEmail);
+        await userService.updateEmail(userId.toString(), email, previousEmail);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -1159,7 +1159,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.updateEmail(userId, email, previousEmail);
+        await userService.updateEmail(userId.toString(), email, previousEmail);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -1216,7 +1216,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.updateEmail(userId, email, previousEmail);
+        await userService.updateEmail(userId.toString(), email, previousEmail);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -1273,7 +1273,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.updateEmail(userId, email, previousEmail);
+        await userService.updateEmail(userId.toString(), email, previousEmail);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -1298,7 +1298,7 @@ describe('#services/user', () => {
       } as unknown as databaseTypes.IUser);
       sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
-      const user = await userService.updateName(userId, name);
+      const user = await userService.updateName(userId.toString(), name);
       assert.isOk(user);
       assert.strictEqual(user._id, userId);
       assert.strictEqual(user.name, name);
@@ -1345,7 +1345,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.updateName(userId, name);
+        await userService.updateName(userId.toString(), name);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -1378,7 +1378,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.updateName(userId, name);
+        await userService.updateName(userId.toString(), name);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -1411,7 +1411,7 @@ describe('#services/user', () => {
 
       let errored = false;
       try {
-        await userService.updateName(userId, name);
+        await userService.updateName(userId.toString(), name);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;

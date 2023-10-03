@@ -6,6 +6,7 @@ import {ProjectModel} from './project';
 import {projectTemplateShapeValidator} from '../validators';
 import {IProjectTemplateCreateInput} from '../interfaces/iProjectTemplateCreateInput';
 import {TagModel} from './tag';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<IProjectTemplateDocument, IProjectTemplateStaticMethods, IProjectTemplateMethods>({
   createdAt: {
@@ -24,7 +25,7 @@ const SCHEMA = new Schema<IProjectTemplateDocument, IProjectTemplateStaticMethod
       () => new Date(),
   },
   name: {type: String, required: true},
-  description: {type: String, required: true},
+  description: {type: String, required: false},
   projects: {
     type: [mongooseTypes.ObjectId],
     required: true,
@@ -93,7 +94,7 @@ SCHEMA.static('allProjectTemplateIdsExist', async (templateIds: mongooseTypes.Ob
   return true;
 });
 
-SCHEMA.static('getProjectTemplateById', async (projectTemplateId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getProjectTemplateById', async (projectTemplateId: string) => {
   try {
     const projectTemplateDocument = (await PROJECT_TEMPLATE_MODEL.findById(projectTemplateId)
       .populate('projects')
@@ -105,12 +106,8 @@ SCHEMA.static('getProjectTemplateById', async (projectTemplateId: mongooseTypes.
         projectTemplateId
       );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (projectTemplateDocument as any)['__v'];
-    projectTemplateDocument.projects.forEach((p) => delete (p as any)['__v']);
-
-    return projectTemplateDocument;
+    const format = new DBFormatter();
+    return format.toJS(projectTemplateDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -159,16 +156,14 @@ SCHEMA.static(
         .populate('projects')
         .populate('tags')
         .lean()) as databaseTypes.IProjectTemplate[];
-      //this is added by mongoose, so we will want to remove it before returning the document
-      //to the user.
-      projectTemplateDocuments.forEach((doc: any) => {
-        delete (doc as any)?.__v;
-        doc.projects?.forEach((p: any) => delete (p as any)?.__v);
-        doc.tags?.forEach((t: any) => delete (t as any)?.__v);
+
+      const format = new DBFormatter();
+      const templates = projectTemplateDocuments.map((doc: any) => {
+        return format.toJS(doc);
       });
 
       const retval: IQueryResult<databaseTypes.IProjectTemplate> = {
-        results: projectTemplateDocuments,
+        results: templates as unknown as databaseTypes.IProjectTemplate[],
         numberOfItems: count,
         page: page,
         itemsPerPage: itemsPerPage,
@@ -190,11 +185,11 @@ SCHEMA.static(
 
 SCHEMA.static(
   'validateProjects',
-  async (projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]> => {
+  async (projects: (databaseTypes.IProject | string)[]): Promise<mongooseTypes.ObjectId[]> => {
     const projectIds: mongooseTypes.ObjectId[] = [];
     projects.forEach((p) => {
-      if (p instanceof mongooseTypes.ObjectId) projectIds.push(p);
-      else projectIds.push(p._id as mongooseTypes.ObjectId);
+      if (typeof p === 'string') projectIds.push(new mongooseTypes.ObjectId(p));
+      else projectIds.push(new mongooseTypes.ObjectId(p.id));
     });
     try {
       await ProjectModel.allProjectIdsExist(projectIds);
@@ -213,30 +208,27 @@ SCHEMA.static(
   }
 );
 
-SCHEMA.static(
-  'validateTags',
-  async (tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]> => {
-    const tagIds: mongooseTypes.ObjectId[] = [];
-    tags.forEach((p) => {
-      if (p instanceof mongooseTypes.ObjectId) tagIds.push(p);
-      else tagIds.push(p._id as mongooseTypes.ObjectId);
-    });
-    try {
-      await TagModel.allTagIdsExist(tagIds);
-    } catch (err) {
-      if (err instanceof error.DataNotFoundError)
-        throw new error.DataValidationError(
-          'One or more tag ids do not exisit in the database.  See the inner error for additional information',
-          'tags',
-          tags,
-          err
-        );
-      else throw err;
-    }
-
-    return tagIds;
+SCHEMA.static('validateTags', async (tags: (databaseTypes.ITag | string)[]): Promise<mongooseTypes.ObjectId[]> => {
+  const tagIds: mongooseTypes.ObjectId[] = [];
+  tags.forEach((p) => {
+    if (typeof p === 'string') tagIds.push(new mongooseTypes.ObjectId(p));
+    else tagIds.push(new mongooseTypes.ObjectId(p.id));
+  });
+  try {
+    await TagModel.allTagIdsExist(tagIds);
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError)
+      throw new error.DataValidationError(
+        'One or more tag ids do not exisit in the database.  See the inner error for additional information',
+        'tags',
+        tags,
+        err
+      );
+    else throw err;
   }
-);
+
+  return tagIds;
+});
 
 SCHEMA.static(
   'createProjectTemplate',
@@ -286,7 +278,7 @@ SCHEMA.static(
         );
       }
     }
-    if (id) return await PROJECT_TEMPLATE_MODEL.getProjectTemplateById(id);
+    if (id) return await PROJECT_TEMPLATE_MODEL.getProjectTemplateById(id.toString());
     else
       throw new error.UnexpectedError(
         'An unexpected error has occurred and the project type may not have been created.  I have no other information to provide.'
@@ -374,7 +366,7 @@ SCHEMA.static(
 SCHEMA.static(
   'updateProjectTemplateById',
   async (
-    projectTemplateId: mongooseTypes.ObjectId,
+    projectTemplateId: string,
     projectTemplate: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>
   ): Promise<databaseTypes.IProjectTemplate> => {
     await PROJECT_TEMPLATE_MODEL.updateProjectTemplateWithFilter({_id: projectTemplateId}, projectTemplate);
@@ -382,7 +374,7 @@ SCHEMA.static(
   }
 );
 
-SCHEMA.static('deleteProjectTemplateById', async (projectTemplateId: mongooseTypes.ObjectId): Promise<void> => {
+SCHEMA.static('deleteProjectTemplateById', async (projectTemplateId: string): Promise<void> => {
   try {
     const results = await PROJECT_TEMPLATE_MODEL.deleteOne({
       _id: projectTemplateId,
@@ -408,8 +400,8 @@ SCHEMA.static('deleteProjectTemplateById', async (projectTemplateId: mongooseTyp
 SCHEMA.static(
   'addProjects',
   async (
-    projectTemplateId: mongooseTypes.ObjectId,
-    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+    projectTemplateId: string,
+    projects: (databaseTypes.IProject | string)[]
   ): Promise<databaseTypes.IProjectTemplate> => {
     try {
       if (!projects.length)
@@ -456,8 +448,8 @@ SCHEMA.static(
 SCHEMA.static(
   'removeProjects',
   async (
-    projectTemplateId: mongooseTypes.ObjectId,
-    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
+    projectTemplateId: string,
+    projects: (databaseTypes.IProject | string)[]
   ): Promise<databaseTypes.IProjectTemplate> => {
     try {
       if (!projects.length)
@@ -472,7 +464,7 @@ SCHEMA.static(
 
       const reconciledIds = projects.map((i) =>
         //istanbul ignore next
-        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
+        typeof i === 'string' ? new mongooseTypes.ObjectId(i) : new mongooseTypes.ObjectId(i.id)
       );
       let dirty = false;
       const updatedProjects = projectTemplateDocument.projects.filter((p) => {
@@ -512,10 +504,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'addTags',
-  async (
-    projectTemplateId: mongooseTypes.ObjectId,
-    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IProjectTemplate> => {
+  async (projectTemplateId: string, tags: (databaseTypes.ITag | string)[]): Promise<databaseTypes.IProjectTemplate> => {
     try {
       if (!tags.length) throw new error.InvalidArgumentError('You must supply at least one tagId', 'tags', tags);
       const projectTemplateDocument = await PROJECT_TEMPLATE_MODEL.findById(projectTemplateId);
@@ -559,10 +548,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'removeTags',
-  async (
-    projectTemplateId: mongooseTypes.ObjectId,
-    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IProjectTemplate> => {
+  async (projectTemplateId: string, tags: (databaseTypes.ITag | string)[]): Promise<databaseTypes.IProjectTemplate> => {
     try {
       if (!tags.length) throw new error.InvalidArgumentError('You must supply at least one tagId', 'tags', tags);
       const projectTemplateDocument = await PROJECT_TEMPLATE_MODEL.findById(projectTemplateId);
@@ -575,7 +561,7 @@ SCHEMA.static(
 
       const reconciledIds = tags.map((i) =>
         //istanbul ignore next
-        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
+        typeof i === 'string' ? new mongooseTypes.ObjectId(i) : new mongooseTypes.ObjectId(i.id)
       );
       let dirty = false;
       const updatedTags = projectTemplateDocument.tags.filter((p) => {

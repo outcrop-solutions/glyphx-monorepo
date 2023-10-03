@@ -84,7 +84,7 @@ export const initStripePaymentSession = async (req: NextApiRequest, res: NextApi
     success_url: `${process.env.APP_URL}/account/payment?status=success`,
     cancel_url: `${process.env.APP_URL}/account/payment?status=cancelled`,
     metadata: {
-      customerId: customerPayment?.customer._id,
+      customerId: customerPayment?.customer.id,
       type: product.metadata.type,
     },
   });

@@ -5,6 +5,7 @@ import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {databaseTypes} from 'types';
 import {error} from 'core';
+import {DBFormatter} from '../lib/format';
 
 type ObjectId = mongooseTypes.ObjectId;
 
@@ -43,9 +44,10 @@ const INPUT_DATA2 = {
 describe('#webhooksModel', () => {
   context('test the crud functions of the webhooks model', () => {
     const mongoConnection = new MongoDbConnection();
+    const format = new DBFormatter();
     const webhookModel = mongoConnection.models.WebhookModel;
-    let webhookId: ObjectId;
-    let webhookId2: ObjectId;
+    let webhookId: string;
+    let webhookId2: string;
     let userId: ObjectId;
     let userDocument: any;
     before(async () => {
@@ -76,31 +78,31 @@ describe('#webhooksModel', () => {
     it('add a new webhook', async () => {
       const webhookInput = JSON.parse(JSON.stringify(INPUT_DATA));
       webhookInput.user = userDocument;
-      const webhookDocument = await webhookModel.createWebhook(webhookInput);
+      const webhookDocument = await webhookModel.createWebhook(format.toJS(webhookInput));
 
       assert.isOk(webhookDocument);
       assert.strictEqual(webhookDocument.name, webhookInput.name);
-      assert.strictEqual(webhookDocument.user._id?.toString(), userId.toString());
+      assert.strictEqual(webhookDocument.user.id, userId.toString());
 
-      webhookId = webhookDocument._id as mongooseTypes.ObjectId;
+      webhookId = webhookDocument.id!;
     });
 
     it('retreive a webhook', async () => {
       assert.isOk(webhookId);
-      const webhook = await webhookModel.getWebhookById(webhookId);
+      const webhook = await webhookModel.getWebhookById(webhookId.toString());
 
       assert.isOk(webhook);
-      assert.strictEqual(webhook._id?.toString(), webhookId.toString());
+      assert.strictEqual(webhook.id, webhookId.toString());
     });
 
     it('Get multiple webhooks without a filter', async () => {
       assert.isOk(webhookId);
       const webhookInput = JSON.parse(JSON.stringify(INPUT_DATA2));
       webhookInput.user = userDocument;
-      const webhookDocument = await webhookModel.createWebhook(webhookInput);
+      const webhookDocument = await webhookModel.createWebhook(format.toJS(webhookInput));
 
       assert.isOk(webhookDocument);
-      webhookId2 = webhookDocument._id as mongooseTypes.ObjectId;
+      webhookId2 = webhookDocument.id!;
 
       const webhooks = await webhookModel.queryWebhooks();
       assert.isArray(webhooks.results);
@@ -124,34 +126,34 @@ describe('#webhooksModel', () => {
       const results = await webhookModel.queryWebhooks({}, 0, 1);
       assert.strictEqual(results.results.length, 1);
 
-      const lastId = results.results[0]?._id;
+      const lastId = results.results[0]?.id;
 
       const results2 = await webhookModel.queryWebhooks({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(results2.results[0]?.id, lastId?.toString());
     });
 
     it('modify a webhook', async () => {
       assert.isOk(webhookId);
       const input = {url: 'a modified url'};
-      const updatedDocument = await webhookModel.updateWebhookById(webhookId, input);
+      const updatedDocument = await webhookModel.updateWebhookById(webhookId.toString(), input);
       assert.strictEqual(updatedDocument.url, input.url);
     });
 
     it('remove a webhook', async () => {
       assert.isOk(webhookId);
-      await webhookModel.deleteWebhookById(webhookId);
+      await webhookModel.deleteWebhookById(webhookId.toString());
       let errored = false;
       try {
-        await webhookModel.getWebhookById(webhookId);
+        await webhookModel.getWebhookById(webhookId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
       }
 
       assert.isTrue(errored);
-      webhookId = null as unknown as ObjectId;
+      webhookId = null as unknown as string;
     });
   });
 });

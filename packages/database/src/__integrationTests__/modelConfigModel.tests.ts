@@ -3,18 +3,16 @@ import 'mocha';
 import * as mocks from '../mongoose/mocks';
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose/mongooseConnection';
-import {Types as mongooseTypes} from 'mongoose';
-import {v4} from 'uuid';
 import {error} from 'core';
-
-type ObjectId = mongooseTypes.ObjectId;
+import {DBFormatter} from '../lib/format';
 
 describe('#ModelConfigModel', () => {
   context('test the crud functions of the modelConfig model', () => {
     const mongoConnection = new MongoDbConnection();
+    const format = new DBFormatter();
     const modelConfigModel = mongoConnection.models.ModelConfigModel;
-    let modelConfigDocId: ObjectId;
-    let modelConfigDocId2: ObjectId;
+    let modelConfigDocId: string;
+    let modelConfigDocId2: string;
 
     before(async () => {
       await mongoConnection.init();
@@ -33,12 +31,10 @@ describe('#ModelConfigModel', () => {
     it('add a new modelConfig ', async () => {
       const modelConfigInput = JSON.parse(JSON.stringify(mocks.MOCK_MODELCONFIG));
 
-      const modelConfigDocument = await modelConfigModel.createModelConfig(modelConfigInput);
+      const modelConfigDocument = await modelConfigModel.createModelConfig(format.toJS(modelConfigInput));
 
       assert.isOk(modelConfigDocument);
-      assert.strictEqual(Object.keys(modelConfigDocument)[1], Object.keys(modelConfigInput)[1]);
-
-      modelConfigDocId = modelConfigDocument._id as mongooseTypes.ObjectId;
+      modelConfigDocId = modelConfigDocument.id!;
     });
 
     it('retreive a modelConfig', async () => {
@@ -46,13 +42,13 @@ describe('#ModelConfigModel', () => {
       const modelConfig = await modelConfigModel.getModelConfigById(modelConfigDocId);
 
       assert.isOk(modelConfig);
-      assert.strictEqual(modelConfig._id?.toString(), modelConfigDocId.toString());
+      assert.strictEqual(modelConfig.id, modelConfigDocId.toString());
     });
 
     it('modify a modelConfig', async () => {
       assert.isOk(modelConfigDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await modelConfigModel.updateModelConfigById(modelConfigDocId, input);
+      const updatedDocument = await modelConfigModel.updateModelConfigById(modelConfigDocId.toString(), input);
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -63,8 +59,7 @@ describe('#ModelConfigModel', () => {
       const modelConfigDocument = await modelConfigModel.createModelConfig(modelConfigInput);
 
       assert.isOk(modelConfigDocument);
-
-      modelConfigDocId2 = modelConfigDocument._id as mongooseTypes.ObjectId;
+      modelConfigDocId2 = modelConfigDocument.id!;
 
       const modelConfigs = await modelConfigModel.queryModelConfigs();
       assert.isArray(modelConfigs.results);
@@ -79,6 +74,7 @@ describe('#ModelConfigModel', () => {
     it('Get multiple modelConfigs with a filter', async () => {
       assert.isOk(modelConfigDocId2);
       const results = await modelConfigModel.queryModelConfigs({
+        name: mocks.MOCK_MODELCONFIG.name,
         deletedAt: undefined,
       });
       assert.strictEqual(results.results.length, 1);
@@ -90,27 +86,27 @@ describe('#ModelConfigModel', () => {
       const results = await modelConfigModel.queryModelConfigs({}, 0, 1);
       assert.strictEqual(results.results.length, 1);
 
-      const lastId = results.results[0]?._id;
+      const lastId = results.results[0]?.id;
 
       const results2 = await modelConfigModel.queryModelConfigs({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(results2.results[0]?.id, lastId?.toString());
     });
 
     it('remove a modelConfig', async () => {
       assert.isOk(modelConfigDocId);
-      await modelConfigModel.deleteModelConfigById(modelConfigDocId);
+      await modelConfigModel.deleteModelConfigById(modelConfigDocId.toString());
       let errored = false;
       try {
-        await modelConfigModel.getModelConfigById(modelConfigDocId);
+        await modelConfigModel.getModelConfigById(modelConfigDocId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
       }
 
       assert.isTrue(errored);
-      modelConfigDocId = null as unknown as ObjectId;
+      modelConfigDocId = null as unknown as string;
     });
   });
 });

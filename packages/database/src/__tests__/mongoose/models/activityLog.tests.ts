@@ -11,7 +11,7 @@ import {ProcessTrackingModel} from '../../../mongoose/models/processTracking';
 import {CustomerPaymentModel} from '../../../mongoose/models/customerPayment';
 import {databaseTypes} from 'types';
 import {error} from 'core';
-import mongoose from 'mongoose';
+import mongoose, {Types as mongooseTypes} from 'mongoose';
 import {createSandbox} from 'sinon';
 
 class MockMongooseQuery {
@@ -32,6 +32,7 @@ class MockMongooseQuery {
   }
 }
 const MOCK_ACTIVITY_LOG = {
+  _id: new mongooseTypes.ObjectId(),
   createdAt: new Date(),
   updatedAt: new Date(),
   actor: {
@@ -164,10 +165,9 @@ describe('#mongoose/models/activityLog', () => {
       findByIdStub.returns(new MockMongooseQuery(MOCK_ACTIVITY_LOG));
       sandbox.replace(ActivityLogModel, 'findById', findByIdStub);
 
-      const result = await ActivityLogModel.getActivityLogById(MOCK_ACTIVITY_LOG._id as mongoose.Types.ObjectId);
+      const result = await ActivityLogModel.getActivityLogById(MOCK_ACTIVITY_LOG._id!.toString());
       assert.isOk(result);
-      assert.strictEqual(result._id?.toString(), MOCK_ACTIVITY_LOG._id?.toString());
-
+      assert.strictEqual(result.id, MOCK_ACTIVITY_LOG._id?.toString());
       assert.isUndefined((result as any).__v);
       assert.isUndefined((result as any).actor.__v);
       assert.isUndefined((result as any).resource.__v);
@@ -180,7 +180,7 @@ describe('#mongoose/models/activityLog', () => {
 
       let errored = false;
       try {
-        await ActivityLogModel.getActivityLogById(MOCK_ACTIVITY_LOG._id as mongoose.Types.ObjectId);
+        await ActivityLogModel.getActivityLogById(MOCK_ACTIVITY_LOG._id!.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -195,7 +195,7 @@ describe('#mongoose/models/activityLog', () => {
 
       let errored = false;
       try {
-        await ActivityLogModel.getActivityLogById(MOCK_ACTIVITY_LOG._id as mongoose.Types.ObjectId);
+        await ActivityLogModel.getActivityLogById(MOCK_ACTIVITY_LOG._id!.toString());
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -363,7 +363,7 @@ describe('#mongoose/models/activityLog', () => {
       const mockActivityCopy = {
         ...MOCK_ACTIVITY_LOG,
       } as IActivityLogCreateInput;
-      mockActivityCopy.actor = new mongoose.Types.ObjectId();
+      mockActivityCopy.actor = new mongoose.Types.ObjectId().toString();
 
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(true);
@@ -374,7 +374,7 @@ describe('#mongoose/models/activityLog', () => {
       workspaceIdExistsStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
-      mockActivityCopy.resource = new mongoose.Types.ObjectId();
+      mockActivityCopy.resource = new mongoose.Types.ObjectId().toString();
       mockActivityCopy.onModel = databaseTypes.constants.RESOURCE_MODEL.USER;
 
       const validateStub = sandbox.stub();
@@ -400,7 +400,7 @@ describe('#mongoose/models/activityLog', () => {
       const mockActivityCopy = {
         ...MOCK_ACTIVITY_LOG,
       } as IActivityLogCreateInput;
-      mockActivityCopy.actor = new mongoose.Types.ObjectId();
+      mockActivityCopy.actor = new mongoose.Types.ObjectId().toString();
 
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(true);
@@ -412,7 +412,7 @@ describe('#mongoose/models/activityLog', () => {
       workspaceIdExistsStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
-      mockActivityCopy.resource = new mongoose.Types.ObjectId();
+      mockActivityCopy.resource = new mongoose.Types.ObjectId().toString();
       mockActivityCopy.onModel = databaseTypes.constants.RESOURCE_MODEL.USER;
 
       const validateStub = sandbox.stub();
@@ -440,7 +440,7 @@ describe('#mongoose/models/activityLog', () => {
       const mockActivityCopy = {
         ...MOCK_ACTIVITY_LOG,
       } as IActivityLogCreateInput;
-      mockActivityCopy.actor = new mongoose.Types.ObjectId();
+      mockActivityCopy.actor = new mongoose.Types.ObjectId().toString();
 
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(true);
@@ -451,7 +451,7 @@ describe('#mongoose/models/activityLog', () => {
       workspaceIdExistsStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
-      mockActivityCopy.resource = new mongoose.Types.ObjectId();
+      mockActivityCopy.resource = new mongoose.Types.ObjectId().toString();
       mockActivityCopy.onModel = databaseTypes.constants.RESOURCE_MODEL.PROJECT;
       const resourceIdExistsStub = sandbox.stub();
       resourceIdExistsStub.resolves(true);
@@ -481,7 +481,7 @@ describe('#mongoose/models/activityLog', () => {
       const mockActivityCopy = {
         ...MOCK_ACTIVITY_LOG,
       } as IActivityLogCreateInput;
-      mockActivityCopy.actor = new mongoose.Types.ObjectId();
+      mockActivityCopy.actor = new mongoose.Types.ObjectId().toString();
 
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(true);
@@ -492,7 +492,7 @@ describe('#mongoose/models/activityLog', () => {
       workspaceIdExistsStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
-      mockActivityCopy.resource = new mongoose.Types.ObjectId();
+      mockActivityCopy.resource = new mongoose.Types.ObjectId().toString();
       mockActivityCopy.onModel = databaseTypes.constants.RESOURCE_MODEL.PROJECT;
       const resourceIdExistsStub = sandbox.stub();
       resourceIdExistsStub.resolves(false);
@@ -523,7 +523,7 @@ describe('#mongoose/models/activityLog', () => {
       const mockActivityCopy = {
         ...MOCK_ACTIVITY_LOG,
       } as IActivityLogCreateInput;
-      mockActivityCopy.actor = new mongoose.Types.ObjectId();
+      mockActivityCopy.actor = new mongoose.Types.ObjectId().toString();
 
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(true);
@@ -534,7 +534,7 @@ describe('#mongoose/models/activityLog', () => {
       workspaceIdExistsStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
-      mockActivityCopy.resource = new mongoose.Types.ObjectId();
+      mockActivityCopy.resource = new mongoose.Types.ObjectId().toString();
       mockActivityCopy.onModel = databaseTypes.constants.RESOURCE_MODEL.STATE;
       const resourceIdExistsStub = sandbox.stub();
       resourceIdExistsStub.resolves(true);
@@ -564,7 +564,7 @@ describe('#mongoose/models/activityLog', () => {
       const mockActivityCopy = {
         ...MOCK_ACTIVITY_LOG,
       } as IActivityLogCreateInput;
-      mockActivityCopy.actor = new mongoose.Types.ObjectId();
+      mockActivityCopy.actor = new mongoose.Types.ObjectId().toString();
 
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(true);
@@ -575,7 +575,7 @@ describe('#mongoose/models/activityLog', () => {
       workspaceIdExistsStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
-      mockActivityCopy.resource = new mongoose.Types.ObjectId();
+      mockActivityCopy.resource = new mongoose.Types.ObjectId().toString();
       mockActivityCopy.onModel = databaseTypes.constants.RESOURCE_MODEL.STATE;
       const resourceIdExistsStub = sandbox.stub();
       resourceIdExistsStub.resolves(false);
@@ -606,7 +606,7 @@ describe('#mongoose/models/activityLog', () => {
       const mockActivityCopy = {
         ...MOCK_ACTIVITY_LOG,
       } as IActivityLogCreateInput;
-      mockActivityCopy.actor = new mongoose.Types.ObjectId();
+      mockActivityCopy.actor = new mongoose.Types.ObjectId().toString();
 
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(true);
@@ -617,7 +617,7 @@ describe('#mongoose/models/activityLog', () => {
       workspaceIdExistsStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
-      mockActivityCopy.resource = new mongoose.Types.ObjectId();
+      mockActivityCopy.resource = new mongoose.Types.ObjectId().toString();
       mockActivityCopy.onModel = databaseTypes.constants.RESOURCE_MODEL.CUSTOMER_PAYMENT;
       const resourceIdExistsStub = sandbox.stub();
       resourceIdExistsStub.resolves(true);
@@ -647,7 +647,7 @@ describe('#mongoose/models/activityLog', () => {
       const mockActivityCopy = {
         ...MOCK_ACTIVITY_LOG,
       } as IActivityLogCreateInput;
-      mockActivityCopy.actor = new mongoose.Types.ObjectId();
+      mockActivityCopy.actor = new mongoose.Types.ObjectId().toString();
 
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(true);
@@ -658,7 +658,7 @@ describe('#mongoose/models/activityLog', () => {
       workspaceIdExistsStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
-      mockActivityCopy.resource = new mongoose.Types.ObjectId();
+      mockActivityCopy.resource = new mongoose.Types.ObjectId().toString();
       mockActivityCopy.onModel = databaseTypes.constants.RESOURCE_MODEL.CUSTOMER_PAYMENT;
       const resourceIdExistsStub = sandbox.stub();
       resourceIdExistsStub.resolves(false);
@@ -689,7 +689,7 @@ describe('#mongoose/models/activityLog', () => {
       const mockActivityCopy = {
         ...MOCK_ACTIVITY_LOG,
       } as IActivityLogCreateInput;
-      mockActivityCopy.actor = new mongoose.Types.ObjectId();
+      mockActivityCopy.actor = new mongoose.Types.ObjectId().toString();
 
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(true);
@@ -700,7 +700,7 @@ describe('#mongoose/models/activityLog', () => {
       workspaceIdExistsStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
-      mockActivityCopy.resource = new mongoose.Types.ObjectId();
+      mockActivityCopy.resource = new mongoose.Types.ObjectId().toString();
       mockActivityCopy.onModel = databaseTypes.constants.RESOURCE_MODEL.MEMBER;
       const resourceIdExistsStub = sandbox.stub();
       resourceIdExistsStub.resolves(true);
@@ -730,7 +730,7 @@ describe('#mongoose/models/activityLog', () => {
       const mockActivityCopy = {
         ...MOCK_ACTIVITY_LOG,
       } as IActivityLogCreateInput;
-      mockActivityCopy.actor = new mongoose.Types.ObjectId();
+      mockActivityCopy.actor = new mongoose.Types.ObjectId().toString();
 
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(true);
@@ -741,7 +741,7 @@ describe('#mongoose/models/activityLog', () => {
       workspaceIdExistsStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
-      mockActivityCopy.resource = new mongoose.Types.ObjectId();
+      mockActivityCopy.resource = new mongoose.Types.ObjectId().toString();
       mockActivityCopy.onModel = databaseTypes.constants.RESOURCE_MODEL.MEMBER;
       const resourceIdExistsStub = sandbox.stub();
       resourceIdExistsStub.resolves(false);
@@ -772,7 +772,7 @@ describe('#mongoose/models/activityLog', () => {
       const mockActivityCopy = {
         ...MOCK_ACTIVITY_LOG,
       } as IActivityLogCreateInput;
-      mockActivityCopy.actor = new mongoose.Types.ObjectId();
+      mockActivityCopy.actor = new mongoose.Types.ObjectId().toString();
 
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(true);
@@ -783,7 +783,7 @@ describe('#mongoose/models/activityLog', () => {
       workspaceIdExistsStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
-      mockActivityCopy.resource = new mongoose.Types.ObjectId();
+      mockActivityCopy.resource = new mongoose.Types.ObjectId().toString();
       mockActivityCopy.onModel = databaseTypes.constants.RESOURCE_MODEL.WEBHOOK;
       const resourceIdExistsStub = sandbox.stub();
       resourceIdExistsStub.resolves(true);
@@ -813,7 +813,7 @@ describe('#mongoose/models/activityLog', () => {
       const mockActivityCopy = {
         ...MOCK_ACTIVITY_LOG,
       } as IActivityLogCreateInput;
-      mockActivityCopy.actor = new mongoose.Types.ObjectId();
+      mockActivityCopy.actor = new mongoose.Types.ObjectId().toString();
 
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(true);
@@ -824,7 +824,7 @@ describe('#mongoose/models/activityLog', () => {
       workspaceIdExistsStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
-      mockActivityCopy.resource = new mongoose.Types.ObjectId();
+      mockActivityCopy.resource = new mongoose.Types.ObjectId().toString();
       mockActivityCopy.onModel = databaseTypes.constants.RESOURCE_MODEL.WEBHOOK;
       const resourceIdExistsStub = sandbox.stub();
       resourceIdExistsStub.resolves(false);
@@ -855,7 +855,7 @@ describe('#mongoose/models/activityLog', () => {
       const mockActivityCopy = {
         ...MOCK_ACTIVITY_LOG,
       } as IActivityLogCreateInput;
-      mockActivityCopy.actor = new mongoose.Types.ObjectId();
+      mockActivityCopy.actor = new mongoose.Types.ObjectId().toString();
 
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(true);
@@ -866,7 +866,7 @@ describe('#mongoose/models/activityLog', () => {
       workspaceIdExistsStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
-      mockActivityCopy.resource = new mongoose.Types.ObjectId();
+      mockActivityCopy.resource = new mongoose.Types.ObjectId().toString();
       mockActivityCopy.onModel = databaseTypes.constants.RESOURCE_MODEL.PROCESS_TRACKING;
       const resourceIdExistsStub = sandbox.stub();
       resourceIdExistsStub.resolves(true);
@@ -896,7 +896,7 @@ describe('#mongoose/models/activityLog', () => {
       const mockActivityCopy = {
         ...MOCK_ACTIVITY_LOG,
       } as IActivityLogCreateInput;
-      mockActivityCopy.actor = new mongoose.Types.ObjectId();
+      mockActivityCopy.actor = new mongoose.Types.ObjectId().toString();
 
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(true);
@@ -907,7 +907,7 @@ describe('#mongoose/models/activityLog', () => {
       workspaceIdExistsStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
-      mockActivityCopy.resource = new mongoose.Types.ObjectId();
+      mockActivityCopy.resource = new mongoose.Types.ObjectId().toString();
       mockActivityCopy.onModel = databaseTypes.constants.RESOURCE_MODEL.PROCESS_TRACKING;
       const resourceIdExistsStub = sandbox.stub();
       resourceIdExistsStub.resolves(false);
@@ -938,7 +938,7 @@ describe('#mongoose/models/activityLog', () => {
       const mockActivityCopy = {
         ...MOCK_ACTIVITY_LOG,
       } as IActivityLogCreateInput;
-      mockActivityCopy.actor = new mongoose.Types.ObjectId();
+      mockActivityCopy.actor = new mongoose.Types.ObjectId().toString();
 
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(true);
@@ -949,7 +949,7 @@ describe('#mongoose/models/activityLog', () => {
       workspaceIdExistsStub.resolves(true);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
-      mockActivityCopy.resource = new mongoose.Types.ObjectId();
+      mockActivityCopy.resource = new mongoose.Types.ObjectId().toString();
       mockActivityCopy.onModel = databaseTypes.constants.RESOURCE_MODEL.WORKSPACE;
 
       const validateStub = sandbox.stub();
@@ -975,7 +975,7 @@ describe('#mongoose/models/activityLog', () => {
       const mockActivityCopy = {
         ...MOCK_ACTIVITY_LOG,
       } as IActivityLogCreateInput;
-      mockActivityCopy.actor = new mongoose.Types.ObjectId();
+      mockActivityCopy.actor = new mongoose.Types.ObjectId().toString();
 
       const userIdExistsStub = sandbox.stub();
       userIdExistsStub.resolves(true);
@@ -987,7 +987,7 @@ describe('#mongoose/models/activityLog', () => {
       workspaceIdExistsStub.onCall(1).resolves(false);
       sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceIdExistsStub);
 
-      mockActivityCopy.resource = new mongoose.Types.ObjectId();
+      mockActivityCopy.resource = new mongoose.Types.ObjectId().toString();
       mockActivityCopy.onModel = databaseTypes.constants.RESOURCE_MODEL.WORKSPACE;
 
       const validateStub = sandbox.stub();

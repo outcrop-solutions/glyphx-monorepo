@@ -32,7 +32,7 @@ describe('#services/projectTemplate', () => {
         getProjectTemplateFromModelStub
       );
 
-      const projectTemplate = await projectTemplateService.getProjectTemplate(projectTemplateId);
+      const projectTemplate = await projectTemplateService.getProjectTemplate(projectTemplateId.toString());
       assert.isOk(projectTemplate);
       assert.strictEqual(projectTemplate?._id?.toString(), projectTemplateId.toString());
 
@@ -85,7 +85,7 @@ describe('#services/projectTemplate', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const projectTemplate = await projectTemplateService.getProjectTemplate(projectTemplateId);
+      const projectTemplate = await projectTemplateService.getProjectTemplate(projectTemplateId.toString());
       assert.notOk(projectTemplate);
 
       assert.isTrue(getProjectTemplateFromModelStub.calledOnce);
@@ -118,7 +118,7 @@ describe('#services/projectTemplate', () => {
 
       let errored = false;
       try {
-        await projectTemplateService.getProjectTemplate(projectTemplateId);
+        await projectTemplateService.getProjectTemplate(projectTemplateId.toString());
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -317,7 +317,7 @@ describe('#services/projectTemplate', () => {
       sandbox.replace(dbConnection.models.ProjectTemplateModel, 'create', createProjectTemplateFromModelStub);
 
       await projectTemplateService.createProjectTemplate(
-        projectTemplateId,
+        projectTemplateId.toString(),
         projectTemplateName,
         projectTemplateDesc,
         properties
@@ -429,7 +429,7 @@ describe('#services/projectTemplate', () => {
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
       const projectTemplate = await projectTemplateService.createProjectTemplate(
-        projectTemplateId,
+        projectTemplateId.toString(),
         projectTemplateName,
         projectTemplateDesc,
         properties
@@ -543,7 +543,7 @@ describe('#services/projectTemplate', () => {
       let errored = false;
       try {
         await projectTemplateService.createProjectTemplate(
-          projectTemplateId,
+          projectTemplateId.toString(),
           projectTemplateName,
           projectTemplateDesc,
           properties
@@ -573,7 +573,7 @@ describe('#services/projectTemplate', () => {
         updateProjectFromModelStub
       );
 
-      const projectTemplate = await projectTemplateService.deactivate(projectTemplateId);
+      const projectTemplate = await projectTemplateService.deactivate(projectTemplateId.toString());
       assert.isOk(projectTemplate);
       assert.strictEqual(projectTemplate._id, projectTemplateId);
       assert.isOk(projectTemplate.deletedAt);
@@ -631,7 +631,7 @@ describe('#services/projectTemplate', () => {
 
       let errored = false;
       try {
-        await projectTemplateService.deactivate(projectTemplateId);
+        await projectTemplateService.deactivate(projectTemplateId.toString());
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -670,7 +670,7 @@ describe('#services/projectTemplate', () => {
 
       let errored = false;
       try {
-        await projectTemplateService.deactivate(projectTemplateId);
+        await projectTemplateService.deactivate(projectTemplateId.toString());
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -708,7 +708,7 @@ describe('#services/projectTemplate', () => {
 
       let errored = false;
       try {
-        await projectTemplateService.deactivate(projectTemplateId);
+        await projectTemplateService.deactivate(projectTemplateId.toString());
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -736,7 +736,7 @@ describe('#services/projectTemplate', () => {
         updateProjectFromModelStub
       );
 
-      const projectTemplate = await projectTemplateService.updateProjectTemplate(projectTemplateId, {
+      const projectTemplate = await projectTemplateService.updateProjectTemplate(projectTemplateId.toString(), {
         name: projName,
       });
       assert.isOk(projectTemplate);
@@ -799,7 +799,7 @@ describe('#services/projectTemplate', () => {
 
       let errored = false;
       try {
-        await projectTemplateService.updateProjectTemplate(projectTemplateId, {
+        await projectTemplateService.updateProjectTemplate(projectTemplateId.toString(), {
           name: projName,
         });
       } catch (e) {
@@ -841,7 +841,7 @@ describe('#services/projectTemplate', () => {
 
       let errored = false;
       try {
-        await projectTemplateService.updateProjectTemplate(projectTemplateId, {
+        await projectTemplateService.updateProjectTemplate(projectTemplateId.toString(), {
           name: projName,
         });
       } catch (e) {
@@ -882,7 +882,7 @@ describe('#services/projectTemplate', () => {
 
       let errored = false;
       try {
-        await projectTemplateService.updateProjectTemplate(projectTemplateId, {
+        await projectTemplateService.updateProjectTemplate(projectTemplateId.toString(), {
           name: projName,
         });
       } catch (e) {
@@ -903,7 +903,7 @@ describe('#services/projectTemplate', () => {
       const tagId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const tags = [tagId];
+      const tags = [tagId.toString()];
 
       const addTagsFromModelStub = sandbox.stub();
       addTagsFromModelStub.resolves({
@@ -912,7 +912,7 @@ describe('#services/projectTemplate', () => {
       } as unknown as databaseTypes.IProjectTemplate);
       sandbox.replace(dbConnection.models.ProjectTemplateModel, 'addTags', addTagsFromModelStub);
 
-      const projectTemplate = await projectTemplateService.addTags(projectTemplateId, tags);
+      const projectTemplate = await projectTemplateService.addTags(projectTemplateId.toString(), tags);
 
       assert.isOk(projectTemplate);
       assert.strictEqual(projectTemplate._id, projectTemplateId);
@@ -927,7 +927,7 @@ describe('#services/projectTemplate', () => {
       const tagId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const tags = [tagId];
+      const tags = [tagId.toString()];
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'FileStats', []);
 
@@ -949,7 +949,7 @@ describe('#services/projectTemplate', () => {
 
       let errored = false;
       try {
-        await projectTemplateService.addTags(projectTemplateId, tags);
+        await projectTemplateService.addTags(projectTemplateId.toString(), tags);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -964,9 +964,7 @@ describe('#services/projectTemplate', () => {
       const projectTemplateId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const tagId =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
+      const tagId = new mongooseTypes.ObjectId().toString();
       const tags = [tagId];
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
@@ -989,7 +987,7 @@ describe('#services/projectTemplate', () => {
 
       let errored = false;
       try {
-        await projectTemplateService.addTags(projectTemplateId, tags);
+        await projectTemplateService.addTags(projectTemplateId.toString(), tags);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -1006,7 +1004,7 @@ describe('#services/projectTemplate', () => {
       const tagId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const tags = [tagId];
+      const tags = [tagId.toString()];
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'addTags');
 
@@ -1028,7 +1026,7 @@ describe('#services/projectTemplate', () => {
 
       let errored = false;
       try {
-        await projectTemplateService.addTags(projectTemplateId, tags);
+        await projectTemplateService.addTags(projectTemplateId.toString(), tags);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
@@ -1047,7 +1045,7 @@ describe('#services/projectTemplate', () => {
       const tagId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const tags = [tagId];
+      const tags = [tagId.toString()];
 
       const removeTagsFromModelStub = sandbox.stub();
       removeTagsFromModelStub.resolves({
@@ -1056,7 +1054,7 @@ describe('#services/projectTemplate', () => {
       } as unknown as databaseTypes.IProjectTemplate);
       sandbox.replace(dbConnection.models.ProjectTemplateModel, 'removeTags', removeTagsFromModelStub);
 
-      const projectTemplate = await projectTemplateService.removeTags(projectTemplateId, tags);
+      const projectTemplate = await projectTemplateService.removeTags(projectTemplateId.toString(), tags);
 
       assert.isOk(projectTemplate);
       assert.strictEqual(projectTemplate._id, projectTemplateId);
@@ -1071,7 +1069,7 @@ describe('#services/projectTemplate', () => {
       const tagId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const tags = [tagId];
+      const tags = [tagId.toString()];
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'FileStats', []);
 
@@ -1093,7 +1091,7 @@ describe('#services/projectTemplate', () => {
 
       let errored = false;
       try {
-        await projectTemplateService.removeTags(projectTemplateId, tags);
+        await projectTemplateService.removeTags(projectTemplateId.toString(), tags);
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
@@ -1111,7 +1109,7 @@ describe('#services/projectTemplate', () => {
       const tagId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const tags = [tagId];
+      const tags = [tagId.toString()];
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
 
@@ -1133,7 +1131,7 @@ describe('#services/projectTemplate', () => {
 
       let errored = false;
       try {
-        await projectTemplateService.removeTags(projectTemplateId, tags);
+        await projectTemplateService.removeTags(projectTemplateId.toString(), tags);
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
@@ -1150,7 +1148,7 @@ describe('#services/projectTemplate', () => {
       const tagId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const tags = [tagId];
+      const tags = [tagId.toString()];
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'removeTags');
 
@@ -1172,7 +1170,7 @@ describe('#services/projectTemplate', () => {
 
       let errored = false;
       try {
-        await projectTemplateService.removeTags(projectTemplateId, tags);
+        await projectTemplateService.removeTags(projectTemplateId.toString(), tags);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;

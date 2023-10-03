@@ -1,0 +1,5 @@
+{
+  "name": "Neovim Dev Container",
+  "image": "ghcr.io/synglyphx/monorepo:latest",
+  "features": {}
+}

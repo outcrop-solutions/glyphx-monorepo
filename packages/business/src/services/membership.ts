@@ -1,17 +1,12 @@
 import {databaseTypes} from 'types';
 import {error, constants} from 'core';
-import {Types as mongooseTypes} from 'mongoose';
+
 import mongoDbConnection from '../lib/databaseConnection';
 
 export class MembershipService {
-  public static async getMember(memberId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IMember | null> {
+  public static async getMember(memberId: string): Promise<databaseTypes.IMember | null> {
     try {
-      const id =
-        memberId instanceof mongooseTypes.ObjectId
-          ? memberId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(memberId);
-      const member = await mongoDbConnection.models.MemberModel.getMemberById(id);
+      const member = await mongoDbConnection.models.MemberModel.getMemberById(memberId);
       return member;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -84,14 +79,9 @@ export class MembershipService {
     }
   }
 
-  public static async remove(memberId: mongooseTypes.ObjectId | string): Promise<databaseTypes.IMember | null> {
+  public static async remove(memberId: string): Promise<databaseTypes.IMember | null> {
     try {
-      const id =
-        memberId instanceof mongooseTypes.ObjectId
-          ? memberId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(memberId);
-      const member = await mongoDbConnection.models.MemberModel.updateMemberById(id, {
+      const member = await mongoDbConnection.models.MemberModel.updateMemberById(memberId, {
         deletedAt: new Date(),
       });
       return member;
@@ -114,17 +104,12 @@ export class MembershipService {
   }
 
   public static async updateRole(
-    memberId: mongooseTypes.ObjectId | string,
+    memberId: string,
     role: databaseTypes.constants.ROLE | databaseTypes.constants.PROJECT_ROLE
   ): Promise<databaseTypes.IMember | null> {
     try {
-      const id =
-        memberId instanceof mongooseTypes.ObjectId
-          ? memberId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(memberId);
       if (role === databaseTypes.constants.ROLE.MEMBER || role === databaseTypes.constants.ROLE.OWNER) {
-        const member = await mongoDbConnection.models.MemberModel.updateMemberById(id, {
+        const member = await mongoDbConnection.models.MemberModel.updateMemberById(memberId, {
           teamRole: role,
         });
         return member;
@@ -133,7 +118,7 @@ export class MembershipService {
         role === databaseTypes.constants.PROJECT_ROLE.READ_ONLY ||
         role === databaseTypes.constants.PROJECT_ROLE.OWNER
       ) {
-        const member = await mongoDbConnection.models.MemberModel.updateMemberById(id, {
+        const member = await mongoDbConnection.models.MemberModel.updateMemberById(memberId, {
           projectRole: role,
         });
         return member;
@@ -159,16 +144,11 @@ export class MembershipService {
   }
 
   public static async updateStatus(
-    memberId: mongooseTypes.ObjectId | string,
+    memberId: string,
     status: databaseTypes.constants.INVITATION_STATUS
   ): Promise<databaseTypes.IMember | null> {
     try {
-      const id =
-        memberId instanceof mongooseTypes.ObjectId
-          ? memberId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(memberId);
-      const member = await mongoDbConnection.models.MemberModel.updateMemberById(id, {
+      const member = await mongoDbConnection.models.MemberModel.updateMemberById(memberId, {
         status,
       });
       return member;
