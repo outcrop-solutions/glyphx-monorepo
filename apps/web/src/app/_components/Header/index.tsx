@@ -18,6 +18,7 @@ const Header = () => {
   const router = useRouter();
   const params = useParams();
   const {workspaceId} = params as {workspaceId: string};
+  const {projectId} = params as {projectId: string};
   const pathname = usePathname();
 
   const backPressed = () => {
@@ -30,7 +31,7 @@ const Header = () => {
   return (
     <div
       className={`flex flex-row h-[56px] sticky z-60 top-0 items-center bg-secondary-midnight justify-between pr-4 ${
-        workspaceId && !pathname?.includes('settings') && !project && 'pl-8 pt-2 bg-primary-dark-blue'
+        workspaceId && !projectId ? 'bg-primary-dark-blue pl-8 pt-4 mt-0' : 'mt-4'
       } ${project ? 'border border-gray bg-secondary-space-blue' : 'md:pt-0'}`}
     >
       {project ? (

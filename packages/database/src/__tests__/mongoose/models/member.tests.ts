@@ -8,6 +8,7 @@ import {error} from 'core';
 import mongoose, {Types as mongooseTypes} from 'mongoose';
 import {createSandbox} from 'sinon';
 import {IMemberCreateInput} from '../../../mongoose/interfaces';
+import {DBFormatter} from '../../../lib/format';
 
 const MOCK_MEMBER: databaseTypes.IMember = {
   email: 'jamesmurdockgraham@gmail.com',
@@ -489,12 +490,16 @@ describe('#mongoose/models/member', () => {
       const memberId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
-      updateStub.resolves({modifiedCount: 1});
-      sandbox.replace(MemberModel, 'updateOne', updateStub);
+      updateStub.resolves({
+        toObject: () => ({_id: memberId, email: 'jp@glyphx.co'}), // Sample data
+      });
+      sandbox.replace(MemberModel, 'findOneAndUpdate', updateStub);
 
       const getUserStub = sandbox.stub();
       getUserStub.resolves(true);
       sandbox.replace(UserModel, 'userIdExists', getUserStub);
+
+      sandbox.stub(DBFormatter.prototype, 'toJS').returns({id: memberId.toString(), email: 'jp@glyphx.co'});
 
       const getWorkspaceStub = sandbox.stub();
       getUserStub.resolves(true);
@@ -524,9 +529,12 @@ describe('#mongoose/models/member', () => {
       const memberId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
-      updateStub.resolves({modifiedCount: 1});
-      sandbox.replace(MemberModel, 'updateOne', updateStub);
+      updateStub.resolves({
+        toObject: () => ({_id: memberId, email: 'jp@glyphx.co'}), // Sample data
+      });
+      sandbox.replace(MemberModel, 'findOneAndUpdate', updateStub);
 
+      sandbox.stub(DBFormatter.prototype, 'toJS').returns({id: memberId.toString(), email: 'jp@glyphx.co'});
       const getUserStub = sandbox.stub();
       getUserStub.resolves(true);
       sandbox.replace(UserModel, 'userIdExists', getUserStub);
@@ -554,8 +562,12 @@ describe('#mongoose/models/member', () => {
       const memberId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
-      updateStub.resolves({modifiedCount: 1});
-      sandbox.replace(MemberModel, 'updateOne', updateStub);
+      updateStub.resolves({
+        toObject: () => ({_id: memberId, email: 'jp@glyphx.co'}), // Sample data
+      });
+      sandbox.replace(MemberModel, 'findOneAndUpdate', updateStub);
+
+      sandbox.stub(DBFormatter.prototype, 'toJS').returns({id: memberId.toString(), email: 'jp@glyphx.co'});
 
       const getUserStub = sandbox.stub();
       getUserStub.resolves(true);
@@ -584,8 +596,12 @@ describe('#mongoose/models/member', () => {
       const memberId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
-      updateStub.resolves({modifiedCount: 1});
-      sandbox.replace(MemberModel, 'updateOne', updateStub);
+      updateStub.resolves({
+        toObject: () => ({_id: memberId, email: 'jp@glyphx.co'}), // Sample data
+      });
+      sandbox.replace(MemberModel, 'findOneAndUpdate', updateStub);
+
+      sandbox.stub(DBFormatter.prototype, 'toJS').returns({id: memberId.toString(), email: 'jp@glyphx.co'});
 
       const getWorkspaceStub = sandbox.stub();
       getWorkspaceStub.resolves(true);
@@ -612,8 +628,8 @@ describe('#mongoose/models/member', () => {
       const memberId = new mongoose.Types.ObjectId();
 
       const updateStub = sandbox.stub();
-      updateStub.resolves({modifiedCount: 0});
-      sandbox.replace(MemberModel, 'updateOne', updateStub);
+      updateStub.resolves(null);
+      sandbox.replace(MemberModel, 'findOneAndUpdate', updateStub);
 
       const getMemberStub = sandbox.stub();
       getMemberStub.resolves({_id: memberId});
@@ -642,8 +658,12 @@ describe('#mongoose/models/member', () => {
       );
 
       const updateStub = sandbox.stub();
-      updateStub.resolves({modifiedCount: 1});
-      sandbox.replace(MemberModel, 'updateOne', updateStub);
+      updateStub.resolves({
+        toObject: () => ({_id: memberId, email: 'jp@glyphx.co'}), // Sample data
+      });
+      sandbox.replace(MemberModel, 'findOneAndUpdate', updateStub);
+
+      sandbox.stub(DBFormatter.prototype, 'toJS').returns({id: memberId.toString(), email: 'jp@glyphx.co'});
 
       const getMemberStub = sandbox.stub();
       getMemberStub.resolves({_id: memberId});
@@ -667,7 +687,7 @@ describe('#mongoose/models/member', () => {
 
       const updateStub = sandbox.stub();
       updateStub.rejects('something really bad has happened');
-      sandbox.replace(MemberModel, 'updateOne', updateStub);
+      sandbox.replace(MemberModel, 'findOneAndUpdate', updateStub);
 
       const getMemberStub = sandbox.stub();
       getMemberStub.resolves({_id: memberId});

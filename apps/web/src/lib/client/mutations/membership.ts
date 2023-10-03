@@ -64,7 +64,7 @@ export const _removeMember = (memberId: string): webTypes.IFetchConfig => {
       body: {
         memberId: memberId,
       },
-      method: 'DELETE',
+      method: 'POST',
     },
     successMsg: 'Removed team member from workspace.',
   };

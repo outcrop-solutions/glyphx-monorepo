@@ -6,17 +6,17 @@ const menu = (workspaceId) => [
     menuItems: [
       {
         name: 'Workspace',
-        path: `/account/${workspaceId}/settings/general`,
+        path: `/${workspaceId}/settings/general`,
         altIcon: <CogIcon />,
       },
       {
         name: 'Team',
-        path: `/account/${workspaceId}/settings/team`,
+        path: `/${workspaceId}/settings/team`,
         altIcon: <UserGroupIcon />,
       },
       {
         name: 'Advanced',
-        path: `/account/${workspaceId}/settings/advanced`,
+        path: `/${workspaceId}/settings/advanced`,
         altIcon: <ShieldExclamationIcon />,
       },
     ],

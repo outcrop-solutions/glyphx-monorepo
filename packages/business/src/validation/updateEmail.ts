@@ -3,6 +3,6 @@ import {initMiddleware, validateMiddleware} from '../lib';
 
 const rules = [check('email').isEmail().withMessage('Email must be valid')];
 
-const validateUpdateName = initMiddleware(validateMiddleware(rules));
+const validateUpdateEmail = initMiddleware(validateMiddleware(rules));
 
-export default validateUpdateName;
+export default validateUpdateEmail;

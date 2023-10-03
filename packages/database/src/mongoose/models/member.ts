@@ -453,7 +453,10 @@ SCHEMA.static('validateUpdateObject', async (member: Omit<Partial<databaseTypes.
 
 SCHEMA.static(
   'updateMemberWithFilter',
-  async (filter: Record<string, unknown>, member: Omit<Partial<databaseTypes.IMember>, '_id'>): Promise<boolean> => {
+  async (
+    filter: Record<string, unknown>,
+    member: Omit<Partial<databaseTypes.IMember>, '_id'>
+  ): Promise<databaseTypes.IMember> => {
     try {
       await MEMBER_MODEL.validateUpdateObject(member);
       const transformedMember: Partial<IMemberDocument> & Record<string, any> = {};
@@ -466,10 +469,13 @@ SCHEMA.static(
           transformedMember[key] = value;
         }
       }
-      const updateResult = await MEMBER_MODEL.updateOne(filter, transformedMember);
-      if (updateResult.modifiedCount !== 1) {
+      const updateResult = await MEMBER_MODEL.findOneAndUpdate(filter, transformedMember, {new: true});
+      if (updateResult === null) {
         throw new error.InvalidArgumentError(`No member document with filter: ${filter} was found`, 'filter', filter);
       }
+
+      const format = new DBFormatter();
+      return format.toJS(updateResult.toObject());
     } catch (err) {
       if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) throw err;
       else
@@ -481,18 +487,14 @@ SCHEMA.static(
           err
         );
     }
-    return true;
   }
 );
 
 SCHEMA.static(
   'updateMemberById',
-  async (
-    memberId: mongooseTypes.ObjectId,
-    member: Omit<Partial<databaseTypes.IMember>, '_id'>
-  ): Promise<databaseTypes.IMember> => {
+  async (memberId: string, member: Omit<Partial<databaseTypes.IMember>, '_id'>): Promise<databaseTypes.IMember> => {
     await MEMBER_MODEL.updateMemberWithFilter({_id: memberId}, member);
-    const retval = await MEMBER_MODEL.getMemberById(memberId.toString());
+    const retval = await MEMBER_MODEL.getMemberById(memberId);
     return retval;
   }
 );

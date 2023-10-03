@@ -106,7 +106,7 @@ export class ActivityLogService {
         throw err;
       } else {
         const e = new error.DataServiceError(
-          'An unexpected error occurred while creating thea activity Log. See the inner error for additional details',
+          'An unexpected error occurred while creating the activity Log. See the inner error for additional details',
           'activityLog',
           'createActivityLog',
           {actorId, resourceId},

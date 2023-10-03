@@ -53,6 +53,7 @@ export const removeMember = async (req: NextApiRequest, res: NextApiResponse, se
   const {memberId} = req.body;
   try {
     const member = await membershipService.remove(memberId);
+
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
@@ -85,7 +86,12 @@ export const removeMember = async (req: NextApiRequest, res: NextApiResponse, se
 export const joinWorkspace = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const {workspaceCode} = req.body;
   try {
-    const workspace = await workspaceService.joinWorkspace(workspaceCode, session?.user?.email as string);
+    const workspace = await workspaceService.joinWorkspace(
+      workspaceCode,
+      session?.user?.email as string,
+      session?.user?.id as string,
+      session?.user?.id as string // This will need to be differentiated when we start to track inviteLinks
+    );
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
