@@ -1,7 +1,7 @@
 type Code = string | null;
 type Name = string | null;
-function html({code, name}: {code: Code; name: Name}): string {
-  const link = `${process.env.APP_URL}/teams/invite?code=${encodeURI(code || '')}`;
+function html({id, code, name}: {id: Code; code: Code; name: Name}): string {
+  const link = `${process.env.APP_URL || 'http://localhost:3000'}/${id}/teams?code=${encodeURI(code || '')}`;
 
   return `
 <body>
@@ -15,8 +15,8 @@ function html({code, name}: {code: Code; name: Name}): string {
 `;
 }
 
-function text({code, name}: {code: Code; name: Name}): string {
-  const link = `${process.env.APP_URL}/teams/invite?code=${encodeURI(code || '')}`;
+function text({id, code, name}: {id: Code; code: Code; name: Name}): string {
+  const link = `${process.env.APP_URL || 'http://localhost:3000'}/${id}/teams?code=${encodeURI(code || '')}`;
 
   return `
 Hello there!
