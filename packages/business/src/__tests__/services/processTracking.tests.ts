@@ -170,7 +170,7 @@ describe('ProcessTrackingService', () => {
     it('should return the process status processId is a string', async () => {
       const getStub = sandbox.stub();
       getStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
 
       const reconcileStatusStub = sandbox.stub();
       reconcileStatusStub.resolves(mockProcessTracking);
@@ -192,7 +192,7 @@ describe('ProcessTrackingService', () => {
     it('should return the process status processId is an ObjectId', async () => {
       const getStub = sandbox.stub();
       getStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
 
       const reconcileStatusStub = sandbox.stub();
       reconcileStatusStub.resolves(mockProcessTracking);
@@ -215,7 +215,7 @@ describe('ProcessTrackingService', () => {
       const notFoundError = new error.DataNotFoundError('the data is not found', 'key', 'value');
       const getStub = sandbox.stub();
       getStub.rejects(notFoundError);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
 
       const reconcileStatusStub = sandbox.stub();
       reconcileStatusStub.resolves(mockProcessTracking);
@@ -246,7 +246,7 @@ describe('ProcessTrackingService', () => {
       );
       const getStub = sandbox.stub();
       getStub.rejects(databaseError);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
       const reconcileStatusStub = sandbox.stub();
       reconcileStatusStub.resolves(mockProcessTracking);
       sandbox.replace(ProcessTrackingService as any, 'reconcileStatus', reconcileStatusStub);
@@ -739,7 +739,7 @@ describe('ProcessTrackingService', () => {
     it('should add an error to the process with the processId as a string', async () => {
       const updateStub = sandbox.stub();
       updateStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addErrorsById', updateStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addErrorsByProcessId', updateStub);
 
       const processId = mockProcessTracking.processId;
       const processError = new error.GlyphxError('I am an error', 999);
@@ -757,7 +757,7 @@ describe('ProcessTrackingService', () => {
     it('should add an error to the process with the processId as an ObjectId', async () => {
       const updateStub = sandbox.stub();
       updateStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addErrorsById', updateStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addErrorsByProcessId', updateStub);
 
       const processId = mockProcessTracking._id as mongooseTypes.ObjectId;
       const processError = new error.GlyphxError('I am an error', 999);
@@ -776,7 +776,7 @@ describe('ProcessTrackingService', () => {
       const notFoundError = new error.DataNotFoundError('the data is not found', 'key', 'value');
       const updateStub = sandbox.stub();
       updateStub.rejects(notFoundError);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addErrorsById', updateStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addErrorsByProcessId', updateStub);
 
       function fakePublish() {
         //@ts-ignore
@@ -811,7 +811,7 @@ describe('ProcessTrackingService', () => {
       const notFoundError = new error.InvalidArgumentError('The argument is invalid', 'key', 'value');
       const updateStub = sandbox.stub();
       updateStub.rejects(notFoundError);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addErrorsById', updateStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addErrorsByProcessId', updateStub);
 
       function fakePublish() {
         //@ts-ignore
@@ -846,7 +846,7 @@ describe('ProcessTrackingService', () => {
       const databaseError = new error.DatabaseOperationError('something bad happened', 'mongoDb', 'addErrorsById');
       const updateStub = sandbox.stub();
       updateStub.rejects(databaseError);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addErrorsById', updateStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addErrorsByProcessId', updateStub);
 
       const publishOverride = sandbox.stub();
       publishOverride.returns(databaseError);
@@ -891,7 +891,7 @@ describe('ProcessTrackingService', () => {
     it('should add a message to the process with the processId as a string', async () => {
       const updateStub = sandbox.stub();
       updateStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addMessagesById', updateStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addMessagesByProcessId', updateStub);
 
       const processId = mockProcessTracking.processId;
       const message = 'I am a message';
@@ -909,7 +909,7 @@ describe('ProcessTrackingService', () => {
     it('should add a message to the process with the processId as an ObjectId', async () => {
       const updateStub = sandbox.stub();
       updateStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addMessagesById', updateStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addMessagesByProcessId', updateStub);
 
       const processId = mockProcessTracking._id as mongooseTypes.ObjectId;
       const message = 'I am a message';
@@ -928,7 +928,7 @@ describe('ProcessTrackingService', () => {
       const notFoundError = new error.DataNotFoundError('the data is not found', 'key', 'value');
       const updateStub = sandbox.stub();
       updateStub.rejects(notFoundError);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addMessagesById', updateStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addMessagesByProcessId', updateStub);
 
       function fakePublish() {
         //@ts-ignore
@@ -963,7 +963,7 @@ describe('ProcessTrackingService', () => {
       const notFoundError = new error.InvalidArgumentError('the argument is invalid', 'key', 'value');
       const updateStub = sandbox.stub();
       updateStub.rejects(notFoundError);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addMessagesById', updateStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addMessagesByProcessId', updateStub);
 
       function fakePublish() {
         //@ts-ignore
@@ -998,7 +998,7 @@ describe('ProcessTrackingService', () => {
       const databaseError = new error.DatabaseOperationError('something bad happened', 'mongoDb', 'addErrorsById');
       const updateStub = sandbox.stub();
       updateStub.rejects(databaseError);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addMessagesById', updateStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addMessagesByProcessId', updateStub);
 
       const publishOverride = sandbox.stub();
       publishOverride.returns(databaseError);
@@ -1073,7 +1073,7 @@ describe('ProcessTrackingService', () => {
     it('should return the processTracking object when processId is a string', async () => {
       const getStub = sandbox.stub();
       getStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
 
       const reconcileStatusStub = sandbox.stub();
       reconcileStatusStub.resolves(mockProcessTracking);
@@ -1097,38 +1097,11 @@ describe('ProcessTrackingService', () => {
       assert.isTrue(reconcileStatusStub.calledOnce);
     });
 
-    it('should return the processTracking document when processId is an ObjectId', async () => {
-      const getStub = sandbox.stub();
-      getStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
-
-      const reconcileStatusStub = sandbox.stub();
-      reconcileStatusStub.resolves(mockProcessTracking);
-      sandbox.replace(ProcessTrackingService as any, 'reconcileStatus', reconcileStatusStub);
-
-      const processId = mockProcessTracking._id as mongooseTypes.ObjectId;
-      const result = await ProcessTrackingService.getProcessTracking(processId.toString());
-      assert.isOk(result);
-      assert.strictEqual(result?.processStatus, mockProcessTracking.processStatus);
-      assert.strictEqual(result?.processError.length, mockProcessTracking.processError.length);
-      assert.strictEqual(result?.processError[0].message, mockProcessTracking.processError[0].message);
-      assert.strictEqual(result?.processMessages.length, mockProcessTracking.processMessages.length);
-      assert.strictEqual(result?.processMessages[0], mockProcessTracking.processMessages[0]);
-      assert.strictEqual(result?.processResult?.result, mockProcessTracking.processResult?.result);
-
-      assert.strictEqual(result?.processStartTime.getTime(), mockProcessTracking.processStartTime.getTime());
-
-      assert.strictEqual(result?.processId, mockProcessTracking.processId);
-      assert.strictEqual(result?.processName, mockProcessTracking.processName);
-      assert.strictEqual(result?._id, mockProcessTracking._id);
-      assert.isTrue(reconcileStatusStub.calledOnce);
-    });
-
     it('will return null when the processId does not exist', async () => {
       const notFoundError = new error.DataNotFoundError('the data is not found', 'key', 'value');
       const getStub = sandbox.stub();
       getStub.rejects(notFoundError);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
 
       const reconcileStatusStub = sandbox.stub();
       reconcileStatusStub.resolves(mockProcessTracking);
@@ -1161,7 +1134,7 @@ describe('ProcessTrackingService', () => {
       );
       const getStub = sandbox.stub();
       getStub.rejects(databaseError);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
 
       const reconcileStatusStub = sandbox.stub();
       reconcileStatusStub.resolves(mockProcessTracking);
@@ -1221,7 +1194,7 @@ describe('ProcessTrackingService', () => {
     it('should return the processTracking.processError array  when processId is a string', async () => {
       const getStub = sandbox.stub();
       getStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
 
       const processId = mockProcessTracking.processId;
       const result = await ProcessTrackingService.getProcessError(processId.toString());
@@ -1233,7 +1206,7 @@ describe('ProcessTrackingService', () => {
     it('should return the processTracking processError array when processId is an ObjectId', async () => {
       const getStub = sandbox.stub();
       getStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
 
       const processId = mockProcessTracking._id as mongooseTypes.ObjectId;
       const result = await ProcessTrackingService.getProcessError(processId.toString());
@@ -1245,7 +1218,7 @@ describe('ProcessTrackingService', () => {
     it('should return null when processId is not found', async () => {
       const getStub = sandbox.stub();
       getStub.rejects(new error.DataNotFoundError('not found', 'key', 'value'));
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
 
       const processId = mockProcessTracking.processId;
       const result = await ProcessTrackingService.getProcessError(processId.toString());
@@ -1291,7 +1264,7 @@ describe('ProcessTrackingService', () => {
     it('should return the processTracking processMessages array when processId is a string', async () => {
       const getStub = sandbox.stub();
       getStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
 
       const processId = mockProcessTracking.processId;
       const result = await ProcessTrackingService.getProcessMessages(processId.toString());
@@ -1303,7 +1276,7 @@ describe('ProcessTrackingService', () => {
     it('should return the processTracking processMessages array when processId is an ObjectId', async () => {
       const getStub = sandbox.stub();
       getStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
 
       const processId = mockProcessTracking._id as mongooseTypes.ObjectId;
       const result = await ProcessTrackingService.getProcessMessages(processId.toString());
@@ -1314,7 +1287,7 @@ describe('ProcessTrackingService', () => {
     it('should return null when processId is not found', async () => {
       const getStub = sandbox.stub();
       getStub.rejects(new error.DataNotFoundError('not found', 'key', 'value'));
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
 
       const processId = mockProcessTracking.processId;
       const result = await ProcessTrackingService.getProcessMessages(processId.toString());
@@ -1345,7 +1318,7 @@ describe('ProcessTrackingService', () => {
     it('should return the processTracking processResult object when processId is a string', async () => {
       const getStub = sandbox.stub();
       getStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
 
       const processId = mockProcessTracking.processId;
       const result = await ProcessTrackingService.getProcessResult(processId.toString());
@@ -1356,7 +1329,7 @@ describe('ProcessTrackingService', () => {
     it('should return the processTracking processResult object when processId is an ObjectId', async () => {
       const getStub = sandbox.stub();
       getStub.resolves(mockProcessTracking);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
 
       const processId = mockProcessTracking._id as mongooseTypes.ObjectId;
       const result = await ProcessTrackingService.getProcessResult(processId.toString());
@@ -1366,7 +1339,7 @@ describe('ProcessTrackingService', () => {
     it('should return null when processId is not found', async () => {
       const getStub = sandbox.stub();
       getStub.rejects(new error.DataNotFoundError('not found', 'key', 'value'));
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentById', getStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'getProcessTrackingDocumentByProcessId', getStub);
 
       const processId = mockProcessTracking.processId;
       const result = await ProcessTrackingService.getProcessResult(processId.toString());
@@ -1384,7 +1357,7 @@ describe('ProcessTrackingService', () => {
     it('should remove the process tracking document by processId as string', async () => {
       const deleteStub = sandbox.stub();
       deleteStub.resolves();
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'deleteProcessTrackingDocumentById', deleteStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'deleteProcessTrackingDocumentProcessId', deleteStub);
 
       const processId = new mongooseTypes.ObjectId().toString();
       await ProcessTrackingService.removeProcessTrackingDocument(processId);
@@ -1394,7 +1367,7 @@ describe('ProcessTrackingService', () => {
     it('should remove the process tracking document by processId as ObjectId', async () => {
       const deleteStub = sandbox.stub();
       deleteStub.resolves();
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'deleteProcessTrackingDocumentById', deleteStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'deleteProcessTrackingDocumentProcessId', deleteStub);
 
       const processId =
         // @ts-ignore
@@ -1407,7 +1380,7 @@ describe('ProcessTrackingService', () => {
       const invalidError = new error.InvalidArgumentError('invalid', 'key', 'value');
       const deleteStub = sandbox.stub();
       deleteStub.rejects(invalidError);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'deleteProcessTrackingDocumentById', deleteStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'deleteProcessTrackingDocumentProcessId', deleteStub);
 
       function fakePublish() {
         //@ts-ignore
@@ -1444,7 +1417,7 @@ describe('ProcessTrackingService', () => {
       );
       const deleteStub = sandbox.stub();
       deleteStub.rejects(invalidError);
-      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'deleteProcessTrackingDocumentById', deleteStub);
+      sandbox.replace(dbConnection.models.ProcessTrackingModel, 'deleteProcessTrackingDocumentProcessId', deleteStub);
 
       const publishOverride = sandbox.stub();
       publishOverride.resolves();

@@ -1,7 +1,7 @@
 import {assert} from 'chai';
 import {ProcessTrackingModel} from '../../../mongoose/models/processTracking';
 import {databaseTypes} from 'types';
-import {error} from 'core';
+import {error, generalPurposeFunctions} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
 
@@ -803,22 +803,22 @@ describe('#mongoose/models/processTracking', () => {
         processName: 'updated processName',
       };
 
-      const processTrackingId = new mongoose.Types.ObjectId();
+      const processTrackingId = generalPurposeFunctions.processTracking.getProcessId();
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
       sandbox.replace(ProcessTrackingModel, 'updateOne', updateStub);
 
       const getProcessTrackingByIdStub = sandbox.stub();
-      getProcessTrackingByIdStub.resolves({_id: processTrackingId});
-      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentById', getProcessTrackingByIdStub);
+      getProcessTrackingByIdStub.resolves({processId: processTrackingId});
+      sandbox.replace(ProcessTrackingModel, 'getProcessTrackingDocumentByFilter', getProcessTrackingByIdStub);
 
       const result = await ProcessTrackingModel.updateProcessTrackingDocumentById(
-        processTrackingId.toString(),
+        processTrackingId,
         updateProcessTrackingDocument
       );
 
-      assert.strictEqual(result._id, processTrackingId);
+      assert.strictEqual(result.processId, processTrackingId);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(getProcessTrackingByIdStub.calledOnce);
     });

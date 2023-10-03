@@ -292,11 +292,13 @@ SCHEMA.static(
     processTrackingDocument: Omit<Partial<databaseTypes.IProcessTracking>, '_id'>
   ): Promise<databaseTypes.IProcessTracking> => {
     await PROCESS_TRACKING_MODEL.updateProcessTrackingDocumentWithFilter(
-      {_id: processTrackingDocumentId},
+      {processId: processTrackingDocumentId},
       processTrackingDocument
     );
 
-    const retval = await PROCESS_TRACKING_MODEL.getProcessTrackingDocumentById(processTrackingDocumentId);
+    const retval = await PROCESS_TRACKING_MODEL.getProcessTrackingDocumentByFilter({
+      processId: processTrackingDocumentId,
+    });
     return retval;
   }
 );
@@ -342,6 +344,7 @@ SCHEMA.static('deleteProcessTrackingDocumentById', async (processTrackingDocumen
     _id: processTrackingDocumentId,
   });
 });
+
 SCHEMA.static('deleteProcessTrackingDocumentProcessId', async (processId: string): Promise<void> => {
   await PROCESS_TRACKING_MODEL.deleteProcessTrackingDocumentByFilter({
     processId: processId,

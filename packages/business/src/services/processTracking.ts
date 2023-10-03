@@ -88,7 +88,7 @@ export class ProcessTrackingService {
       const processTrackingModel = mongoDbConnection.models.ProcessTrackingModel;
       let processTrackingDocument: databaseTypes.IProcessTracking | null = null;
 
-      processTrackingDocument = (await processTrackingModel.getProcessTrackingDocumentById(
+      processTrackingDocument = (await processTrackingModel.getProcessTrackingDocumentByProcessId(
         processId
       )) as databaseTypes.IProcessTracking;
 
@@ -211,7 +211,7 @@ export class ProcessTrackingService {
   public static async addProcessError(processId: string, inputError: error.GlyphxError): Promise<void> {
     try {
       const processTrackingModel = mongoDbConnection.models.ProcessTrackingModel;
-      await processTrackingModel.addErrorsById(processId, [inputError as unknown as Record<string, unknown>]);
+      await processTrackingModel.addErrorsByProcessId(processId, [inputError as unknown as Record<string, unknown>]);
     } catch (err) {
       if (err instanceof error.DataNotFoundError || err instanceof error.InvalidArgumentError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
@@ -235,7 +235,7 @@ export class ProcessTrackingService {
   public static async addProcessMessage(processId: string, message: string): Promise<void> {
     try {
       const processTrackingModel = mongoDbConnection.models.ProcessTrackingModel;
-      await processTrackingModel.addMessagesById(processId, [message]);
+      await processTrackingModel.addMessagesByProcessId(processId, [message]);
     } catch (err) {
       if (err instanceof error.DataNotFoundError || err instanceof error.InvalidArgumentError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
@@ -261,7 +261,7 @@ export class ProcessTrackingService {
       const processTrackingModel = mongoDbConnection.models.ProcessTrackingModel;
       let processTrackingDocument: databaseTypes.IProcessTracking | null = null;
 
-      processTrackingDocument = await processTrackingModel.getProcessTrackingDocumentById(processId);
+      processTrackingDocument = await processTrackingModel.getProcessTrackingDocumentByProcessId(processId);
 
       const updatedDocument = await ProcessTrackingService.reconcileStatus(processTrackingDocument!);
 
@@ -312,7 +312,7 @@ export class ProcessTrackingService {
 
   public static async removeProcessTrackingDocument(processId: string) {
     try {
-      await mongoDbConnection.models.ProcessTrackingModel.deleteProcessTrackingDocumentById(processId);
+      await mongoDbConnection.models.ProcessTrackingModel.deleteProcessTrackingDocumentProcessId(processId);
     } catch (err) {
       if (err instanceof error.InvalidArgumentError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);

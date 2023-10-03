@@ -112,7 +112,7 @@ describe('#processTrackingModel', () => {
     it('modify a process tracking document by id', async () => {
       assert.isOk(processTrackingId);
       const input = {processName: 'I have been modified'};
-      const updatedDocument = await processTrackingModel.updateProcessTrackingDocumentById(processTrackingId, input);
+      const updatedDocument = await processTrackingModel.updateProcessTrackingDocumentById(INPUT_DATA.processId, input);
       assert.strictEqual(updatedDocument.processName, input.processName);
     });
 
