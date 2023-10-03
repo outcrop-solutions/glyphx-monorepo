@@ -67,9 +67,9 @@ export class WorkspaceService {
       await mongoDbConnection.models.UserModel.addWorkspaces(creatorId, [newWorkspace]);
 
       await EmailClient.sendMail({
-        html: workspaceCreateHtml({code: workspace.inviteCode, name}),
+        html: workspaceCreateHtml({id: newWorkspace.id!, code: workspace.inviteCode, name}),
         subject: `[Glyphx] Workspace created: ${name}`,
-        text: workspaceCreateText({code: workspace.inviteCode, name}),
+        text: workspaceCreateText({id: newWorkspace.id!, code: workspace.inviteCode, name}),
         to: email,
       });
 
@@ -437,11 +437,13 @@ export class WorkspaceService {
           mongoDbConnection.models.WorkspaceModel.addMembers(workspace.id!, [...memberIds]),
           EmailClient.sendMail({
             html: inviteHtml({
+              id: workspace.id!,
               code: workspace.inviteCode,
               name: workspace.name,
             }),
             subject: `[Glyphx] You have been invited to join ${workspace.name} workspace`,
             text: inviteText({
+              id: workspace.id!,
               code: workspace.inviteCode,
               name: workspace.name,
             }),
