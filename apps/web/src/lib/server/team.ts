@@ -53,7 +53,6 @@ export const removeMember = async (req: NextApiRequest, res: NextApiResponse, se
   const {memberId} = req.body;
   try {
     const member = await membershipService.remove(memberId);
-    console.log({member, server: true});
 
     const {agentData, location} = formatUserAgent(req);
 
