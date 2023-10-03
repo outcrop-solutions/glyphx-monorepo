@@ -31,7 +31,11 @@ const Header = () => {
   return (
     <div
       className={`flex flex-row h-[56px] sticky z-60 top-0 items-center bg-secondary-midnight justify-between pr-4 ${
-        workspaceId && !projectId ? 'bg-primary-dark-blue pl-8 pt-4 mt-0' : 'mt-4'
+        workspaceId && !projectId
+          ? 'bg-primary-dark-blue pl-8 pt-4 mt-0'
+          : pathname?.includes('billing') || pathname?.includes('settings') || pathname === '/account'
+          ? 'mt-4'
+          : 'mt-0'
       } ${project ? 'border border-gray bg-secondary-space-blue' : 'md:pt-0'}`}
     >
       {project ? (
