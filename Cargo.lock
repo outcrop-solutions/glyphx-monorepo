@@ -1257,6 +1257,7 @@ dependencies = [
  "env_logger",
  "getrandom",
  "glam",
+ "glyphx_core",
  "log",
  "nalgebra",
  "num-traits",

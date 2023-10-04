@@ -1,4 +1,5 @@
 pub(crate) mod glyph_instance_data;
+pub(crate) mod ranked_glyph_data;
 use crate::assets::rectangular_prism::create_rectangular_prism;
 use crate::assets::shape_vertex::ShapeVertex;
 use crate::camera::uniform_buffer::CameraUniform;
