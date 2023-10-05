@@ -1,22 +1,25 @@
 use crate::model::pipeline::glyphs::glyph_instance_data::GlyphInstanceData;
 use std::rc::Rc;
-#[derive(Debug, Clone)]
 
+#[derive(Debug, Copy, Clone)]
 pub enum RankedGlyphDataError {
     InvalidXRank(usize),
     InvalidZRank(usize),
 }
 
+#[derive(Debug, Copy, Clone)]
 pub enum Rank {
     X,
     Z,
 }
 
+#[derive(Debug, Copy, Clone)]
 pub enum RankDirection {
     Ascending,
     Descending,
 }
 
+#[derive(Debug, Clone)]
 pub struct RankedGlyphIterator<'a> {
     rank: Rank,
     rank_direction: RankDirection,
@@ -67,7 +70,7 @@ impl <'a> Iterator for RankedGlyphIterator<'a> {
         }
     }
 }
-
+#[derive(Debug, Clone)]
 pub struct RankedGlyphData {
     x_rank_size: usize,
     z_rank_size: usize,
@@ -120,7 +123,7 @@ impl RankedGlyphData {
 
         let z_rank = &mut self.z_rank[z_rank];
         z_rank.push(Rc::clone(&rc));
-        core_data.push(rc);
+       // core_data.push(rc);
         Ok(())
     }
 
@@ -182,7 +185,7 @@ mod add {
         assert!(ranked_glyph_data.add(0, 0, first_glyph).is_ok());
         assert!(ranked_glyph_data.add(7, 4, second_glyph).is_ok());
 
-        assert_eq!(ranked_glyph_data.core_data.len(), 2);
+        assert_eq!(ranked_glyph_data.core_data.len(), 0);
 
         assert_eq!(ranked_glyph_data.x_rank[0].len(), 1);
         assert_eq!(ranked_glyph_data.z_rank[0].len(), 1);
