@@ -153,7 +153,7 @@ impl State {
             glyph_uniform_data,
             smaa_target,
             ranked_glyph_data,
-            rank: Rank::X,
+            rank: Rank::Z,
             rank_direction: RankDirection::Ascending,
             pipelines,
             light_buffer,
@@ -733,14 +733,26 @@ impl State {
         );
 
         let z_order_index = if self.camera.pitch <= -2.0 || self.camera.pitch >= 1.0 {
+            self.rank = Rank::Z;
+            self.rank_direction = RankDirection::Ascending;
             0
         } else if rotation_angle >= 1.9727829 && rotation_angle < 3.6219294 {
+            self.rank = Rank::Z;
+            self.rank_direction = RankDirection::Descending;
             1 //-- right or back, z(green) is covered.
         } else if rotation_angle >= 3.6219294 && rotation_angle < 4.2965374 {
+            self.rank = Rank::X;
+            self.rank_direction = RankDirection::Ascending;
             2 //-- back all three axis lines are visible.
+
         } else if rotation_angle >= 4.2965374 && rotation_angle < 5.997787 {
+            self.rank = Rank::X;
+            self.rank_direction = RankDirection::Descending;
             3 //-- left or back, x(red) is covered.
+
         } else {
+            self.rank = Rank::Z;
+            self.rank_direction = RankDirection::Ascending;
             0 //-- normal glyphs last
         };
         self.z_order = z_order_index;
