@@ -184,7 +184,7 @@ impl State {
             .camera_controller
             .process_events(event, &mut self.camera);
         if camera_result {
-            self.update_z_order();
+            self.update_z_order_and_rank();
         };
         camera_result
     }
@@ -720,7 +720,7 @@ impl State {
         }
     }
 
-    pub fn update_z_order(&mut self) {
+    pub fn update_z_order_and_rank(&mut self) {
         //TODO: This may need to be cleaned up a bit since cubes may not be square in the future.
         let cube_diameter = self.model_configuration.grid_cylinder_length
             + self.model_configuration.grid_cone_length;
@@ -733,28 +733,34 @@ impl State {
         );
 
         let z_order_index = if self.camera.pitch <= -2.0 || self.camera.pitch >= 1.0 {
-            self.rank = Rank::Z;
-            self.rank_direction = RankDirection::Ascending;
             0
         } else if rotation_angle >= 1.9727829 && rotation_angle < 3.6219294 {
+            1 //-- right or back, z(green) is covered.
+        } else if rotation_angle >= 3.6219294 && rotation_angle < 4.2965374 {
+            2 //-- back all three axis lines are visible.
+
+        } else if rotation_angle >= 4.2965374 && rotation_angle < 5.997787 {
+            3 //-- left or back, x(red) is covered.
+
+        } else {
+            0 //-- normal glyphs last
+        };
+        self.z_order = z_order_index;
+
+        if rotation_angle >= 1.9727829 && rotation_angle < 3.6219294 {
             self.rank = Rank::Z;
             self.rank_direction = RankDirection::Descending;
-            1 //-- right or back, z(green) is covered.
         } else if rotation_angle >= 3.6219294 && rotation_angle < 4.2965374 {
             self.rank = Rank::X;
             self.rank_direction = RankDirection::Ascending;
-            2 //-- back all three axis lines are visible.
 
         } else if rotation_angle >= 4.2965374 && rotation_angle < 5.997787 {
             self.rank = Rank::X;
             self.rank_direction = RankDirection::Descending;
-            3 //-- left or back, x(red) is covered.
 
         } else {
             self.rank = Rank::Z;
             self.rank_direction = RankDirection::Ascending;
-            0 //-- normal glyphs last
         };
-        self.z_order = z_order_index;
     }
 }

@@ -35,7 +35,7 @@ impl<'a> RankedGlyphIterator<'a> {
     ) -> RankedGlyphIterator<'a> {
         let index = match rank_direction {
             RankDirection::Ascending => 0,
-            RankDirection::Descending => data.len() - 1,
+            RankDirection::Descending => data.len(),
         };
         RankedGlyphIterator {
             rank,
@@ -63,7 +63,7 @@ impl <'a> Iterator for RankedGlyphIterator<'a> {
                 if self.index == 0 {
                     return None;
                 }
-                let result = &self.data[self.index];
+                let result = &self.data[self.index -1];
                 self.index -= 1;
                 Some(result)
             }
