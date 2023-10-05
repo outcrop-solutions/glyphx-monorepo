@@ -746,19 +746,18 @@ impl State {
             0 //-- normal glyphs last
         };
         self.z_order = z_order_index;
-
-        if rotation_angle >= 1.9727829 && rotation_angle < 3.6219294 {
+        if rotation_angle >= 2.221 && rotation_angle < 3.646 {
             self.rank = Rank::Z;
             self.rank_direction = RankDirection::Descending;
-        } else if rotation_angle >= 3.6219294 && rotation_angle < 4.2965374 {
+        } else if rotation_angle >= 0.846 && rotation_angle < 2.221 {
             self.rank = Rank::X;
             self.rank_direction = RankDirection::Ascending;
 
-        } else if rotation_angle >= 4.2965374 && rotation_angle < 5.997787 {
+        } else if rotation_angle >= 3.646 && rotation_angle < 5.800 {
             self.rank = Rank::X;
             self.rank_direction = RankDirection::Descending;
 
-        } else {
+        } else { //5.800 -- 0.846
             self.rank = Rank::Z;
             self.rank_direction = RankDirection::Ascending;
         };
