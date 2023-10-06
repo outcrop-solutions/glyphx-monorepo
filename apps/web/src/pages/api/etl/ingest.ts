@@ -24,7 +24,7 @@ import {fileIngestion} from 'lib/server/etl/fileIngestion';
  */
 
 export const maxDuration = 300;
-export const config = {ƒ
+export const config = {
   // Specifies the maximum allowed duration for this function to execute (in seconds)
   maxDuration: 300,
 };
