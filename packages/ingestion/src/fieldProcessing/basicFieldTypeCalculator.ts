@@ -143,9 +143,9 @@ export class BasicFieldTypeCalculator implements fieldProcessingInterfaces.IFiel
    * type will be set to {@link util/constants/fieldType!FIELD_TYPE.STRING | fileIngestionTypes.constants.FIELD_TYPE.STRING}
    */
   private calculateFieldType(): void {
-    const percentNumber = this.numberOfNumbers / (this.numberOfNumbers + this.numberOfStrings + this.numberOfDates);
+    const percentNumber = this.numberOfNumbers / this.samplesAnalyzedField;
 
-    const percentDate = this.numberOfDates / (this.numberOfDates + this.numberOfStrings + this.numberOfNumbers);
+    const percentDate = this.numberOfDates / this.samplesAnalyzedField;
     this.fieldTypeField =
       percentNumber < 0.65 && percentDate < 0.65
         ? fileIngestionTypes.constants.FIELD_TYPE.STRING
