@@ -5,6 +5,7 @@ import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {databaseTypes} from 'types';
 import {error} from 'core';
+import {DBFormatter} from '../lib/format';
 
 type ObjectId = mongooseTypes.ObjectId;
 
@@ -175,9 +176,10 @@ const INPUT_DATA2 = {
 describe('#UserModel', () => {
   context('test the crud functions of the user model', () => {
     const mongoConnection = new MongoDbConnection();
+    const format = new DBFormatter();
     const userModel = mongoConnection.models.UserModel;
-    let userId: ObjectId;
-    let userId2: ObjectId;
+    let userId: string;
+    let userId2: string;
 
     let workspaceId: ObjectId;
 
@@ -375,32 +377,32 @@ describe('#UserModel', () => {
       userInput.projects.push(projectDocument);
       userInput.customerPayment = customerPaymentDocument;
 
-      const userDocument = await userModel.createUser(userInput);
+      const userDocument = await userModel.createUser(format.toJS(userInput));
 
       assert.isOk(userDocument);
       assert.strictEqual(userDocument.name, userInput.name);
 
-      assert.strictEqual(userDocument.accounts[0]._id?.toString(), accountId.toString());
+      assert.strictEqual(userDocument.accounts[0].id, accountId.toString());
 
-      assert.strictEqual(userDocument.sessions[0]._id?.toString(), sessionId.toString());
+      assert.strictEqual(userDocument.sessions[0].id, sessionId.toString());
 
-      assert.strictEqual(userDocument.webhooks[0]._id?.toString(), webhookId.toString());
+      assert.strictEqual(userDocument.webhooks[0].id, webhookId.toString());
 
-      assert.strictEqual(userDocument.createdWorkspaces[0]._id?.toString(), createdWorkspaceId.toString());
+      assert.strictEqual(userDocument.createdWorkspaces[0].id, createdWorkspaceId.toString());
 
-      assert.strictEqual(userDocument.projects[0]._id?.toString(), projectId.toString());
+      assert.strictEqual(userDocument.projects[0].id, projectId.toString());
 
-      assert.strictEqual(userDocument.customerPayment?._id?.toString(), customerPaymentId.toString());
+      assert.strictEqual(userDocument.customerPayment?.id, customerPaymentId.toString());
 
-      userId = userDocument._id as mongooseTypes.ObjectId;
+      userId = userDocument.id!;
     });
 
     it('retreive a user', async () => {
       assert.isOk(userId);
-      const user = await userModel.getUserById(userId);
+      const user = await userModel.getUserById(userId.toString());
 
       assert.isOk(user);
-      assert.strictEqual(user._id?.toString(), userId.toString());
+      assert.strictEqual(user.id, userId.toString());
     });
 
     it('Get multiple users without a filter', async () => {
@@ -412,10 +414,10 @@ describe('#UserModel', () => {
       userInput.createdWorkspaces.push(createdWorkspaceDocument);
       userInput.projects.push(projectDocument);
       userInput.customerPayment = customerPaymentDocument;
-      const userDocument = await userModel.createUser(userInput);
+      const userDocument = await userModel.createUser(format.toJS(userInput));
 
       assert.isOk(userDocument);
-      userId2 = userDocument._id as mongooseTypes.ObjectId;
+      userId2 = userDocument.id!;
 
       const users = await userModel.queryUsers();
       assert.isArray(users.results);
@@ -439,104 +441,104 @@ describe('#UserModel', () => {
       const results = await userModel.queryUsers({}, 0, 1);
       assert.strictEqual(results.results.length, 1);
 
-      const lastId = results.results[0]?._id;
+      const lastId = results.results[0]?.id;
 
       const results2 = await userModel.queryUsers({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(results2.results[0]?.id, lastId?.toString());
     });
 
     it('modify a user', async () => {
       assert.isOk(userId);
       const input = {name: 'a modified name'};
-      const updatedDocument = await userModel.updateUserById(userId, input);
+      const updatedDocument = await userModel.updateUserById(userId.toString(), input);
       assert.strictEqual(updatedDocument.name, input.name);
     });
 
     it('add a project to the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.addProjects(userId, [projectId2]);
+      const updatedUserDocument = await userModel.addProjects(userId.toString(), [projectId2.toString()]);
       assert.strictEqual(updatedUserDocument.projects.length, 2);
-      assert.strictEqual(updatedUserDocument.projects[1]?._id?.toString(), projectId2.toString());
+      assert.strictEqual(updatedUserDocument.projects[1]?.id, projectId2.toString());
     });
 
     it('remove a project from the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.removeProjects(userId, [projectId2]);
+      const updatedUserDocument = await userModel.removeProjects(userId.toString(), [projectId2.toString()]);
       assert.strictEqual(updatedUserDocument.projects.length, 1);
-      assert.strictEqual(updatedUserDocument.projects[0]?._id?.toString(), projectId.toString());
+      assert.strictEqual(updatedUserDocument.projects[0]?.id, projectId.toString());
     });
 
     it('add an account to the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.addAccounts(userId, [accountId2]);
+      const updatedUserDocument = await userModel.addAccounts(userId.toString(), [accountId2.toString()]);
       assert.strictEqual(updatedUserDocument.accounts.length, 2);
-      assert.strictEqual(updatedUserDocument.accounts[1]?._id?.toString(), accountId2.toString());
+      assert.strictEqual(updatedUserDocument.accounts[1]?.id, accountId2.toString());
     });
 
     it('remove an account from the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.removeAccounts(userId, [accountId2]);
+      const updatedUserDocument = await userModel.removeAccounts(userId.toString(), [accountId2.toString()]);
       assert.strictEqual(updatedUserDocument.accounts.length, 1);
-      assert.strictEqual(updatedUserDocument.accounts[0]?._id?.toString(), accountId.toString());
+      assert.strictEqual(updatedUserDocument.accounts[0]?.id, accountId.toString());
     });
 
     it('add a session to the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.addSessions(userId, [sessionId2]);
+      const updatedUserDocument = await userModel.addSessions(userId.toString(), [sessionId2.toString()]);
       assert.strictEqual(updatedUserDocument.sessions.length, 2);
-      assert.strictEqual(updatedUserDocument.sessions[1]?._id?.toString(), sessionId2.toString());
+      assert.strictEqual(updatedUserDocument.sessions[1]?.id, sessionId2.toString());
     });
 
     it('remove a sassion from the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.removeSessions(userId, [sessionId2]);
+      const updatedUserDocument = await userModel.removeSessions(userId.toString(), [sessionId2.toString()]);
       assert.strictEqual(updatedUserDocument.sessions.length, 1);
-      assert.strictEqual(updatedUserDocument.sessions[0]?._id?.toString(), sessionId.toString());
+      assert.strictEqual(updatedUserDocument.sessions[0]?.id, sessionId.toString());
     });
 
     it('add a webhook to the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.addWebhooks(userId, [webhookId2]);
+      const updatedUserDocument = await userModel.addWebhooks(userId.toString(), [webhookId2.toString()]);
       assert.strictEqual(updatedUserDocument.webhooks.length, 2);
-      assert.strictEqual(updatedUserDocument.webhooks[1]?._id?.toString(), webhookId2.toString());
+      assert.strictEqual(updatedUserDocument.webhooks[1]?.id, webhookId2.toString());
     });
 
     it('remove a webhook from the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.removeWebhooks(userId, [webhookId2]);
+      const updatedUserDocument = await userModel.removeWebhooks(userId, [webhookId2.toString()]);
       assert.strictEqual(updatedUserDocument.webhooks.length, 1);
-      assert.strictEqual(updatedUserDocument.webhooks[0]?._id?.toString(), webhookId.toString());
+      assert.strictEqual(updatedUserDocument.webhooks[0]?.id, webhookId.toString());
     });
 
     it('add an workspace to the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.addWorkspaces(userId, [createdWorkspaceId2]);
+      const updatedUserDocument = await userModel.addWorkspaces(userId, [createdWorkspaceId2.toString()]);
       assert.strictEqual(updatedUserDocument.createdWorkspaces.length, 2);
-      assert.strictEqual(updatedUserDocument.createdWorkspaces[1]?._id?.toString(), createdWorkspaceId2.toString());
+      assert.strictEqual(updatedUserDocument.createdWorkspaces[1]?.id, createdWorkspaceId2.toString());
     });
 
     it('remove an workspace from the user', async () => {
       assert.isOk(userId);
-      const updatedUserDocument = await userModel.removeWorkspaces(userId, [createdWorkspaceId2]);
+      const updatedUserDocument = await userModel.removeWorkspaces(userId.toString(), [createdWorkspaceId2.toString()]);
       assert.strictEqual(updatedUserDocument.createdWorkspaces.length, 1);
-      assert.strictEqual(updatedUserDocument.createdWorkspaces[0]?._id?.toString(), createdWorkspaceId.toString());
+      assert.strictEqual(updatedUserDocument.createdWorkspaces[0]?.id, createdWorkspaceId.toString());
     });
 
     it('remove a user', async () => {
       assert.isOk(userId);
-      await userModel.deleteUserById(userId);
+      await userModel.deleteUserById(userId.toString());
       let errored = false;
       try {
-        await userModel.getUserById(userId);
+        await userModel.getUserById(userId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
       }
 
       assert.isTrue(errored);
-      userId = null as unknown as ObjectId;
+      userId = null as unknown as string;
     });
   });
 });

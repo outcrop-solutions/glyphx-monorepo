@@ -9,8 +9,6 @@ import {membershipService} from '../services';
 type ObjectId = mongooseTypes.ObjectId;
 
 const UNIQUE_KEY = v4().replaceAll('-', '');
-const MOCK_PAYLOAD_HASH = '2d6518de3ae5b3dc477e44759a64a22c';
-const MOCK_FILESYSTEM_HASH = 'cde4d74582624873915e646f34ec588c';
 
 const MOCK_USER: databaseTypes.IUser = {
   userCode: 'dfkadfkljafdkalsjskldf',
@@ -53,12 +51,10 @@ describe('#MembershipService', () => {
       await mongoConnection.init();
       const memberModel = mongoConnection.models.MemberModel;
 
-      await memberModel.createMember(INPUT_MEMBER as databaseTypes.IMember);
+      await memberModel.create(INPUT_MEMBER as databaseTypes.IMember);
 
-      const savedMemberDocument = await memberModel.findOne({name: INPUT_MEMBER.name}).lean();
+      const savedMemberDocument = await memberModel.findOne({email: INPUT_MEMBER.email}).lean();
       memberId = savedMemberDocument?._id as mongooseTypes.ObjectId;
-
-      //   memberDocument = savedMemberDocument;
 
       assert.isOk(memberId);
     });
@@ -73,40 +69,33 @@ describe('#MembershipService', () => {
     });
 
     it('will retreive our member from the database', async () => {
-      const member = await membershipService.getMember(memberId);
+      const member = await membershipService.getMember(memberId.toString());
       assert.isOk(member);
-
-      assert.strictEqual(member?.name, INPUT_MEMBER.name);
-    });
-    it('will retreive members from the database', async () => {
-      const member = await membershipService.getMembers(memberId);
-      assert.isOk(member);
-
-      assert.strictEqual(member?.name, INPUT_MEMBER.name);
+      assert.strictEqual(member?.email, INPUT_MEMBER.email);
     });
     it('will retreive pending invitations from the database', async () => {
-      const member = await membershipService.getPendingInvitations(memberId);
-      assert.isOk(member);
-
-      assert.strictEqual(member?.name, INPUT_MEMBER.name);
-    });
-    it('will remove the member from the database', async () => {
-      const member = await membershipService.remove(memberId);
-      assert.isOk(member);
-
-      assert.strictEqual(member?.name, INPUT_MEMBER.name);
+      const members = await membershipService.getPendingInvitations(memberId.toString());
+      assert.isOk(members);
     });
     it('will update the member role', async () => {
-      const member = await membershipService.updateRole(memberId);
+      const member = await membershipService.updateRole(memberId.toString(), databaseTypes.constants.ROLE.OWNER);
       assert.isOk(member);
-
-      assert.strictEqual(member?.name, INPUT_MEMBER.name);
+      assert.strictEqual(member?.projectRole!, databaseTypes.constants.PROJECT_ROLE.OWNER);
     });
     it('will update our member invitation status', async () => {
-      const member = await membershipService.updateStatus(memberId);
+      const member = await membershipService.updateStatus(
+        memberId.toString(),
+        databaseTypes.constants.INVITATION_STATUS.ACCEPTED
+      );
       assert.isOk(member);
 
-      assert.strictEqual(member?.name, INPUT_MEMBER.name);
+      assert.strictEqual(member?.email, INPUT_MEMBER.email);
+    });
+    it('will remove the member from the database', async () => {
+      const member = await membershipService.remove(memberId.toString());
+      assert.isOk(member);
+
+      assert.strictEqual(member?.email, INPUT_MEMBER.email);
     });
   });
 });

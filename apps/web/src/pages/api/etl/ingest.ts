@@ -29,7 +29,7 @@ export default async function fileIngest(req: NextApiRequest, res: NextApiRespon
     await Initializer.init();
   } // check for valid session
   const session = (await validateSession(req, res)) as Session;
-  if (!session?.user?._id) return res.status(401).end();
+  if (!session?.user?.id) return res.status(401).end();
   switch (req.method) {
     case webTypes.constants.HTTP_METHOD.POST:
       return fileIngestion(req, res, session);

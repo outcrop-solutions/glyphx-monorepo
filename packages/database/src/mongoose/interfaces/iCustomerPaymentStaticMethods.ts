@@ -7,7 +7,7 @@ export interface ICustomerPaymentStaticMethods
   customerPaymentIdExists(customerPaymentId: mongooseTypes.ObjectId): Promise<boolean>;
   allCustomerPaymentIdsExist(customerPaymentIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createCustomerPayment(input: ICustomerPaymentCreateInput): Promise<databaseTypes.ICustomerPayment>;
-  getCustomerPaymentById(customerPaymentId: mongooseTypes.ObjectId): Promise<databaseTypes.ICustomerPayment>; //new
+  getCustomerPaymentById(customerPaymentId: string): Promise<databaseTypes.ICustomerPayment>; //new
   getCustomerPaymentByEmail(customerEmail: string): Promise<databaseTypes.ICustomerPayment>; //new
   getCustomerPaymentByPaymentId(paymentId: string): Promise<databaseTypes.ICustomerPayment>; //new
   getCustomerPaymentByFilter(filter: Record<string, unknown>): Promise<databaseTypes.ICustomerPayment>;
@@ -21,13 +21,13 @@ export interface ICustomerPaymentStaticMethods
     customerPayment: Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>
   ): Promise<void>; // new
   updateCustomerPaymentById(
-    customerPaymentId: mongooseTypes.ObjectId,
+    customerPaymentId: string,
     customerPayment: Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>
   ): Promise<databaseTypes.ICustomerPayment>; //new
   updateCustomerPaymentByStripeId(
     stripeId: string,
     customerPayment: Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>
   ): Promise<databaseTypes.ICustomerPayment>; // new
-  deleteCustomerPaymentById(sessionId: mongooseTypes.ObjectId): Promise<void>;
+  deleteCustomerPaymentById(sessionId: string): Promise<void>;
   validateUpdateObject(customerPayment: Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>): Promise<void>;
 }

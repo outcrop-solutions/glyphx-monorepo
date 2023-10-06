@@ -5,6 +5,7 @@ import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {databaseTypes} from 'types';
 import {error} from 'core';
+import {DBFormatter} from '../lib/format';
 
 type ObjectId = mongooseTypes.ObjectId;
 
@@ -68,12 +69,14 @@ const INPUT_DATA2 = {
   invitedBy: {},
   workspace: {},
 };
+
 describe('#memberModel', () => {
   context('test the crud functions of the member model', () => {
     const mongoConnection = new MongoDbConnection();
+    const format = new DBFormatter();
     const memberModel = mongoConnection.models.MemberModel;
-    let memberId: ObjectId;
-    let memberId2: ObjectId;
+    let memberId: string;
+    let memberId2: string;
     let userId: ObjectId;
     let workspaceId: ObjectId;
     let userDocument: any;
@@ -94,7 +97,7 @@ describe('#memberModel', () => {
       const inputWorkspace = JSON.parse(JSON.stringify(INPUT_WORKSPACE));
       inputWorkspace.creator = userDocument;
 
-      await workspaceModel.createWorkspace(inputWorkspace as unknown as databaseTypes.IWorkspace);
+      await workspaceModel.createWorkspace(format.toJS(inputWorkspace as unknown as databaseTypes.IWorkspace));
 
       const savedWorkspaceDocument = await workspaceModel.findOne({slug: INPUT_WORKSPACE.slug}).lean();
       workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
@@ -123,15 +126,15 @@ describe('#memberModel', () => {
       memberInput.member = userDocument;
       memberInput.invitedBy = userDocument;
       memberInput.workspace = workspaceDocument;
-      const memberDocument = await memberModel.createWorkspaceMember(memberInput);
+      const memberDocument = await memberModel.createWorkspaceMember(format.toJS(memberInput));
 
       assert.isOk(memberDocument);
       assert.strictEqual(memberDocument.email, memberInput.email);
-      assert.strictEqual(memberDocument.member._id?.toString(), userId.toString());
-      assert.strictEqual(memberDocument.invitedBy._id?.toString(), userId.toString());
-      assert.strictEqual(memberDocument.workspace._id?.toString(), workspaceId.toString());
+      assert.strictEqual(memberDocument.member.id, userId.toString());
+      assert.strictEqual(memberDocument.invitedBy.id, userId.toString());
+      assert.strictEqual(memberDocument.workspace.id, workspaceId.toString());
 
-      memberId = memberDocument._id as mongooseTypes.ObjectId;
+      memberId = memberDocument.id!;
     });
 
     it('retreive a member', async () => {
@@ -139,7 +142,7 @@ describe('#memberModel', () => {
       const member = await memberModel.getMemberById(memberId);
 
       assert.isOk(member);
-      assert.strictEqual(member._id?.toString(), memberId.toString());
+      assert.strictEqual(member.id, memberId.toString());
     });
 
     it('Get multiple members without a filter', async () => {
@@ -148,10 +151,10 @@ describe('#memberModel', () => {
       memberInput.member = userDocument;
       memberInput.invitedBy = userDocument;
       memberInput.workspace = workspaceDocument;
-      const memberDocument = await memberModel.createWorkspaceMember(memberInput);
+      const memberDocument = await memberModel.createWorkspaceMember(format.toJS(memberInput));
 
       assert.isOk(memberDocument);
-      memberId2 = memberDocument._id as mongooseTypes.ObjectId;
+      memberId2 = memberDocument.id!;
 
       const members = await memberModel.queryMembers();
       assert.isArray(members.results);
@@ -175,34 +178,34 @@ describe('#memberModel', () => {
       const results = await memberModel.queryMembers({}, 0, 1);
       assert.strictEqual(results.results.length, 1);
 
-      const lastId = results.results[0]?._id;
+      const lastId = results.results[0]?.id;
 
       const results2 = await memberModel.queryMembers({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(results2.results[0]?.id, lastId?.toString());
     });
 
     it('modify a Member', async () => {
       assert.isOk(memberId);
       const input = {email: 'example@gmail.com'};
-      const updatedDocument = await memberModel.updateMemberById(memberId, input);
+      const updatedDocument = await memberModel.updateMemberById(memberId.toString(), input);
       assert.strictEqual(updatedDocument.email, input.email);
     });
 
     it('remove a member', async () => {
       assert.isOk(memberId);
-      await memberModel.deleteMemberById(memberId);
+      await memberModel.deleteMemberById(memberId.toString());
       let errored = false;
       try {
-        await memberModel.getMemberById(memberId);
+        await memberModel.getMemberById(memberId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
       }
 
       assert.isTrue(errored);
-      memberId = null as unknown as ObjectId;
+      memberId = null as unknown as string;
     });
   });
 });

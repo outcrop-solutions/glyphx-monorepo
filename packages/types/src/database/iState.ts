@@ -10,6 +10,7 @@ import {Aspect} from '../web/types/ui/aspect';
 // immutable
 export interface IState {
   _id?: mongooseTypes.ObjectId;
+  id?: string;
   createdBy: IUser;
   createdAt: Date;
   deletedAt?: Date;

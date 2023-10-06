@@ -9,7 +9,7 @@ export interface IModelConfigStaticMethods extends Model<databaseTypes.IModelCon
   modelConfigIdExists(modelConfigId: mongooseTypes.ObjectId): Promise<boolean>;
   allModelConfigIdsExist(modelConfigIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createModelConfig(input: IModelConfigCreateInput): Promise<databaseTypes.IModelConfig>;
-  getModelConfigById(modelConfigId: mongooseTypes.ObjectId): Promise<databaseTypes.IModelConfig>;
+  getModelConfigById(modelConfigId: string): Promise<databaseTypes.IModelConfig>;
   queryModelConfigs(
     filter?: Record<string, unknown>,
     page?: number,
@@ -20,9 +20,9 @@ export interface IModelConfigStaticMethods extends Model<databaseTypes.IModelCon
     modelConfig: Omit<Partial<databaseTypes.IModelConfig>, '_id'>
   ): Promise<databaseTypes.IModelConfig>;
   updateModelConfigById(
-    modelConfigId: mongooseTypes.ObjectId,
+    modelConfigId: string,
     modelConfig: Omit<Partial<databaseTypes.IModelConfig>, '_id'>
   ): Promise<databaseTypes.IModelConfig>;
-  deleteModelConfigById(modelConfigId: mongooseTypes.ObjectId): Promise<void>;
+  deleteModelConfigById(modelConfigId: string): Promise<void>;
   validateUpdateObject(modelConfig: Omit<Partial<databaseTypes.IModelConfig>, '_id'>): Promise<void>;
 }

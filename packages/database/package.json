@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "core": "workspace:*",
+    "mongodb": "4.16.0",
     "mongoose": "6.11.5",
     "server-only": "^0.0.1"
   },

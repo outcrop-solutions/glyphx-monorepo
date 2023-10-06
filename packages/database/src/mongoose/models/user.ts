@@ -9,6 +9,7 @@ import {WebhookModel} from './webhook';
 import {MemberModel} from './member';
 import {WorkspaceModel} from './workspace';
 import {CustomerPaymentModel} from './customerPayment';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
   userCode: {type: String, required: false},
@@ -101,23 +102,14 @@ SCHEMA.static('queryUsers', async (filter: Record<string, unknown> = {}, page = 
       .populate('customerPayment')
       .populate('webhooks')
       .lean()) as databaseTypes.IUser[];
-    //
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    userDocuments?.forEach((doc: any) => {
-      delete (doc as any)?.__v;
-      delete (doc as any).customerPayment?.__v;
-      (doc as any).accounts?.forEach((p: any) => delete (p as any)?.__v);
-      (doc as any).sessions?.forEach((p: any) => delete (p as any)?.__v);
-      (doc as any).membership?.forEach((p: any) => delete (p as any)?.__v);
-      (doc as any).invitedMembers?.forEach((p: any) => delete (p as any)?.__v);
-      (doc as any).createdWorkspaces?.forEach((p: any) => delete (p as any)?.__v);
-      (doc as any).projects?.forEach((p: any) => delete (p as any)?.__v);
-      (doc as any).webhooks?.forEach((p: any) => delete (p as any)?.__v);
+
+    const format = new DBFormatter();
+    const users = userDocuments?.map((doc: any) => {
+      return format.toJS(doc);
     });
 
     const retval: IQueryResult<databaseTypes.IUser> = {
-      results: userDocuments,
+      results: users as unknown as databaseTypes.IUser[],
       numberOfItems: count,
       page: page,
       itemsPerPage: itemsPerPage,
@@ -280,7 +272,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'updateUserById',
-  async (id: mongooseTypes.ObjectId, user: Partial<databaseTypes.IUser>): Promise<databaseTypes.IUser> => {
+  async (id: string, user: Partial<databaseTypes.IUser>): Promise<databaseTypes.IUser> => {
     await USER_MODEL.updateUserWithFilter({_id: id}, user);
     return await USER_MODEL.getUserById(id);
   }
@@ -288,11 +280,11 @@ SCHEMA.static(
 
 SCHEMA.static(
   'validateAccounts',
-  async (accounts: (databaseTypes.IAccount | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]> => {
+  async (accounts: (databaseTypes.IAccount | string)[]): Promise<mongooseTypes.ObjectId[]> => {
     const accountIds: mongooseTypes.ObjectId[] = [];
     accounts.forEach((p) => {
-      if (p instanceof mongooseTypes.ObjectId) accountIds.push(p);
-      else accountIds.push(p._id as mongooseTypes.ObjectId);
+      if (typeof p === 'string') accountIds.push(new mongooseTypes.ObjectId(p));
+      else accountIds.push(new mongooseTypes.ObjectId(p.id));
     });
     try {
       await AccountModel.allAccountIdsExist(accountIds);
@@ -313,11 +305,11 @@ SCHEMA.static(
 
 SCHEMA.static(
   'validateSessions',
-  async (sessions: (databaseTypes.ISession | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]> => {
+  async (sessions: (databaseTypes.ISession | string)[]): Promise<mongooseTypes.ObjectId[]> => {
     const sessionIds: mongooseTypes.ObjectId[] = [];
     sessions.forEach((p) => {
-      if (p instanceof mongooseTypes.ObjectId) sessionIds.push(p);
-      else sessionIds.push(p._id as mongooseTypes.ObjectId);
+      if (typeof p === 'string') sessionIds.push(new mongooseTypes.ObjectId(p));
+      else sessionIds.push(new mongooseTypes.ObjectId(p.id));
     });
     try {
       await SessionModel.allSessionIdsExist(sessionIds);
@@ -338,11 +330,11 @@ SCHEMA.static(
 
 SCHEMA.static(
   'validateWebhooks',
-  async (webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]> => {
+  async (webhooks: (databaseTypes.IWebhook | string)[]): Promise<mongooseTypes.ObjectId[]> => {
     const webhookIds: mongooseTypes.ObjectId[] = [];
     webhooks.forEach((p) => {
-      if (p instanceof mongooseTypes.ObjectId) webhookIds.push(p);
-      else webhookIds.push(p._id as mongooseTypes.ObjectId);
+      if (typeof p === 'string') webhookIds.push(new mongooseTypes.ObjectId(p));
+      else webhookIds.push(new mongooseTypes.ObjectId(p.id));
     });
     try {
       await WebhookModel.allWebhookIdsExist(webhookIds);
@@ -363,11 +355,11 @@ SCHEMA.static(
 
 SCHEMA.static(
   'validateWorkspaces',
-  async (workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]> => {
+  async (workspaces: (databaseTypes.IWorkspace | string)[]): Promise<mongooseTypes.ObjectId[]> => {
     const workspaceIds: mongooseTypes.ObjectId[] = [];
     workspaces.forEach((p) => {
-      if (p instanceof mongooseTypes.ObjectId) workspaceIds.push(p);
-      else workspaceIds.push(p._id as mongooseTypes.ObjectId);
+      if (typeof p === 'string') workspaceIds.push(new mongooseTypes.ObjectId(p));
+      else workspaceIds.push(new mongooseTypes.ObjectId(p.id));
     });
     try {
       await WorkspaceModel.allWorkspaceIdsExist(workspaceIds);
@@ -388,11 +380,11 @@ SCHEMA.static(
 
 SCHEMA.static(
   'validateMembership',
-  async (members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]> => {
+  async (members: (databaseTypes.IMember | string)[]): Promise<mongooseTypes.ObjectId[]> => {
     const memberIds: mongooseTypes.ObjectId[] = [];
     members.forEach((p) => {
-      if (p instanceof mongooseTypes.ObjectId) memberIds.push(p);
-      else memberIds.push(p._id as mongooseTypes.ObjectId);
+      if (typeof p === 'string') memberIds.push(new mongooseTypes.ObjectId(p));
+      else memberIds.push(new mongooseTypes.ObjectId(p.id));
     });
     try {
       await MemberModel.allMemberIdsExist(memberIds);
@@ -414,11 +406,11 @@ SCHEMA.static(
 //give our user some flexibily to pass object ids instead of a full project.
 SCHEMA.static(
   'validateProjects',
-  async (projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]> => {
+  async (projects: (databaseTypes.IProject | string)[]): Promise<mongooseTypes.ObjectId[]> => {
     const projectIds: mongooseTypes.ObjectId[] = [];
     projects.forEach((p) => {
-      if (p instanceof mongooseTypes.ObjectId) projectIds.push(p);
-      else projectIds.push(p._id as mongooseTypes.ObjectId);
+      if (typeof p === 'string') projectIds.push(new mongooseTypes.ObjectId(p));
+      else projectIds.push(new mongooseTypes.ObjectId(p.id));
     });
     try {
       await ProjectModel.allProjectIdsExist(projectIds);
@@ -439,9 +431,10 @@ SCHEMA.static(
 
 SCHEMA.static(
   'validateCustomerPayment',
-  async (payment: databaseTypes.ICustomerPayment | mongooseTypes.ObjectId): Promise<mongooseTypes.ObjectId> => {
+  async (payment: databaseTypes.ICustomerPayment | string): Promise<mongooseTypes.ObjectId> => {
     if (payment) {
-      const paymentId = payment instanceof mongooseTypes.ObjectId ? payment : (payment._id as mongooseTypes.ObjectId);
+      const paymentId =
+        typeof payment === 'string' ? new mongooseTypes.ObjectId(payment) : new mongooseTypes.ObjectId(payment.id);
       const exists = await CustomerPaymentModel.customerPaymentIdExists(paymentId);
       if (!exists) {
         throw new error.DataValidationError(
@@ -455,7 +448,7 @@ SCHEMA.static(
     } else return null as unknown as mongooseTypes.ObjectId;
   }
 );
-SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getUserById', async (userId: string) => {
   try {
     const userDocument = await USER_MODEL.findById(userId)
       .populate('accounts')
@@ -470,19 +463,8 @@ SCHEMA.static('getUserById', async (userId: mongooseTypes.ObjectId) => {
     if (!userDocument) {
       throw new error.DataNotFoundError(`Could not find a user with the _id: ${userId}`, 'user_id', userId);
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (userDocument as any)['__v'];
-    delete (userDocument as any).customerPayment?.__v;
-    userDocument.accounts?.forEach((a: any) => delete (a as any)['__v']);
-    userDocument.sessions?.forEach((s: any) => delete (s as any)['__v']);
-    userDocument.membership?.forEach((m: any) => delete (m as any)['__v']);
-    userDocument.invitedMembers?.forEach((i: any) => delete (i as any)['__v']);
-    userDocument.webhooks?.forEach((w: any) => delete (w as any)['__v']);
-    userDocument.createdWorkspaces?.forEach((c: any) => delete (c as any)['__v']);
-    userDocument.projects?.forEach((p: any) => delete (p as any)['__v']);
-
-    return userDocument;
+    const format = new DBFormatter();
+    return format.toJS(userDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -562,14 +544,14 @@ SCHEMA.static('createUser', async (input: IUserCreateInput) => {
       );
     }
   }
-  if (id) return await USER_MODEL.getUserById(id);
+  if (id) return await USER_MODEL.getUserById(id.toString());
   else
     throw new error.UnexpectedError(
       'An unexpected error has occurred and the user may not have been created.  I have no other information to provide.'
     );
 });
 
-SCHEMA.static('deleteUserById', async (id: mongooseTypes.ObjectId): Promise<void> => {
+SCHEMA.static('deleteUserById', async (id: string): Promise<void> => {
   try {
     const results = await USER_MODEL.deleteOne({_id: id});
     if (results.deletedCount !== 1)
@@ -589,10 +571,7 @@ SCHEMA.static('deleteUserById', async (id: mongooseTypes.ObjectId): Promise<void
 
 SCHEMA.static(
   'addProjects',
-  async (
-    userId: mongooseTypes.ObjectId,
-    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IUser> => {
+  async (userId: string, projects: (databaseTypes.IProject | string)[]): Promise<databaseTypes.IUser> => {
     try {
       if (!projects.length)
         throw new error.InvalidArgumentError('You must supply at least one projectId', 'projects', projects);
@@ -633,10 +612,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'removeProjects',
-  async (
-    userId: mongooseTypes.ObjectId,
-    projects: (databaseTypes.IProject | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IUser> => {
+  async (userId: string, projects: (databaseTypes.IProject | string)[]): Promise<databaseTypes.IUser> => {
     try {
       if (!projects.length)
         throw new error.InvalidArgumentError('You must supply at least one projectId', 'projects', projects);
@@ -646,7 +622,7 @@ SCHEMA.static(
 
       const reconciledIds = projects.map((i) =>
         //istanbul ignore next
-        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
+        typeof i === 'string' ? new mongooseTypes.ObjectId(i) : new mongooseTypes.ObjectId(i.id)
       );
       let dirty = false;
       const updatedProjects = userDocument.projects.filter((p) => {
@@ -686,10 +662,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'addAccounts',
-  async (
-    userId: mongooseTypes.ObjectId,
-    accounts: (databaseTypes.IAccount | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IUser> => {
+  async (userId: string, accounts: (databaseTypes.IAccount | string)[]): Promise<databaseTypes.IUser> => {
     try {
       if (!accounts.length)
         throw new error.InvalidArgumentError('You must supply at least one accountId', 'accounts', accounts);
@@ -730,10 +703,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'removeAccounts',
-  async (
-    userId: mongooseTypes.ObjectId,
-    accounts: (databaseTypes.IAccount | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IUser> => {
+  async (userId: string, accounts: (databaseTypes.IAccount | string)[]): Promise<databaseTypes.IUser> => {
     try {
       if (!accounts.length)
         throw new error.InvalidArgumentError('You must supply at least one accountId', 'accounts', accounts);
@@ -743,7 +713,7 @@ SCHEMA.static(
 
       const reconciledIds = accounts.map((i) =>
         //istanbul ignore next
-        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
+        typeof i === 'string' ? new mongooseTypes.ObjectId(i) : new mongooseTypes.ObjectId(i.id)
       );
       let dirty = false;
       const updatedAccounts = userDocument.accounts.filter((a) => {
@@ -783,10 +753,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'addSessions',
-  async (
-    userId: mongooseTypes.ObjectId,
-    sessions: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IUser> => {
+  async (userId: string, sessions: (databaseTypes.ISession | string)[]): Promise<databaseTypes.IUser> => {
     try {
       if (!sessions.length)
         throw new error.InvalidArgumentError('You must supply at least one sessionId', 'sessions', sessions);
@@ -827,10 +794,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'removeSessions',
-  async (
-    userId: mongooseTypes.ObjectId,
-    sessions: (databaseTypes.ISession | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IUser> => {
+  async (userId: string, sessions: (databaseTypes.ISession | string)[]): Promise<databaseTypes.IUser> => {
     try {
       if (!sessions.length)
         throw new error.InvalidArgumentError('You must supply at least one sessionId', 'sessions', sessions);
@@ -840,7 +804,7 @@ SCHEMA.static(
 
       const reconciledIds = sessions.map((i) =>
         //istanbul ignore next
-        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
+        typeof i === 'string' ? new mongooseTypes.ObjectId(i) : new mongooseTypes.ObjectId(i.id)
       );
       let dirty = false;
       const updatedSessions = userDocument.sessions.filter((s) => {
@@ -880,10 +844,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'addWebhooks',
-  async (
-    userId: mongooseTypes.ObjectId,
-    webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IUser> => {
+  async (userId: string, webhooks: (databaseTypes.IWebhook | string)[]): Promise<databaseTypes.IUser> => {
     try {
       if (!webhooks.length)
         throw new error.InvalidArgumentError('You must supply at least one webhookId', 'webhooks', webhooks);
@@ -924,10 +885,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'removeWebhooks',
-  async (
-    userId: mongooseTypes.ObjectId,
-    webhooks: (databaseTypes.IWebhook | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IUser> => {
+  async (userId: string, webhooks: (databaseTypes.IWebhook | string)[]): Promise<databaseTypes.IUser> => {
     try {
       if (!webhooks.length)
         throw new error.InvalidArgumentError('You must supply at least one webhookId', 'sessions', webhooks);
@@ -937,7 +895,7 @@ SCHEMA.static(
 
       const reconciledIds = webhooks.map((i) =>
         //istanbul ignore next
-        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
+        typeof i === 'string' ? new mongooseTypes.ObjectId(i) : new mongooseTypes.ObjectId(i.id)
       );
       let dirty = false;
       const updatedWebhooks = userDocument.webhooks.filter((w) => {
@@ -977,10 +935,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'addMembership',
-  async (
-    userId: mongooseTypes.ObjectId,
-    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IUser> => {
+  async (userId: string, members: (databaseTypes.IMember | string)[]): Promise<databaseTypes.IUser> => {
     try {
       if (!members.length)
         throw new error.InvalidArgumentError('You must supply at least one memberId', 'members', members);
@@ -1021,10 +976,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'removeMembership',
-  async (
-    userId: mongooseTypes.ObjectId,
-    members: (databaseTypes.IMember | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IUser> => {
+  async (userId: string, members: (databaseTypes.IMember | string)[]): Promise<databaseTypes.IUser> => {
     try {
       if (!members.length)
         throw new error.InvalidArgumentError('You must supply at least one memberId', 'memebrship', members);
@@ -1034,7 +986,7 @@ SCHEMA.static(
 
       const reconciledIds = members.map((i) =>
         //istanbul ignore next
-        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
+        typeof i === 'string' ? new mongooseTypes.ObjectId(i) : new mongooseTypes.ObjectId(i.id)
       );
       let dirty = false;
       const updatedMemberships = userDocument.membership.filter((w) => {
@@ -1074,10 +1026,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'addWorkspaces',
-  async (
-    userId: mongooseTypes.ObjectId,
-    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IUser> => {
+  async (userId: string, workspaces: (databaseTypes.IWorkspace | string)[]): Promise<databaseTypes.IUser> => {
     try {
       if (!workspaces.length)
         throw new error.InvalidArgumentError('You must supply at least one workspaceId', 'workspaces', workspaces);
@@ -1118,10 +1067,7 @@ SCHEMA.static(
 
 SCHEMA.static(
   'removeWorkspaces',
-  async (
-    userId: mongooseTypes.ObjectId,
-    workspaces: (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IUser> => {
+  async (userId: string, workspaces: (databaseTypes.IWorkspace | string)[]): Promise<databaseTypes.IUser> => {
     try {
       if (!workspaces.length)
         throw new error.InvalidArgumentError('You must supply at least one workspaceId', 'workspaces', workspaces);
@@ -1131,7 +1077,7 @@ SCHEMA.static(
 
       const reconciledIds = workspaces.map((i) =>
         //istanbul ignore next
-        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
+        typeof i === 'string' ? new mongooseTypes.ObjectId(i) : new mongooseTypes.ObjectId(i.id)
       );
       let dirty = false;
       const updatedWorkspaces = userDocument.createdWorkspaces.filter((o) => {

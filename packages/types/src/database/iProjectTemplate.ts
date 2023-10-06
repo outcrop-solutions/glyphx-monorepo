@@ -5,6 +5,7 @@ import {Property} from '../web';
 
 export interface IProjectTemplate {
   _id?: mongooseTypes.ObjectId;
+  id?: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;

@@ -25,7 +25,7 @@ export const NewProject = ({exit}) => {
       onSuccess: (data) => {
         setLoading(false);
         exit();
-        router.push(`/${workspaceId}/project/${data._id}` as Route);
+        router.push(`/${workspaceId}/project/${data.id}` as Route);
       },
     });
   }, [description, exit, name, router, workspaceId]);

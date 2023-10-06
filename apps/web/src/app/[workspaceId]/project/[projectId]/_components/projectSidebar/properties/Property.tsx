@@ -78,9 +78,9 @@ export const Property = ({axis}) => {
     };
 
     await api({
-      ..._updateProjectState(project._id, newState),
+      ..._updateProjectState(project.id, newState),
       onSuccess: () => {
-        mutate(`/api/project/${project._id}`);
+        mutate(`/api/project/${project.id}`);
       },
     });
   }, [axis, mutate, project]);

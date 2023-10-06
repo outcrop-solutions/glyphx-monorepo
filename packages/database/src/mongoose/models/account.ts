@@ -3,6 +3,7 @@ import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {IAccountMethods, IAccountStaticMethods, IAccountDocument, IAccountCreateInput} from '../interfaces';
 import {error} from 'core';
 import {UserModel} from './user';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<IAccountDocument, IAccountStaticMethods, IAccountMethods>({
   type: {
@@ -90,18 +91,15 @@ SCHEMA.static('allAccountIdsExist', async (accountIds: mongooseTypes.ObjectId[])
   return true;
 });
 
-SCHEMA.static('getAccountById', async (accountId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getAccountById', async (accountId: string) => {
   try {
     const accountDocument = (await ACCOUNT_MODEL.findById(accountId).populate('user').lean()) as databaseTypes.IAccount;
     if (!accountDocument) {
       throw new error.DataNotFoundError(`Could not find a account with the _id: ${accountId}`, 'account_id', accountId);
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (accountDocument as any)['__v'];
-    delete (accountDocument as any).user['__v'];
 
-    return accountDocument;
+    const format = new DBFormatter();
+    return format.toJS(accountDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -139,15 +137,16 @@ SCHEMA.static('queryAccounts', async (filter: Record<string, unknown> = {}, page
     })
       .populate('user')
       .lean()) as databaseTypes.IAccount[];
+
+    const format = new DBFormatter();
     //this is added by mongoose, so we will want to remove it before returning the document
     //to the user.
-    accountDocuments?.forEach((doc: any) => {
-      delete (doc as any)['__v'];
-      delete (doc as any)?.user?.__v;
+    const formattedAccounts = accountDocuments?.map((doc: databaseTypes.IAccount) => {
+      return format.toJS(doc);
     });
 
     const retval: IQueryResult<databaseTypes.IAccount> = {
-      results: accountDocuments,
+      results: formattedAccounts as unknown as databaseTypes.IAccount[],
       numberOfItems: count,
       page: page,
       itemsPerPage: itemsPerPage,
@@ -214,22 +213,17 @@ SCHEMA.static(
 
 SCHEMA.static(
   'updateAccountById',
-  async (
-    accountId: mongooseTypes.ObjectId,
-    account: Omit<Partial<databaseTypes.IAccount>, '_id'>
-  ): Promise<databaseTypes.IAccount> => {
+  async (accountId: string, account: Omit<Partial<databaseTypes.IAccount>, '_id'>): Promise<databaseTypes.IAccount> => {
     await ACCOUNT_MODEL.updateAccountWithFilter({_id: accountId}, account);
     const retval = await ACCOUNT_MODEL.getAccountById(accountId);
-    return retval;
+    const format = new DBFormatter();
+    return format.toJS(retval);
   }
 );
 
 SCHEMA.static('createAccount', async (input: IAccountCreateInput): Promise<databaseTypes.IAccount> => {
   const userId =
-    input.user instanceof mongooseTypes.ObjectId
-      ? input.user
-      : // @ts-ignore
-        new mongooseTypes.ObjectId(input.user._id);
+    typeof input.user === 'string' ? new mongooseTypes.ObjectId(input.user) : new mongooseTypes.ObjectId(input.user.id);
 
   const userExists = await UserModel.userIdExists(userId);
   if (!userExists)
@@ -269,7 +263,7 @@ SCHEMA.static('createAccount', async (input: IAccountCreateInput): Promise<datab
         validateBeforeSave: false,
       })
     )[0];
-    return await ACCOUNT_MODEL.getAccountById(createdDocument._id);
+    return await ACCOUNT_MODEL.getAccountById(createdDocument._id.toString());
   } catch (err) {
     throw new error.DatabaseOperationError(
       'An unexpected error occurred wile creating the account. See the inner error for additional information',
@@ -281,7 +275,7 @@ SCHEMA.static('createAccount', async (input: IAccountCreateInput): Promise<datab
   }
 });
 
-SCHEMA.static('deleteAccountById', async (accountId: mongooseTypes.ObjectId): Promise<void> => {
+SCHEMA.static('deleteAccountById', async (accountId: string): Promise<void> => {
   try {
     const results = await ACCOUNT_MODEL.deleteOne({_id: accountId});
     if (results.deletedCount !== 1)

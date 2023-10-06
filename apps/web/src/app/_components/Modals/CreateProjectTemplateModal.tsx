@@ -55,7 +55,7 @@ export const CreateProjectTemplateModal = ({modalContent}: webTypes.CreateProjec
   const createProjectTemplate = (event) => {
     event.preventDefault();
     api({
-      ..._createProjectTemplate(modalContent.data._id!.toString(), name, desc, properties),
+      ..._createProjectTemplate(modalContent.data.id!, name, desc, properties),
       setLoading: (state) =>
         setModals(
           produce((draft: WritableDraft<webTypes.IModalsAtom>) => {

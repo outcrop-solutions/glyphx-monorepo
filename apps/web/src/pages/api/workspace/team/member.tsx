@@ -12,14 +12,14 @@ const member = async (req: NextApiRequest, res: NextApiResponse) => {
   }
   // check for valid session
   const session = (await validateSession(req, res)) as Session;
-  if (!session?.user?._id) return res.status(401).end();
+  if (!session?.user?.id) return res.status(401).end();
 
   // execute the appropriate handler
   switch (req.method) {
-    case webTypes.constants.HTTP_METHOD.DELETE:
+    case webTypes.constants.HTTP_METHOD.POST:
       return removeMember(req, res, session);
     default:
-      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.DELETE]);
+      res.setHeader('Allow', [webTypes.constants.HTTP_METHOD.POST]);
       return res.status(405).json({error: `${req.method} method unsupported`});
   }
 };

@@ -2,7 +2,6 @@ import {error, constants} from 'core';
 import {databaseTypes} from 'types';
 import {StripeClient} from '../lib/stripe';
 import mongoDbConnection from '../lib/databaseConnection';
-import {Types as mongooseTypes} from 'mongoose';
 
 export class CustomerPaymentService {
   public static async getPayment(email: string): Promise<databaseTypes.ICustomerPayment | null> {
@@ -27,16 +26,8 @@ export class CustomerPaymentService {
     }
   }
 
-  public static async createPaymentAccount(
-    email: string,
-    customerId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.ICustomerPayment> {
+  public static async createPaymentAccount(email: string, customerId: string): Promise<databaseTypes.ICustomerPayment> {
     try {
-      const id =
-        customerId instanceof mongooseTypes.ObjectId
-          ? customerId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(customerId);
       // create customer payment
       // add to the user
       // add user to the customerpayment
@@ -46,17 +37,15 @@ export class CustomerPaymentService {
         email,
         paymentId: paymentAccount.id,
         subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
-        customer: id,
+        customer: customerId,
       };
 
       // create customer
       const customerPayment = await mongoDbConnection.models.CustomerPaymentModel.createCustomerPayment(input);
 
       // connect customer to user
-      await mongoDbConnection.models.UserModel.updateUserById(id, {
-        customerPayment: {
-          _id: customerPayment._id,
-        } as unknown as databaseTypes.ICustomerPayment,
+      await mongoDbConnection.models.UserModel.updateUserById(customerId, {
+        customerPayment: customerPayment,
       });
 
       return customerPayment;

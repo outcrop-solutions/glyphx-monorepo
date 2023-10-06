@@ -3,6 +3,7 @@ import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {ISessionMethods, ISessionStaticMethods, ISessionDocument, ISessionCreateInput} from '../interfaces';
 import {error} from 'core';
 import {UserModel} from './user';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<ISessionDocument, ISessionStaticMethods, ISessionMethods>({
   sessionToken: {type: String, required: true},
@@ -65,18 +66,14 @@ SCHEMA.static('allSessionIdsExist', async (sessionIds: mongooseTypes.ObjectId[])
   return true;
 });
 
-SCHEMA.static('getSessionById', async (sessionId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getSessionById', async (sessionId: string) => {
   try {
     const sessionDocument = (await SESSION_MODEL.findById(sessionId).populate('user').lean()) as databaseTypes.ISession;
     if (!sessionDocument) {
       throw new error.DataNotFoundError(`Could not find a session with the _id: ${sessionId}`, 'session_id', sessionId);
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (sessionDocument as any)['__v'];
-    delete (sessionDocument as any).user['__v'];
-
-    return sessionDocument;
+    const format = new DBFormatter();
+    return format.toJS(sessionDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -114,15 +111,13 @@ SCHEMA.static('querySessions', async (filter: Record<string, unknown> = {}, page
       .populate('user')
       .lean()) as databaseTypes.ISession[];
 
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    sessionDocuments.forEach((doc: any) => {
-      delete (doc as any)?.__v;
-      delete (doc as any)?.user?.__v;
+    const format = new DBFormatter();
+    const sessions = sessionDocuments.map((doc: any) => {
+      return format.toJS(doc);
     });
 
     const retval: IQueryResult<databaseTypes.ISession> = {
-      results: sessionDocuments,
+      results: sessions as unknown as databaseTypes.ISession[],
       numberOfItems: count,
       page: page,
       itemsPerPage: itemsPerPage,
@@ -142,18 +137,16 @@ SCHEMA.static('querySessions', async (filter: Record<string, unknown> = {}, page
 });
 
 SCHEMA.static('createSession', async (input: ISessionCreateInput): Promise<databaseTypes.ISession> => {
-  const userExists = await UserModel.userIdExists(input.user._id as mongooseTypes.ObjectId);
+  const userId =
+    typeof input.user === 'string' ? new mongooseTypes.ObjectId(input.user) : new mongooseTypes.ObjectId(input.user.id);
+  const userExists = await UserModel.userIdExists(userId);
   if (!userExists)
-    throw new error.InvalidArgumentError(
-      `A user with _id : ${input.user._id} cannot be found`,
-      'user._id',
-      input.user._id
-    );
+    throw new error.InvalidArgumentError(`A user with _id : ${userId} cannot be found`, 'user._id', input.user);
 
   const transformedDocument: ISessionDocument = {
     sessionToken: input.sessionToken,
     expires: input.expires,
-    user: input.user._id as mongooseTypes.ObjectId,
+    user: userId,
   };
 
   try {
@@ -173,7 +166,7 @@ SCHEMA.static('createSession', async (input: ISessionCreateInput): Promise<datab
         validateBeforeSave: false,
       })
     )[0];
-    return await SESSION_MODEL.getSessionById(createdDocument._id);
+    return await SESSION_MODEL.getSessionById(createdDocument._id.toString());
   } catch (err) {
     throw new error.DatabaseOperationError(
       'An unexpected error occurred wile creating the session. See the inner error for additional information',
@@ -232,17 +225,14 @@ SCHEMA.static(
 
 SCHEMA.static(
   'updateSessionById',
-  async (
-    sessionId: mongooseTypes.ObjectId,
-    session: Omit<Partial<databaseTypes.ISession>, '_id'>
-  ): Promise<databaseTypes.ISession> => {
+  async (sessionId: string, session: Omit<Partial<databaseTypes.ISession>, '_id'>): Promise<databaseTypes.ISession> => {
     await SESSION_MODEL.updateSessionWithFilter({_id: sessionId}, session);
     const retval = await SESSION_MODEL.getSessionById(sessionId);
     return retval;
   }
 );
 
-SCHEMA.static('deleteSessionById', async (sessionId: mongooseTypes.ObjectId): Promise<void> => {
+SCHEMA.static('deleteSessionById', async (sessionId: string): Promise<void> => {
   try {
     const results = await SESSION_MODEL.deleteOne({_id: sessionId});
     if (results.deletedCount !== 1)

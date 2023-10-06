@@ -163,7 +163,7 @@ describe('#ProjectService', () => {
     });
 
     it('will retreive our project from the database', async () => {
-      const project = await projectService.getProject(projectId);
+      const project = await projectService.getProject(projectId.toString());
       assert.isOk(project);
 
       assert.strictEqual(project?.name, INPUT_DATA.name);
@@ -173,29 +173,34 @@ describe('#ProjectService', () => {
       assert.isOk(projects);
     });
     it('will create a project', async () => {
-      const project = await projectService.createProject(INPUT_DATA);
+      const project = await projectService.createProject(
+        'new project',
+        workspaceId.toString(),
+        userId.toString(),
+        'newemail@gmail.com'
+      );
       assert.isOk(project);
     });
     it('will update our project state', async () => {
       assert.isOk(projectId);
-      const updatedProject = await projectService.updateProject(projectId, {
+      const updatedProject = await projectService.updateProject(projectId.toString(), {
         name: INPUT_PROJECT_NAME,
       });
       assert.strictEqual(updatedProject.name, INPUT_PROJECT_NAME);
 
-      const savedProject = await projectService.getProject(projectId);
+      const savedProject = await projectService.getProject(projectId.toString());
 
       assert.strictEqual(savedProject?.name, INPUT_PROJECT_NAME);
     });
     it('will deactivate a project', async () => {
       assert.isOk(projectId);
-      const project = await projectService.deactivate(projectId);
+      const project = await projectService.deactivate(projectId.toString());
 
       assert.isOk(project.deletedAt);
     });
     it('will retreive our file stats', async () => {
       assert.isOk(projectId);
-      const stats = await projectService.getProjectFileStats(projectId);
+      const stats = await projectService.getProjectFileStats(projectId.toString());
       assert.isArray(stats);
       assert.strictEqual(stats.length, 1);
 
@@ -203,61 +208,61 @@ describe('#ProjectService', () => {
     });
     it('will retreive our viewName', async () => {
       assert.isOk(projectId);
-      const viewName = await projectService.getProjectViewName(projectId);
+      const viewName = await projectService.getProjectViewName(projectId.toString());
       assert.isNotEmpty(viewName);
       assert.strictEqual(viewName, INPUT_VIEW_NAME);
     });
     it('will update the file stats on our project', async () => {
       assert.isOk(projectId);
-      const updatedProject = await projectService.updateProjectFileStats(projectId, INPUT_FILE_STATS);
+      const updatedProject = await projectService.updateProjectFileStats(projectId.toString(), INPUT_FILE_STATS);
       assert.strictEqual(updatedProject.files[0].fileName, INPUT_FILE_STATS[0].fileName);
     });
     it('will update the view name on our project', async () => {
       assert.isOk(projectId);
-      const updatedProject = await projectService.updateProjectView(projectId, INPUT_VIEW_NAME);
+      const updatedProject = await projectService.updateProjectView(projectId.toString(), INPUT_VIEW_NAME);
       assert.strictEqual(updatedProject.viewName, INPUT_VIEW_NAME);
     });
     it('will update our project', async () => {
       assert.isOk(projectId);
-      const updatedProject = await projectService.updateProject(projectId, {
+      const updatedProject = await projectService.updateProject(projectId.toString(), {
         name: INPUT_PROJECT_NAME,
       });
       assert.strictEqual(updatedProject.name, INPUT_PROJECT_NAME);
 
-      const savedProject = await projectService.getProject(projectId);
+      const savedProject = await projectService.getProject(projectId.toString());
 
       assert.strictEqual(savedProject?.name, INPUT_PROJECT_NAME);
     });
     it('will add states our project', async () => {
       assert.isOk(projectId);
-      const updatedProject = await projectService.updateProject(projectId, {
+      const updatedProject = await projectService.updateProject(projectId.toString(), {
         name: INPUT_PROJECT_NAME,
       });
       assert.strictEqual(updatedProject.name, INPUT_PROJECT_NAME);
 
-      const savedProject = await projectService.getProject(projectId);
+      const savedProject = await projectService.getProject(projectId.toString());
 
       assert.strictEqual(savedProject?.name, INPUT_PROJECT_NAME);
     });
     it('will add tags to our project', async () => {
       assert.isOk(projectId);
-      const updatedProject = await projectService.updateProject(projectId, {
+      const updatedProject = await projectService.updateProject(projectId.toString(), {
         name: INPUT_PROJECT_NAME,
       });
       assert.strictEqual(updatedProject.name, INPUT_PROJECT_NAME);
 
-      const savedProject = await projectService.getProject(projectId);
+      const savedProject = await projectService.getProject(projectId.toString());
 
       assert.strictEqual(savedProject?.name, INPUT_PROJECT_NAME);
     });
     it('will remove tags to our project', async () => {
       assert.isOk(projectId);
-      const updatedProject = await projectService.updateProject(projectId, {
+      const updatedProject = await projectService.updateProject(projectId.toString(), {
         name: INPUT_PROJECT_NAME,
       });
       assert.strictEqual(updatedProject.name, INPUT_PROJECT_NAME);
 
-      const savedProject = await projectService.getProject(projectId);
+      const savedProject = await projectService.getProject(projectId.toString());
 
       assert.strictEqual(savedProject?.name, INPUT_PROJECT_NAME);
     });

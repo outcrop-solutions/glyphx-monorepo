@@ -27,6 +27,7 @@ export class ErrorCodes {
     ConfigurationError: 460,
     DataConflictError: 461,
     DataValidationError: 462,
+    DbFormatterError: 463,
 
     DataServiceError: 540,
 

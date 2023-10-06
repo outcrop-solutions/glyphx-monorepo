@@ -5,7 +5,7 @@ import {webTypes, databaseTypes} from 'types';
 /**
  * Toggles member role from member to owner
  * @note uses membershipService.updateRole() in business package
- * @param memberId corresponds to member._id in mongoDB
+ * @param memberId corresponds to member.id in mongoDB
  */
 export const _updateRole = (
   memberId: string,
@@ -55,7 +55,7 @@ export const _createMember = ({
 /**
  * Toggles member role from member to owner
  * @note uses membershipService.remove() in business package
- * @param memberId corresponds to member._id in mongoDB
+ * @param memberId corresponds to member.id in mongoDB
  */
 export const _removeMember = (memberId: string): webTypes.IFetchConfig => {
   return {
@@ -64,7 +64,7 @@ export const _removeMember = (memberId: string): webTypes.IFetchConfig => {
       body: {
         memberId: memberId,
       },
-      method: 'DELETE',
+      method: 'POST',
     },
     successMsg: 'Removed team member from workspace.',
   };
@@ -73,7 +73,7 @@ export const _removeMember = (memberId: string): webTypes.IFetchConfig => {
 /**
  * Updates member status to ACCEPTED
  * @note uses membershipService.updateStatus() in business package
- * @param memberId corresponds to member._id in mongoDB
+ * @param memberId corresponds to member.id in mongoDB
  */
 export const _acceptInvitation = (memberId: string): webTypes.IFetchConfig => {
   return {
@@ -89,7 +89,7 @@ export const _acceptInvitation = (memberId: string): webTypes.IFetchConfig => {
 /**
  * Updates member status to DECLINED
  * @note uses membershipService.updateStatus() in business package
- * @param memberId corresponds to member._id in mongoDB
+ * @param memberId corresponds to member.id in mongoDB
  */
 export const _declineInvitation = (memberId: string): webTypes.IFetchConfig => {
   return {

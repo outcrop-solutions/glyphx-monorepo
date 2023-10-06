@@ -31,14 +31,9 @@ const INPUT_USER: databaseTypes.IUser = {
 };
 
 const INPUT_PROJECT = {
-  _id:
-    // @ts-ignore
-    new mongooseTypes.ObjectId(),
+  _id: new mongooseTypes.ObjectId(),
   name: 'testProject' + UNIQUE_KEY,
-
-  template:
-    // @ts-ignore
-    new mongooseTypes.ObjectId(),
+  template: new mongooseTypes.ObjectId(),
   state: {
     properties: {
       X: {
@@ -118,10 +113,8 @@ const INPUT_PROJECT = {
   files: [],
 };
 
-const INPUT_STATE: databaseTypes.IState = {
-  _id:
-    // @ts-ignore
-    new mongooseTypes.ObjectId(),
+const INPUT_STATE = {
+  _id: new mongooseTypes.ObjectId(),
   createdAt: new Date(),
   updatedAt: new Date(),
   createdBy: INPUT_USER,
@@ -199,6 +192,8 @@ const INPUT_STATE: databaseTypes.IState = {
       },
     },
   },
+  project: {},
+  workspace: {},
   fileSystem: [],
   fileSystemHash: MOCK_FILESYSTEM_HASH,
   payloadHash: MOCK_PAYLOAD_HASH,
@@ -223,7 +218,7 @@ const INPUT_STATE: databaseTypes.IState = {
   },
 };
 
-const INPUT_ANNOTATION: databaseTypes.IAnnotation = {
+const INPUT_ANNOTATION = {
   createdAt: new Date(),
   updatedAt: new Date(),
   workspaces: [],
@@ -233,7 +228,7 @@ const INPUT_ANNOTATION: databaseTypes.IAnnotation = {
   stateId: INPUT_STATE._id,
 };
 
-const INPUT_PROJECT_ANNOTATION: databaseTypes.IAnnotation = {
+const INPUT_PROJECT_ANNOTATION = {
   createdAt: new Date(),
   updatedAt: new Date(),
   workspaces: [],
@@ -275,7 +270,7 @@ describe('#AnnotationService', () => {
       assert.isOk(userId);
 
       // create state
-      await stateModel.create(INPUT_STATE as databaseTypes.IState);
+      await stateModel.create(INPUT_STATE as unknown as databaseTypes.IState);
 
       const savedStateDocument = await stateModel.findOne({fileSystemHash: INPUT_STATE.fileSystemHash}).lean();
       stateId = savedStateDocument?._id as mongooseTypes.ObjectId;
@@ -284,7 +279,7 @@ describe('#AnnotationService', () => {
       assert.isOk(stateId);
 
       // create state annotation
-      await annotationModel.create(INPUT_ANNOTATION as databaseTypes.IAnnotation);
+      await annotationModel.create(INPUT_ANNOTATION as unknown as databaseTypes.IAnnotation);
 
       const savedAnnotationDocument = await annotationModel.findOne({value: INPUT_ANNOTATION.value}).lean();
       annotationId = savedAnnotationDocument?._id as mongooseTypes.ObjectId;
@@ -294,7 +289,7 @@ describe('#AnnotationService', () => {
       assert.isOk(annotationId);
 
       // create project
-      await projectModel.create(INPUT_PROJECT as databaseTypes.IProject);
+      await projectModel.create(INPUT_PROJECT as unknown as databaseTypes.IProject);
 
       const savedProjectDocument = await projectModel.findOne({fileSystemHash: INPUT_STATE.fileSystemHash}).lean();
       projectId = savedProjectDocument?._id as mongooseTypes.ObjectId;
@@ -304,7 +299,7 @@ describe('#AnnotationService', () => {
       assert.isOk(projectId);
 
       // create project annotation
-      await annotationModel.create(INPUT_PROJECT_ANNOTATION as databaseTypes.IAnnotation);
+      await annotationModel.create(INPUT_PROJECT_ANNOTATION as unknown as databaseTypes.IAnnotation);
 
       const savedProjectAnnotationDocument = await annotationModel.findOne({value: INPUT_ANNOTATION.value}).lean();
       projectAnnotationId = savedProjectAnnotationDocument?._id as mongooseTypes.ObjectId;
@@ -338,17 +333,17 @@ describe('#AnnotationService', () => {
     });
 
     it('will retreive state annotations from the database', async () => {
-      const annotations = await annotationService.getStateAnnotations(stateId);
+      const annotations = await annotationService.getStateAnnotations(stateId.toString());
       assert.isOk(annotations);
     });
     it('will retreive project annotations from the database', async () => {
-      const annotation = await annotationService.getProjectAnnotations(projectId);
+      const annotation = await annotationService.getProjectAnnotations(projectId.toString());
       assert.isOk(annotation);
     });
     it('will create an annotation on the state', async () => {
       const annotation = await annotationService.createStateAnnotation({
-        authorId: userDocument._id,
-        stateId: stateDocument._id,
+        authorId: userDocument._id.toString(),
+        stateId: stateDocument._id.toString(),
         value: UNIQUE_KEY,
       });
       assert.isOk(annotation);
@@ -357,8 +352,8 @@ describe('#AnnotationService', () => {
     });
     it('will create an annotation on the project', async () => {
       const annotation = await annotationService.createProjectAnnotation({
-        authorId: userDocument._id,
-        projectId: projectDocument._id,
+        authorId: userDocument._id.toString(),
+        projectId: projectDocument._id.toString(),
         value: UNIQUE_KEY,
       });
       assert.isOk(annotation);

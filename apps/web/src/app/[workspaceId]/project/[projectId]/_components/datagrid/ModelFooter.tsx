@@ -42,7 +42,6 @@ export const ModelFooter = () => {
     } else {
       // open drawer
       const payloadHash = hashPayload(hashFileSystem(project.files), project);
-      console.log('CALLING DOWNLOAD MODEL');
       await callDownloadModel({project, payloadHash, session, url, setLoading, setDrawer, setResize});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

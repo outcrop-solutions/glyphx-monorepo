@@ -2,6 +2,7 @@ import {IQueryResult, databaseTypes} from 'types';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {IVerificationTokenMethods, IVerificationTokenStaticMethods, IVerificationTokenDocument} from '../interfaces';
 import {error} from 'core';
+import {DBFormatter} from '../../lib/format';
 
 const SCHEMA = new Schema<IVerificationTokenDocument, IVerificationTokenStaticMethods, IVerificationTokenMethods>({
   identifier: {type: String, required: true},
@@ -68,7 +69,7 @@ SCHEMA.static(
   }
 );
 
-SCHEMA.static('getVerificationTokenById', async (verificationTokenId: mongooseTypes.ObjectId) => {
+SCHEMA.static('getVerificationTokenById', async (verificationTokenId: string) => {
   try {
     const verificationTokenDocument = (await VERIFICATION_TOKEN_MODEL.findById(
       verificationTokenId
@@ -80,11 +81,8 @@ SCHEMA.static('getVerificationTokenById', async (verificationTokenId: mongooseTy
         verificationTokenId
       );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete (verificationTokenDocument as any)['__v'];
-
-    return verificationTokenDocument;
+    const format = new DBFormatter();
+    return format.toJS(verificationTokenDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -124,14 +122,14 @@ SCHEMA.static('queryVerificationTokens', async (filter: Record<string, unknown> 
       skip: skip,
       limit: itemsPerPage,
     }).lean()) as databaseTypes.IVerificationToken[];
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    verificationTokenDocuments.forEach((doc: any) => {
-      delete (doc as any)['__v'];
+
+    const format = new DBFormatter();
+    const tokens = verificationTokenDocuments.map((doc: any) => {
+      return format.toJS(doc);
     });
 
     const retval: IQueryResult<databaseTypes.IVerificationToken> = {
-      results: verificationTokenDocuments,
+      results: tokens as unknown as databaseTypes.IVerificationToken[],
       numberOfItems: count,
       page: page,
       itemsPerPage: itemsPerPage,
@@ -176,7 +174,7 @@ SCHEMA.static(
           validateBeforeSave: false,
         })
       )[0];
-      return await VERIFICATION_TOKEN_MODEL.getVerificationTokenById(createdDocument._id);
+      return await VERIFICATION_TOKEN_MODEL.getVerificationTokenById(createdDocument._id.toString());
     } catch (err) {
       throw new error.DatabaseOperationError(
         'An unexpected error occurred wile creating the verificationToken. See the inner error for additional information',
@@ -240,7 +238,7 @@ SCHEMA.static(
 SCHEMA.static(
   'updateVerificationTokenById',
   async (
-    verificationTokenId: mongooseTypes.ObjectId,
+    verificationTokenId: string,
     verificationToken: Omit<Partial<databaseTypes.IVerificationToken>, '_id'>
   ): Promise<databaseTypes.IVerificationToken> => {
     await VERIFICATION_TOKEN_MODEL.updateVerificationTokenWithFilter({_id: verificationTokenId}, verificationToken);
@@ -249,7 +247,7 @@ SCHEMA.static(
   }
 );
 
-SCHEMA.static('deleteVerificationTokenById', async (verificationTokenId: mongooseTypes.ObjectId): Promise<void> => {
+SCHEMA.static('deleteVerificationTokenById', async (verificationTokenId: string): Promise<void> => {
   try {
     const results = await VERIFICATION_TOKEN_MODEL.deleteOne({
       _id: verificationTokenId,

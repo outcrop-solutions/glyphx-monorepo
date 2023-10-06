@@ -1,19 +1,12 @@
 import {databaseTypes, webTypes, fileIngestionTypes} from 'types';
 import {error, constants} from 'core';
-import {Types as mongooseTypes} from 'mongoose';
 import mongoDbConnection from '../lib/databaseConnection';
 
 export class ProjectTemplateService {
-  public static async getProjectTemplate(
-    projectTemplateId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IProjectTemplate | null> {
+  public static async getProjectTemplate(projectTemplateId: string): Promise<databaseTypes.IProjectTemplate | null> {
     try {
-      const id =
-        projectTemplateId instanceof mongooseTypes.ObjectId
-          ? projectTemplateId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(projectTemplateId);
-      const projectTemplate = await mongoDbConnection.models.ProjectTemplateModel.getProjectTemplateById(id);
+      const projectTemplate =
+        await mongoDbConnection.models.ProjectTemplateModel.getProjectTemplateById(projectTemplateId);
       return projectTemplate;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -58,7 +51,7 @@ export class ProjectTemplateService {
   }
 
   public static async createProjectTemplate(
-    projectId: mongooseTypes.ObjectId | string,
+    projectId: string,
     projectName: string,
     projectDesc: string,
     properties: Record<string, webTypes.Property>
@@ -89,16 +82,9 @@ export class ProjectTemplateService {
     }
   }
 
-  public static async deactivate(
-    projectTemplateId: mongooseTypes.ObjectId | string
-  ): Promise<databaseTypes.IProjectTemplate> {
+  public static async deactivate(projectTemplateId: string): Promise<databaseTypes.IProjectTemplate> {
     try {
-      const id =
-        projectTemplateId instanceof mongooseTypes.ObjectId
-          ? projectTemplateId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(projectTemplateId);
-      const project = await mongoDbConnection.models.ProjectTemplateModel.updateProjectTemplateById(id, {
+      const project = await mongoDbConnection.models.ProjectTemplateModel.updateProjectTemplateById(projectTemplateId, {
         deletedAt: new Date(),
       });
       return project;
@@ -121,17 +107,12 @@ export class ProjectTemplateService {
   }
 
   public static async updateProjectTemplate(
-    projectTemplateId: mongooseTypes.ObjectId | string,
+    projectTemplateId: string,
     update: Omit<Partial<databaseTypes.IProject>, '_id' | 'createdAt' | 'updatedAt'>
   ): Promise<databaseTypes.IProjectTemplate> {
     try {
-      const id =
-        projectTemplateId instanceof mongooseTypes.ObjectId
-          ? projectTemplateId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(projectTemplateId);
       const updatedProjectTemplate = await mongoDbConnection.models.ProjectTemplateModel.updateProjectTemplateById(
-        id,
+        projectTemplateId,
         update
       );
 
@@ -155,16 +136,14 @@ export class ProjectTemplateService {
   }
 
   public static async addTags(
-    projectTemplateId: mongooseTypes.ObjectId | string,
-    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+    projectTemplateId: string,
+    tags: (databaseTypes.ITag | string)[]
   ): Promise<databaseTypes.IProjectTemplate> {
     try {
-      const id =
-        projectTemplateId instanceof mongooseTypes.ObjectId
-          ? projectTemplateId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(projectTemplateId);
-      const updatedProjectTemplate = await mongoDbConnection.models.ProjectTemplateModel.addTags(id, tags);
+      const updatedProjectTemplate = await mongoDbConnection.models.ProjectTemplateModel.addTags(
+        projectTemplateId,
+        tags
+      );
 
       return updatedProjectTemplate;
     } catch (err: any) {
@@ -186,16 +165,14 @@ export class ProjectTemplateService {
   }
 
   public static async removeTags(
-    projectTemplateId: mongooseTypes.ObjectId | string,
-    tags: (databaseTypes.ITag | mongooseTypes.ObjectId)[]
+    projectTemplateId: string,
+    tags: (databaseTypes.ITag | string)[]
   ): Promise<databaseTypes.IProjectTemplate> {
     try {
-      const id =
-        projectTemplateId instanceof mongooseTypes.ObjectId
-          ? projectTemplateId
-          : // @ts-ignore
-            new mongooseTypes.ObjectId(projectTemplateId);
-      const updatedProjectTemplate = await mongoDbConnection.models.ProjectTemplateModel.removeTags(id, tags);
+      const updatedProjectTemplate = await mongoDbConnection.models.ProjectTemplateModel.removeTags(
+        projectTemplateId,
+        tags
+      );
 
       return updatedProjectTemplate;
     } catch (err: any) {

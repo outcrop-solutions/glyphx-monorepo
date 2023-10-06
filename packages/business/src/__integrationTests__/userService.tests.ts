@@ -12,9 +12,7 @@ const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const USER_EMAIL = 'testEmail' + UNIQUE_KEY + '@email.com';
 const INPUT_USER: Partial<databaseTypes.IUser> = {
-  _id:
-    // @ts-ignore
-    new mongooseTypes.ObjectId(),
+  _id: new mongooseTypes.ObjectId(),
   name: 'testUser' + UNIQUE_KEY,
   userCode: 'testUserCode' + UNIQUE_KEY,
   username: 'testUserName' + UNIQUE_KEY,
@@ -175,28 +173,32 @@ describe('#UserService', () => {
     });
 
     it('will retreive our user from the database', async () => {
-      const user = await userService.getUser(userId);
+      const user = await userService.getUser(userId.toString());
       assert.isOk(user);
       assert.strictEqual(user?.username, INPUT_USER.username);
     });
     it('will deactivate a user', async () => {
-      const user = await userService.deactivate(userId);
+      const user = await userService.deactivate(userId.toString());
       assert.isOk(user);
       assert.isOk(user.deletedAt);
       assert.strictEqual(user?.username, INPUT_USER.username);
     });
     it('will update a user email', async () => {
-      const user = await userService.updateEmail(userId, 'changedemail@gmail.com', 'previousemail@gmail.com');
+      const user = await userService.updateEmail(
+        userId.toString(),
+        'changedemail@gmail.com',
+        'previousemail@gmail.com'
+      );
       assert.isOk(user);
       assert.strictEqual(user?.username, INPUT_USER.username);
     });
     it('will update a user name', async () => {
-      const user = await userService.updateName(userId, 'changedName');
+      const user = await userService.updateName(userId.toString(), 'changedName');
       assert.isOk(user);
       assert.strictEqual(user?.username, INPUT_USER.username);
     });
     it('will update a user code', async () => {
-      const user = await userService.updateUserCode(userId);
+      const user = await userService.updateUserCode(userId.toString());
       assert.isOk(user);
       assert.strictEqual(user?.username, INPUT_USER.username);
     });

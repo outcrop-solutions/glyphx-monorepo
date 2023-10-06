@@ -10,9 +10,7 @@ type ObjectId = mongooseTypes.ObjectId;
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
 const INPUT_USER: databaseTypes.IUser = {
-  _id:
-    // @ts-ignore
-    new mongooseTypes.ObjectId(),
+  _id: new mongooseTypes.ObjectId(),
   name: 'testUser' + UNIQUE_KEY,
   userCode: 'testUserCode' + UNIQUE_KEY,
   username: 'testUserName' + UNIQUE_KEY,
@@ -31,9 +29,7 @@ const INPUT_USER: databaseTypes.IUser = {
 };
 
 const INPUT_WORKSPACE: databaseTypes.IWorkspace = {
-  _id:
-    // @ts-ignore
-    new mongooseTypes.ObjectId(),
+  _id: new mongooseTypes.ObjectId(),
   workspaceCode: 'testWorkspace' + UNIQUE_KEY,
   inviteCode: 'testWorkspace' + UNIQUE_KEY,
   name: 'testName' + UNIQUE_KEY,
@@ -49,9 +45,7 @@ const INPUT_WORKSPACE: databaseTypes.IWorkspace = {
 };
 
 const INPUT_ACTIVITY_LOG: databaseTypes.IActivityLog = {
-  _id:
-    // @ts-ignore
-    new mongooseTypes.ObjectId(),
+  _id: new mongooseTypes.ObjectId(),
   createdAt: new Date(),
   updatedAt: new Date(),
   actor: INPUT_USER,
@@ -150,22 +144,22 @@ describe('#ActivityLogService', () => {
     });
 
     it('will retreive our activityLog from the database', async () => {
-      const activityLog = await activityLogService.getLog(activityLogId);
+      const activityLog = await activityLogService.getLog(activityLogId.toString());
       assert.isOk(activityLog);
       assert.strictEqual(activityLog?.location, activityLogDocument.location);
     });
     it('will retreive activityLogs from the database', async () => {
       const activityLogs = await activityLogService.getLogs(
-        workspaceDocument._id,
+        workspaceDocument._id.toString(),
         databaseTypes.constants.RESOURCE_MODEL.WORKSPACE
       );
       assert.isOk(activityLogs);
     });
     it('will create an activityLog', async () => {
       const activityLog = await activityLogService.createLog({
-        resourceId: workspaceDocument._id,
-        actorId: userDocument._id,
-        workspaceId: workspaceDocument._id,
+        resourceId: workspaceDocument._id.toString(),
+        actorId: userDocument._id.toString(),
+        workspaceId: workspaceDocument._id.toString(),
         location: INPUT_ACTIVITY_LOG.location,
         userAgent: INPUT_ACTIVITY_LOG.userAgent,
         onModel: INPUT_ACTIVITY_LOG.onModel,
