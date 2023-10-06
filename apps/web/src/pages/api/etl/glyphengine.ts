@@ -14,6 +14,10 @@ import {validateSession} from 'lib/server/session';
  */
 
 export const maxDuration = 300;
+export const config = {
+  // Specifies the maximum allowed duration for this function to execute (in seconds)
+  maxDuration: 300,
+};
 
 export default async function engine(req: NextApiRequest, res: NextApiResponse) {
   // initialize the business layer
