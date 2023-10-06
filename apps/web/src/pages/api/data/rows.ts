@@ -5,6 +5,11 @@ import {validateSession} from 'lib/server/session';
 import {NextApiRequest, NextApiResponse} from 'next';
 import {getDataByRowId} from 'lib/server';
 
+export const config = {
+  // Specifies the maximum allowed duration for this function to execute (in seconds)
+  maxDuration: 300,
+};
+
 const rows = async (req: NextApiRequest, res: NextApiResponse) => {
   // initialize the glyphengine layer
   if (!Initializer.initedField) {
