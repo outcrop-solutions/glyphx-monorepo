@@ -24,6 +24,10 @@ import {fileIngestion} from 'lib/server/etl/fileIngestion';
  */
 
 export const maxDuration = 300;
+export const config = {ƒ
+  // Specifies the maximum allowed duration for this function to execute (in seconds)
+  maxDuration: 300,
+};
 
 export default async function fileIngest(req: NextApiRequest, res: NextApiResponse) {
   // initialize the business layer
