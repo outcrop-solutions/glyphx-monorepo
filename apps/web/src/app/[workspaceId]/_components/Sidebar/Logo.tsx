@@ -6,7 +6,7 @@ import SmallLogo from 'public/svg/small-logo.svg';
 import {useSetRecoilState} from 'recoil';
 import {drawerOpenAtom} from 'state';
 
-export const Logo = () => {
+export const Logo = ({isProject}) => {
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   return (
     <Link href="/account">

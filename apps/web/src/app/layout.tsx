@@ -25,7 +25,12 @@ export default async function RootLayout({children}: {children: React.ReactNode}
   return (
     <html lang="en">
       <body className="relative flex flex-col">
-        <Providers session={session}>{children}</Providers>
+        <Providers session={session}>
+          <div className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
+            <Sidebar />
+            <div className="flex flex-col h-full w-full overflow-y-auto bg-transparent">{children}</div>
+          </div>
+        </Providers>
       </body>
     </html>
   );

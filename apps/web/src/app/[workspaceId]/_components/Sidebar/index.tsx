@@ -5,9 +5,6 @@ import {MenuIcon} from '@heroicons/react/outline';
 
 // components
 import sidebarMenu from 'config/menu/sidebar-static';
-
-import FullLogo from 'public/svg/full-logo.svg';
-import SmallLogo from 'public/svg/small-logo.svg';
 // hooks
 import {useWorkspace, useWorkspaces} from 'lib/client';
 import {drawerOpenAtom} from 'state';
@@ -21,7 +18,6 @@ const Sidebar = () => {
   const params = useParams();
   const workspaceId = params?.workspaceId;
 
-  const [showMenu, setMenuVisibility] = useState(false);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const {projectId} = params as {projectId: string};
 
@@ -47,7 +43,7 @@ const Sidebar = () => {
             {projectId ? <SmallLogo /> : <FullLogo />}
           </div>
         </Link>
-        {!projectId && (
+        {!isProject && (
           <button className="absolute right-0 p-5 md:hidden" onClick={toggleMenu}>
             <MenuIcon className="w-6 h-6" />
           </button>
