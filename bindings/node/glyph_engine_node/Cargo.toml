@@ -1,0 +1,21 @@
+[package]
+name = "glyph_engine_node"
+version = "0.1.0"
+description = "Binds our glyph_engine crate to node using neon."
+authors = ["JP Burford"]
+license = "ISC"
+edition = "2018"
+exclude = ["index.node"]
+
+[lib]
+crate-type = ["cdylib"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+glyph_engine = { path = "../../../crates/glyph_engine" }
+
+[dependencies.neon]
+version = "0.10"
+default-features = false
+features = ["napi-6"]

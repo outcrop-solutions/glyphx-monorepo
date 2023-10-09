@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/*"]
+members = ["crates/*", "bindings/node/*" ]
 ignoredFolders = [
   "$HOME",
   "$HOME/.cargo/**",
