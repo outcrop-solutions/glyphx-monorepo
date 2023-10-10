@@ -1,5 +1,9 @@
 [workspace]
 members = ["crates/*"]
-
+ignoredFolders = [
+  "$HOME",
+  "$HOME/.cargo/**",
+  "$HOME/.rustup/**"
+]
 [build]
 rustdocflags = ["--document-private-items"]
