@@ -5,6 +5,11 @@ import {Session} from 'next-auth';
 import {validateSession} from 'lib/server/session';
 import {getWorkspaces} from 'lib/server/workspaces';
 
+export const config = {
+  // Specifies the maximum allowed duration for this function to execute (in seconds)
+  maxDuration: 300,
+};
+
 const workspaces = async (req: NextApiRequest, res: NextApiResponse) => {
   // initialize the business layer
   if (!Initializer.initedField) {
