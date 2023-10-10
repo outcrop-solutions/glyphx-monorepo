@@ -43,3 +43,9 @@ export const showLoadingAtom = atom<Partial<Omit<databaseTypes.IProcessTracking,
   key: 'showLoadingAtom',
   default: {},
 });
+
+// Used as a utility to apply control events to web based model sandbox
+export const isRenderedAtom = atom<boolean>({
+  key: 'isRenderedAtom',
+  default: false,
+});

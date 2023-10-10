@@ -4,10 +4,12 @@ import {ConfigList} from './ConfigList';
 import {RadiusLengths} from './RadiusLengths';
 import {Toggles} from './Toggles';
 import {Colors} from './Colors';
-import {Controls} from './Controls';
+import dynamic from 'next/dynamic';
 import {useConfigs} from 'lib';
 import {useSetRecoilState} from 'recoil';
 import {configsAtom} from 'state';
+
+const Controls = dynamic(() => import('./Controls').then((mod) => mod.Controls));
 
 export const SandboxSidebar = () => {
   const {data, isLoading} = useConfigs();
