@@ -4,6 +4,7 @@ import {redirect} from 'next/navigation';
 import 'globals.css';
 import {Providers} from './providers';
 import {authOptions} from './api/auth/[...nextauth]/route';
+import Sidebar from './[workspaceId]/_components/Sidebar';
 
 export const metadata: Metadata = {
   title: 'Home | Glyphx',
@@ -18,9 +19,11 @@ declare global {
 
 export default async function RootLayout({children}: {children: React.ReactNode}) {
   const session = await getServerSession(authOptions);
-  if (!session?.user) {
-    redirect('/login');
-  }
+  console.log({session, rootLayout: true});
+
+  // if (!session?.user) {
+  //   redirect('/login');
+  // }
 
   return (
     <html lang="en">

@@ -1,20 +1,17 @@
 'use client';
-import {useState} from 'react';
-import Link from 'next/link';
-import {MenuIcon} from '@heroicons/react/outline';
 
 // components
 import sidebarMenu from 'config/menu/sidebar-static';
 // hooks
-import {useWorkspace, useWorkspaces} from 'lib/client';
 import {drawerOpenAtom} from 'state';
 import {useSetRecoilState} from 'recoil';
 import {useParams} from 'next/navigation';
-import menu from 'config/menu';
+import {Logo} from './Logo';
+import {MenuBtn} from './MenuBtn';
 
 const staticMenu = sidebarMenu();
 
-const Sidebar = () => {
+const Sidebar = ({isProject}) => {
   const params = useParams();
   const workspaceId = params?.workspaceId;
 
@@ -32,34 +29,16 @@ const Sidebar = () => {
           projectId && 'border-b-gray'
         }`}
       >
-        <Link href="/account">
-          <div
-            onClick={() => {
-              setDrawer(false);
-              window?.core?.ToggleDrawer(false);
-            }}
-            className="py-1"
-          >
-            {projectId ? <SmallLogo /> : <FullLogo />}
-          </div>
-        </Link>
-        {!isProject && (
-          <button className="absolute right-0 p-5 md:hidden" onClick={toggleMenu}>
-            <MenuIcon className="w-6 h-6" />
-          </button>
-        )}
+        <Logo isProject={isProject} />
+        <MenuBtn isProject={isProject} />
       </div>
       <div
-        className={[
-          'flex-col space-y-5 md:flex md:relative md:top-0',
-          showMenu ? 'absolute top-12 bg-primary-dark-blue right-0 left-0 h-screen' : 'hidden',
-        ].join(' ')}
+        className={
+          'flex-col space-y-5 md:flex md:top-0 absolute top-12 bg-primary-dark-blue right-0 left-0 h-screen hidden md:relative'
+        }
       >
-        {!projectId && <Actions />}
-        <div className={`flex flex-col ${projectId ? 'items-center space-y-2' : 'p-5 space-y-10'}`}>
-          {renderStaticMenu()}
-          {renderMenu()}
-        </div>
+        {isProject && <div></div>}
+        <div className={`flex flex-col ${projectId ? 'items-center space-y-2' : 'p-5 space-y-10'}`}></div>
       </div>
     </aside>
   );
