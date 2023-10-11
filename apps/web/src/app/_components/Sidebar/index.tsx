@@ -4,10 +4,12 @@ import {MenuBtn} from './MenuBtn';
 import {CreateWorkspace} from '../../[workspaceId]/_components/controls/CreateWorkspace';
 import {CubeIcon, FolderIcon, PlusCircleIcon, TableIcon, UserGroupIcon} from '@heroicons/react/outline';
 import Link from 'next/link';
-import {useParams} from 'next/navigation';
+import {useParams, usePathname} from 'next/navigation';
 
 const Sidebar = ({workspaces}) => {
   const params = useParams();
+  const pathname = usePathname();
+  const workspaceId = params?.workspaceId;
   const isProject = !!params?.projectId;
   return (
     <aside
@@ -27,23 +29,46 @@ const Sidebar = ({workspaces}) => {
         {!isProject && (
           <>
             <div className="flex-col space-y-1 md:flex border-b border-white pb-2">
-              <div className="flex items-center space-x-2 hover:bg-nav cursor-pointer p-1 rounded-sm">
-                <CubeIcon className="h-4 w-4" />
-                <div className="text-gray-300 hover:text-white text-sm">Templates</div>
-              </div>
-              <div className="flex items-center space-x-2 hover:bg-nav cursor-pointer p-1 rounded-sm">
-                <TableIcon className="h-4 w-4" />
-                <div className="text-gray-300 hover:text-white text-sm">Data</div>
-              </div>
-              <div className="flex items-center space-x-2 hover:bg-nav cursor-pointer p-1 rounded-sm">
-                <FolderIcon className="h-4 w-4" />
-                <div className="text-gray-300 hover:text-white text-sm">Projects</div>
-              </div>
+              <Link href={`/${workspaceId}/templates`}>
+                <div
+                  className={`flex items-center space-x-2 hover:bg-nav ${
+                    pathname?.includes('templates') && 'bg-nav'
+                  } cursor-pointer p-1 rounded-sm`}
+                >
+                  <CubeIcon className="h-4 w-4" />
+                  <div className="text-gray-300 hover:text-white text-sm">Templates</div>
+                </div>
+              </Link>
+              <Link href={`/${workspaceId}`}>
+                <div
+                  className={`flex items-center space-x-2 hover:bg-nav ${
+                    pathname?.includes('data') && 'bg-nav'
+                  } cursor-pointer p-1 rounded-sm`}
+                >
+                  <TableIcon className="h-4 w-4" />
+                  <div className="text-gray-300 hover:text-white text-sm">Data</div>
+                </div>
+              </Link>
+              <Link href={`/${workspaceId}`}>
+                <div
+                  className={`flex items-center space-x-2 hover:bg-nav ${
+                    !pathname?.includes('templates') && 'bg-nav'
+                  } cursor-pointer p-1 rounded-sm`}
+                >
+                  <FolderIcon className="h-4 w-4" />
+                  <div className="text-gray-300 hover:text-white text-sm">Projects</div>
+                </div>
+              </Link>
             </div>
             <ul className={`flex flex-col items-center space-y-2 pt-2 overflow-y-auto h-96`}>
               {workspaces &&
                 workspaces.map((space) => (
-                  <li className="flex w-full items-center space-x-2 hover:bg-nav rounded p-1">
+                  <li
+                    key={space.id}
+                    className={`flex w-full items-center space-x-2 hover:bg-nav ${
+                      workspaceId === space.id && 'bg-nav'
+                    } rounded p-1`}
+                  >
                     <UserGroupIcon className="h-4 w-4" />
                     <Link href={`/${space.id}`}>
                       <span className="text-gray-300 hover:text-white text-sm">{space.name}</span>
