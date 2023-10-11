@@ -31,8 +31,8 @@ export const Toggles = () => {
           )}
         </summary>
         <div className="space-y-5 mt-4">
-          {fields.map((field) => (
-            <Toggle field={field} config={config} currentConfig={currentConfig} />
+          {fields.map((field, idx) => (
+            <Toggle key={idx} field={field} config={config} currentConfig={currentConfig} />
           ))}
         </div>
       </details>

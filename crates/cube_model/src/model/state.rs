@@ -5,27 +5,32 @@ use crate::light::light_uniform::LightUniform;
 use crate::model::color_table_uniform::ColorTableUniform;
 use crate::model::model_configuration::ModelConfiguration;
 use crate::model::pipeline::glyphs::glyph_instance_data::GlyphInstanceData;
-use crate::model::pipeline::{
-    axis_lines, glyphs, pipeline_manager::PipelineManager, PipelineRunner,
-};
+use crate::model::pipeline::glyphs::ranked_glyph_data::{Rank, RankDirection, RankedGlyphData};
+use crate::model::pipeline::{axis_lines, glyphs, PipelineRunner};
 use smaa::*;
 use std::rc::Rc;
 use wgpu::util::DeviceExt;
 use wgpu::{CommandBuffer, Device, Queue, Surface, SurfaceConfiguration, TextureViewDescriptor};
 use winit::dpi::PhysicalSize;
-use winit::event::{DeviceEvent, WindowEvent};
+use winit::event::DeviceEvent;
 use winit::window::Window;
 
-use super::pipeline::glyphs::glyph_instance_data;
-use glam::{Mat4, Vec3, Vec4};
+use glam::Vec3;
 use rand::Rng;
-use std::f32::consts::PI;
 const Z_ORDERS: [[&str; 4]; 4] = [
     ["x-axis-line", "z-axis-line", "y-axis-line", "glyphs"],
     ["z-axis-line", "glyphs", "x-axis-line", "y-axis-line"],
     ["glyphs", "x-axis-line", "z-axis-line", "y-axis-line"],
     ["x-axis-line", "glyphs", "z-axis-line", "y-axis-line"],
 ];
+
+struct Pipelines {
+    x_axis_line: axis_lines::AxisLines,
+    y_axis_line: axis_lines::AxisLines,
+    z_axis_line: axis_lines::AxisLines,
+    glyphs: glyphs::Glyphs,
+}
+
 pub struct State {
     surface: wgpu::Surface,
     device: wgpu::Device,
@@ -45,8 +50,11 @@ pub struct State {
     smaa_target: SmaaTarget,
     glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData,
     glyph_uniform_buffer: wgpu::Buffer,
-    glyph_instance_data: Rc<Vec<GlyphInstanceData>>,
-    pipeline_manager: PipelineManager,
+    ranked_glyph_data: Rc<RankedGlyphData>,
+    rank: Rank,
+    rank_direction: RankDirection,
+    pipelines: Pipelines,
+    z_order: usize,
 }
 
 impl State {
@@ -97,7 +105,7 @@ impl State {
 
         let glyph_uniform_data = Self::build_glyph_uniform_data(&model_configuration);
 
-        let glyph_instance_data = Self::build_instance_data();
+        let ranked_glyph_data = Self::build_instance_data();
 
         let glyph_uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Glyph Uniform Buffer"),
@@ -105,7 +113,7 @@ impl State {
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
 
-        let pipeline_manager = Self::build_pipelines(
+        let pipelines = Self::build_pipelines(
             &device,
             &config,
             &camera_buffer,
@@ -117,7 +125,6 @@ impl State {
             &model_configuration,
             &glyph_uniform_data,
             &glyph_uniform_buffer,
-            &glyph_instance_data,
         );
 
         let smaa_target = SmaaTarget::new(
@@ -145,10 +152,13 @@ impl State {
             glyph_uniform_buffer,
             glyph_uniform_data,
             smaa_target,
-            glyph_instance_data,
-            pipeline_manager,
+            ranked_glyph_data,
+            rank: Rank::Z,
+            rank_direction: RankDirection::Ascending,
+            pipelines,
             light_buffer,
             light_uniform,
+            z_order: 0,
         }
     }
 
@@ -174,7 +184,7 @@ impl State {
             .camera_controller
             .process_events(event, &mut self.camera);
         if camera_result {
-            self.update_z_order();
+            self.update_z_order_and_rank();
         };
         camera_result
     }
@@ -264,18 +274,35 @@ impl State {
         let mut commands = Vec::new();
         commands.push(encoder.finish());
         let mut i: usize = 0;
-        while i < self.pipeline_manager.get_pipeline_count() {
-            let (name, pipeline) = self
-                .pipeline_manager
-                .get_pipeline_by_z_order(i as u32)
-                .unwrap();
-
-            commands.push(Self::run_pipeline(
-                &self.device,
-                &smaa_frame,
-                pipeline,
-                &name,
-            ));
+        let string_order = Z_ORDERS[self.z_order];
+        for name in string_order {
+            //Glyphs has it's own logic to render in rank order so we can't really use the pipeline
+            //manager trait to render it.  So, we will handle it directly.
+            if name == "glyphs" {
+                Self::run_glyphs_pipeline(
+                    &self.device,
+                    &smaa_frame,
+                    &self.pipelines.glyphs,
+                    self.rank,
+                    self.rank_direction,
+                    &self.ranked_glyph_data,
+                    &name,
+                    &mut commands,
+                );
+            } else {
+                let pipeline = match name {
+                    "x-axis-line" => &self.pipelines.x_axis_line,
+                    "y-axis-line" => &self.pipelines.y_axis_line,
+                    "z-axis-line" => &self.pipelines.z_axis_line,
+                    _ => panic!("Unknown pipeline name"),
+                };
+                commands.push(Self::run_axis_pipeline(
+                    &self.device,
+                    &smaa_frame,
+                    pipeline,
+                    &name,
+                ));
+            }
             i += 1;
         }
         self.queue.submit(commands);
@@ -285,11 +312,45 @@ impl State {
 
         Ok(())
     }
-
-    fn run_pipeline(
+    fn run_glyphs_pipeline(
         device: &Device,
         smaa_frame: &SmaaFrame,
-        pipeline: &Box<dyn PipelineRunner>,
+        pipeline: &glyphs::Glyphs,
+        rank: Rank,
+        rank_direction: RankDirection,
+        ranked_glyph_data: &RankedGlyphData,
+        pipeline_name: &str,
+        commands: &mut Vec<CommandBuffer>,
+    ) {
+        let rank_iteratror = ranked_glyph_data.iter(rank, rank_direction);
+        for rank in rank_iteratror {
+            let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some((format!("{} Encoder", pipeline_name)).as_str()),
+            });
+            let clean_rank = rank
+                .iter()
+                .map(|rc| GlyphInstanceData {
+                    glyph_id: rc.glyph_id,
+                    x_value: rc.x_value,
+                    y_value: rc.y_value,
+                    z_value: rc.z_value,
+                    glyph_selected: rc.glyph_selected,
+                })
+                .collect::<Vec<GlyphInstanceData>>();
+            let instance_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                label: Some("Instance Buffer"),
+                contents: bytemuck::cast_slice(&clean_rank),
+                usage: wgpu::BufferUsages::VERTEX,
+            });
+            pipeline.run_pipeline(&mut encoder, smaa_frame, &instance_buffer, rank.len() as u32);
+            commands.push(encoder.finish());
+        }
+    }
+
+    fn run_axis_pipeline(
+        device: &Device,
+        smaa_frame: &SmaaFrame,
+        pipeline: &axis_lines::AxisLines,
         pipeline_name: &str,
     ) -> CommandBuffer {
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -384,7 +445,7 @@ impl State {
         (surface, adapter)
     }
 
-    fn build_instance_data() -> Rc<Vec<glyphs::glyph_instance_data::GlyphInstanceData>> {
+    fn build_instance_data() -> Rc<RankedGlyphData> {
         // Rc::new (vec![
         //     glyphs::glyph_instance_data::GlyphInstanceData {
         //         glyph_id: 0,
@@ -457,8 +518,7 @@ impl State {
         //         glyph_selected: 0,
         //     },
         // ])
-
-        let mut instance_data: Vec<glyph_instance_data::GlyphInstanceData> = Vec::new();
+        let mut ranked_glyph_data = RankedGlyphData::new(17, 12);
         let mut rng = rand::thread_rng();
         let mut x = 0.0;
         let mut z = 0.0;
@@ -466,20 +526,24 @@ impl State {
         while x < 17.0 {
             while z < 12.0 {
                 let random_number: f32 = rng.gen_range(0.0..=9.0);
-                instance_data.push(glyph_instance_data::GlyphInstanceData {
-                    glyph_id: count,
-                    x_value: x,
-                    y_value: random_number,
-                    z_value: z,
-                    glyph_selected: 0,
-                });
+                let _ = ranked_glyph_data.add(
+                    x as usize,
+                    z as usize,
+                    GlyphInstanceData {
+                        glyph_id: count,
+                        x_value: x,
+                        y_value: random_number,
+                        z_value: z,
+                        glyph_selected: 0,
+                    },
+                );
                 z += 1.0;
                 count += 1;
             }
             z = 0.0;
             x += 1.0;
         }
-        Rc::new(instance_data)
+        Rc::new(ranked_glyph_data)
     }
 
     fn build_pipelines(
@@ -494,82 +558,68 @@ impl State {
         model_configuration: &Rc<ModelConfiguration>,
         glyph_uniform_data: &glyphs::glyph_instance_data::GlyphUniformData,
         glyph_uniform_buffer: &wgpu::Buffer,
-        glyph_instance_data: &Rc<Vec<GlyphInstanceData>>,
-    ) -> PipelineManager {
-        let mut pipeline_manager = PipelineManager::new();
-        pipeline_manager.add_pipeline(
-            "x-axis-line",
-            Box::new(axis_lines::AxisLines::new(
-                device,
-                config,
-                camera_buffer,
-                camera_uniform,
-                color_table_buffer,
-                color_table_uniform,
-                light_buffer,
-                light_uniform,
-                model_configuration.clone(),
-                axis_lines::AxisLineDirection::X,
-                model_configuration.model_origin[0],
-            )),
-            0,
+    ) -> Pipelines {
+        let x_axis_line = axis_lines::AxisLines::new(
+            device,
+            config,
+            camera_buffer,
+            camera_uniform,
+            color_table_buffer,
+            color_table_uniform,
+            light_buffer,
+            light_uniform,
+            model_configuration.clone(),
+            axis_lines::AxisLineDirection::X,
+            model_configuration.model_origin[0],
         );
 
-        pipeline_manager.add_pipeline(
-            "y-axis-line",
-            Box::new(axis_lines::AxisLines::new(
-                device,
-                config,
-                camera_buffer,
-                camera_uniform,
-                color_table_buffer,
-                color_table_uniform,
-                light_buffer,
-                light_uniform,
-                model_configuration.clone(),
-                axis_lines::AxisLineDirection::Y,
-                model_configuration.model_origin[1],
-            )),
-            1,
+        let y_axis_line = axis_lines::AxisLines::new(
+            device,
+            config,
+            camera_buffer,
+            camera_uniform,
+            color_table_buffer,
+            color_table_uniform,
+            light_buffer,
+            light_uniform,
+            model_configuration.clone(),
+            axis_lines::AxisLineDirection::Y,
+            model_configuration.model_origin[1],
         );
 
-        pipeline_manager.add_pipeline(
-            "z-axis-line",
-            Box::new(axis_lines::AxisLines::new(
-                device,
-                config,
-                camera_buffer,
-                camera_uniform,
-                color_table_buffer,
-                color_table_uniform,
-                light_buffer,
-                light_uniform,
-                model_configuration.clone(),
-                axis_lines::AxisLineDirection::Z,
-                model_configuration.model_origin[2],
-            )),
-            2,
+        let z_axis_line = axis_lines::AxisLines::new(
+            device,
+            config,
+            camera_buffer,
+            camera_uniform,
+            color_table_buffer,
+            color_table_uniform,
+            light_buffer,
+            light_uniform,
+            model_configuration.clone(),
+            axis_lines::AxisLineDirection::Z,
+            model_configuration.model_origin[2],
         );
 
-        pipeline_manager.add_pipeline(
-            "glyphs",
-            Box::new(glyphs::Glyphs::new(
-                glyph_uniform_data,
-                glyph_uniform_buffer,
-                glyph_instance_data.clone(),
-                device,
-                config,
-                camera_buffer,
-                camera_uniform,
-                color_table_buffer,
-                color_table_uniform,
-                light_buffer,
-                light_uniform,
-                model_configuration.clone(),
-            )),
-            3,
+        let glyphs = glyphs::Glyphs::new(
+            glyph_uniform_data,
+            glyph_uniform_buffer,
+            device,
+            config,
+            camera_buffer,
+            camera_uniform,
+            color_table_buffer,
+            color_table_uniform,
+            light_buffer,
+            light_uniform,
+            model_configuration.clone(),
         );
-        pipeline_manager
+        Pipelines {
+            x_axis_line,
+            y_axis_line,
+            z_axis_line,
+            glyphs,
+        }
     }
     fn configure_camera(
         config: &SurfaceConfiguration,
@@ -670,7 +720,7 @@ impl State {
         }
     }
 
-    pub fn update_z_order(&mut self) {
+    pub fn update_z_order_and_rank(&mut self) {
         //TODO: This may need to be cleaned up a bit since cubes may not be square in the future.
         let cube_diameter = self.model_configuration.grid_cylinder_length
             + self.model_configuration.grid_cone_length;
@@ -688,18 +738,28 @@ impl State {
             1 //-- right or back, z(green) is covered.
         } else if rotation_angle >= 3.6219294 && rotation_angle < 4.2965374 {
             2 //-- back all three axis lines are visible.
+
         } else if rotation_angle >= 4.2965374 && rotation_angle < 5.997787 {
             3 //-- left or back, x(red) is covered.
+
         } else {
             0 //-- normal glyphs last
         };
-        let z_order = Z_ORDERS[z_order_index];
-        let mut i = 0;
-        while i < z_order.len() {
-            let name = z_order[i].clone();
-            self.pipeline_manager
-                .update_pipeline_z_order(&name, i as u32);
-            i += 1;
-        }
+        self.z_order = z_order_index;
+        if rotation_angle >= 2.221 && rotation_angle < 3.646 {
+            self.rank = Rank::Z;
+            self.rank_direction = RankDirection::Descending;
+        } else if rotation_angle >= 0.846 && rotation_angle < 2.221 {
+            self.rank = Rank::X;
+            self.rank_direction = RankDirection::Ascending;
+
+        } else if rotation_angle >= 3.646 && rotation_angle < 5.800 {
+            self.rank = Rank::X;
+            self.rank_direction = RankDirection::Descending;
+
+        } else { //5.800 -- 0.846
+            self.rank = Rank::Z;
+            self.rank_direction = RankDirection::Ascending;
+        };
     }
 }
