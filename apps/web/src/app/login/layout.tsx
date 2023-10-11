@@ -3,6 +3,7 @@ import {authOptions} from 'app/api/auth/[...nextauth]/route';
 import {Metadata} from 'next';
 import {redirect} from 'next/navigation';
 import {Route} from 'next';
+import {Initializer, workspaceService} from 'business';
 
 export const metadata: Metadata = {
   title: 'Login | Glyphx',
@@ -11,9 +12,14 @@ export const metadata: Metadata = {
 
 export default async function AuthLayout({children}) {
   const session = await getServerSession(authOptions);
+  let workspaces;
 
-  if (session?.user) {
-    redirect(`/account` as Route);
+  if (session?.user.id && session.user.email) {
+    await Initializer.init();
+    workspaces = await workspaceService.getWorkspaces(session.user.id, session.user.email);
+  }
+  if (workspaces) {
+    redirect(`/${workspaces[0].id}` as Route);
   }
 
   return (

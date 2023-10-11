@@ -36,7 +36,7 @@ const Header = () => {
           : pathname?.includes('billing') || pathname?.includes('settings') || pathname === '/account'
           ? 'mt-4'
           : 'mt-0'
-      } ${project ? 'border border-gray bg-secondary-space-blue' : 'md:pt-0'}`}
+      } ${projectId ? 'border border-gray bg-secondary-space-blue' : 'md:pt-0'}`}
     >
       {project ? (
         <div className="flex items-center py-2">
@@ -57,7 +57,7 @@ const Header = () => {
       ) : (
         <div className={`${workspaceId && !pathname!.includes('settings') ? (workspaceId ? 'pl-0 py-3' : '') : ''}`}>
           <p className="font-rubik font-normal text-[22px] tracking-[.01em] leading-[26px] text-white">
-            {data && !pathname!.includes('settings') ? `${data?.workspace?.slug} > Recents` : 'Account Dashboard'}
+            {data && !pathname!.includes('settings') ? `${data?.workspace?.name}` : ''}
           </p>
         </div>
       )}

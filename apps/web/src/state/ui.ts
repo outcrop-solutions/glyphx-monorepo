@@ -43,3 +43,8 @@ export const showLoadingAtom = atom<Partial<Omit<databaseTypes.IProcessTracking,
   key: 'showLoadingAtom',
   default: {},
 });
+
+export const mobileMenuAtom = atom<boolean>({
+  key: 'mobileMenuAtom',
+  default: false,
+});

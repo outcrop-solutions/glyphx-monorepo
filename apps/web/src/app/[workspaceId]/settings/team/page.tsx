@@ -199,7 +199,7 @@ const Team = () => {
                               >
                                 {member?.status.toLowerCase()}
                               </span>
-                              <h4 className="capitalize">{member?.teamRole!.toLowerCase()}</h4>
+                              <h4 className="capitalize">{member?.teamRole?.toLowerCase()}</h4>
                               {data?.workspace?.creator?.email !== member?.email && ownership?.isTeamOwner && (
                                 <Menu as="div" className="relative inline-block text-left">
                                   <div>
