@@ -14,12 +14,23 @@ export default async function AuthLayout({children}) {
   const session = await getServerSession(authOptions);
   let workspaces;
 
+  // redirect to first workspace or create default workspace and redirect
   if (session?.user.id && session.user.email) {
     await Initializer.init();
     workspaces = await workspaceService.getWorkspaces(session.user.id, session.user.email);
-  }
-  if (workspaces) {
-    redirect(`/${workspaces[0].id}` as Route);
+    if (workspaces) {
+      redirect(`/${workspaces[0].id}` as Route);
+    } else {
+      const workspace = await workspaceService.createWorkspace(
+        session?.user?.id,
+        session?.user.email,
+        'Default Workspace',
+        'default-workspace'
+      );
+      if (workspace) {
+        redirect(`/${workspace.id}` as Route);
+      }
+    }
   }
 
   return (
