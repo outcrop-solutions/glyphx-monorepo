@@ -3,7 +3,7 @@ use crate::types::field_type::FieldType;
 use serde_json::Value;
 mod field_definition;
 mod vectorizer_parameters_error;
-pub use field_definition::{FieldDefinition, StandardFieldDefinition};
+pub use field_definition::{FieldDefinition, StandardFieldDefinition, DateGrouping, DateFieldDefinition};
 pub use vectorizer_parameters_error::{VectorizerParametersError, VectorizerParametersFunction};
 
 #[derive(Debug)]
@@ -275,6 +275,87 @@ impl VectorizerParameters {
         Ok(())
      }
         
+    pub fn get_date_field_definition(
+        &self,
+        field_name: &str,
+    ) -> Result<FieldDefinition, VectorizerParametersError> {
+        let field_definition_type = self.get_field_definition_type(field_name);
+        if field_definition_type.is_err() {
+            let err = field_definition_type.err().unwrap();
+            return Err(VectorizerParametersError::change_operation(err, VectorizerParametersFunction::GetDateFieldDefinition));
+        }
+        let field_definition_type = field_definition_type.unwrap();
+        match field_definition_type {
+            FieldDefinitionType::Date => {}
+            _ => {
+                return Err(VectorizerParametersError::InvalidFieldDefinitionType {
+                    operation: VectorizerParametersFunction::GetDateFieldDefinition,
+                    description: "fieldType is not date".to_string(),
+                    field: field_name.to_string(),
+                    json: format!("{:?}", field_definition_type),
+                });
+            }
+        };
+        let value = match self.get_field_json_value(field_name) {
+            Err(err) => {
+                return Err(err);
+            }
+            Ok(value) => value,
+        };
+
+        let validation_result = Self::validate_date_field_json(&value);
+        if validation_result.is_err() {
+            return Err(validation_result.err().unwrap());
+        } 
+
+        let field_display_name = value["fieldDisplayName"].as_str().unwrap().to_string();
+        let field_data_type = FieldType::from_numeric_value(value["fieldDataType"].as_u64().unwrap() as usize);
+        let field_definition = &value["fieldDefinition"];
+
+        let field_name = field_definition["fieldName"].as_str().unwrap().to_string();
+        let date_grouping = field_definition["dateGrouping"].as_str().unwrap().to_string();
+
+        Ok(FieldDefinition::Date {
+            field_display_name,
+            field_data_type,
+            field_definition: DateFieldDefinition {
+                field_type: FieldDefinitionType::Date,
+                field_name,
+                date_grouping: DateGrouping::from_str(&date_grouping),
+            },
+        })
+    } 
+     fn validate_date_field_json(
+        input: &Value
+        ) -> Result<(), VectorizerParametersError> {
+
+        let has_field_display_name = Self::json_value_has_field(input, "fieldDisplayName", VectorizerParametersFunction::GetDateFieldDefinition); 
+        if has_field_display_name.is_err() {
+            return Err(has_field_display_name.err().unwrap());
+             }
+
+        let has_field_data_type = Self::json_value_has_field(input, "fieldDataType", VectorizerParametersFunction::GetDateFieldDefinition);
+        if has_field_data_type.is_err() {
+            return Err(has_field_data_type.err().unwrap());
+        }
+
+        let has_field_definition = Self::json_value_has_field(input, "fieldDefinition", VectorizerParametersFunction::GetDateFieldDefinition);
+        if has_field_definition.is_err() {
+            return Err(has_field_definition.err().unwrap());
+        }
+
+        let field_definition = &input["fieldDefinition"];
+        let has_field_name = Self::json_value_has_field(field_definition, "fieldName", VectorizerParametersFunction::GetDateFieldDefinition);
+        if has_field_name.is_err() {
+            return Err(has_field_name.err().unwrap());
+        }
+
+        let has_date_grouping = Self::json_value_has_field(field_definition, "dateGrouping", VectorizerParametersFunction::GetDateFieldDefinition);
+        if has_date_grouping.is_err() {
+            return Err(has_date_grouping.err().unwrap());
+        }
+        Ok(())
+     }
     fn json_value_has_field( input: &Value, field_name: &str, operation: VectorizerParametersFunction) -> Result<(), VectorizerParametersError> {
         let field = &input[field_name];
         if field.is_null() {
@@ -1463,3 +1544,432 @@ mod get_standard_field_definition {
         }
     }
 }
+
+#[cfg(test)]
+mod validate_date_field_json {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn ok() {
+        let input = json!({
+            "fieldDisplayName": "field1",
+            "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldName": "field1",
+                    "dateGrouping": "day_of_week"
+                }
+        });
+
+        let result = VectorizerParameters::validate_date_field_json(&input);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn missing_field_display_name() {
+        let input = json!({
+            "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldName": "field1",
+                    "dateGrouping": "day_of_week"
+                }
+        });
+
+        let result = VectorizerParameters::validate_date_field_json(&input);
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            VectorizerParametersError::JsonValidationError {
+                operation,
+                description: _,
+                field,
+            } => {
+                match operation {
+                    VectorizerParametersFunction::GetDateFieldDefinition => {}
+                    _ => {
+                        panic!("Unexpected error type");
+                    }
+                }
+                assert_eq!(field, "fieldDisplayName");
+            }
+            _ => {
+                panic!("Unexpected error type");
+            }
+        }
+    }
+
+    #[test]
+    fn missing_field_data_type() {
+        let input = json!({
+            "fieldDisplayName": "field1",
+                "fieldDefinition": {
+                    "fieldName": "field1",
+                    "dateGrouping": "day_of_week"
+                }
+        });
+
+        let result = VectorizerParameters::validate_date_field_json(&input);
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            VectorizerParametersError::JsonValidationError {
+                operation,
+                description: _,
+                field,
+            } => {
+                match operation {
+                    VectorizerParametersFunction::GetDateFieldDefinition => {}
+                    _ => {
+                        panic!("Unexpected error type");
+                    }
+                }
+                assert_eq!(field, "fieldDataType");
+            }
+            _ => {
+                panic!("Unexpected error type");
+            }
+        }
+    }
+
+    #[test]
+    fn missing_field_definition() {
+        let input = json!({
+            "fieldDisplayName": "field1",
+            "fieldDataType": 1,
+        });
+
+        let result = VectorizerParameters::validate_date_field_json(&input);
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            VectorizerParametersError::JsonValidationError {
+                operation,
+                description: _,
+                field,
+            } => {
+                match operation {
+                    VectorizerParametersFunction::GetDateFieldDefinition => {}
+                    _ => {
+                        panic!("Unexpected error type");
+                    }
+                }
+                assert_eq!(field, "fieldDefinition");
+            }
+            _ => {
+                panic!("Unexpected error type");
+            }
+        }
+    }
+
+    #[test]
+    fn missing_field_name() {
+        let input = json!({
+            "fieldDisplayName": "field1",
+            "fieldDataType": 1,
+                "fieldDefinition": {
+                    "dateGrouping": "day_of_week"
+                }
+        });
+
+        let result = VectorizerParameters::validate_date_field_json(&input);
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            VectorizerParametersError::JsonValidationError {
+                operation,
+                description: _,
+                field,
+            } => {
+                match operation {
+                    VectorizerParametersFunction::GetDateFieldDefinition => {}
+                    _ => {
+                        panic!("Unexpected error type");
+                    }
+                }
+                assert_eq!(field, "fieldName");
+            }
+            _ => {
+                panic!("Unexpected error type");
+            }
+        }
+    }
+
+    #[test]
+    fn missing_date_grouping() {
+        let input = json!({
+            "fieldDisplayName": "field1",
+            "fieldDataType": 1,
+                "fieldDefinition": {
+                 "fieldName": "field1"
+                }
+        });
+
+        let result = VectorizerParameters::validate_date_field_json(&input);
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            VectorizerParametersError::JsonValidationError {
+                operation,
+                description: _,
+                field,
+            } => {
+                match operation {
+                    VectorizerParametersFunction::GetDateFieldDefinition => {}
+                    _ => {
+                        panic!("Unexpected error type");
+                    }
+                }
+                assert_eq!(field, "dateGrouping");
+            }
+            _ => {
+                panic!("Unexpected error type");
+            }
+        }
+    }
+}
+
+
+#[cfg(test)]
+mod get_date_field_definition {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn ok() {
+        let input = json!({
+            "workspace_id": "1234",
+            "project_id": "5678",
+            "data_table_name": "my_table",
+            "xAxis" : {
+            "fieldDisplayName": "field1",
+            "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldName": "field1",
+                    "fieldType": "date",
+                    "dateGrouping": "day_of_week"
+                }
+            }
+        });
+
+        let vec_params = VectorizerParameters::from_json_value(&input);
+        assert!(vec_params.is_ok());
+        let vec_params = vec_params.unwrap();
+
+        let result = vec_params.get_date_field_definition("xaxis");
+        assert!(result.is_ok());
+        let result = result.unwrap();
+        match result {
+            FieldDefinition::Date {
+                field_display_name,
+                field_data_type,
+                field_definition,
+            } => {
+                assert_eq!(field_display_name, "field1");
+                assert_eq!(field_definition.field_name, "field1");
+                match field_definition.date_grouping {
+                    DateGrouping::DayOfWeek => {}
+                    _ => {
+                        panic!("Unexpected date grouping");
+                    }
+                };
+                match field_data_type {
+                    FieldType::String => {}
+                    _ => {
+                        panic!("Unexpected field type");
+                    }
+                };
+
+                match field_definition.field_type {
+                    FieldDefinitionType::Date => {}
+                    _ => {
+                        panic!("Unexpected field definition type");
+                    }
+                };
+            }
+            _ => {
+                panic!("Unexpected field definition type");
+            }
+        }
+    }
+
+    #[test]
+    fn axis_field_does_not_exist() {
+        let input = json!({
+            "workspace_id": "1234",
+            "project_id": "5678",
+            "data_table_name": "my_table",
+            "yAxis" : {
+            "fieldDisplayName": "field1",
+            "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldName": "field1",
+                    "fieldType": "date",
+                    "dateGrouping": "day_of_week"
+                }
+            }
+        });
+
+        let vec_params = VectorizerParameters::from_json_value(&input);
+        assert!(vec_params.is_ok());
+        let vec_params = vec_params.unwrap();
+
+        let result = vec_params.get_date_field_definition("xaxis");
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            VectorizerParametersError::AxisNotDefined {
+                operation,
+                description: _,
+                axis_name,
+            } => {
+                match operation {
+                    VectorizerParametersFunction::GetDateFieldDefinition => {}
+                    _ => {
+                        panic!("Unexpected error type");
+                    }
+                }
+                assert_eq!(axis_name, "xAxis");
+            }
+            _ => {
+                panic!("Unexpected error type");
+            }
+        }
+    }
+
+    #[test]
+    fn supporting_field_does_not_exist() {
+        let input = json!({
+            "workspace_id": "1234",
+            "project_id": "5678",
+            "data_table_name": "my_table",
+            "xAxis" : {
+            "fieldDisplayName": "field1",
+            "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldName": "field1",
+                    "fieldType": "date",
+                    "dateGrouping": "day_of_week"
+                }
+            },
+            "supportingFields": []
+        });
+
+        let vec_params = VectorizerParameters::from_json_value(&input);
+        assert!(vec_params.is_ok());
+        let vec_params = vec_params.unwrap();
+
+        let result = vec_params.get_date_field_definition("foo");
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            VectorizerParametersError::SupportingFieldNotDefined {
+                operation,
+                description: _,
+                field,
+            } => {
+                match operation {
+                    VectorizerParametersFunction::GetDateFieldDefinition => {}
+                    _ => {
+                        panic!("Unexpected error type");
+                    }
+                }
+                assert_eq!(field, "foo");
+            }
+            _ => {
+                panic!("Unexpected error type");
+            }
+        }
+    }
+
+    #[test]
+    fn field_is_not_date() {
+        let input = json!({
+            "workspace_id": "1234",
+            "project_id": "5678",
+            "data_table_name": "my_table",
+            "xAxis" : {
+            "fieldDisplayName": "field1",
+            "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldName": "field1",
+                    "fieldType": "standard",
+                    "dateGrouping": "day_of_week"
+                }
+            },
+            "supportingFields": []
+        });
+
+        let vec_params = VectorizerParameters::from_json_value(&input);
+        assert!(vec_params.is_ok());
+        let vec_params = vec_params.unwrap();
+
+        let result = vec_params.get_date_field_definition("xaxis");
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            VectorizerParametersError::InvalidFieldDefinitionType {
+                operation,
+                description: _,
+                field,
+                json,
+            } => {
+                match operation {
+                    VectorizerParametersFunction::GetDateFieldDefinition => {}
+                    _ => {
+                        panic!("Unexpected error type");
+                    }
+                }
+                assert_eq!(field, "xaxis");
+                assert!(json.len() > 0);
+            }
+            _ => {
+                panic!("Unexpected error type");
+            }
+        }
+    }
+
+    #[test]
+    fn validation_failed() {
+        let input = json!({
+            "workspace_id": "1234",
+            "project_id": "5678",
+            "data_table_name": "my_table",
+            "xAxis" : {
+            "fieldDisplayName": "field1",
+            "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldType": "date",
+                    "dateGrouping": "day_of_week"
+                }
+            },
+            "supportingFields": []
+        });
+
+        let vec_params = VectorizerParameters::from_json_value(&input);
+        assert!(vec_params.is_ok());
+        let vec_params = vec_params.unwrap();
+
+        let result = vec_params.get_date_field_definition("xaxis");
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            VectorizerParametersError::JsonValidationError {
+                operation,
+                description: _,
+                field,
+            } => {
+                match operation {
+                    VectorizerParametersFunction::GetDateFieldDefinition => {}
+                    _ => {
+                        panic!("Unexpected error type");
+                    }
+                }
+                assert_eq!(field, "fieldName");
+            }
+            _ => {
+                panic!("Unexpected error type");
+            }
+        }
+    }
+}
+

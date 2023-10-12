@@ -4,6 +4,7 @@ pub enum VectorizerParametersFunction {
     FromJsonValue,
     GetFieldDefinitionType,
     GetStandardFieldDefinition,
+    GetDateFieldDefinition,
 }
 
 #[derive(Debug)]
