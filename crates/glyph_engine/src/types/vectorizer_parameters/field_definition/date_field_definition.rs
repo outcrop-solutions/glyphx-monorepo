@@ -1,4 +1,7 @@
 use crate::types::field_definition_type::FieldDefinitionType;
+use crate::types::vectorizer_parameters::{json_value_has_field, VectorizerParametersError, VectorizerParametersFunction};
+
+use serde_json::Value;
 
 #[derive(Debug, Copy, Clone)]
 pub enum DateGrouping {
@@ -35,7 +38,47 @@ pub struct DateFieldDefinition {
    pub date_grouping: DateGrouping,
 }
 
+impl DateFieldDefinition {
+    pub fn from_json(input: &Value) -> Result<Self, VectorizerParametersError> {
+        let validation_result = Self::validate_json(input);
+        if validation_result.is_err()  {
+            return Err( validation_result.err().unwrap() );
+        }
+        let field_name = input["fieldName"].as_str().unwrap().to_string();
+        let field_type = FieldDefinitionType::Date;
+        let raw_date_grouping = input["dateGrouping"].as_str().unwrap().to_string();
+        let date_grouping = DateGrouping::from_str(&raw_date_grouping);
+        Ok(Self {
+            field_type,
+            field_name,
+            date_grouping,
+        })
+    }
+    fn validate_json(input: &Value) -> Result<(), VectorizerParametersError> {
+        let has_field_name = json_value_has_field(
+            input,
+            "fieldName",
+            VectorizerParametersFunction::DateFieldDefinitionFromJsonValue,
+        );
+        if has_field_name.is_err() {
+            return Err(has_field_name.err().unwrap());
+        }
+
+        let has_date_grouping = json_value_has_field(
+            input,
+            "dateGrouping",
+            VectorizerParametersFunction::DateFieldDefinitionFromJsonValue,
+        );
+        if has_date_grouping.is_err() {
+            return Err(has_date_grouping.err().unwrap());
+        }
+        Ok(())
+
+    }
+}
+
 #[cfg(test)]
+#[allow(non_snake_case)]
 mod DateGrouping_from_str {
   use super::*;
   #[test]
@@ -111,3 +154,127 @@ mod DateGrouping_from_str {
   }
 }
 
+#[cfg(test)]
+mod validate_json {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn valid() {
+        let input = json!({
+            "fieldType": "date",
+            "fieldName": "test",
+            "dateGrouping": "day_of_year"
+        });
+        let result = DateFieldDefinition::validate_json(&input);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn missing_field_name() {
+        let input = json!({
+            "fieldType": "date",
+            "dateGrouping": "day_of_year"
+        });
+        let result = DateFieldDefinition::validate_json(&input);
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            VectorizerParametersError::JsonValidationError {
+                operation,
+                description: _,
+                field,
+            } => {
+                assert_eq!(field, "fieldName");
+                match operation {
+                    VectorizerParametersFunction::DateFieldDefinitionFromJsonValue => assert!(true),
+                    _ => assert!(false),
+                }
+            }
+            _ => {
+                panic!("Unexpected result");
+            }
+        }
+    }
+
+    #[test]
+    fn missing_date_grouping() {
+        let input = json!({
+            "fieldType": "date",
+            "fieldName": "test"
+        });
+        let result = DateFieldDefinition::validate_json(&input);
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            VectorizerParametersError::JsonValidationError {
+                operation,
+                description: _,
+                field,
+            } => {
+                assert_eq!(field, "dateGrouping");
+                match operation {
+                    VectorizerParametersFunction::DateFieldDefinitionFromJsonValue => assert!(true),
+                    _ => assert!(false),
+                }
+            }
+            _ => {
+                panic!("Unexpected result");
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod from_json {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn valid() {
+        let input = json!({
+            "fieldType": "date",
+            "fieldName": "test",
+            "dateGrouping": "day_of_year"
+        });
+        let result = DateFieldDefinition::from_json(&input);
+        assert!(result.is_ok());
+        let result = result.unwrap();
+        match result.field_type {
+            FieldDefinitionType::Date => assert!(true),
+            _ => assert!(false),
+        }
+        assert_eq!(result.field_name, "test".to_string());
+        match result.date_grouping {
+            DateGrouping::DayOfYear => assert!(true),
+            _ => assert!(false),
+        }
+    }
+
+    #[test]
+    fn missing_field_name() {
+        let input = json!({
+            "fieldType": "date",
+            "dateGrouping": "day_of_year"
+        });
+        let result = DateFieldDefinition::from_json(&input);
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            VectorizerParametersError::JsonValidationError {
+                operation,
+                description: _,
+                field,
+            } => {
+                assert_eq!(field, "fieldName");
+                match operation {
+                    VectorizerParametersFunction::DateFieldDefinitionFromJsonValue => assert!(true),
+                    _ => assert!(false),
+                }
+            }
+            _ => {
+                panic!("Unexpected result");
+            }
+        }
+    }
+}

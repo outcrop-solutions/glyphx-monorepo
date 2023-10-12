@@ -5,6 +5,11 @@ pub enum VectorizerParametersFunction {
     GetFieldDefinitionType,
     GetStandardFieldDefinition,
     GetDateFieldDefinition,
+    AccumulatedFiledDefinitionFromJsonValue,
+    StandardFieldDefinitionFromJsonValue,
+    DateFieldDefinitionFromJsonValue,
+    FieldDefinitionFromJsonValue,
+    GetFieldDefinition,
 }
 
 #[derive(Debug)]
@@ -40,6 +45,13 @@ pub enum VectorizerParametersError {
         field: String,
         json: String,
     },
+
+    InvalidFieldType {
+        operation: VectorizerParametersFunction,
+        description: String,
+        field: String,
+        field_type: usize,
+    },
 }
 
 impl VectorizerParametersError {
@@ -66,7 +78,7 @@ impl VectorizerParametersError {
                 field,
             },
             Self::AxisNotDefined {
-                operation : _,
+                operation: _,
                 description,
                 axis_name,
             } => Self::AxisNotDefined {
@@ -94,10 +106,20 @@ impl VectorizerParametersError {
                 field,
                 json,
             },
+            Self::InvalidFieldType {
+                operation: _,
+                description,
+                field,
+                field_type,
+            } => Self::InvalidFieldType {
+                operation: new_operation,
+                description,
+                field,
+                field_type,
+            },
         }
     }
 }
-
 
 #[cfg(test)]
 mod change_operation {

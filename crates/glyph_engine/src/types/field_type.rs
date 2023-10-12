@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 pub enum FieldType {
    Number,
    String,
