@@ -1,89 +1,84 @@
 'use client';
-import {useState} from 'react';
+import {Logo} from './Logo';
+import {MenuBtn} from './MenuBtn';
+import {CreateWorkspace} from '../../[workspaceId]/_components/controls/CreateWorkspace';
+import {CubeIcon, FolderIcon, PlusCircleIcon, TableIcon, UserGroupIcon} from '@heroicons/react/outline';
 import Link from 'next/link';
-import {MenuIcon} from '@heroicons/react/outline';
+import {useParams, usePathname} from 'next/navigation';
 
-// components
-import Actions from './actions';
-import Menu from './menu';
-import sidebarMenu from 'config/menu/sidebar-static';
-
-import FullLogo from 'public/svg/full-logo.svg';
-import SmallLogo from 'public/svg/small-logo.svg';
-// hooks
-import {useWorkspace, useWorkspaces} from 'lib/client';
-import {drawerOpenAtom} from 'state';
-import {useSetRecoilState} from 'recoil';
-import {useParams} from 'next/navigation';
-import menu from 'config/menu';
-
-const staticMenu = sidebarMenu();
-
-const Sidebar = () => {
+const Sidebar = ({workspaces}) => {
   const params = useParams();
+  const pathname = usePathname();
   const workspaceId = params?.workspaceId;
-
-  const [showMenu, setMenuVisibility] = useState(false);
-  const setDrawer = useSetRecoilState(drawerOpenAtom);
-  const {projectId} = params as {projectId: string};
-  const {data, isLoading} = useWorkspaces();
-  const {data: workspace} = useWorkspace();
-  const menuConfig = menu(workspaceId);
-
-  const renderMenu = () => {
-    return (
-      workspace &&
-      menuConfig.map((item, index) => (
-        <Menu key={index} data={item} isLoading={isLoading} showMenu={data?.workspaces?.length > 0 || isLoading} />
-      ))
-    );
-  };
-
-  const renderStaticMenu = () => {
-    return staticMenu.map((item, index) => <Menu key={index} data={item} showMenu={true} />);
-  };
-
-  const toggleMenu = () => setMenuVisibility(!showMenu);
-
+  const isProject = !!params?.projectId;
   return (
     <aside
-      className={`sticky z-40 flex flex-col space-y-2 text-white bg-secondary-deep-blue ${
-        projectId ? '' : 'md:w-[250px] overscroll-contain md:overflow-y-auto'
+      className={`sticky z-40 flex flex-col px-4 space-y-2 text-white bg-secondary-deep-blue ${
+        isProject ? '' : 'md:w-[250px] overscroll-contain md:overflow-y-auto'
       } md:h-screen`}
     >
-      <div
-        className={`relative flex items-center justify-center py-3 px-2 md:mx-8 text-center border-b ${
-          projectId && 'border-b-gray'
-        }`}
-      >
-        <Link href="/account">
-          <div
-            onClick={() => {
-              setDrawer(false);
-              window?.core?.ToggleDrawer(false);
-            }}
-            className="py-1"
-          >
-            {projectId ? <SmallLogo /> : <FullLogo />}
-          </div>
-        </Link>
-        {!projectId && (
-          <button className="absolute right-0 p-5 md:hidden" onClick={toggleMenu}>
-            <MenuIcon className="w-6 h-6" />
-          </button>
-        )}
+      <div className="relative flex items-center py-3 text-center border-b border-b-gray">
+        <Logo />
+        <MenuBtn />
       </div>
       <div
-        className={[
-          'flex-col space-y-5 md:flex md:relative md:top-0',
-          showMenu ? 'absolute top-12 bg-primary-dark-blue right-0 left-0 h-screen' : 'hidden',
-        ].join(' ')}
+        className={
+          'flex-col space-y-1 md:flex md:top-0 absolute top-12 bg-secondary-deep-blue right-0 left-0 h-screen hidden md:relative'
+        }
       >
-        {!projectId && <Actions />}
-        <div className={`flex flex-col ${projectId ? 'items-center space-y-2' : 'p-5 space-y-10'}`}>
-          {renderStaticMenu()}
-          {renderMenu()}
-        </div>
+        {!isProject && (
+          <>
+            <div className="flex-col space-y-1 md:flex border-b border-white pb-2">
+              <Link href={`/${workspaceId}/templates`}>
+                <div
+                  className={`flex items-center space-x-2 hover:bg-nav ${
+                    pathname?.includes('templates') && 'bg-nav'
+                  } cursor-pointer p-1 rounded-sm`}
+                >
+                  <CubeIcon className="h-4 w-4" />
+                  <div className="text-gray-300 hover:text-white text-sm">Templates</div>
+                </div>
+              </Link>
+              <Link href={`/${workspaceId}`}>
+                <div
+                  className={`flex items-center space-x-2 hover:bg-nav ${
+                    pathname?.includes('data') && 'bg-nav'
+                  } cursor-pointer p-1 rounded-sm`}
+                >
+                  <TableIcon className="h-4 w-4" />
+                  <div className="text-gray-300 hover:text-white text-sm">Data</div>
+                </div>
+              </Link>
+              <Link href={`/${workspaceId}`}>
+                <div
+                  className={`flex items-center space-x-2 hover:bg-nav ${
+                    !pathname?.includes('templates') && 'bg-nav'
+                  } cursor-pointer p-1 rounded-sm`}
+                >
+                  <FolderIcon className="h-4 w-4" />
+                  <div className="text-gray-300 hover:text-white text-sm">Projects</div>
+                </div>
+              </Link>
+            </div>
+            <ul className={`flex flex-col items-center space-y-2 pt-2 overflow-y-auto h-96`}>
+              {workspaces &&
+                workspaces.map((space) => (
+                  <li
+                    key={space.id}
+                    className={`flex w-full items-center space-x-2 hover:bg-nav ${
+                      workspaceId === space.id && 'bg-nav'
+                    } rounded p-1`}
+                  >
+                    <UserGroupIcon className="h-4 w-4" />
+                    <Link href={`/${space.id}`}>
+                      <span className="text-gray-300 hover:text-white text-sm">{space.name}</span>
+                    </Link>
+                  </li>
+                ))}
+            </ul>
+          </>
+        )}
+        {isProject ? <PlusCircleIcon className="w-4 h-4" /> : <CreateWorkspace />}
       </div>
     </aside>
   );
