@@ -45,6 +45,7 @@ module.exports = {
         yellow: '#EBB500',
         cyan: '#00B4A1',
         blue: '#004BB9',
+        nav: '#363C4F',
         secondary: '#79D900',
       },
       fontFamily: {

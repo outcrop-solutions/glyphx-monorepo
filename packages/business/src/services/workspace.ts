@@ -1,5 +1,5 @@
 import {EmailClient, workspaceCreateHtml, workspaceCreateText, inviteHtml, inviteText} from 'email';
-import {IWorkspacePath, databaseTypes, IQueryResult} from 'types';
+import {databaseTypes} from 'types';
 import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
 
@@ -233,11 +233,9 @@ export class WorkspaceService {
 
   public static async getSiteWorkspace(id: string): Promise<databaseTypes.IWorkspace | null> {
     try {
-      const workspace = await mongoDbConnection.models.WorkspaceModel.queryWorkspaces({
-        _id: id,
-      });
+      const workspace = await mongoDbConnection.models.WorkspaceModel.getWorkspaceById(id);
 
-      return workspace.results[0];
+      return workspace;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError || err instanceof error.InvalidArgumentError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);

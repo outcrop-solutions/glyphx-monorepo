@@ -8,9 +8,11 @@ import {PinnedProjects, Templates} from './_components/workspace';
 export default async function WorkspacePage({params}) {
   const workspaceId = params?.workspaceId;
   await Initializer.init();
-  const workspace = await workspaceService.getSiteWorkspace(workspaceId);
-
-  const projects = workspace?.projects && workspace.projects.filter((proj) => !proj.deletedAt);
+  let workspace, projects;
+  if (workspaceId) {
+    workspace = await workspaceService.getSiteWorkspace(workspaceId);
+    projects = workspace?.projects && workspace.projects.filter((proj) => !proj.deletedAt);
+  }
 
   return (
     workspace && (
@@ -27,7 +29,7 @@ export default async function WorkspacePage({params}) {
                     <Templates />
                   )}
                 </div>
-                <RightSidebar />
+                {/* <RightSidebar /> */}
               </div>
             </div>
           </div>
