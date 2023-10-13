@@ -65,10 +65,28 @@ impl FieldDefinition {
             FieldDefinitionType::Date => {
                 Self::build_date_field(field_display_name, field_data_type, field_definition)
             }
+            FieldDefinitionType::ACCUMULATED => {
+                Self::build_accumulated_field(field_display_name, field_data_type, field_definition)
+            }
             _ => Ok(FieldDefinition::Unknown()),
         }
     }
 
+    fn build_accumulated_field( field_display_name: String, field_data_type: FieldType, field_definition: &Value ) ->  Result<FieldDefinition, VectorizerParametersError> {
+
+       let accumulated_field_definition = AccumulatorFieldDefinition::from_json(field_definition); 
+       if accumulated_field_definition.is_err() {
+           let err = accumulated_field_definition.err().unwrap();
+           let err = VectorizerParametersError::change_operation(err, VectorizerParametersFunction::FieldDefinitionFromJsonValue);
+           return Err(err);
+       }
+
+       Ok(FieldDefinition::Accumulated {
+           field_display_name,
+           field_data_type,
+           field_definition: accumulated_field_definition.unwrap(),
+       })
+    } 
     fn build_date_field( field_display_name: String, field_data_type: FieldType, field_definition: &Value ) ->  Result<FieldDefinition, VectorizerParametersError> {
 
        let date_field_definition = DateFieldDefinition::from_json(field_definition); 
@@ -312,14 +330,12 @@ mod is_accumulated {
             field_definition: AccumulatorFieldDefinition {
                 accumulator_type: AccumulatorType::SUM,
                 field_type: FieldDefinitionType::ACCUMULATED,
-                accumulated_field_definition: AccumulatedFieldDefinition::Standard {
-                    field_display_name: "test".to_string(),
-                    field_data_type: FieldType::String,
-                    field_definition: StandardFieldDefinition {
+                accumulated_field_definition: AccumulatedFieldDefinition::Standard (
+                    StandardFieldDefinition {
                         field_type: FieldDefinitionType::Standard,
                         field_name: "test".to_string(),
                     },
-                },
+                ),
             },
         };
         assert!(field_definition.is_accumulated());
@@ -378,14 +394,12 @@ mod get_field_display_name {
             field_definition: AccumulatorFieldDefinition {
                 accumulator_type: AccumulatorType::SUM,
                 field_type: FieldDefinitionType::ACCUMULATED,
-                accumulated_field_definition: AccumulatedFieldDefinition::Standard {
-                    field_display_name: "test".to_string(),
-                    field_data_type: FieldType::String,
-                    field_definition: StandardFieldDefinition {
+                accumulated_field_definition: AccumulatedFieldDefinition::Standard (
+                    StandardFieldDefinition {
                         field_type: FieldDefinitionType::Standard,
                         field_name: "test".to_string(),
                     },
-                },
+                ),
             },
         };
         assert_eq!(field_definition.get_field_display_name(), "test");
@@ -441,14 +455,12 @@ mod get_standard_field_definition {
             field_definition: AccumulatorFieldDefinition {
                 accumulator_type: AccumulatorType::SUM,
                 field_type: FieldDefinitionType::ACCUMULATED,
-                accumulated_field_definition: AccumulatedFieldDefinition::Standard {
-                    field_display_name: "test".to_string(),
-                    field_data_type: FieldType::String,
-                    field_definition: StandardFieldDefinition {
+                accumulated_field_definition: AccumulatedFieldDefinition::Standard (
+                    StandardFieldDefinition {
                         field_type: FieldDefinitionType::Standard,
                         field_name: "test".to_string(),
                     },
-                },
+                ),
             },
         };
         let result = field_definition.get_standard_field_definition();
@@ -506,14 +518,12 @@ mod get_date_field_definition {
             field_definition: AccumulatorFieldDefinition {
                 accumulator_type: AccumulatorType::SUM,
                 field_type: FieldDefinitionType::ACCUMULATED,
-                accumulated_field_definition: AccumulatedFieldDefinition::Standard {
-                    field_display_name: "test".to_string(),
-                    field_data_type: FieldType::String,
-                    field_definition: StandardFieldDefinition {
+                accumulated_field_definition: AccumulatedFieldDefinition::Standard (
+                    StandardFieldDefinition {
                         field_type: FieldDefinitionType::Standard,
                         field_name: "test".to_string(),
                     },
-                },
+                ),
             },
         };
         let result = field_definition.get_date_field_definition();
@@ -541,14 +551,12 @@ mod get_accumulator_field_definition {
             field_definition: AccumulatorFieldDefinition {
                 accumulator_type: AccumulatorType::SUM,
                 field_type: FieldDefinitionType::ACCUMULATED,
-                accumulated_field_definition: AccumulatedFieldDefinition::Standard {
-                    field_display_name: "test".to_string(),
-                    field_data_type: FieldType::String,
-                    field_definition: StandardFieldDefinition {
+                accumulated_field_definition: AccumulatedFieldDefinition::Standard (
+                    StandardFieldDefinition {
                         field_type: FieldDefinitionType::Standard,
                         field_name: "test".to_string(),
                     },
-                },
+                ),
             },
         };
         let result = field_definition.get_accumulator_field_definition();
@@ -837,6 +845,92 @@ mod from_json {
                 field,
             } => {
                 assert_eq!(field, "dateGrouping");
+                match operation {
+                    VectorizerParametersFunction::FieldDefinitionFromJsonValue => assert!(true),
+                    _ => assert!(false),
+                }
+            }
+            _ => {
+                panic!("Unexpected result");
+            }
+        }
+    }
+
+    #[test]
+    fn accumulator_field() {
+        let input = json!({
+            "fieldDisplayName": "test",
+            "fieldDataType": 1,
+            "fieldDefinition": {
+                "fieldType": "accumulated",
+                "accumulator": "sum",
+                "accumulatedFieldDefinition": {
+                    "fieldType": "standard",
+                    "fieldName": "test"
+                }
+            }
+        });
+        let result = FieldDefinition::from_json(&input);
+        assert!(result.is_ok());
+        let result = result.unwrap();
+        match result {
+            FieldDefinition::Accumulated {
+                field_display_name,
+                field_data_type,
+                field_definition,
+            } => {
+                assert_eq!(field_display_name, "test");
+                match field_data_type {
+                    FieldType::String => assert!(true),
+                    _ => assert!(false),
+                }
+                match field_definition.accumulator_type {
+                    AccumulatorType::SUM => assert!(true),
+                    _ => assert!(false),
+                }
+                match field_definition.field_type {
+                    FieldDefinitionType::ACCUMULATED => assert!(true),
+                    _ => assert!(false),
+                }
+                match field_definition.accumulated_field_definition {
+                    AccumulatedFieldDefinition::Standard(standard_field_definition) => {
+                        assert_eq!(standard_field_definition.field_name, "test");
+                        match standard_field_definition.field_type {
+                            FieldDefinitionType::Standard => assert!(true),
+                            _ => assert!(false),
+                        }
+                    }
+                    _ => {
+                        panic!("Unexpected result");
+                    }
+                }
+            }
+            _ => {
+                panic!("Unexpected result");
+            }
+        }
+    }
+   
+    #[test]
+    fn accumulator_field_is_error() {
+        let input = json!({
+            "fieldDisplayName": "test",
+            "fieldDataType": 1,
+            "fieldDefinition": {
+                "fieldType": "accumulated",
+                "accumulator": "sum",
+            }
+        });
+        let result = FieldDefinition::from_json(&input);
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            VectorizerParametersError::JsonValidationError {
+                operation,
+                description: _,
+                field,
+            } => {
+                assert_eq!(field, "accumulatedFieldDefinition");
                 match operation {
                     VectorizerParametersFunction::FieldDefinitionFromJsonValue => assert!(true),
                     _ => assert!(false),
