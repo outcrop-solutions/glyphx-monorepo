@@ -1,16 +1,11 @@
-use crate::types::field_definition_type::FieldDefinitionType;
-use crate::types::field_type::FieldType;
-use serde_json::Value;
 mod field_definition;
 mod vectorizer_parameters_error;
 
-pub struct NamedFieldDefinition {
-    pub field_name: String,
-    pub field_definition: FieldDefinition,
+use crate::types::field_definition_type::FieldDefinitionType;
+use serde_json::Value;
 
-}
 pub use field_definition::{
-    DateFieldDefinition, DateGrouping, FieldDefinition, StandardFieldDefinition,
+    DateFieldDefinition, DateGrouping, FieldDefinition, StandardFieldDefinition, FieldDefinitionCollection
 };
 pub use vectorizer_parameters_error::{VectorizerParametersError, VectorizerParametersFunction};
 
@@ -247,8 +242,44 @@ impl VectorizerParameters {
         Ok(field_definition.unwrap())
     }
 
-    pub fn get_field_definitions(&self) -> Result<Vec<NamedFieldDefinition>, VectorizerParametersError> {
-        let results = Vec::new();
+    pub fn get_field_definitions(&self) -> Result<FieldDefinitionCollection, VectorizerParametersError> {
+        let mut results = FieldDefinitionCollection::new();
+        let x_axis = self.get_field_definition("xaxis");
+        if x_axis.is_err()  {
+            let err = VectorizerParametersError::change_operation(
+                x_axis.err().unwrap(),
+                VectorizerParametersFunction::GetFieldDefinitions);
+            return Err(err);
+        }
+        results.add_field_definition("xaxis".to_string(), x_axis.unwrap());
+
+        let y_axis = self.get_field_definition("yaxis");
+        if y_axis.is_err()  {
+            let err = VectorizerParametersError::change_operation(
+                y_axis.err().unwrap(),
+                VectorizerParametersFunction::GetFieldDefinitions);
+            return Err(err);
+        }
+        results.add_field_definition("yaxis".to_string(), y_axis.unwrap());
+
+        let z_axis = self.get_field_definition("zaxis");
+        if z_axis.is_err()  {
+            let err = VectorizerParametersError::change_operation(
+                z_axis.err().unwrap(),
+                VectorizerParametersFunction::GetFieldDefinitions);
+            return Err(err);
+        }
+        results.add_field_definition("zaxis".to_string(), z_axis.unwrap());
+        for supporting_field_name in self.get_supporting_field_names().unwrap() {
+            let supporting_field = self.get_field_definition(&supporting_field_name);
+            if supporting_field.is_err()  {
+                let err = VectorizerParametersError::change_operation(
+                    supporting_field.err().unwrap(),
+                    VectorizerParametersFunction::GetFieldDefinitions);
+                return Err(err);
+            }
+            results.add_field_definition(supporting_field_name, supporting_field.unwrap());
+        }
 
         return Ok(results);
     }
@@ -1002,10 +1033,10 @@ mod get_field_json_value {
 
 #[cfg(test)]
 mod get_field_definition {
-    use crate::types::field_type;
 
     use super::*;
     use serde_json::json;
+    use crate::types::FieldType;
 
     #[test]
     fn standard_field() {
@@ -1150,5 +1181,263 @@ mod get_field_definition {
             }
         }
         assert!(true);
+    }
+}
+
+#[cfg(test)]
+pub mod get_field_definitions {
+    use super::*;
+    use serde_json::json; 
+
+    #[test]
+    fn is_ok() {
+        let input = json!({
+            "workspace_id": "1234",
+            "project_id": "5678",
+            "data_table_name": "my_table",
+            "xAxis" : {
+                "fieldDisplayName": "field1",
+                "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldType": "standard",
+                    "fieldName": "field1"
+                }
+            },
+            "yAxis" : {
+                "fieldDisplayName": "field2",
+                "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldType": "standard",
+                    "fieldName": "field2"
+                }
+            },
+            "zAxis" : {
+                "fieldDisplayName": "field3",
+                "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldType": "standard",
+                    "fieldName": "field3"
+                }
+            },
+            "supportingFields" : [
+            {
+                "fieldDisplayName": "field4",
+                "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldType": "standard",
+                    "fieldName": "field4"
+                }
+            }]
+        });
+
+        let result = VectorizerParameters::from_json_value(&input);
+        assert!(result.is_ok());
+        let result = result.unwrap();
+        let mut found_x = false;
+        let mut found_y = false;
+        let mut found_z = false;
+        let mut found_supporting = false;
+        let field_definitions = result.get_field_definitions();
+        assert!(field_definitions.is_ok());
+        let field_definitions = field_definitions.unwrap();
+        for field in field_definitions.iter() {
+            if field.name == "xaxis" {
+                found_x = true;
+            };
+            if field.name == "yaxis" {
+                found_y = true;
+            };
+            if field.name == "zaxis" {
+                found_z = true;
+            };
+            if field.name == "field4" {
+                found_supporting = true;
+            };
+        }
+        assert!(found_x);
+        assert!(found_y);
+        assert!(found_z);
+        assert!(found_supporting);
+
+    }
+
+    #[test]
+    fn no_x() {
+        let input = json!({
+            "workspace_id": "1234",
+            "project_id": "5678",
+            "data_table_name": "my_table",
+            "yAxis" : {
+                "fieldDisplayName": "field2",
+                "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldType": "standard",
+                    "fieldName": "field2"
+                }
+            },
+            "zAxis" : {
+                "fieldDisplayName": "field3",
+                "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldType": "standard",
+                    "fieldName": "field3"
+                }
+            },
+            "supportingFields" : [
+            {
+                "fieldDisplayName": "field4",
+                "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldType": "standard",
+                    "fieldName": "field4"
+                }
+            }]
+        });
+
+        let result = VectorizerParameters::from_json_value(&input);
+        assert!(result.is_ok());
+        let result = result.unwrap();
+        let field_definitions = result.get_field_definitions();
+
+        assert!(field_definitions.is_err());
+        let field_definitions = field_definitions.err().unwrap();
+        match field_definitions {
+            VectorizerParametersError::AxisNotDefined {
+                operation,
+                description: _,
+                axis_name,
+            } => {
+                match operation {
+                    VectorizerParametersFunction::GetFieldDefinitions => {}
+                    _ => {
+                        panic!("Unexpected error type");
+                    }
+                }
+                assert_eq!(axis_name, "xAxis");
+            }
+            _ => {
+                panic!("Unexpected error type");
+            }
+        }
+    }
+
+    #[test]
+    fn no_y() {
+        let input = json!({
+            "workspace_id": "1234",
+            "project_id": "5678",
+            "data_table_name": "my_table",
+            "xAxis" : {
+                "fieldDisplayName": "field2",
+                "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldType": "standard",
+                    "fieldName": "field2"
+                }
+            },
+            "zAxis" : {
+                "fieldDisplayName": "field3",
+                "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldType": "standard",
+                    "fieldName": "field3"
+                }
+            },
+            "supportingFields" : [
+            {
+                "fieldDisplayName": "field4",
+                "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldType": "standard",
+                    "fieldName": "field4"
+                }
+            }]
+        });
+
+        let result = VectorizerParameters::from_json_value(&input);
+        assert!(result.is_ok());
+        let result = result.unwrap();
+        let field_definitions = result.get_field_definitions();
+
+        assert!(field_definitions.is_err());
+        let field_definitions = field_definitions.err().unwrap();
+        match field_definitions {
+            VectorizerParametersError::AxisNotDefined {
+                operation,
+                description: _,
+                axis_name,
+            } => {
+                match operation {
+                    VectorizerParametersFunction::GetFieldDefinitions => {}
+                    _ => {
+                        panic!("Unexpected error type");
+                    }
+                }
+                assert_eq!(axis_name, "yAxis");
+            }
+            _ => {
+                panic!("Unexpected error type");
+            }
+        }
+    }
+
+    #[test]
+    fn no_z() {
+        let input = json!({
+            "workspace_id": "1234",
+            "project_id": "5678",
+            "data_table_name": "my_table",
+            "xAxis" : {
+                "fieldDisplayName": "field2",
+                "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldType": "standard",
+                    "fieldName": "field2"
+                }
+            },
+            "yAxis" : {
+                "fieldDisplayName": "field3",
+                "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldType": "standard",
+                    "fieldName": "field3"
+                }
+            },
+            "supportingFields" : [
+            {
+                "fieldDisplayName": "field4",
+                "fieldDataType": 1,
+                "fieldDefinition": {
+                    "fieldType": "standard",
+                    "fieldName": "field4"
+                }
+            }]
+        });
+
+        let result = VectorizerParameters::from_json_value(&input);
+        assert!(result.is_ok());
+        let result = result.unwrap();
+        let field_definitions = result.get_field_definitions();
+
+        assert!(field_definitions.is_err());
+        let field_definitions = field_definitions.err().unwrap();
+        match field_definitions {
+            VectorizerParametersError::AxisNotDefined {
+                operation,
+                description: _,
+                axis_name,
+            } => {
+                match operation {
+                    VectorizerParametersFunction::GetFieldDefinitions => {}
+                    _ => {
+                        panic!("Unexpected error type");
+                    }
+                }
+                assert_eq!(axis_name, "zAxis");
+            }
+            _ => {
+                panic!("Unexpected error type");
+            }
+        }
     }
 }
