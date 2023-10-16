@@ -305,7 +305,6 @@ export class WorkspaceService {
    * @returns Promise<databaseTypes.IWorkspace | null>
    */
   static async getWorkspaces(userId: string, email: string): Promise<databaseTypes.IWorkspace[] | null> {
-    console.log('getWorkspaces called!');
     try {
       const workspaces = await mongoDbConnection.models.WorkspaceModel.aggregate(
         [
