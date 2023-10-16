@@ -19,7 +19,6 @@ const Sidebar = ({workspaces}) => {
     >
       <div className="relative flex items-center py-3 text-center border-b border-b-gray">
         <Logo />
-        <MenuBtn />
       </div>
       <div
         className={

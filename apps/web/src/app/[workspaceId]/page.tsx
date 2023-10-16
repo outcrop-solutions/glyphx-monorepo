@@ -1,6 +1,5 @@
 // layout
 import React from 'react';
-import {RightSidebar} from './_components/rightSidebar';
 import {Initializer, workspaceService} from 'business';
 import {GridContainer} from './_components/workspace/GridContainer';
 import {PinnedProjects, Templates} from './_components/workspace';
@@ -9,6 +8,7 @@ export default async function WorkspacePage({params}) {
   const workspaceId = params?.workspaceId;
   await Initializer.init();
   let workspace, projects;
+
   if (workspaceId) {
     workspace = await workspaceService.getSiteWorkspace(workspaceId);
     projects = workspace?.projects && workspace.projects.filter((proj) => !proj.deletedAt);

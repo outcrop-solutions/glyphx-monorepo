@@ -1,9 +1,9 @@
 import {getServerSession} from 'next-auth';
 import {authOptions} from 'app/api/auth/[...nextauth]/route';
-import {Metadata} from 'next';
-import {redirect} from 'next/navigation';
-import {Route} from 'next';
+import {Metadata, Route} from 'next';
+import {getOrCreateWorkspace} from 'lib/actions/workspace';
 import {Initializer, workspaceService} from 'business';
+import {redirect} from 'next/navigation';
 
 export const metadata: Metadata = {
   title: 'Login | Glyphx',
@@ -12,18 +12,16 @@ export const metadata: Metadata = {
 
 export default async function AuthLayout({children}) {
   const session = await getServerSession(authOptions);
-  let workspaces;
 
-  // redirect to first workspace or create default workspace and redirect
-  if (session?.user.id && session.user.email) {
+  if (session?.user) {
     await Initializer.init();
-    workspaces = await workspaceService.getWorkspaces(session.user.id, session.user.email);
+    const workspaces = await workspaceService.getWorkspaces(session.user.id, session.user.email as string);
     if (workspaces) {
       redirect(`/${workspaces[0].id}` as Route);
     } else {
       const workspace = await workspaceService.createWorkspace(
         session?.user?.id,
-        session?.user.email,
+        session?.user.email as string,
         'Default Workspace',
         'default-workspace'
       );

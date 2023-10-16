@@ -304,7 +304,13 @@ export class WorkspaceService {
    * @param email //user's email
    * @returns Promise<databaseTypes.IWorkspace | null>
    */
-  static async getWorkspaces(userId: string, email: string): Promise<databaseTypes.IWorkspace[] | null> {
+  static async getWorkspaces(
+    userId: string,
+    email: string
+    // page = 1,
+    // itemsPerPage = 10
+  ): Promise<databaseTypes.IWorkspace[] | null> {
+    console.log('getWorkspaces called!');
     try {
       const workspaces = await mongoDbConnection.models.WorkspaceModel.aggregate(
         [
@@ -354,6 +360,12 @@ export class WorkspaceService {
               ],
             },
           },
+          // {
+          //   $skip: (page - 1) * itemsPerPage,
+          // },
+          // {
+          //   $limit: itemsPerPage,
+          // },
         ],
         {
           allowDiskUse: false,
