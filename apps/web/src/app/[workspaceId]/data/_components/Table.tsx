@@ -4,6 +4,7 @@ import {Files} from './Files';
 import {fileIngestionTypes} from 'types';
 import TableItemInfoIcon from 'public/svg/table-item-info.svg';
 import {CogIcon, TableIcon} from '@heroicons/react/outline';
+import {formatFileSize} from 'lib/utils/formatFileSize';
 
 const dateOptions = {
   weekday: 'short',
@@ -13,23 +14,10 @@ const dateOptions = {
 };
 
 export const Table = ({table}) => {
-  const [isCollapsed, setCollapsed] = useState(false);
+  const [isCollapsed, setCollapsed] = useState(true);
   function sumFileSizes(fileStats: fileIngestionTypes.IFileStats[]): number {
     return fileStats.reduce((totalSize, file) => totalSize + file.fileSize, 0);
   }
-
-  function formatFileSize(bytes: number): string {
-    if (bytes < 1024) {
-      return bytes + ' bytes';
-    } else if (bytes < 1048576) {
-      return (bytes / 1024).toFixed(2) + ' KB';
-    } else if (bytes < 1073741824) {
-      return (bytes / 1048576).toFixed(2) + ' MB';
-    } else {
-      return (bytes / 1073741824).toFixed(2) + ' GB';
-    }
-  }
-
   return (
     <div className="group">
       <summary
@@ -56,15 +44,15 @@ export const Table = ({table}) => {
             </div>
             <TableIcon className="w-4 h-4" />
             <div className="pl-2">{table?.tableName}</div>
-            <div title="Last Updated" className="p-2">
-              {table?.updatedAt && new Date(table?.updatedAt).toLocaleDateString('en-US', dateOptions as any)}
+            <div className="p-2">
+              {table?.updatedAt
+                ? new Date(table?.updatedAt).toLocaleDateString('en-US', dateOptions as any)
+                : new Date().toLocaleDateString('en-US', dateOptions as any)}
             </div>
             <div className="p-2">{`${formatFileSize(sumFileSizes(table.files))}`}</div>
           </div>
           <div className="pr-2 py-2 flex flex-row items-center justify-end space-x-1 float-right">
-            {/* Info button */}
             <TableItemInfoIcon />
-            {/* Settings button */}
             <CogIcon className="h-4 w-4" />
           </div>
         </div>

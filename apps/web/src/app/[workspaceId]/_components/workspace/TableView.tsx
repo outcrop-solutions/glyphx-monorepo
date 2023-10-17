@@ -11,6 +11,7 @@ import produce from 'immer';
 import {useCallback} from 'react';
 import {WritableDraft} from 'immer/dist/internal';
 import {Route} from 'next';
+import {formatFileSize} from 'lib/utils/formatFileSize';
 
 const dateOptions = {
   weekday: 'short',
@@ -30,18 +31,6 @@ export const TableView = ({projects}) => {
 
   function sumFileSizes(fileStats: fileIngestionTypes.IFileStats[]): number {
     return fileStats.reduce((totalSize, file) => totalSize + file.fileSize, 0);
-  }
-
-  function formatFileSize(bytes: number): string {
-    if (bytes < 1024) {
-      return bytes + ' bytes';
-    } else if (bytes < 1048576) {
-      return (bytes / 1024).toFixed(2) + ' KB';
-    } else if (bytes < 1073741824) {
-      return (bytes / 1048576).toFixed(2) + ' MB';
-    } else {
-      return (bytes / 1073741824).toFixed(2) + ' GB';
-    }
   }
 
   const handleControl = (ctrl: webTypes.constants.RIGHT_SIDEBAR_CONTROL, data) => {
