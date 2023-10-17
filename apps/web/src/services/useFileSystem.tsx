@@ -8,6 +8,7 @@ import {useSetRecoilState, useRecoilState, useRecoilValue} from 'recoil';
 import {_getSignedUploadUrls, _ingestFiles, _uploadFile, api} from 'lib';
 import {runRulesEngine} from 'lib/client/files/engine';
 import {parsePayload} from 'lib/client/files/transforms/parsePayload';
+import {useSession} from 'next-auth/react';
 /**
  * Utilities for interfacting with the DataGrid component and filesystem
  * @param {Array} filtersApplied
@@ -20,6 +21,7 @@ import {parsePayload} from 'lib/client/files/transforms/parsePayload';
 
 export const useFileSystem = () => {
   const {mutate} = useSWRConfig();
+  const session = useSession();
   const [project, setProject] = useRecoilState(projectAtom);
   const selectedFileIndex = useRecoilValue(selectedFileIndexSelector);
   const openFiles = useRecoilValue(filesOpenSelector);
@@ -100,7 +102,12 @@ export const useFileSystem = () => {
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       // parse payload
-      const payload = await parsePayload(project.workspace.id, project.id, acceptedFiles);
+      const payload = await parsePayload(
+        project.workspace.id,
+        project.id,
+        acceptedFiles,
+        session?.data?.user?.name || session?.data?.user?.email || ''
+      );
 
       // check file against FILE_RULES before upload
       const modals = runRulesEngine(payload, project.files, acceptedFiles);

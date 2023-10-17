@@ -6,4 +6,6 @@ export interface IFileInfo {
   fileName: string;
   operation: FILE_OPERATION;
   fileStream: Readable;
+  updatedAt?: Date;
+  updatedBy?: string;
 }

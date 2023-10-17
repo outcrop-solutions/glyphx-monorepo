@@ -11,6 +11,7 @@ import produce from 'immer';
 import {useCallback} from 'react';
 import {WritableDraft} from 'immer/dist/internal';
 import {Route} from 'next';
+import {formatFileSize} from 'lib/utils/formatFileSize';
 
 const dateOptions = {
   weekday: 'short',
@@ -30,18 +31,6 @@ export const TableView = ({projects}) => {
 
   function sumFileSizes(fileStats: fileIngestionTypes.IFileStats[]): number {
     return fileStats.reduce((totalSize, file) => totalSize + file.fileSize, 0);
-  }
-
-  function formatFileSize(bytes: number): string {
-    if (bytes < 1024) {
-      return bytes + ' bytes';
-    } else if (bytes < 1048576) {
-      return (bytes / 1024).toFixed(2) + ' KB';
-    } else if (bytes < 1073741824) {
-      return (bytes / 1048576).toFixed(2) + ' MB';
-    } else {
-      return (bytes / 1073741824).toFixed(2) + ' GB';
-    }
   }
 
   const handleControl = (ctrl: webTypes.constants.RIGHT_SIDEBAR_CONTROL, data) => {
@@ -90,7 +79,7 @@ export const TableView = ({projects}) => {
                 <tr className="bg-secondary-space-blue rounded py-2 px-6 border border-transparent hover:border-white hover:bg-secondary-midnight hover:cursor-pointer font-roboto font-normal text-[14px] leading-[16px] tracking-[0.01em] text-light-gray hover:text-white">
                   <td
                     onClick={() => {
-                      router.push(`/account/${workspaceId}/${project.id!}` as Route);
+                      router.push(`/${workspaceId}/${project.id!}` as Route);
                     }}
                     title="Project Name"
                     className="pl-2"
@@ -99,7 +88,7 @@ export const TableView = ({projects}) => {
                   </td>
                   <td
                     onClick={() => {
-                      router.push(`/account/${workspaceId}/${project.id!}` as Route);
+                      router.push(`/${workspaceId}/${project.id!}` as Route);
                     }}
                     title="Last Updated"
                     className="p-2"
@@ -108,7 +97,7 @@ export const TableView = ({projects}) => {
                   </td>
                   <td
                     onClick={() => {
-                      router.push(`/account/${workspaceId}/${project.id!}` as Route);
+                      router.push(`/${workspaceId}/${project.id!}` as Route);
                     }}
                     title="Data Used"
                     className="p-2"
