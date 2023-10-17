@@ -39,7 +39,7 @@ const Sidebar = ({workspaces}) => {
                   <div className="text-gray-300 hover:text-white text-sm">Templates</div>
                 </div>
               </Link>
-              <Link href={`/${workspaceId}`}>
+              <Link href={`/${workspaceId}/data`}>
                 <div
                   className={`flex items-center space-x-2 hover:bg-nav ${
                     pathname?.includes('data') && 'bg-nav'
@@ -52,7 +52,7 @@ const Sidebar = ({workspaces}) => {
               <Link href={`/${workspaceId}`}>
                 <div
                   className={`flex items-center space-x-2 hover:bg-nav ${
-                    !pathname?.includes('templates') && 'bg-nav'
+                    !pathname?.includes('templates') && !pathname?.includes('data') && 'bg-nav'
                   } cursor-pointer p-1 rounded-sm`}
                 >
                   <FolderIcon className="h-4 w-4" />
