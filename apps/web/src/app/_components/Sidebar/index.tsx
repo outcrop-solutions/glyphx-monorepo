@@ -1,8 +1,9 @@
 'use client';
 import {Logo} from './Logo';
-import {MenuBtn} from './MenuBtn';
+import ThreadsIcon from 'public/svg/threads-link.svg';
+import BrainIcon from 'public/svg/brain-icon.svg';
 import {CreateWorkspace} from '../../[workspaceId]/_components/controls/CreateWorkspace';
-import {CubeIcon, FolderIcon, PlusCircleIcon, TableIcon, UserGroupIcon} from '@heroicons/react/outline';
+import {CubeIcon, FolderIcon, TableIcon, UserGroupIcon} from '@heroicons/react/outline';
 import Link from 'next/link';
 import {useParams, usePathname} from 'next/navigation';
 
@@ -77,7 +78,15 @@ const Sidebar = ({workspaces}) => {
             </ul>
           </>
         )}
-        {isProject ? <PlusCircleIcon className="w-4 h-4" /> : <CreateWorkspace />}
+        {!isProject && <CreateWorkspace />}
+        {isProject && (
+          <div className="flex flex-col items-center space-y-2">
+            <FolderIcon className="h-5 w-5" />
+            <CubeIcon className="h-5 w-5" />
+            <ThreadsIcon />
+            <BrainIcon />
+          </div>
+        )}
       </div>
     </aside>
   );
