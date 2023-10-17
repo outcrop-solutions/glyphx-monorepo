@@ -52,7 +52,8 @@ export const cleanColumnName = (value: string): string => {
 export const parsePayload = async (
   workspaceId: string | mongooseTypes.ObjectId,
   projectId: string | mongooseTypes.ObjectId,
-  acceptedFiles: File[]
+  acceptedFiles: File[],
+  username: string
 ): Promise<webTypes.IClientSidePayload> => {
   const stats = await Promise.all(
     acceptedFiles.map(async (file: File): Promise<fileIngestionTypes.IFileStats> => {
@@ -80,6 +81,8 @@ export const parsePayload = async (
       fileName: `${cleanColumnName(file.name.split('.')[0])}.csv`,
       tableName: cleanColumnName(file.name.split('.')[0]),
       operation: 2,
+      updatedAt: new Date(),
+      updatedBy: username,
     };
   });
 
