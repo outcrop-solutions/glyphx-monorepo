@@ -13,7 +13,7 @@ const Sidebar = ({workspaces}) => {
   const isProject = !!params?.projectId;
   return (
     <aside
-      className={`sticky z-40 flex flex-col px-4 space-y-2 text-white bg-secondary-deep-blue ${
+      className={`sticky z-40 flex flex-col px-4 space-y-2 border-r border-gray text-white bg-secondary-deep-blue ${
         isProject ? '' : 'md:w-[250px] overscroll-contain md:overflow-y-auto'
       } md:h-screen`}
     >

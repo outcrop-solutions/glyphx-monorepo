@@ -7,19 +7,6 @@ export const PinnedProjects = async () => {
   await Initializer.init();
   const templates = await ProjectTemplateService.getProjectTemplates({});
 
-  const borderColor = (idx: number) => {
-    switch (idx) {
-      case 0:
-        return 'border-yellow';
-      case 1:
-        return 'border-yellow';
-      case 2:
-        return 'border-teal-400';
-      default:
-        return 'border-transparent';
-    }
-  };
-
   return (
     <div className="pt-8 mb-8 relative">
       <p className="font-rubik font-light text-[18px] text-white leading-[21px] tracking-[0.01em]">
@@ -30,7 +17,7 @@ export const PinnedProjects = async () => {
           templates.map((template, idx) => (
             <li
               key={template.id}
-              className={`relative group col-span-1 shadow-sm rounded border border-transparent ${(() => {
+              className={`relative group col-span-1 shadow-sm rounded border ${(() => {
                 switch (idx) {
                   case 0:
                     return 'border-yellow';
