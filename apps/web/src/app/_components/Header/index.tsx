@@ -1,68 +1,35 @@
 'use client';
-import {useRouter, useParams, usePathname} from 'next/navigation';
-import {drawerOpenAtom, projectAtom} from 'state';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
-
 import {Controls} from 'app/[workspaceId]/_components/controls';
-
-import BackBtnIcon from 'public/svg/back-button-icon.svg';
-import {Route} from 'next';
-import {useWorkspace} from 'lib';
+import {WorkspaceControls} from './WorkspaceControls';
+import {ProjectControls} from './ProjectControls';
+import {useParams, useSelectedLayoutSegments} from 'next/navigation';
 
 const Header = () => {
-  const project = useRecoilValue(projectAtom);
-  const setProject = useSetRecoilState(projectAtom);
-  const setDrawer = useSetRecoilState(drawerOpenAtom);
-  const {data} = useWorkspace();
-
-  const router = useRouter();
   const params = useParams();
   const {workspaceId} = params as {workspaceId: string};
-  const {projectId} = params as {projectId: string};
-  const pathname = usePathname();
+  const segments = useSelectedLayoutSegments();
 
-  const backPressed = () => {
-    router.push(`/${data.workspace.id}` as Route);
-    setDrawer(false);
-    window?.core?.ToggleDrawer(false);
-    setProject(null);
-  };
+  // determine which controls to render
+  const isProject = workspaceId && segments.includes('project');
 
   return (
-    <div
-      className={`flex flex-row h-[56px] sticky z-60 top-0 items-center bg-secondary-midnight justify-between pr-4 ${
-        workspaceId && !projectId
-          ? 'bg-primary-dark-blue pl-8 pt-4 mt-0'
-          : pathname?.includes('billing') || pathname?.includes('settings') || pathname === '/account'
-          ? 'mt-4'
-          : 'mt-0'
-      } ${projectId ? 'border border-gray bg-secondary-space-blue' : 'md:pt-0'}`}
-    >
-      {project ? (
-        <div className="flex items-center py-2">
-          <button
-            onClick={backPressed}
-            className="flex items-center justify-center rounded-lg border border-transparent ml-4 pr-4 pl-2 pt-1 pb-1 hover:border-white"
-          >
-            <BackBtnIcon />
-            <span className="text-light-gray font-roboto font-medium text-[14px] leading-[16px] text-center ml-2">
-              Back
-            </span>
-          </button>
-          <input
-            className="p-1 m-2 text-white font-rubik font-normal text-[22px] tracking-[.01em] leading-[26px] flex text-left outline-none border-2 border-transparent rounded-lg pr-2 bg-transparent hover:border-yellow"
-            defaultValue={project?.name}
-          />
+    <>
+      {!isProject ? (
+        <div
+          className={`flex flex-row h-[56px] sticky z-60 top-0 items-center justify-between pr-4 bg-secondary-midnight pl-8 pt-4 mt-0 md:pt-0`}
+        >
+          <WorkspaceControls />
+          <Controls />
         </div>
       ) : (
-        <div className={`${workspaceId && !pathname!.includes('settings') ? (workspaceId ? 'pl-0 py-3' : '') : ''}`}>
-          <p className="font-rubik font-normal text-[22px] tracking-[.01em] leading-[26px] text-white">
-            {data && !pathname!.includes('settings') ? `${data?.workspace?.name}` : ''}
-          </p>
+        <div
+          className={`flex flex-row h-[56px] sticky z-60 top-0 items-center justify-between pr-4 bg-secondary-space-blue border-b border-gray pl-8 pt-4 md:pt-0`}
+        >
+          <ProjectControls />
+          <Controls />
         </div>
       )}
-      <Controls />
-    </div>
+    </>
   );
 };
 

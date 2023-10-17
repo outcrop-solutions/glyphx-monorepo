@@ -32,7 +32,7 @@ export const ProjectSidebar = () => {
     <div
       id="sidebar"
       ref={sidebar}
-      className={`flex grow flex-col bg-secondary-space-blue z-30 border-r border-l border-t border-gray h-full scrollbar-none w-[250px] shrink-0`}
+      className={`flex grow flex-col bg-secondary-space-blue z-30 border-r border-gray h-full scrollbar-none w-[250px] shrink-0`}
     >
       <div
         style={{

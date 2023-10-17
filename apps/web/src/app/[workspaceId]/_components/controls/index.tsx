@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import {projectControls, workspaceControls, homeControls} from 'config/menu/controls';
 import {useSession} from 'next-auth/react';
