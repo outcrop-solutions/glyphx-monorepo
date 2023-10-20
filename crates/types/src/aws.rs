@@ -9,3 +9,5 @@ pub mod upload_stream;
 /// enums and structures for working with Athena.
 #[cfg(feature="athena_manager")]
 pub mod athena_manager;
+#[cfg(feature="secret_manager")]
+pub mod secret_manager;

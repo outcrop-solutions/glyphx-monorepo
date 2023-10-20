@@ -16,3 +16,5 @@ pub mod athena_manager;
 pub mod result_set_converter;
 #[cfg(feature = "secret_manager")]
 pub mod secret_manager;
+#[cfg(feature = "secret_manager")]
+pub use secret_manager::SecretManager;

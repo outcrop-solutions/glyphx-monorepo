@@ -14,7 +14,8 @@ serde_json = "1.0.96"
 
 
 [features]
-aws=["s3_manager", "upload_stream", "athena_manager"]
+aws=["s3_manager", "upload_stream", "athena_manager", "secret_manager"]
 s3_manager=[]
 upload_stream=[]
 athena_manager=[]
+secret_manager=[]
