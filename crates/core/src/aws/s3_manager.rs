@@ -1451,7 +1451,7 @@ pub mod get_file_information {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
 
@@ -1493,7 +1493,7 @@ pub mod get_file_information {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
 
@@ -1586,7 +1586,7 @@ mod get_signed_upload_url {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
 
@@ -1683,7 +1683,7 @@ mod get_object_stream {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
         let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
@@ -1725,7 +1725,7 @@ mod get_object_stream {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
         let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
@@ -1767,7 +1767,7 @@ mod get_object_stream {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
         let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
@@ -1899,7 +1899,7 @@ mod remove_object {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
         let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
@@ -1974,7 +1974,7 @@ mod upload_object {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
         let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;

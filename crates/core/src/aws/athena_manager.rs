@@ -1362,7 +1362,7 @@ pub mod constructor {
                 .header("Content-Type", "application/json")
                 .body(SdkBody::empty())
                 .unwrap();
-            Err(SdkError::service_error(err, Response::new(inner)))
+            Err(SdkError::service_error(err, inner))
         });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -1395,7 +1395,7 @@ pub mod constructor {
                 .header("Content-Type", "application/json")
                 .body(SdkBody::empty())
                 .unwrap();
-            Err(SdkError::service_error(err, Response::new(inner)))
+            Err(SdkError::service_error(err, inner))
         });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -1428,7 +1428,7 @@ pub mod constructor {
                 .header("Content-Type", "application/json")
                 .body(SdkBody::empty())
                 .unwrap();
-            Err(SdkError::service_error(err, Response::new(inner)))
+            Err(SdkError::service_error(err, inner))
         });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -1461,7 +1461,7 @@ pub mod constructor {
                 .header("Content-Type", "application/json")
                 .body(SdkBody::empty())
                 .unwrap();
-            Err(SdkError::service_error(err, Response::new(inner)))
+            Err(SdkError::service_error(err, inner))
         });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -1592,7 +1592,7 @@ pub mod start_query {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -1640,7 +1640,7 @@ pub mod start_query {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -1688,7 +1688,7 @@ pub mod start_query {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -1735,7 +1735,7 @@ pub mod start_query {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -2020,7 +2020,7 @@ pub mod get_query_status {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -2068,7 +2068,7 @@ pub mod get_query_status {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -2115,7 +2115,7 @@ pub mod get_query_status {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -2405,7 +2405,7 @@ pub mod get_query_results {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -2454,7 +2454,7 @@ pub mod get_query_results {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -2502,7 +2502,7 @@ pub mod get_query_results {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -2550,7 +2550,7 @@ pub mod get_query_results {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;

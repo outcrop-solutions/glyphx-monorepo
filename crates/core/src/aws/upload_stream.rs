@@ -628,7 +628,7 @@ mod constructor {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
 
@@ -784,7 +784,7 @@ mod flush {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
         let mut upload_manager = UploadStream::new_impl(bucket_name, file_name, client, &mock_ops)
@@ -983,7 +983,7 @@ mod write {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
         mock_ops.expect_abort_multipart_upload_operation().returning(|_, _, _, _| Ok(AbortMultipartUploadOutput::builder().build())).times(1);
@@ -1218,7 +1218,7 @@ mod finish {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
         mock_ops.expect_abort_multipart_upload_operation().returning(|_, _, _, _| Ok(AbortMultipartUploadOutput::builder().build())).times(1);
@@ -1313,7 +1313,7 @@ mod finish {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
         mock_ops.expect_abort_multipart_upload_operation().returning(|_, _, _, _| Ok(AbortMultipartUploadOutput::builder().build())).times(1);
@@ -1374,7 +1374,7 @@ mod finish {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(0);
         let mut upload_manager = UploadStream::new_impl(bucket_name, file_name, client, &mock_ops)
@@ -1428,7 +1428,7 @@ mod finish {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(0);
         let mut upload_manager = UploadStream::new_impl(bucket_name, file_name, client, &mock_ops)
@@ -1527,7 +1527,7 @@ pub mod abort {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
         }).times(1);
         let mut upload_manager = UploadStream::new_impl(bucket_name, file_name, client, &mock_ops)
             .await

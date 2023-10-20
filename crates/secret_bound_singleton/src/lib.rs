@@ -29,6 +29,17 @@ pub fn derive(input: TokenStream) -> TokenStream {
     gen.into()
 }
 
+fn build_secret_bound_impl(struct_name: &str, secret_name: &str, initializer_name: &str, fake_secret: Option<Value>, fields: &Vec<FieldDefinition>) ->  TokenStream {
+    quote!(
+        #[async_trait]
+        impl Singleton<#struct_name> from #struct_name {
+            async fn bind_secrets() -> #struct_name {
+
+            }
+        }
+        )
+}
+
 fn get_optional_data_type(path_segment : &syn::PathSegment) -> ValidDataTypes {
      let args = match &path_segment.arguments {
          syn::PathArguments::AngleBracketed(args) => args,
