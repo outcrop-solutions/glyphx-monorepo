@@ -1322,7 +1322,6 @@ pub mod constructor {
         InternalServerException, InvalidRequestException, MetadataException,
     };
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use aws_smithy_types::error::Unhandled;
 
@@ -1522,7 +1521,6 @@ pub mod start_query {
         InternalServerException, InvalidRequestException, TooManyRequestsException,
     };
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use aws_smithy_types::error::Unhandled;
 
@@ -1532,7 +1530,7 @@ pub mod start_query {
         let database = "database";
         let query_id = "query_id";
 
-        let query_id_clone = query_id.clone();
+        let query_id_clone = query_id;
 
         let mut mocks = MockAthenaManagerOps::new();
         mocks.expect_get_database().times(1).returning(|_, _, _| {
@@ -1760,7 +1758,6 @@ pub mod get_query_status {
     use aws_sdk_athena::types::error::{InternalServerException, InvalidRequestException};
     use aws_sdk_athena::types::{AthenaError, QueryExecution, QueryExecutionStatus};
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use aws_smithy_types::error::Unhandled;
 
@@ -2143,7 +2140,6 @@ pub mod get_query_results {
         ColumnInfo, ColumnNullable, Datum, ResultSet, ResultSetMetadata, Row,
     };
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use aws_smithy_types::error::Unhandled;
 

@@ -140,10 +140,9 @@ mod constructor_tests {
     use log;
     use serial_test::serial;
     use std::panic;
-    use crate::utility_functions::json_functions::clean_json_string;
 
     fn get_mock_init(
-        application_name: String,
+        _application_name: String,
         file_name: String,
         file_size: u32,
         level_filter: LevelFilter,

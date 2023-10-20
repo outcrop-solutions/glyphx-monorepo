@@ -573,7 +573,6 @@ where {
 mod constructor {
     use super::*;
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use http;
 
@@ -653,7 +652,6 @@ mod constructor {
 mod flush {
     use super::*;
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use http;
 
@@ -814,7 +812,6 @@ mod flush {
 mod write {
     use super::*;
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use http;
 
@@ -1101,7 +1098,6 @@ mod write {
 mod finish {
     use super::*;
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use http;
 
@@ -1455,7 +1451,6 @@ mod finish {
 pub mod abort {
     use super::*;
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use http;
 

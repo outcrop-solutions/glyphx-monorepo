@@ -215,8 +215,8 @@ impl S3ManagerOps for S3ManagerOpsImpl {
                 let e = e.into_service_error();
                 if e.is_no_such_bucket() {
                     return Err(ListObjectsError::BucketDoesNotExist(GlyphxErrorData::new(
-                        format!("Bucket {} does not exist", bucket.clone()),
-                        Some(json!({ "bucket_name": bucket.clone() })),
+                        format!("Bucket {} does not exist", bucket),
+                        Some(json!({ "bucket_name": bucket })),
                         None,
                     )));
                 } else {
@@ -1386,7 +1386,6 @@ pub mod get_file_information {
     use aws_sdk_s3::primitives::{DateTime, DateTimeFormat};
     use aws_sdk_s3::types::error::NotFound;
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use aws_smithy_types::error::Unhandled;
     use http;
@@ -1516,7 +1515,6 @@ pub mod get_file_information {
 mod get_signed_upload_url {
     use super::*;
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use http;
 
@@ -1613,7 +1611,6 @@ mod get_object_stream {
     use super::*;
     use aws_sdk_s3::types::error::{InvalidObjectState, NoSuchKey};
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use aws_smithy_types::error::Unhandled;
     use http;
@@ -1846,7 +1843,6 @@ mod get_upload_stream {
 mod remove_object {
     use super::*;
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use aws_smithy_types::error::Unhandled;
     use http;
@@ -1919,7 +1915,6 @@ mod remove_object {
 mod upload_object {
     use super::*;
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use aws_smithy_types::error::Unhandled;
     use http;
