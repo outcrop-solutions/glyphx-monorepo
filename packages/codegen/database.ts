@@ -151,6 +151,9 @@ export namespace databaseTypes {
   export interface IDocument {
     _id?: mongooseTypes.ObjectId;
     id?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt?: Date;
     presence?: IPresence[];
     annotations?: IAnnotation[];
     thresholds?: IThreshold[];
@@ -171,11 +174,10 @@ export namespace databaseTypes {
   export interface IPresence {
     _id?: mongooseTypes.ObjectId;
     id?: string;
-    cursor: {
-      // collaborative cursor position (multi-player)
-      x: number;
-      y: number;
-    };
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt?: Date;
+    cursor: Cursor;
     camera: Camera; // collaborative camera position (multi-player)
     config: IModelConfig; // collaborative model configuration
   }
@@ -183,6 +185,9 @@ export namespace databaseTypes {
   export interface IThreshold {
     _id?: mongooseTypes.ObjectId;
     id?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt?: Date;
     name: string;
     actionType: ACTION_TYPE;
     actionPayload: Record<string, unknown>;
@@ -331,6 +336,11 @@ export namespace databaseTypes {
     dorx: number;
     dory: number;
     dorz: number;
+  };
+
+  export type Cursor = {
+    x: number;
+    y: number;
   };
 
   export type Aspect = {

@@ -1,7 +1,5 @@
 import OpenAI from 'openai';
 import {OpenAIStream, StreamingTextResponse} from 'ai';
-import {kv} from '@vercel/kv';
-import {Ratelimit} from '@upstash/ratelimit';
 
 // Create an OpenAI API client (that's edge friendly!)
 const openai = new OpenAI({

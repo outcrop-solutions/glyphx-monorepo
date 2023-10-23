@@ -57,6 +57,7 @@
     "next": "13.5.4",
     "next-auth": "4.22.1",
     "next-themes": "^0.2.1",
+    "openai": "^4.12.4",
     "openai-edge": "^1.1.0",
     "papaparse": "^5.4.1",
     "posthog-js": "^1.13.13",
