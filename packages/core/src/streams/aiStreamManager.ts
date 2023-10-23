@@ -1,5 +1,5 @@
 import {HfInference} from '@huggingface/inference';
-import {StreamingTextResponse, LangChainStream, AnthropicStream, HuggingFaceStream, OpenAIStream} from 'ai';
+import {StreamingTextResponse, AnthropicStream, HuggingFaceStream, OpenAIStream} from 'ai';
 import {Configuration, OpenAIApi} from 'openai-edge';
 // import {ChatOpenAI} from 'langchain/chat_models/openai';
 // import {AIChatMessage, HumanChatMessage} from 'langchain/schema';
@@ -17,16 +17,16 @@ export class AiStreamManager {
 
     this.defaultModels = {
       ANTHROPIC: aiTypes.ANTHROPIC_MODELS.claude,
-      HUGGINGFACE: aiTypes.HF_MODELS['bigscience/bloom'],
+      HUGGINGFACE: aiTypes.HF_MODELS.BLOOM,
       LANGCHAIN: aiTypes.LANGCHAIN_MODELS.default,
-      OPENAI: aiTypes.OPENAI_MODELS['gpt-3.5-turbo'],
+      OPENAI: aiTypes.OPENAI_MODELS.GPT_3,
     };
   }
 
   async getResponse(
     prompt: string,
     model?: aiTypes.ANTHROPIC_MODELS | aiTypes.OPENAI_MODELS | aiTypes.LANGCHAIN_MODELS | aiTypes.HF_MODELS
-  ) {
+  ): Promise<StreamingTextResponse | undefined> {
     model = model || this.defaultModels[this.streamSource];
 
     switch (this.streamSource) {
@@ -34,8 +34,6 @@ export class AiStreamManager {
         return await this.getAnthropicStream(prompt, model as aiTypes.ANTHROPIC_MODELS);
       case 'HUGGINGFACE':
         return await this.getHuggingFaceStream(prompt, model as aiTypes.HF_MODELS);
-      case 'LANGCHAIN':
-        return await this.getLangChainStream(prompt);
       case 'OPENAI':
         return await this.getOpenAIStream(prompt, model as aiTypes.OPENAI_MODELS);
     }
@@ -62,7 +60,7 @@ export class AiStreamManager {
 
   private async getHuggingFaceStream(prompt: string, model: aiTypes.HF_MODELS) {
     const Hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
-    const iter = await Hf.textGenerationStream({
+    const iter = Hf.textGenerationStream({
       model,
       inputs: prompt,
       parameters: {
@@ -73,18 +71,6 @@ export class AiStreamManager {
       },
     });
     return new StreamingTextResponse(HuggingFaceStream(iter));
-  }
-
-  private async getLangChainStream(prompt: string) {
-    const {stream: lcStream, handlers} = LangChainStream();
-    const llm = new ChatOpenAI({
-      streaming: true,
-      callbacks: [handlers],
-    });
-    llm
-      .call(messages.map((m) => (m.role == 'user' ? new HumanChatMessage(m.content) : new AIChatMessage(m.content))))
-      .catch(console.error);
-    return new StreamingTextResponse(lcStream);
   }
 
   private async getOpenAIStream(prompt: string, model: aiTypes.OPENAI_MODELS) {
@@ -99,6 +85,11 @@ export class AiStreamManager {
         {role: 'system', content: 'You are a helpful assistant.'},
         {role: 'user', content: prompt},
       ],
+      temperature: 0.7,
+      top_p: 1,
+      frequency_penalty: 0,
+      presence_penalty: 0,
+      n: 1,
     });
     return new StreamingTextResponse(OpenAIStream(response));
   }

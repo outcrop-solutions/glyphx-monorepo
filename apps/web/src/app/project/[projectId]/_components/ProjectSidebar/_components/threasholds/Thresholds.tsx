@@ -1,25 +1,25 @@
 'use client';
 import React, {SetStateAction, useEffect, useState} from 'react';
-import {StateList} from './StateList';
+import {ThresholdList} from './ThresholdList';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {projectAtom} from 'state/project';
 import {PlusIcon} from '@heroicons/react/outline';
 import {_createState, api} from 'lib';
-import {CreateStateInput} from './CreateStateInput';
+import {CreateThresholdInput} from './CreateThresholdInput';
 import {cameraAtom, imageHashAtom, viewerPositionSelector} from 'state';
 import {useSWRConfig} from 'swr';
 import {webTypes} from 'types';
 
-export const States = () => {
+export const Thresholds = () => {
   const {mutate} = useSWRConfig();
   const project = useRecoilValue(projectAtom);
   const [isCollapsed, setCollapsed] = useState(false);
-  const [addState, setAddState] = useState(false);
+  const [addThreshold, setAddThreshold] = useState(false);
   const [camera, setCamera] = useRecoilState(cameraAtom);
   const [image, setImage] = useRecoilState(imageHashAtom);
   const setProject = useSetRecoilState(projectAtom);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [name, setName] = useState('New State');
+  const [name, setName] = useState('New Threshold');
   const viewerPosition = useRecoilValue(viewerPositionSelector);
 
   useEffect(() => {
@@ -39,20 +39,20 @@ export const States = () => {
         onError: () => {
           setCamera({});
           setImage({imageHash: false});
-          setAddState(false);
+          setAddThreshold(false);
         },
         onSuccess: () => {
           setCamera({});
           setImage({imageHash: false});
-          setAddState(false);
+          setAddThreshold(false);
           mutate(`/api/project/${project.id}`);
         },
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [camera, name, setCamera, setProject, mutate, image, setImage, project?.id, setAddState]);
+  }, [camera, name, setCamera, setProject, mutate, image, setImage, project?.id, setAddThreshold]);
 
-  const createState = () => setAddState(true);
+  const createThreshold = () => setAddThreshold(true);
 
   return (
     <div className="group flex flex-col grow">
@@ -80,18 +80,18 @@ export const States = () => {
           <div>
             <span className="font-roboto font-medium text-[12px] leading-[14px] tracking-[.01em] ml-3 text-light-gray">
               {' '}
-              States{' '}
+              Thresholds{' '}
             </span>
           </div>
         </div>
         <PlusIcon
           color="#CECECE"
           className="w-5 h-5 opacity-100 mr-2 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white"
-          onClick={createState}
+          onClick={createThreshold}
         />
       </summary>
-      {!isCollapsed && <StateList />}
-      {addState && <CreateStateInput isSubmitting={isSubmitting} name={name} setName={setName} />}
+      {!isCollapsed && <ThresholdList />}
+      {addThreshold && <CreateThresholdInput isSubmitting={isSubmitting} name={name} setName={setName} />}
     </div>
   );
 };
