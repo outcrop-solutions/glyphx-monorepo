@@ -47,30 +47,33 @@ export const ModelFooter = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drawer, project, session, setDrawer, setLoading, setOrientation, setResize, url, windowSize.height]);
 
-  return viewer && !(Object.keys(loading).length > 0) ? (
-    <div
-      style={{
-        position: 'fixed',
-        left: `${viewer.x - (orientation === 'vertical' ? 0 : 5)}px`,
-        top: `${viewer.y - 44}px`,
-        width: `${viewer.w + 5}px`,
-      }}
-      className={`z-60 h-[44px] ${
-        orientation === 'vertical' ? 'border-b-none border-r-none border-b border-gray' : 'border border-gray'
-      } bg-primary-dark-blue text-xs flex items-center`}
-    >
+  return (
+    viewer &&
+    !(Object.keys(loading).length > 0) && (
       <div
-        onClick={handleOpenClose}
-        className="flex relative cursor-pointer group hover:bg-gray items-center border-r border-r-gray h-full px-4"
+        style={{
+          position: 'fixed',
+          left: `${viewer.x - (orientation === 'vertical' ? 0 : 5)}px`,
+          top: `${viewer.y - 44}px`,
+          width: `${viewer.w + 5}px`,
+        }}
+        className={`z-60 h-[44px] ${
+          orientation === 'vertical' ? 'border-b-none border-r-none border-b border-gray' : 'border border-gray'
+        } bg-primary-dark-blue text-xs flex items-center`}
       >
         <div
-          className={`${
-            drawer ? 'text-secondary-blue' : 'text-white'
-          } mr-2 text-xs font-roboto font-medium leading-[14px] tracking-[0.01em]`}
+          onClick={handleOpenClose}
+          className="flex relative cursor-pointer group hover:bg-gray items-center border-r border-r-gray h-full px-4"
         >
-          Glyph Viewer
+          <div
+            className={`${
+              drawer ? 'text-secondary-blue' : 'text-white'
+            } mr-2 text-xs font-roboto font-medium leading-[14px] tracking-[0.01em]`}
+          >
+            Glyph Viewer
+          </div>
         </div>
       </div>
-    </div>
-  ) : null;
+    )
+  );
 };

@@ -1,7 +1,7 @@
 'use client';
 import React, {useEffect, useState} from 'react';
 import {useRecoilValue} from 'recoil';
-import {MainDropzone} from '../projectSidebar/files';
+import {MainDropzone} from '../ProjectSidebar/_components/files';
 import SplitPane from 'react-split-pane';
 import {Datagrid} from './DataGrid';
 import {GridHeader} from './GridHeader';

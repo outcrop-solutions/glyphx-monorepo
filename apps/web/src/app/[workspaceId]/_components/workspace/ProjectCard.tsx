@@ -8,7 +8,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import {useSetRecoilState} from 'recoil';
 
 import {webTypes} from 'types';
-import {ProjectTemplateIcons} from '../../project/[projectId]/_components/projectSidebar/icons';
+import {ProjectTemplateIcons} from '../../../project/[projectId]/_components/ProjectSidebar/_components/icons';
 
 import {modalsAtom, rightSidebarControlAtom} from 'state';
 
@@ -23,13 +23,12 @@ export const ProjectCard = ({project}) => {
   dayjs.extend(relativeTime);
   const router = useRouter();
   const params = useParams();
-  const {workspaceId} = params as {workspaceId: string};
 
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
   const setModals = useSetRecoilState(modalsAtom);
 
   const navigate = () => {
-    router.push(`/${workspaceId}/project/${project.id}` as Route);
+    router.push(`/project/${project.id}` as Route);
   };
 
   const deleteProject = useCallback(() => {

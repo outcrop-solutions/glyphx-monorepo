@@ -1,17 +1,12 @@
 'use client';
 import {useRef, useEffect} from 'react';
-
-import {Files} from './files';
-import {Properties as Axes} from './properties';
-import {Filters} from './filters';
-import {States} from './states';
-
 import {usePosition} from 'services/usePosition';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {leftCoordinatesAtom, windowSizeAtom} from 'state';
-import {Annotations} from './annotations';
+import {Annotations} from './_components/annotations';
+import {States} from './_components/states';
 
-export const ProjectSidebar = () => {
+export const CollabSidebar = () => {
   //utilities
   const sidebar = useRef(null);
   // trigger sendPosition when sidebar changes
@@ -40,11 +35,8 @@ export const ProjectSidebar = () => {
         }}
         className={`overflow-y-auto w-full scrollbar-none`}
       >
-        <Files />
-        <Axes />
-        <Filters />
-        <States />
         <Annotations />
+        <States />
       </div>
     </div>
   );

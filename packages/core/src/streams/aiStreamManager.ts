@@ -1,9 +1,9 @@
 import {HfInference} from '@huggingface/inference';
 import {StreamingTextResponse, LangChainStream, AnthropicStream, HuggingFaceStream, OpenAIStream} from 'ai';
 import {Configuration, OpenAIApi} from 'openai-edge';
-import {ChatOpenAI} from 'langchain/chat_models/openai';
-import {AIChatMessage, HumanChatMessage} from 'langchain/schema';
-import {ai as aiTypes} from 'types';
+// import {ChatOpenAI} from 'langchain/chat_models/openai';
+// import {AIChatMessage, HumanChatMessage} from 'langchain/schema';
+import {aiTypes} from 'types';
 
 export class AiStreamManager {
   private streamSource: aiTypes.AiStreamSourceType;
@@ -42,6 +42,7 @@ export class AiStreamManager {
   }
 
   private async getAnthropicStream(prompt: string, model: aiTypes.ANTHROPIC_MODELS) {
+    // @ts-ignore
     const response = await fetch('https://api.anthropic.com/v1/complete', {
       method: 'POST',
       headers: {
