@@ -1,19 +1,17 @@
 use proc_macro::TokenStream;
-use quote::{quote, ToTokens};
+use quote::{format_ident, quote, ToTokens};
 use serde_json::{json, Value};
 mod valid_data_types;
-use valid_data_types::ValidDataTypes;
 use syn::{parse_macro_input, DeriveInput};
-
+use valid_data_types::ValidDataTypes;
 
 #[derive(Debug)]
 struct FieldDefinition {
-    field_name: String, 
+    field_name: String,
     data_type: ValidDataTypes,
     is_optional: bool,
     is_bound: bool,
     secret_name: String,
-
 }
 
 #[proc_macro_derive(SecretBoundSingleton, attributes(secret_binder, bind_field))]
@@ -21,44 +19,202 @@ pub fn derive(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);
     let (secret_name, initializer, fake_secret) = parse_secret_binder(&ast);
     let fields = process_fields(&ast);
-    let name = &ast.ident;
-    let gen = quote! {
-        #[async_trait]
-        impl SecretBoundSingleton<#name> for #name {}
-    };
-    gen.into()
+    let name = format_ident!("{}", &ast.ident);
+    let output =
+        build_secret_bound_impl(&ast.ident, &secret_name, &initializer, fake_secret, &fields);
+    output.into()
 }
 
-fn build_secret_bound_impl(struct_name: &str, secret_name: &str, initializer_name: &str, fake_secret: Option<Value>, fields: &Vec<FieldDefinition>) ->  TokenStream {
-    quote!(
-        #[async_trait]
-        impl Singleton<#struct_name> from #struct_name {
-            async fn bind_secrets() -> #struct_name {
+fn build_field_quote(fields: &Vec<FieldDefinition>) -> proc_macro2::TokenStream {
+    let mut field_quote = quote!();
+    for field in fields {
+        let field_name = &field.field_name;
+        let data_type = &field.data_type;
+        let is_optional = &field.is_optional;
+        let is_bound = &field.is_bound;
+        let secret_name = &field.secret_name;
 
-            }
+        if !is_bound {
+            continue;
         }
-        )
+        if !is_optional {
+            let json_extract = generate_required_field_quote(data_type, field_name, secret_name);
+            field_quote = quote!(
+                #field_quote
+                #json_extract
+            );
+        } else {
+            let json_extract = generate_optional_field_quote(data_type, field_name, secret_name);
+            field_quote = quote!(
+                #field_quote
+                #json_extract
+            );
+        }
+    }
+    field_quote
 }
 
-fn get_optional_data_type(path_segment : &syn::PathSegment) -> ValidDataTypes {
-     let args = match &path_segment.arguments {
-         syn::PathArguments::AngleBracketed(args) => args,
-         _ => panic!("Option Should have angle bracketed arguments"),
-     }; 
-     let arg = args.args.iter().next().unwrap();
-     match arg {
-         syn::GenericArgument::Type(ty) => {
-             match ty {
-                 syn::Type::Path(type_path) => {
-                     let path_segment = type_path.path.segments.first().unwrap();
-                     let type_ident = &path_segment.ident.to_string();
-                     return ValidDataTypes::from_ident(&type_ident);
-                 }
-                 _ => panic!("Option should have a type argument"),
-             }
-         }
-         _ => panic!("Option should have a type argument"),
-     }
+fn generate_optional_field_quote(
+    data_type: &ValidDataTypes,
+    field_name: &String,
+    secret_name: &String,
+) -> proc_macro2::TokenStream {
+    let field_ident = syn::Ident::new(&field_name, proc_macro2::Span::call_site());
+    let internal_variable_name = format_ident!("{}_internal", &field_name);
+    let json_extract =
+        generate_required_field_quote(data_type, &internal_variable_name.to_string(), &secret_name);
+    let field_quote = quote!(
+    let mut #field_ident : Option<#data_type> = None;
+    let json_value = &secret_value[#secret_name];
+    if !json_value.is_null() {
+        #json_extract
+        #field_ident = Some(#internal_variable_name);
+    }
+    );
+    field_quote
+}
+
+fn generate_required_field_quote(
+    data_type: &ValidDataTypes,
+    field_name: &String,
+    secret_name: &String,
+) -> proc_macro2::TokenStream {
+    let field_ident = syn::Ident::new(&field_name, proc_macro2::Span::call_site());
+    let json_extract = match &data_type {
+        ValidDataTypes::String => {
+            quote!(let #field_ident : String = secret_value[#secret_name].as_str().unwrap().to_string();)
+        }
+        ValidDataTypes::U32 => {
+            quote!(let #field_ident : u32 = secret_value[#secret_name].as_u64().unwrap() as u32;)
+        }
+        ValidDataTypes::U64 => {
+            quote!(let #field_ident : u64 = secret_value[#secret_name].as_u64().unwrap();)
+        }
+        ValidDataTypes::I32 => {
+            quote!(let #field_ident : i32 = secret_value[#secret_name].as_i64().unwrap() as i32;)
+        }
+        ValidDataTypes::I64 => {
+            quote!(let #field_ident : i64 = secret_value[#secret_name].as_i64().unwrap();)
+        }
+        ValidDataTypes::F32 => {
+            quote!(let #field_ident : f32 = secret_value[#secret_name].as_f64().unwrap() as f32;)
+        }
+        ValidDataTypes::F64 => {
+            quote!(let #field_ident : f64 = secret_value[#secret_name].as_f64().unwrap();)
+        }
+        ValidDataTypes::Bool => {
+            quote!(let #field_ident : bool = secret_value[#secret_name].as_bool().unwrap();)
+        }
+    };
+    json_extract
+}
+
+fn build_initializer_call(
+    initializer_name: &str,
+    fields: &Vec<FieldDefinition>,
+) -> proc_macro2::TokenStream {
+    let mut fields_quote = quote!();
+    let init_ident = syn::Ident::new(initializer_name, proc_macro2::Span::call_site());
+    fields
+        .iter()
+        .filter(|field| field.is_bound)
+        .for_each(|field| {
+            let field_ident = syn::Ident::new(&field.field_name, proc_macro2::Span::call_site());
+            fields_quote = quote!(#fields_quote  #field_ident,);
+        });
+    quote!(let bound_self = Self::#init_ident(#fields_quote).await;
+           bound_self)
+}
+
+fn build_secret_bound_impl(
+    ident: &syn::Ident,
+    secret_name: &str,
+    initializer_name: &str,
+    fake_secret: Option<Value>,
+    fields: &Vec<FieldDefinition>,
+) -> TokenStream {
+    //Really important to reference structs and enums by their fully qualified names.  Otherwise
+    //we would force our implimnetors to import the structures in their code.  It is bad enough
+    //that we have make sure that they have the dependencies configured in their Cargo.toml
+    let secret_bound_trait = build_secret_bound_trait(ident, secret_name, fields, initializer_name);
+    let singleton_trait = build_singleton_trait(ident);
+
+    let output = quote!(
+        #secret_bound_trait
+        #singleton_trait
+        );
+    eprintln!("output: {:?}", output.to_string());
+    output.into()
+}
+
+fn build_singleton_trait(ident: &proc_macro2::Ident) -> proc_macro2::TokenStream {
+    let output = quote!(
+        static mut INSTANCE: Option<#ident> = None; 
+    
+    #[async_trait::async_trait]
+    impl Singleton<#ident> for #ident  {
+        fn get_instance() -> &'static #ident {
+            unsafe { &INSTANCE.as_ref().unwrap() }
+        }
+        async fn build_singleton() -> &'static #ident {
+           let secret_bound_object = #ident::bind_secrets().await;
+           unsafe {
+             INSTANCE = Some(secret_bound_object);
+             &INSTANCE.as_ref().unwrap()
+           }
+        }
+    }
+
+    impl SecretBoundSingleton<#ident> for #ident {}
+    );
+    
+    output
+}
+fn build_secret_bound_trait(
+    ident: &proc_macro2::Ident,
+    secret_name: &str,
+    fields: &Vec<FieldDefinition>,
+    initializer_name: &str,
+) -> proc_macro2::TokenStream {
+    let field_quote = build_field_quote(fields);
+    let initializer_call = build_initializer_call(initializer_name, fields);
+    let output = quote!(
+    #[async_trait::async_trait]
+    impl SecretBound<#ident> for #ident {
+        async fn bind_secrets() -> #ident {
+            let secret_manager = glyphx_core::aws::SecretManager::new(#secret_name).await;
+            let secret_value = secret_manager.get_secret_value().await;
+            if secret_value.is_err() {
+                panic!("Failed to get secret value");
+            }
+            let secret_value = secret_value.unwrap();
+            #field_quote
+            #initializer_call
+
+
+        }
+    }
+    );
+    output
+}
+
+fn get_optional_data_type(path_segment: &syn::PathSegment) -> ValidDataTypes {
+    let args = match &path_segment.arguments {
+        syn::PathArguments::AngleBracketed(args) => args,
+        _ => panic!("Option Should have angle bracketed arguments"),
+    };
+    let arg = args.args.iter().next().unwrap();
+    match arg {
+        syn::GenericArgument::Type(ty) => match ty {
+            syn::Type::Path(type_path) => {
+                let path_segment = type_path.path.segments.first().unwrap();
+                let type_ident = &path_segment.ident.to_string();
+                return ValidDataTypes::from_ident(&type_ident);
+            }
+            _ => panic!("Option should have a type argument"),
+        },
+        _ => panic!("Option should have a type argument"),
+    }
 }
 
 fn get_bind_field_attr(input: &syn::Field) -> Option<&syn::Attribute> {
@@ -104,13 +260,13 @@ fn process_fields(input: &DeriveInput) -> Vec<FieldDefinition> {
         }
 
         let field_name = field.ident.as_ref().unwrap().to_token_stream().to_string();
-            
+
         match field.ty {
             syn::Type::Path(ref type_path) => {
                 //This is our simple case, We have a native type with no additional attributes
-                let path_segment =&type_path.path.segments.first().unwrap();
+                let path_segment = &type_path.path.segments.first().unwrap();
                 let type_ident = &path_segment.ident.to_string();
-                let data_type : ValidDataTypes;
+                let data_type: ValidDataTypes;
                 let is_optional: bool;
                 if type_ident == "Option" {
                     data_type = get_optional_data_type(&path_segment);
@@ -119,7 +275,7 @@ fn process_fields(input: &DeriveInput) -> Vec<FieldDefinition> {
                     data_type = ValidDataTypes::from_ident(&type_ident);
                     is_optional = false;
                 }
-                let (is_bound, secret_name) = process_field_attribute_meta(field, &field_name); 
+                let (is_bound, secret_name) = process_field_attribute_meta(field, &field_name);
                 fields.push(FieldDefinition {
                     field_name: field_name.clone(),
                     data_type,
@@ -159,11 +315,11 @@ fn get_arg_value_from_attribute(input: &syn::Attribute, arg_name: &str) -> Optio
     }
     let json_value = json_value.unwrap();
     let value = &json_value[arg_name];
-        match value {
-            Value::String(s) => return Some(s.clone()),
-            Value::Null => return None,
-            _ => Some(value.to_string()),
-        }
+    match value {
+        Value::String(s) => return Some(s.clone()),
+        Value::Null => return None,
+        _ => Some(value.to_string()),
+    }
 }
 fn parse_secret_binder(input: &DeriveInput) -> (String, String, Option<Value>) {
     let secret_name;
@@ -188,7 +344,8 @@ fn parse_secret_binder(input: &DeriveInput) -> (String, String, Option<Value>) {
     let looked_up_fake_secret = get_arg_value_from_attribute(attr, "fake_secret");
     let mut fake_secret: Option<Value> = None;
     if looked_up_fake_secret.is_some() {
-        let parsed_fake_secret = serde_json::from_str::<Value>(&looked_up_fake_secret.unwrap()).unwrap();
+        let parsed_fake_secret =
+            serde_json::from_str::<Value>(&looked_up_fake_secret.unwrap()).unwrap();
         //For now, we expect our secrets to come back as json objects.  Perhaps in the future we
         //can support other formats in which to store our secret values.
         if !parsed_fake_secret.is_object() {
@@ -298,7 +455,8 @@ mod secret_binder_attribute {
                 field_a: u32,
                 field_b: u32,
             }
-        ).to_string();
+        )
+        .to_string();
         let ast = syn::parse_str::<syn::DeriveInput>(&token_stream).unwrap();
         parse_secret_binder(&ast);
     }
@@ -322,90 +480,90 @@ mod process_field {
                 field_g: f64,
                 field_h: bool,
             }
-        ).to_string();
+        )
+        .to_string();
         let ast = syn::parse_str::<syn::DeriveInput>(&token_stream).unwrap();
-       let results = process_fields(&ast); 
+        let results = process_fields(&ast);
 
-       let result = &results[0];
-       assert_eq!(result.field_name, "field_a");
-       match result.data_type {
-           ValidDataTypes::String => (),
-           _ => panic!("Invalid data type"),
-       }
-       assert_eq!(result.is_optional, false);
-       assert_eq!(result.is_bound, true);
-       assert_eq!(result.secret_name, "field_a");
+        let result = &results[0];
+        assert_eq!(result.field_name, "field_a");
+        match result.data_type {
+            ValidDataTypes::String => (),
+            _ => panic!("Invalid data type"),
+        }
+        assert_eq!(result.is_optional, false);
+        assert_eq!(result.is_bound, true);
+        assert_eq!(result.secret_name, "field_a");
 
-       let result = &results[1];
-       assert_eq!(result.field_name, "field_b");
-       match result.data_type {
-           ValidDataTypes::U32 => (),
-           _ => panic!("Invalid data type"),
-       }
-       assert_eq!(result.is_optional, false);
-       assert_eq!(result.is_bound, true);
-       assert_eq!(result.secret_name, "field_b");
+        let result = &results[1];
+        assert_eq!(result.field_name, "field_b");
+        match result.data_type {
+            ValidDataTypes::U32 => (),
+            _ => panic!("Invalid data type"),
+        }
+        assert_eq!(result.is_optional, false);
+        assert_eq!(result.is_bound, true);
+        assert_eq!(result.secret_name, "field_b");
 
-       let result = &results[2];
-       assert_eq!(result.field_name, "field_c");
-       match result.data_type {
-           ValidDataTypes::U64 => (),
-           _ => panic!("Invalid data type"),
-       }
-       assert_eq!(result.is_optional, false);
-       assert_eq!(result.is_bound, true);
-       assert_eq!(result.secret_name, "field_c");
+        let result = &results[2];
+        assert_eq!(result.field_name, "field_c");
+        match result.data_type {
+            ValidDataTypes::U64 => (),
+            _ => panic!("Invalid data type"),
+        }
+        assert_eq!(result.is_optional, false);
+        assert_eq!(result.is_bound, true);
+        assert_eq!(result.secret_name, "field_c");
 
+        let result = &results[3];
+        assert_eq!(result.field_name, "field_d");
+        match result.data_type {
+            ValidDataTypes::I32 => (),
+            _ => panic!("Invalid data type"),
+        }
+        assert_eq!(result.is_optional, false);
+        assert_eq!(result.is_bound, true);
+        assert_eq!(result.secret_name, "field_d");
 
-       let result = &results[3];
-       assert_eq!(result.field_name, "field_d");
-       match result.data_type {
-           ValidDataTypes::I32 => (),
-           _ => panic!("Invalid data type"),
-       }
-       assert_eq!(result.is_optional, false);
-       assert_eq!(result.is_bound, true);
-       assert_eq!(result.secret_name, "field_d");
+        let result = &results[4];
+        assert_eq!(result.field_name, "field_e");
+        match result.data_type {
+            ValidDataTypes::I64 => (),
+            _ => panic!("Invalid data type"),
+        }
+        assert_eq!(result.is_optional, false);
+        assert_eq!(result.is_bound, true);
+        assert_eq!(result.secret_name, "field_e");
 
-       let result = &results[4];
-       assert_eq!(result.field_name, "field_e");
-       match result.data_type {
-           ValidDataTypes::I64 => (),
-           _ => panic!("Invalid data type"),
-       }
-       assert_eq!(result.is_optional, false);
-       assert_eq!(result.is_bound, true);
-       assert_eq!(result.secret_name, "field_e");
+        let result = &results[5];
+        assert_eq!(result.field_name, "field_f");
+        match result.data_type {
+            ValidDataTypes::F32 => (),
+            _ => panic!("Invalid data type"),
+        }
+        assert_eq!(result.is_optional, false);
+        assert_eq!(result.is_bound, true);
+        assert_eq!(result.secret_name, "field_f");
 
-       let result = &results[5];
-       assert_eq!(result.field_name, "field_f");
-       match result.data_type {
-           ValidDataTypes::F32 => (),
-           _ => panic!("Invalid data type"),
-       }
-       assert_eq!(result.is_optional, false);
-       assert_eq!(result.is_bound, true);
-       assert_eq!(result.secret_name, "field_f");
+        let result = &results[6];
+        assert_eq!(result.field_name, "field_g");
+        match result.data_type {
+            ValidDataTypes::F64 => (),
+            _ => panic!("Invalid data type"),
+        }
+        assert_eq!(result.is_optional, false);
+        assert_eq!(result.is_bound, true);
+        assert_eq!(result.secret_name, "field_g");
 
-       let result = &results[6];
-       assert_eq!(result.field_name, "field_g");
-       match result.data_type {
-           ValidDataTypes::F64 => (),
-           _ => panic!("Invalid data type"),
-       }
-       assert_eq!(result.is_optional, false);
-       assert_eq!(result.is_bound, true);
-       assert_eq!(result.secret_name, "field_g");
-
-       let result = &results[7];
-       assert_eq!(result.field_name, "field_h");
-       match result.data_type {
-           ValidDataTypes::Bool => (),
-           _ => panic!("Invalid data type"),
-       }
-       assert_eq!(result.is_optional, false);
-       assert_eq!(result.is_bound, true);
-       assert_eq!(result.secret_name, "field_h");
+        let result = &results[7];
+        assert_eq!(result.field_name, "field_h");
+        match result.data_type {
+            ValidDataTypes::Bool => (),
+            _ => panic!("Invalid data type"),
+        }
+        assert_eq!(result.is_optional, false);
+        assert_eq!(result.is_bound, true);
+        assert_eq!(result.secret_name, "field_h");
     }
 
     #[test]
@@ -416,9 +574,10 @@ mod process_field {
             struct Bar {
                 field_a: Vec<String>,
             }
-        ).to_string();
+        )
+        .to_string();
         let ast = syn::parse_str::<syn::DeriveInput>(&token_stream).unwrap();
-       process_fields(&ast); 
+        process_fields(&ast);
     }
 
     #[test]
@@ -429,29 +588,30 @@ mod process_field {
                 field_a: Option<String>,
                 field_b: Option<u32>,
             }
-        ).to_string();
+        )
+        .to_string();
         let ast = syn::parse_str::<syn::DeriveInput>(&token_stream).unwrap();
-       let results = process_fields(&ast); 
+        let results = process_fields(&ast);
 
-       let result = &results[0];
-       assert_eq!(result.field_name, "field_a");
-       match result.data_type {
-           ValidDataTypes::String => (),
-           _ => panic!("Invalid data type"),
-       }
-       assert_eq!(result.is_optional, true);
-       assert_eq!(result.is_bound, true);
-       assert_eq!(result.secret_name, "field_a");
+        let result = &results[0];
+        assert_eq!(result.field_name, "field_a");
+        match result.data_type {
+            ValidDataTypes::String => (),
+            _ => panic!("Invalid data type"),
+        }
+        assert_eq!(result.is_optional, true);
+        assert_eq!(result.is_bound, true);
+        assert_eq!(result.secret_name, "field_a");
 
-       let result = &results[1];
-       assert_eq!(result.field_name, "field_b");
-       match result.data_type {
-           ValidDataTypes::U32 => (),
-           _ => panic!("Invalid data type"),
-       }
-       assert_eq!(result.is_optional, true);
-       assert_eq!(result.is_bound, true);
-       assert_eq!(result.secret_name, "field_b");
+        let result = &results[1];
+        assert_eq!(result.field_name, "field_b");
+        match result.data_type {
+            ValidDataTypes::U32 => (),
+            _ => panic!("Invalid data type"),
+        }
+        assert_eq!(result.is_optional, true);
+        assert_eq!(result.is_bound, true);
+        assert_eq!(result.secret_name, "field_b");
     }
 
     #[test]
@@ -462,9 +622,10 @@ mod process_field {
             struct Bar {
                 field_a: Option<Vec<String>>,
             }
-        ).to_string();
+        )
+        .to_string();
         let ast = syn::parse_str::<syn::DeriveInput>(&token_stream).unwrap();
-       process_fields(&ast); 
+        process_fields(&ast);
     }
 
     #[test]
@@ -479,50 +640,50 @@ mod process_field {
                 #[bind_field({"secret_name": "field_dd" })]
                 field_d: i32,
             }
-        ).to_string();
+        )
+        .to_string();
         let ast = syn::parse_str::<syn::DeriveInput>(&token_stream).unwrap();
-       let results = process_fields(&ast); 
+        let results = process_fields(&ast);
 
-       let result = &results[0];
-       assert_eq!(result.field_name, "field_a");
-       match result.data_type {
-           ValidDataTypes::String => (),
-           _ => panic!("Invalid data type"),
-       }
-       assert_eq!(result.is_optional, false);
-       assert_eq!(result.is_bound, false);
-       assert_eq!(result.secret_name, "field_a");
+        let result = &results[0];
+        assert_eq!(result.field_name, "field_a");
+        match result.data_type {
+            ValidDataTypes::String => (),
+            _ => panic!("Invalid data type"),
+        }
+        assert_eq!(result.is_optional, false);
+        assert_eq!(result.is_bound, false);
+        assert_eq!(result.secret_name, "field_a");
 
-       let result = &results[1];
-       assert_eq!(result.field_name, "field_b");
-       match result.data_type {
-           ValidDataTypes::U32 => (),
-           _ => panic!("Invalid data type"),
-       }
-       assert_eq!(result.is_optional, false);
-       assert_eq!(result.is_bound, true);
-       assert_eq!(result.secret_name, "field_bb");
+        let result = &results[1];
+        assert_eq!(result.field_name, "field_b");
+        match result.data_type {
+            ValidDataTypes::U32 => (),
+            _ => panic!("Invalid data type"),
+        }
+        assert_eq!(result.is_optional, false);
+        assert_eq!(result.is_bound, true);
+        assert_eq!(result.secret_name, "field_bb");
 
-       let result = &results[2];
-       assert_eq!(result.field_name, "field_c");
-       match result.data_type {
-           ValidDataTypes::U64 => (),
-           _ => panic!("Invalid data type"),
-       }
-       assert_eq!(result.is_optional, false);
-       assert_eq!(result.is_bound, true);
-       assert_eq!(result.secret_name, "field_c");
+        let result = &results[2];
+        assert_eq!(result.field_name, "field_c");
+        match result.data_type {
+            ValidDataTypes::U64 => (),
+            _ => panic!("Invalid data type"),
+        }
+        assert_eq!(result.is_optional, false);
+        assert_eq!(result.is_bound, true);
+        assert_eq!(result.secret_name, "field_c");
 
-       let result = &results[3];
-       assert_eq!(result.field_name, "field_d");
-       match result.data_type {
-           ValidDataTypes::I32 => (),
-           _ => panic!("Invalid data type"),
-       }
-       assert_eq!(result.is_optional, false);
-       assert_eq!(result.is_bound, true);
-       assert_eq!(result.secret_name, "field_dd");
-
+        let result = &results[3];
+        assert_eq!(result.field_name, "field_d");
+        match result.data_type {
+            ValidDataTypes::I32 => (),
+            _ => panic!("Invalid data type"),
+        }
+        assert_eq!(result.is_optional, false);
+        assert_eq!(result.is_bound, true);
+        assert_eq!(result.secret_name, "field_dd");
     }
 
     #[test]
@@ -538,49 +699,49 @@ mod process_field {
                 #[bind_field({"secret_name": "field_dd" })]
                 field_d: i32,
             }
-        ).to_string();
+        )
+        .to_string();
         let ast = syn::parse_str::<syn::DeriveInput>(&token_stream).unwrap();
-       let results = process_fields(&ast); 
+        let results = process_fields(&ast);
 
-       let result = &results[0];
-       assert_eq!(result.field_name, "field_a");
-       match result.data_type {
-           ValidDataTypes::String => (),
-           _ => panic!("Invalid data type"),
-       }
-       assert_eq!(result.is_optional, false);
-       assert_eq!(result.is_bound, false);
-       assert_eq!(result.secret_name, "field_a");
+        let result = &results[0];
+        assert_eq!(result.field_name, "field_a");
+        match result.data_type {
+            ValidDataTypes::String => (),
+            _ => panic!("Invalid data type"),
+        }
+        assert_eq!(result.is_optional, false);
+        assert_eq!(result.is_bound, false);
+        assert_eq!(result.secret_name, "field_a");
 
-       let result = &results[1];
-       assert_eq!(result.field_name, "field_b");
-       match result.data_type {
-           ValidDataTypes::U32 => (),
-           _ => panic!("Invalid data type"),
-       }
-       assert_eq!(result.is_optional, false);
-       assert_eq!(result.is_bound, true);
-       assert_eq!(result.secret_name, "field_bb");
+        let result = &results[1];
+        assert_eq!(result.field_name, "field_b");
+        match result.data_type {
+            ValidDataTypes::U32 => (),
+            _ => panic!("Invalid data type"),
+        }
+        assert_eq!(result.is_optional, false);
+        assert_eq!(result.is_bound, true);
+        assert_eq!(result.secret_name, "field_bb");
 
-       let result = &results[2];
-       assert_eq!(result.field_name, "field_c");
-       match result.data_type {
-           ValidDataTypes::U64 => (),
-           _ => panic!("Invalid data type"),
-       }
-       assert_eq!(result.is_optional, false);
-       assert_eq!(result.is_bound, true);
-       assert_eq!(result.secret_name, "field_c");
+        let result = &results[2];
+        assert_eq!(result.field_name, "field_c");
+        match result.data_type {
+            ValidDataTypes::U64 => (),
+            _ => panic!("Invalid data type"),
+        }
+        assert_eq!(result.is_optional, false);
+        assert_eq!(result.is_bound, true);
+        assert_eq!(result.secret_name, "field_c");
 
-       let result = &results[3];
-       assert_eq!(result.field_name, "field_d");
-       match result.data_type {
-           ValidDataTypes::I32 => (),
-           _ => panic!("Invalid data type"),
-       }
-       assert_eq!(result.is_optional, false);
-       assert_eq!(result.is_bound, true);
-       assert_eq!(result.secret_name, "field_dd");
-
+        let result = &results[3];
+        assert_eq!(result.field_name, "field_d");
+        match result.data_type {
+            ValidDataTypes::I32 => (),
+            _ => panic!("Invalid data type"),
+        }
+        assert_eq!(result.is_optional, false);
+        assert_eq!(result.is_bound, true);
+        assert_eq!(result.secret_name, "field_dd");
     }
 }

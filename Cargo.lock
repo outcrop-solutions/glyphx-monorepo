@@ -1348,6 +1348,8 @@ name = "glyphx_macros"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "glyphx_core",
+ "lazy_static",
  "secret_bound_singleton_impl",
  "tokio",
 ]
@@ -2872,6 +2874,10 @@ dependencies = [
 name = "secret_bound_singleton_impl"
 version = "0.1.0"
 dependencies = [
+ "glyphx_core",
+ "glyphx_types",
+ "lazy_static",
+ "proc-macro2",
  "quote",
  "serde_json",
  "syn 2.0.38",

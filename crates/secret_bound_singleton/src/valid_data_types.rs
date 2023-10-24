@@ -1,3 +1,5 @@
+use quote::{ToTokens, quote};
+use proc_macro2::TokenStream;
 #[derive(Debug)]
 pub enum ValidDataTypes {
     String,
@@ -22,6 +24,21 @@ impl ValidDataTypes {
             "f64" => ValidDataTypes::F64,
             "bool" => ValidDataTypes::Bool,
             _ => panic!("Invalid data type"),
+        }
+    }
+}
+
+impl ToTokens for ValidDataTypes {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        match self {
+            ValidDataTypes::String => tokens.extend(quote! {String}),
+            ValidDataTypes::U32 => tokens.extend(quote! {u32}),
+            ValidDataTypes::U64 => tokens.extend(quote! {u64}),
+            ValidDataTypes::I32 => tokens.extend(quote! {i32}),
+            ValidDataTypes::I64 => tokens.extend(quote! {i64}),
+            ValidDataTypes::F32 => tokens.extend(quote! {f32}),
+            ValidDataTypes::F64 => tokens.extend(quote! {f64}),
+            ValidDataTypes::Bool => tokens.extend(quote! {bool}),
         }
     }
 }
