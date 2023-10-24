@@ -7,4 +7,4 @@ edition = "2021"
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
-glyphx_core = { path = "../core" }
+glyphx_core = { path = "../core", features = ["macros"] }

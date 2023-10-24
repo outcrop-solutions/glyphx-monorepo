@@ -45,5 +45,5 @@ aws = ["s3_manager", "athena_manager", "secret_manager"]
 s3_manager = []
 athena_manager = []
 secret_manager = []
-macros = []
+macros = ["secret_manager"]
 
