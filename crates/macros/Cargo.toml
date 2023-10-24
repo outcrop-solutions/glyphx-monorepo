@@ -6,8 +6,5 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-trait = "0.1.68"
-lazy_static = "1.4.0"
-secret_bound_singleton_impl = { path = "../secret_bound_singleton" }
 tokio = { version = "1", features = ["full"] }
 glyphx_core = { path = "../core" }

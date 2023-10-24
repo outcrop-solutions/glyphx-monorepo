@@ -1308,6 +1308,7 @@ dependencies = [
  "mockall",
  "rand",
  "reqwest",
+ "secret_bound_singleton_impl",
  "serde",
  "serde_derive",
  "serde_json",
@@ -1347,10 +1348,7 @@ dependencies = [
 name = "glyphx_macros"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "glyphx_core",
- "lazy_static",
- "secret_bound_singleton_impl",
  "tokio",
 ]
 

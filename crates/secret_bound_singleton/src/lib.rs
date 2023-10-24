@@ -1,7 +1,8 @@
+mod valid_data_types;
+
 use proc_macro::TokenStream;
 use quote::{format_ident, quote, ToTokens};
-use serde_json::{json, Value};
-mod valid_data_types;
+use serde_json::Value;
 use syn::{parse_macro_input, DeriveInput};
 use valid_data_types::ValidDataTypes;
 
@@ -140,10 +141,10 @@ fn build_secret_bound_impl(
     let singleton_trait = build_singleton_trait(ident);
 
     let output = quote!(
+        use glyphx_core::traits::*;
         #secret_bound_trait
         #singleton_trait
         );
-    eprintln!("output: {:?}", output.to_string());
     output.into()
 }
 
@@ -151,8 +152,8 @@ fn build_singleton_trait(ident: &proc_macro2::Ident) -> proc_macro2::TokenStream
     let output = quote!(
         static mut INSTANCE: Option<#ident> = None; 
     
-    #[async_trait::async_trait]
-    impl Singleton<#ident> for #ident  {
+    #[glyphx_core::async_trait]
+    impl glyphx_core::traits::Singleton<#ident> for #ident  {
         fn get_instance() -> &'static #ident {
             unsafe { &INSTANCE.as_ref().unwrap() }
         }
@@ -165,7 +166,7 @@ fn build_singleton_trait(ident: &proc_macro2::Ident) -> proc_macro2::TokenStream
         }
     }
 
-    impl SecretBoundSingleton<#ident> for #ident {}
+    impl glyphx_core::traits::SecretBoundSingleton<#ident> for #ident {}
     );
     
     output
@@ -179,8 +180,9 @@ fn build_secret_bound_trait(
     let field_quote = build_field_quote(fields);
     let initializer_call = build_initializer_call(initializer_name, fields);
     let output = quote!(
-    #[async_trait::async_trait]
-    impl SecretBound<#ident> for #ident {
+    
+    #[glyphx_core::async_trait]
+    impl glyphx_core::traits::SecretBound<#ident> for #ident {
         async fn bind_secrets() -> #ident {
             let secret_manager = glyphx_core::aws::SecretManager::new(#secret_name).await;
             let secret_value = secret_manager.get_secret_value().await;
