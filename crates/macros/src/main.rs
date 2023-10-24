@@ -1,6 +1,6 @@
 use glyphx_core::SecretBoundSingleton;
 #[derive(Clone, Debug, SecretBoundSingleton)]
-#[secret_binder({"secret_name": "test_secret", "initializer": "init"})]
+#[secret_binder({"secret_name": "test_secret", "initializer": "init", "fake_secret": {"foo": "hi mom", "bar": 42}})]
 struct Foo {
     foo: String,
     bar: Option<u32>,

@@ -126,7 +126,11 @@ fn build_initializer_call(
     quote!(let bound_self = Self::#init_ident(#fields_quote).await;
            bound_self)
 }
-
+#[derive(Debug)]
+ enum SecretSource {
+    FakeSecret(Value),
+    SecretManager(String),
+ }
 fn build_secret_bound_impl(
     ident: &syn::Ident,
     secret_name: &str,
@@ -134,10 +138,14 @@ fn build_secret_bound_impl(
     fake_secret: Option<Value>,
     fields: &Vec<FieldDefinition>,
 ) -> TokenStream {
+    let secret_source = match fake_secret {
+        Some(fake_secret) => SecretSource::FakeSecret(fake_secret),
+        None => SecretSource::SecretManager(secret_name.to_string()),
+    };
     //Really important to reference structs and enums by their fully qualified names.  Otherwise
     //we would force our implimnetors to import the structures in their code.  It is bad enough
     //that we have make sure that they have the dependencies configured in their Cargo.toml
-    let secret_bound_trait = build_secret_bound_trait(ident, secret_name, fields, initializer_name);
+    let secret_bound_trait = build_secret_bound_trait(ident, &secret_source, fields, initializer_name);
     let singleton_trait = build_singleton_trait(ident);
 
     let output = quote!(
@@ -173,23 +181,33 @@ fn build_singleton_trait(ident: &proc_macro2::Ident) -> proc_macro2::TokenStream
 }
 fn build_secret_bound_trait(
     ident: &proc_macro2::Ident,
-    secret_name: &str,
+    secret_source: &SecretSource,
     fields: &Vec<FieldDefinition>,
     initializer_name: &str,
 ) -> proc_macro2::TokenStream {
     let field_quote = build_field_quote(fields);
     let initializer_call = build_initializer_call(initializer_name, fields);
-    let output = quote!(
-    
-    #[glyphx_core::async_trait]
-    impl glyphx_core::traits::SecretBound<#ident> for #ident {
-        async fn bind_secrets() -> #ident {
+    let secret_value = match secret_source {
+        SecretSource::FakeSecret(fake_secret) => {
+            let json_string = fake_secret.to_string();
+            quote!(let secret_value: glyphx_core::serde_Value = glyphx_core::serde_from_str(#json_string).unwrap();)
+        },
+        SecretSource::SecretManager(secret_name) => {
+            quote!(
             let secret_manager = glyphx_core::aws::SecretManager::new(#secret_name).await;
             let secret_value = secret_manager.get_secret_value().await;
             if secret_value.is_err() {
                 panic!("Failed to get secret value");
             }
             let secret_value = secret_value.unwrap();
+            )
+        },
+    };
+    let output = quote!(
+    #[glyphx_core::async_trait]
+    impl glyphx_core::traits::SecretBound<#ident> for #ident {
+        async fn bind_secrets() -> #ident {
+            #secret_value
             #field_quote
             #initializer_call
 
