@@ -9,7 +9,6 @@ import {useSendPosition, useWindowSize} from 'services';
 import {useCloseViewerOnModalOpen} from 'services/useCloseViewerOnModalOpen';
 import {useProject, useWorkspace} from 'lib/client/hooks';
 import {useCloseViewerOnLoading} from 'services/useCloseViewerOnLoading';
-import {GridContainer} from 'app/[workspaceId]/project/[projectId]/_components/datagrid/GridContainer';
 import useTemplates from 'lib/client/hooks/useTemplates';
 
 const openFirstFile = (projData) => {
@@ -20,10 +19,9 @@ const openFirstFile = (projData) => {
   };
 };
 
-export default function Project() {
+export const ProjectProvider = ({children}: {children: React.ReactNode}) => {
   const {data, isLoading} = useProject();
   const {data: templateData, isLoading: templateLoading} = useTemplates();
-  const {data: result, isLoading: isWorkspaceLoading} = useWorkspace();
 
   // resize setup
   useWindowSize();
@@ -38,8 +36,9 @@ export default function Project() {
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
   // hydrate recoil state
   useEffect(() => {
-    if (!isLoading && !isWorkspaceLoading && !templateLoading) {
+    if (!isLoading && !templateLoading) {
       const projectData = openFirstFile(data?.project);
+      console.log({projectData});
       setProject(projectData);
       setTemplates(templateData);
       setRightSidebarControl(
@@ -47,14 +46,11 @@ export default function Project() {
           draft.data = data?.project;
         })
       );
-      setWorkspace(result?.workspace);
     }
   }, [
     data,
     isLoading,
     templateLoading,
-    isWorkspaceLoading,
-    result,
     setDataGrid,
     setProject,
     setRightSidebarControl,
@@ -62,6 +58,5 @@ export default function Project() {
     setTemplates,
     templateData,
   ]);
-
-  return <GridContainer />;
-}
+  return <>{children}</>;
+};

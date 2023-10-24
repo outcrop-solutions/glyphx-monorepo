@@ -53,3 +53,8 @@ export const isRenderedAtom = atom<boolean>({
   key: 'isRenderedAtom',
   default: false,
 });
+
+export const projectSegmentAtom = atom({
+  key: 'innerSidebarSegmentAtom',
+  default: 'FILES', // 'FILES' | 'MODEL' | 'COLLAB' | 'AI'
+});

@@ -40,23 +40,6 @@ export const Property = ({axis}) => {
   const showLoading = Object.keys(showLoadingValue).length > 0 ? true : false;
 
   const clearProp = useCallback(async () => {
-    // setProject(
-    //   produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-    //     draft.state.properties[`${axis}`] = {
-    //       axis: axis,
-    //       accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
-    //       key: `Column ${axis}`, // corresponds to column name
-    //       dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-    //       interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
-    //       direction: webTypes.constants.DIRECTION_TYPE.ASC,
-    //       filter: {
-    //         min: 0,
-    //         max: 0,
-    //       },
-    //     };
-    //   })
-    // );
-
     const newState = {
       ...project.state,
       properties: {
@@ -164,58 +147,63 @@ export const Property = ({axis}) => {
   return (
     <li
       ref={drop}
-      className="relative group/axes py-0 px-2 group-props last:mb-0 flex gap-x-2 items-center bg-transparent hover:bg-secondary-midnight h-5"
+      className="relative py-0 px-2 group-props last:mb-0 bg-transparent hover:bg-secondary-midnight flex flex-col space-y-1"
     >
-      {/* AXES ICON */}
-      <div
-        className={`bg-secondary-space-blue border border-transparent ${
-          showLoading ? '' : 'hover:border-white'
-        } p-0 rounded`}
-      >
-        <div className="h-4 group">
-          <div className="flex group-hover:hidden">
-            <AxesIcons property={axis} />
-          </div>
-          <div onClick={clearProp} className="group-hover:flex hidden">
-            <ClearIcon />
-          </div>
-        </div>
-      </div>
-      {/* AXES CHIP */}
-      {isActive ? (
-        <div className="block grow text-gray hover:text-gray transition duration-150 truncate">
-          <span className="text-sm font-medium ml-3 lg:opacity-100 2xl:opacity-100 duration-200">release to drop</span>
-        </div>
-      ) : (
+      <div className="group/axes flex gap-x-2 items-center w-full">
+        {/* AXES ICON */}
         <div
-          data-type={handleDataType(prop, project)}
-          className={`flex min-w-[8rem] grow text-white justify-center h-4 bg-gray transition duration-150 truncate cursor-pointer rounded`}
+          className={`bg-secondary-space-blue border border-transparent ${
+            showLoading ? '' : 'hover:border-white'
+          } p-0 rounded`}
         >
-          <span className="inline-flex uppercase align-middle items-center text-center truncate leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium lg:opacity-100 2xl:opacity-100 duration-200">
-            {prop?.key}
-          </span>
-          <div className="hidden group-hover/axes:flex absolute top-8 z-40 px-2 py-1right-2 bg-primary-dark-blue text-white">
-            {prop?.description || 'description'}
+          <div className="h-4 group">
+            <div className="flex group-hover:hidden">
+              <AxesIcons property={axis} />
+            </div>
+            <div onClick={clearProp} className="group-hover:flex hidden">
+              <ClearIcon />
+            </div>
           </div>
         </div>
-      )}
-
-      {/* LIN/LOG BUTTON */}
-      <div
-        onClick={logLin}
-        className="flex items-center justify-center bg-secondary-space-blue border border-transparent rounded opacity-100 hover:border-white hover:cursor-pointer"
-      >
-        {prop.interpolation === webTypes.constants.INTERPOLATION_TYPE.LIN ? <LinIcon /> : <LogIcon />}
+        {/* AXES CHIP */}
+        {isActive ? (
+          <div className="block grow text-gray hover:text-gray transition duration-150 truncate">
+            <span className="text-sm font-medium ml-3 lg:opacity-100 2xl:opacity-100 duration-200">
+              release to drop
+            </span>
+          </div>
+        ) : (
+          <div
+            data-type={handleDataType(prop, project)}
+            className={`flex min-w-[8rem] grow text-white justify-center h-4 bg-gray transition duration-150 truncate cursor-pointer rounded`}
+          >
+            <span className="inline-flex uppercase align-middle items-center text-center truncate leading-[14px] text-[12px] tracking-[.01em] font-roboto font-medium lg:opacity-100 2xl:opacity-100 duration-200">
+              {prop?.key}
+            </span>
+            <div className="hidden group-hover/axes:flex absolute top-8 z-40 px-2 py-1right-2 bg-primary-dark-blue text-white">
+              {prop?.description || 'description'}
+            </div>
+          </div>
+        )}
       </div>
-      {/* DIRECTION BUTTON */}
-      <div
-        onClick={ascDesc}
-        className={`flex items-center justify-center bg-secondary-space-blue border border-transparent rounded ${
-          showLoading ? 'opacity-30' : 'opacity-100 hover:border-white hover:cursor-pointer'
-        }`}
-      >
-        {/* border on same elements as heigh and witg */}
-        {prop.direction === webTypes.constants.DIRECTION_TYPE.ASC ? <SwapLeftIcon /> : <SwapRightIcon />}
+      <div className="flex gap-x-2 items-center">
+        {/* LIN/LOG BUTTON */}
+        <div
+          onClick={logLin}
+          className="flex items-center justify-center bg-secondary-dark-blue border border-transparent rounded opacity-100 hover:border-white hover:cursor-pointer w-1/2"
+        >
+          {prop.interpolation === webTypes.constants.INTERPOLATION_TYPE.LIN ? <LinIcon /> : <LogIcon />}
+        </div>
+        {/* DIRECTION BUTTON */}
+        <div
+          onClick={ascDesc}
+          className={`flex items-center justify-center bg-secondary-dark-blue border border-transparent w-1/2 rounded ${
+            showLoading ? 'opacity-30' : 'opacity-100 hover:border-white hover:cursor-pointer'
+          }`}
+        >
+          {/* border on same elements as heigh and witg */}
+          {prop.direction === webTypes.constants.DIRECTION_TYPE.ASC ? <SwapLeftIcon /> : <SwapRightIcon />}
+        </div>
       </div>
     </li>
   );

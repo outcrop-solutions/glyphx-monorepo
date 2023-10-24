@@ -46,7 +46,7 @@ export const Properties = () => {
           </summary>
           {!isCollapsed && (
             <div className={`block border-b border-gray`}>
-              <ul className="py-1">
+              <ul className="py-1 space-y-2">
                 {Object.keys(properties)
                   .slice(0, 3)
                   .map((key) => (

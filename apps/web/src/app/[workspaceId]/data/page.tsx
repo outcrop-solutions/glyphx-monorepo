@@ -31,7 +31,7 @@ export default async function DataPage({params}) {
     <div className="flex flex-col h-full w-full overflow-y-auto bg-transparent">
       <div className="flex flex-col grow relative h-full px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">
         <div className="text-xl text-light-gray mb-4">Tables</div>
-        {tables.length > 0 ? <TablesView tables={tables} /> : <div>Empty Tables State</div>}
+        {tables.length > 0 ? <TablesView tablesData={tables} /> : <div>Empty Tables State</div>}
         <div className="text-xl text-light-gray mb-4">Files</div>
         {files ? <Files files={files} /> : <div>Empty Files State</div>}
       </div>

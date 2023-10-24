@@ -50,10 +50,10 @@ export const TemplatePreviewModal = ({modalContent}: webTypes.TemplatePreviewMod
             draft.modals.splice(0, 1);
           })
         );
-        router.push(`/account/${workspaceId}/${data.id}` as Route);
+        router.push(`/project/${data.id}` as Route);
       },
     });
-  }, [id, data, router, setModals, workspaceId]);
+  }, [id, data, router, setModals]);
 
   return (
     <div className="flex flex-col items-stretch justify-center px-4 py-8 w-[500px] space-y-5 bg-secondary-midnight rounded-md text-white">

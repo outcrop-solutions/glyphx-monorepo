@@ -17,20 +17,22 @@ export const GridHeader = ({data}) => {
   }, [data]);
 
   return (
-    <div className="w-full h-8 bg-secondary-space-blue border-b border-gray text-white text-xs flex flex-shrink-0 items-center justify-between">
-      {filesOpen && filesOpen?.length > 0 && (
-        <>
-          {filesOpen.map(({tableName, fileIndex}, idx) => (
-            <FileTab key={`${tableName}-${idx}`} tableName={tableName} fileIndex={fileIndex} />
-          ))}
-        </>
-      )}
+    <div className="bg-secondary-space-blue h-8 border-b border-gray text-white text-xs flex flex-shrink-0 items-center justify-between">
+      <div className="flex items-center w-full h-8">
+        {filesOpen && filesOpen?.length > 0 && (
+          <>
+            {filesOpen.map(({tableName, fileIndex}, idx) => (
+              <FileTab key={`${tableName}-${idx}`} tableName={tableName} fileIndex={fileIndex} />
+            ))}
+          </>
+        )}
+      </div>
       {rowIds && window && !window?.core && (
         <div
           onClick={() => exportCsv()}
           className="group cursor-pointer flex items-center justify-between px-4 bg-gray hover:bg-yellow border-r border-t border-l border-white hover:text-black h-full"
         >
-          <span>Export CSV</span>
+          <span className="whitespace-nowrap">Export CSV</span>
           <DownloadIcon className="text-white w-6 ml-2 group-hover:text-black" />
         </div>
       )}

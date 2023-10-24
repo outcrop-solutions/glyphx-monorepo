@@ -1,12 +1,11 @@
-import Header from 'app/_components/Header';
+import WorkspaceHeader from 'app/[workspaceId]/_components/WorkspaceHeader';
 import {authOptions} from 'app/api/auth/[...nextauth]/route';
-import {Providers} from 'app/providers';
 import {Initializer, workspaceService} from 'business';
 import {Metadata} from 'next';
 import {getServerSession} from 'next-auth/next';
 import {redirect} from 'next/navigation';
-import {RightSidebar} from './_components/rightSidebar';
-import Sidebar from 'app/_components/Sidebar';
+import {RightSidebar} from './_components/RightSidebar';
+import LeftSidebar from 'app/[workspaceId]/_components/LeftSidebar';
 
 export const metadata: Metadata = {
   title: 'Workspace | Glyphx',
@@ -31,9 +30,9 @@ export default async function WorkspaceLayout({children, params}: {children: Rea
 
   return (
     <div className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
-      <Sidebar workspaces={workspaces} />
+      <LeftSidebar workspaces={workspaces} />
       <div className="flex flex-col h-full w-full overflow-y-auto bg-transparent">
-        <Header />
+        <WorkspaceHeader />
         {children}
       </div>
       <RightSidebar />

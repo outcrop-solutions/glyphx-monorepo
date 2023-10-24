@@ -1,10 +1,10 @@
 import React from 'react';
 import {Table} from './Table';
 
-export const TablesView = ({tables}) => {
+export const TablesView = ({tablesData}) => {
   return (
     <ul>
-      {tables.map((table) => (
+      {tablesData.map((table) => (
         <Table table={table} />
       ))}
     </ul>
