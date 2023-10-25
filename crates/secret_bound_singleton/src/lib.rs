@@ -65,12 +65,12 @@ fn generate_optional_field_quote(
     let json_extract =
         generate_required_field_quote(data_type, &internal_variable_name.to_string(), &secret_name);
     let field_quote = quote!(
-    let mut #field_ident : Option<#data_type> = None;
-    let json_value = &secret_value[#secret_name];
-    if !json_value.is_null() {
-        #json_extract
-        #field_ident = Some(#internal_variable_name);
-    }
+        let mut #field_ident : Option<#data_type> = None;
+        let json_value = &secret_value[#secret_name];
+        if !json_value.is_null() {
+         #json_extract
+         #field_ident = Some(#internal_variable_name);
+     }
     );
     field_quote
 }
@@ -131,6 +131,7 @@ fn build_initializer_call(
     FakeSecret(Value),
     SecretManager(String),
  }
+
 fn build_secret_bound_impl(
     ident: &syn::Ident,
     secret_name: &str,
@@ -331,7 +332,10 @@ fn get_arg_value_from_attribute(input: &syn::Attribute, arg_name: &str) -> Optio
     let tokens = &meta_list.tokens.to_string();
     let json_value = serde_json::from_str::<Value>(tokens);
     if json_value.is_err() {
-        panic!("secret_binder attribute must be a valid json");
+        let err = json_value.err().unwrap();
+        let msg = err.to_string();
+        let msg = format!("secret_binder attribute must be a valid json: {}", msg);
+        panic!("{}", &msg);
     }
     let json_value = json_value.unwrap();
     let value = &json_value[arg_name];
