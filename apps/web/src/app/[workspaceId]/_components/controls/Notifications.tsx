@@ -1,3 +1,4 @@
+'use client';
 import {Route} from 'next';
 import React, {useState, useRef, useEffect} from 'react';
 import Link from 'next/link';

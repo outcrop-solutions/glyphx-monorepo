@@ -1,1 +1,6 @@
-export type AiStreamSourceType = 'ANTHROPIC' | 'HUGGINGFACE' | 'LANGCHAIN' | 'OPENAI';
+export enum AiStreamSourceType {
+  ANTHROPIC = 'ANTHROPIC',
+  HUGGINGFACE = 'HUGGINGFACE',
+  LANGCHAIN = 'LANGCHAIN',
+  OPENAI = 'OPENAI',
+}

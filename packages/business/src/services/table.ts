@@ -1,5 +1,6 @@
 import {error} from 'core';
 import athenaConnection from '../lib/athenaConnection';
+import {fileIngestionTypes, webTypes} from 'types';
 
 /**
  * A Service to provide table operations against AWS Athena.

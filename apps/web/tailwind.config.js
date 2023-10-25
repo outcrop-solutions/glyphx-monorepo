@@ -46,6 +46,7 @@ module.exports = {
         cyan: '#00B4A1',
         blue: '#004BB9',
         nav: '#363C4F',
+        navText: '#9197AD',
         secondary: '#79D900',
       },
       fontFamily: {

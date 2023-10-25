@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import {webTypes} from 'types';
 import NotificationIcon from 'public/svg/notification-icon.svg';

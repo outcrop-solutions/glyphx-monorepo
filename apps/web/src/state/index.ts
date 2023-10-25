@@ -21,3 +21,4 @@ export * from './resize';
 export * from './template';
 export * from './sandbox';
 export * from './auth';
+export * from './thresholds';
