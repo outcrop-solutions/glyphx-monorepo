@@ -153,4 +153,31 @@ mod secret_bound_singleton {
 
 
     }
+
+    #[tokio::test]
+    async fn un_bound_non_primative_field() {
+        #[derive(Clone, Debug)]
+        struct Bar {
+            field1: String,
+        }
+        #[derive(Clone, Debug, SecretBoundSingleton)]
+        #[secret_binder({"secret_name": "test_secret", "initializer": "init", "fake_secret": {"field1": "hi mom", "field2": 1, "field3": 2, "field4": 3, "field5": 4, "field6": 10.0, "field7": 11.0, "field8": true}})]
+        struct Foo {
+            field1: String,
+            #[bind_field({"is_bound": false})]
+            field2: Bar
+        }
+
+        impl Foo {
+            async fn init(field1: String) -> Foo {
+                let bar_field1 = field1.clone();
+                Foo { field1, field2 : Bar{field1: bar_field1} }
+            }
+        }
+
+        let foo = Foo::build_singleton().await;
+        assert_eq!(foo.field1, "hi mom");
+        assert_eq!(foo.field2.field1, "hi mom");
+
+    }
 }

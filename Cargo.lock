@@ -1284,6 +1284,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "glyphx_common"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "glyphx_core",
+ "glyphx_types",
+ "log",
+ "mockall",
+ "tokio",
+]
+
+[[package]]
 name = "glyphx_core"
 version = "0.1.0"
 dependencies = [

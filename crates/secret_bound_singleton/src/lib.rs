@@ -127,10 +127,10 @@ fn build_initializer_call(
            bound_self)
 }
 #[derive(Debug)]
- enum SecretSource {
+enum SecretSource {
     FakeSecret(Value),
     SecretManager(String),
- }
+}
 
 fn build_secret_bound_impl(
     ident: &syn::Ident,
@@ -146,21 +146,22 @@ fn build_secret_bound_impl(
     //Really important to reference structs and enums by their fully qualified names.  Otherwise
     //we would force our implimnetors to import the structures in their code.  It is bad enough
     //that we have make sure that they have the dependencies configured in their Cargo.toml
-    let secret_bound_trait = build_secret_bound_trait(ident, &secret_source, fields, initializer_name);
+    let secret_bound_trait =
+        build_secret_bound_trait(ident, &secret_source, fields, initializer_name);
     let singleton_trait = build_singleton_trait(ident);
 
     let output = quote!(
-        use glyphx_core::traits::*;
-        #secret_bound_trait
-        #singleton_trait
-        );
+    use glyphx_core::traits::*;
+    #secret_bound_trait
+    #singleton_trait
+    );
     output.into()
 }
 
 fn build_singleton_trait(ident: &proc_macro2::Ident) -> proc_macro2::TokenStream {
     let output = quote!(
-        static mut INSTANCE: Option<#ident> = None; 
-    
+        static mut INSTANCE: Option<#ident> = None;
+
     #[glyphx_core::async_trait]
     impl glyphx_core::traits::Singleton<#ident> for #ident  {
         fn get_instance() -> &'static #ident {
@@ -177,7 +178,7 @@ fn build_singleton_trait(ident: &proc_macro2::Ident) -> proc_macro2::TokenStream
 
     impl glyphx_core::traits::SecretBoundSingleton<#ident> for #ident {}
     );
-    
+
     output
 }
 fn build_secret_bound_trait(
@@ -192,7 +193,7 @@ fn build_secret_bound_trait(
         SecretSource::FakeSecret(fake_secret) => {
             let json_string = fake_secret.to_string();
             quote!(let secret_value: glyphx_core::serde_Value = glyphx_core::serde_from_str(#json_string).unwrap();)
-        },
+        }
         SecretSource::SecretManager(secret_name) => {
             quote!(
             let secret_manager = glyphx_core::aws::SecretManager::new(#secret_name).await;
@@ -202,7 +203,7 @@ fn build_secret_bound_trait(
             }
             let secret_value = secret_value.unwrap();
             )
-        },
+        }
     };
     let output = quote!(
     #[glyphx_core::async_trait]
@@ -281,6 +282,7 @@ fn process_fields(input: &DeriveInput) -> Vec<FieldDefinition> {
         }
 
         let field_name = field.ident.as_ref().unwrap().to_token_stream().to_string();
+        let (is_bound, secret_name) = process_field_attribute_meta(field, &field_name);
 
         match field.ty {
             syn::Type::Path(ref type_path) => {
@@ -289,14 +291,19 @@ fn process_fields(input: &DeriveInput) -> Vec<FieldDefinition> {
                 let type_ident = &path_segment.ident.to_string();
                 let data_type: ValidDataTypes;
                 let is_optional: bool;
-                if type_ident == "Option" {
-                    data_type = get_optional_data_type(&path_segment);
-                    is_optional = true;
+                if is_bound {
+                    if type_ident == "Option" {
+                        data_type = get_optional_data_type(&path_segment);
+                        is_optional = true;
+                    } else {
+                        data_type = ValidDataTypes::from_ident(&type_ident);
+                        is_optional = false;
+                    }
                 } else {
-                    data_type = ValidDataTypes::from_ident(&type_ident);
+                    //Our field is not bound so the value of these fields is immaterial
                     is_optional = false;
+                    data_type = ValidDataTypes::String;
                 }
-                let (is_bound, secret_name) = process_field_attribute_meta(field, &field_name);
                 fields.push(FieldDefinition {
                     field_name: field_name.clone(),
                     data_type,

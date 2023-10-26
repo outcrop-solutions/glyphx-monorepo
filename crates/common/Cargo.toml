@@ -1,0 +1,16 @@
+[package]
+name = "glyphx_common"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+test = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dependencies]
+async-trait = "0.1.68"
+glyphx_types = { path = "../types", features = ["aws"] }
+glyphx_core = { path = "../core", features = ["aws", "macros"] }
+log = "0.4.17"
+mockall = "0.11.4"
+tokio = { version = "1", features = ["full"] }
