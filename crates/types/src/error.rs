@@ -28,6 +28,17 @@ impl GlyphxErrorData {
         }
     }
 }
+
+impl Default for GlyphxErrorData {
+    fn default() -> Self {
+        GlyphxErrorData {
+            message: String::from("An Error Has Occurred"),
+            data: None,
+            inner_error: None,
+        }
+    }
+}
+
 /// Implements the Display trait for GlyphxErrorData so that the data can be logged
 impl std::fmt::Display for GlyphxErrorData {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

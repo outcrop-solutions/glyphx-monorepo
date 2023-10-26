@@ -215,8 +215,8 @@ impl S3ManagerOps for S3ManagerOpsImpl {
                 let e = e.into_service_error();
                 if e.is_no_such_bucket() {
                     return Err(ListObjectsError::BucketDoesNotExist(GlyphxErrorData::new(
-                        format!("Bucket {} does not exist", bucket.clone()),
-                        Some(json!({ "bucket_name": bucket.clone() })),
+                        format!("Bucket {} does not exist", bucket),
+                        Some(json!({ "bucket_name": bucket })),
                         None,
                     )));
                 } else {
@@ -844,6 +844,18 @@ impl S3Manager {
     }
 }
 
+//We will use our default trait to create a dummy S3Manager for testing.
+//This will allow us to create an S3 manager in structures that may hold 
+//an instance to an S3 manager, and allow us to use our impl patterns to write tests 
+//against that struture without any downstream ts.
+impl Default for S3Manager {
+   fn default() -> Self {
+       //We just want an empty config as we are not going to actually call anything on it.
+       let config = aws_config::SdkConfig::builder().build();
+        let client = S3Client::new(&config);
+        S3Manager { client, bucket: "mock".to_string()  }
+   } 
+}
 #[cfg(test)]
 mod constructor {
     use super::*;
@@ -1386,7 +1398,6 @@ pub mod get_file_information {
     use aws_sdk_s3::primitives::{DateTime, DateTimeFormat};
     use aws_sdk_s3::types::error::NotFound;
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use aws_smithy_types::error::Unhandled;
     use http;
@@ -1451,7 +1462,7 @@ pub mod get_file_information {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
 
@@ -1493,7 +1504,7 @@ pub mod get_file_information {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
 
@@ -1516,7 +1527,6 @@ pub mod get_file_information {
 mod get_signed_upload_url {
     use super::*;
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use http;
 
@@ -1586,7 +1596,7 @@ mod get_signed_upload_url {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
 
@@ -1613,7 +1623,6 @@ mod get_object_stream {
     use super::*;
     use aws_sdk_s3::types::error::{InvalidObjectState, NoSuchKey};
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use aws_smithy_types::error::Unhandled;
     use http;
@@ -1683,7 +1692,7 @@ mod get_object_stream {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
         let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
@@ -1725,7 +1734,7 @@ mod get_object_stream {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
         let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
@@ -1767,7 +1776,7 @@ mod get_object_stream {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
         let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
@@ -1846,7 +1855,6 @@ mod get_upload_stream {
 mod remove_object {
     use super::*;
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use aws_smithy_types::error::Unhandled;
     use http;
@@ -1899,7 +1907,7 @@ mod remove_object {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
         let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
@@ -1919,7 +1927,6 @@ mod remove_object {
 mod upload_object {
     use super::*;
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use aws_smithy_types::error::Unhandled;
     use http;
@@ -1974,7 +1981,7 @@ mod upload_object {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
         let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;

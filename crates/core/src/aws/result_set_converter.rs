@@ -757,7 +757,7 @@ mod convert_to_json{
             ]))
             .build();
 
-        let mut result_set = ResultSet::builder().result_set_metadata(metadata);
+        let result_set = ResultSet::builder().result_set_metadata(metadata);
 
             let result_set = result_set.build();
 
