@@ -844,6 +844,18 @@ impl S3Manager {
     }
 }
 
+//We will use our default trait to create a dummy S3Manager for testing.
+//This will allow us to create an S3 manager in structures that may hold 
+//an instance to an S3 manager, and allow us to use our impl patterns to write tests 
+//against that struture without any downstream ts.
+impl Default for S3Manager {
+   fn default() -> Self {
+       //We just want an empty config as we are not going to actually call anything on it.
+       let config = aws_config::SdkConfig::builder().build();
+        let client = S3Client::new(&config);
+        S3Manager { client, bucket: "mock".to_string()  }
+   } 
+}
 #[cfg(test)]
 mod constructor {
     use super::*;
