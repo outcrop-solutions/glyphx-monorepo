@@ -1318,7 +1318,7 @@ dependencies = [
  "mockall",
  "rand",
  "reqwest",
- "secret_bound_singleton_impl",
+ "secret_bound_singleton",
  "serde",
  "serde_derive",
  "serde_json",
@@ -1352,14 +1352,6 @@ dependencies = [
  "web-sys",
  "wgpu",
  "winit",
-]
-
-[[package]]
-name = "glyphx_macros"
-version = "0.1.0"
-dependencies = [
- "glyphx_core",
- "tokio",
 ]
 
 [[package]]
@@ -1841,6 +1833,14 @@ dependencies = [
  "thread-id",
  "typemap-ors",
  "winapi",
+]
+
+[[package]]
+name = "macro_tests"
+version = "0.1.0"
+dependencies = [
+ "glyphx_core",
+ "tokio",
 ]
 
 [[package]]
@@ -2903,7 +2903,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "secret_bound_singleton_impl"
+name = "secret_bound_singleton"
 version = "0.1.0"
 dependencies = [
  "glyphx_core",

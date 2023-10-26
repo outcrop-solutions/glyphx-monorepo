@@ -400,7 +400,6 @@ mod secret_binder_attribute {
     use super::*;
 
     #[test]
-    #[ignore]
     fn is_ok() {
         let token_stream = quote!(
             #[secret_binder({"secret_name": "foo", "initializer": "init", "fake_secret": {"foo":"bar", "baz": 1}})]
@@ -420,7 +419,6 @@ mod secret_binder_attribute {
 
     #[test]
     #[should_panic(expected = "secret_binder attribute is required")]
-    #[ignore]
     fn missing_secret_binder_attribute() {
         let token_stream = quote!(
             struct Bar {
@@ -435,7 +433,6 @@ mod secret_binder_attribute {
 
     #[test]
     #[should_panic(expected = "secret_binder attribute must be a valid json")]
-    #[ignore]
     fn args_are_invalid_json() {
         let token_stream = quote!(
             #[secret_binder("initializer": "init", "fake_secret": {"foo":"bar", "baz": 1})]
@@ -452,7 +449,6 @@ mod secret_binder_attribute {
 
     #[test]
     #[should_panic(expected = "secret_name argument is required")]
-    #[ignore]
     fn missing_secret_name() {
         let token_stream = quote!(
             #[secret_binder({"initializer": "init", "fake_secret": {"foo":"bar", "baz": 1}})]
@@ -469,7 +465,6 @@ mod secret_binder_attribute {
 
     #[test]
     #[should_panic(expected = "initializer argument is required")]
-    #[ignore]
     fn missing_initializer() {
         let token_stream = quote!(
             #[secret_binder({"secret_name": "foo", "fake_secret": {"foo":"bar", "baz": 1}})]
@@ -485,7 +480,6 @@ mod secret_binder_attribute {
 
     #[test]
     #[should_panic(expected = "fake_secret is not a valid json value")]
-    #[ignore]
     fn fake_secret_is_invalid() {
         let token_stream = quote!(
             #[secret_binder({"secret_name": "foo", "initializer": "init", "fake_secret":63 })]
@@ -505,7 +499,6 @@ mod process_field {
     use super::*;
 
     #[test]
-    #[ignore]
     fn straight_mapping() {
         let token_stream = quote!(
             struct Bar {
@@ -606,7 +599,6 @@ mod process_field {
 
     #[test]
     #[should_panic(expected = "Invalid data type")]
-    #[ignore]
     fn invalid_data_type() {
         let token_stream = quote!(
             struct Bar {
@@ -619,7 +611,6 @@ mod process_field {
     }
 
     #[test]
-    #[ignore]
     fn optional_field() {
         let token_stream = quote!(
             struct Bar {
@@ -654,7 +645,6 @@ mod process_field {
 
     #[test]
     #[should_panic(expected = "Invalid data type")]
-    #[ignore]
     fn invalid_optional_field() {
         let token_stream = quote!(
             struct Bar {
