@@ -301,6 +301,7 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
     }
 }
 ///The AthenaManager is used to execute queries against AWS Athena.
+#[derive(Debug, Clone)]
 pub struct AthenaManager {
     catalog: String,
     database: String,
@@ -1312,6 +1313,14 @@ impl AthenaManager {
             columns.push(column);
         }
         Ok(columns)
+    }
+}
+
+impl Default for AthenaManager {
+    fn default() -> Self {
+       let config = aws_config::SdkConfig::builder().build();
+        let client = AthenaClient::new(&config);
+        AthenaManager { client, database: "mock".to_string(), catalog: "mock".to_string()}
     }
 }
 
