@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 pub struct GlyphxErrorData {
     pub message: String,
     pub data: Option<serde_json::Value>,
+    #[serde(rename = "innerError")]
     pub inner_error: Option<serde_json::Value>,
 }
 impl GlyphxErrorData {
@@ -26,6 +27,10 @@ impl GlyphxErrorData {
             data,
             inner_error,
         }
+    }
+
+    pub fn to_json(&self) -> serde_json::Value {
+        serde_json::to_value(self).unwrap()
     }
 }
 
@@ -49,7 +54,7 @@ impl std::fmt::Display for GlyphxErrorData {
             json["data"] = data.clone();
         }
         if let Some(inner_error) = &self.inner_error {
-            json["inner_error"] = inner_error.clone();
+            json["innerError"] = inner_error.clone();
         }
         write!(f, "{}", json)
     }

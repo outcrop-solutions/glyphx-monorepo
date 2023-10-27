@@ -847,6 +847,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "cool_asserts"
+version = "2.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee9f254e53f61e2688d3677fa2cbe4e9b950afd56f48819c98817417cf6b28ec"
+dependencies = [
+ "indent_write",
+]
+
+[[package]]
 name = "core-foundation"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1310,6 +1319,7 @@ dependencies = [
  "backtrace",
  "bytes",
  "chrono",
+ "glyphx_error",
  "glyphx_types",
  "http",
  "json5",
@@ -1318,7 +1328,7 @@ dependencies = [
  "mockall",
  "rand",
  "reqwest",
- "secret_bound_singleton_impl",
+ "secret_bound_singleton",
  "serde",
  "serde_derive",
  "serde_json",
@@ -1355,11 +1365,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "glyphx_macros"
+name = "glyphx_error"
 version = "0.1.0"
 dependencies = [
- "glyphx_core",
- "tokio",
+ "glyphx_types",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.38",
 ]
 
 [[package]]
@@ -1629,6 +1641,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "indent_write"
+version = "2.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0cfe9645a18782869361d9c8732246be7b410ad4e919d3609ebabdac00ba12c3"
+
+[[package]]
 name = "indexmap"
 version = "1.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1841,6 +1859,17 @@ dependencies = [
  "thread-id",
  "typemap-ors",
  "winapi",
+]
+
+[[package]]
+name = "macro_tests"
+version = "0.1.0"
+dependencies = [
+ "cool_asserts",
+ "glyphx_core",
+ "glyphx_types",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]
@@ -2903,10 +2932,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "secret_bound_singleton_impl"
+name = "secret_bound_singleton"
 version = "0.1.0"
 dependencies = [
- "glyphx_core",
  "glyphx_types",
  "lazy_static",
  "proc-macro2",
