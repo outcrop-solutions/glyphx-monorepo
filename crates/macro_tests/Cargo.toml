@@ -6,10 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tokio = { version = "1", features = ["full"] }
+cool_asserts = "2.0.3"
 glyphx_core = { path = "../core", features = ["macros"] }
 glyphx_types = { path = "../types"  }
 serde_json = "1.0.96"
+tokio = { version = "1", features = ["full"] }
 
 [features]
 default = ["secret_bound_singleton", "glyphx_error"]

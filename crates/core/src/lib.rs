@@ -15,3 +15,5 @@ pub use serde_json::{Value as serde_Value, from_str as serde_from_str};
 pub use async_trait::async_trait;
 #[cfg(feature = "macros")]
 pub use serde_json::json; 
+#[cfg(feature = "macros")]
+pub use log::{debug, error, info, trace, warn}; 

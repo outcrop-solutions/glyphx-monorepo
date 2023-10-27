@@ -9,9 +9,9 @@ pub fn derive(input: TokenStream) -> TokenStream {
     let module = get_module(&ast);
     let error_type_parser_trait = generate_error_type_parser_trait(&ast.ident, &data);
     let q = quote!(
-    use glyphx_core::traits::ErrorTypeParser; 
+    use glyphx_core::traits::ErrorTypeParser;
     #error_type_parser_trait
-     
+
     impl std::fmt::Display for #error_ident {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             let json = glyphx_core::json!({
@@ -25,7 +25,6 @@ pub fn derive(input: TokenStream) -> TokenStream {
     }
     );
     q.into()
-
 }
 
 fn generate_parse_error_type(idents: &Vec<Ident>) -> proc_macro2::TokenStream {
@@ -67,6 +66,31 @@ fn generate_get_glyphx_error_data(idents: &Vec<Ident>) -> proc_macro2::TokenStre
     }
     )
 }
+
+fn generate_logging_functions() -> proc_macro2::TokenStream {
+    quote!(
+        fn trace(&self) {
+            glyphx_core::trace!("{}", self);
+        }
+        fn debug(&self) {
+            glyphx_core::debug!("{}", self);
+        }
+        fn info(&self) {
+            glyphx_core::info!("{}", self);
+        }
+        fn warn(&self) {
+            glyphx_core::warn!("{}", self);
+        }
+        fn error(&self) {
+            glyphx_core::error!("{}", self);
+        }
+        fn fatal(&self) {
+            glyphx_core::error!("{}", self);
+            panic!("A Fatal Error has Occurred : error : {}", self);
+        }
+    )
+}
+
 fn generate_error_type_parser_trait(
     struct_ident: &Ident,
     enum_data: &DataEnum,
@@ -74,10 +98,12 @@ fn generate_error_type_parser_trait(
     let variant_idents = get_variant_idents(enum_data);
     let parse_errors = generate_parse_error_type(&variant_idents);
     let get_data = generate_get_glyphx_error_data(&variant_idents);
+    let logging_functions = generate_logging_functions();
     quote!(
         impl ErrorTypeParser for #struct_ident {
             #parse_errors
             #get_data
+            #logging_functions
     }
     )
 }
@@ -283,5 +309,4 @@ mod generate_error_type_parser_trait {
         let result = generate_error_type_parser_trait(&ast.ident, &enum_data);
         eprintln!("result: {}", result);
     }
-
 }
