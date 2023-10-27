@@ -1310,6 +1310,7 @@ dependencies = [
  "backtrace",
  "bytes",
  "chrono",
+ "glyphx_error",
  "glyphx_types",
  "http",
  "json5",
@@ -1352,6 +1353,16 @@ dependencies = [
  "web-sys",
  "wgpu",
  "winit",
+]
+
+[[package]]
+name = "glyphx_error"
+version = "0.1.0"
+dependencies = [
+ "glyphx_types",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.38",
 ]
 
 [[package]]
@@ -1840,6 +1851,8 @@ name = "macro_tests"
 version = "0.1.0"
 dependencies = [
  "glyphx_core",
+ "glyphx_types",
+ "serde_json",
  "tokio",
 ]
 
@@ -2906,7 +2919,6 @@ dependencies = [
 name = "secret_bound_singleton"
 version = "0.1.0"
 dependencies = [
- "glyphx_core",
  "glyphx_types",
  "lazy_static",
  "proc-macro2",
