@@ -1,4 +1,4 @@
-use glyphx_types::error::GlyphxErrorData;
+pub use crate::types::error::GlyphxErrorData;
 use serde_json::json;
 
 use aws_sdk_s3::error::SdkError;
@@ -18,9 +18,9 @@ use aws_smithy_http::byte_stream::ByteStream;
 
 use async_trait::async_trait;
 use mockall::*;
-use glyphx_types::aws::upload_stream::*;
+pub use crate::types::aws::upload_stream::*;
 
-const BUFFER_LIMIT: usize = 1025 * 1024 * 5; // 5 MB
+const BUFFER_LIMIT: usize = 1024 * 1024 * 5; // 5 MB
 
 /// The UploadStream struct is a wrapper around the AWS S3 multipart upload functions.
 /// This structure behaves like a poor man's file stream.  It allows the user to 

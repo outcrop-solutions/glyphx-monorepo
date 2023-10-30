@@ -12,5 +12,3 @@ quote = "1.0.9"
 syn = { version = "2.0.38", features = ["full", "extra-traits"] }
 proc-macro2 = "1.0.69"
 
-[dev-dependencies]
-glyphx_types = { path = "../../types" }

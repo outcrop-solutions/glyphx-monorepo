@@ -1298,7 +1298,6 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "glyphx_core",
- "glyphx_types",
  "log",
  "mockall",
  "tokio",
@@ -1320,7 +1319,6 @@ dependencies = [
  "bytes",
  "chrono",
  "glyphx_error",
- "glyphx_types",
  "http",
  "json5",
  "log",
@@ -1368,21 +1366,9 @@ dependencies = [
 name = "glyphx_error"
 version = "0.1.0"
 dependencies = [
- "glyphx_types",
  "proc-macro2",
  "quote",
  "syn 2.0.38",
-]
-
-[[package]]
-name = "glyphx_types"
-version = "0.1.0"
-dependencies = [
- "aws-sdk-athena",
- "aws-sdk-s3",
- "serde",
- "serde_derive",
- "serde_json",
 ]
 
 [[package]]
@@ -1867,7 +1853,6 @@ version = "0.1.0"
 dependencies = [
  "cool_asserts",
  "glyphx_core",
- "glyphx_types",
  "serde_json",
  "tokio",
 ]
@@ -2935,7 +2920,6 @@ dependencies = [
 name = "secret_bound_singleton"
 version = "0.1.0"
 dependencies = [
- "glyphx_types",
  "lazy_static",
  "proc-macro2",
  "quote",

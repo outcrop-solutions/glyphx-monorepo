@@ -1,8 +1,8 @@
 use async_trait::async_trait;
 use glyphx_core::aws::athena_manager::AthenaManager;
 use glyphx_core::SecretBoundSingleton;
-use glyphx_types::aws::athena_manager::athena_manager_errors::ConstructorError as AthenaManagerConstructorError;
-use glyphx_types::common::athena_connection_errors::ConstructorError;
+use glyphx_core::aws::athena_manager::ConstructorError as AthenaManagerConstructorError;
+use crate::types::athena_connection_errors::ConstructorError;
 use log::error;
 use mockall::automock;
 
@@ -77,7 +77,7 @@ impl AthenaConnection {
 #[cfg(test)]
 mod contructor {
     use super::*;
-    use glyphx_types::error::GlyphxErrorData;
+    use glyphx_core::GlyphxErrorData;
     #[tokio::test]
     async fn is_ok() {
         let catalog_name = "test_catalog".to_string();

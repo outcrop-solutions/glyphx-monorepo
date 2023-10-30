@@ -207,7 +207,7 @@ mod get_ident {
 
         let ast = syn::parse_str::<syn::DeriveInput>(&token_stream).unwrap();
         let ident = get_module(&ast);
-        assert_eq!(ident, "test::TestError");
+        assert_eq!(ident, "test");
     }
 
     #[test]

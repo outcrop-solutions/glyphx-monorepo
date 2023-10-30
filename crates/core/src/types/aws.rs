@@ -4,7 +4,7 @@
 #[cfg(feature = "s3_manager")]
 pub mod s3_manager;
 /// enums and structures of rworking with our upload stream.
-#[cfg(feature = "upload_stream")]
+#[cfg(feature = "s3_manager")]
 pub mod upload_stream;
 /// enums and structures for working with Athena.
 #[cfg(feature="athena_manager")]

@@ -2,7 +2,7 @@
 #[cfg(test)]
 mod glyphx_error {
     use glyphx_core::GlyphxError;
-    use glyphx_types::error::GlyphxErrorData;
+    use glyphx_core::GlyphxErrorData;
     use serde_json::{json, from_str, Value};
     use cool_asserts::assert_panics;
     #[derive(GlyphxError)]
