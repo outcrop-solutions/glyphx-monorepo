@@ -1,6 +1,21 @@
 import type {ChatCompletionRequestMessage} from 'openai-edge';
 
 export const systemMessage = (fileStats, templates): ChatCompletionRequestMessage[] => [
+  // {
+  //   role: 'system',
+  //   content: 'Only respond with valid json.',
+  // },
+  // {
+  //   role: 'user',
+  //   content: `These are the relavent iFileStats of the csv spreadsheet being uploaded ${JSON.stringify(
+  //     fileStats
+  //   )}. I need you to compare the fileStats of the uploaded file against these ProjectTemplates ${JSON.stringify(
+  //     templates
+  //   )}.`,
+  // },
+];
+
+export const defaultMessages = [
   {
     role: 'system',
     content: `These are the relevant shapes:
@@ -13,10 +28,6 @@ export const systemMessage = (fileStats, templates): ChatCompletionRequestMessag
     projects: IProject[];
     tags: ITag[];
     shape: Record<string, {type: string; required: boolean; description: string}>;
-  }
-  export interface IRecommendation {
-    name: string;
-    insights: string[]
   }
   export interface IFileStats {
     fileName: string;
@@ -45,7 +56,7 @@ export const systemMessage = (fileStats, templates): ChatCompletionRequestMessag
   {
     role: 'system',
     content:
-      'The purpose of this conversation is to help an end user model their csv data on an X, Y, Z axis (in three dimensions) using industry knowledge',
+      'The purpose of this conversation is to help an end user model their csv data on an X, Y, Z axis (in three dimensions) using industry knowledge that will help them generate a useful 3d model',
   },
   {
     role: 'system',
@@ -55,18 +66,6 @@ export const systemMessage = (fileStats, templates): ChatCompletionRequestMessag
   {
     role: 'system',
     content:
-      'Please strictly format the response as an array of shape IRecommendation[] where name corresponds to the recommended ProjectTemplate.name and insights are three one sentence insights that could be derived from such a model.',
-  },
-  {
-    role: 'system',
-    content: 'Only respond with valid json.',
-  },
-  {
-    role: 'user',
-    content: `These are the relavent iFileStats of the csv spreadsheet being uploaded ${JSON.stringify(
-      fileStats
-    )}. I need you to compare the fileStats of the uploaded file against these ProjectTemplates ${JSON.stringify(
-      templates
-    )}.`,
+      'Please strictly format your responses in the form of useful modeling suggestions given the column headers at hand',
   },
 ];

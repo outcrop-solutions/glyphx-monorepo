@@ -12,7 +12,7 @@ export const MainDropzone = () => {
   });
 
   return (
-    <div {...getRootProps()} className="text-center h-[400px] flex flex-col justify-center items-center">
+    <div {...getRootProps()} className="text-center h-full flex flex-col justify-center items-center">
       <div className="w-44">
         <DropFileIcon />
       </div>
