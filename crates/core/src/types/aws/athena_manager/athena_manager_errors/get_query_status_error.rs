@@ -7,12 +7,13 @@ use crate::GlyphxError;
 //glyphx_core.
 use crate as glyphx_core;
 
+///Errors that are returned from our get_query_status method.
 #[derive(Debug, Clone, GlyphxError)]
-#[error_definition("SecretManager")]
-pub enum GetSecretsValueError {
-    SecretNotDefined(GlyphxErrorData),
-    InvalidJson(GlyphxErrorData),
+#[error_definition("AthenaManager")]
+pub enum GetQueryStatusError {
+    ///If the query_id does not point to a valid query this is returned.
+    QueryDoesNotExist(GlyphxErrorData),
+    ///If any other error occurs while trying to get the query status, this error will be returned.
     UnexpectedError(GlyphxErrorData),
-
 }
 

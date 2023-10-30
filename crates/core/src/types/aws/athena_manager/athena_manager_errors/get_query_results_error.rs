@@ -7,12 +7,14 @@ use crate::GlyphxError;
 //glyphx_core.
 use crate as glyphx_core;
 
+///Errors that are returned from our get_query_results method.
 #[derive(Debug, Clone, GlyphxError)]
-#[error_definition("SecretManager")]
-pub enum GetSecretsValueError {
-    SecretNotDefined(GlyphxErrorData),
-    InvalidJson(GlyphxErrorData),
+#[error_definition("AthenaManager")]
+pub enum GetQueryResultsError {
+    ///If the query_id does not point to a valid query this is returned.
+    QueryDoesNotExist(GlyphxErrorData),
+    ///If AWS throttled our query do to execution limits, this error will be returned.
+    RequestWasThrottled(GlyphxErrorData),
+    ///If any other error occurs while trying to get the query results, this error will be returned.
     UnexpectedError(GlyphxErrorData),
-
 }
-

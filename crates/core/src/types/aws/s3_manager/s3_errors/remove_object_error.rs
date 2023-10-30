@@ -7,12 +7,10 @@ use crate::GlyphxError;
 //glyphx_core.
 use crate as glyphx_core;
 
+/// This error is returned by our delete_object function.
 #[derive(Debug, Clone, GlyphxError)]
-#[error_definition("SecretManager")]
-pub enum GetSecretsValueError {
-    SecretNotDefined(GlyphxErrorData),
-    InvalidJson(GlyphxErrorData),
+#[error_definition("S3Manager")]
+pub enum RemoveObjectError {
+    /// Is returned for all error conditions.
     UnexpectedError(GlyphxErrorData),
-
 }
-

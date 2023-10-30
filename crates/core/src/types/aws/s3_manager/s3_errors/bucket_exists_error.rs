@@ -7,12 +7,13 @@ use crate::GlyphxError;
 //glyphx_core.
 use crate as glyphx_core;
 
+/// The bucket_exists method returns Ok(()) if the bucket exists.  
+/// If it does not exist or an error occurres, then this error is returned.
 #[derive(Debug, Clone, GlyphxError)]
-#[error_definition("SecretManager")]
-pub enum GetSecretsValueError {
-    SecretNotDefined(GlyphxErrorData),
-    InvalidJson(GlyphxErrorData),
+#[error_definition("S3Manager")]
+pub enum BucketExistsError {
+    /// is retruned if the bucket does not exist.
+    BucketDoesNotExist(GlyphxErrorData),
+    /// is returned for all other error conditions.
     UnexpectedError(GlyphxErrorData),
-
 }
-

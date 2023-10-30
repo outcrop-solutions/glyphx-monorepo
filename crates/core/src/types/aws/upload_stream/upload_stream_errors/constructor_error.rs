@@ -7,12 +7,11 @@ use crate::GlyphxError;
 //glyphx_core.
 use crate as glyphx_core;
 
+/// This enum holds the possible errors that can be returned by the upload streams constructor
+/// (::new) function.
 #[derive(Debug, Clone, GlyphxError)]
-#[error_definition("SecretManager")]
-pub enum GetSecretsValueError {
-    SecretNotDefined(GlyphxErrorData),
-    InvalidJson(GlyphxErrorData),
+#[error_definition("UploadStream")]
+pub enum UploadStreamConstructorError {
+    ///Indicates that an unexpected error occurred while trying to start the multipart upload
     UnexpectedError(GlyphxErrorData),
-
 }
-
