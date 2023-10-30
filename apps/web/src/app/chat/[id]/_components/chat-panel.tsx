@@ -3,7 +3,6 @@ import {Button} from './ui/button';
 import {PromptForm} from './prompt-form';
 import {ButtonScrollToBottom} from './button-scroll-to-bottom';
 import {IconRefresh, IconStop} from './ui/icons';
-import {FooterText} from './footer';
 
 export interface ChatPanelProps
   extends Pick<UseChatHelpers, 'append' | 'isLoading' | 'reload' | 'messages' | 'stop' | 'input' | 'setInput'> {
@@ -12,7 +11,7 @@ export interface ChatPanelProps
 
 export function ChatPanel({id, isLoading, stop, append, reload, input, setInput, messages}: ChatPanelProps) {
   return (
-    <div className="fixed inset-x-0 bottom-0 bg-gradient-to-b from-muted/10 from-10% to-muted/30 to-50%">
+    <div className="bg-gradient-to-b from-muted/10 from-10% to-muted/30 to-50%">
       <ButtonScrollToBottom />
       <div className="mx-auto sm:max-w-2xl sm:px-4">
         <div className="flex h-10 items-center justify-center">
@@ -43,7 +42,6 @@ export function ChatPanel({id, isLoading, stop, append, reload, input, setInput,
             setInput={setInput}
             isLoading={isLoading}
           />
-          <FooterText className="hidden sm:block" />
         </div>
       </div>
     </div>

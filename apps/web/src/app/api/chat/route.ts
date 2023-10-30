@@ -1,9 +1,9 @@
 import {kv} from '@vercel/kv';
 import {OpenAIStream, StreamingTextResponse} from 'ai';
 import {Configuration, OpenAIApi} from 'openai-edge';
-import {getServerSession} from 'next-auth';
+// import {getServerSession} from 'next-auth';
 import {customAlphabet} from 'nanoid';
-// export const runtime = 'edge';
+export const runtime = 'edge';
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,

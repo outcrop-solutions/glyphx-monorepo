@@ -1,4 +1,4 @@
-import {getChats, removeChat, shareChat} from 'lib/actions';
+import {getChats, removeChat, shareChat} from 'lib/actions/chat';
 import {SidebarActions} from './sidebar-actions';
 import {SidebarItem} from './sidebar-item';
 

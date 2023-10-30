@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
-import {type Chat} from 'lib/actions';
+import {type Chat} from 'lib/actions/chat';
 import {cn} from 'lib/utils/cn';
 import {buttonVariants} from './ui/button';
 import {IconMessage, IconUsers} from './ui/icons';

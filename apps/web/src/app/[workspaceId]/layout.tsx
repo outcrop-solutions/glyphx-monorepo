@@ -4,8 +4,8 @@ import {Initializer, workspaceService} from 'business';
 import {Metadata} from 'next';
 import {getServerSession} from 'next-auth/next';
 import {redirect} from 'next/navigation';
-import {RightSidebar} from './_components/RightSidebar';
 import LeftSidebar from 'app/[workspaceId]/_components/LeftSidebar';
+import {RightSidebar} from './_components/rightSidebar';
 
 export const metadata: Metadata = {
   title: 'Workspace | Glyphx',

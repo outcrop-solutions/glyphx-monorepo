@@ -1,10 +1,10 @@
+import React from 'react';
 import {Metadata} from 'next';
-import {RightSidebar} from 'app/[workspaceId]/_components/RightSidebar';
 import LeftSidebar from './_components/LeftSidebar';
 import ProjectHeader from './_components/ProjectHeader';
 import {ProjectProvider} from './provider';
-import {ModelSidebar} from './_components/ProjectSidebar/ModelSidebar';
 import {InnerSidebar} from './_components/InnerSidebar';
+import {RightSidebar} from 'app/[workspaceId]/_components/rightSidebar';
 
 export const metadata: Metadata = {
   title: 'Project | Glyphx',
@@ -22,8 +22,8 @@ export default async function ProjectLayout({children}) {
             <InnerSidebar />
             {children}
           </div>
-          <RightSidebar />
         </div>
+        <RightSidebar />
       </ProjectProvider>
     </div>
   );

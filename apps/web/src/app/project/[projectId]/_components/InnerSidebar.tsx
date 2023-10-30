@@ -17,8 +17,8 @@ export const InnerSidebar = () => {
             return <FilesSidebar />;
           case 'MODEL':
             return <ModelSidebar />;
-          case 'COLLAB':
-            return <CollabSidebar />;
+          // case 'COLLAB':
+          //   return <CollabSidebar />;
           case 'AI':
             return <CollabSidebar />;
           case 'CONFIG':

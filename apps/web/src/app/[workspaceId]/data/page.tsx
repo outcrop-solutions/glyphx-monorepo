@@ -1,4 +1,3 @@
-// layout
 import React from 'react';
 import {Initializer, workspaceService} from 'business';
 import {TablesView} from './_components/Tables';

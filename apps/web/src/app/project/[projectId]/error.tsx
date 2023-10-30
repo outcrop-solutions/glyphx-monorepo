@@ -9,7 +9,7 @@ export default function ProjectErrorFallback() {
   const router = useRouter();
 
   function returnToHome() {
-    router.push('/' as Route);
+    router.push('/login' as Route);
   }
 
   return (
@@ -22,9 +22,6 @@ export default function ProjectErrorFallback() {
       >
         Press here to return home
       </button>
-      {/* <h4 className="text-white text-center" onClick={resetErrorBoundary}>Ok</h4>
-      <h2 className="text-white text-center">Project Error Boundary l</h2>
-      <h3 className="text-white text-center">{error.message}</h3> */}
     </div>
   );
 }

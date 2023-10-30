@@ -1,6 +1,6 @@
 'use client';
 import {useChat, type Message} from 'ai/react';
-// import {cn} from 'lib/utils/cn';
+import {cn} from 'lib/utils/cn';
 import {ChatList} from './chat-list';
 import {ChatPanel} from './chat-panel';
 import {EmptyScreen} from './empty-screen';
@@ -27,7 +27,7 @@ export function Chat({id, initialMessages, className}: ChatProps) {
   });
   return (
     <>
-      <div className={'pb-[200px] pt-4 md:pt-10'}>
+      <div className={cn('pb-[200px] pt-4 md:pt-10', className)}>
         {messages.length ? (
           <>
             <ChatList messages={messages} />

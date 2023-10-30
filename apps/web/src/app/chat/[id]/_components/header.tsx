@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import {cn} from 'lib/utils/cn';
-import {clearChats} from 'lib/actions';
+import {clearChats} from 'lib/actions/chat';
 import {Button, buttonVariants} from './ui/button';
 import {Sidebar} from './sidebar';
 import {SidebarList} from './sidebar-list';
@@ -10,7 +10,6 @@ import {SidebarFooter} from './sidebar-footer';
 import {ThemeToggle} from './theme-toggle';
 import {ClearHistory} from './clear-history';
 import {UserMenu} from './user-menu';
-import {LoginButton} from './login-button';
 import {getServerSession} from 'next-auth';
 
 export async function Header() {
@@ -31,8 +30,8 @@ export async function Header() {
           </Sidebar>
         ) : (
           <Link href="/" target="_blank" rel="nofollow">
-            <IconNextChat className="w-6 h-6 mr-2 dark:hidden" inverted />
-            <IconNextChat className="hidden w-6 h-6 mr-2 dark:block" />
+            <IconNextChat className="w-6 h-6 mr-2" inverted />
+            <IconNextChat className="hidden w-6 h-6 mr-2" />
           </Link>
         )}
         <div className="flex items-center">

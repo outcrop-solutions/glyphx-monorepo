@@ -2,7 +2,7 @@
 import * as React from 'react';
 import {useRouter} from 'next/navigation';
 import {toast} from 'react-hot-toast';
-import {type Chat, ServerActionResult} from 'lib/actions';
+import {type Chat, ServerActionResult} from 'lib/actions/chat';
 import {cn} from 'lib/utils/cn';
 import {
   AlertDialog,
