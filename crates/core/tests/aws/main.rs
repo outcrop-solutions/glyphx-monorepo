@@ -1,5 +1,6 @@
 mod athena_manager;
 mod s3_manager;
+mod secret_manager;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 

@@ -2,9 +2,8 @@ use crate::generate_random_file_name;
 use aws_sdk_athena::operation::get_query_results::{GetQueryResultsError, GetQueryResultsOutput};
 use aws_sdk_s3::error::SdkError;
 use glyphx_core::aws::athena_manager::AthenaManager;
-use glyphx_types::aws::athena_manager::athena_manager_errors::*;
-use glyphx_types::aws::athena_manager::table_description::ColumnDataType;
-use glyphx_types::aws::athena_manager::query_status::AthenaQueryStatus;
+use glyphx_core::aws::athena_manager::AthenaQueryStatus;
+use glyphx_core::aws::athena_manager::ColumnDataType;
 use std::time::{Duration, Instant};
 
 use tokio_stream::{Stream, StreamExt};
@@ -27,7 +26,8 @@ LOCATION
 TBLPROPERTIES (
   'parquet.compression'='GZIP')";
 
-const VIEW_CREATE_QUERY: &str = "CREATE OR REPLACE VIEW \"<view_name>\" AS SELECT * FROM \"<table_name>\"";
+const VIEW_CREATE_QUERY: &str =
+    "CREATE OR REPLACE VIEW \"<view_name>\" AS SELECT * FROM \"<table_name>\"";
 
 async fn validate_table_existance(
     athena_manager: &AthenaManager,
@@ -82,7 +82,11 @@ async fn validate_table_definition(athena_manager: &AthenaManager, table_name: &
     assert!(is_number);
 }
 
-async fn get_paged_results(athena_manager: &AthenaManager, table_name: &str )-> Box<impl Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin> {
+async fn get_paged_results(
+    athena_manager: &AthenaManager,
+    table_name: &str,
+) -> Box<impl Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin>
+{
     let query = format!("SELECT * FROM {}", &table_name);
     let query_id = athena_manager.start_query(&query, None).await;
     assert!(query_id.is_ok());
@@ -91,35 +95,36 @@ async fn get_paged_results(athena_manager: &AthenaManager, table_name: &str )-> 
     let start_time = Instant::now();
     let desired_duration = Duration::from_secs(time_out as u64);
     let status = loop {
+        let elapsed = start_time.elapsed();
+        if elapsed >= desired_duration {
+            break None;
+        }
+        let status = athena_manager.get_query_status(&query_id).await;
+        if status.is_err() {
+            panic!("Error getting query status: {:?}", status.err().unwrap());
+        }
 
-            let elapsed = start_time.elapsed();
-            if elapsed >= desired_duration {
-                break None;
+        let status = status.unwrap();
+        match status {
+            AthenaQueryStatus::Succeeded => {
+                break Some(AthenaQueryStatus::Succeeded);
             }
-            let status = athena_manager.get_query_status(&query_id).await;
-            if status.is_err() {
-                panic!("Error getting query status: {:?}", status.err().unwrap());
+            AthenaQueryStatus::Failed(e) => {
+                panic!("Query failed: {:?}", e);
             }
-
-            let status = status.unwrap();
-            match status {
-                AthenaQueryStatus::Succeeded => {
-                    break Some(AthenaQueryStatus::Succeeded);
-                }
-                AthenaQueryStatus::Failed(e) => {
-                    panic!("Query failed: {:?}", e);
-                }
-                AthenaQueryStatus::Cancelled => {
-                    panic!("Query was cancelled."); 
-                }
-                _ => {
-                    //Do nothing.
-                }
+            AthenaQueryStatus::Cancelled => {
+                panic!("Query was cancelled.");
             }
+            _ => {
+                //Do nothing.
+            }
+        }
     };
     assert!(status.is_some());
 
-    let pager = athena_manager.get_paged_query_results(&query_id, Some(1000)).await;
+    let pager = athena_manager
+        .get_paged_query_results(&query_id, Some(1000))
+        .await;
     assert!(pager.is_ok());
     let pager = pager.unwrap();
     Box::new(pager)
@@ -185,7 +190,7 @@ async fn integration_test() {
     let result = athena_manager.drop_table(&table_name).await;
     assert!(result.is_ok());
     validate_table_existance(&athena_manager, &table_name, false).await;
-    
+
     //11. Drop the view.
     let result = athena_manager.drop_view(&view_name).await;
     assert!(result.is_ok());

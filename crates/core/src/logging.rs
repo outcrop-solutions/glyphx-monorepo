@@ -11,7 +11,7 @@ use log4rs::config::{Appender, Config, Root};
 use log4rs::Handle;
 use serde_json::json;
 
-use glyphx_types::error::GlyphxErrorData;
+pub use crate::types::error::GlyphxErrorData;
 
 ///The setup logging function is used to configure the logging.  An application 
 ///should call this function once and only once.
@@ -140,10 +140,9 @@ mod constructor_tests {
     use log;
     use serial_test::serial;
     use std::panic;
-    use crate::utility_functions::json_functions::clean_json_string;
 
     fn get_mock_init(
-        application_name: String,
+        _application_name: String,
         file_name: String,
         file_size: u32,
         level_filter: LevelFilter,
