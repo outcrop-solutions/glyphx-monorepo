@@ -9,7 +9,6 @@ test = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 async-trait = "0.1.68"
-glyphx_types = { path = "../types", features = ["aws"] }
 glyphx_core = { path = "../core", features = ["aws", "macros"] }
 log = "0.4.17"
 mockall = "0.11.4"

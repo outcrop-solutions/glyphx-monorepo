@@ -1,5 +1,5 @@
 ///! Holds all of our error types for AthenaManager operations.
-use crate::error::GlyphxErrorData;
+use crate::types::error::GlyphxErrorData;
 
 /// Errors that are returend from our AthenaManager::new method.
 #[derive(Debug, Clone)]

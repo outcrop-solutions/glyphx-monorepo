@@ -122,7 +122,7 @@ mod glyphx_error_tests {
         assert!(json.is_ok());
         let json = json.unwrap();
         assert_eq!(json["message"], msg);
-        let inner_err_data = json["inner_error"].as_object().unwrap();
+        let inner_err_data = json["innerError"].as_object().unwrap();
         assert_eq!(inner_err_data.get("key").unwrap(), inner_error.get("key").unwrap());
         assert_eq!(inner_err_data.get("foo").unwrap(), inner_error.get("foo").unwrap());
 
@@ -152,7 +152,7 @@ mod glyphx_error_tests {
         assert!(json.is_ok());
         let json = json.unwrap();
         assert_eq!(json["message"], msg);
-        let inner_err_data = json["inner_error"].as_object().unwrap();
+        let inner_err_data = json["innerError"].as_object().unwrap();
         let inner_err_data = inner_err_data["data"].as_object().unwrap();
         assert_eq!(inner_err_data.get("key").unwrap(), inner_error.clone().data.unwrap().get("key").unwrap());
         assert_eq!(inner_err_data.get("foo").unwrap(), inner_error.clone().data.unwrap().get("foo").unwrap());

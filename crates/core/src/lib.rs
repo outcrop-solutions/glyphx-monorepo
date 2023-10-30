@@ -1,3 +1,4 @@
+mod types;
 pub mod aws;
 pub mod logging;
 pub mod utility_functions;
@@ -17,3 +18,5 @@ pub use async_trait::async_trait;
 pub use serde_json::json; 
 #[cfg(feature = "macros")]
 pub use log::{debug, error, info, trace, warn}; 
+
+pub use types::error::GlyphxErrorData;

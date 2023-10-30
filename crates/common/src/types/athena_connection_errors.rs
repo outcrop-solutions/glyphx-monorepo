@@ -1,5 +1,5 @@
-use crate::aws::athena_manager::athena_manager_errors::ConstructorError as AthenaManagerConstructorError;
-use crate::error::GlyphxErrorData;
+use glyphx_core::aws::athena_manager::ConstructorError as AthenaManagerConstructorError;
+use glyphx_core::GlyphxErrorData;
 
 #[derive(Debug, Clone)]
 pub enum ConstructorError {

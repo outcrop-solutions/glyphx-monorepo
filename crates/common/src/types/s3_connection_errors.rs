@@ -1,5 +1,5 @@
-use crate::error::GlyphxErrorData;
-use crate::aws::s3_manager::ConstructorError as S3ManagerConstructorError;
+use glyphx_core::GlyphxErrorData;
+use glyphx_core::aws::s3_manager::ConstructorError as S3ManagerConstructorError;
 //TODO: create a macro that will derive a glyphx_error that will create a json string implimenting
 //std::fmt::Display
 #[derive(Debug)]

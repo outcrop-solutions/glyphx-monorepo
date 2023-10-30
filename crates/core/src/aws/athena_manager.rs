@@ -26,13 +26,13 @@ use aws_sdk_athena::operation::get_database::{GetDatabaseError, GetDatabaseOutpu
 
 use super::result_set_converter::convert_to_json;
 use async_trait::async_trait;
-use glyphx_types::aws::athena_manager::athena_manager_errors::{
+pub use crate::types::aws::athena_manager::athena_manager_errors::{
     ConstructorError, GetQueryPagerError, GetQueryResultsError as GlyphxGetQueryResultsError,
     GetQueryStatusError, GetTableDescriptionError, RunQueryError, StartQueryError,
 };
-use glyphx_types::aws::athena_manager::query_status::AthenaQueryStatus;
-use glyphx_types::aws::athena_manager::table_description::*;
-use glyphx_types::error::GlyphxErrorData;
+pub use crate::types::aws::athena_manager::query_status::AthenaQueryStatus;
+pub use crate::types::aws::athena_manager::table_description::*;
+pub use crate::types::error::GlyphxErrorData;
 
 use mockall::*;
 use serde_json::{json, Value};

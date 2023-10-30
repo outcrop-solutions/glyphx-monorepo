@@ -23,7 +23,6 @@ backtrace = "0.3.67"
 bytes = "1.4.0"
 chrono = "0.4.24"
 glyphx_error = {path = "../macros/glyphx_error"}
-glyphx_types = { path = "../types", features = ["aws"] }
 http = "0.2.9"
 json5 = "0.4.1"
 log = "0.4.17"

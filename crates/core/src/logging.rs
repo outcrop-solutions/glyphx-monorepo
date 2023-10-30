@@ -11,7 +11,7 @@ use log4rs::config::{Appender, Config, Root};
 use log4rs::Handle;
 use serde_json::json;
 
-use glyphx_types::error::GlyphxErrorData;
+pub use crate::types::error::GlyphxErrorData;
 
 ///The setup logging function is used to configure the logging.  An application 
 ///should call this function once and only once.

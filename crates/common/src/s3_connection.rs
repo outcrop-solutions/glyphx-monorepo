@@ -1,8 +1,8 @@
 use async_trait::async_trait;
 use glyphx_core::aws::S3Manager;
 use glyphx_core::SecretBoundSingleton;
-use glyphx_types::aws::s3_manager::ConstructorError as S3ManagerConstructorError;
-use glyphx_types::common::s3_connection_errors::ConstructorError;
+use glyphx_core::aws::s3_manager::ConstructorError as S3ManagerConstructorError;
+use crate::types::s3_connection_errors::ConstructorError;
 use log::error;
 use mockall::automock;
 
@@ -68,7 +68,7 @@ impl S3Connection {
 #[cfg(test)]
 mod contructor {
     use super::*;
-    use glyphx_types::error::GlyphxErrorData;
+    use glyphx_core::GlyphxErrorData;
     #[tokio::test]
     async fn is_ok() {
         let bucket_name = "test_bucket".to_string();

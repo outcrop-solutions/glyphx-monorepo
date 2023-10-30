@@ -1,6 +1,6 @@
 //! This module holds the error types that are returned by the S3Manager
 //! functions.  All of the errors hold a GlyphxErrorData object.
-use crate::error::GlyphxErrorData;
+use crate::types::error::GlyphxErrorData;
 
 /// This error is returned  by the new function.
 #[derive(Debug)]

@@ -1,5 +1,5 @@
 //! This module holds the error types that can be returned by the upload stream.
-use crate::error::GlyphxErrorData;
+use crate::types::error::GlyphxErrorData;
 
 /// This enum holds the possible errors that can be returned by the upload streams constructor
 /// (::new) function.

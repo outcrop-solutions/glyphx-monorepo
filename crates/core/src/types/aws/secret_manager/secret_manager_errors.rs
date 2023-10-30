@@ -1,4 +1,4 @@
-use crate::error::GlyphxErrorData;
+use crate::types::error::GlyphxErrorData;
 
 #[derive(Debug)]
 pub enum GetSecretsValueError {
