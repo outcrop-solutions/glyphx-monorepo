@@ -39,8 +39,6 @@ export const CollabSidebar = () => {
         className={`overflow-y-auto w-full scrollbar-none`}
       >
         <Chat id={params?.projectId as string} />
-        {/* <Annotations />
-        <States /> */}
       </div>
     </div>
   );

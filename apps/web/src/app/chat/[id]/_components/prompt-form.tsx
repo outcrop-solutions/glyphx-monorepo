@@ -1,11 +1,10 @@
 import {UseChatHelpers} from 'ai/react';
 import * as React from 'react';
 import Textarea from 'react-textarea-autosize';
-import {Button, buttonVariants} from './ui/button';
-import {IconArrowElbow, IconPlus} from './ui/icons';
+import {Button} from './ui/button';
+import {IconArrowElbow} from './ui/icons';
 import {Tooltip, TooltipContent, TooltipTrigger} from './ui/tooltip';
 import {useEnterSubmit} from 'lib/client/hooks/useEnterSubmit';
-import {cn} from 'lib/utils/cn';
 import {useRouter} from 'next/navigation';
 
 export interface PromptProps extends Pick<UseChatHelpers, 'input' | 'setInput'> {
@@ -36,26 +35,7 @@ export function PromptForm({onSubmit, input, setInput, isLoading}: PromptProps) 
       }}
       ref={formRef}
     >
-      <div className="relative flex max-h-60 w-full grow flex-col overflow-hidden bg-background px-8 sm:rounded-md sm:border sm:px-12">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                router.refresh();
-                router.push('/');
-              }}
-              className={cn(
-                buttonVariants({size: 'sm', variant: 'outline'}),
-                'absolute left-0 top-4 h-8 w-8 rounded-full bg-background p-0 sm:left-4'
-              )}
-            >
-              <IconPlus />
-              <span className="sr-only">New Chat</span>
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>New Chat</TooltipContent>
-        </Tooltip>
+      <div className="relative flex w-full grow flex-col items-center justify-center overflow-hidden px-2 border-t border-gray">
         <Textarea
           ref={inputRef}
           tabIndex={0}
@@ -65,9 +45,9 @@ export function PromptForm({onSubmit, input, setInput, isLoading}: PromptProps) 
           onChange={(e) => setInput(e.target.value)}
           placeholder="Send a message."
           spellCheck={false}
-          className="min-h-[60px] w-full resize-none bg-transparent px-4 py-[1.3rem] focus-within:outline-none sm:text-sm"
+          className="w-full resize-none bg-transparent py-4 text-xs focus-within:outline-none"
         />
-        <div className="absolute right-0 top-4 sm:right-4">
+        <div className="absolute right-0 top-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button type="submit" size="icon" disabled={isLoading || input === ''}>
