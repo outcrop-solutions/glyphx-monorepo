@@ -8,6 +8,7 @@ import {RightSidebar} from 'app/[workspaceId]/_components/rightSidebar';
 import {ServerDocumentManager} from 'collab/lib/server/ServerDocumentManager';
 import {Initializer, projectService} from 'business';
 import {notFound} from 'next/navigation';
+import {CursorProvider} from './_components/CursorProvider';
 
 export const metadata: Metadata = {
   title: 'Project | Glyphx',
@@ -30,13 +31,13 @@ export default async function ProjectLayout({children, params}) {
     <div className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
       <ProjectProvider project={project} doc={data}>
         <LeftSidebar />
-        <div className="flex flex-col h-full w-full overflow-y-auto bg-transparent">
+        <CursorProvider>
           <ProjectHeader />
           <div className="flex flex-row w-full h-full">
             <InnerSidebar />
             {children}
           </div>
-        </div>
+        </CursorProvider>
         <RightSidebar />
       </ProjectProvider>
     </div>

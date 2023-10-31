@@ -1,5 +1,5 @@
 'use client';
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {webTypes} from 'types';
@@ -13,6 +13,8 @@ import useTemplates from 'lib/client/hooks/useTemplates';
 import {LiveMap} from '@liveblocks/client';
 import {InitialDocumentProvider} from 'collab/lib/client';
 import {RoomProvider} from 'liveblocks.config';
+import {Cursors} from 'collab/components/Cursors';
+import {ClientSideSuspense} from '@liveblocks/react';
 
 const openFirstFile = (projData) => {
   const newFiles = projData?.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
@@ -24,6 +26,8 @@ const openFirstFile = (projData) => {
 
 export const ProjectProvider = ({children, doc, project}: {children: React.ReactNode; doc: any; project: any}) => {
   const {data: templateData, isLoading: templateLoading} = useTemplates();
+
+  const projectViewRef = useRef(null);
 
   // resize setup
   useWindowSize();
@@ -62,7 +66,12 @@ export const ProjectProvider = ({children, doc, project}: {children: React.React
 
   return (
     <RoomProvider id={project.docId as string} initialPresence={{cursor: null}} initialStorage={{notes: new LiveMap()}}>
-      <InitialDocumentProvider initialDocument={doc}>{children}</InitialDocumentProvider>
+      <InitialDocumentProvider initialDocument={doc}>
+        <div ref={projectViewRef} className="flex w-full h-full">
+          <ClientSideSuspense fallback={null}>{() => <Cursors element={projectViewRef} />}</ClientSideSuspense>
+          {children}
+        </div>
+      </InitialDocumentProvider>
     </RoomProvider>
   );
 };
