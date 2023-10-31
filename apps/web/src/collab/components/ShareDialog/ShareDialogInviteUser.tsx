@@ -5,7 +5,7 @@ import {PlusIcon} from '../../icons';
 import {Button} from '../../primitives/Button';
 import {Input} from '../../primitives/Input';
 import {Spinner} from '../../primitives/Spinner';
-import {Document, DocumentAccess, DocumentUser} from '../../types';
+import {Document, DocumentAccess, DocumentUser} from 'types';
 import styles from './ShareDialogInvite.module.css';
 import {ClientDocumentManager} from 'collab/lib/client/ClientDocumentManager';
 
@@ -56,10 +56,10 @@ export function ShareDialogInviteUser({documentId, fullAccess, onSetUsers, class
             <Input
               className={styles.inviteInput}
               disabled={isInviteLoading}
-              name='userId'
-              placeholder='Email address'
+              name="userId"
+              placeholder="Email address"
               required
-              type='email'
+              type="email"
             />
             <Button
               className={styles.inviteButton}

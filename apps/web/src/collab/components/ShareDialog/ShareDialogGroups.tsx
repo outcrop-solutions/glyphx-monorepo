@@ -2,7 +2,7 @@
 import clsx from 'clsx';
 import {ComponentProps} from 'react';
 import {Select} from '../../primitives/Select';
-import {Document, DocumentAccess, DocumentGroup} from '../../types';
+import {Document, DocumentAccess, DocumentGroup} from 'types';
 import styles from './ShareDialogRows.module.css';
 import {ClientDocumentManager} from 'collab/lib/client/ClientDocumentManager';
 

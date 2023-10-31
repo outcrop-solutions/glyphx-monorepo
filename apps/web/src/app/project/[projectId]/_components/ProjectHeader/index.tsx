@@ -2,7 +2,7 @@
 import {ClientSideSuspense} from '@liveblocks/react';
 import {Controls} from 'app/[workspaceId]/_components/controls';
 import {ProjectControls} from './ProjectControls';
-import {DocumentHeaderAvatars} from 'collab/components/Document/DocumentHeaderAvatars';
+import {DocumentHeaderAvatars} from 'collab/components/DocumentHeaderAvatars';
 
 const Header = () => {
   return (

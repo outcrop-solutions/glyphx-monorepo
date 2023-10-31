@@ -1,5 +1,5 @@
 import {NextResponse} from 'next/server';
-import {RemoveUserRequest, UpdateUserRequest} from 'collab/types';
+import {RemoveUserRequest, UpdateUserRequest} from 'types';
 import {ServerDocumentManager} from 'collab/lib/server/ServerDocumentManager';
 
 /**

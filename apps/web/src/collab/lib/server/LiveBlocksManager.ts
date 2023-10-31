@@ -10,7 +10,7 @@ import {
   LiveUsersResponse,
   GetRoomsResponse,
   GetStorageResponse,
-} from '../../types';
+} from 'types';
 import {fetchLiveblocksApi} from './utils';
 
 /**

@@ -26,7 +26,7 @@ import {
   UpdateGroupRequest,
   UpdateUserAccessProps,
   UpdateUserRequest,
-} from '../../types';
+} from 'types';
 import {fetchApiEndpoint} from './utils';
 
 /**

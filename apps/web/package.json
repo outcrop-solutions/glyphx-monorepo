@@ -47,6 +47,7 @@
     "@testing-library/user-event": "^12.8.3",
     "@vercel/kv": "^0.2.3",
     "ai": "^2.1.8",
+    "base-64": "^1.0.0",
     "bindings": "1.2.1",
     "bufferutil": "^4.0.7",
     "business": "workspace:*",

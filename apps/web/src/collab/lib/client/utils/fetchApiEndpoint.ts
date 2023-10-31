@@ -1,5 +1,5 @@
 import {ENDPOINT_BASE_URL} from 'liveblocks.config';
-import {ErrorData, FetchApiResult} from '../../../types';
+import {ErrorData, FetchApiResult} from 'types';
 
 /**
  * Fetch API Endpoint

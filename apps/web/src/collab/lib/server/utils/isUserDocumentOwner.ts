@@ -1,4 +1,4 @@
-import {DocumentUser, Room} from '../../../types';
+import {DocumentUser, Room} from 'types';
 
 interface IsUserDocumentOwnerProps {
   room: Room;

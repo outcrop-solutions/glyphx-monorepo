@@ -1,5 +1,5 @@
 import {NextResponse} from 'next/server';
-import {UpdateDocumentScope} from 'collab/types';
+import {UpdateDocumentScope} from 'types';
 import {ServerDocumentManager} from 'collab/lib/server/ServerDocumentManager';
 /**
  * POST Default access - used in /lib/client/updateDocumentScope.ts

@@ -7,7 +7,7 @@ import {UserIcon, UsersIcon} from '../../icons';
 import {getDocumentAccess, useDocumentsFunctionSWR, useInitialDocument} from 'collab/lib/client';
 import {useBroadcastEvent, useEventListener} from 'liveblocks.config';
 import {Dialog} from '../../primitives/Dialog';
-import {DocumentAccess} from '../../types';
+import {DocumentAccess} from 'types';
 import {ShareDialogDefault} from './ShareDialogDefault';
 import {ShareDialogGroups} from './ShareDialogGroups';
 import {ShareDialogInviteGroup} from './ShareDialogInviteGroup';
@@ -118,22 +118,22 @@ export function ShareDialog({children, ...props}: Props) {
     <Dialog
       content={
         <div className={styles.dialog}>
-          <Tabs.Root className={styles.dialogTabs} defaultValue='users'>
+          <Tabs.Root className={styles.dialogTabs} defaultValue="users">
             <Tabs.List className={styles.dialogTabList}>
-              <Tabs.Trigger className={styles.dialogTab} value='users'>
+              <Tabs.Trigger className={styles.dialogTab} value="users">
                 <span className={styles.dialogTabLabel}>
                   <UserIcon className={styles.dialogTabIcon} />
                   <span>Users</span>
                 </span>
               </Tabs.Trigger>
-              <Tabs.Trigger className={styles.dialogTab} value='groups'>
+              <Tabs.Trigger className={styles.dialogTab} value="groups">
                 <span className={styles.dialogTabLabel}>
                   <UsersIcon className={styles.dialogTabIcon} />
                   <span>Groups</span>
                 </span>
               </Tabs.Trigger>
             </Tabs.List>
-            <Tabs.Content value='users' className={styles.dialogTabContent}>
+            <Tabs.Content value="users" className={styles.dialogTabContent}>
               <ShareDialogInviteUser
                 className={styles.dialogSection}
                 documentId={documentId}
@@ -157,7 +157,7 @@ export function ShareDialog({children, ...props}: Props) {
                 />
               ) : null}
             </Tabs.Content>
-            <Tabs.Content value='groups' className={styles.dialogTabContent}>
+            <Tabs.Content value="groups" className={styles.dialogTabContent}>
               <ShareDialogInviteGroup
                 className={styles.dialogSection}
                 documentId={documentId}
@@ -194,7 +194,7 @@ export function ShareDialog({children, ...props}: Props) {
           />
         </div>
       }
-      title='Share document'
+      title="Share document"
       {...props}
     >
       {children}

@@ -1,6 +1,6 @@
 'use client';
 import {ReactNode, createContext, useContext} from 'react';
-import {Document} from 'collab/types';
+import {Document} from 'types';
 
 const DocumentContext = createContext<Document | null>(null);
 

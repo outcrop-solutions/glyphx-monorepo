@@ -7,3 +7,4 @@ export * as gylphEngineTypes from './glyphEngine';
 export * as vectorizerTypes from './glyphEngine';
 export type {IQueryResult} from './iQueryResult';
 export type {IWorkspacePath} from './workspaces/workspacePaths';
+export * from './collab';

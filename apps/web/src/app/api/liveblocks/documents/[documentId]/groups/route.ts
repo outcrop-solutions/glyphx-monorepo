@@ -1,5 +1,5 @@
 import {NextResponse} from 'next/server';
-import {RemoveGroupRequest, UpdateGroupRequest} from 'collab/types';
+import {RemoveGroupRequest, UpdateGroupRequest} from 'types';
 import {ServerDocumentManager} from 'collab/lib/server/ServerDocumentManager';
 /**
  * GET Groups - Used in /lib/client/getDocumentGroups.ts

@@ -6,7 +6,7 @@ import {Button} from '../../primitives/Button';
 import {Checkbox} from '../../primitives/Checkbox';
 import {Input} from '../../primitives/Input';
 import {Spinner} from '../../primitives/Spinner';
-import {Document, DocumentAccess} from '../../types';
+import {Document, DocumentAccess} from 'types';
 import styles from './ShareDialogDefault.module.css';
 import {ClientDocumentManager} from 'collab/lib/client/ClientDocumentManager';
 
@@ -104,7 +104,7 @@ export function ShareDialogDefault({
         <label
           className={styles.sectionLabel}
           data-disabled={fullAccess ? undefined : true}
-          htmlFor='public-read-checkbox'
+          htmlFor="public-read-checkbox"
         >
           <LinkIcon className={styles.sectionLabelIcon} />
           <span>Enable public share link</span>
@@ -116,9 +116,9 @@ export function ShareDialogDefault({
             <Checkbox
               checked={publicRead}
               disabled={!fullAccess}
-              id='public-read-checkbox'
+              id="public-read-checkbox"
               initialValue={defaultAccess !== DocumentAccess.NONE}
-              name='public-read-checkbox'
+              name="public-read-checkbox"
               onValueChange={handlePublicRead}
             />
           )}
@@ -130,7 +130,7 @@ export function ShareDialogDefault({
             <label
               className={styles.sectionLabel}
               data-disabled={fullAccess ? undefined : true}
-              htmlFor='public-edit-checkbox'
+              htmlFor="public-edit-checkbox"
             >
               <EditIcon className={styles.sectionLabelIcon} />
               <span> Allow anyone to edit</span>
@@ -142,9 +142,9 @@ export function ShareDialogDefault({
                 <Checkbox
                   checked={publicEdit}
                   disabled={!fullAccess || isPublicEditLoading}
-                  id='public-edit-checkbox'
+                  id="public-edit-checkbox"
                   initialValue={defaultAccess === DocumentAccess.EDIT}
-                  name='public-edit-checkbox'
+                  name="public-edit-checkbox"
                   onValueChange={handlePublicEdit}
                 />
               )}

@@ -1,4 +1,4 @@
-import {Document, DocumentRoomMetadata, Room} from '../../../types';
+import {Document, DocumentRoomMetadata, Room} from 'types';
 import {roomAccessesToDocumentAccess} from './convertAccessType';
 
 /**

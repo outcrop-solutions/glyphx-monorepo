@@ -1,4 +1,4 @@
-import {DocumentAccess, RoomAccess} from '../../../types';
+import {DocumentAccess, RoomAccess} from 'types';
 
 /**
  * Convert from Liveblocks room accesses to a custom document access format

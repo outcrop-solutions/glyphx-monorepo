@@ -1,4 +1,4 @@
-import {Document, DocumentAccess, User} from '../../../types';
+import {Document, DocumentAccess, User} from 'types';
 
 interface Props {
   documentAccesses: Document['accesses'];

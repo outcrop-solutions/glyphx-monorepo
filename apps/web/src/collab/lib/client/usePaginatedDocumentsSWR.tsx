@@ -1,5 +1,5 @@
 'use client';
-import {GetDocumentsProps, GetDocumentsResponse} from 'collab/types';
+import {GetDocumentsProps, GetDocumentsResponse} from 'types';
 import {useState} from 'react';
 import {SWRConfiguration} from 'swr';
 import useSWRInfinite, {SWRInfiniteKeyLoader} from 'swr/infinite';

@@ -1,5 +1,5 @@
 import {NextResponse} from 'next/server';
-import {UpdateDocumentRequest} from 'collab/types';
+import {UpdateDocumentRequest} from 'types';
 import {ServerDocumentManager} from 'collab/lib/server/ServerDocumentManager';
 
 /**

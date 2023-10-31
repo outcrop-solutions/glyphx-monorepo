@@ -1,7 +1,7 @@
 'use server';
-import {prisma} from 'database';
-import {DocumentGroup, Room} from '../../../types';
+import {DocumentGroup, Room} from 'types';
 import {roomAccessesToDocumentAccess} from './convertAccessType';
+import {projectService} from 'business';
 
 /**
  * Convert a Liveblocks room result into a list of DocumentGroups
@@ -12,10 +12,7 @@ export async function buildProjects(result: Room) {
   const projects: DocumentGroup[] = [];
 
   for (const [id, accessValue] of Object.entries(result.groupsAccesses)) {
-    const project = await prisma.project.findUnique({
-      where: {id},
-      select: {id: true, name: true},
-    });
+    const project = await projectService.getProject(id);
 
     if (project) {
       projects.push({

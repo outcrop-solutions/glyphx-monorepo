@@ -1,4 +1,4 @@
-import {DocumentType} from 'collab/types';
+import {DocumentType} from 'types';
 import {ServerDocumentManager} from 'collab/lib/server/ServerDocumentManager';
 import {NextResponse} from 'next/server';
 /**

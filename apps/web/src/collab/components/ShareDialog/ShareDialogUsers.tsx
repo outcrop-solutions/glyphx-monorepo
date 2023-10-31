@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import {ComponentProps} from 'react';
 import {Avatar} from '../../primitives/Avatar';
 import {Select} from '../../primitives/Select';
-import {Document, DocumentAccess, DocumentUser} from '../../types';
+import {Document, DocumentAccess, DocumentUser} from 'types';
 import styles from './ShareDialogRows.module.css';
 import {ClientDocumentManager} from 'collab/lib/client/ClientDocumentManager';
 

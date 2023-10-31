@@ -31,7 +31,7 @@ import {
   RoomAccesses,
   RoomAccessLevels,
   RoomMetadata,
-} from '../../types';
+} from 'types';
 
 import {
   getDraftsGroupName,
@@ -44,10 +44,9 @@ import {
 } from './utils';
 
 import {LiveBlocksManager} from 'collab/lib/server/LiveBlocksManager';
-import {DOCUMENT_URL} from '../../constants';
 import {userAllowedInRoom, buildDocument} from './utils';
-import {prisma} from 'database';
 import {authOptions} from 'app/api/auth/[...nextauth]/route';
+import {projectService, userService} from 'business';
 
 /**
  * Interact with the LiveBlocksManager on the server in response to client or direct method calls
@@ -609,15 +608,7 @@ export class ServerDocumentManager {
     // Get session, room, and group
     const session = await getServerSession(authOptions);
     const room = await this.liveBlocksManager.getRoom({roomId: documentId});
-    const group = await prisma.project.findUnique({
-      where: {
-        id: projectId,
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-    });
+    const group = await projectService.getProject(projectId);
 
     // Check user is logged in
     if (!session) {
@@ -729,15 +720,7 @@ export class ServerDocumentManager {
     // Get session, room, and group
     const session = await getServerSession(authOptions);
     const room = await this.liveBlocksManager.getRoom({roomId: documentId});
-    const group = await prisma.project.findUnique({
-      where: {
-        id: projectId,
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-    });
+    const group = await projectService.getProject(projectId);
 
     // Check user is logged in
     if (!session) {
@@ -840,11 +823,7 @@ export class ServerDocumentManager {
     // Get session, room, and group
     const session = await getServerSession(authOptions);
     const room = await this.liveBlocksManager.getRoom({roomId: documentId});
-    const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
+    const user = await userService.getUser(userId);
 
     // Check user is logged in
     if (!session) {
@@ -1050,11 +1029,7 @@ export class ServerDocumentManager {
     // Get session and room
     const session = await getServerSession(authOptions);
     const room = await this.liveBlocksManager.getRoom({roomId: documentId});
-    const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
+    const user = await userService.getUser(userId);
 
     // Check user is logged in
     if (!session) {

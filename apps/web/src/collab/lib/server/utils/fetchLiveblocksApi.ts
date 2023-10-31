@@ -1,5 +1,5 @@
 import {API_BASE_URL, SECRET_API_KEY} from 'liveblocks.server.config';
-import {ErrorData, FetchApiResult} from '../../../types';
+import {ErrorData, FetchApiResult} from 'types';
 
 /**
  * Fetch Liveblocks API

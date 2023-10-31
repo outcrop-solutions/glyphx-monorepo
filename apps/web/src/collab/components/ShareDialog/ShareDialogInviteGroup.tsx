@@ -6,7 +6,7 @@ import {PlusIcon} from '../../icons';
 import {Button} from '../../primitives/Button';
 import {Select} from '../../primitives/Select';
 import {Spinner} from '../../primitives/Spinner';
-import {Document, DocumentAccess, DocumentGroup, Group} from '../../types';
+import {Document, DocumentAccess, DocumentGroup, Group} from 'types';
 import {capitalize} from '../../utils';
 import styles from './ShareDialogInvite.module.css';
 import {ClientDocumentManager} from 'collab/lib/client/ClientDocumentManager';
@@ -72,13 +72,13 @@ export function ShareDialogInviteGroup({
               <Select
                 key={currentGroups[0]?.id || undefined}
                 aboveOverlay
-                name='projectId'
+                name="projectId"
                 className={styles.inviteSelect}
                 items={invitableGroupIds.map((projectId) => ({
                   value: projectId,
                   title: capitalize(projectId),
                 }))}
-                placeholder='Choose a group…'
+                placeholder="Choose a group…"
                 required
                 disabled={isInviteLoading}
               />
