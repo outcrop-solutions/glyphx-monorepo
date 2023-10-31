@@ -198,6 +198,7 @@ export const useFileSystem = () => {
       }
     },
     // update file system state with processed data based on user decision
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [project, setLoading, setModals, mutate]
   );
 

@@ -1,7 +1,4 @@
 'use client';
-import 'collab/styles/globals.css';
-import 'collab/styles/normalize.css';
-import 'collab/styles/text-editor.css';
 import React, {useEffect} from 'react';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
@@ -10,7 +7,6 @@ import {useSetRecoilState} from 'recoil';
 import {dataGridAtom, projectAtom, rightSidebarControlAtom, templatesAtom, workspaceAtom} from 'state';
 import {useSendPosition, useWindowSize} from 'services';
 import {useCloseViewerOnModalOpen} from 'services/useCloseViewerOnModalOpen';
-import {useProject} from 'lib/client/hooks';
 import {useCloseViewerOnLoading} from 'services/useCloseViewerOnLoading';
 import useTemplates from 'lib/client/hooks/useTemplates';
 // Live Page Structure

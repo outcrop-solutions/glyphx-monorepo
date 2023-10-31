@@ -15,7 +15,7 @@ const getConnectionPromise = (async () => {
 })();
 
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(getConnectionPromise, {}),
+  adapter: MongoDBAdapter(getConnectionPromise),
   callbacks: {
     session: async ({session, user}) => {
       const userInfo = await userService.getUser(user.id);

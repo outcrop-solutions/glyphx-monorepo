@@ -1,14 +1,9 @@
 import * as RadixTooltip from '@radix-ui/react-tooltip';
 import clsx from 'clsx';
-import {ReactNode, forwardRef} from 'react';
+import {forwardRef} from 'react';
 import styles from './Tooltip.module.css';
 
-// export interface Props
-//   extends RadixTooltip.TooltipProps,
-//     RadixTooltip.TooltipContentProps {
-//   content: ReactNode;
-// }
-
+// eslint-disable-next-line react/display-name
 export const Tooltip = forwardRef<HTMLDivElement, any>(
   (
     {
