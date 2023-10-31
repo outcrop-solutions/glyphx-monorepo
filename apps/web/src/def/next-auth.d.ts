@@ -1,4 +1,4 @@
-import NextAuth from 'next-auth';
+import NextAuth, {type DefaultSession} from 'next-auth';
 
 declare module 'next-auth' {
   /**
@@ -6,14 +6,40 @@ declare module 'next-auth' {
    */
   interface Session {
     jwt: boolean;
-    user: {
-      /** The user's postal address. */
-      _id?: string;
-      id: string;
-      image?: string;
-      email?: string;
-      name?: string;
-      subscription?: FREE | STANDARD | PREMIUM;
-    };
+    user: User & DefaultSession['user']; // To keep the default types
   }
 }
+
+export type User = {
+  id: string;
+  userCode: string;
+  name: string;
+  username: string;
+  gh_username?: string;
+  email: string;
+  emailVerified?: Date;
+  isVerified: boolean;
+  image?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date;
+  accounts: IAccount[];
+  sessions: ISession[];
+  membership: IMember[];
+  invitedMembers: IMember[];
+  createdWorkspaces: IWorkspace[];
+  projects: IProject[];
+  customerPayment?: ICustomerPayment;
+  webhooks: IWebhook[];
+  apiKey?: string;
+  // custom via next-auth session callback
+  subscription?: FREE | STANDARD | PREMIUM;
+  color?: string; // for cursor
+  projectIds?: string[]; // for authorization
+};
+
+// an artifact of liveblocks
+export type Group = {
+  id: string;
+  name: string;
+};
