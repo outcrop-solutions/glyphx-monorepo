@@ -4,7 +4,7 @@ import {Initializer, workspaceService} from 'business';
 import {Metadata} from 'next';
 import {getServerSession} from 'next-auth/next';
 import {redirect} from 'next/navigation';
-import {RightSidebar} from './_components/RightSidebar';
+import {RightSidebar} from './_components/rightSidebar';
 import LeftSidebar from 'app/[workspaceId]/_components/LeftSidebar';
 
 export const metadata: Metadata = {

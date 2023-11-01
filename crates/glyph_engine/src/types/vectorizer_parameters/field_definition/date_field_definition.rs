@@ -1,6 +1,6 @@
 use crate::types::field_definition_type::FieldDefinitionType;
-use crate::types::vectorizer_parameters::{json_value_has_field, VectorizerParametersError, VectorizerParametersFunction};
-
+use crate::types::vectorizer_parameters::json_has_field;
+use super::DateFieldDefinitionFromJsonError;
 use serde_json::Value;
 
 #[derive(Debug, Copy, Clone)]
@@ -39,10 +39,11 @@ pub struct DateFieldDefinition {
 }
 
 impl DateFieldDefinition {
-    pub fn from_json(input: &Value) -> Result<Self, VectorizerParametersError> {
+    pub fn from_json(input: &Value) -> Result<Self, DateFieldDefinitionFromJsonError> {
         let validation_result = Self::validate_json(input);
         if validation_result.is_err()  {
-            return Err( validation_result.err().unwrap() );
+            let err = validation_result.err().unwrap();
+            return Err(err);
         }
         let field_name = input["fieldName"].as_str().unwrap().to_string();
         let field_type = FieldDefinitionType::Date;
@@ -54,23 +55,25 @@ impl DateFieldDefinition {
             date_grouping,
         })
     }
-    fn validate_json(input: &Value) -> Result<(), VectorizerParametersError> {
-        let has_field_name = json_value_has_field(
+    fn validate_json(input: &Value) -> Result<(), DateFieldDefinitionFromJsonError> {
+        let has_field_name = json_has_field(
             input,
             "fieldName",
-            VectorizerParametersFunction::DateFieldDefinitionFromJsonValue,
         );
         if has_field_name.is_err() {
-            return Err(has_field_name.err().unwrap());
+            let err = has_field_name.err().unwrap();
+            let err = DateFieldDefinitionFromJsonError::from_json_has_field_error(err);
+            return Err(err);
         }
 
-        let has_date_grouping = json_value_has_field(
+        let has_date_grouping = json_has_field(
             input,
             "dateGrouping",
-            VectorizerParametersFunction::DateFieldDefinitionFromJsonValue,
         );
         if has_date_grouping.is_err() {
-            return Err(has_date_grouping.err().unwrap());
+            let err = has_field_name.err().unwrap();
+            let err = DateFieldDefinitionFromJsonError::from_json_has_field_error(err);
+            return Err(err);
         }
         Ok(())
 

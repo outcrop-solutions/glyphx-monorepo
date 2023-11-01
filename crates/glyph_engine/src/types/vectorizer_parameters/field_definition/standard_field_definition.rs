@@ -1,4 +1,5 @@
-use crate::types::vectorizer_parameters::{json_value_has_field, VectorizerParametersError, VectorizerParametersFunction};
+use crate::types::vectorizer_parameters::helper_functions::json_has_field;
+use crate::types::vectorizer_parameters::field_definition::standard_field_definition_errors::FromJsonError;
 use crate::types::field_definition_type::FieldDefinitionType;
 use serde_json::Value;
 #[derive(Debug, Clone)]
@@ -8,7 +9,7 @@ pub struct StandardFieldDefinition {
 }
 
 impl StandardFieldDefinition {
-    pub fn from_json(input: &Value) -> Result<Self, VectorizerParametersError> {
+    pub fn from_json(input: &Value) -> Result<Self, FromJsonError> {
         let validation_result = Self::validate_json(input);
         if validation_result.is_err()  {
             return Err( validation_result.err().unwrap() );
@@ -22,14 +23,14 @@ impl StandardFieldDefinition {
 
     }
 
-    fn validate_json(input: &Value) -> Result<(), VectorizerParametersError> {
-        let has_field_name = json_value_has_field(
+    fn validate_json(input: &Value) -> Result<(), FromJsonError> {
+        let has_field_name = json_has_field(
            input, 
             "fieldName",
-            VectorizerParametersFunction::StandardFieldDefinitionFromJsonValue,
         );
         if has_field_name.is_err() {
-            return Err(has_field_name.err().unwrap());
+            let error = FromJsonError::from_json_has_field_error(has_field_name.err().unwrap());
+            return Err(error);
         }
         Ok(())
 
