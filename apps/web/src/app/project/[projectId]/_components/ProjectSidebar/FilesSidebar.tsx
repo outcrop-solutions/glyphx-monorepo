@@ -32,7 +32,7 @@ export const FilesSidebar = () => {
         style={{
           height: `${height && height - 60}px`,
         }}
-        className={`overflow-y-auto w-full scrollbar-none`}
+        className={`overflow-y-auto w-full h-full scrollbar-none`}
       >
         <Files />
       </div>

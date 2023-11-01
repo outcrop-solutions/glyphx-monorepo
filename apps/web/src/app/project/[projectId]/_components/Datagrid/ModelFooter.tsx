@@ -1,5 +1,5 @@
 'use client';
-import {useCallback} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {
   drawerOpenAtom,
@@ -18,6 +18,13 @@ import {useUrl} from 'lib/client/hooks';
 
 export const ModelFooter = () => {
   // const { mutate } = useSWRConfig();
+  // ensures we don't pre-render the server
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const session = useSession();
   const url = useUrl();
   const viewer = useRecoilValue(viewerPositionSelector);
@@ -48,6 +55,7 @@ export const ModelFooter = () => {
   }, [drawer, project, session, setDrawer, setLoading, setOrientation, setResize, url, windowSize.height]);
 
   return (
+    isClient &&
     viewer &&
     !(Object.keys(loading).length > 0) && (
       <div

@@ -109,10 +109,7 @@ export const Filters = () => {
             </button>
           </summary>
           {!isCollapsed && (
-            <div
-              className={`block border-b border-gray
-        `}
-            >
+            <div className="block border-b border-gray">
               <ul className={`overflow-auto py-1 w-full`}>
                 {/* read only (no drag n drop) property filters */}
                 {Object.keys(properties).map((key) => (

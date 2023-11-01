@@ -5,10 +5,13 @@ import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {leftCoordinatesAtom, windowSizeAtom} from 'state';
 import {Annotations} from './_components/annotations';
 import {States} from './_components/states';
+import {Chat} from 'app/chat/[id]/_components/chat';
+import {useParams} from 'next/navigation';
 
 export const CollabSidebar = () => {
   //utilities
   const sidebar = useRef(null);
+  const params = useParams();
   // trigger sendPosition when sidebar changes
   const pos = usePosition(sidebar);
   const setCoords = useSetRecoilState(leftCoordinatesAtom);
@@ -35,8 +38,7 @@ export const CollabSidebar = () => {
         }}
         className={`overflow-y-auto w-full scrollbar-none`}
       >
-        <Annotations />
-        <States />
+        <Chat id={params?.projectId as string} />
       </div>
     </div>
   );

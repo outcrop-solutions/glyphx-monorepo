@@ -5,6 +5,7 @@ import {projectSegmentAtom} from 'state';
 import {FilesSidebar} from './ProjectSidebar/FilesSidebar';
 import {ModelSidebar} from './ProjectSidebar/ModelSidebar';
 import {CollabSidebar} from './ProjectSidebar/CollabSidebar';
+import {ModelConfigSidebar} from './ProjectSidebar/ModelConfigSidebar';
 
 export const InnerSidebar = () => {
   const segment = useRecoilValue(projectSegmentAtom);
@@ -21,7 +22,7 @@ export const InnerSidebar = () => {
           case 'AI':
             return <CollabSidebar />;
           case 'CONFIG':
-            return <CollabSidebar />;
+            return <ModelConfigSidebar />;
           default:
             break;
         }

@@ -1,6 +1,6 @@
 {
   "extends": "tsconfig/node18.json",
-  "lib": ["dom", "dom.iterable", "esnext"],
+  // "lib": ["dom", "dom.iterable", "esnext"],
   "include": ["src/**/*.ts", "src/**/*.tsx", "tsup.config.ts"],
   "compilerOptions": {
     "baseUrl": "./src",
