@@ -61,17 +61,12 @@ mod validate_json {
         assert!(result.is_err());
         let result = result.err().unwrap();
         match result {
-            VectorizerParametersError::JsonValidationError {
-                operation,
-                description: _,
-                field,
-            } => {
-                assert_eq!(field, "fieldName");
-                match operation {
-                    VectorizerParametersFunction::StandardFieldDefinitionFromJsonValue => assert!(true),
-                    _ => assert!(false),
-                }
-            }
+            FromJsonError::FieldNotDefined(error_data) => {
+                let data = error_data.data.unwrap();
+                let field_name  = data["field"].as_str().unwrap();
+                assert_eq!(field_name, "fieldName");
+
+            },
             _ => {
                 panic!("Unexpected result");
             }
@@ -109,17 +104,12 @@ mod from_json {
         assert!(result.is_err());
         let result = result.err().unwrap();
         match result {
-            VectorizerParametersError::JsonValidationError {
-                operation,
-                description: _,
-                field,
-            } => {
-                assert_eq!(field, "fieldName");
-                match operation {
-                    VectorizerParametersFunction::StandardFieldDefinitionFromJsonValue => assert!(true),
-                    _ => assert!(false),
-                }
-            }
+            FromJsonError::FieldNotDefined(error_data) => {
+                let data = error_data.data.unwrap();
+                let field_name  = data["field"].as_str().unwrap();
+                assert_eq!(field_name, "fieldName");
+
+            },
             _ => {
                 panic!("Unexpected result");
             }

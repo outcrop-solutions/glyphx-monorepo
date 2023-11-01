@@ -201,7 +201,7 @@ impl AccumulatorFieldDefinition {
             "accumulatedFieldDefinition",
         );
         if has_field_data_type.is_err() {
-            let err = has_field_field_type.err().unwrap();
+            let err = has_field_data_type.err().unwrap();
             let err = AccumulatedFieldDefinitionFromJsonError::from_json_has_field_error(err);
             return Err(err);
         }
@@ -460,8 +460,15 @@ mod AccumulatedFieldDefinition_get_field_definition_type {
             AccumulatedFieldDefinition::get_field_definition_type(&input, "test");
         assert!(field_definition_type.is_err());
         let field_definition_type = field_definition_type.err().unwrap();
+
         match field_definition_type {
-            VectorizerParametersError::InvalidFieldDefinitionType { .. } => {}
+              AccumulatedFieldDefinitionFromJsonError::InvalidFieldDefinitionType(error_data) => {
+                let data = error_data.data.unwrap();
+                let field_name  = data["field"].as_str().unwrap();
+                assert_eq!(field_name, "test");
+                let field_definition_type_data = data["fieldDefinitionType"].as_str().unwrap();
+                assert_eq!(field_definition_type_data, "unknown");
+            },
             _ => {
                 panic!("Unexpected result");
             }
@@ -523,7 +530,12 @@ mod AccumulatedFieldDefinition_from_json {
         assert!(accumulated_field_definition.is_err());
         let accumulated_field_definition = accumulated_field_definition.err().unwrap();
         match accumulated_field_definition {
-            VectorizerParametersError::JsonValidationError { .. } => {}
+              AccumulatedFieldDefinitionFromJsonError::StandardFieldDefinitionFromJsonError(error_data) => {
+                let data = error_data.data.unwrap();
+                let field_name  = data["field"].as_str().unwrap();
+                assert_eq!(field_name, "fieldName");
+
+            },
             _ => {
                 panic!("Unexpected result");
             }
@@ -540,8 +552,14 @@ mod AccumulatedFieldDefinition_from_json {
         let accumulated_field_definition = AccumulatedFieldDefinition::from_json(&input, "test");
         assert!(accumulated_field_definition.is_err());
         let accumulated_field_definition = accumulated_field_definition.err().unwrap();
+        let foo = accumulated_field_definition.to_string();
         match accumulated_field_definition {
-            VectorizerParametersError::JsonValidationError { .. } => {}
+              AccumulatedFieldDefinitionFromJsonError::DateFieldDefinitionFromJsonError(error_data) => {
+                let data = error_data.data.unwrap();
+                let field_name  = data["field"].as_str().unwrap();
+                assert_eq!(field_name, "dateGrouping");
+
+            },
             _ => {
                 panic!("Unexpected result");
             }
@@ -582,17 +600,12 @@ mod AccumulatorFieldDefinition_validate_json {
         assert!(result.is_err());
         let result = result.err().unwrap();
         match result {
-            VectorizerParametersError::JsonValidationError {
-                field, operation, ..
-            } => {
-                assert_eq!(field, "accumulator");
-                match operation {
-                    VectorizerParametersFunction::AccumulatedFieldDefinitionFromJsonValue => {}
-                    _ => {
-                        panic!("Unexpected result");
-                    }
-                }
-            }
+              AccumulatedFieldDefinitionFromJsonError::FieldNotDefined(error_data) => {
+                let data = error_data.data.unwrap();
+                let field_name  = data["field"].as_str().unwrap();
+                assert_eq!(field_name, "accumulator");
+
+            },
             _ => {
                 panic!("Unexpected result");
             }
@@ -609,17 +622,12 @@ mod AccumulatorFieldDefinition_validate_json {
         assert!(result.is_err());
         let result = result.err().unwrap();
         match result {
-            VectorizerParametersError::JsonValidationError {
-                field, operation, ..
-            } => {
-                assert_eq!(field, "accumulatedFieldDefinition");
-                match operation {
-                    VectorizerParametersFunction::AccumulatedFieldDefinitionFromJsonValue => {}
-                    _ => {
-                        panic!("Unexpected result");
-                    }
-                }
-            }
+              AccumulatedFieldDefinitionFromJsonError::FieldNotDefined(error_data) => {
+                let data = error_data.data.unwrap();
+                let field_name  = data["field"].as_str().unwrap();
+                assert_eq!(field_name, "accumulatedFieldDefinition");
+
+            },
             _ => {
                 panic!("Unexpected result");
             }
@@ -679,17 +687,12 @@ mod AccumulatorFieldDefinition_from_json {
         assert!(result.is_err());
         let result = result.err().unwrap();
         match result {
-            VectorizerParametersError::JsonValidationError {
-                field, operation, ..
-            } => {
-                assert_eq!(field, "accumulator");
-                match operation {
-                    VectorizerParametersFunction::AccumulatedFieldDefinitionFromJsonValue => {}
-                    _ => {
-                        panic!("Unexpected result");
-                    }
-                }
-            }
+              AccumulatedFieldDefinitionFromJsonError::FieldNotDefined(error_data) => {
+                let data = error_data.data.unwrap();
+                let field_name  = data["field"].as_str().unwrap();
+                assert_eq!(field_name, "accumulator");
+
+            },
             _ => {
                 panic!("Unexpected result");
             }
@@ -709,18 +712,15 @@ mod AccumulatorFieldDefinition_from_json {
         let result = AccumulatorFieldDefinition::from_json(&input);
         assert!(result.is_err());
         let result = result.err().unwrap();
+        let foo = result.to_string();
         match result {
-            VectorizerParametersError::InvalidFieldDefinitionType {
-                field, operation, ..
-            } => {
-                assert_eq!(field, "accumulatedFieldDefinition");
-                match operation {
-                    VectorizerParametersFunction::AccumulatedFieldDefinitionFromJsonValue => {}
-                    _ => {
-                        panic!("Unexpected result");
-                    }
-                }
-            }
+              AccumulatedFieldDefinitionFromJsonError::InvalidFieldDefinitionType(error_data) => {
+                let data = error_data.data.unwrap();
+                let field_name  = data["field"].as_str().unwrap();
+                assert_eq!(field_name, "accumulatedFieldDefinition");
+                let field_definition_type_data = data["fieldDefinitionType"].as_str().unwrap();
+                assert_eq!(field_definition_type_data, "invalid");
+            },
             _ => {
                 panic!("Unexpected result");
             }

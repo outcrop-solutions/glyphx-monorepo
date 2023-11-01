@@ -581,20 +581,10 @@ mod get_field_definition_type {
         assert!(field_definition_type.is_err());
         let result = field_definition_type.err().unwrap();
         match result {
-            VectorizerParametersError::InvalidFieldDefinitionType {
-                operation,
-                description: _,
-                field,
-                json,
-            } => {
-                match operation {
-                    VectorizerParametersFunction::GetFieldDefinitionType => {}
-                    _ => {
-                        panic!("Unexpected error type");
-                    }
-                }
+            GetFieldDefinitionTypeError::JsonParsingError(error_data) => {
+                let data = error_data.data.unwrap();
+                let field = data["field"].as_str().unwrap();
                 assert_eq!(field, "zAxis");
-                assert!(json.len() > 0);
             }
             _ => {
                 panic!("Unexpected error type");
@@ -620,20 +610,10 @@ mod get_field_definition_type {
         assert!(field_definition_type.is_err());
         let result = field_definition_type.err().unwrap();
         match result {
-            VectorizerParametersError::InvalidFieldDefinitionType {
-                operation,
-                description: _,
-                field,
-                json,
-            } => {
-                match operation {
-                    VectorizerParametersFunction::GetFieldDefinitionType => {}
-                    _ => {
-                        panic!("Unexpected error type");
-                    }
-                }
+            GetFieldDefinitionTypeError::JsonParsingError(error_data) => {
+                let data = error_data.data.unwrap();
+                let field = data["field"].as_str().unwrap();
                 assert_eq!(field, "zAxis");
-                assert!(json.len() > 0);
             }
             _ => {
                 panic!("Unexpected error type");
@@ -661,20 +641,12 @@ mod get_field_definition_type {
         assert!(field_definition_type.is_err());
         let result = field_definition_type.err().unwrap();
         match result {
-            VectorizerParametersError::InvalidFieldDefinitionType {
-                operation,
-                description: _,
-                field,
-                json,
-            } => {
-                match operation {
-                    VectorizerParametersFunction::GetFieldDefinitionType => {}
-                    _ => {
-                        panic!("Unexpected error type");
-                    }
-                }
+            GetFieldDefinitionTypeError::InvalidFieldDefinitionType(error_data) => {
+                let data = error_data.data.unwrap();
+                let field = data["field"].as_str().unwrap();
                 assert_eq!(field, "zAxis");
-                assert!(json.len() > 0);
+                let field_type = data["fieldType"].as_str().unwrap();
+                assert_eq!(field_type, "invalid");
             }
             _ => {
                 panic!("Unexpected error type");
@@ -793,19 +765,11 @@ mod get_field_json_value {
         assert!(field_json_value.is_err());
         let result = field_json_value.err().unwrap();
         match result {
-            VectorizerParametersError::AxisNotDefined {
-                operation,
-                description: _,
-                axis_name,
-            } => {
-                match operation {
-                    VectorizerParametersFunction::GetFieldDefinitionType => {}
-                    _ => {
-                        panic!("Unexpected error type");
-                    }
-                }
-                assert_eq!(axis_name, "xAxis");
-            }
+            GetFieldDefinitionError::AxisNotDefined (error_data)=> {
+                let data = error_data.data.unwrap();
+                let field = data["field"].as_str().unwrap();
+                assert_eq!(field, "xAxis");
+            },
             _ => {
                 panic!("Unexpected error type");
             }
@@ -832,19 +796,11 @@ mod get_field_json_value {
         assert!(field_json_value.is_err());
         let result = field_json_value.err().unwrap();
         match result {
-            VectorizerParametersError::AxisNotDefined {
-                operation,
-                description: _,
-                axis_name,
-            } => {
-                match operation {
-                    VectorizerParametersFunction::GetFieldDefinitionType => {}
-                    _ => {
-                        panic!("Unexpected error type");
-                    }
-                }
-                assert_eq!(axis_name, "yAxis");
-            }
+            GetFieldDefinitionError::AxisNotDefined (error_data)=> {
+                let data = error_data.data.unwrap();
+                let field = data["field"].as_str().unwrap();
+                assert_eq!(field, "yAxis");
+            },
             _ => {
                 panic!("Unexpected error type");
             }
@@ -871,19 +827,11 @@ mod get_field_json_value {
         assert!(field_json_value.is_err());
         let result = field_json_value.err().unwrap();
         match result {
-            VectorizerParametersError::AxisNotDefined {
-                operation,
-                description: _,
-                axis_name,
-            } => {
-                match operation {
-                    VectorizerParametersFunction::GetFieldDefinitionType => {}
-                    _ => {
-                        panic!("Unexpected error type");
-                    }
-                }
-                assert_eq!(axis_name, "zAxis");
-            }
+            GetFieldDefinitionError::AxisNotDefined (error_data)=> {
+                let data = error_data.data.unwrap();
+                let field = data["field"].as_str().unwrap();
+                assert_eq!(field, "zAxis");
+            },
             _ => {
                 panic!("Unexpected error type");
             }
@@ -912,19 +860,11 @@ mod get_field_json_value {
         assert!(field_json_value.is_err());
         let result = field_json_value.err().unwrap();
         match result {
-            VectorizerParametersError::SupportingFieldNotDefined {
-                operation,
-                description: _,
-                field,
-            } => {
-                match operation {
-                    VectorizerParametersFunction::GetFieldDefinitionType => {}
-                    _ => {
-                        panic!("Unexpected error type");
-                    }
-                }
+            GetFieldDefinitionError::SupportingFieldNotDefined(error_data)=> {
+                let data = error_data.data.unwrap();
+                let field = data["field"].as_str().unwrap();
                 assert_eq!(field, "field2");
-            }
+            },
             _ => {
                 panic!("Unexpected error type");
             }
@@ -946,19 +886,11 @@ mod get_field_json_value {
         assert!(field_json_value.is_err());
         let result = field_json_value.err().unwrap();
         match result {
-            VectorizerParametersError::SupportingFieldNotDefined {
-                operation,
-                description: _,
-                field,
-            } => {
-                match operation {
-                    VectorizerParametersFunction::GetFieldDefinitionType => {}
-                    _ => {
-                        panic!("Unexpected error type");
-                    }
-                }
+            GetFieldDefinitionError::SupportingFieldNotDefined(error_data)=> {
+                let data = error_data.data.unwrap();
+                let field = data["field"].as_str().unwrap();
                 assert_eq!(field, "field2");
-            }
+            },
             _ => {
                 panic!("Unexpected error type");
             }
@@ -1098,19 +1030,11 @@ mod get_field_definition {
 
         let field_definition = field_definition.err().unwrap();
         match field_definition {
-            VectorizerParametersError::JsonValidationError {
-                operation,
-                description: _,
-                field,
-            } => {
-                match operation {
-                    VectorizerParametersFunction::GetFieldDefinition => {}
-                    _ => {
-                        panic!("Unexpected error type");
-                    }
-                }
+            GetFieldDefinitionError::JsonParsingError(error_data)=> {
+                let data = error_data.data.unwrap();
+                let field = data["field"].as_str().unwrap();
                 assert_eq!(field, "fieldName");
-            }
+            },
             _ => {
                 panic!("Unexpected error type");
             }
@@ -1236,19 +1160,11 @@ pub mod get_field_definitions {
         assert!(field_definitions.is_err());
         let field_definitions = field_definitions.err().unwrap();
         match field_definitions {
-            VectorizerParametersError::AxisNotDefined {
-                operation,
-                description: _,
-                axis_name,
-            } => {
-                match operation {
-                    VectorizerParametersFunction::GetFieldDefinitions => {}
-                    _ => {
-                        panic!("Unexpected error type");
-                    }
-                }
-                assert_eq!(axis_name, "xAxis");
-            }
+            GetFieldDefinitionsError::AxisNotDefined (error_data)=> {
+                let data = error_data.data.unwrap();
+                let field = data["field"].as_str().unwrap();
+                assert_eq!(field, "xAxis");
+            },
             _ => {
                 panic!("Unexpected error type");
             }
@@ -1295,20 +1211,12 @@ pub mod get_field_definitions {
 
         assert!(field_definitions.is_err());
         let field_definitions = field_definitions.err().unwrap();
-        match field_definitions {
-            VectorizerParametersError::AxisNotDefined {
-                operation,
-                description: _,
-                axis_name,
-            } => {
-                match operation {
-                    VectorizerParametersFunction::GetFieldDefinitions => {}
-                    _ => {
-                        panic!("Unexpected error type");
-                    }
-                }
-                assert_eq!(axis_name, "yAxis");
-            }
+        match field_definitions{
+            GetFieldDefinitionsError::AxisNotDefined (error_data)=> {
+                let data = error_data.data.unwrap();
+                let field = data["field"].as_str().unwrap();
+                assert_eq!(field, "yAxis");
+            },
             _ => {
                 panic!("Unexpected error type");
             }
@@ -1355,20 +1263,12 @@ pub mod get_field_definitions {
 
         assert!(field_definitions.is_err());
         let field_definitions = field_definitions.err().unwrap();
-        match field_definitions {
-            VectorizerParametersError::AxisNotDefined {
-                operation,
-                description: _,
-                axis_name,
-            } => {
-                match operation {
-                    VectorizerParametersFunction::GetFieldDefinitions => {}
-                    _ => {
-                        panic!("Unexpected error type");
-                    }
-                }
-                assert_eq!(axis_name, "zAxis");
-            }
+        match field_definitions{
+            GetFieldDefinitionsError::AxisNotDefined (error_data)=> {
+                let data = error_data.data.unwrap();
+                let field = data["field"].as_str().unwrap();
+                assert_eq!(field, "zAxis");
+            },
             _ => {
                 panic!("Unexpected error type");
             }

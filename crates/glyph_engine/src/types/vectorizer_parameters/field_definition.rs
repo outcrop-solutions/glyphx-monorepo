@@ -193,14 +193,14 @@ impl FieldDefinition {
 
         let has_field_data_type = json_has_field(input, "fieldDataType");
         if has_field_data_type.is_err() {
-            let err = has_field_display_name.err().unwrap();
+            let err = has_field_data_type.err().unwrap();
             let err = FromJsonError::from_json_has_field_error(err);
             return Err(err);
         }
 
         let has_field_definition = json_has_field(input, "fieldDefinition");
         if has_field_definition.is_err() {
-            let err = has_field_display_name.err().unwrap();
+            let err = has_field_definition.err().unwrap();
             let err = FromJsonError::from_json_has_field_error(err);
             return Err(err);
         }
@@ -768,7 +768,7 @@ mod from_json {
         match result {
             FromJsonError::StandardFieldDefinitionError(data) => {
                 let d = data.data.unwrap();
-                assert_eq!(d["fieldName"], "fieldName");
+                assert_eq!(d["field"], "fieldName");
             }
             _ => {
                 panic!("Unexpected result");
@@ -834,7 +834,7 @@ mod from_json {
         match result {
             FromJsonError::DateFieldDefinitionError(data) => {
                 let d = data.data.unwrap();
-                assert_eq!(d["field"], "fieldDataType");
+                assert_eq!(d["field"], "dateGrouping");
             }
             _ => {
                 panic!("Unexpected result");
@@ -914,7 +914,7 @@ mod from_json {
         match result {
             FromJsonError::AccumulatorFieldDefinitionError(data) => {
                 let d = data.data.unwrap();
-                assert_eq!(d["field"], "fieldDataType");
+                assert_eq!(d["field"], "accumulatedFieldDefinition");
             }
             _ => {
                 panic!("Unexpected result");
@@ -962,7 +962,7 @@ mod from_json {
         match result {
             FromJsonError::InvalidFieldType(data) => {
                 let d = data.data.unwrap();
-                assert_eq!(d["field"], "fieldDataType");
+                assert_eq!(d["field"], "test");
             }
             _ => {
                 panic!("Unexpected result");
@@ -985,10 +985,11 @@ mod from_json {
         assert!(result.is_err());
         let result = result.err().unwrap();
         match result {
-            FromJsonError::InvalidFieldType(data) => {
+            FromJsonError::InvalidFieldDefinitionType(data) => {
                 let d = data.data.unwrap();
-                assert_eq!(d["field"], "fieldDataType");
-            }
+                assert_eq!(d["field"], "test");
+                assert_eq!(d["field_definition_type"], "invalid");
+            },
             _ => {
                 panic!("Unexpected result");
             }
@@ -1038,7 +1039,7 @@ mod get_field_definition_type {
         match result {
             FromJsonError::InvalidFieldDefinitionType(data) => {
                 let d = data.data.unwrap();
-                assert_eq!(d["field"], "fieldDataType");
+                assert_eq!(d["field"], "test");
             }
             _ => {
                 panic!("Unexpected result");
@@ -1088,7 +1089,7 @@ mod get_field_data_type {
         match result {
             FromJsonError::InvalidFieldType(data) => {
                 let d = data.data.unwrap();
-                assert_eq!(d["field"], "fieldDataType");
+                assert_eq!(d["field"], "test");
             }
             _ => {
                 panic!("Unexpected result");

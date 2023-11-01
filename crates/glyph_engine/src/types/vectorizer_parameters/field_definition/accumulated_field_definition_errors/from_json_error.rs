@@ -26,7 +26,7 @@ impl FromJsonError {
 
    pub fn from_date_field_from_json_error( input: DateFieldDefinitionFromJsonError) -> Self {
     match input {
-        DateFieldDefinitionFromJsonError::FieldNotDefined(data) => Self::StandardFieldDefinitionFromJsonError(data),
+        DateFieldDefinitionFromJsonError::FieldNotDefined(data) => Self::DateFieldDefinitionFromJsonError(data),
     }
    }
 }
