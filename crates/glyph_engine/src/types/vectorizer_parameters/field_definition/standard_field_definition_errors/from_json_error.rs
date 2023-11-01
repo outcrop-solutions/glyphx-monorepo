@@ -15,4 +15,31 @@ impl FromJsonError {
    }
 }
 
+#[cfg(test)]
+mod from_json_has_field_error{
+    use super::*;
+    use serde_json::json;
 
+    #[test]
+    fn is_ok() {
+       let message = "testMessage";
+       let data = json!({"field": "test"}); 
+       let inner_error = None;
+
+       let data = GlyphxErrorData::new(message.to_string(), Some(data), inner_error); 
+
+       let input = JsonHasFieldError::JsonValidationError(data);
+
+       let result = FromJsonError::from_json_has_field_error(input);
+       match result {
+            FromJsonError::FieldNotDefined(error_data) => {
+                assert_eq!(error_data.message, message);
+                let d = error_data.data.unwrap();
+                let field = d["field"].as_str().unwrap();
+                assert_eq!(field, "test");
+                assert!(error_data.inner_error.is_none());
+            },
+            _ => panic!("Expected FieldNotDefined"),
+       }
+    }
+}
