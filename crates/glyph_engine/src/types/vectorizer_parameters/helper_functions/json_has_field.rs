@@ -19,3 +19,30 @@ pub fn json_has_field(
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod json_has_field {
+    use super::*;
+
+    #[test]
+    fn is_ok() {
+        let input = json!({"field": "test"});
+        let result = json_has_field(&input, "field");
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn is_err() {
+        let input = json!({"field": "test"});
+        let result = json_has_field(&input, "field2");
+        assert!(result.is_err());
+        let result = result.unwrap_err();
+        match result {
+            JsonHasFieldError::JsonValidationError(error_data) => {
+                let d = error_data.data.unwrap();
+                let field = d["field"].as_str().unwrap();
+                assert_eq!(field, "field2");
+            }
+        }
+    }
+}
