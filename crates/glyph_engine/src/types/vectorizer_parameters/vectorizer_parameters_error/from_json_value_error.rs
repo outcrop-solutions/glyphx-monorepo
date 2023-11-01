@@ -17,3 +17,23 @@ impl FromJsonValueError {
         Self::JsonValidationError(error_data)
     }
 }
+
+#[cfg(test)]
+mod constructor {
+    use super::*;
+
+    #[test]
+    fn is_ok() {
+        let field_name = "test";
+        let result = FromJsonValueError::new(field_name);
+        match result {
+            FromJsonValueError::JsonValidationError(error_data) => {
+                assert_eq!(error_data.message, format!("{} is null", field_name));
+                let d = error_data.data.unwrap();
+                let field = d["fieldName"].as_str().unwrap();
+                assert_eq!(field, field_name);
+                assert!(error_data.inner_error.is_none());
+            }
+        }
+    }
+}
