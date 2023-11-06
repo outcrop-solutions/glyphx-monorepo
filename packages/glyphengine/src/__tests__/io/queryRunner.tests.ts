@@ -185,17 +185,17 @@ describe('#io/QueryRunner', () => {
 
     it('should return the correct AVG function', () => {
       const result = queryRunner.getAccumulatorFunction('testColumn', glyphEngineTypes.constants.ACCUMULATOR_TYPE.AVG);
-      assert.strictEqual(result, 'AVG("testColumn")');
+      assert.strictEqual(result, 'AVG(zColumn)');
     });
 
     it('should return the correct MIN function', () => {
       const result = queryRunner.getAccumulatorFunction('testColumn', glyphEngineTypes.constants.ACCUMULATOR_TYPE.MIN);
-      assert.strictEqual(result, 'MIN("testColumn")');
+      assert.strictEqual(result, 'MIN(zColumn)');
     });
 
     it('should return the correct MAX function', () => {
       const result = queryRunner.getAccumulatorFunction('testColumn', glyphEngineTypes.constants.ACCUMULATOR_TYPE.MAX);
-      assert.strictEqual(result, 'MAX("testColumn")');
+      assert.strictEqual(result, 'MAX(zColumn)');
     });
 
     it('should return the correct COUNT function', () => {
@@ -203,12 +203,12 @@ describe('#io/QueryRunner', () => {
         'testColumn',
         glyphEngineTypes.constants.ACCUMULATOR_TYPE.COUNT
       );
-      assert.strictEqual(result, 'COUNT("testColumn")');
+      assert.strictEqual(result, 'COUNT(zColumn)');
     });
 
     it('should return the correct SUM function', () => {
       const result = queryRunner.getAccumulatorFunction('testColumn', glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM);
-      assert.strictEqual(result, 'SUM("testColumn")');
+      assert.strictEqual(result, 'SUM(zColumn)');
     });
   });
 
@@ -308,7 +308,8 @@ describe('#io/QueryRunner', () => {
     });
 
     it('will start a query', async () => {
-      const regexString = `WITH\\s*temp\\s*as\\s*\\(\\s*SELECT\\s*glyphx_id__\\s*as\\s*rowid,\\s*"([^"]+)"\\s*as\\s*groupedXColumn,\\s*"([^"]+)"\\s*as\\s*groupedYColumn,\\s*"([^"]+)"\\s*as\\s*zColumn\\s*FROM\\s*"([^"]+)"\\."([^"]+)"\\s*\\)\\s*SELECT\\s*array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s*as\\s*"rowids",\\s*groupedXColumn,\\s*groupedYColumn,\\s*SUM\\("([^"]+)"\\)\\s*as\\s*zValue\\s*FROM\\s*temp\\s*GROUP\\s*BY\\s*groupedXColumn,\\s*groupedYColumn;`;
+      const regexString = `WITH\\s*temp\\s*as\\s*\\(\\s*SELECT\\s*glyphx_id__\\s*as\\s*rowid,\\s*(DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"[^"]+")\\s*as\\s*groupedXColumn,\\s*(DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"[^"]+")\\s*as\\s*groupedYColumn,\\s*(\\w+)\\s*as\\s*zColumn\\s*FROM\\s*"([^"]+)"\\."([^"]+)"\\s*\\)\\s*SELECT\\s*array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s*as\\s*"rowids",\\s*groupedXColumn,\\s*groupedYColumn,\\s*(SUM|AVG|MIN|MAX|COUNT)\\(\\w+\\)\\s*as\\s*zValue\\s*FROM\\s*temp\\s*GROUP\\s*BY\\s*groupedXColumn,\\s*groupedYColumn;`;
+
       const viewName = 'testViewName';
       const xColumn = 'testXColumn';
       const yColumn = 'testYColumn';
@@ -347,18 +348,18 @@ describe('#io/QueryRunner', () => {
       const queryRegex = new RegExp(regexString, 'gm');
       const match = queryRegex.exec(query) as string[];
       assert.isNotEmpty(match);
-      assert.strictEqual(match.length, 7); // There are only 7 capture groups in the regex provided
-      assert.strictEqual(match[1], xColumn); // The expected value for groupedXColumn
-      assert.strictEqual(match[2], yColumn); // The expected value for groupedYColumn
-      assert.strictEqual(match[3], zColumn); // The expected value for zColumn
-      assert.strictEqual(match[4], databaseName); // The expected value for the database name
-      assert.strictEqual(match[5], viewName); // The expected value for the view name
-      assert.strictEqual(match[6], zColumn); // The expected column name used in the SUM function
+      assert.strictEqual(match.length, 9); // There are only 7 capture groups in the regex provided
+      assert.strictEqual(match[1], `"${xColumn}"`); // The expected value for groupedXColumn
+      assert.strictEqual(match[3], `"${yColumn}"`); // The expected value for groupedYColumn
+      assert.strictEqual(match[5], zColumn); // The expected value for zColumn
+      assert.strictEqual(match[6], databaseName); // The expected value for the database name
+      assert.strictEqual(match[7], viewName); // The expected value for the view name
+      assert.strictEqual(match[8], 'SUM'); // The expected column name used in the SUM function
       assert.isTrue(initStub.calledOnce);
     });
 
     it('will start a query where x and y are dates', async () => {
-      const regexString = `WITH\\s*temp\\s*as\\s*\\(\\s*SELECT\\s*glyphx_id__\\s*as\\s*rowid,\\s*(DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"[^"]+")\\s*as\\s*groupedXColumn,\\s*(DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"[^"]+")\\s*as\\s*groupedYColumn,\\s*"([^"]+)"\\s*as\\s*zColumn\\s*FROM\\s*"([^"]+)"\\."([^"]+)"\\s*\\)\\s*SELECT\\s*array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s*as\\s*"rowids",\\s*groupedXColumn,\\s*groupedYColumn,\\s*SUM\\("([^"]+)"\\)\\s*as\\s*zValue\\s*FROM\\s*temp\\s*GROUP\\s*BY\\s*groupedXColumn,\\s*groupedYColumn;`;
+      const regexString = `WITH\\s*temp\\s*as\\s*\\(\\s*SELECT\\s*glyphx_id__\\s*as\\s*rowid,\\s*(?:DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"([^"]+)")\\s*as\\s*groupedXColumn,\\s*(?:DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"([^"]+)")\\s*as\\s*groupedYColumn,\\s*(\\w+)\\s*as\\s*zColumn\\s*FROM\\s*"([^"]+)"\\."([^"]+)"\\s*\\)\\s*SELECT\\s*array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s*as\\s*"rowids",\\s*groupedXColumn,\\s*groupedYColumn,\\s*(AVG|SUM|MIN|MAX|COUNT)\\(zColumn\\)\\s*as\\s*zValue\\s*FROM\\s*temp\\s*GROUP\\s*BY\\s*groupedXColumn,\\s*groupedYColumn;`;
 
       const viewName = 'testViewName';
       const xColumn = 'testXColumn';
@@ -398,19 +399,20 @@ describe('#io/QueryRunner', () => {
       const queryRegex = new RegExp(regexString, 'gm');
       const match = queryRegex.exec(query) as string[];
       assert.isNotEmpty(match);
-      assert.strictEqual(match.length, 9); // There are only 7 capture groups in the regex provided
-      assert.strictEqual(match[1], `DATE_FORMAT("${xColumn}", '%Y-%j')`);
-      assert.strictEqual(match[3], `DATE_FORMAT("${yColumn}", '%Y-%j')`);
+      assert.strictEqual(match.length, 9); // There are 9  capture groups in the regex provided
+      // NOTE: quotes are omitted because we are matching inside the date format
+      assert.strictEqual(match[1], `${xColumn}`); // The expected value for groupedXColumn
+      assert.strictEqual(match[3], `${yColumn}`); // The expected value for groupedYColumn
       assert.strictEqual(match[5], zColumn); // The expected value for zColumn
       assert.strictEqual(match[6], databaseName); // The expected value for the database name
       assert.strictEqual(match[7], viewName); // The expected value for the view name
-      assert.strictEqual(match[8], zColumn); // The expected column name used in the SUM function
+      assert.strictEqual(match[8], 'SUM'); // The expected column name used in the SUM function
       assert.isTrue(initStub.calledOnce);
     });
 
     it('will start a query with a filter', async () => {
-      const regexStringWFilter = `WITH\\s*temp\\s*as\\s*\\(\\s*SELECT\\s*glyphx_id__\\s*as\\s*rowid,\\s*"([^"]+)"\\s*as\\s*groupedXColumn,\\s*"([^"]+)"\\s*as\\s*groupedYColumn,\\s*"([^"]+)"\\s*as\\s*zColumn\\s*FROM\\s*"([^"]+)"\\."([^"]+)"(\\s+WHERE\\s+.+?)?\\s*\\)\\s*SELECT\\s*array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s*as\\s*"rowids",\\s*groupedXColumn,\\s*groupedYColumn,\\s*SUM\\("([^"]+)"\\)\\s*as\\s*zValue\\s*FROM\\s*temp\\s*GROUP\\s*BY\\s*groupedXColumn,\\s*groupedYColumn;
-`;
+      const regexStringWFilter = `WITH\\s*temp\\s*as\\s*\\(\\s*SELECT\\s*glyphx_id__\\s*as\\s*rowid,\\s*(?:DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"([^"]+)")\\s*as\\s*groupedXColumn,\\s*(?:DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"([^"]+)")\\s*as\\s*groupedYColumn,\\s*(\\w+)\\s*as\\s*zColumn\\s*FROM\\s*"([^"]+)"\\."([^"]+)"(\\s+WHERE\\s+.+?)?\\s*\\)\\s*SELECT\\s*array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s*as\\s*"rowids",\\s*groupedXColumn,\\s*groupedYColumn,\\s*(AVG|SUM|MIN|MAX|COUNT)\\(zColumn\\)\\s*as\\s*zValue\\s*FROM\\s*temp\\s*GROUP\\s*BY\\s*groupedXColumn,\\s*groupedYColumn;`;
+
       const viewName = 'testViewName';
       const xColumn = 'testXColumn';
       const yColumn = 'testYColumn';
@@ -451,13 +453,13 @@ describe('#io/QueryRunner', () => {
       const queryRegex = new RegExp(regexStringWFilter, 'gm');
       const match = queryRegex.exec(query) as string[];
       assert.isNotEmpty(match);
-      assert.strictEqual(match.length, 8); // Adjust this to the actual number of capturing groups in your regex.
-      assert.strictEqual(match[1], xColumn); // groupedXColumn
-      assert.strictEqual(match[2], yColumn); // groupedYColumn
-      assert.strictEqual(match[3], zColumn); // zColumn
-      assert.strictEqual(match[4], databaseName); // Database name
-      assert.strictEqual(match[5], viewName); // View name
-      assert.strictEqual(match[7], zColumn); // Column name in SUM function
+      assert.strictEqual(match.length, 10); // Adjust this to the actual number of capturing groups in your regex.
+      assert.strictEqual(match[2], xColumn); // groupedXColumn
+      assert.strictEqual(match[4], yColumn); // groupedYColumn
+      assert.strictEqual(match[5], zColumn); // zColumn
+      assert.strictEqual(match[6], databaseName); // Database name
+      assert.strictEqual(match[7], viewName); // View name
+      assert.strictEqual(match[9], 'SUM');
       // If the filter is expected to be present, check for it
       assert.include(query, `WHERE ${filter}`); // Checks if the WHERE clause is present in the query
 

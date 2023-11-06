@@ -106,15 +106,15 @@ export class QueryRunner {
   ): glyphEngineTypes.constants.ACCUMULATOR_TYPE | string {
     switch (accumulatorType) {
       case glyphEngineTypes.constants.ACCUMULATOR_TYPE.AVG:
-        return `AVG("${columnName}")`;
+        return `AVG(zColumn)`;
       case glyphEngineTypes.constants.ACCUMULATOR_TYPE.MIN:
-        return `MIN("${columnName}")`;
+        return `MIN(zColumn)`;
       case glyphEngineTypes.constants.ACCUMULATOR_TYPE.MAX:
-        return `MAX("${columnName}")`;
+        return `MAX(zColumn)`;
       case glyphEngineTypes.constants.ACCUMULATOR_TYPE.COUNT:
-        return `COUNT("${columnName}")`;
+        return `COUNT(zColumn)`;
       default: // Assuming SUM as default
-        return `SUM("${columnName}")`;
+        return `SUM(zColumn)`;
     }
   }
 
@@ -169,7 +169,7 @@ export class QueryRunner {
         SELECT glyphx_id__ as rowid, 
         ${groupByXColumn} as groupedXColumn, 
         ${groupByYColumn} as groupedYColumn, 
-        "${this.zColumn}" as zColumn
+        ${this.zColumn} as zColumn
         FROM "${this.databaseName}"."${this.viewName}" 
         ${this.filter}
     )  
