@@ -7,12 +7,14 @@ use crate::GlyphxError;
 //glyphx_core.
 use crate as glyphx_core;
 
+/// This error is returned by the get_file_information function when the S3Manager is unable to find the information for the
+/// requested file.
 #[derive(Debug, Clone, GlyphxError)]
-#[error_definition("SecretManager")]
-pub enum GetSecretsValueError {
-    SecretNotDefined(GlyphxErrorData),
-    InvalidJson(GlyphxErrorData),
+#[error_definition("S3Manager")]
+pub enum GetFileInformationError {
+    ///Is returned when the file or bucket cannot be found.  This error does not
+    ///differentiate between the two conditions.
+    KeyDoesNotExist(GlyphxErrorData),
+    ///Is returned for all other error conditions.
     UnexpectedError(GlyphxErrorData),
-
 }
-

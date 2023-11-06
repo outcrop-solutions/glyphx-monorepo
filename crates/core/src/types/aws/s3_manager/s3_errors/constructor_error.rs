@@ -7,12 +7,14 @@ use crate::GlyphxError;
 //glyphx_core.
 use crate as glyphx_core;
 
+/// This error is returned  by the new function.
 #[derive(Debug, Clone, GlyphxError)]
-#[error_definition("SecretManager")]
-pub enum GetSecretsValueError {
-    SecretNotDefined(GlyphxErrorData),
-    InvalidJson(GlyphxErrorData),
+#[error_definition("S3Manager")]
+pub enum ConstructorError {
+    /// As part of the construction process, the S3Manager will check to see if
+    /// the bucket exists.  If it does not, a BucketDoesNotExist error is
+    /// returned.
+    BucketDoesNotExist(GlyphxErrorData),
+    ///Is returned for all other error conditions.
     UnexpectedError(GlyphxErrorData),
-
 }
-

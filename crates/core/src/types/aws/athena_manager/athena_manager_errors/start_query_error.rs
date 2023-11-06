@@ -7,12 +7,15 @@ use crate::GlyphxError;
 //glyphx_core.
 use crate as glyphx_core;
 
+///Errors that are returned from our start_query method.
 #[derive(Debug, Clone, GlyphxError)]
-#[error_definition("SecretManager")]
-pub enum GetSecretsValueError {
-    SecretNotDefined(GlyphxErrorData),
-    InvalidJson(GlyphxErrorData),
+#[error_definition("AthenaManager")]
+pub enum StartQueryError {
+    ///If the databse does not exist or the query is malformed, this error will be returned.
+    DatabaseDoesNotExist(GlyphxErrorData),
+    ///If AWS throttled our query do to execution limits, this error will be returned.
+    RequestWasThrottled(GlyphxErrorData),
+    ///If any other error occurs while trying to start a query, this error will be returned.
     UnexpectedError(GlyphxErrorData),
-
 }
 

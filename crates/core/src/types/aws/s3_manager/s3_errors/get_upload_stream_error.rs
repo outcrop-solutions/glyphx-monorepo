@@ -7,12 +7,10 @@ use crate::GlyphxError;
 //glyphx_core.
 use crate as glyphx_core;
 
+/// This error is returned by the get_upload_stream function.
 #[derive(Debug, Clone, GlyphxError)]
-#[error_definition("SecretManager")]
-pub enum GetSecretsValueError {
-    SecretNotDefined(GlyphxErrorData),
-    InvalidJson(GlyphxErrorData),
+#[error_definition("S3Manager")]
+pub enum GetUploadStreamError {
+    /// Any error condition that is reported by AWS is wrapped by this error.
     UnexpectedError(GlyphxErrorData),
-
 }
-

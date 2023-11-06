@@ -7,12 +7,13 @@ use crate::GlyphxError;
 //glyphx_core.
 use crate as glyphx_core;
 
+///This list_objects method returns the list of objects and this error should an error condition
+///arise.
 #[derive(Debug, Clone, GlyphxError)]
-#[error_definition("SecretManager")]
-pub enum GetSecretsValueError {
-    SecretNotDefined(GlyphxErrorData),
-    InvalidJson(GlyphxErrorData),
+#[error_definition("S3Manager")]
+pub enum ListObjectsError {
+    ///If AWS reports that the bucket is no longer available, this error is returned.
+    BucketDoesNotExist(GlyphxErrorData),
+    ///Handles all other error conditions.
     UnexpectedError(GlyphxErrorData),
-
 }
-

@@ -8,11 +8,8 @@ use crate::GlyphxError;
 use crate as glyphx_core;
 
 #[derive(Debug, Clone, GlyphxError)]
-#[error_definition("SecretManager")]
-pub enum GetSecretsValueError {
-    SecretNotDefined(GlyphxErrorData),
-    InvalidJson(GlyphxErrorData),
+#[error_definition("LoggingSetup")]
+pub enum LoggingError {
+    ConfigurationError(GlyphxErrorData),
     UnexpectedError(GlyphxErrorData),
-
 }
-

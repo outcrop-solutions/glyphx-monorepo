@@ -7,12 +7,14 @@ use crate::GlyphxError;
 //glyphx_core.
 use crate as glyphx_core;
 
+/// Errors that are returend from our AthenaManager::new method.
 #[derive(Debug, Clone, GlyphxError)]
-#[error_definition("SecretManager")]
-pub enum GetSecretsValueError {
-    SecretNotDefined(GlyphxErrorData),
-    InvalidJson(GlyphxErrorData),
+#[error_definition("AthenaManager")]
+pub enum ConstructorError {
+    ///as part of the construction process, the new method will check to see if the database exists
+    ///in the supplied catalog. If it does not, this error will be returned.
+    DatabaseDoesNotExist(GlyphxErrorData),
+    ///any other errors that occur while trying to contruct an AthenaManager will return
+    ///UnexpectedError.
     UnexpectedError(GlyphxErrorData),
-
 }
-

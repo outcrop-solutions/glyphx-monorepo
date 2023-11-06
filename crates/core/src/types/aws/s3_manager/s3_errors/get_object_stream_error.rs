@@ -7,12 +7,14 @@ use crate::GlyphxError;
 //glyphx_core.
 use crate as glyphx_core;
 
+/// This error is returned by the get_object_stream function.
 #[derive(Debug, Clone, GlyphxError)]
-#[error_definition("SecretManager")]
-pub enum GetSecretsValueError {
-    SecretNotDefined(GlyphxErrorData),
-    InvalidJson(GlyphxErrorData),
+#[error_definition("S3Manager")]
+pub enum GetObjectStreamError {
+    /// Is returned when the object exists but is not currently available.
+    ObjectUnavailable(GlyphxErrorData),
+    /// Is returned when the object does not exist.
+    KeyDoesNotExist(GlyphxErrorData),
+    /// Is returned for all other error conditions.
     UnexpectedError(GlyphxErrorData),
-
 }
-

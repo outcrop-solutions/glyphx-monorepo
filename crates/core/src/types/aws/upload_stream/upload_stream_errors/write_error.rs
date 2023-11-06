@@ -6,13 +6,17 @@ use crate::GlyphxError;
 //however, breaks errors defined in the core crate.  To get past this, I am aliasing crate to
 //glyphx_core.
 use crate as glyphx_core;
-
+///
+/// This enum holds the possible errors that can be returned by the upload streams write
+/// function.
 #[derive(Debug, Clone, GlyphxError)]
-#[error_definition("SecretManager")]
-pub enum GetSecretsValueError {
-    SecretNotDefined(GlyphxErrorData),
-    InvalidJson(GlyphxErrorData),
+#[error_definition("UploadStream")]
+pub enum UploadStreamWriteError {
+    ///Indicates that an unexpected error occurred while trying to write a part of the multipart upload
+    ///to AWS S3.
     UnexpectedError(GlyphxErrorData),
-
+    ///Indicates that the upload stream has been previously aborted and cannot be written to.
+    Aborted(GlyphxErrorData),
+    ///Indicates that the upload stream has been previously finished and cannot be written to.
+    Finished(GlyphxErrorData),
 }
-
