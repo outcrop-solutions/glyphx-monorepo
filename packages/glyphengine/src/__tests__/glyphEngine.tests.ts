@@ -12,6 +12,7 @@ import {IQueryResponse} from '../interfaces';
 import {QUERY_STATUS} from '../constants';
 import {SdtParser} from '../io/sdtParser';
 import {Heartbeat, processTrackingService, projectService} from 'business';
+import {glyphEngineTypes} from 'types';
 
 describe('GlyphEngine', () => {
   const mockProject = {
@@ -863,11 +864,30 @@ describe('GlyphEngine', () => {
       const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId) as any;
 
       const viewName = 'testViewName';
-      const xcolumn = 'testXColumn';
+      const xColumn = 'testXColumn';
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
 
-      const queryRunner = new QueryRunner(databaseName, viewName, xcolumn, yColumn, zColumn) as any;
+      const isXDate = false;
+      const isYDate = false;
+      const isZDate = false;
+      const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
+      const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
+      const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
+
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xColumn,
+        yColumn,
+        zColumn,
+        isXDate,
+        isYDate,
+        isZDate,
+        xDateGrouping,
+        yDateGrouping,
+        zAccumulatorType,
+      }) as any;
 
       queryRunner.queryId = queryId;
       glyphEngine.queryRunner = queryRunner;
@@ -904,11 +924,29 @@ describe('GlyphEngine', () => {
       const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId) as any;
 
       const viewName = 'testViewName';
-      const xcolumn = 'testXColumn';
+      const xColumn = 'testXColumn';
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
+      const isXDate = false;
+      const isYDate = false;
+      const isZDate = false;
+      const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
+      const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
+      const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
 
-      const queryRunner = new QueryRunner(databaseName, viewName, xcolumn, yColumn, zColumn) as any;
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xColumn,
+        yColumn,
+        zColumn,
+        isXDate,
+        isYDate,
+        isZDate,
+        xDateGrouping,
+        yDateGrouping,
+        zAccumulatorType,
+      }) as any;
 
       queryRunner.queryId = queryId;
       glyphEngine.queryRunner = queryRunner;
@@ -945,11 +983,30 @@ describe('GlyphEngine', () => {
       const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId) as any;
 
       const viewName = 'testViewName';
-      const xcolumn = 'testXColumn';
+      const xColumn = 'testXColumn';
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
 
-      const queryRunner = new QueryRunner(databaseName, viewName, xcolumn, yColumn, zColumn) as any;
+      const isXDate = false;
+      const isYDate = false;
+      const isZDate = false;
+      const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
+      const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
+      const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
+
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xColumn,
+        yColumn,
+        zColumn,
+        isXDate,
+        isYDate,
+        isZDate,
+        xDateGrouping,
+        yDateGrouping,
+        zAccumulatorType,
+      }) as any;
 
       queryRunner.queryId = queryId;
       glyphEngine.queryRunner = queryRunner;

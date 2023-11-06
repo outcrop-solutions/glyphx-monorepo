@@ -1,5 +1,5 @@
 import {aws, error, logging, generalPurposeFunctions, streams} from 'core';
-import {fileIngestionTypes, databaseTypes} from 'types';
+import {fileIngestionTypes, databaseTypes, glyphEngineTypes} from 'types';
 import {SdtParser} from './io';
 import {QueryRunner} from './io/queryRunner';
 import {IQueryResponse} from './interfaces';
@@ -281,8 +281,27 @@ export class GlyphEngine {
     const yCol = data.get('y_axis') as string;
     const zCol = data.get('z_axis') as string;
     const filter = (data.get('filter') as string) ?? undefined;
+    const isXDate = data.get('type_x') === 'date'; // comes from this.getDataType
+    const isYDate = data.get('type_y') === 'date'; // comes from this.getDataType
+    const isZDate = data.get('type_z') === 'date'; // comes from this.getDataType
+    const xDateGrouping = data.get('x_date_grouping') as glyphEngineTypes.constants.DATE_GROUPING;
+    const yDateGrouping = data.get('y_date_grouping') as glyphEngineTypes.constants.DATE_GROUPING;
+    const zAccumulatorType = data.get('accumulatorType') as glyphEngineTypes.constants.ACCUMULATOR_TYPE;
 
-    this.queryRunner = new QueryRunner(this.athenaManager.databaseName, viewName, xCol, yCol, zCol, filter);
+    this.queryRunner = new QueryRunner({
+      databaseName: this.athenaManager.databaseName,
+      viewName,
+      xColumn: xCol,
+      yColumn: yCol,
+      zColumn: zCol,
+      isXDate: isXDate,
+      isYDate: isYDate,
+      isZDate: isZDate,
+      xDateGrouping: xDateGrouping,
+      yDateGrouping: yDateGrouping,
+      zAccumulatorType: zAccumulatorType,
+      filter,
+    });
     await this.queryRunner.init();
     this.queryId = await this.queryRunner.startQuery();
   }
@@ -324,6 +343,7 @@ export class GlyphEngine {
 
     return updatedTemplate;
   }
+
   getFunction(data: Map<string, string>, key: string, func: string) {
     if (data.get(key) !== 'string') {
       if ((data.get(func) as string) === 'LOG') return 'Logarithmic Interpolation';
