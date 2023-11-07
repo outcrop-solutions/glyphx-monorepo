@@ -101,6 +101,11 @@ export const projectAtom = atom<any>({
   default: null,
 });
 
+export const documentAtom = atom<any>({
+  key: 'liveblockDocumentAtom',
+  default: null,
+});
+
 // right sidebar info
 export const projectDetailsAtom = atom<databaseTypes.IProject | null>({
   key: 'projectDetailsAtom',

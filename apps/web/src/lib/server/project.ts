@@ -15,13 +15,16 @@ import {formatUserAgent} from 'lib/utils';
  */
 
 export const createProject = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {name, workspaceId} = req.body;
+  const {name, workspaceId, description, docId} = req.body;
   try {
     const project = await projectService.createProject(
       name,
       workspaceId,
-      session?.user?.id,
-      session?.user?.email as string
+      session.user.id,
+      session.user.email,
+      undefined,
+      description ?? '',
+      docId
     );
 
     const {agentData, location} = formatUserAgent(req);

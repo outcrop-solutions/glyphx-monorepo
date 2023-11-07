@@ -1,6 +1,6 @@
 use crate::types::field_definition_type::FieldDefinitionType;
-use crate::types::vectorizer_parameters::{json_value_has_field, VectorizerParametersError, VectorizerParametersFunction};
-
+use crate::types::vectorizer_parameters::json_has_field;
+use super::DateFieldDefinitionFromJsonError;
 use serde_json::Value;
 
 #[derive(Debug, Copy, Clone)]
@@ -39,10 +39,11 @@ pub struct DateFieldDefinition {
 }
 
 impl DateFieldDefinition {
-    pub fn from_json(input: &Value) -> Result<Self, VectorizerParametersError> {
+    pub fn from_json(input: &Value) -> Result<Self, DateFieldDefinitionFromJsonError> {
         let validation_result = Self::validate_json(input);
         if validation_result.is_err()  {
-            return Err( validation_result.err().unwrap() );
+            let err = validation_result.err().unwrap();
+            return Err(err);
         }
         let field_name = input["fieldName"].as_str().unwrap().to_string();
         let field_type = FieldDefinitionType::Date;
@@ -54,23 +55,25 @@ impl DateFieldDefinition {
             date_grouping,
         })
     }
-    fn validate_json(input: &Value) -> Result<(), VectorizerParametersError> {
-        let has_field_name = json_value_has_field(
+    fn validate_json(input: &Value) -> Result<(), DateFieldDefinitionFromJsonError> {
+        let has_field_name = json_has_field(
             input,
             "fieldName",
-            VectorizerParametersFunction::DateFieldDefinitionFromJsonValue,
         );
         if has_field_name.is_err() {
-            return Err(has_field_name.err().unwrap());
+            let err = has_field_name.err().unwrap();
+            let err = DateFieldDefinitionFromJsonError::from_json_has_field_error(err);
+            return Err(err);
         }
 
-        let has_date_grouping = json_value_has_field(
+        let has_date_grouping = json_has_field(
             input,
             "dateGrouping",
-            VectorizerParametersFunction::DateFieldDefinitionFromJsonValue,
         );
         if has_date_grouping.is_err() {
-            return Err(has_date_grouping.err().unwrap());
+            let err = has_date_grouping.err().unwrap();
+            let err = DateFieldDefinitionFromJsonError::from_json_has_field_error(err);
+            return Err(err);
         }
         Ok(())
 
@@ -180,17 +183,12 @@ mod validate_json {
         assert!(result.is_err());
         let result = result.err().unwrap();
         match result {
-            VectorizerParametersError::JsonValidationError {
-                operation,
-                description: _,
-                field,
-            } => {
-                assert_eq!(field, "fieldName");
-                match operation {
-                    VectorizerParametersFunction::DateFieldDefinitionFromJsonValue => assert!(true),
-                    _ => assert!(false),
-                }
-            }
+             DateFieldDefinitionFromJsonError::FieldNotDefined(error_data) => {
+                let data = error_data.data.unwrap();
+                let field_name  = data["field"].as_str().unwrap();
+                assert_eq!(field_name, "fieldName");
+
+            },
             _ => {
                 panic!("Unexpected result");
             }
@@ -206,22 +204,19 @@ mod validate_json {
         let result = DateFieldDefinition::validate_json(&input);
         assert!(result.is_err());
         let result = result.err().unwrap();
+       
         match result {
-            VectorizerParametersError::JsonValidationError {
-                operation,
-                description: _,
-                field,
-            } => {
-                assert_eq!(field, "dateGrouping");
-                match operation {
-                    VectorizerParametersFunction::DateFieldDefinitionFromJsonValue => assert!(true),
-                    _ => assert!(false),
-                }
-            }
+             DateFieldDefinitionFromJsonError::FieldNotDefined(error_data) => {
+                let data = error_data.data.unwrap();
+                let field_name  = data["field"].as_str().unwrap();
+                assert_eq!(field_name, "dateGrouping");
+
+            },
             _ => {
                 panic!("Unexpected result");
             }
         }
+
     }
 }
 
@@ -260,21 +255,18 @@ mod from_json {
         let result = DateFieldDefinition::from_json(&input);
         assert!(result.is_err());
         let result = result.err().unwrap();
+        
         match result {
-            VectorizerParametersError::JsonValidationError {
-                operation,
-                description: _,
-                field,
-            } => {
-                assert_eq!(field, "fieldName");
-                match operation {
-                    VectorizerParametersFunction::DateFieldDefinitionFromJsonValue => assert!(true),
-                    _ => assert!(false),
-                }
-            }
+             DateFieldDefinitionFromJsonError::FieldNotDefined(error_data) => {
+                let data = error_data.data.unwrap();
+                let field_name  = data["field"].as_str().unwrap();
+                assert_eq!(field_name, "fieldName");
+
+            },
             _ => {
                 panic!("Unexpected result");
             }
         }
+
     }
 }

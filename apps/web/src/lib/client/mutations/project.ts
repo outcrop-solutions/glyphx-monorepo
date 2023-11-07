@@ -25,11 +25,16 @@ export const _createDefaultProject = (workspaceId: string): webTypes.IFetchConfi
  * @param description
  * @returns
  */
-export const _createProject = (workspaceId: string, name: string, description: string): webTypes.IFetchConfig => {
+export const _createProject = (
+  docId: string,
+  workspaceId: string,
+  name: string,
+  description: string
+): webTypes.IFetchConfig => {
   return {
     url: '/api/project/create',
     options: {
-      body: {name: name, description: description, workspaceId},
+      body: {docId, name: name, description: description, workspaceId},
       method: 'POST',
     },
     successMsg: 'New project successfully created',
