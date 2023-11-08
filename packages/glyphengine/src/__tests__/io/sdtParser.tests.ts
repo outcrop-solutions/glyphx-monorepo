@@ -109,8 +109,8 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-
-      const sdtParser = (await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager)) as any;
+      const initialParser = new SdtParser('xCol', 'yCol', 'zCol');
+      const sdtParser = (await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager)) as any;
 
       assert.instanceOf(sdtParser, SdtParser);
       assert.equal((sdtParser as any).viewName, viewName);
@@ -161,7 +161,8 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
+      const initialParser = new SdtParser('xCol', 'yCol', 'zCol');
+      const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const dataSource = sdtParser.getDataSource();
 
       assert.strictEqual(dataSource.tableName, viewName);
@@ -199,7 +200,8 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
+      const initialParser = new SdtParser('xCol', 'yCol', 'zCol');
+      const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const positionX = sdtParser.getGlyphProperty('Position', 'X');
       assert.strictEqual(positionX?.function, FUNCTION.TEXT_INTERPOLATION);
       assert.strictEqual(positionX?.min, 205);
@@ -234,7 +236,8 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
+      const initialParser = new SdtParser('xCol', 'yCol', 'zCol');
+      const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const positionX = sdtParser.getGlyphProperty('Scale', 'X');
       assert.strictEqual(positionX?.function, FUNCTION.LINEAR_INTERPOLATION);
       assert.strictEqual(positionX?.min, 1);
@@ -269,7 +272,8 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
+      const initialParser = new SdtParser('xCol', 'yCol', 'zCol');
+      const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const transparency = sdtParser.getGlyphProperty('Color', 'Transparency');
       assert.strictEqual(transparency?.function, FUNCTION.LINEAR_INTERPOLATION);
       assert.strictEqual(transparency?.min, 0);
@@ -290,7 +294,8 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
+      const initialParser = new SdtParser('xCol', 'yCol', 'zCol');
+      const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const rgb = sdtParser.getGlyphProperty('Color', 'RGB');
       assert.strictEqual(rgb?.function, FUNCTION.LINEAR_INTERPOLATION);
       assert.strictEqual(rgb?.min, 0);
@@ -311,7 +316,8 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
+      const initialParser = new SdtParser('xCol', 'yCol', 'zCol');
+      const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
 
       delete (sdtParser as any).sdtAsJson.Transform.Glyphs.Glyph.Color;
 
@@ -331,7 +337,8 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
+      const initialParser = new SdtParser('xCol', 'yCol', 'zCol');
+      const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
 
       delete (sdtParser as any).sdtAsJson.Transform.Glyphs.Glyph.Color.RGB;
 
@@ -368,7 +375,8 @@ describe('SdtParser', () => {
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
 
-      const sdtParser = (await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager)) as any;
+      const initialParser = new SdtParser('xCol', 'yCol', 'zCol');
+      const sdtParser = (await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager)) as any;
 
       const inputFields = sdtParser.getInputFields();
       assert.strictEqual(inputFields.x.field, data.get('x_axis'));

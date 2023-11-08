@@ -12,30 +12,41 @@ export interface IInputFields {
   z: IInputField;
 }
 export class SdtParser {
-  private readonly sdtAsJson: sdt.ISdtDocument;
-  private readonly viewName: string;
+  private readonly sdtAsJson: sdt.ISdtDocument | undefined;
+  private readonly viewName: string | undefined;
   private inputFieldsField?: IInputFields;
-  private readonly bindings: {x: string; y: string; z: string};
+  private readonly bindings: {x: string; y: string; z: string} | undefined;
   private readonly shapeField: SHAPE;
-  private readonly data: Map<string, string>;
-  private readonly athenaManager: aws.AthenaManager;
+  private readonly data: Map<string, string> | undefined;
+  private readonly athenaManager: aws.AthenaManager | undefined;
+  private xCol: string;
+  private yCol: string;
+  private zCol: string;
 
-  private constructor(
-    parsedDocument: sdt.ISdtDocument,
-    viewName: string,
-    data: Map<string, string>,
-    athenaManager: aws.AthenaManager
+  constructor(
+    xCol: string,
+    yCol: string,
+    zCol: string,
+    parsedDocument?: sdt.ISdtDocument,
+    viewName?: string,
+    data?: Map<string, string>,
+    athenaManager?: aws.AthenaManager
   ) {
+    this.xCol = xCol;
+    this.yCol = yCol;
+    this.zCol = zCol;
     this.sdtAsJson = parsedDocument;
     this.viewName = viewName;
-    this.bindings = this.getBindings();
+    if (viewName) {
+      this.bindings = this.getBindings();
+    }
     this.shapeField = SHAPE.CUBE;
     this.data = data;
     this.athenaManager = athenaManager;
   }
 
   private getBindings() {
-    const position = this.sdtAsJson.Transform.Glyphs.Glyph.Position;
+    const position = this.sdtAsJson!.Transform.Glyphs.Glyph.Position;
     const x = position.X.Binding['@_fieldId'];
     const y = position.Y.Binding['@_fieldId'];
     const z = position.Z.Binding['@_fieldId'];
@@ -43,8 +54,8 @@ export class SdtParser {
   }
 
   private getSdtInpuField(field: 'x' | 'y' | 'z'): sdt.ISdtInputField {
-    const binding = this.bindings[field];
-    const inputField = this.sdtAsJson.Transform.InputFields.InputField.find(
+    const binding = this.bindings![field];
+    const inputField = this.sdtAsJson!.Transform.InputFields.InputField.find(
       (i) => i['@_name'] === binding
     ) as sdt.ISdtInputField;
     return inputField;
@@ -71,11 +82,11 @@ export class SdtParser {
       field: sdtInputField['@_field'],
       min: minMax[fieldName].min,
       max: minMax[fieldName].max,
-      table: this.viewName,
+      table: this.viewName!,
     };
 
     if (retval.type === TYPE.TEXT) {
-      const textToNumberConverter = new TextColumnToNumberConverter(this.viewName, retval.field, this.athenaManager);
+      const textToNumberConverter = new TextColumnToNumberConverter(this.viewName!, retval.field, this.athenaManager!);
       await textToNumberConverter.load();
       retval.text_to_num = textToNumberConverter;
       retval.min = 0;
@@ -90,24 +101,27 @@ export class SdtParser {
     const z = this.getSdtInpuField('z');
 
     const minMaxCalculator = new MinMaxCalculator(
-      this.athenaManager,
-      this.viewName,
+      this.xCol,
+      this.yCol,
+      this.zCol,
+      this.athenaManager!,
+      this.viewName!,
       x['@_field'],
       y['@_field'],
       z['@_field']
     );
 
     await minMaxCalculator.load();
-    const xInputField = await this.buildInputField('x', x, minMaxCalculator.minMax, this.data.get('type_x') as string);
+    const xInputField = await this.buildInputField('x', x, minMaxCalculator.minMax, this.data!.get('type_x') as string);
 
-    const yInputField = await this.buildInputField('y', y, minMaxCalculator.minMax, this.data.get('type_y') as string);
+    const yInputField = await this.buildInputField('y', y, minMaxCalculator.minMax, this.data!.get('type_y') as string);
 
-    const zInputField = await this.buildInputField('z', z, minMaxCalculator.minMax, this.data.get('type_z') as string);
+    const zInputField = await this.buildInputField('z', z, minMaxCalculator.minMax, this.data!.get('type_z') as string);
 
     this.inputFieldsField = {x: xInputField, y: yInputField, z: zInputField};
   }
 
-  public static async parseSdtString(
+  public async parseSdtString(
     sdtString: string,
     viewName: string,
     data: Map<string, string>,
@@ -120,18 +134,26 @@ export class SdtParser {
     const parser = new XMLParser(options);
     const parsedDocument = parser.parse(sdtString);
 
-    const sdtParser = new SdtParser(parsedDocument as unknown as ISdtDocument, viewName, data, athenaManager);
+    const sdtParser = new SdtParser(
+      this.xCol,
+      this.yCol,
+      this.zCol,
+      parsedDocument as unknown as ISdtDocument,
+      viewName,
+      data,
+      athenaManager
+    );
     await sdtParser.loadInputFields();
     return sdtParser;
   }
 
   public getDataSource(): IDataSource {
-    const dataSource = this.sdtAsJson.Transform.Datasources.Datasource;
+    const dataSource = this.sdtAsJson!.Transform.Datasources.Datasource;
     const retval: IDataSource = {
       source: dataSource['@_source'],
       type: dataSource['@_type'],
       id: dataSource['@_id'],
-      tableName: this.viewName,
+      tableName: this.viewName!,
     };
 
     return retval;
@@ -141,7 +163,7 @@ export class SdtParser {
     propertyName: 'Position' | 'Scale' | 'Color',
     axis: 'X' | 'Y' | 'Z' | 'RGB' | 'Transparency'
   ): IProperty | null {
-    const glyph = this.sdtAsJson.Transform.Glyphs.Glyph;
+    const glyph = this.sdtAsJson!.Transform.Glyphs.Glyph;
     const property = glyph[propertyName];
 
     if (!property) return null;

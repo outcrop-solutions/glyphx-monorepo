@@ -1,4 +1,3 @@
-import {UserInfo} from 'liveblocks.config';
 import {DocumentRoomMetadata} from './document';
 
 /**
@@ -38,5 +37,7 @@ export type RoomActiveUser = {
   type: 'user';
   id: string;
   connectionId: number;
-  info: UserInfo;
+  info: Pick<UserInfo, 'name' | 'image' | 'color' | 'email' | 'projectIds'>;
 };
+
+type UserInfo = {name: string; color: string; image: string; email: string; projectIds: string[]};

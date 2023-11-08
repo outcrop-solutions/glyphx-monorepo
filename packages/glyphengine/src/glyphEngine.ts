@@ -192,7 +192,9 @@ export class GlyphEngine {
       const sdtFileName = `${prefix}/${payloadHash}.sdt`;
       await this.outputBucketField.putObject(sdtFileName, template);
 
-      const sdtParser = await SdtParser.parseSdtString(template, viewName, data, this.athenaManager);
+      const {xCol, yCol, zCol} = this.formatCols(data);
+      const initialParser = new SdtParser(xCol, yCol, zCol);
+      const sdtParser = await initialParser.parseSdtString(template, viewName, data, this.athenaManager);
 
       await processTrackingService.addProcessMessage(
         this.processId,
@@ -209,7 +211,7 @@ export class GlyphEngine {
           `Creating Gyphs and uploading files: ${new Date()}`
         );
 
-        const fileNames = await this.processData(sdtParser, prefix, payloadHash);
+        const fileNames = await this.processData(sdtParser as unknown as SdtParser, prefix, payloadHash);
         sgnFileName = fileNames.sgnFileName;
         sgcFileName = fileNames.sgcFileName;
       }
@@ -275,12 +277,9 @@ export class GlyphEngine {
     return status;
   }
 
-  private async startQuery(data: Map<string, string>, viewName: string): Promise<void> {
-    //TODO: need some validation here
+  private formatCols(data: Map<string, string>): {xCol: string; yCol: string; zCol: string} {
     const xCol = data.get('x_axis') as string;
     const yCol = data.get('y_axis') as string;
-    const zCol = data.get('z_axis') as string;
-    const filter = (data.get('filter') as string) ?? undefined;
     const isXDate = data.get('type_x') === 'date'; // comes from this.getDataType
     const isYDate = data.get('type_y') === 'date'; // comes from this.getDataType
     const isZDate = data.get('type_z') === 'date'; // comes from this.getDataType
@@ -288,22 +287,89 @@ export class GlyphEngine {
     const yDateGrouping = data.get('y_date_grouping') as glyphEngineTypes.constants.DATE_GROUPING;
     const zAccumulatorType = data.get('accumulatorType') as glyphEngineTypes.constants.ACCUMULATOR_TYPE;
 
+    let groupByXColumn: glyphEngineTypes.constants.DATE_GROUPING | string;
+    let groupByYColumn: glyphEngineTypes.constants.DATE_GROUPING | string;
+    if (isXDate) {
+      groupByXColumn = GlyphEngine.getDateGroupingFunction(xCol, xDateGrouping);
+    } else {
+      groupByXColumn = `"${xCol}"`;
+    }
+    if (isYDate) {
+      groupByYColumn = GlyphEngine.getDateGroupingFunction(yCol, yDateGrouping);
+    } else {
+      groupByYColumn = `"${yCol}"`;
+    }
+
+    const accumulatorFunction: glyphEngineTypes.constants.ACCUMULATOR_TYPE | string =
+      GlyphEngine.getAccumulatorFunction(isZDate, zAccumulatorType);
+    return {
+      xCol: groupByXColumn,
+      yCol: groupByYColumn,
+      zCol: accumulatorFunction,
+    };
+  }
+
+  private async startQuery(data: Map<string, string>, viewName: string): Promise<void> {
+    //TODO: need some validation here
+    const filter = (data.get('filter') as string) ?? undefined;
+    const {xCol, yCol, zCol} = this.formatCols(data);
+
     this.queryRunner = new QueryRunner({
       databaseName: this.athenaManager.databaseName,
       viewName,
-      xColumn: xCol,
-      yColumn: yCol,
-      zColumn: zCol,
-      isXDate: isXDate,
-      isYDate: isYDate,
-      isZDate: isZDate,
-      xDateGrouping: xDateGrouping,
-      yDateGrouping: yDateGrouping,
-      zAccumulatorType: zAccumulatorType,
+      xCol,
+      yCol,
+      zCol,
       filter,
     });
     await this.queryRunner.init();
     this.queryId = await this.queryRunner.startQuery();
+  }
+
+  public static getAccumulatorFunction(
+    isZDate: boolean,
+    accumulatorType: glyphEngineTypes.constants.ACCUMULATOR_TYPE
+  ): glyphEngineTypes.constants.ACCUMULATOR_TYPE | string {
+    if (isZDate) {
+      return `COUNT(zColumn)`;
+    }
+    switch (accumulatorType) {
+      case glyphEngineTypes.constants.ACCUMULATOR_TYPE.AVG:
+        return `AVG(zColumn)`;
+      case glyphEngineTypes.constants.ACCUMULATOR_TYPE.MIN:
+        return `MIN(zColumn)`;
+      case glyphEngineTypes.constants.ACCUMULATOR_TYPE.MAX:
+        return `MAX(zColumn)`;
+      case glyphEngineTypes.constants.ACCUMULATOR_TYPE.COUNT:
+        return `COUNT(zColumn)`;
+      default: // Assuming SUM as default
+        return `SUM(zColumn)`;
+    }
+  }
+
+  // Maps date grouping to PRESTO compatible SQL functions
+  public static getDateGroupingFunction(
+    columnName: string,
+    dateGroup: glyphEngineTypes.constants.DATE_GROUPING
+  ): glyphEngineTypes.constants.DATE_GROUPING | string {
+    switch (dateGroup) {
+      case glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR:
+        return `DATE_FORMAT("${columnName}", '%Y-%j')`;
+      case glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_MONTH:
+        return `DAY("${columnName}")`;
+      case glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK:
+        return `CAST(EXTRACT(DOW FROM "${columnName}") AS INTEGER)`;
+      case glyphEngineTypes.constants.DATE_GROUPING.WEEK_OF_YEAR:
+        return `WEEK("${columnName}")`;
+      case glyphEngineTypes.constants.DATE_GROUPING.MONTH_OF_YEAR:
+        return `MONTH("${columnName}")`;
+      case glyphEngineTypes.constants.DATE_GROUPING.YEAR:
+        return `YEAR("${columnName}")`;
+      case glyphEngineTypes.constants.DATE_GROUPING.QUARTER:
+        return `QUARTER("${columnName}")`;
+      default:
+        return `"${columnName}"`;
+    }
   }
 
   updateSdt(template: string, data: Map<string, string>): string {

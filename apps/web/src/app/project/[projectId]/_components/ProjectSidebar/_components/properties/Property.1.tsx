@@ -1,15 +1,10 @@
-'use client';
 import {useDrop} from 'react-dnd';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {webTypes, fileIngestionTypes, glyphEngineTypes} from 'types';
 import {AxesIcons} from '../icons/AxesIcons';
-
 import {useProject} from 'services';
 import {handleDataType} from 'lib/client/helpers/handleDataType';
-
-// state
 import {projectAtom, singlePropertySelectorFamily} from 'state/project';
-
 import ClearIcon from 'public/svg/clear-icon.svg';
 import LinIcon from 'public/svg/lin-icon.svg';
 import LogIcon from 'public/svg/log-icon.svg';
@@ -29,7 +24,6 @@ export const Property = ({axis}) => {
   const {mutate} = useSWRConfig();
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
   const {handleDrop} = useProject();
-  console.log({project});
 
   const [{isOver, canDrop}, drop] = useDrop({
     accept: prop.accepts,
@@ -149,6 +143,38 @@ export const Property = ({axis}) => {
     );
   }, [axis, setProject, handleDrop, project, prop.dataType, prop.direction, prop.key]);
 
+  const changeAggregator = useCallback((accumulatorType: glyphEngineTypes.constants.ACCUMULATOR_TYPE) => {
+    setProject(
+      produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+        draft.state.properties[`${axis}`].accumulatorType = accumulatorType;
+      })
+    );
+
+    const newProject = {
+      ...project,
+      state: {
+        ...project.state,
+        properties: {
+          ...project.state.properties,
+          [`${axis}`]: {
+            ...project.state.properties[axis],
+            accumulatorType,
+          },
+        },
+      },
+    };
+    handleDrop(
+      axis,
+      {
+        type: 'COLUMN_DRAG',
+        key: prop.key,
+        dataType: prop.dataType,
+      },
+      newProject,
+      false
+    );
+  }, []);
+
   return (
     <li
       ref={drop}
@@ -210,9 +236,9 @@ export const Property = ({axis}) => {
           {prop.direction === webTypes.constants.DIRECTION_TYPE.ASC ? <SwapLeftIcon /> : <SwapRightIcon />}
         </div>
         {(axis === 'X' || axis === 'Y') && prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE && (
-          <DateGroupingListbox prop={prop} project={project} setProject={setProject} axis={axis} />
+          <DateGroupingListbox />
         )}
-        {axis === 'Z' && <AccumulatorType prop={prop} project={project} setProject={setProject} axis={axis} />}
+        {axis === 'Z' && <AccumulatorType />}
       </div>
     </li>
   );

@@ -2,7 +2,7 @@
 /* eslint-disable no-lone-blocks */
 import React, {useState} from 'react';
 import {useRecoilValue} from 'recoil';
-import {Property} from './Property';
+import {Property} from './Property.1';
 import {propertiesSelector} from 'state';
 
 export const Properties = () => {

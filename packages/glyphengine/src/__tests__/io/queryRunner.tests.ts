@@ -14,30 +14,18 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const isXDate = false;
-      const isYDate = false;
-      const isZDate = false;
-      const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
 
       const queryRunner = new QueryRunner({
         databaseName,
         viewName,
-        xColumn,
-        yColumn,
-        zColumn,
-        isXDate,
-        isYDate,
-        isZDate,
-        xDateGrouping,
-        yDateGrouping,
-        zAccumulatorType,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
       }) as any;
       assert.strictEqual(queryRunner.viewName, viewName);
-      assert.strictEqual(queryRunner.xColumn, xColumn);
-      assert.strictEqual(queryRunner.yColumn, yColumn);
-      assert.strictEqual(queryRunner.zColumn, zColumn);
+      assert.strictEqual(queryRunner.xCol, xColumn);
+      assert.strictEqual(queryRunner.yCol, yColumn);
+      assert.strictEqual(queryRunner.zCol, zColumn);
       assert.strictEqual(queryRunner.databaseName, databaseName);
       assert.instanceOf(queryRunner.athenaManager, aws.AthenaManager);
       assert.isFalse(queryRunner.inited);
@@ -57,25 +45,13 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const isXDate = false;
-      const isYDate = false;
-      const isZDate = false;
-      const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
 
       const queryRunner = new QueryRunner({
         databaseName,
         viewName,
-        xColumn,
-        yColumn,
-        zColumn,
-        isXDate,
-        isYDate,
-        isZDate,
-        xDateGrouping,
-        yDateGrouping,
-        zAccumulatorType,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
       }) as any;
       const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();
@@ -89,25 +65,13 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const isXDate = false;
-      const isYDate = false;
-      const isZDate = false;
-      const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
 
       const queryRunner = new QueryRunner({
         databaseName,
         viewName,
-        xColumn,
-        yColumn,
-        zColumn,
-        isXDate,
-        isYDate,
-        isZDate,
-        xDateGrouping,
-        yDateGrouping,
-        zAccumulatorType,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
       }) as any;
       const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();
@@ -123,25 +87,13 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const isXDate = false;
-      const isYDate = false;
-      const isZDate = false;
-      const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
 
       const queryRunner = new QueryRunner({
         databaseName,
         viewName,
-        xColumn,
-        yColumn,
-        zColumn,
-        isXDate,
-        isYDate,
-        isZDate,
-        xDateGrouping,
-        yDateGrouping,
-        zAccumulatorType,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
       }) as any;
       const initStub = sandbox.stub(queryRunner.athenaManager, 'init').rejects(err);
       let errored = false;
@@ -156,150 +108,6 @@ describe('#io/QueryRunner', () => {
     });
   });
 
-  context('getAccumulatorFunction', () => {
-    const viewName = 'testViewName';
-    const xColumn = 'testXColumn';
-    const yColumn = 'testYColumn';
-    const zColumn = 'testZColumn';
-    const databaseName = 'testDatabaseName';
-    const isXDate = false;
-    const isYDate = false;
-    const isZDate = false;
-    const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-    const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-    const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
-
-    const queryRunner = new QueryRunner({
-      databaseName,
-      viewName,
-      xColumn,
-      yColumn,
-      zColumn,
-      isXDate,
-      isYDate,
-      isZDate,
-      xDateGrouping,
-      yDateGrouping,
-      zAccumulatorType,
-    }) as any;
-
-    it('should return the correct AVG function', () => {
-      const result = queryRunner.getAccumulatorFunction('testColumn', glyphEngineTypes.constants.ACCUMULATOR_TYPE.AVG);
-      assert.strictEqual(result, 'AVG(zColumn)');
-    });
-
-    it('should return the correct MIN function', () => {
-      const result = queryRunner.getAccumulatorFunction('testColumn', glyphEngineTypes.constants.ACCUMULATOR_TYPE.MIN);
-      assert.strictEqual(result, 'MIN(zColumn)');
-    });
-
-    it('should return the correct MAX function', () => {
-      const result = queryRunner.getAccumulatorFunction('testColumn', glyphEngineTypes.constants.ACCUMULATOR_TYPE.MAX);
-      assert.strictEqual(result, 'MAX(zColumn)');
-    });
-
-    it('should return the correct COUNT function', () => {
-      const result = queryRunner.getAccumulatorFunction(
-        'testColumn',
-        glyphEngineTypes.constants.ACCUMULATOR_TYPE.COUNT
-      );
-      assert.strictEqual(result, 'COUNT(zColumn)');
-    });
-
-    it('should return the correct SUM function', () => {
-      const result = queryRunner.getAccumulatorFunction('testColumn', glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM);
-      assert.strictEqual(result, 'SUM(zColumn)');
-    });
-  });
-
-  context('getDateGroupingFunction', () => {
-    const viewName = 'testViewName';
-    const xColumn = 'testXColumn';
-    const yColumn = 'testYColumn';
-    const zColumn = 'testZColumn';
-    const databaseName = 'testDatabaseName';
-    const isXDate = false;
-    const isYDate = false;
-    const isZDate = false;
-    const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-    const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-    const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
-
-    const queryRunner = new QueryRunner({
-      databaseName,
-      viewName,
-      xColumn,
-      yColumn,
-      zColumn,
-      isXDate,
-      isYDate,
-      isZDate,
-      xDateGrouping,
-      yDateGrouping,
-      zAccumulatorType,
-    }) as any;
-    it('should return the correct DAY_OF_YEAR function', () => {
-      const result = queryRunner.getDateGroupingFunction(
-        'testDateColumn',
-        glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR
-      );
-      assert.strictEqual(result, 'DATE_FORMAT("testDateColumn", \'%Y-%j\')');
-    });
-
-    it('should return the correct DAY_OF_MONTH function', () => {
-      const result = queryRunner.getDateGroupingFunction(
-        'testDateColumn',
-        glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_MONTH
-      );
-      assert.strictEqual(result, 'DAY("testDateColumn")');
-    });
-
-    it('should return the correct DAY_OF_WEEK function', () => {
-      const result = queryRunner.getDateGroupingFunction(
-        'testDateColumn',
-        glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK
-      );
-      assert.strictEqual(result, 'CAST(EXTRACT(DOW FROM "testDateColumn") AS INTEGER)');
-    });
-
-    it('should return the correct WEEK_OF_YEAR function', () => {
-      const result = queryRunner.getDateGroupingFunction(
-        'testDateColumn',
-        glyphEngineTypes.constants.DATE_GROUPING.WEEK_OF_YEAR
-      );
-      assert.strictEqual(result, 'WEEK("testDateColumn")');
-    });
-
-    it('should return the correct MONTH_OF_YEAR function', () => {
-      const result = queryRunner.getDateGroupingFunction(
-        'testDateColumn',
-        glyphEngineTypes.constants.DATE_GROUPING.MONTH_OF_YEAR
-      );
-      assert.strictEqual(result, 'MONTH("testDateColumn")');
-    });
-
-    it('should return the correct YEAR function', () => {
-      const result = queryRunner.getDateGroupingFunction(
-        'testDateColumn',
-        glyphEngineTypes.constants.DATE_GROUPING.YEAR
-      );
-      assert.strictEqual(result, 'YEAR("testDateColumn")');
-    });
-
-    it('should return the correct QUARTER function', () => {
-      const result = queryRunner.getDateGroupingFunction(
-        'testDateColumn',
-        glyphEngineTypes.constants.DATE_GROUPING.QUARTER
-      );
-      assert.strictEqual(result, 'QUARTER("testDateColumn")');
-    });
-
-    it('should return the original column name when an unknown date grouping is provided', () => {
-      const result = queryRunner.getDateGroupingFunction('testDateColumn', 'UNKNOWN_GROUPING');
-      assert.strictEqual(result, '"testDateColumn"');
-    });
-  });
-
   context('startQuery', () => {
     const sandbox = createSandbox();
 
@@ -308,32 +116,22 @@ describe('#io/QueryRunner', () => {
     });
 
     it('will start a query', async () => {
-      const regexString = `WITH\\s*temp\\s*as\\s*\\(\\s*SELECT\\s*glyphx_id__\\s*as\\s*rowid,\\s*(DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"[^"]+")\\s*as\\s*groupedXColumn,\\s*(DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"[^"]+")\\s*as\\s*groupedYColumn,\\s*(\\w+)\\s*as\\s*zColumn\\s*FROM\\s*"([^"]+)"\\."([^"]+)"\\s*\\)\\s*SELECT\\s*array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s*as\\s*"rowids",\\s*groupedXColumn,\\s*groupedYColumn,\\s*(SUM|AVG|MIN|MAX|COUNT)\\(\\w+\\)\\s*as\\s*zValue\\s*FROM\\s*temp\\s*GROUP\\s*BY\\s*groupedXColumn,\\s*groupedYColumn;`;
+      const regexString = `WITH\\s+temp\\s+as\\s*\\(\\s*SELECT\\s+glyphx_id__\\s+as\\s+rowid,\\s*([^\\s]+)\\s+as\\s+groupedXColumn,\\s*([^\\s]+)\\s+as\\s+groupedYColumn,\\s*(SUM\\(([^\\s]+)\\))\\s+as\\s+zColumn\\s*FROM\\s+"([^"]+)"\\."([^"]+)"\\s*\\)\\s*SELECT\\s+array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s+as\\s+"rowids",\\s*groupedXColumn,\\s*groupedYColumn,\\s*(SUM\\(([^\\s]+)\\))\\s+as\\s+zValue\\s*FROM\\s+temp\\s+GROUP\\s+BY\\s+groupedXColumn,\\s+groupedYColumn;`;
+
+      // const regexString = `WITH\\s+temp\\s+as\\s*\\(\\s*SELECT\\s+glyphx_id__\\s+as\\s+rowid,\\s*([^\\s]+)\\s+as\\s+groupedXColumn,\\s*([^\\s]+)\\s+as\\s+groupedYColumn,\\s*([^\\s]+)\\s+as\\s+zColumn\\s*FROM\\s+"([^"]+)"\\."([^"]+)"\\s*\\)\\s*SELECT\\s+array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s+as\\s+"rowids",\\s*groupedXColumn,\\s*groupedYColumn,\\s*([^\\s]+)\\s+as\\s+zValue\\s*FROM\\s+temp\\s+GROUP\\s+BY\\s+groupedXColumn,\\s+groupedYColumn;`;
 
       const viewName = 'testViewName';
       const xColumn = 'testXColumn';
       const yColumn = 'testYColumn';
-      const zColumn = 'testZColumn';
+      const zColumn = 'SUM(zColumn)';
       const databaseName = 'testDatabaseName';
-      const isXDate = false;
-      const isYDate = false;
-      const isZDate = false;
-      const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
 
       const queryRunner = new QueryRunner({
         databaseName,
         viewName,
-        xColumn,
-        yColumn,
-        zColumn,
-        isXDate,
-        isYDate,
-        isZDate,
-        xDateGrouping,
-        yDateGrouping,
-        zAccumulatorType,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
       }) as any;
 
       const queryId = 'testQueryId';
@@ -349,42 +147,33 @@ describe('#io/QueryRunner', () => {
       const match = queryRegex.exec(query) as string[];
       assert.isNotEmpty(match);
       assert.strictEqual(match.length, 9); // There are only 7 capture groups in the regex provided
-      assert.strictEqual(match[1], `"${xColumn}"`); // The expected value for groupedXColumn
-      assert.strictEqual(match[3], `"${yColumn}"`); // The expected value for groupedYColumn
-      assert.strictEqual(match[5], zColumn); // The expected value for zColumn
-      assert.strictEqual(match[6], databaseName); // The expected value for the database name
-      assert.strictEqual(match[7], viewName); // The expected value for the view name
-      assert.strictEqual(match[8], 'SUM'); // The expected column name used in the SUM function
+      assert.strictEqual(match[1], `${xColumn}`); // The expected value for groupedXColumn
+      assert.strictEqual(match[2], `${yColumn}`); // The expected value for groupedYColumn
+      assert.strictEqual(match[3], zColumn); // The expected value for zColumn
+      assert.strictEqual(match[4], 'zColumn'); // The expected value for zColumn
+      assert.strictEqual(match[5], databaseName); // The expected value for the database name
+      assert.strictEqual(match[6], viewName); // The expected value for the view name
+
       assert.isTrue(initStub.calledOnce);
     });
 
     it('will start a query where x and y are dates', async () => {
-      const regexString = `WITH\\s*temp\\s*as\\s*\\(\\s*SELECT\\s*glyphx_id__\\s*as\\s*rowid,\\s*(?:DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"([^"]+)")\\s*as\\s*groupedXColumn,\\s*(?:DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"([^"]+)")\\s*as\\s*groupedYColumn,\\s*(\\w+)\\s*as\\s*zColumn\\s*FROM\\s*"([^"]+)"\\."([^"]+)"\\s*\\)\\s*SELECT\\s*array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s*as\\s*"rowids",\\s*groupedXColumn,\\s*groupedYColumn,\\s*(AVG|SUM|MIN|MAX|COUNT)\\(zColumn\\)\\s*as\\s*zValue\\s*FROM\\s*temp\\s*GROUP\\s*BY\\s*groupedXColumn,\\s*groupedYColumn;`;
+      const regexString = `WITH\\s+temp\\s+as\\s*\\(\\s*SELECT\\s+glyphx_id__\\s+as\\s+rowid,\\s+DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)\\s+as\\s+groupedXColumn,\\s+DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)\\s+as\\s+groupedYColumn,\\s+SUM\\((\\w+)\\)\\s+as\\s+zColumn\\s*FROM\\s+"([^"]+)"\\."([^"]+)"\\s*\\)\\s*SELECT\\s+array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s+as\\s+"rowids",\\s+groupedXColumn,\\s+groupedYColumn,\\s+SUM\\((\\w+)\\)\\s+as\\s+zValue\\s*FROM\\s+temp\\s+GROUP\\s+BY\\s+groupedXColumn,\\s+groupedYColumn;`;
+
+      // const regexString = `WITH\\s*temp\\s*as\\s*\\(\\s*SELECT\\s*glyphx_id__\\s*as\\s*rowid,\\s*(?:DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"([^"]+)")\\s*as\\s*groupedXColumn,\\s*(?:DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"([^"]+)")\\s*as\\s*groupedYColumn,\\s*(\\w+)\\s*as\\s*zColumn\\s*FROM\\s*"([^"]+)"\\."([^"]+)"\\s*\\)\\s*SELECT\\s*array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s*as\\s*"rowids",\\s*groupedXColumn,\\s*groupedYColumn,\\s*(AVG|SUM|MIN|MAX|COUNT)\\(zColumn\\)\\s*as\\s*zValue\\s*FROM\\s*temp\\s*GROUP\\s*BY\\s*groupedXColumn,\\s*groupedYColumn;`;
 
       const viewName = 'testViewName';
-      const xColumn = 'testXColumn';
-      const yColumn = 'testYColumn';
-      const zColumn = 'testZColumn';
+      const xColumn = `DATE_FORMAT("testXColumn", '%Y-%j')`;
+      const yColumn = `DATE_FORMAT("testYColumn", '%Y-%j')`;
+      const zColumn = 'SUM(zColumn)';
       const databaseName = 'testDatabaseName';
-      const isXDate = true;
-      const isYDate = true;
-      const isZDate = false;
-      const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
 
       const queryRunner = new QueryRunner({
         databaseName,
         viewName,
-        xColumn,
-        yColumn,
-        zColumn,
-        isXDate,
-        isYDate,
-        isZDate,
-        xDateGrouping,
-        yDateGrouping,
-        zAccumulatorType,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
       }) as any;
 
       const queryId = 'testQueryId';
@@ -399,45 +188,32 @@ describe('#io/QueryRunner', () => {
       const queryRegex = new RegExp(regexString, 'gm');
       const match = queryRegex.exec(query) as string[];
       assert.isNotEmpty(match);
-      assert.strictEqual(match.length, 9); // There are 9  capture groups in the regex provided
+      assert.strictEqual(match.length, 7); // There are 9  capture groups in the regex provided
       // NOTE: quotes are omitted because we are matching inside the date format
-      assert.strictEqual(match[1], `${xColumn}`); // The expected value for groupedXColumn
-      assert.strictEqual(match[3], `${yColumn}`); // The expected value for groupedYColumn
-      assert.strictEqual(match[5], zColumn); // The expected value for zColumn
-      assert.strictEqual(match[6], databaseName); // The expected value for the database name
-      assert.strictEqual(match[7], viewName); // The expected value for the view name
-      assert.strictEqual(match[8], 'SUM'); // The expected column name used in the SUM function
+      assert.strictEqual(match[1], `testXColumn`); // The expected value for groupedXColumn
+      assert.strictEqual(match[2], `testYColumn`); // The expected value for groupedYColumn
+      assert.strictEqual(match[3], `zColumn`); // The expected value for zColumn
+      assert.strictEqual(match[4], databaseName); // The expected value for the database name
+      assert.strictEqual(match[5], viewName); // The expected value for the view name
       assert.isTrue(initStub.calledOnce);
     });
 
     it('will start a query with a filter', async () => {
-      const regexStringWFilter = `WITH\\s*temp\\s*as\\s*\\(\\s*SELECT\\s*glyphx_id__\\s*as\\s*rowid,\\s*(?:DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"([^"]+)")\\s*as\\s*groupedXColumn,\\s*(?:DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"([^"]+)")\\s*as\\s*groupedYColumn,\\s*(\\w+)\\s*as\\s*zColumn\\s*FROM\\s*"([^"]+)"\\."([^"]+)"(\\s+WHERE\\s+.+?)?\\s*\\)\\s*SELECT\\s*array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s*as\\s*"rowids",\\s*groupedXColumn,\\s*groupedYColumn,\\s*(AVG|SUM|MIN|MAX|COUNT)\\(zColumn\\)\\s*as\\s*zValue\\s*FROM\\s*temp\\s*GROUP\\s*BY\\s*groupedXColumn,\\s*groupedYColumn;`;
+      const regexStringWFilter = `WITH\\s+temp\\s+as\\s*\\(\\s*SELECT\\s+glyphx_id__\\s+as\\s+rowid,\\s+DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)\\s+as\\s+groupedXColumn,\\s+DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)\\s+as\\s+groupedYColumn,\\s+SUM\\((\\w+)\\)\\s+as\\s+zColumn\\s*FROM\\s+"([^"]+)"\\."([^"]+)"(\\s+WHERE\\s+[^)]+)?\\s*\\)\\s*SELECT\\s+array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s+as\\s+"rowids",\\s+groupedXColumn,\\s+groupedYColumn,\\s+SUM\\((\\w+)\\)\\s+as\\s+zValue\\s*FROM\\s+temp\\s+GROUP\\s+BY\\s+groupedXColumn,\\s+groupedYColumn(?:\\s+HAVING\\s+[^)]+)?;`;
 
       const viewName = 'testViewName';
-      const xColumn = 'testXColumn';
-      const yColumn = 'testYColumn';
-      const zColumn = 'testZColumn';
+      const xColumn = `DATE_FORMAT("testXColumn", '%Y-%j')`;
+      const yColumn = `DATE_FORMAT("testYColumn", '%Y-%j')`;
+      const zColumn = 'SUM(zColumn)';
       const databaseName = 'testDatabaseName';
       const filter = 'foo = bar';
-      const isXDate = false;
-      const isYDate = false;
-      const isZDate = false;
-      const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
 
       const queryRunner = new QueryRunner({
         databaseName,
         viewName,
-        xColumn,
-        yColumn,
-        zColumn,
-        isXDate,
-        isYDate,
-        isZDate,
-        xDateGrouping,
-        yDateGrouping,
-        zAccumulatorType,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
         filter,
       }) as any;
 
@@ -453,13 +229,12 @@ describe('#io/QueryRunner', () => {
       const queryRegex = new RegExp(regexStringWFilter, 'gm');
       const match = queryRegex.exec(query) as string[];
       assert.isNotEmpty(match);
-      assert.strictEqual(match.length, 10); // Adjust this to the actual number of capturing groups in your regex.
-      assert.strictEqual(match[2], xColumn); // groupedXColumn
-      assert.strictEqual(match[4], yColumn); // groupedYColumn
-      assert.strictEqual(match[5], zColumn); // zColumn
-      assert.strictEqual(match[6], databaseName); // Database name
-      assert.strictEqual(match[7], viewName); // View name
-      assert.strictEqual(match[9], 'SUM');
+      assert.strictEqual(match.length, 8); // Adjust this to the actual number of capturing groups in your regex.
+      assert.strictEqual(match[1], `testXColumn`); // The expected value for groupedXColumn
+      assert.strictEqual(match[2], `testYColumn`); // The expected value for groupedYColumn
+      assert.strictEqual(match[3], `zColumn`); // The expected value for zColumn
+      assert.strictEqual(match[4], databaseName); // The expected value for the database name
+      assert.strictEqual(match[5], viewName); // The expected value for the view name
       // If the filter is expected to be present, check for it
       assert.include(query, `WHERE ${filter}`); // Checks if the WHERE clause is present in the query
 
@@ -472,25 +247,13 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const isXDate = false;
-      const isYDate = false;
-      const isZDate = false;
-      const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
 
       const queryRunner = new QueryRunner({
         databaseName,
         viewName,
-        xColumn,
-        yColumn,
-        zColumn,
-        isXDate,
-        isYDate,
-        isZDate,
-        xDateGrouping,
-        yDateGrouping,
-        zAccumulatorType,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
       }) as any;
 
       const queryStub = sandbox.stub(queryRunner.athenaManager, 'startQuery').rejects(err);
@@ -522,25 +285,13 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const isXDate = false;
-      const isYDate = false;
-      const isZDate = false;
-      const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
 
       const queryRunner = new QueryRunner({
         databaseName,
         viewName,
-        xColumn,
-        yColumn,
-        zColumn,
-        isXDate,
-        isYDate,
-        isZDate,
-        xDateGrouping,
-        yDateGrouping,
-        zAccumulatorType,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
       }) as any;
 
       const queryId = 'testQueryId';
@@ -569,25 +320,13 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const isXDate = false;
-      const isYDate = false;
-      const isZDate = false;
-      const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
 
       const queryRunner = new QueryRunner({
         databaseName,
         viewName,
-        xColumn,
-        yColumn,
-        zColumn,
-        isXDate,
-        isYDate,
-        isZDate,
-        xDateGrouping,
-        yDateGrouping,
-        zAccumulatorType,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
       }) as any;
 
       const queryId = 'testQueryId';
@@ -621,25 +360,13 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const isXDate = false;
-      const isYDate = false;
-      const isZDate = false;
-      const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
 
       const queryRunner = new QueryRunner({
         databaseName,
         viewName,
-        xColumn,
-        yColumn,
-        zColumn,
-        isXDate,
-        isYDate,
-        isZDate,
-        xDateGrouping,
-        yDateGrouping,
-        zAccumulatorType,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
       }) as any;
 
       const queryId = 'testQueryId';
@@ -672,25 +399,13 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const isXDate = false;
-      const isYDate = false;
-      const isZDate = false;
-      const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
 
       const queryRunner = new QueryRunner({
         databaseName,
         viewName,
-        xColumn,
-        yColumn,
-        zColumn,
-        isXDate,
-        isYDate,
-        isZDate,
-        xDateGrouping,
-        yDateGrouping,
-        zAccumulatorType,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
       }) as any;
 
       const queryId = 'testQueryId';
@@ -719,25 +434,13 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const isXDate = false;
-      const isYDate = false;
-      const isZDate = false;
-      const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
 
       const queryRunner = new QueryRunner({
         databaseName,
         viewName,
-        xColumn,
-        yColumn,
-        zColumn,
-        isXDate,
-        isYDate,
-        isZDate,
-        xDateGrouping,
-        yDateGrouping,
-        zAccumulatorType,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
       }) as any;
 
       const queryId = 'testQueryId';
@@ -766,25 +469,13 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const isXDate = false;
-      const isYDate = false;
-      const isZDate = false;
-      const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
 
       const queryRunner = new QueryRunner({
         databaseName,
         viewName,
-        xColumn,
-        yColumn,
-        zColumn,
-        isXDate,
-        isYDate,
-        isZDate,
-        xDateGrouping,
-        yDateGrouping,
-        zAccumulatorType,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
       }) as any;
 
       const queryId = 'testQueryId';
@@ -809,25 +500,13 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const isXDate = false;
-      const isYDate = false;
-      const isZDate = false;
-      const xDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const yDateGrouping = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
-      const zAccumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM;
 
       const queryRunner = new QueryRunner({
         databaseName,
         viewName,
-        xColumn,
-        yColumn,
-        zColumn,
-        isXDate,
-        isYDate,
-        isZDate,
-        xDateGrouping,
-        yDateGrouping,
-        zAccumulatorType,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
       }) as any;
 
       const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
