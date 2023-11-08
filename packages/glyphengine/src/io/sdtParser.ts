@@ -22,11 +22,13 @@ export class SdtParser {
   private xCol: string;
   private yCol: string;
   private zCol: string;
+  private zColName: string;
 
   constructor(
     xCol: string,
     yCol: string,
     zCol: string,
+    zColName: string,
     parsedDocument?: sdt.ISdtDocument,
     viewName?: string,
     data?: Map<string, string>,
@@ -35,6 +37,7 @@ export class SdtParser {
     this.xCol = xCol;
     this.yCol = yCol;
     this.zCol = zCol;
+    this.zColName = zColName;
     this.sdtAsJson = parsedDocument;
     this.viewName = viewName;
     if (viewName) {
@@ -104,6 +107,7 @@ export class SdtParser {
       this.xCol,
       this.yCol,
       this.zCol,
+      this.zColName,
       this.athenaManager!,
       this.viewName!,
       x['@_field'],
@@ -138,6 +142,7 @@ export class SdtParser {
       this.xCol,
       this.yCol,
       this.zCol,
+      this.zColName,
       parsedDocument as unknown as ISdtDocument,
       viewName,
       data,

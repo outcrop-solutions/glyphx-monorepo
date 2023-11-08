@@ -874,6 +874,7 @@ describe('GlyphEngine', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        zColName: zColumn,
       }) as any;
 
       queryRunner.queryId = queryId;
@@ -920,6 +921,7 @@ describe('GlyphEngine', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        zColName: zColumn,
       }) as any;
 
       queryRunner.queryId = queryId;
@@ -967,6 +969,7 @@ describe('GlyphEngine', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        zColName: zColumn,
       }) as any;
 
       queryRunner.queryId = queryId;
@@ -1113,7 +1116,7 @@ describe('GlyphEngine', () => {
         'testDateColumn',
         glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR
       );
-      assert.strictEqual(result, 'DATE_FORMAT("testDateColumn", \'%Y-%j\')');
+      assert.strictEqual(result, `day_of_year(from_unixtime("testDateColumn"/1000))")`);
     });
 
     it('should return the correct DAY_OF_MONTH function', () => {
@@ -1121,7 +1124,7 @@ describe('GlyphEngine', () => {
         'testDateColumn',
         glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_MONTH
       );
-      assert.strictEqual(result, 'DAY("testDateColumn")');
+      assert.strictEqual(result, `day(from_unixtime("testDateColumn"/1000))")`);
     });
 
     it('should return the correct DAY_OF_WEEK function', () => {
@@ -1129,7 +1132,7 @@ describe('GlyphEngine', () => {
         'testDateColumn',
         glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK
       );
-      assert.strictEqual(result, 'CAST(EXTRACT(DOW FROM "testDateColumn") AS INTEGER)');
+      assert.strictEqual(result, `day_of_week(from_unixtime("testDateColumn"/1000))")`);
     });
 
     it('should return the correct WEEK_OF_YEAR function', () => {
@@ -1137,15 +1140,15 @@ describe('GlyphEngine', () => {
         'testDateColumn',
         glyphEngineTypes.constants.DATE_GROUPING.WEEK_OF_YEAR
       );
-      assert.strictEqual(result, 'WEEK("testDateColumn")');
+      assert.strictEqual(result, `week_of_year(from_unixtime("testDateColumn"/1000))")`);
     });
 
-    it('should return the correct MONTH_OF_YEAR function', () => {
+    it('should return the correct year of week function', () => {
       const result = GlyphEngine.getDateGroupingFunction(
         'testDateColumn',
-        glyphEngineTypes.constants.DATE_GROUPING.MONTH_OF_YEAR
+        glyphEngineTypes.constants.DATE_GROUPING.YEAR_OF_WEEK
       );
-      assert.strictEqual(result, 'MONTH("testDateColumn")');
+      assert.strictEqual(result, `year_of_week(from_unixtime("testDateColumn"/1000))")`);
     });
 
     it('should return the correct YEAR function', () => {
@@ -1153,7 +1156,14 @@ describe('GlyphEngine', () => {
         'testDateColumn',
         glyphEngineTypes.constants.DATE_GROUPING.YEAR
       );
-      assert.strictEqual(result, 'YEAR("testDateColumn")');
+      assert.strictEqual(result, `year(from_unixtime("testDateColumn"/1000))")`);
+    });
+    it('should return the correct MONTH function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.MONTH
+      );
+      assert.strictEqual(result, `month(from_unixtime("testDateColumn"/1000))")`);
     });
 
     it('should return the correct QUARTER function', () => {
@@ -1161,7 +1171,7 @@ describe('GlyphEngine', () => {
         'testDateColumn',
         glyphEngineTypes.constants.DATE_GROUPING.QUARTER
       );
-      assert.strictEqual(result, 'QUARTER("testDateColumn")');
+      assert.strictEqual(result, `quarter(from_unixtime("testDateColumn"/1000))")`);
     });
 
     it('should return the original column name when an unknown date grouping is provided', () => {
@@ -1417,7 +1427,7 @@ describe('GlyphEngine', () => {
       putObjectStub.resolves();
       sandbox.replace(aws.S3Manager.prototype, 'putObject', putObjectStub);
 
-      const sdtParser = new SdtParser('xCol', 'yCol', 'zCol');
+      const sdtParser = new SdtParser('xCol', 'yCol', 'zCol', 'zCol');
       const parseSdtStringStub = sandbox.stub();
       parseSdtStringStub.resolves({} as unknown as SdtParser);
       sandbox.replace(sdtParser, 'parseSdtString', parseSdtStringStub);

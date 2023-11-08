@@ -9,11 +9,12 @@ type QueryRunnerConstructor = {
   xCol: string;
   yCol: string;
   zCol: string;
+  zColName: string;
   filter?: string;
 };
 
 export class QueryRunner {
-  private readonly zColumn: string;
+  private readonly zColName: string;
   private readonly xCol: string;
   private readonly yCol: string;
   private readonly zCol: string;
@@ -24,12 +25,12 @@ export class QueryRunner {
   private queryId?: string;
   private queryStatusField?: IQueryResponse;
   private readonly filter: string;
-  constructor({databaseName, viewName, xCol, yCol, zCol, filter}: QueryRunnerConstructor) {
+  constructor({databaseName, viewName, xCol, yCol, zCol, zColName, filter}: QueryRunnerConstructor) {
     this.viewName = viewName;
-    this.zColumn = zCol;
     this.xCol = xCol;
     this.yCol = yCol;
     this.zCol = zCol;
+    this.zColName = zColName;
     this.databaseName = databaseName;
     this.athenaManager = new aws.AthenaManager(databaseName);
     this.inited = false;
@@ -79,7 +80,7 @@ export class QueryRunner {
         SELECT glyphx_id__ as rowid, 
         ${this.xCol} as groupedXColumn, 
         ${this.yCol} as groupedYColumn, 
-        ${this.zColumn} as zColumn
+        ${this.zColName} as zColumn
         FROM "${this.databaseName}"."${this.viewName}" 
         ${this.filter}
     )  
@@ -100,3 +101,23 @@ export class QueryRunner {
     return this.queryId;
   }
 }
+
+// "
+// //    WITH temp as (
+// //        SELECT
+//        "col1" as xColumn,
+//      "col2" as yColumn,
+//      SUM(zColumn) as zColumn
+//      FROM "glyphx_testclientidd8c241b87b4a4c748ae24e244f5f15a2_654bc344fcad52d12ed973d6_view"
+
+//      GROUP BY "col1", "col2"
+//    )
+//    SELECT
+//      MIN(xColumn) as "mincol1",
+//      MAX(xColumn) as "maxcol1",
+//      MIN(yColumn) as "mincol2",
+//      MAX(yColumn) as "maxcol2",
+//      MIN(zColumn) as "mincol4",
+//      MAX(zColumn) as "maxcol4"
+//    FROM temp;
+//  ";

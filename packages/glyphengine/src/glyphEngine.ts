@@ -192,8 +192,8 @@ export class GlyphEngine {
       const sdtFileName = `${prefix}/${payloadHash}.sdt`;
       await this.outputBucketField.putObject(sdtFileName, template);
 
-      const {xCol, yCol, zCol} = this.formatCols(data);
-      const initialParser = new SdtParser(xCol, yCol, zCol);
+      const {xCol, yCol, zCol, zColName} = this.formatCols(data);
+      const initialParser = new SdtParser(xCol, yCol, zCol, zColName);
       const sdtParser = await initialParser.parseSdtString(template, viewName, data, this.athenaManager);
 
       await processTrackingService.addProcessMessage(
@@ -277,9 +277,10 @@ export class GlyphEngine {
     return status;
   }
 
-  private formatCols(data: Map<string, string>): {xCol: string; yCol: string; zCol: string} {
+  private formatCols(data: Map<string, string>): {xCol: string; yCol: string; zCol: string; zColName: string} {
     const xCol = data.get('x_axis') as string;
     const yCol = data.get('y_axis') as string;
+    const zColName = data.get('z_axis') as string;
     const isXDate = data.get('type_x') === 'date'; // comes from this.getDataType
     const isYDate = data.get('type_y') === 'date'; // comes from this.getDataType
     const isZDate = data.get('type_z') === 'date'; // comes from this.getDataType
@@ -306,13 +307,14 @@ export class GlyphEngine {
       xCol: groupByXColumn,
       yCol: groupByYColumn,
       zCol: accumulatorFunction,
+      zColName,
     };
   }
 
   private async startQuery(data: Map<string, string>, viewName: string): Promise<void> {
     //TODO: need some validation here
     const filter = (data.get('filter') as string) ?? undefined;
-    const {xCol, yCol, zCol} = this.formatCols(data);
+    const {xCol, yCol, zCol, zColName} = this.formatCols(data);
 
     this.queryRunner = new QueryRunner({
       databaseName: this.athenaManager.databaseName,
@@ -320,6 +322,7 @@ export class GlyphEngine {
       xCol,
       yCol,
       zCol,
+      zColName,
       filter,
     });
     await this.queryRunner.init();
@@ -354,19 +357,21 @@ export class GlyphEngine {
   ): glyphEngineTypes.constants.DATE_GROUPING | string {
     switch (dateGroup) {
       case glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR:
-        return `DATE_FORMAT("${columnName}", '%Y-%j')`;
+        return `day_of_year(from_unixtime("${columnName}"/1000))")`;
+      case glyphEngineTypes.constants.DATE_GROUPING.MONTH:
+        return `month(from_unixtime("${columnName}"/1000))")`;
       case glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_MONTH:
-        return `DAY("${columnName}")`;
+        return `day(from_unixtime("${columnName}"/1000))")`;
       case glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK:
-        return `CAST(EXTRACT(DOW FROM "${columnName}") AS INTEGER)`;
+        return `day_of_week(from_unixtime("${columnName}"/1000))")`;
       case glyphEngineTypes.constants.DATE_GROUPING.WEEK_OF_YEAR:
-        return `WEEK("${columnName}")`;
-      case glyphEngineTypes.constants.DATE_GROUPING.MONTH_OF_YEAR:
-        return `MONTH("${columnName}")`;
+        return `week_of_year(from_unixtime("${columnName}"/1000))")`;
+      case glyphEngineTypes.constants.DATE_GROUPING.YEAR_OF_WEEK:
+        return `year_of_week(from_unixtime("${columnName}"/1000))")`;
       case glyphEngineTypes.constants.DATE_GROUPING.YEAR:
-        return `YEAR("${columnName}")`;
+        return `year(from_unixtime("${columnName}"/1000))")`;
       case glyphEngineTypes.constants.DATE_GROUPING.QUARTER:
-        return `QUARTER("${columnName}")`;
+        return `quarter(from_unixtime("${columnName}"/1000))")`;
       default:
         return `"${columnName}"`;
     }

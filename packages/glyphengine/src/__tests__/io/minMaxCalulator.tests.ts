@@ -43,6 +43,7 @@ describe('#io/minMaxCalculator', () => {
         'xCol',
         'yCol',
         'zCol',
+        'zCol',
         athenaManager,
         tableName,
         xColumn,
@@ -70,6 +71,7 @@ describe('#io/minMaxCalculator', () => {
       const minMaxCalculator = new MinMaxCalculator(
         'xCol',
         'yCol',
+        'zCol',
         'zCol',
         athenaManager,
         tableName,
@@ -99,6 +101,7 @@ describe('#io/minMaxCalculator', () => {
         'xCol',
         'yCol',
         'zCol',
+        'zCol',
         athenaManager,
         tableName,
         xColumn,
@@ -124,6 +127,7 @@ describe('#io/minMaxCalculator', () => {
       const minMaxCalculator = new MinMaxCalculator(
         'xCol',
         'yCol',
+        'zCol',
         'zCol',
         mockClient,
         tableName,
@@ -151,6 +155,7 @@ describe('#io/minMaxCalculator', () => {
       const minMaxCalculator = new MinMaxCalculator(
         'xCol',
         'yCol',
+        'zCol',
         'zCol',
         athenaManager,
         tableName,

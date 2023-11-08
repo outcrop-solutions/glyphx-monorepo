@@ -21,6 +21,7 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        zColName: zColumn,
       }) as any;
       assert.strictEqual(queryRunner.viewName, viewName);
       assert.strictEqual(queryRunner.xCol, xColumn);
@@ -52,6 +53,7 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        zColName: zColumn,
       }) as any;
       const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();
@@ -72,6 +74,7 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        zColName: zColumn,
       }) as any;
       const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();
@@ -94,6 +97,7 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        zColName: zColumn,
       }) as any;
       const initStub = sandbox.stub(queryRunner.athenaManager, 'init').rejects(err);
       let errored = false;
@@ -132,6 +136,7 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        zColName: zColumn,
       }) as any;
 
       const queryId = 'testQueryId';
@@ -174,6 +179,7 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        zColName: zColumn,
       }) as any;
 
       const queryId = 'testQueryId';
@@ -214,6 +220,7 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        zColName: zColumn,
         filter,
       }) as any;
 
@@ -254,6 +261,7 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        zColName: zColumn,
       }) as any;
 
       const queryStub = sandbox.stub(queryRunner.athenaManager, 'startQuery').rejects(err);
@@ -292,6 +300,7 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        zColName: zColumn,
       }) as any;
 
       const queryId = 'testQueryId';
@@ -327,6 +336,7 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        zColName: zColumn,
       }) as any;
 
       const queryId = 'testQueryId';
@@ -367,6 +377,7 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        zColName: zColumn,
       }) as any;
 
       const queryId = 'testQueryId';
@@ -406,6 +417,7 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        zColName: zColumn,
       }) as any;
 
       const queryId = 'testQueryId';
@@ -441,6 +453,7 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        zColName: zColumn,
       }) as any;
 
       const queryId = 'testQueryId';
@@ -476,6 +489,7 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        zColName: zColumn,
       }) as any;
 
       const queryId = 'testQueryId';
@@ -507,6 +521,7 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        zColName: zColumn,
       }) as any;
 
       const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();

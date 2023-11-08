@@ -34,7 +34,7 @@ const test1: IVectorizerProperties = {
     fieldDefinition: {
       fieldType: FIELD_DEFINITION_TYPE.DATE,
       fieldName: 'colb',
-      dateGrouping: DATE_GROUPING.MONTH_OF_YEAR,
+      dateGrouping: DATE_GROUPING.YEAR_OF_WEEK,
     },
   },
   zAxis: {
