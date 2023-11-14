@@ -152,11 +152,9 @@ export class ProjectService {
         },
       };
 
-      console.log({input});
       // create project
       const project = await mongoDbConnection.models.ProjectModel.createProject(input);
 
-      console.log({project});
       const memberInput = {
         type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
         inviter: email,

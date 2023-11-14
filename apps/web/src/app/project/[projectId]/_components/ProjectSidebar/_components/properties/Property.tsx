@@ -29,7 +29,6 @@ export const Property = ({axis, setDirty}) => {
   const {mutate} = useSWRConfig();
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
   const {handleDrop} = useProject();
-  console.log({project});
 
   const [{isOver, canDrop}, drop] = useDrop({
     accept: prop.accepts,
