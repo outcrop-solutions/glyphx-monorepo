@@ -65,13 +65,13 @@ export const ProjectProvider = ({children, doc, project}: {children: React.React
   ]);
 
   return (
-    <RoomProvider id={project.docId as string} initialPresence={{cursor: null}} initialStorage={{notes: new LiveMap()}}>
-      <InitialDocumentProvider initialDocument={doc}>
-        <div ref={projectViewRef} className="flex w-full h-full">
-          <ClientSideSuspense fallback={null}>{() => <Cursors element={projectViewRef} />}</ClientSideSuspense>
-          {children}
-        </div>
-      </InitialDocumentProvider>
-    </RoomProvider>
+    // <RoomProvider id={project.docId as string} initialPresence={{cursor: null}} initialStorage={{notes: new LiveMap()}}>
+    //   <InitialDocumentProvider initialDocument={doc}>
+    <div ref={projectViewRef} className="flex w-full h-full">
+      {/* <ClientSideSuspense fallback={null}>{() => <Cursors element={projectViewRef} />}</ClientSideSuspense> */}
+      {children}
+    </div>
+    //   </InitialDocumentProvider>
+    // </RoomProvider>
   );
 };

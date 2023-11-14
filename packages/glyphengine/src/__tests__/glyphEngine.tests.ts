@@ -1111,12 +1111,53 @@ describe('GlyphEngine', () => {
   });
 
   context('getDateGroupingFunction', () => {
+    it('should return the correct QUALIFIED_DAY_OF_YEAR function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR
+      );
+      assert.strictEqual(
+        result,
+        `year(from_unixtime("testDateColumn"/1000)) * 100) + day_of_year(from_unixtime("testDateColumn"/1000)`
+      );
+    });
+
     it('should return the correct DAY_OF_YEAR function', () => {
       const result = GlyphEngine.getDateGroupingFunction(
         'testDateColumn',
         glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR
       );
       assert.strictEqual(result, `day_of_year(from_unixtime("testDateColumn"/1000))")`);
+    });
+
+    it('should return the correct QUALIFIED_MONTH function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_MONTH
+      );
+      assert.strictEqual(
+        result,
+        `year(from_unixtime("testDateColumn"/1000)) * 100) + (month(from_unixtime("testDateColumn"/1000))`
+      );
+    });
+
+    it('should return the correct MONTH function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.MONTH
+      );
+      assert.strictEqual(result, `month(from_unixtime("testDateColumn"/1000))")`);
+    });
+
+    it('should return the correct QUALIFIED_DAY_OF_MONTH function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH
+      );
+      assert.strictEqual(
+        result,
+        `year(from_unixtime("testDateColumn"/1000)) * 10000) + (month(from_unixtime("testDateColumn"/1000)) * 100) + day_of_month(from_unixtime("testDateColumn"/1000)`
+      );
     });
 
     it('should return the correct DAY_OF_MONTH function', () => {
@@ -1127,12 +1168,34 @@ describe('GlyphEngine', () => {
       assert.strictEqual(result, `day(from_unixtime("testDateColumn"/1000))")`);
     });
 
+    it('should return the correct QUALIFIED_DAY_OF_WEEK function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_WEEK
+      );
+      assert.strictEqual(
+        result,
+        `year_of_week(from_unixtime("testDateColumn"/1000)) * 1000) + (week_of_year(from_unixtime("testDateColumn"/1000)) * 10) day_of_week(from_unixtime("testDateColumn"/1000)`
+      );
+    });
+
     it('should return the correct DAY_OF_WEEK function', () => {
       const result = GlyphEngine.getDateGroupingFunction(
         'testDateColumn',
         glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK
       );
       assert.strictEqual(result, `day_of_week(from_unixtime("testDateColumn"/1000))")`);
+    });
+
+    it('should return the correct QUALIFIED_WEEK_OF_YEAR function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_WEEK_OF_YEAR
+      );
+      assert.strictEqual(
+        result,
+        `year_of_week(from_unixtime("testDateColumn"/1000)) * 100) + (week_of_year(from_unixtime("testDateColumn"/1000))`
+      );
     });
 
     it('should return the correct WEEK_OF_YEAR function', () => {
@@ -1158,14 +1221,17 @@ describe('GlyphEngine', () => {
       );
       assert.strictEqual(result, `year(from_unixtime("testDateColumn"/1000))")`);
     });
-    it('should return the correct MONTH function', () => {
+
+    it('should return the correct QUALIFIED_QUARTER function', () => {
       const result = GlyphEngine.getDateGroupingFunction(
         'testDateColumn',
-        glyphEngineTypes.constants.DATE_GROUPING.MONTH
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_QUARTER
       );
-      assert.strictEqual(result, `month(from_unixtime("testDateColumn"/1000))")`);
+      assert.strictEqual(
+        result,
+        `year(from_unixtime("testDateColumn"/1000)) * 10) + quarter(from_unixtime("testDateColumn"/1000)`
+      );
     });
-
     it('should return the correct QUARTER function', () => {
       const result = GlyphEngine.getDateGroupingFunction(
         'testDateColumn',

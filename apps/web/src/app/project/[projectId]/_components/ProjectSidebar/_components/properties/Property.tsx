@@ -24,7 +24,7 @@ import {useSWRConfig} from 'swr';
 import AccumulatorType from './AccumulatorListbox';
 import DateGroupingListbox from './DateGroupListbox';
 
-export const Property = ({axis}) => {
+export const Property = ({axis, setDirty}) => {
   const [project, setProject] = useRecoilState(projectAtom);
   const {mutate} = useSWRConfig();
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
@@ -81,35 +81,7 @@ export const Property = ({axis}) => {
             : webTypes.constants.INTERPOLATION_TYPE.LIN;
       })
     );
-
-    const newProject = {
-      ...project,
-      state: {
-        ...project.state,
-        properties: {
-          ...project.state.properties,
-          [`${axis}`]: {
-            ...project.state.properties[axis],
-            interpolation:
-              prop.interpolation === webTypes.constants.INTERPOLATION_TYPE.LIN
-                ? webTypes.constants.INTERPOLATION_TYPE.LOG
-                : webTypes.constants.INTERPOLATION_TYPE.LIN,
-          },
-        },
-      },
-    };
-
-    handleDrop(
-      axis,
-      {
-        type: 'COLUMN_DRAG',
-        key: prop.key,
-        dataType: prop.dataType,
-      },
-      newProject,
-      false
-    );
-  }, [axis, handleDrop, project, prop.dataType, prop.interpolation, prop.key, setProject]);
+  }, [axis, setProject, prop]);
 
   const ascDesc = useCallback(() => {
     setProject(
@@ -120,34 +92,7 @@ export const Property = ({axis}) => {
             : webTypes.constants.DIRECTION_TYPE.ASC;
       })
     );
-
-    const newProject = {
-      ...project,
-      state: {
-        ...project.state,
-        properties: {
-          ...project.state.properties,
-          [`${axis}`]: {
-            ...project.state.properties[axis],
-            direction:
-              prop.direction === webTypes.constants.DIRECTION_TYPE.ASC
-                ? webTypes.constants.DIRECTION_TYPE.DESC
-                : webTypes.constants.DIRECTION_TYPE.ASC,
-          },
-        },
-      },
-    };
-    handleDrop(
-      axis,
-      {
-        type: 'COLUMN_DRAG',
-        key: prop.key,
-        dataType: prop.dataType,
-      },
-      newProject,
-      false
-    );
-  }, [axis, setProject, handleDrop, project, prop.dataType, prop.direction, prop.key]);
+  }, [axis, setProject]);
 
   return (
     <li
@@ -209,9 +154,17 @@ export const Property = ({axis}) => {
           {/* border on same elements as heigh and witg */}
           {prop.direction === webTypes.constants.DIRECTION_TYPE.ASC ? <SwapLeftIcon /> : <SwapRightIcon />}
         </div>
-        {(axis === 'X' || axis === 'Y') && prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE && (
-          <DateGroupingListbox prop={prop} project={project} setProject={setProject} axis={axis} />
-        )}
+        <div className="min-w-40">
+          {(axis === 'X' || axis === 'Y') && prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE && (
+            <DateGroupingListbox
+              prop={prop}
+              project={project}
+              setProject={setProject}
+              axis={axis}
+              setDirty={setDirty}
+            />
+          )}
+        </div>
         {axis === 'Z' && <AccumulatorType prop={prop} project={project} setProject={setProject} axis={axis} />}
       </div>
     </li>

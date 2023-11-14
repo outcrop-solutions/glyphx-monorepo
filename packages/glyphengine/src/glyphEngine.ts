@@ -192,8 +192,8 @@ export class GlyphEngine {
       const sdtFileName = `${prefix}/${payloadHash}.sdt`;
       await this.outputBucketField.putObject(sdtFileName, template);
 
-      const {xCol, yCol, zCol, zColName} = this.formatCols(data);
-      const initialParser = new SdtParser(xCol, yCol, zCol, zColName);
+      const {xCol, yCol, zCol, isXDate, isYDate, isZDate, zColName} = this.formatCols(data);
+      const initialParser = new SdtParser(isXDate, isYDate, isZDate, xCol, yCol, zCol, zColName);
       const sdtParser = await initialParser.parseSdtString(template, viewName, data, this.athenaManager);
 
       await processTrackingService.addProcessMessage(
@@ -277,7 +277,15 @@ export class GlyphEngine {
     return status;
   }
 
-  private formatCols(data: Map<string, string>): {xCol: string; yCol: string; zCol: string; zColName: string} {
+  private formatCols(data: Map<string, string>): {
+    isXDate: boolean;
+    isYDate: boolean;
+    isZDate: boolean;
+    xCol: string;
+    yCol: string;
+    zCol: string;
+    zColName: string;
+  } {
     const xCol = data.get('x_axis') as string;
     const yCol = data.get('y_axis') as string;
     const zColName = data.get('z_axis') as string;
@@ -304,6 +312,9 @@ export class GlyphEngine {
     const accumulatorFunction: glyphEngineTypes.constants.ACCUMULATOR_TYPE | string =
       GlyphEngine.getAccumulatorFunction(isZDate, zAccumulatorType);
     return {
+      isXDate,
+      isYDate,
+      isZDate,
       xCol: groupByXColumn,
       yCol: groupByYColumn,
       zCol: accumulatorFunction,
@@ -356,20 +367,44 @@ export class GlyphEngine {
     dateGroup: glyphEngineTypes.constants.DATE_GROUPING
   ): glyphEngineTypes.constants.DATE_GROUPING | string {
     switch (dateGroup) {
+      // DOY variants
+      case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR:
+        return `year(from_unixtime("${columnName}"/1000)) * 100) + day_of_year(from_unixtime("${columnName}"/1000)`;
       case glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR:
         return `day_of_year(from_unixtime("${columnName}"/1000))")`;
+      // Month variants
+      case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_MONTH:
+        return `year(from_unixtime("${columnName}"/1000)) * 100) + (month(from_unixtime("${columnName}"/1000))`;
       case glyphEngineTypes.constants.DATE_GROUPING.MONTH:
         return `month(from_unixtime("${columnName}"/1000))")`;
+      // DOM variants
+      case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH:
+        return `year(from_unixtime("${columnName}"/1000)) * 10000) + (month(from_unixtime("${columnName}"/1000)) * 100) + day_of_month(from_unixtime("${columnName}"/1000)`;
+      case glyphEngineTypes.constants.DATE_GROUPING.YEAR_DAY_OF_MONTH:
+        return `year(from_unixtime("${columnName}"/1000)) * 10000) + (month(from_unixtime("${columnName}"/1000)) * 100) + day_of_month(from_unixtime("${columnName}"/1000)`;
+      case glyphEngineTypes.constants.DATE_GROUPING.MONTH_DAY_OF_MONTH:
+        return `(month(from_unixtime("${columnName}"/1000)) * 100) + day_of_month(from_unixtime("${columnName}"/1000)`;
       case glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_MONTH:
         return `day(from_unixtime("${columnName}"/1000))")`;
+      // DOW variants
+      case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_WEEK:
+        return `year_of_week(from_unixtime("${columnName}"/1000)) * 1000) + (week_of_year(from_unixtime("${columnName}"/1000)) * 10) day_of_week(from_unixtime("${columnName}"/1000)`;
+
       case glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK:
         return `day_of_week(from_unixtime("${columnName}"/1000))")`;
+      // WOY variants
+      case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_WEEK_OF_YEAR:
+        return `year_of_week(from_unixtime("${columnName}"/1000)) * 100) + (week_of_year(from_unixtime("${columnName}"/1000))`;
       case glyphEngineTypes.constants.DATE_GROUPING.WEEK_OF_YEAR:
         return `week_of_year(from_unixtime("${columnName}"/1000))")`;
+      // non-variants
       case glyphEngineTypes.constants.DATE_GROUPING.YEAR_OF_WEEK:
         return `year_of_week(from_unixtime("${columnName}"/1000))")`;
       case glyphEngineTypes.constants.DATE_GROUPING.YEAR:
         return `year(from_unixtime("${columnName}"/1000))")`;
+      // Quarter variants
+      case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_QUARTER:
+        return `year(from_unixtime("${columnName}"/1000)) * 10) + quarter(from_unixtime("${columnName}"/1000)`;
       case glyphEngineTypes.constants.DATE_GROUPING.QUARTER:
         return `quarter(from_unixtime("${columnName}"/1000))")`;
       default:

@@ -22,9 +22,15 @@ export class SdtParser {
   private xCol: string;
   private yCol: string;
   private zCol: string;
+  public isXDate: boolean;
+  public isYDate: boolean;
+  public isZDate: boolean;
   private zColName: string;
 
   constructor(
+    isXDate: boolean,
+    isYDate: boolean,
+    isZDate: boolean,
     xCol: string,
     yCol: string,
     zCol: string,
@@ -37,6 +43,9 @@ export class SdtParser {
     this.xCol = xCol;
     this.yCol = yCol;
     this.zCol = zCol;
+    this.isXDate = isXDate;
+    this.isYDate = isYDate;
+    this.isZDate = isZDate;
     this.zColName = zColName;
     this.sdtAsJson = parsedDocument;
     this.viewName = viewName;
@@ -139,6 +148,9 @@ export class SdtParser {
     const parsedDocument = parser.parse(sdtString);
 
     const sdtParser = new SdtParser(
+      this.isXDate,
+      this.isYDate,
+      this.isZDate,
       this.xCol,
       this.yCol,
       this.zCol,

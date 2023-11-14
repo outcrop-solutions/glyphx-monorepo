@@ -11,9 +11,9 @@ const Header = () => {
     >
       <ProjectControls />
       <div className="flex items-center">
-        <div className="mr-4">
+        {/* <div className="mr-4">
           <ClientSideSuspense fallback={null}>{() => <DocumentHeaderAvatars />}</ClientSideSuspense>
-        </div>
+        </div> */}
         <Controls />
       </div>
     </div>
