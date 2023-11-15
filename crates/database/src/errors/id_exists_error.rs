@@ -7,27 +7,29 @@ use super::FindOneError;
 pub enum IdExistsError {
     AuthenticationError(GlyphxErrorData),
     InvalidQuery(GlyphxErrorData),
+    InvalidId(GlyphxErrorData),
     UnexpectedError(GlyphxErrorData),
 }
 
 
 impl IdExistsError {
-    pub fn from_find_one_error(error: FindOneError, operation: &str) -> Self {
+    pub fn from_find_one_error(error: FindOneError, collection: &str, operation: &str) -> Self {
         let error_data = error.get_glyphx_error_data();
-
-        let mut data = error_data.data.clone().unwrap();
-        data["operation"] = json!(operation);
+        let msg = error_data.message.clone();
+        let mut data = None;
+        if error_data.data.is_some() {
+            let mut d = error_data.data.clone().unwrap();
+            d["collection"] = json!(collection);
+            d["operation"] = json!(operation);
+            data = Some(d);
+        }
         let inner_error = error_data.inner_error.clone();
-        let message = error_data.message.clone(); 
-        let glyphx_error_data = GlyphxErrorData::new(
-            message,
-            Some(data),
-            inner_error,
-        );
+        let glyphx_error_data = GlyphxErrorData::new(msg, data, inner_error);
         match error {
             FindOneError::AuthenticationError(_) => IdExistsError::AuthenticationError(glyphx_error_data),
             FindOneError::InvalidQuery(_) => IdExistsError::InvalidQuery(glyphx_error_data),
             FindOneError::UnexpectedError(_) => IdExistsError::UnexpectedError(glyphx_error_data),
+            FindOneError::InvalidId(_) => IdExistsError::InvalidId(glyphx_error_data),
         }
     }
     pub fn from_mongo_db_error(error: &ErrorKind, collection: &str, operation: &str) -> Self {

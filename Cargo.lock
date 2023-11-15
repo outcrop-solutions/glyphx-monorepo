@@ -1563,10 +1563,12 @@ dependencies = [
  "derive_builder",
  "futures",
  "glyphx_core",
+ "log",
  "mockall",
  "mongodb",
  "serde",
  "serde_json",
+ "serial_test",
  "tokio",
 ]
 

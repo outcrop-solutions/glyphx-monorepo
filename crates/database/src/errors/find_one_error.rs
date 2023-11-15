@@ -7,6 +7,7 @@ use serde_json::json;
 pub enum FindOneError {
     AuthenticationError(GlyphxErrorData),
     InvalidQuery(GlyphxErrorData),
+    InvalidId(GlyphxErrorData),
     UnexpectedError(GlyphxErrorData),
 }
 

@@ -7,6 +7,7 @@ use serde_json::json;
 pub enum QueryDocumentsError {
     AuthenticationError(GlyphxErrorData),
     InvalidQuery(GlyphxErrorData),
+    InvalidId(GlyphxErrorData),
     InvalidPageNumber(GlyphxErrorData),
     InvalidPageSize(GlyphxErrorData),
     UnexpectedError(GlyphxErrorData),

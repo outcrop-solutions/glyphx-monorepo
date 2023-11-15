@@ -8,6 +8,7 @@ use serde_json::json;
 pub enum DeleteDocumentError {
     AuthenticationError(GlyphxErrorData),
     InvalidQuery(GlyphxErrorData),
+    InvalidId(GlyphxErrorData),
     UnexpectedError(GlyphxErrorData),
     DocumentSerializationError(GlyphxErrorData),
     DeleteFailure(GlyphxErrorData),
@@ -72,14 +73,22 @@ impl DeleteDocumentError {
     }
 
     pub fn from_find_one_error(input: &FindOneError, collection: &str, operation: &str) -> Self {
-        let mut error_data = input.get_glyphx_error_data().clone();
-        error_data.data = Some(json!({"collection" : collection, "operation" : operation}));
+        let error_data = input.get_glyphx_error_data();
+        let msg = error_data.message.clone();
+        let mut data = None;
+        if error_data.data.is_some() {
+            let mut d = error_data.data.clone().unwrap();
+            d["collection"] = json!(collection);
+            d["operation"] = json!(operation);
+            data = Some(d);
+        }
+        let inner_error = error_data.inner_error.clone();
+        let error_data = GlyphxErrorData::new(msg, data, inner_error);
         match input {
-            FindOneError::AuthenticationError(_) => {
-                Self::AuthenticationError(error_data)
-            }
+            FindOneError::AuthenticationError(_) => Self::AuthenticationError(error_data),
             FindOneError::InvalidQuery(_) => Self::InvalidQuery(error_data),
             FindOneError::UnexpectedError(_) => Self::UnexpectedError(error_data),
+            FindOneError::InvalidId(_) => Self::InvalidId(error_data),
         }
     }
 }

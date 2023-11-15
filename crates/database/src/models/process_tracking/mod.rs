@@ -10,39 +10,41 @@ use crate::traits::GlyphxDataModel;
 
 use async_trait::async_trait;
 use glyphx_core::GlyphxErrorData;
+use mongodb::bson::oid::ObjectId;
 use mongodb::bson::{doc, from_document, to_bson, DateTime, Document};
 use mongodb::options::FindOptions;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
+use super::common::deserialize_object_id;
 pub use create_process_tracking_model::*;
-pub use process_status::*;
-pub use update_process_tracking_model::*;
 use database_operations::*;
 use database_operations_impl::*;
+pub use process_status::*;
+pub use update_process_tracking_model::*;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ProcessTrackingModel {
-    #[serde(rename = "_id")]
-    id: String,
+    #[serde(rename = "_id", deserialize_with = "deserialize_object_id")]
+    pub id: String,
     #[serde(rename = "processId")]
-    process_id: String,
+    pub process_id: String,
     #[serde(rename = "processName")]
-    process_name: String,
+    pub process_name: String,
     #[serde(rename = "processStatus")]
-    process_status: ProcessStatus,
+    pub process_status: ProcessStatus,
     #[serde(rename = "processStartTime")]
-    process_start_time: DateTime,
+    pub process_start_time: DateTime,
     #[serde(rename = "processEndTime", skip_serializing_if = "Option::is_none")]
-    process_end_time: Option<DateTime>,
+    pub process_end_time: Option<DateTime>,
     #[serde(rename = "processMessages")]
-    process_messages: Vec<String>,
+    pub process_messages: Vec<String>,
     #[serde(rename = "processError")]
-    process_error: Vec<Value>,
+    pub process_error: Vec<Value>,
     #[serde(rename = "processResult", skip_serializing_if = "Option::is_none")]
-    process_result: Option<Value>,
+    pub process_result: Option<Value>,
     #[serde(rename = "processHeartbeat", skip_serializing_if = "Option::is_none")]
-    process_heartbeat: Option<DateTime>,
+    pub process_heartbeat: Option<DateTime>,
 }
 
 //Functions in this impl block are unique to this collection and must be created by hand.
@@ -91,7 +93,18 @@ impl ProcessTrackingModel {
         id: &str,
         database_operation: &T,
     ) -> Result<Option<ProcessTrackingModel>, FindOneError> {
-        let filter = doc! { "_id": id };
+        let oid = ObjectId::parse_str(id);
+        if oid.is_err() {
+            return Err(FindOneError::InvalidId(GlyphxErrorData::new(
+                "The id is not a valid ObjectId".to_string(),
+                Some(
+                    json!({"collection" : "process_trackings", "operation" : "get_by_id", "id" : id}),
+                ),
+                None,
+            )));
+        }
+        let oid = oid.unwrap();
+        let filter = doc! { "_id": oid };
         Self::get_one_by_filter_impl(&filter, database_operation).await
     }
 
@@ -118,8 +131,21 @@ impl ProcessTrackingModel {
         id: &str,
         database_operation: &T,
     ) -> Result<Option<()>, IdExistsError> {
+
+        let oid = ObjectId::parse_str(id);
+        if oid.is_err() {
+            return Err(IdExistsError::InvalidId(GlyphxErrorData::new(
+                "The id is not a valid ObjectId".to_string(),
+                Some(
+                    json!({"collection" : "process_trackings", "operation" : "id_exists", "id" : id}),
+                ),
+                None,
+            )));
+        }
+        let oid = oid.unwrap();
+        let filter = doc! { "_id": oid };
         let document_count = database_operation
-            .count_documents(mongodb::bson::doc! { "_id": id }, None)
+            .count_documents(filter, None)
             .await;
         if document_count.is_err() {
             return Err(IdExistsError::from_mongo_db_error(
@@ -139,7 +165,21 @@ impl ProcessTrackingModel {
         ids: &Vec<&str>,
         database_operation: &T,
     ) -> Result<(), AllIdsExistError> {
-        let filter = doc! { "_id": { "$in": ids } };
+        let mut object_ids: Vec<ObjectId> = Vec::new();
+        for id in ids {
+            let oid = ObjectId::parse_str(id);
+            if oid.is_err() {
+                return Err(AllIdsExistError::InvalidId(GlyphxErrorData::new(
+                    "The id is not a valid ObjectId".to_string(),
+                    Some(
+                        json!({"collection" : "process_trackings", "operation" : "all_ids_exist", "id" : id}),
+                    ),
+                    None,
+                )));
+            }
+            object_ids.push(oid.unwrap());
+        }
+        let filter = doc! { "_id": { "$in": object_ids } };
         let results = database_operation.query_ids(filter, None).await;
 
         if results.is_err() {
@@ -188,26 +228,14 @@ impl ProcessTrackingModel {
     ) -> Result<ProcessTrackingModel, InsertDocumentError> {
         //I don't think that this would ever error since we are using the serializer to create it.
         //So, I am not going to worry about testing it for now.
-        let bson = to_bson(&input);
+        let bson = input.to_bson();
         if bson.is_err() {
             let err = bson.err().unwrap();
             let err =
                 InsertDocumentError::from_bson_error(err, "process_trackings", "insert_document");
             return Err(err);
         }
-        let bson = bson.unwrap();
-        let document = match bson {
-            mongodb::bson::Bson::Document(document) => document,
-            //Again, since we are using the serializer to create the document, I don't think that
-            //this would ever happen.  So, I am not going to worry about testing it for now.
-            _ => {
-                let data =
-                    json!({"collection": "process_trackings", "operation": "insert_document"});
-                let message = "An unexpected error occurred and the input structure cannot be converted to a valid bson document".to_string();
-                let error_data = GlyphxErrorData::new(message, Some(data), None);
-                return Err(InsertDocumentError::DocumentSerializationError(error_data));
-            }
-        };
+        let document = bson.unwrap();
 
         let insert_results = database_operations.insert_document(document, None).await;
 
@@ -251,7 +279,18 @@ impl ProcessTrackingModel {
         input: &UpdateProcessTrackingModel,
         database_operations: &T,
     ) -> Result<ProcessTrackingModel, UpdateDocumentError> {
-        let filter = doc! { "_id": id };
+        let oid = ObjectId::parse_str(id);
+        if oid.is_err() {
+            return Err(UpdateDocumentError::InvalidId(GlyphxErrorData::new(
+                "The id is not a valid ObjectId".to_string(),
+                Some(
+                    json!({"collection" : "process_trackings", "operation" : "update_document_by_id", "id" : id}),
+                ),
+                None,
+            )));
+        }
+        let oid = oid.unwrap();
+        let filter = doc! { "_id": oid };
         Self::update_document_by_filter_impl(&filter, input, database_operations).await
     }
 
@@ -310,7 +349,7 @@ impl ProcessTrackingModel {
                 None,
             )));
         }
-        let bson = to_bson(&input);
+        let bson = input.to_bson();
         if bson.is_err() {
             let err = bson.err().unwrap();
             let err = UpdateDocumentError::from_bson_error(
@@ -320,18 +359,8 @@ impl ProcessTrackingModel {
             );
             return Err(err);
         }
-        let bson = bson.unwrap();
-        let document = match bson {
-            mongodb::bson::Bson::Document(document) => document,
-            //Again, since we are using the serializer to create the document, I don't think that
-            //this would ever happen.  So, I am not going to worry about testing it for now.
-            _ => {
-                let data = json!({"collection": "process_trackings", "operation": "update_document_by_filter"});
-                let message = "An unexpected error occurred and the input structure cannot be converted to a valid bson document".to_string();
-                let error_data = GlyphxErrorData::new(message, Some(data), None);
-                return Err(UpdateDocumentError::DocumentSerializationError(error_data));
-            }
-        };
+        let document = bson.unwrap();
+
         Self::update_document_impl(
             filter,
             &document,
@@ -345,7 +374,18 @@ impl ProcessTrackingModel {
         id: &str,
         database_operations: &T,
     ) -> Result<(), DeleteDocumentError> {
-        let filter = doc! { "_id": id };
+        let oid = ObjectId::parse_str(id);
+        if oid.is_err() {
+            return Err(DeleteDocumentError::InvalidId(GlyphxErrorData::new(
+                "The id is not a valid ObjectId".to_string(),
+                Some(
+                    json!({"collection" : "process_trackings", "operation" : "get_by_id", "id" : id}),
+                ),
+                None,
+            )));
+        }
+        let oid = oid.unwrap();
+        let filter = doc! { "_id": oid };
         Self::delete_document_by_filter_impl(&filter, database_operations).await
     }
 
@@ -381,7 +421,18 @@ impl ProcessTrackingModel {
         message: &str,
         database_operations: &T,
     ) -> Result<ProcessTrackingModel, UpdateDocumentError> {
-        let filter = doc! { "_id": id };
+        let oid = ObjectId::parse_str(id);
+        if oid.is_err() {
+            return Err(UpdateDocumentError::InvalidId(GlyphxErrorData::new(
+                "The id is not a valid ObjectId".to_string(),
+                Some(
+                    json!({"collection" : "process_trackings", "operation" : "add_message", "id" : id}),
+                ),
+                None,
+            )));
+        }
+        let oid = oid.unwrap();
+        let filter = doc! { "_id": oid };
         Self::add_message_by_filter_impl(&filter, message, database_operations).await
     }
 
@@ -420,7 +471,18 @@ impl ProcessTrackingModel {
         error: &Value,
         database_operations: &T,
     ) -> Result<ProcessTrackingModel, UpdateDocumentError> {
-        let filter = doc! { "_id": id };
+        let oid = ObjectId::parse_str(id);
+        if oid.is_err() {
+            return Err(UpdateDocumentError::InvalidId(GlyphxErrorData::new(
+                "The id is not a valid ObjectId".to_string(),
+                Some(
+                    json!({"collection" : "process_trackings", "operation" : "get_by_id", "id" : id}),
+                ),
+                None,
+            )));
+        }
+        let oid = oid.unwrap();
+        let filter = doc! { "_id": oid };
         Self::add_error_by_filter_impl(&filter, error, database_operations).await
     }
 
@@ -429,8 +491,10 @@ impl ProcessTrackingModel {
         error: &Value,
         database_operations: &T,
     ) -> Result<ProcessTrackingModel, UpdateDocumentError> {
+        let error = to_bson(error);
+        let error = error.unwrap();
         let operation =
-            doc! { "$push": {"processError": { "$each": [error.to_string()], "$position": 0} }};
+            doc! { "$push": {"processError": { "$each": [error], "$position": 0} }};
         Self::update_document_impl(
             filter,
             &operation,
@@ -488,7 +552,7 @@ impl ProcessTrackingModel {
         if number_of_documents == 0 {
             return Ok(None);
         }
-        let number_of_pages = number_of_documents.div_ceil(page_size) -1;
+        let number_of_pages = number_of_documents.div_ceil(page_size) - 1;
         if page_number > number_of_pages {
             return Err(QueryDocumentsError::InvalidPageNumber(
                 GlyphxErrorData::new(
@@ -569,8 +633,8 @@ impl GlyphxDataModel<ProcessTrackingModel, CreateProcessTrackingModel, UpdatePro
         parse_result.unwrap()
     }
 
-    fn to_json(&self) -> String {
-        let json = serde_json::to_string(&self);
+    fn to_json(&self) -> Value {
+        let json = serde_json::to_value(&self);
         if json.is_err() {
             panic!(
                 "Unable to serialize ProcessTrackingModel to json: {:?}",
@@ -578,6 +642,30 @@ impl GlyphxDataModel<ProcessTrackingModel, CreateProcessTrackingModel, UpdatePro
             );
         }
         json.unwrap()
+    }
+
+    ///When we go to build this in the macro we will need a way to identify ObjectIds that we will
+    ///need to convert from Strings to ObjectIds
+    fn to_bson(&self) -> Result<Document, mongodb::bson::ser::Error> {
+        let bson = to_bson(&self);
+        if bson.is_err() {
+            return Err(bson.err().unwrap());
+        }
+        let bson = bson.unwrap();
+        let bson = bson.as_document().unwrap();
+        let mut document = Document::new();
+        bson.keys().for_each(|key| {
+            if key == "_id" {
+                let str_value = bson.get(key).unwrap().as_str().unwrap();
+                let object_id = ObjectId::parse_str(str_value).unwrap();
+                document.insert(key, mongodb::bson::Bson::ObjectId(object_id)); 
+            } else {
+                let v = bson.get(key).unwrap().clone();
+                document.insert(key, v);
+            }
+        });
+        
+       Ok(document) 
     }
 
     async fn get_by_id(id: &str) -> Result<Option<ProcessTrackingModel>, FindOneError> {
@@ -629,10 +717,11 @@ impl GlyphxDataModel<ProcessTrackingModel, CreateProcessTrackingModel, UpdatePro
 #[cfg(test)]
 mod get_by_id {
     use super::*;
+    use mongodb::bson::oid::ObjectId;
     use mongodb::error::{Error as MongoDbError, Result as MongoDbResult};
-
     #[tokio::test]
     async fn is_ok() {
+        let id = ObjectId::new().to_string();
         let mut mock_impl = MockDatabaseOperations::new();
         mock_impl
             .expect_find_one()
@@ -650,7 +739,7 @@ mod get_by_id {
                 process_heartbeat: None,
             })));
 
-        let result = ProcessTrackingModel::get_by_id_impl("id", &mock_impl).await;
+        let result = ProcessTrackingModel::get_by_id_impl(&id, &mock_impl).await;
         assert!(result.is_ok());
         let result = result.unwrap();
         assert!(result.is_some());
@@ -660,13 +749,14 @@ mod get_by_id {
 
     #[tokio::test]
     async fn is_none() {
+        let id = ObjectId::new().to_string();
         let mut mock_impl = MockDatabaseOperations::new();
         mock_impl
             .expect_find_one()
             .times(1)
             .return_const(MongoDbResult::Ok(None));
 
-        let result = ProcessTrackingModel::get_by_id_impl("id", &mock_impl).await;
+        let result = ProcessTrackingModel::get_by_id_impl(&id, &mock_impl).await;
         assert!(result.is_ok());
         let result = result.unwrap();
         assert!(result.is_none());
@@ -674,6 +764,7 @@ mod get_by_id {
 
     #[tokio::test]
     async fn is_error() {
+        let id = ObjectId::new().to_string();
         let mut mock_impl = MockDatabaseOperations::new();
         mock_impl
             .expect_find_one()
@@ -682,7 +773,7 @@ mod get_by_id {
                 "An error occurred",
             )));
 
-        let result = ProcessTrackingModel::get_by_id_impl("id", &mock_impl).await;
+        let result = ProcessTrackingModel::get_by_id_impl(&id, &mock_impl).await;
         assert!(result.is_err());
         let result = result.err().unwrap();
         match result {
@@ -815,13 +906,14 @@ mod id_exists {
 
     #[tokio::test]
     async fn id_exists() {
+        let id = ObjectId::new().to_string();
         let mut mock_impl = MockDatabaseOperations::new();
         mock_impl
             .expect_count_documents()
             .times(1)
             .return_const(Ok(1));
 
-        let result = ProcessTrackingModel::id_exists_impl("id", &mock_impl).await;
+        let result = ProcessTrackingModel::id_exists_impl(&id, &mock_impl).await;
         assert!(result.is_ok());
         let result = result.unwrap();
         assert!(result.is_some());
@@ -829,13 +921,14 @@ mod id_exists {
 
     #[tokio::test]
     async fn id_does_not_exist() {
+        let id = ObjectId::new().to_string();
         let mut mock_impl = MockDatabaseOperations::new();
         mock_impl
             .expect_count_documents()
             .times(1)
             .return_const(MongoDbResult::Ok(0));
 
-        let result = ProcessTrackingModel::id_exists_impl("id", &mock_impl).await;
+        let result = ProcessTrackingModel::id_exists_impl(&id, &mock_impl).await;
         assert!(result.is_ok());
         let result = result.unwrap();
         assert!(result.is_none());
@@ -843,6 +936,7 @@ mod id_exists {
 
     #[tokio::test]
     async fn is_error() {
+        let id = ObjectId::new().to_string();
         let mut mock_impl = MockDatabaseOperations::new();
         mock_impl
             .expect_count_documents()
@@ -851,11 +945,36 @@ mod id_exists {
                 "An error occurred",
             )));
 
-        let result = ProcessTrackingModel::id_exists_impl("id", &mock_impl).await;
+        let result = ProcessTrackingModel::id_exists_impl(&id, &mock_impl).await;
         assert!(result.is_err());
         let result = result.err().unwrap();
         match result {
             IdExistsError::UnexpectedError(error_data) => {
+                let operation = error_data.data.unwrap();
+                let operation = operation["operation"].as_str().unwrap();
+                assert_eq!(operation, "id_exists");
+            }
+            _ => panic!("Unexpected error type"),
+        }
+    }
+
+    #[tokio::test]
+    async fn invalid_oid() {
+
+        let id = "invalid".to_string();
+        let mut mock_impl = MockDatabaseOperations::new();
+        mock_impl
+            .expect_count_documents()
+            .never()
+            .return_const(MongoDbResult::Err(MongoDbError::custom(
+                "An error occurred",
+            )));
+
+        let result = ProcessTrackingModel::id_exists_impl(&id, &mock_impl).await;
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            IdExistsError::InvalidId(error_data) => {
                 let operation = error_data.data.unwrap();
                 let operation = operation["operation"].as_str().unwrap();
                 assert_eq!(operation, "id_exists");
@@ -946,8 +1065,10 @@ mod process_tracking_model_tests {
 
     #[test]
     fn test1() {
+        let id1 = ObjectId::new().to_string();
+        let id2 = ObjectId::new().to_string();
         let model = ProcessTrackingModel {
-            id: "id".to_string(),
+            id: id1.clone(),
             process_id: "process_id".to_string(),
             process_name: "process_name".to_string(),
             process_status: ProcessStatus::Running,
@@ -959,16 +1080,17 @@ mod process_tracking_model_tests {
             process_heartbeat: None,
         };
 
-        let output = to_bson(&model).unwrap();
-        let json = output.to_string();
+        let output = model.to_bson().unwrap();
+        let json = model.to_json();
         assert!(true);
 
-        let document = output.as_document().unwrap();
-        let s: ProcessTrackingModel = from_document(document.clone()).unwrap();
+        let document = output.clone();
+        let s  = from_document::<ProcessTrackingModel>(document.clone());
+        let _s = s.unwrap();
         assert!(true);
 
         let json2 = serde_json::json!({
-            "_id": "id",
+            "_id": id2.clone(),
             "process_id": "process_id",
             "process_name": "process_name",
             "process_status": "Bad",
@@ -999,7 +1121,10 @@ mod all_ids_exist {
 
     #[tokio::test]
     async fn all_ids_exist() {
-        let ids = vec!["id1", "id2", "id3"];
+        let id1 = ObjectId::new().to_string();
+        let id2 = ObjectId::new().to_string();
+        let id3 = ObjectId::new().to_string();
+        let ids = vec![id1.as_str(), &id2.as_str(), &id3.as_str()];
 
         let mut mock_impl = MockDatabaseOperations::new();
         mock_impl
@@ -1007,13 +1132,13 @@ mod all_ids_exist {
             .times(1)
             .return_const(MongoDbResult::Ok(Some(vec![
                 DocumentIds {
-                    id: "id1".to_string(),
+                    id: id1.clone(),
                 },
                 DocumentIds {
-                    id: "id2".to_string(),
+                    id: id2.clone(),
                 },
                 DocumentIds {
-                    id: "id3".to_string(),
+                    id: id3.clone(),
                 },
             ])));
 
@@ -1023,14 +1148,18 @@ mod all_ids_exist {
 
     #[tokio::test]
     async fn some_ids_exist() {
-        let ids = vec!["id1", "id2", "id3"];
+        let id1 = ObjectId::new().to_string();
+        let id2 = ObjectId::new().to_string();
+        let id3 = ObjectId::new().to_string();
+        let ids = vec![id1.as_str(), &id2.as_str(), &id3.as_str()];
+
 
         let mut mock_impl = MockDatabaseOperations::new();
         mock_impl
             .expect_query_ids()
             .times(1)
             .return_const(MongoDbResult::Ok(Some(vec![DocumentIds {
-                id: "id2".to_string(),
+                id: id2.clone(),
             }])));
 
         let result = ProcessTrackingModel::all_ids_exist_impl(&ids, &mock_impl).await;
@@ -1040,15 +1169,19 @@ mod all_ids_exist {
                 let ids = error_data.data.unwrap();
                 let ids = ids["ids"].as_array().unwrap();
                 assert_eq!(ids.len(), 2);
-                assert_eq!(ids[0], "id1");
-                assert_eq!(ids[1], "id3");
+                assert_eq!(ids[0], id1);
+                assert_eq!(ids[1], id3);
             }
             _ => panic!("Unexpected error type"),
         }
     }
     #[tokio::test]
     async fn no_ids_exist() {
-        let ids = vec!["id1", "id2", "id3"];
+        let id1 = ObjectId::new().to_string();
+        let id2 = ObjectId::new().to_string();
+        let id3 = ObjectId::new().to_string();
+        let ids = vec![id1.as_str(), &id2.as_str(), &id3.as_str()];
+
 
         let mut mock_impl = MockDatabaseOperations::new();
         mock_impl
@@ -1063,9 +1196,9 @@ mod all_ids_exist {
                 let ids = error_data.data.unwrap();
                 let ids = ids["ids"].as_array().unwrap();
                 assert_eq!(ids.len(), 3);
-                assert_eq!(ids[0], "id1");
-                assert_eq!(ids[1], "id2");
-                assert_eq!(ids[2], "id3");
+                assert_eq!(ids[0], id1);
+                assert_eq!(ids[1], id2);
+                assert_eq!(ids[2], id3);
             }
             _ => panic!("Unexpected error type"),
         }
@@ -1073,7 +1206,11 @@ mod all_ids_exist {
 
     #[tokio::test]
     async fn mongodb_error() {
-        let ids = vec!["id1", "id2", "id3"];
+        let id1 = ObjectId::new().to_string();
+        let id2 = ObjectId::new().to_string();
+        let id3 = ObjectId::new().to_string();
+        let ids = vec![id1.as_str(), &id2.as_str(), &id3.as_str()];
+
 
         let mut mock_impl = MockDatabaseOperations::new();
         mock_impl
@@ -1848,7 +1985,7 @@ mod add_message_by_id {
 
     #[tokio::test]
     async fn is_ok() {
-        let process_id = "process_id";
+        let id = ObjectId::new().to_string();
 
         let mut mock_impl = MockDatabaseOperations::new();
 
@@ -1861,8 +1998,8 @@ mod add_message_by_id {
             .expect_find_one()
             .once()
             .return_const(Ok(Some(ProcessTrackingModel {
-                id: "id".to_string(),
-                process_id: process_id.to_string(),
+                id: id.clone(),
+                process_id: "process_id".to_string(),
                 process_name: "process_name".to_string(),
                 process_status: ProcessStatus::Running,
                 process_start_time: DateTime::now(),
@@ -1874,7 +2011,7 @@ mod add_message_by_id {
             })));
 
         let result =
-            ProcessTrackingModel::add_message_impl(process_id, "message", &mock_impl).await;
+            ProcessTrackingModel::add_message_impl(&id, "message", &mock_impl).await;
 
         assert!(result.is_ok());
     }
@@ -2098,6 +2235,7 @@ mod add_error_by_id {
 
     #[tokio::test]
     async fn is_ok() {
+        let id = ObjectId::new().to_string();
         let process_id = "process_id";
         let error = json!({"error": "error"});
 
@@ -2124,7 +2262,7 @@ mod add_error_by_id {
                 process_heartbeat: None,
             })));
 
-        let result = ProcessTrackingModel::add_error_impl(process_id, &error, &mock_impl).await;
+        let result = ProcessTrackingModel::add_error_impl(&id, &error, &mock_impl).await;
 
         assert!(result.is_ok());
     }
@@ -2133,8 +2271,8 @@ mod add_error_by_id {
 #[cfg(test)]
 mod query_documents {
     use super::*;
-    use mongodb::error::Error as MongoDbError;
     use crate::models::common::*;
+    use mongodb::error::Error as MongoDbError;
 
     #[tokio::test]
     async fn is_ok() {
@@ -2142,10 +2280,15 @@ mod query_documents {
         let process_name = "process_name";
 
         let mut mock_impl = MockDatabaseOperations::new();
-        mock_impl.expect_count_documents().once().return_const(Ok(1));
-        
-        mock_impl.expect_query_documents().once().return_const(Ok(Some(vec![
-            ProcessTrackingModel {
+        mock_impl
+            .expect_count_documents()
+            .once()
+            .return_const(Ok(1));
+
+        mock_impl
+            .expect_query_documents()
+            .once()
+            .return_const(Ok(Some(vec![ProcessTrackingModel {
                 id: "id".to_string(),
                 process_id: process_id.to_string(),
                 process_name: process_name.to_string(),
@@ -2156,15 +2299,11 @@ mod query_documents {
                 process_error: Vec::new(),
                 process_result: None,
                 process_heartbeat: None,
-            }
-        ])));
+            }])));
 
-        let results = ProcessTrackingModel::query_documents_impl(
-            &doc!{"_id": "id"},
-            None,
-            None,
-            &mock_impl,
-            ).await;
+        let results =
+            ProcessTrackingModel::query_documents_impl(&doc! {"_id": "id"}, None, None, &mock_impl)
+                .await;
 
         assert!(results.is_ok());
         let results = results.unwrap();
@@ -2184,10 +2323,15 @@ mod query_documents {
         let page_number = 1;
 
         let mut mock_impl = MockDatabaseOperations::new();
-        mock_impl.expect_count_documents().once().return_const(Ok(6));
-        
-        mock_impl.expect_query_documents().once().return_const(Ok(Some(vec![
-            ProcessTrackingModel {
+        mock_impl
+            .expect_count_documents()
+            .once()
+            .return_const(Ok(6));
+
+        mock_impl
+            .expect_query_documents()
+            .once()
+            .return_const(Ok(Some(vec![ProcessTrackingModel {
                 id: "id".to_string(),
                 process_id: process_id.to_string(),
                 process_name: process_name.to_string(),
@@ -2198,15 +2342,15 @@ mod query_documents {
                 process_error: Vec::new(),
                 process_result: None,
                 process_heartbeat: None,
-            }
-        ])));
+            }])));
 
         let results = ProcessTrackingModel::query_documents_impl(
-            &doc!{"_id": "id"},
+            &doc! {"_id": "id"},
             Some(page_number),
             Some(page_size),
             &mock_impl,
-            ).await;
+        )
+        .await;
 
         assert!(results.is_ok());
         let results = results.unwrap();
@@ -2226,10 +2370,15 @@ mod query_documents {
         let page_number = 1;
 
         let mut mock_impl = MockDatabaseOperations::new();
-        mock_impl.expect_count_documents().never().return_const(Ok(6));
-        
-        mock_impl.expect_query_documents().never().return_const(Ok(Some(vec![
-            ProcessTrackingModel {
+        mock_impl
+            .expect_count_documents()
+            .never()
+            .return_const(Ok(6));
+
+        mock_impl
+            .expect_query_documents()
+            .never()
+            .return_const(Ok(Some(vec![ProcessTrackingModel {
                 id: "id".to_string(),
                 process_id: process_id.to_string(),
                 process_name: process_name.to_string(),
@@ -2240,15 +2389,15 @@ mod query_documents {
                 process_error: Vec::new(),
                 process_result: None,
                 process_heartbeat: None,
-            }
-        ])));
+            }])));
 
         let results = ProcessTrackingModel::query_documents_impl(
-            &doc!{"_id": "id"},
+            &doc! {"_id": "id"},
             Some(page_number),
             Some(page_size),
             &mock_impl,
-            ).await;
+        )
+        .await;
 
         assert!(results.is_err());
         let results = results.err().unwrap();
@@ -2270,10 +2419,15 @@ mod query_documents {
         let page_number = 1;
 
         let mut mock_impl = MockDatabaseOperations::new();
-        mock_impl.expect_count_documents().once().return_const(Err(MongoDbError::custom("An error occurred")));
-        
-        mock_impl.expect_query_documents().never().return_const(Ok(Some(vec![
-            ProcessTrackingModel {
+        mock_impl
+            .expect_count_documents()
+            .once()
+            .return_const(Err(MongoDbError::custom("An error occurred")));
+
+        mock_impl
+            .expect_query_documents()
+            .never()
+            .return_const(Ok(Some(vec![ProcessTrackingModel {
                 id: "id".to_string(),
                 process_id: process_id.to_string(),
                 process_name: process_name.to_string(),
@@ -2284,15 +2438,15 @@ mod query_documents {
                 process_error: Vec::new(),
                 process_result: None,
                 process_heartbeat: None,
-            }
-        ])));
+            }])));
 
         let results = ProcessTrackingModel::query_documents_impl(
-            &doc!{"_id": "id"},
+            &doc! {"_id": "id"},
             Some(page_number),
             Some(page_size),
             &mock_impl,
-            ).await;
+        )
+        .await;
 
         assert!(results.is_err());
         let results = results.err().unwrap();
@@ -2314,10 +2468,15 @@ mod query_documents {
         let page_number = 1;
 
         let mut mock_impl = MockDatabaseOperations::new();
-        mock_impl.expect_count_documents().once().return_const(Ok(0));
-        
-        mock_impl.expect_query_documents().never().return_const(Ok(Some(vec![
-            ProcessTrackingModel {
+        mock_impl
+            .expect_count_documents()
+            .once()
+            .return_const(Ok(0));
+
+        mock_impl
+            .expect_query_documents()
+            .never()
+            .return_const(Ok(Some(vec![ProcessTrackingModel {
                 id: "id".to_string(),
                 process_id: process_id.to_string(),
                 process_name: process_name.to_string(),
@@ -2328,15 +2487,15 @@ mod query_documents {
                 process_error: Vec::new(),
                 process_result: None,
                 process_heartbeat: None,
-            }
-        ])));
+            }])));
 
         let results = ProcessTrackingModel::query_documents_impl(
-            &doc!{"_id": "id"},
+            &doc! {"_id": "id"},
             Some(page_number),
             Some(page_size),
             &mock_impl,
-            ).await;
+        )
+        .await;
 
         assert!(results.is_ok());
         let results = results.unwrap();
@@ -2351,10 +2510,15 @@ mod query_documents {
         let page_number = 1;
 
         let mut mock_impl = MockDatabaseOperations::new();
-        mock_impl.expect_count_documents().once().return_const(Ok(4));
-        
-        mock_impl.expect_query_documents().never().return_const(Ok(Some(vec![
-            ProcessTrackingModel {
+        mock_impl
+            .expect_count_documents()
+            .once()
+            .return_const(Ok(4));
+
+        mock_impl
+            .expect_query_documents()
+            .never()
+            .return_const(Ok(Some(vec![ProcessTrackingModel {
                 id: "id".to_string(),
                 process_id: process_id.to_string(),
                 process_name: process_name.to_string(),
@@ -2365,15 +2529,15 @@ mod query_documents {
                 process_error: Vec::new(),
                 process_result: None,
                 process_heartbeat: None,
-            }
-        ])));
+            }])));
 
         let results = ProcessTrackingModel::query_documents_impl(
-            &doc!{"_id": "id"},
+            &doc! {"_id": "id"},
             Some(page_number),
             Some(page_size),
             &mock_impl,
-            ).await;
+        )
+        .await;
 
         assert!(results.is_err());
         let results = results.err().unwrap();
@@ -2395,16 +2559,23 @@ mod query_documents {
         let page_number = 1;
 
         let mut mock_impl = MockDatabaseOperations::new();
-        mock_impl.expect_count_documents().once().return_const(Ok(6));
-        
-        mock_impl.expect_query_documents().once().return_const(Err(MongoDbError::custom("An error occurred")));
+        mock_impl
+            .expect_count_documents()
+            .once()
+            .return_const(Ok(6));
+
+        mock_impl
+            .expect_query_documents()
+            .once()
+            .return_const(Err(MongoDbError::custom("An error occurred")));
 
         let results = ProcessTrackingModel::query_documents_impl(
-            &doc!{"_id": "id"},
+            &doc! {"_id": "id"},
             Some(page_number),
             Some(page_size),
             &mock_impl,
-            ).await;
+        )
+        .await;
 
         assert!(results.is_err());
         let results = results.err().unwrap();
@@ -2426,16 +2597,23 @@ mod query_documents {
         let page_number = 1;
 
         let mut mock_impl = MockDatabaseOperations::new();
-        mock_impl.expect_count_documents().once().return_const(Ok(6));
-        
-        mock_impl.expect_query_documents().once().return_const(Ok(None));
+        mock_impl
+            .expect_count_documents()
+            .once()
+            .return_const(Ok(6));
+
+        mock_impl
+            .expect_query_documents()
+            .once()
+            .return_const(Ok(None));
 
         let results = ProcessTrackingModel::query_documents_impl(
-            &doc!{"_id": "id"},
+            &doc! {"_id": "id"},
             Some(page_number),
             Some(page_size),
             &mock_impl,
-            ).await;
+        )
+        .await;
 
         assert!(results.is_ok());
         let results = results.unwrap();

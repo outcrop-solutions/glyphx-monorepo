@@ -1,12 +1,12 @@
 use glyphx_core::{GlyphxError, GlyphxErrorData};
 use mongodb::error::ErrorKind;
 use serde_json::json;
-use super::FindOneError;
 #[derive(Debug, Clone, GlyphxError)]
 #[error_definition("MongoDbOperationError")]
 pub enum AllIdsExistError {
     AuthenticationError(GlyphxErrorData),
     InvalidQuery(GlyphxErrorData),
+    InvalidId(GlyphxErrorData),
     UnexpectedError(GlyphxErrorData),
     MissingIds(GlyphxErrorData),
 }
