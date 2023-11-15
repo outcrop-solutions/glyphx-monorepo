@@ -1554,6 +1554,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "glyphx_data_model"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.38",
+]
+
+[[package]]
 name = "glyphx_database"
 version = "0.1.0"
 dependencies = [
@@ -1563,6 +1572,7 @@ dependencies = [
  "derive_builder",
  "futures",
  "glyphx_core",
+ "glyphx_data_model",
  "log",
  "mockall",
  "mongodb",

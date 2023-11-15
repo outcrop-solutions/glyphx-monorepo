@@ -17,6 +17,7 @@ cool_asserts = "2.0.3"
 derive_builder = "0.12.0"
 futures = "0.3.29"
 glyphx_core = {path = "../core", features=["macros"]}
+glyphx_data_model = {path = "../macros/glyphx_data_model"}
 log = "0.4.17"
 mockall = "0.11.4"
 mongodb = "2.7.1"
