@@ -19,14 +19,12 @@ import produce from 'immer';
 import {useCallback} from 'react';
 import {WritableDraft} from 'immer/dist/internal';
 import {showLoadingAtom} from 'state';
-import {_updateProjectState, api} from 'lib';
-import {useSWRConfig} from 'swr';
+import {_updateProjectState} from 'lib';
 import AccumulatorType from './AccumulatorListbox';
 import DateGroupingListbox from './DateGroupListbox';
 
-export const Property = ({axis, setDirty}) => {
+export const Property = ({axis}) => {
   const [project, setProject] = useRecoilState(projectAtom);
-  const {mutate} = useSWRConfig();
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
   const {handleDrop} = useProject();
 
@@ -43,33 +41,23 @@ export const Property = ({axis, setDirty}) => {
   const showLoading = Object.keys(showLoadingValue).length > 0 ? true : false;
 
   const clearProp = useCallback(async () => {
-    const newState = {
-      ...project.state,
-      properties: {
-        ...project.state.properties,
-        [`${axis}`]: {
-          ...project.state.properties[axis],
+    setProject(
+      produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+        draft.state.properties[`${axis}`] = {
           axis: axis,
           accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
-          key: `Column ${axis}`, // corresponds to column name
-          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
+          key: `Column ${axis}`, //corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, //corresponds to column data type
           interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
           direction: webTypes.constants.DIRECTION_TYPE.ASC,
           filter: {
             min: 0,
             max: 0,
           },
-        },
-      },
-    };
-
-    await api({
-      ..._updateProjectState(project.id, newState),
-      onSuccess: () => {
-        mutate(`/api/project/${project.id}`);
-      },
-    });
-  }, [axis, mutate, project]);
+        };
+      })
+    );
+  }, [axis, setProject]);
 
   const logLin = useCallback(() => {
     setProject(
@@ -153,18 +141,13 @@ export const Property = ({axis, setDirty}) => {
           {/* border on same elements as heigh and witg */}
           {prop.direction === webTypes.constants.DIRECTION_TYPE.ASC ? <SwapLeftIcon /> : <SwapRightIcon />}
         </div>
+        {/* TODO: use the project docId to determine version */}
         <div className="min-w-40">
           {(axis === 'X' || axis === 'Y') && prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE && (
-            <DateGroupingListbox
-              prop={prop}
-              project={project}
-              setProject={setProject}
-              axis={axis}
-              setDirty={setDirty}
-            />
+            <DateGroupingListbox axis={axis} />
           )}
         </div>
-        {axis === 'Z' && <AccumulatorType prop={prop} project={project} setProject={setProject} axis={axis} />}
+        {axis === 'Z' && <AccumulatorType axis={axis} />}
       </div>
     </li>
   );

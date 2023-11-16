@@ -1,49 +1,81 @@
 'use client';
 import {Fragment, useCallback, useState} from 'react';
 import {Listbox, Transition} from '@headlessui/react';
-import {CheckIcon} from '@heroicons/react/outline';
 import {glyphEngineTypes, webTypes} from 'types';
 import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
-import {useProject} from 'services';
 import {DateGroupOptions} from './DateGroupOptions';
+import {projectAtom} from 'state';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {dayAtom, domAtom, dowAtom, monthAtom, quarterAtom, woyAtom} from 'state';
 
-const DateGroupingListbox = ({prop, project, setProject, axis, setDirty}) => {
+const DateGroupingListbox = ({axis}) => {
   const [selected, setSelected] = useState(glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR.toUpperCase());
-  const {handleDrop} = useProject();
+  const setProject = useSetRecoilState(projectAtom);
+  const doy = useRecoilValue(dayAtom);
+  const month = useRecoilValue(monthAtom);
+  const dom = useRecoilValue(domAtom);
+  const dow = useRecoilValue(dowAtom);
+  const woy = useRecoilValue(woyAtom);
+  const quarter = useRecoilValue(quarterAtom);
 
   const changeDateGrouping = useCallback(
     (dateGrouping: glyphEngineTypes.constants.DATE_GROUPING) => {
-      // setProject(
-      //   produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-      //     draft.state.properties[`${axis}`].dateGrouping = dateGrouping;
-      //   })
-      // );
-      // const newProject = {
-      //   ...project,
-      //   state: {
-      //     ...project.state,
-      //     properties: {
-      //       ...project.state.properties,
-      //       [`${axis}`]: {
-      //         ...project.state.properties[axis],
-      //         dateGrouping,
-      //       },
-      //     },
-      //   },
-      // };
-      // handleDrop(
-      //   axis,
-      //   {
-      //     type: 'COLUMN_DRAG',
-      //     key: prop.key,
-      //     dataType: prop.dataType,
-      //   },
-      //   newProject,
-      //   false
-      // );
+      let retval: glyphEngineTypes.constants.DATE_GROUPING;
+
+      if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR && doy) {
+        retval = glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR;
+      } else if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR && !doy) {
+        retval = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
+      }
+
+      if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.MONTH && month) {
+        retval = glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_MONTH;
+      } else if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.MONTH && !month) {
+        retval = glyphEngineTypes.constants.DATE_GROUPING.MONTH;
+      }
+
+      if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_MONTH && dom.year && dom.month) {
+        retval = glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH;
+      } else if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_MONTH && dom.year && !dom.month) {
+        retval = glyphEngineTypes.constants.DATE_GROUPING.YEAR_DAY_OF_MONTH;
+      } else if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_MONTH && !dom.year && dom.month) {
+        retval = glyphEngineTypes.constants.DATE_GROUPING.MONTH_DAY_OF_MONTH;
+      } else if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_MONTH && !dom.year && !dom.month) {
+        retval = glyphEngineTypes.constants.DATE_GROUPING.MONTH;
+      }
+
+      if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK && dow) {
+        retval = glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_WEEK;
+      } else if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK && !dow) {
+        retval = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK;
+      }
+
+      if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.WEEK_OF_YEAR && woy) {
+        retval = glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_WEEK_OF_YEAR;
+      } else if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.WEEK_OF_YEAR && !woy) {
+        retval = glyphEngineTypes.constants.DATE_GROUPING.WEEK_OF_YEAR;
+      }
+
+      if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.QUARTER && quarter) {
+        retval = glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_QUARTER;
+      } else if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.QUARTER && !quarter) {
+        retval = glyphEngineTypes.constants.DATE_GROUPING.QUARTER;
+      }
+
+      if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.YEAR_OF_WEEK) {
+        retval = glyphEngineTypes.constants.DATE_GROUPING.YEAR_OF_WEEK;
+      } else if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.YEAR) {
+        retval = glyphEngineTypes.constants.DATE_GROUPING.YEAR;
+      }
+
+      setProject(
+        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+          draft.state.properties[`${axis}`].dateGrouping = retval;
+        })
+      );
     },
-    [axis, handleDrop, prop, project, setProject]
+    [axis, dom, dow, doy, month, quarter, setProject, woy]
   );
 
   return (
@@ -79,7 +111,7 @@ const DateGroupingListbox = ({prop, project, setProject, axis, setDirty}) => {
                   }
                   value={accumulator}
                 >
-                  {({selected}) => <DateGroupOptions setDirty={setDirty} grouping={accumulator} selected={selected} />}
+                  {({selected}) => <DateGroupOptions grouping={accumulator} selected={selected} />}
                 </Listbox.Option>
               ))}
           </Listbox.Options>

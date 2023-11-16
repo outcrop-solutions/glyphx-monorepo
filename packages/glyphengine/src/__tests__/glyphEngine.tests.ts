@@ -1493,7 +1493,7 @@ describe('GlyphEngine', () => {
       putObjectStub.resolves();
       sandbox.replace(aws.S3Manager.prototype, 'putObject', putObjectStub);
 
-      const sdtParser = new SdtParser('xCol', 'yCol', 'zCol', 'zCol');
+      const sdtParser = new SdtParser(false, false, false, 'xCol', 'yCol', 'zCol', 'zCol');
       const parseSdtStringStub = sandbox.stub();
       parseSdtStringStub.resolves({} as unknown as SdtParser);
       sandbox.replace(sdtParser, 'parseSdtString', parseSdtStringStub);

@@ -1,10 +1,8 @@
 'use client';
-/* eslint-disable no-lone-blocks */
 import React, {useCallback, useState} from 'react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {Property} from './Property';
 import {drawerOpenAtom, projectAtom, propertiesSelector, showLoadingAtom, splitPaneSizeAtom} from 'state';
-import {_updateProjectState} from 'lib';
 import {useSession} from 'next-auth/react';
 import {useSWRConfig} from 'swr';
 import {callCreateModel} from 'lib/client/network/reqs/callCreateModel';
@@ -16,12 +14,14 @@ export const Properties = () => {
   const session = useSession();
   const {mutate} = useSWRConfig();
   const setResize = useSetRecoilState(splitPaneSizeAtom);
+  const setProject = useSetRecoilState(projectAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
   const url = useUrl();
   const properties = useRecoilValue(propertiesSelector);
   const [isCollapsed, setCollapsed] = useState(false);
-  const project = useRecoilValue(projectAtom);
+  const [isDirty, setDirty] = useState(false);
+  const [project] = useRecoilValue(projectAtom);
 
   const handleApply = useCallback(async () => {
     const payloadHash = hashPayload(hashFileSystem(project.files), project);
@@ -36,7 +36,13 @@ export const Properties = () => {
       setResize,
       mutate,
     });
-  }, [mutate, project, session, setDrawer, setLoading, setResize, url]);
+    // await api({
+    //   ..._updateProjectState(project.id, project.state),
+    //   onSuccess: () => {
+    //     mutate(`/api/project/${project.id}`);
+    //   },
+    // });
+  }, []);
 
   return (
     properties && (
@@ -71,7 +77,9 @@ export const Properties = () => {
             </div>
             <button
               onClick={handleApply}
-              className={`flex items-center bg-gray hover:bg-yellow justify-around px-3 text-xs mr-2 my-2 text-center rounded disabled:opacity-75 text-white`}
+              className={`flex items-center ${
+                !isDirty ? 'bg-gray' : 'bg-yellow'
+              } justify-around px-3 text-xs mr-2 my-2 text-center rounded disabled:opacity-75 text-white`}
             >
               <span>Apply</span>
             </button>
@@ -83,7 +91,7 @@ export const Properties = () => {
                 {Object.keys(properties)
                   .slice(0, 3)
                   .map((key) => (
-                    <Property key={key} axis={key} />
+                    <Property key={key} axis={key} setDirty={setDirty} />
                   ))}
               </ul>
             </div>
