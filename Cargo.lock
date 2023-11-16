@@ -1557,8 +1557,11 @@ dependencies = [
 name = "glyphx_data_model"
 version = "0.1.0"
 dependencies = [
+ "cool_asserts",
  "proc-macro2",
  "quote",
+ "serde",
+ "serde_json",
  "syn 2.0.38",
 ]
 

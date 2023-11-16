@@ -1,0 +1,17 @@
+{
+  "configurations": {
+    "unit tests": {
+      "adapter": "CodeLLDB",
+      "filetypes": ["rust"],
+      "configuration": {
+        "request": "launch",
+        "program": "${workspaceRoot}/../../../target/debug/deps/glyphx_data_model-713db8c7bb0112e4",
+        "runInTerminal": true,
+        "preRunCommands": ["shell cargo test --no-run --package glyphx_data_model"],
+        "env": {
+          "LD_LIBRARY_PATH": "/home/jpburford/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/"
+        }
+      }
+    }
+  }
+}

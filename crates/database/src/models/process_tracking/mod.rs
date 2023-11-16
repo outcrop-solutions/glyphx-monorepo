@@ -10,6 +10,7 @@ use crate::traits::GlyphxDataModel;
 
 use async_trait::async_trait;
 use glyphx_core::GlyphxErrorData;
+use glyphx_data_model::GlyphxDataModel;
 use mongodb::bson::oid::ObjectId;
 use mongodb::bson::{doc, from_document, to_bson, DateTime, Document};
 use mongodb::options::FindOptions;
@@ -23,7 +24,8 @@ use database_operations_impl::*;
 pub use process_status::*;
 pub use update_process_tracking_model::*;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, GlyphxDataModel)]
+#[model_definition({"collection" : "processtrackings"})]
 pub struct ProcessTrackingModel {
     #[serde(rename = "_id", deserialize_with = "deserialize_object_id")]
     pub id: String,
