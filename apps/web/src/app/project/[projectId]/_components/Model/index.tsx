@@ -1,10 +1,8 @@
 'use client';
 import React, {useEffect, useState} from 'react';
-import {Resizable} from 're-resizable';
 import Script from 'next/script';
 import {useRecoilValue} from 'recoil';
 import {isRenderedAtom} from 'state';
-import {ModelFooter} from '../Datagrid';
 
 export const Model = () => {
   const isRendered = useRecoilValue(isRenderedAtom);
