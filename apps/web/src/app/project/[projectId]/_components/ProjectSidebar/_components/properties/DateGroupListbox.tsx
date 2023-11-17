@@ -19,9 +19,9 @@ const DateGroupingListbox = ({axis}) => {
   const woy = useRecoilValue(woyAtom);
   const quarter = useRecoilValue(quarterAtom);
 
-  const changeDateGrouping = useCallback(
-    (dateGrouping: glyphEngineTypes.constants.DATE_GROUPING) => {
-      let retval: glyphEngineTypes.constants.DATE_GROUPING;
+  const handleDateGrouping = useCallback(
+    (dateGrouping: glyphEngineTypes.constants.DATE_GROUPING): glyphEngineTypes.constants.DATE_GROUPING => {
+      let retval: glyphEngineTypes.constants.DATE_GROUPING = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR;
 
       if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR && doy) {
         retval = glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR;
@@ -69,13 +69,24 @@ const DateGroupingListbox = ({axis}) => {
         retval = glyphEngineTypes.constants.DATE_GROUPING.YEAR;
       }
 
+      return retval;
+    },
+    [dom, dow, doy, month, quarter, woy]
+  );
+
+  const changeDateGrouping = useCallback(
+    (dateGrouping: glyphEngineTypes.constants.DATE_GROUPING) => {
+      const grouping = dateGrouping.replaceAll(' ', '_').toLowerCase();
+      const retval = handleDateGrouping(grouping as glyphEngineTypes.constants.DATE_GROUPING);
+
+      console.log({grouping, retval});
       setProject(
         produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
           draft.state.properties[`${axis}`].dateGrouping = retval;
         })
       );
     },
-    [axis, dom, dow, doy, month, quarter, setProject, woy]
+    [axis, handleDateGrouping, setProject]
   );
 
   return (

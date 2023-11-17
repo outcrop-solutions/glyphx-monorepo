@@ -10,7 +10,7 @@ const useEnv = () => {
     revalidateOnReconnect: false,
   });
   const isProd = data?.env === 'prod';
-  console.log({isProd});
+
   return {isProd, isLoading: !error && !data, isError: error};
 };
 
