@@ -30,6 +30,7 @@ struct FieldDefinition {
     is_createable: Option<()>,
     is_object_id: Option<()>,
     pass_through_attributes: Vec<String>,
+    default_value: Option<String>,
 }
 
 #[proc_macro_derive(GlyphxDataModel, attributes(model_definition, field_definition))]
@@ -37,9 +38,104 @@ pub fn derive(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);
     let struct_ident = ast.ident.clone();
     let model_definition = get_model_definition(&ast);
-    quote!().into()
+    let field_definitions = get_field_definitions(&ast);
+    let build_create_model = build_create_model(&struct_ident, &field_definitions);
+    let q: TokenStream =  quote! {
+        #build_create_model
+    }.into();
+    println!("q: {}", q.to_string());
+    q
 }
 
+fn build_to_bson_function(field_definitions: &Vec<&FieldDefinition>) -> proc_macro2::TokenStream {
+
+  let mut object_id_fields = field_definitions.iter().filter(|field_definition| {
+      field_definition.is_object_id.is_some()
+  }).map(|field_definition| { format!("key == \"{}\"",field_definition.name.as_str())}).collect::<Vec<String>>().join(" || ").parse::<proc_macro2::TokenStream>().unwrap();  
+
+  //It is entirely possible for updates and creates to not have an id field.  This is my lazy way
+  //of handling this condition.  If there are no object_id fields, then we will just pass through
+  //false to our conditional below ensureing that it will never be hit.
+  //TODO: WE need to add logic for handling vectors of ids
+  if object_id_fields.is_empty() {
+      object_id_fields = "false".parse::<proc_macro2::TokenStream>().unwrap();
+  }
+  quote!( pub fn to_bson(&self) -> Result<mongodb::bson::Document, mongodb::bson::ser::Error> {
+        let bson = to_bson(&self);
+        if bson.is_err() {
+            return Err(bson.err().unwrap());
+        }
+        let bson = bson.unwrap();
+        let bson = bson.as_document().unwrap();
+        let mut document = Document::new();
+        bson.keys().for_each(|key| {
+            if #object_id_fields {
+                let str_value = bson.get(key).unwrap().as_str().unwrap();
+                let object_id = ObjectId::parse_str(str_value).unwrap();
+                document.insert(key, mongodb::bson::Bson::ObjectId(object_id)); 
+            } else {
+                let v = bson.get(key).unwrap().clone();
+                document.insert(key, v);
+            }
+        });
+        
+       Ok(document) 
+    })
+
+}
+
+fn build_creatable_fields(field_definitions: &Vec<&FieldDefinition>) -> proc_macro2::TokenStream {
+    let mut output = proc_macro2::TokenStream::new();
+    for field in field_definitions.iter() {
+      let field_name_ident = format_ident!("{}", field.name);
+      let field_type_token_stream : proc_macro2::TokenStream  = field.field_type.parse().unwrap();  
+      let pass_through_attributes = field.pass_through_attributes.iter().map(|attr| {
+        let attr = attr.parse::<proc_macro2::TokenStream>().unwrap();
+        quote!(
+            #attr
+        )
+      }).collect::<Vec<proc_macro2::TokenStream>>();
+      let builder_default = if field.default_value.is_some() {
+          format!(", default = \"{}\"", field.default_value.as_ref().unwrap())
+      } else {
+            String::new()
+      };
+      let creatable = if field.is_createable.is_some() {
+            "setter(into)".to_string()
+      } else {
+            "setter(skip)".to_string()
+            
+      };
+      let builder_attr = format!("#[builder({} {})]", creatable, builder_default);
+      let builder_attr = builder_attr.parse::<proc_macro2::TokenStream>().unwrap();
+      output.extend(quote!(
+        #builder_attr
+        #(#pass_through_attributes)*
+        #field_name_ident : #field_type_token_stream,
+      ));
+    }
+    output
+}
+
+fn build_create_model(ident: &syn::Ident, field_definitions: &Vec<FieldDefinition>) -> proc_macro2::TokenStream {
+   let struct_ident = format_ident!("Create{}", ident);
+   let createable_fields = field_definitions.iter().filter(|field_definition| {
+       field_definition.is_createable.is_some() || field_definition.default_value.is_some()
+   }).collect::<Vec<&FieldDefinition>>();
+   let createable_field_definitions = build_creatable_fields(&createable_fields);
+   let bson_impl = build_to_bson_function(&createable_fields);
+   println!("bson_impl: {}", bson_impl.to_string());
+   quote!(
+        #[derive(Clone, Debug, serde::Serialize, serde::Deserialize, derive_builder::Builder)]
+        pub struct #struct_ident {
+          #createable_field_definitions
+        }
+
+        impl #struct_ident {
+            #bson_impl
+        }
+   )
+}
 fn get_model_definition(ast: &DeriveInput) -> ModelDefinition {
     let attr = ast.attrs.iter().find(|attr| {
         let path = &attr.path();
@@ -73,6 +169,8 @@ fn get_model_definition(ast: &DeriveInput) -> ModelDefinition {
 
 fn get_field_definitions(ast: &DeriveInput) -> Vec<FieldDefinition> {
     let data = &ast.data;
+    let mut has_at_least_one_object_id_field = false;
+
     let fields = match data {
         Data::Struct(data_struct) => &data_struct.fields,
         _ => panic!("GlyphxDataModel can only be derived on structs"),
@@ -84,8 +182,14 @@ fn get_field_definitions(ast: &DeriveInput) -> Vec<FieldDefinition> {
     let mut field_definitions = Vec::new();
     fields.iter().for_each(|field| {
         let field_definition = get_field_definition(field);
+        if field_definition.is_object_id.is_some() {
+            has_at_least_one_object_id_field = true;
+        }
         field_definitions.push(field_definition);
     });
+    if !has_at_least_one_object_id_field {
+        panic!("at least one field must be marked as object_id");
+    }
     field_definitions
 }
 
@@ -129,6 +233,7 @@ fn parse_field_attribute(
     is_updateable: &mut Option<()>,
     is_createable: &mut Option<()>,
     is_object_id: &mut Option<()>,
+    default_value: &mut Option<String>,
     is_vector: &mut Option<VectorFieldDefinition>,
 ) {
     let attr = field.attrs.iter().find(|attr| {
@@ -198,6 +303,10 @@ fn parse_field_attribute(
             is_vector.as_mut().unwrap().push_type = PushType::Shift;
         }
     }
+    if json_value["default_value"].is_string() {
+        let default_str = json_value["default_value"].as_str().unwrap();
+        *default_value = Some(default_str.to_string());
+    }
 }
 
 fn get_pass_through_attributes(field : &syn::Field) -> Vec<String> {
@@ -217,7 +326,6 @@ fn get_pass_through_attributes(field : &syn::Field) -> Vec<String> {
     attr.iter().for_each(|token| {
         let token = token.into_token_stream().to_string();
         if !token.is_empty() {
-            println!("token: {}", token);
             attrs.push(token.to_string());
         }
     });
@@ -237,6 +345,7 @@ fn get_field_definition(field: &syn::Field) -> FieldDefinition {
     let mut is_updateable = if is_vector.is_none() { Some(()) } else { None };
     let mut is_createable = Some(());
     let mut is_object_id = None;
+    let mut default_value = None;
 
     parse_field_attribute(
         field,
@@ -244,6 +353,7 @@ fn get_field_definition(field: &syn::Field) -> FieldDefinition {
         &mut is_updateable,
         &mut is_createable,
         &mut is_object_id,
+        &mut default_value,
         &mut is_vector,
     );
 
@@ -257,6 +367,7 @@ fn get_field_definition(field: &syn::Field) -> FieldDefinition {
         is_createable,
         is_object_id,
         pass_through_attributes,
+        default_value,
     }
 }
 
@@ -305,6 +416,7 @@ mod get_field_definition {
         let token_stream = quote!(
             #[model_definition({"collection" : "process_tracking"})]
             struct test {
+                #[field_definition({"object_id" : true})]
                 id: String,
             }
         )
@@ -319,7 +431,10 @@ mod get_field_definition {
         assert!(field_definition.is_vector.is_none());
         assert!(field_definition.is_updateable.is_some());
         assert!(field_definition.is_createable.is_some());
-        assert!(field_definition.is_object_id.is_none());
+        assert!(field_definition.is_object_id.is_some());
+        assert!(field_definition.pass_through_attributes.len() == 0);
+        assert!(field_definition.default_value.is_none());
+
     }
 
     #[test]
@@ -327,6 +442,7 @@ mod get_field_definition {
         let token_stream = quote!(
             #[model_definition({"collection" : "process_tracking"})]
             struct test {
+                #[field_definition({"object_id" : true})]
                 id: Option<String>,
             }
         )
@@ -341,7 +457,9 @@ mod get_field_definition {
         assert!(field_definition.is_vector.is_none());
         assert!(field_definition.is_updateable.is_some());
         assert!(field_definition.is_createable.is_some());
-        assert!(field_definition.is_object_id.is_none());
+        assert!(field_definition.is_object_id.is_some());
+        assert!(field_definition.pass_through_attributes.len() == 0);
+        assert!(field_definition.default_value.is_none());
     }
 
     #[test]
@@ -349,6 +467,7 @@ mod get_field_definition {
         let token_stream = quote!(
             #[model_definition({"collection" : "process_tracking"})]
             struct test {
+                #[field_definition({"object_id" : true})]
                 id: Vec<String>,
             }
         )
@@ -368,7 +487,9 @@ mod get_field_definition {
         }
         assert!(field_definition.is_updateable.is_none());
         assert!(field_definition.is_createable.is_some());
-        assert!(field_definition.is_object_id.is_none());
+        assert!(field_definition.is_object_id.is_some());
+        assert!(field_definition.pass_through_attributes.len() == 0);
+        assert!(field_definition.default_value.is_none());
     }
 
     #[test]
@@ -376,7 +497,7 @@ mod get_field_definition {
         let token_stream = quote!(
             #[model_definition({"collection" : "process_tracking"})]
             struct test {
-                #[field_definition({"vector_sort_direction" : "desc"})]
+                #[field_definition({"vector_sort_direction" : "desc", "object_id" : true})]
                 id: Vec<String>,
             }
         )
@@ -396,7 +517,9 @@ mod get_field_definition {
         }
         assert!(field_definition.is_updateable.is_none());
         assert!(field_definition.is_createable.is_some());
-        assert!(field_definition.is_object_id.is_none());
+        assert!(field_definition.is_object_id.is_some());
+        assert!(field_definition.pass_through_attributes.len() == 0);
+        assert!(field_definition.default_value.is_none());
     }
 
     #[test]
@@ -420,6 +543,8 @@ mod get_field_definition {
         assert!(field_definition.is_updateable.is_some());
         assert!(field_definition.is_createable.is_some());
         assert!(field_definition.is_object_id.is_some());
+        assert!(field_definition.pass_through_attributes.len() == 0);
+        assert!(field_definition.default_value.is_none());
     }
 
     #[test]
@@ -443,6 +568,8 @@ mod get_field_definition {
         assert!(field_definition.is_updateable.is_some());
         assert!(field_definition.is_createable.is_some());
         assert!(field_definition.is_object_id.is_some());
+        assert!(field_definition.pass_through_attributes.len() == 0);
+        assert!(field_definition.default_value.is_none());
     }
 
     #[test]
@@ -466,6 +593,8 @@ mod get_field_definition {
         assert!(field_definition.is_updateable.is_none());
         assert!(field_definition.is_createable.is_some());
         assert!(field_definition.is_object_id.is_some());
+        assert!(field_definition.pass_through_attributes.len() == 0);
+        assert!(field_definition.default_value.is_none());
     }
 
     #[test]
@@ -473,7 +602,7 @@ mod get_field_definition {
         let token_stream = quote!(
             #[model_definition({"collection" : "process_tracking"})]
             struct test {
-                #[field_definition({"updateable" : false})]
+                #[field_definition({"updateable" : false, "object_id" : true})]
                 id: String,
             }
         )
@@ -488,7 +617,9 @@ mod get_field_definition {
         assert!(field_definition.is_vector.is_none());
         assert!(field_definition.is_updateable.is_none());
         assert!(field_definition.is_createable.is_some());
-        assert!(field_definition.is_object_id.is_none());
+        assert!(field_definition.is_object_id.is_some());
+        assert!(field_definition.pass_through_attributes.len() == 0);
+        assert!(field_definition.default_value.is_none());
     }
 
     #[test]
@@ -496,7 +627,7 @@ mod get_field_definition {
         let token_stream = quote!(
             #[model_definition({"collection" : "process_tracking"})]
             struct test {
-                #[field_definition({"createable" : false})]
+                #[field_definition({"createable" : false, "object_id" : true})]
                 id: String,
             }
         )
@@ -511,7 +642,9 @@ mod get_field_definition {
         assert!(field_definition.is_vector.is_none());
         assert!(field_definition.is_updateable.is_some());
         assert!(field_definition.is_createable.is_none());
-        assert!(field_definition.is_object_id.is_none());
+        assert!(field_definition.is_object_id.is_some());
+        assert!(field_definition.pass_through_attributes.len() == 0);
+        assert!(field_definition.default_value.is_none());
     }
 
     #[test]
@@ -553,7 +686,7 @@ mod get_field_definition {
         let token_stream = quote!(
             #[model_definition({"collection" : "process_tracking"})]
             struct test {
-                #[field_definition({"updateable" : true})]
+                #[field_definition({"updateable" : true, "object_id" : true})]
                 id: Vec<String>,
             }
         )
@@ -583,12 +716,27 @@ mod get_field_definition {
     }
 
     #[test]
+    fn err_no_object_id() {
+        let token_stream = quote!(
+            #[model_definition({"collection" : "process_tracking"})]
+            struct test {
+                id: usize,
+            }
+        )
+        .to_string();
+        let ast = syn::parse_str::<syn::DeriveInput>(&token_stream).unwrap();
+        assert_panics! {
+            get_field_definitions(&ast),
+            includes("at least one field must be marked as object_id")
+        }
+    }
+    #[test]
     fn attributes() {
         let token_stream = quote!(
             #[derive(Serialize)]
             #[model_definition({"collection" : "process_tracking"})]
             struct test {
-                #[field_definition({"createable" : false})]
+                #[field_definition({"createable" : false, "object_id" : true})]
                 #[serde(rename = "id")]
                 id: String,
             }
@@ -602,4 +750,81 @@ mod get_field_definition {
 
 
     }
+
+    #[test]
+    fn default_value() {
+        let token_stream = quote!(
+            #[model_definition({"collection" : "process_tracking"})]
+            struct test {
+                #[field_definition({"createable" : false, "default_value" : "test", "object_id" : true})]
+                id: String,
+            }
+        )
+        .to_string();
+        let ast = syn::parse_str::<syn::DeriveInput>(&token_stream).unwrap();
+        let field_definitions = get_field_definitions(&ast);
+        assert_eq!(field_definitions.len(), 1);
+        let field_definition = &field_definitions[0];
+        assert_eq!(field_definition.name, "id");
+        assert_eq!(field_definition.field_type, "String");
+        assert!(field_definition.is_option.is_none());
+        assert!(field_definition.is_vector.is_none());
+        assert!(field_definition.is_updateable.is_some());
+        assert!(field_definition.is_createable.is_none());
+        assert!(field_definition.is_object_id.is_some());
+        assert!(field_definition.pass_through_attributes.len() == 0);
+        assert_eq!(field_definition.default_value.as_ref().unwrap(), "test");
+    }
+
+}
+
+#[cfg(test)]
+mod create_model {
+    use super::*;
+
+    #[test]
+    fn is_ok() {
+
+        let token_stream = quote!(
+        #[model_definition({"collection" : "processtrackings"})]
+        pub struct ProcessTrackingModel {
+            #[serde(rename = "_id", deserialize_with = "deserialize_object_id")]
+            #[field_definition({"updateable" : false, "createable" : false, "object_id" : true})]
+            pub id: String,
+            #[serde(rename = "processId")]
+            pub process_id: String,
+            #[serde(rename = "processName")]
+            pub process_name: String,
+            #[serde(rename = "processStatus")]
+            #[field_definition({"default_value" : "ProcessStatus::Running"})]
+            pub process_status: ProcessStatus,
+            #[serde(rename = "processStartTime")]
+            #[field_definition({"createable" : false, "default_value" : "Some(DateTime::now())"})]
+            pub process_start_time: DateTime,
+            #[serde(rename = "processEndTime", skip_serializing_if = "Option::is_none")]
+            #[field_definition({"createable" : false})]
+            pub process_end_time: Option<DateTime>,
+            #[serde(rename = "processMessages")]
+            #[field_definition({"createable" : false, "default_value" : "Vec::new()"})]
+            pub process_messages: Vec<String>,
+            #[serde(rename = "processError")]
+            #[field_definition({"createable" : false, "default_value" : "Vec::new()"})]
+            pub process_error: Vec<Value>,
+            #[serde(rename = "processResult", skip_serializing_if = "Option::is_none")]
+            #[field_definition({"createable" : false})]
+            pub process_result: Option<Value>,
+            #[serde(rename = "processHeartbeat", skip_serializing_if = "Option::is_none")]
+            #[field_definition({"createable" : false})]
+            pub process_heartbeat: Option<DateTime>,
+}
+        )
+        .to_string();
+        let ast = syn::parse_str::<syn::DeriveInput>(&token_stream).unwrap();
+        let field_definitions = get_field_definitions(&ast);
+        let ident = syn::Ident::new("ProcessTrackingModel", proc_macro2::Span::call_site());
+        let create_model = build_create_model(&ident, &field_definitions);
+        println!("create_model: {}", create_model.to_string());
+
+    }
+
 }

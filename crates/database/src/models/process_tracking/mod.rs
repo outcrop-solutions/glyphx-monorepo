@@ -18,7 +18,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
 use super::common::deserialize_object_id;
-pub use create_process_tracking_model::*;
+//pub use create_process_tracking_model::*;
 use database_operations::*;
 use database_operations_impl::*;
 pub use process_status::*;
@@ -26,28 +26,42 @@ pub use update_process_tracking_model::*;
 
 #[derive(Clone, Debug, Serialize, Deserialize, GlyphxDataModel)]
 #[model_definition({"collection" : "processtrackings"})]
-pub struct ProcessTrackingModel {
-    #[serde(rename = "_id", deserialize_with = "deserialize_object_id")]
-    pub id: String,
-    #[serde(rename = "processId")]
-    pub process_id: String,
-    #[serde(rename = "processName")]
-    pub process_name: String,
-    #[serde(rename = "processStatus")]
-    pub process_status: ProcessStatus,
-    #[serde(rename = "processStartTime")]
-    pub process_start_time: DateTime,
-    #[serde(rename = "processEndTime", skip_serializing_if = "Option::is_none")]
-    pub process_end_time: Option<DateTime>,
-    #[serde(rename = "processMessages")]
-    pub process_messages: Vec<String>,
-    #[serde(rename = "processError")]
-    pub process_error: Vec<Value>,
-    #[serde(rename = "processResult", skip_serializing_if = "Option::is_none")]
-    pub process_result: Option<Value>,
-    #[serde(rename = "processHeartbeat", skip_serializing_if = "Option::is_none")]
-    pub process_heartbeat: Option<DateTime>,
+        pub struct ProcessTrackingModel {
+            #[serde(rename = "_id", deserialize_with = "deserialize_object_id")]
+            #[field_definition({"updateable" : false, "createable" : false, "object_id" : true})]
+            pub id: String,
+            #[serde(rename = "processId")]
+            pub process_id: String,
+            #[serde(rename = "processName")]
+            pub process_name: String,
+            #[serde(rename = "processStatus")]
+            #[field_definition({"default_value" : "ProcessStatus::Running"})]
+            pub process_status: ProcessStatus,
+            #[serde(rename = "processStartTime")]
+            #[field_definition({"createable" : false, "default_value" : "DateTime::now()"})]
+            pub process_start_time: DateTime,
+            #[serde(rename = "processEndTime", skip_serializing_if = "Option::is_none")]
+            #[field_definition({"createable" : false})]
+            pub process_end_time: Option<DateTime>,
+            #[serde(rename = "processMessages")]
+            #[field_definition({"createable" : false, "default_value" : "Vec::new()"})]
+            pub process_messages: Vec<String>,
+            #[serde(rename = "processError")]
+            #[field_definition({"createable" : false, "default_value" : "Vec::new()"})]
+            pub process_error: Vec<Value>,
+            #[serde(rename = "processResult", skip_serializing_if = "Option::is_none")]
+            #[field_definition({"createable" : false})]
+            pub process_result: Option<Value>,
+            #[serde(rename = "processHeartbeat", skip_serializing_if = "Option::is_none")]
+            #[field_definition({"createable" : false})]
+            pub process_heartbeat: Option<DateTime>,
 }
+
+
+
+
+
+
 
 //Functions in this impl block are unique to this collection and must be created by hand.
 impl ProcessTrackingModel {

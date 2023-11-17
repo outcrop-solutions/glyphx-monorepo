@@ -29,3 +29,9 @@ impl EnumDataModelField for ProcessStatus {
         }
     }
 }
+
+impl From<&str> for ProcessStatus {
+    fn from(value: &str) -> Self {
+        ProcessStatus::from_str(value)
+    }
+}
