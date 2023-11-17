@@ -6,4 +6,15 @@ import useConfigs from './useConfigs';
 import useWorkspace from './useWorkspace';
 import useUrl from './useUrl';
 import useAnnotations from './useAnnotations';
-export {useInvitations, useMembers, useProject, useWorkspaces, useWorkspace, useUrl, useAnnotations, useConfigs};
+import useEnv from './useEnv';
+export {
+  useInvitations,
+  useMembers,
+  useProject,
+  useWorkspaces,
+  useWorkspace,
+  useUrl,
+  useAnnotations,
+  useConfigs,
+  useEnv,
+};

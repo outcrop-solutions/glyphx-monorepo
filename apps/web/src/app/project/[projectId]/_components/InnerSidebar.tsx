@@ -6,9 +6,12 @@ import {FilesSidebar} from './ProjectSidebar/FilesSidebar';
 import {ModelSidebar} from './ProjectSidebar/ModelSidebar';
 import {CollabSidebar} from './ProjectSidebar/CollabSidebar';
 import {ModelConfigSidebar} from './ProjectSidebar/ModelConfigSidebar';
+import {ThreadsSidebar} from './ProjectSidebar/ThreadsSidebar';
+import {useEnv} from 'lib/client/hooks';
 
 export const InnerSidebar = () => {
   const segment = useRecoilValue(projectSegmentAtom);
+  const {isProd} = useEnv();
   return (
     <>
       {(() => {
@@ -18,11 +21,11 @@ export const InnerSidebar = () => {
           case 'MODEL':
             return <ModelSidebar />;
           case 'COLLAB':
-            return <CollabSidebar />;
+            return <ThreadsSidebar />;
           case 'AI':
-            return <CollabSidebar />;
+            return !isProd && <CollabSidebar />;
           case 'CONFIG':
-            return <ModelConfigSidebar />;
+            return !isProd && <ModelConfigSidebar />;
           default:
             break;
         }

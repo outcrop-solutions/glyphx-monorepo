@@ -77,9 +77,9 @@ export class GlyphStream extends Transform {
 
     //to try and restrict the amount of data that we are sending across the wire
     //we will  send the field name and the data as a sting in the format {x : {filedName: value}}
-    outObj.x[xFieldName] = xValue;
-    outObj.y[yFieldName] = yValue;
-    outObj.z[zFieldName] = zValue;
+    outObj.x[xFieldName] = !this.sdtParser.isXDate ? xValue : new Date(xValue);
+    outObj.y[yFieldName] = !this.sdtParser.isYDate ? yValue : new Date(yValue);
+    outObj.z[zFieldName] = !this.sdtParser.isZDate ? zValue : new Date(zValue);
 
     //make it a string so it is easier to pass
     retval = JSON.stringify(outObj);

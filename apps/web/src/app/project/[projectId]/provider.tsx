@@ -15,6 +15,7 @@ import {InitialDocumentProvider} from 'collab/lib/client';
 import {RoomProvider} from 'liveblocks.config';
 import {Cursors} from 'collab/components/Cursors';
 import {ClientSideSuspense} from '@liveblocks/react';
+import {useEnv} from 'lib/client/hooks';
 
 const openFirstFile = (projData) => {
   const newFiles = projData?.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
@@ -34,6 +35,8 @@ export const ProjectProvider = ({children, doc, project}: {children: React.React
   useSendPosition();
   useCloseViewerOnModalOpen();
   useCloseViewerOnLoading();
+
+  const {isProd} = useEnv();
 
   const setWorkspace = useSetRecoilState(workspaceAtom);
   const setProject = useSetRecoilState(projectAtom);
@@ -64,14 +67,17 @@ export const ProjectProvider = ({children, doc, project}: {children: React.React
     project,
   ]);
 
-  return (
+  return project.docId && isProd ? (
     <RoomProvider id={project.docId as string} initialPresence={{cursor: null}} initialStorage={{notes: new LiveMap()}}>
       <InitialDocumentProvider initialDocument={doc}>
         <div ref={projectViewRef} className="flex w-full h-full">
-          <ClientSideSuspense fallback={null}>{() => <Cursors element={projectViewRef} />}</ClientSideSuspense>
           {children}
         </div>
       </InitialDocumentProvider>
     </RoomProvider>
+  ) : (
+    <div ref={projectViewRef} className="flex w-full h-full">
+      {children}
+    </div>
   );
 };

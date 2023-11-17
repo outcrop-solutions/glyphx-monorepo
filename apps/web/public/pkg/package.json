@@ -1,0 +1,14 @@
+{
+  "name": "glyphx_cube_model",
+  "version": "0.1.0",
+  "files": [
+    "glyphx_cube_model_bg.wasm",
+    "glyphx_cube_model.js",
+    "glyphx_cube_model.d.ts"
+  ],
+  "module": "glyphx_cube_model.js",
+  "types": "glyphx_cube_model.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

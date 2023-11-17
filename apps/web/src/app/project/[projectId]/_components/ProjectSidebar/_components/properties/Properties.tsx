@@ -1,13 +1,42 @@
 'use client';
 /* eslint-disable no-lone-blocks */
-import React, {useState} from 'react';
-import {useRecoilValue} from 'recoil';
+import React, {useCallback, useState} from 'react';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {Property} from './Property';
-import {propertiesSelector} from 'state';
+import {drawerOpenAtom, projectAtom, propertiesSelector, showLoadingAtom, splitPaneSizeAtom} from 'state';
+import {_updateProjectState} from 'lib';
+import {useSession} from 'next-auth/react';
+import {useSWRConfig} from 'swr';
+import {callCreateModel} from 'lib/client/network/reqs/callCreateModel';
+import {hashPayload} from 'lib/utils/hashPayload';
+import {hashFileSystem} from 'lib/utils/hashFileSystem';
+import {useUrl} from 'lib/client/hooks';
 
 export const Properties = () => {
+  const session = useSession();
+  const {mutate} = useSWRConfig();
+  const setResize = useSetRecoilState(splitPaneSizeAtom);
+  const setDrawer = useSetRecoilState(drawerOpenAtom);
+  const setLoading = useSetRecoilState(showLoadingAtom);
+  const url = useUrl();
   const properties = useRecoilValue(propertiesSelector);
   const [isCollapsed, setCollapsed] = useState(false);
+  const project = useRecoilValue(projectAtom);
+
+  const handleApply = useCallback(async () => {
+    const payloadHash = hashPayload(hashFileSystem(project.files), project);
+    await callCreateModel({
+      isFilter: false,
+      project,
+      payloadHash,
+      session,
+      url,
+      setLoading,
+      setDrawer,
+      setResize,
+      mutate,
+    });
+  }, [mutate, project, session, setDrawer, setLoading, setResize, url]);
 
   return (
     properties && (
@@ -19,7 +48,7 @@ export const Properties = () => {
             }}
             className="flex h-8 items-center cursor-pointer justify-between w-full text-gray hover:bg-secondary-midnight hover:border-b-white hover:text-white truncate border-b border-gray"
           >
-            <div className="flex ml-2 items-center">
+            <div className="flex mx-2 items-center w-full">
               <span className="">
                 {/* @jp-burford it's sinful but it's functional for now so*/}
                 <svg
@@ -35,13 +64,17 @@ export const Properties = () => {
                   />
                 </svg>
               </span>
-              <div>
-                <span className="font-roboto font-medium text-[12px] leading-[14px] tracking-[.01em] ml-3 text-light-gray">
-                  {' '}
-                  Axes{' '}
-                </span>
-              </div>
+              <span className="font-roboto font-medium text-[12px] leading-[14px] tracking-[.01em] ml-3 text-light-gray">
+                {' '}
+                Axes{' '}
+              </span>
             </div>
+            <button
+              onClick={handleApply}
+              className={`flex items-center bg-gray hover:bg-yellow justify-around px-3 text-xs mr-2 my-2 text-center rounded disabled:opacity-75 text-white`}
+            >
+              <span>Apply</span>
+            </button>
             {/* <PlusIcon className="w-5 h-5 opacity-75 mr-1" /> */}
           </summary>
           {!isCollapsed && (
