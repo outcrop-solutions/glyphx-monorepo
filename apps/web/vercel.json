@@ -3,6 +3,9 @@
     "pages/api/etl/*": {
       "memory": 3008,
       "maxDuration": 300
+    },
+    "pages/api/rust/*.rs": {
+      "runtime": "vercel-rust@4.0.6"
     }
   }
 }

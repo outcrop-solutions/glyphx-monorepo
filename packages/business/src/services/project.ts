@@ -53,7 +53,8 @@ export class ProjectService {
     userId: string,
     email: string,
     template?: databaseTypes.IProjectTemplate,
-    description?: string
+    description?: string,
+    docId?: string
   ): Promise<databaseTypes.IProject> {
     try {
       let templateId;
@@ -72,6 +73,7 @@ export class ProjectService {
         members: [],
         stateHistory: [],
         tags: [],
+        docId: docId,
         state: {
           properties: template?.shape || {
             X: {
@@ -189,6 +191,7 @@ export class ProjectService {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         throw err;
       } else {
+        console.log({err});
         const e = new error.DataServiceError(
           'An unexpected error occurred while creating the project. See the inner error for additional details',
           'project',

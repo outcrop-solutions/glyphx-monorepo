@@ -19,6 +19,9 @@ import {Loading} from 'app/_components/Loaders/Loading';
 import {Session} from 'next-auth';
 import {AuthProviders} from 'app/_components/AuthProviders';
 import {SocketProvider} from './socketProvider';
+import {ThemeProvider as NextThemesProvider} from 'next-themes';
+import {ThemeProviderProps} from 'next-themes/dist/types';
+import {TooltipProvider} from './chat/[id]/_components/ui/tooltip';
 
 if (typeof window !== 'undefined') {
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY as string, {
@@ -61,14 +64,18 @@ export const Providers = ({children, session}: {children: React.ReactNode; sessi
           <PostHogProvider client={posthog}>
             <SocketProvider>
               <AuthProviders>
-                {/* @ts-ignore */}
-                <DndProvider backend={HTML5Backend}>
-                  <Toaster position="bottom-left" toastOptions={{duration: 2000}} />
-                  {progress && <TopBarProgress />}
-                  <Modals />
-                  <Loading />
-                  {children}
-                </DndProvider>
+                <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
+                  <TooltipProvider>
+                    {/* @ts-ignore */}
+                    <DndProvider backend={HTML5Backend}>
+                      <Toaster position="bottom-left" toastOptions={{duration: 2000}} />
+                      {progress && <TopBarProgress />}
+                      <Modals />
+                      <Loading />
+                      {children}
+                    </DndProvider>
+                  </TooltipProvider>
+                </NextThemesProvider>
               </AuthProviders>
             </SocketProvider>
           </PostHogProvider>

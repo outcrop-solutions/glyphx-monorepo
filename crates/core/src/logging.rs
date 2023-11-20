@@ -1,6 +1,9 @@
 //!This module contains the functions required to configure logging.
 //!Logging is standard across all GlyphX applications.  This module,
 //!will ensure that each application logs its information appropriately.
+
+mod logging_error;
+
 use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::rolling_file::policy::compound::roll::fixed_window::FixedWindowRoller;
@@ -11,7 +14,10 @@ use log4rs::config::{Appender, Config, Root};
 use log4rs::Handle;
 use serde_json::json;
 
-use glyphx_types::error::GlyphxErrorData;
+pub use crate::types::error::GlyphxErrorData;
+pub use logging_error::LoggingError;
+
+use crate::ErrorTypeParser;
 
 ///The setup logging function is used to configure the logging.  An application 
 ///should call this function once and only once.
@@ -95,7 +101,9 @@ fn configure_logging<T>(
             );
             //We panic here because this is a configuration error
             //which could have downstream effects.
-            panic!("{}", error);
+            let err = LoggingError::ConfigurationError(error);
+            err.error();
+            panic!("{}", err);
         });
 
     // Configure the root logger to use both appenders
@@ -129,7 +137,9 @@ fn configure_logging<T>(
         );
         //We panic here because this is a configuration error
         //which could have downstream effects.
-        panic!("{}", error);
+            let err = LoggingError::ConfigurationError(error);
+            err.error();
+            panic!("{}", err);
     });
 }
 
@@ -140,10 +150,9 @@ mod constructor_tests {
     use log;
     use serial_test::serial;
     use std::panic;
-    use crate::utility_functions::json_functions::clean_json_string;
 
     fn get_mock_init(
-        application_name: String,
+        _application_name: String,
         file_name: String,
         file_size: u32,
         level_filter: LevelFilter,
@@ -291,9 +300,11 @@ mod constructor_tests {
 
        let error = result.unwrap_err();
        let error = error.downcast_ref::<String>().unwrap();
-       let json_value : GlyphxErrorData = serde_json::from_str(error).unwrap();
-       assert!(json_value.inner_error.is_some());
-       let data = json_value.data.unwrap();
+       let json_value : serde_json::Value = serde_json::from_str(error).unwrap();
+       let data = &json_value["glyphxErrorData"];
+       assert!(data.is_object());
+       let json_value = &data.as_object().unwrap();
+       let data = &json_value["data"].as_object().unwrap();
        let app_name = data.get("application_name").unwrap().as_str().unwrap();
        assert_eq!( app_name,application_name);
 

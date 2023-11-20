@@ -1,5 +1,10 @@
 [workspace]
-members = ["crates/*"]
+members = ["crates/common", "crates/core", "crates/cube_model", "crates/glyph_engine", "crates/macro_tests", "crates/macros/*", "bindings/node/*" ]
 
+ignoredFolders = [
+  "$HOME",
+  "$HOME/.cargo/**",
+  "$HOME/.rustup/**"
+]
 [build]
 rustdocflags = ["--document-private-items"]

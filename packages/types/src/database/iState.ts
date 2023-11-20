@@ -5,6 +5,9 @@ import {IUser} from './iUser';
 import {Camera, Property} from '../web';
 import {IWorkspace} from './iWorkspace';
 import {Aspect} from '../web/types/ui/aspect';
+import {IPresence} from './iPresence';
+import {IAnnotation} from './iAnnotation';
+import {IThreshold} from './iThreshold';
 
 // only created via user input
 // immutable
@@ -28,4 +31,7 @@ export interface IState {
   project: IProject;
   workspace: IWorkspace;
   fileSystem: IFileStats[];
+  presence?: IPresence; // collaborative user state
+  theads?: IAnnotation[];
+  thresholds?: IThreshold[];
 }

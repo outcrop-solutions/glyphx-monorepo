@@ -1,5 +1,5 @@
 import {aws, error, logging, generalPurposeFunctions, streams} from 'core';
-import {fileIngestionTypes, databaseTypes} from 'types';
+import {fileIngestionTypes, databaseTypes, glyphEngineTypes} from 'types';
 import {SdtParser} from './io';
 import {QueryRunner} from './io/queryRunner';
 import {IQueryResponse} from './interfaces';
@@ -192,7 +192,9 @@ export class GlyphEngine {
       const sdtFileName = `${prefix}/${payloadHash}.sdt`;
       await this.outputBucketField.putObject(sdtFileName, template);
 
-      const sdtParser = await SdtParser.parseSdtString(template, viewName, data, this.athenaManager);
+      const {xCol, yCol, zCol, isXDate, isYDate, isZDate, zColName} = this.formatCols(data);
+      const initialParser = new SdtParser(isXDate, isYDate, isZDate, xCol, yCol, zCol, zColName);
+      const sdtParser = await initialParser.parseSdtString(template, viewName, data, this.athenaManager);
 
       await processTrackingService.addProcessMessage(
         this.processId,
@@ -209,7 +211,7 @@ export class GlyphEngine {
           `Creating Gyphs and uploading files: ${new Date()}`
         );
 
-        const fileNames = await this.processData(sdtParser, prefix, payloadHash);
+        const fileNames = await this.processData(sdtParser as unknown as SdtParser, prefix, payloadHash);
         sgnFileName = fileNames.sgnFileName;
         sgcFileName = fileNames.sgcFileName;
       }
@@ -275,16 +277,139 @@ export class GlyphEngine {
     return status;
   }
 
-  private async startQuery(data: Map<string, string>, viewName: string): Promise<void> {
-    //TODO: need some validation here
+  private formatCols(data: Map<string, string>): {
+    isXDate: boolean;
+    isYDate: boolean;
+    isZDate: boolean;
+    xCol: string;
+    yCol: string;
+    zCol: string;
+    zColName: string;
+  } {
     const xCol = data.get('x_axis') as string;
     const yCol = data.get('y_axis') as string;
-    const zCol = data.get('z_axis') as string;
-    const filter = (data.get('filter') as string) ?? undefined;
+    const zColName = data.get('z_axis') as string;
+    const isXDate = data.get('type_x') === 'date'; // comes from this.getDataType
+    const isYDate = data.get('type_y') === 'date'; // comes from this.getDataType
+    const isZDate = data.get('type_z') === 'date'; // comes from this.getDataType
+    const xDateGrouping = data.get('x_date_grouping') as glyphEngineTypes.constants.DATE_GROUPING;
+    const yDateGrouping = data.get('y_date_grouping') as glyphEngineTypes.constants.DATE_GROUPING;
+    const zAccumulatorType = data.get('accumulatorType') as glyphEngineTypes.constants.ACCUMULATOR_TYPE;
 
-    this.queryRunner = new QueryRunner(this.athenaManager.databaseName, viewName, xCol, yCol, zCol, filter);
+    let groupByXColumn: glyphEngineTypes.constants.DATE_GROUPING | string;
+    let groupByYColumn: glyphEngineTypes.constants.DATE_GROUPING | string;
+    if (isXDate) {
+      groupByXColumn = GlyphEngine.getDateGroupingFunction(xCol, xDateGrouping);
+    } else {
+      groupByXColumn = `"${xCol}"`;
+    }
+    if (isYDate) {
+      groupByYColumn = GlyphEngine.getDateGroupingFunction(yCol, yDateGrouping);
+    } else {
+      groupByYColumn = `"${yCol}"`;
+    }
+
+    const accumulatorFunction: glyphEngineTypes.constants.ACCUMULATOR_TYPE | string =
+      GlyphEngine.getAccumulatorFunction(isZDate, zAccumulatorType);
+    return {
+      isXDate,
+      isYDate,
+      isZDate,
+      xCol: groupByXColumn,
+      yCol: groupByYColumn,
+      zCol: accumulatorFunction,
+      zColName,
+    };
+  }
+
+  private async startQuery(data: Map<string, string>, viewName: string): Promise<void> {
+    //TODO: need some validation here
+    const filter = (data.get('filter') as string) ?? undefined;
+    const {xCol, yCol, zCol, zColName} = this.formatCols(data);
+
+    this.queryRunner = new QueryRunner({
+      databaseName: this.athenaManager.databaseName,
+      viewName,
+      xCol,
+      yCol,
+      zCol,
+      zColName,
+      filter,
+    });
     await this.queryRunner.init();
     this.queryId = await this.queryRunner.startQuery();
+  }
+
+  public static getAccumulatorFunction(
+    isZDate: boolean,
+    accumulatorType: glyphEngineTypes.constants.ACCUMULATOR_TYPE
+  ): glyphEngineTypes.constants.ACCUMULATOR_TYPE | string {
+    if (isZDate) {
+      return `COUNT(zColumn)`;
+    }
+    switch (accumulatorType) {
+      case glyphEngineTypes.constants.ACCUMULATOR_TYPE.AVG:
+        return `AVG(zColumn)`;
+      case glyphEngineTypes.constants.ACCUMULATOR_TYPE.MIN:
+        return `MIN(zColumn)`;
+      case glyphEngineTypes.constants.ACCUMULATOR_TYPE.MAX:
+        return `MAX(zColumn)`;
+      case glyphEngineTypes.constants.ACCUMULATOR_TYPE.COUNT:
+        return `COUNT(zColumn)`;
+      default: // Assuming SUM as default
+        return `SUM(zColumn)`;
+    }
+  }
+
+  // Maps date grouping to PRESTO compatible SQL functions
+  public static getDateGroupingFunction(
+    columnName: string,
+    dateGroup: glyphEngineTypes.constants.DATE_GROUPING
+  ): glyphEngineTypes.constants.DATE_GROUPING | string {
+    switch (dateGroup) {
+      // DOY variants
+      case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR:
+        return `year(from_unixtime("${columnName}"/1000)) * 100) + day_of_year(from_unixtime("${columnName}"/1000)`;
+      case glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR:
+        return `day_of_year(from_unixtime("${columnName}"/1000))")`;
+      // Month variants
+      case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_MONTH:
+        return `year(from_unixtime("${columnName}"/1000)) * 100) + (month(from_unixtime("${columnName}"/1000))`;
+      case glyphEngineTypes.constants.DATE_GROUPING.MONTH:
+        return `month(from_unixtime("${columnName}"/1000))")`;
+      // DOM variants
+      case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH:
+        return `year(from_unixtime("${columnName}"/1000)) * 10000) + (month(from_unixtime("${columnName}"/1000)) * 100) + day_of_month(from_unixtime("${columnName}"/1000)`;
+      case glyphEngineTypes.constants.DATE_GROUPING.YEAR_DAY_OF_MONTH:
+        return `year(from_unixtime("${columnName}"/1000)) * 10000) + (month(from_unixtime("${columnName}"/1000)) * 100) + day_of_month(from_unixtime("${columnName}"/1000)`;
+      case glyphEngineTypes.constants.DATE_GROUPING.MONTH_DAY_OF_MONTH:
+        return `(month(from_unixtime("${columnName}"/1000)) * 100) + day_of_month(from_unixtime("${columnName}"/1000)`;
+      case glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_MONTH:
+        return `day(from_unixtime("${columnName}"/1000))")`;
+      // DOW variants
+      case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_WEEK:
+        return `year_of_week(from_unixtime("${columnName}"/1000)) * 1000) + (week_of_year(from_unixtime("${columnName}"/1000)) * 10) day_of_week(from_unixtime("${columnName}"/1000)`;
+
+      case glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK:
+        return `day_of_week(from_unixtime("${columnName}"/1000))")`;
+      // WOY variants
+      case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_WEEK_OF_YEAR:
+        return `year_of_week(from_unixtime("${columnName}"/1000)) * 100) + (week_of_year(from_unixtime("${columnName}"/1000))`;
+      case glyphEngineTypes.constants.DATE_GROUPING.WEEK_OF_YEAR:
+        return `week_of_year(from_unixtime("${columnName}"/1000))")`;
+      // non-variants
+      case glyphEngineTypes.constants.DATE_GROUPING.YEAR_OF_WEEK:
+        return `year_of_week(from_unixtime("${columnName}"/1000))")`;
+      case glyphEngineTypes.constants.DATE_GROUPING.YEAR:
+        return `year(from_unixtime("${columnName}"/1000))")`;
+      // Quarter variants
+      case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_QUARTER:
+        return `year(from_unixtime("${columnName}"/1000)) * 10) + quarter(from_unixtime("${columnName}"/1000)`;
+      case glyphEngineTypes.constants.DATE_GROUPING.QUARTER:
+        return `quarter(from_unixtime("${columnName}"/1000))")`;
+      default:
+        return `"${columnName}"`;
+    }
   }
 
   updateSdt(template: string, data: Map<string, string>): string {
@@ -324,6 +449,7 @@ export class GlyphEngine {
 
     return updatedTemplate;
   }
+
   getFunction(data: Map<string, string>, key: string, func: string) {
     if (data.get(key) !== 'string') {
       if ((data.get(func) as string) === 'LOG') return 'Logarithmic Interpolation';

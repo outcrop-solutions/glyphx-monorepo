@@ -25,6 +25,7 @@ export interface IProject {
   members: IMember[];
   tags: ITag[];
   currentVersion?: number;
+  docId?: string;
   state: Omit<
     IState,
     | 'name'

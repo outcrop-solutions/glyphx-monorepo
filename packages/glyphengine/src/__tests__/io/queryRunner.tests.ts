@@ -4,6 +4,7 @@ import {createSandbox} from 'sinon';
 import {error, aws} from 'core';
 import {QueryRunner} from '../../io/queryRunner';
 import {QUERY_STATUS} from '../../constants';
+import {glyphEngineTypes} from 'types';
 
 describe('#io/QueryRunner', () => {
   context('constructor', () => {
@@ -13,11 +14,19 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
+
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
+        zColName: zColumn,
+      }) as any;
       assert.strictEqual(queryRunner.viewName, viewName);
-      assert.strictEqual(queryRunner.xColumn, xColumn);
-      assert.strictEqual(queryRunner.yColumn, yColumn);
-      assert.strictEqual(queryRunner.zColumn, zColumn);
+      assert.strictEqual(queryRunner.xCol, xColumn);
+      assert.strictEqual(queryRunner.yCol, yColumn);
+      assert.strictEqual(queryRunner.zCol, zColumn);
       assert.strictEqual(queryRunner.databaseName, databaseName);
       assert.instanceOf(queryRunner.athenaManager, aws.AthenaManager);
       assert.isFalse(queryRunner.inited);
@@ -37,7 +46,15 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
+
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
+        zColName: zColumn,
+      }) as any;
       const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();
       assert.isTrue(initStub.calledOnce);
@@ -50,7 +67,15 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
+
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
+        zColName: zColumn,
+      }) as any;
       const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();
       await queryRunner.init();
@@ -65,7 +90,15 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
+
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
+        zColName: zColumn,
+      }) as any;
       const initStub = sandbox.stub(queryRunner.athenaManager, 'init').rejects(err);
       let errored = false;
       try {
@@ -85,16 +118,26 @@ describe('#io/QueryRunner', () => {
     afterEach(() => {
       sandbox.restore();
     });
-    const regexString =
-      'WITH\\s*temp\\s*as\\s*\\(SELECT\\s*(\\w*)\\s*as\\s*"rowid",\\s*"(\\w*)","(\\w*)","(\\w*)"\\s*FROM\\s*"(\\w*)"\\."(\\w*)"(.*)\\)\\s*SELECT\\s*array_join\\(array_agg\\(rowid\\)\\s*,\\s*\'\\|\'\\)\\s*as\\s*"rowids",\\s*"(\\w*)",\\s*"(\\w*)",\\s*SUM\\("(\\w*)"\\)\\s*as\\s*"(\\w*)"\\s*FROM\\s*temp\\s*GROUP\\s*BY\\s*"(\\w*)",\\s*"(\\w*)';
 
     it('will start a query', async () => {
+      const regexString = `WITH\\s+temp\\s+as\\s*\\(\\s*SELECT\\s+glyphx_id__\\s+as\\s+rowid,\\s*([^\\s]+)\\s+as\\s+groupedXColumn,\\s*([^\\s]+)\\s+as\\s+groupedYColumn,\\s*(SUM\\(([^\\s]+)\\))\\s+as\\s+zColumn\\s*FROM\\s+"([^"]+)"\\."([^"]+)"\\s*\\)\\s*SELECT\\s+array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s+as\\s+"rowids",\\s*groupedXColumn,\\s*groupedYColumn,\\s*(SUM\\(([^\\s]+)\\))\\s+as\\s+zValue\\s*FROM\\s+temp\\s+GROUP\\s+BY\\s+groupedXColumn,\\s+groupedYColumn;`;
+
+      // const regexString = `WITH\\s+temp\\s+as\\s*\\(\\s*SELECT\\s+glyphx_id__\\s+as\\s+rowid,\\s*([^\\s]+)\\s+as\\s+groupedXColumn,\\s*([^\\s]+)\\s+as\\s+groupedYColumn,\\s*([^\\s]+)\\s+as\\s+zColumn\\s*FROM\\s+"([^"]+)"\\."([^"]+)"\\s*\\)\\s*SELECT\\s+array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s+as\\s+"rowids",\\s*groupedXColumn,\\s*groupedYColumn,\\s*([^\\s]+)\\s+as\\s+zValue\\s*FROM\\s+temp\\s+GROUP\\s+BY\\s+groupedXColumn,\\s+groupedYColumn;`;
+
       const viewName = 'testViewName';
       const xColumn = 'testXColumn';
       const yColumn = 'testYColumn';
-      const zColumn = 'testZColumn';
+      const zColumn = 'SUM(zColumn)';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
+
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
+        zColName: zColumn,
+      }) as any;
 
       const queryId = 'testQueryId';
       const queryStub = sandbox.stub(queryRunner.athenaManager, 'startQuery').resolves(queryId);
@@ -108,32 +151,78 @@ describe('#io/QueryRunner', () => {
       const queryRegex = new RegExp(regexString, 'gm');
       const match = queryRegex.exec(query) as string[];
       assert.isNotEmpty(match);
-      assert.strictEqual(match.length, 14);
-      assert.strictEqual(match[1], 'glyphx_id__');
-      assert.strictEqual(match[2], xColumn);
-      assert.strictEqual(match[3], yColumn);
-      assert.strictEqual(match[4], zColumn);
-      assert.strictEqual(match[5], databaseName);
-      assert.strictEqual(match[6], viewName);
-      //No filter in this test
-      assert.isEmpty(match[7].trim());
-      assert.strictEqual(match[8], xColumn);
-      assert.strictEqual(match[9], yColumn);
-      assert.strictEqual(match[10], zColumn);
-      assert.strictEqual(match[11], zColumn);
-      assert.strictEqual(match[12], xColumn);
-      assert.strictEqual(match[13], yColumn);
+      assert.strictEqual(match.length, 9); // There are only 7 capture groups in the regex provided
+      assert.strictEqual(match[1], `${xColumn}`); // The expected value for groupedXColumn
+      assert.strictEqual(match[2], `${yColumn}`); // The expected value for groupedYColumn
+      assert.strictEqual(match[3], zColumn); // The expected value for zColumn
+      assert.strictEqual(match[4], 'zColumn'); // The expected value for zColumn
+      assert.strictEqual(match[5], databaseName); // The expected value for the database name
+      assert.strictEqual(match[6], viewName); // The expected value for the view name
+
+      assert.isTrue(initStub.calledOnce);
+    });
+
+    it('will start a query where x and y are dates', async () => {
+      const regexString = `WITH\\s+temp\\s+as\\s*\\(\\s*SELECT\\s+glyphx_id__\\s+as\\s+rowid,\\s+DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)\\s+as\\s+groupedXColumn,\\s+DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)\\s+as\\s+groupedYColumn,\\s+SUM\\((\\w+)\\)\\s+as\\s+zColumn\\s*FROM\\s+"([^"]+)"\\."([^"]+)"\\s*\\)\\s*SELECT\\s+array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s+as\\s+"rowids",\\s+groupedXColumn,\\s+groupedYColumn,\\s+SUM\\((\\w+)\\)\\s+as\\s+zValue\\s*FROM\\s+temp\\s+GROUP\\s+BY\\s+groupedXColumn,\\s+groupedYColumn;`;
+
+      // const regexString = `WITH\\s*temp\\s*as\\s*\\(\\s*SELECT\\s*glyphx_id__\\s*as\\s*rowid,\\s*(?:DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"([^"]+)")\\s*as\\s*groupedXColumn,\\s*(?:DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"([^"]+)")\\s*as\\s*groupedYColumn,\\s*(\\w+)\\s*as\\s*zColumn\\s*FROM\\s*"([^"]+)"\\."([^"]+)"\\s*\\)\\s*SELECT\\s*array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s*as\\s*"rowids",\\s*groupedXColumn,\\s*groupedYColumn,\\s*(AVG|SUM|MIN|MAX|COUNT)\\(zColumn\\)\\s*as\\s*zValue\\s*FROM\\s*temp\\s*GROUP\\s*BY\\s*groupedXColumn,\\s*groupedYColumn;`;
+
+      const viewName = 'testViewName';
+      const xColumn = `DATE_FORMAT("testXColumn", '%Y-%j')`;
+      const yColumn = `DATE_FORMAT("testYColumn", '%Y-%j')`;
+      const zColumn = 'SUM(zColumn)';
+      const databaseName = 'testDatabaseName';
+
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
+        zColName: zColumn,
+      }) as any;
+
+      const queryId = 'testQueryId';
+      const queryStub = sandbox.stub(queryRunner.athenaManager, 'startQuery').resolves(queryId);
+      const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
+      await queryRunner.init();
+      const result = await queryRunner.startQuery();
+      assert.strictEqual(result, queryId);
+      assert.isTrue(queryStub.calledOnce);
+      const query = queryStub.getCall(0).args[0];
+
+      const queryRegex = new RegExp(regexString, 'gm');
+      const match = queryRegex.exec(query) as string[];
+      assert.isNotEmpty(match);
+      assert.strictEqual(match.length, 7); // There are 9  capture groups in the regex provided
+      // NOTE: quotes are omitted because we are matching inside the date format
+      assert.strictEqual(match[1], `testXColumn`); // The expected value for groupedXColumn
+      assert.strictEqual(match[2], `testYColumn`); // The expected value for groupedYColumn
+      assert.strictEqual(match[3], `zColumn`); // The expected value for zColumn
+      assert.strictEqual(match[4], databaseName); // The expected value for the database name
+      assert.strictEqual(match[5], viewName); // The expected value for the view name
       assert.isTrue(initStub.calledOnce);
     });
 
     it('will start a query with a filter', async () => {
+      const regexStringWFilter = `WITH\\s+temp\\s+as\\s*\\(\\s*SELECT\\s+glyphx_id__\\s+as\\s+rowid,\\s+DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)\\s+as\\s+groupedXColumn,\\s+DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)\\s+as\\s+groupedYColumn,\\s+SUM\\((\\w+)\\)\\s+as\\s+zColumn\\s*FROM\\s+"([^"]+)"\\."([^"]+)"(\\s+WHERE\\s+[^)]+)?\\s*\\)\\s*SELECT\\s+array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s+as\\s+"rowids",\\s+groupedXColumn,\\s+groupedYColumn,\\s+SUM\\((\\w+)\\)\\s+as\\s+zValue\\s*FROM\\s+temp\\s+GROUP\\s+BY\\s+groupedXColumn,\\s+groupedYColumn(?:\\s+HAVING\\s+[^)]+)?;`;
+
       const viewName = 'testViewName';
-      const xColumn = 'testXColumn';
-      const yColumn = 'testYColumn';
-      const zColumn = 'testZColumn';
+      const xColumn = `DATE_FORMAT("testXColumn", '%Y-%j')`;
+      const yColumn = `DATE_FORMAT("testYColumn", '%Y-%j')`;
+      const zColumn = 'SUM(zColumn)';
       const databaseName = 'testDatabaseName';
       const filter = 'foo = bar';
-      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn, filter) as any;
+
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
+        zColName: zColumn,
+        filter,
+      }) as any;
 
       const queryId = 'testQueryId';
       const queryStub = sandbox.stub(queryRunner.athenaManager, 'startQuery').resolves(queryId);
@@ -144,23 +233,18 @@ describe('#io/QueryRunner', () => {
       assert.isTrue(queryStub.calledOnce);
       const query = queryStub.getCall(0).args[0];
 
-      const queryRegex = new RegExp(regexString, 'gm');
+      const queryRegex = new RegExp(regexStringWFilter, 'gm');
       const match = queryRegex.exec(query) as string[];
       assert.isNotEmpty(match);
-      assert.strictEqual(match.length, 14);
-      assert.strictEqual(match[1], 'glyphx_id__');
-      assert.strictEqual(match[2], xColumn);
-      assert.strictEqual(match[3], yColumn);
-      assert.strictEqual(match[4], zColumn);
-      assert.strictEqual(match[5], databaseName);
-      assert.strictEqual(match[6], viewName);
-      assert.strictEqual(match[7].trim(), `WHERE ${filter}`);
-      assert.strictEqual(match[8], xColumn);
-      assert.strictEqual(match[9], yColumn);
-      assert.strictEqual(match[10], zColumn);
-      assert.strictEqual(match[11], zColumn);
-      assert.strictEqual(match[12], xColumn);
-      assert.strictEqual(match[13], yColumn);
+      assert.strictEqual(match.length, 8); // Adjust this to the actual number of capturing groups in your regex.
+      assert.strictEqual(match[1], `testXColumn`); // The expected value for groupedXColumn
+      assert.strictEqual(match[2], `testYColumn`); // The expected value for groupedYColumn
+      assert.strictEqual(match[3], `zColumn`); // The expected value for zColumn
+      assert.strictEqual(match[4], databaseName); // The expected value for the database name
+      assert.strictEqual(match[5], viewName); // The expected value for the view name
+      // If the filter is expected to be present, check for it
+      assert.include(query, `WHERE ${filter}`); // Checks if the WHERE clause is present in the query
+
       assert.isTrue(initStub.calledOnce);
     });
     it('will pass through an error when the underlying connection throws an error', async () => {
@@ -170,7 +254,15 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
+
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
+        zColName: zColumn,
+      }) as any;
 
       const queryStub = sandbox.stub(queryRunner.athenaManager, 'startQuery').rejects(err);
       const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
@@ -201,7 +293,15 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
+
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
+        zColName: zColumn,
+      }) as any;
 
       const queryId = 'testQueryId';
 
@@ -229,7 +329,15 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
+
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
+        zColName: zColumn,
+      }) as any;
 
       const queryId = 'testQueryId';
 
@@ -262,7 +370,15 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
+
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
+        zColName: zColumn,
+      }) as any;
 
       const queryId = 'testQueryId';
 
@@ -294,7 +410,15 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
+
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
+        zColName: zColumn,
+      }) as any;
 
       const queryId = 'testQueryId';
 
@@ -322,7 +446,15 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
+
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
+        zColName: zColumn,
+      }) as any;
 
       const queryId = 'testQueryId';
 
@@ -350,7 +482,15 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
+
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
+        zColName: zColumn,
+      }) as any;
 
       const queryId = 'testQueryId';
 
@@ -374,7 +514,15 @@ describe('#io/QueryRunner', () => {
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
       const databaseName = 'testDatabaseName';
-      const queryRunner = new QueryRunner(databaseName, viewName, xColumn, yColumn, zColumn) as any;
+
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
+        zColName: zColumn,
+      }) as any;
 
       const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
       await queryRunner.init();

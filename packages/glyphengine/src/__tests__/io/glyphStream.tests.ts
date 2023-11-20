@@ -133,7 +133,8 @@ describe('#io/GlyphStream', () => {
 
     sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => mockMinMaxData);
 
-    sdtParser = (await SdtParser.parseSdtString(stringSdt, 'viewName', mockInputData, athenaManager)) as any;
+    const initialParser = new SdtParser(false, false, false, 'xCol', 'yCol', 'zCol', 'zCol');
+    sdtParser = (await initialParser.parseSdtString(stringSdt, 'viewName', mockInputData, athenaManager)) as any;
   });
 
   after(() => {

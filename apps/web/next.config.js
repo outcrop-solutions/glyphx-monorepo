@@ -22,7 +22,19 @@ module.exports = {
     ignoreBuildErrors: true,
   },
   //https://nextjs.org/blog/next-13-1#built-in-module-transpilation-stable
-  transpilePackages: ['core', 'business', 'database', 'email', 'fileingestion', 'glyphengine', 'types'],
+  transpilePackages: [
+    'core',
+    'business',
+    'database',
+    'email',
+    'fileingestion',
+    'glyphengine',
+    'types',
+    '@liveblocks/react',
+    '@liveblocks/core',
+    '@liveblocks/client',
+    'tailwind-merge',
+  ],
   modularizeImports: {
     lodash: {
       transform: 'lodash/{{member}}',

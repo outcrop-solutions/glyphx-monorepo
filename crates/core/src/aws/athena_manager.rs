@@ -26,13 +26,13 @@ use aws_sdk_athena::operation::get_database::{GetDatabaseError, GetDatabaseOutpu
 
 use super::result_set_converter::convert_to_json;
 use async_trait::async_trait;
-use glyphx_types::aws::athena_manager::athena_manager_errors::{
+pub use crate::types::aws::athena_manager::athena_manager_errors::{
     ConstructorError, GetQueryPagerError, GetQueryResultsError as GlyphxGetQueryResultsError,
     GetQueryStatusError, GetTableDescriptionError, RunQueryError, StartQueryError,
 };
-use glyphx_types::aws::athena_manager::query_status::AthenaQueryStatus;
-use glyphx_types::aws::athena_manager::table_description::*;
-use glyphx_types::error::GlyphxErrorData;
+pub use crate::types::aws::athena_manager::query_status::AthenaQueryStatus;
+pub use crate::types::aws::athena_manager::table_description::*;
+pub use crate::types::error::GlyphxErrorData;
 
 use mockall::*;
 use serde_json::{json, Value};
@@ -301,6 +301,7 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
     }
 }
 ///The AthenaManager is used to execute queries against AWS Athena.
+#[derive(Debug, Clone)]
 pub struct AthenaManager {
     catalog: String,
     database: String,
@@ -1315,6 +1316,14 @@ impl AthenaManager {
     }
 }
 
+impl Default for AthenaManager {
+    fn default() -> Self {
+       let config = aws_config::SdkConfig::builder().build();
+        let client = AthenaClient::new(&config);
+        AthenaManager { client, database: "mock".to_string(), catalog: "mock".to_string()}
+    }
+}
+
 #[cfg(test)]
 pub mod constructor {
     use super::*;
@@ -1322,7 +1331,6 @@ pub mod constructor {
         InternalServerException, InvalidRequestException, MetadataException,
     };
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use aws_smithy_types::error::Unhandled;
 
@@ -1362,7 +1370,7 @@ pub mod constructor {
                 .header("Content-Type", "application/json")
                 .body(SdkBody::empty())
                 .unwrap();
-            Err(SdkError::service_error(err, Response::new(inner)))
+            Err(SdkError::service_error(err, inner))
         });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -1395,7 +1403,7 @@ pub mod constructor {
                 .header("Content-Type", "application/json")
                 .body(SdkBody::empty())
                 .unwrap();
-            Err(SdkError::service_error(err, Response::new(inner)))
+            Err(SdkError::service_error(err, inner))
         });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -1428,7 +1436,7 @@ pub mod constructor {
                 .header("Content-Type", "application/json")
                 .body(SdkBody::empty())
                 .unwrap();
-            Err(SdkError::service_error(err, Response::new(inner)))
+            Err(SdkError::service_error(err, inner))
         });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -1461,7 +1469,7 @@ pub mod constructor {
                 .header("Content-Type", "application/json")
                 .body(SdkBody::empty())
                 .unwrap();
-            Err(SdkError::service_error(err, Response::new(inner)))
+            Err(SdkError::service_error(err, inner))
         });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -1522,7 +1530,6 @@ pub mod start_query {
         InternalServerException, InvalidRequestException, TooManyRequestsException,
     };
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use aws_smithy_types::error::Unhandled;
 
@@ -1532,7 +1539,7 @@ pub mod start_query {
         let database = "database";
         let query_id = "query_id";
 
-        let query_id_clone = query_id.clone();
+        let query_id_clone = query_id;
 
         let mut mocks = MockAthenaManagerOps::new();
         mocks.expect_get_database().times(1).returning(|_, _, _| {
@@ -1592,7 +1599,7 @@ pub mod start_query {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -1640,7 +1647,7 @@ pub mod start_query {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -1688,7 +1695,7 @@ pub mod start_query {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -1735,7 +1742,7 @@ pub mod start_query {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -1760,7 +1767,6 @@ pub mod get_query_status {
     use aws_sdk_athena::types::error::{InternalServerException, InvalidRequestException};
     use aws_sdk_athena::types::{AthenaError, QueryExecution, QueryExecutionStatus};
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use aws_smithy_types::error::Unhandled;
 
@@ -2020,7 +2026,7 @@ pub mod get_query_status {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -2068,7 +2074,7 @@ pub mod get_query_status {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -2115,7 +2121,7 @@ pub mod get_query_status {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -2143,7 +2149,6 @@ pub mod get_query_results {
         ColumnInfo, ColumnNullable, Datum, ResultSet, ResultSetMetadata, Row,
     };
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use aws_smithy_types::error::Unhandled;
 
@@ -2405,7 +2410,7 @@ pub mod get_query_results {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -2454,7 +2459,7 @@ pub mod get_query_results {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -2502,7 +2507,7 @@ pub mod get_query_results {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
@@ -2550,7 +2555,7 @@ pub mod get_query_results {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             });
 
         let res = AthenaManager::new_impl(catalog, database, &mocks).await;
