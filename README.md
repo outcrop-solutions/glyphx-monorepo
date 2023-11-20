@@ -1,4 +1,4 @@
-# Glyphx Monorepo
+# Glyphx Repo
 
 The monorepo is using [Turborepo](https://turborepo.org/) and [pnpm workspaces](https://pnpm.io/workspaces) to link packages together.
 
