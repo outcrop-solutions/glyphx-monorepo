@@ -1,9 +1,9 @@
-mod delete_one;
-mod update_one;
-mod create_one;
-mod document_ids;
-mod query_results;
-mod deserializer_functions;
+pub(crate) mod delete_one;
+pub(crate) mod update_one;
+pub(crate) mod create_one;
+pub(crate) mod document_ids;
+pub(crate) mod query_results;
+pub(crate) mod deserializer_functions;
 
 pub use delete_one::*;
 pub use update_one::*;

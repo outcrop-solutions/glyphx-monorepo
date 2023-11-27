@@ -25,6 +25,7 @@ async fn test() {
     let process_id = format!("test_process_id_{}", unique_id);
     let bad_id = ObjectId::new().to_string();
 
+
     //Create a new process tracking model
     let inbound_model = CreateProcessTrackingModelBuilder::default()
         .process_id(process_id.clone())
@@ -99,13 +100,13 @@ async fn test() {
     //now lets update the document
     let new_process_name = format!("updated_process_tracking_model_tests_{}", unique_id);
     let process_end_time = DateTime::now();
-    let update_model = UpdateProcessTrackingModelBuilder::default()
-        .process_name(&new_process_name)
-        .process_end_time(process_end_time.clone())
-        .process_result(json!({"message" : "This is a test result"}))
-        .build()
-        .unwrap();
-    let update_results = ProcessTrackingModel::update_document_by_id(&id, &update_model).await;
+   let update_model = UpdateProcessTrackingModelBuilder::default()
+       .process_name(&new_process_name)
+       .process_end_time(process_end_time.clone())
+       .process_result(json!({"message" : "This is a test result"}))
+       .build()
+       .unwrap();
+   let update_results = ProcessTrackingModel::update_document_by_id(&id, &update_model).await;
 
     if let Err(error) = &update_results {
         error.fatal();
@@ -117,33 +118,33 @@ async fn test() {
     //add a message
     let message1 = "This is a test message".to_string();
     let message2 = "This is a second test message".to_string();
-    let add_message_results = ProcessTrackingModel::add_message(&id, &message1).await;
+    let add_message_results = ProcessTrackingModel::add_process_messages(&id, &message1).await;
     if let Err(error) = &add_message_results {
         error.fatal();
     }
     let add_message_results = add_message_results.unwrap();
     assert_eq!(add_message_results.process_messages.len(), 1);
 
-    let add_message_results = ProcessTrackingModel::add_message(&id, &message2).await;
+    let add_message_results = ProcessTrackingModel::add_process_messages(&id, &message2).await;
     if let Err(error) = &add_message_results {
         error.fatal();
     }
     let add_message_results = add_message_results.unwrap();
     assert_eq!(add_message_results.process_messages.len(), 2);
     assert_eq!(add_message_results.process_messages[0], message2);
-    assert_eq!(add_message_results.process_messages[1], message1);
+   assert_eq!(add_message_results.process_messages[1], message1);
 
-    //add an error 
-    let error1 = json!({"message" : "This is a test error"});
-    let error2 = json!({"message" : "This is a second test error"});
-    let add_error_results = ProcessTrackingModel::add_error(&id, &error1).await;
-    if let Err(error) = &add_error_results {
-        error.fatal();
+   //add an error 
+   let error1 = json!({"message" : "This is a test error"});
+   let error2 = json!({"message" : "This is a second test error"});
+   let add_error_results = ProcessTrackingModel::add_process_error(&id, &error1).await;
+   if let Err(error) = &add_error_results {
+       error.fatal();
     }
     let add_error_results = add_error_results.unwrap();
     assert_eq!(add_error_results.process_error.len(), 1);
 
-    let add_error_results = ProcessTrackingModel::add_error(&id, &error2).await;
+    let add_error_results = ProcessTrackingModel::add_process_error(&id, &error2).await;
     if let Err(error) = &add_error_results {
         error.fatal();
     }

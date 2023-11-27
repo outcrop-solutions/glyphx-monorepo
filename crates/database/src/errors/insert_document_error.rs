@@ -14,16 +14,16 @@ pub enum InsertDocumentError {
     CreateFailure(GlyphxErrorData),
 }
 
-impl InsertDocumentError {
-    pub fn from_mongo_db_error(error: &ErrorKind, collection: &str, operation: &str) -> Self {
-        let data = json!({"collection" : collection, "operation" : operation});
-        match error {
-            ErrorKind::BsonSerialization(err) => {
-                let outer_message = "An error occurred while trying to serialize a document to bson.  See the inner error for additional information".to_string();
-                let inner_error = json!({"message" : err.to_string()});
-                InsertDocumentError::DocumentSerializationError(GlyphxErrorData::new(
-                    outer_message,
-                    Some(data),
+mpl InsertDocumentError {
+   pub fn from_mongo_db_error(error: &ErrorKind, collection: &str, operation: &str) -> Self {
+       let data = json!({"collection" : collection, "operation" : operation});
+       match error {
+           ErrorKind::BsonSerialization(err) => {
+               let outer_message = "An error occurred while trying to serialize a document to bson.  See the inner error for additional information".to_string();
+               let inner_error = json!({"message" : err.to_string()});
+               InsertDocumentError::DocumentSerializationError(GlyphxErrorData::new(
+                   outer_message,
+                   Some(data),
                     Some(inner_error),
                 ))
             }

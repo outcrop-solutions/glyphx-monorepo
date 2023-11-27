@@ -16,49 +16,49 @@ pub enum MongoDbConnectionConstructionError {
 
 impl From<&Box<ErrorKind>> for MongoDbConnectionConstructionError {
     fn from(error: &Box<ErrorKind>) -> Self {
-        match error.as_ref() {
-            ErrorKind::Authentication { message, .. } => {
-                let outer_message = "An error occurred while trying to authenticate to the mongodb database.  See the inner error for additional information".to_string();
-                let inner_error = json!({"message" : message});
-                MongoDbConnectionConstructionError::AuthenticationError(GlyphxErrorData::new(
-                    outer_message,
-                    None,
+       match error.as_ref() {
+           ErrorKind::Authentication { message, .. } => {
+               let outer_message = "An error occurred while trying to authenticate to the mongodb database.  See the inner error for additional information".to_string();
+               let inner_error = json!({"message" : message});
+               MongoDbConnectionConstructionError::AuthenticationError(GlyphxErrorData::new(
+                   outer_message,
+                   None,
                     Some(inner_error),
                 ))
-            }
-            ErrorKind::ServerSelection { message, .. } => {
-                let outer_message = "An error occurred while trying select the server.  See the inner error for additional information".to_string();
-                let inner_error = json!({"message" : message});
-                MongoDbConnectionConstructionError::ServerSelectionError(GlyphxErrorData::new(
-                    outer_message,
-                    None,
+           }
+           ErrorKind::ServerSelection { message, .. } => {
+               let outer_message = "An error occurred while trying select the server.  See the inner error for additional information".to_string();
+               let inner_error = json!({"message" : message});
+               MongoDbConnectionConstructionError::ServerSelectionError(GlyphxErrorData::new(
+                   outer_message,
+                   None,
                     Some(inner_error),
                 ))
-            },
-            ErrorKind::IncompatibleServer { message, .. } => {
-                let outer_message = "An error occurred while trying select the server.  See the inner error for additional information".to_string();
-                let inner_error = json!({"message" : message});
-                MongoDbConnectionConstructionError::ServerSelectionError(GlyphxErrorData::new(
-                    outer_message,
-                    None,
+           },
+           ErrorKind::IncompatibleServer { message, .. } => {
+               let outer_message = "An error occurred while trying select the server.  See the inner error for additional information".to_string();
+               let inner_error = json!({"message" : message});
+               MongoDbConnectionConstructionError::ServerSelectionError(GlyphxErrorData::new(
+                   outer_message,
+                   None,
                     Some(inner_error),
                 ))
-            }
-            ErrorKind::DnsResolve { message, .. } => {
-                let outer_message = "An error occurred while trying select the server.  See the inner error for additional information".to_string();
-                let inner_error = json!({"message" : message});
-                MongoDbConnectionConstructionError::ServerSelectionError(GlyphxErrorData::new(
-                    outer_message,
-                    None,
+           }
+           ErrorKind::DnsResolve { message, .. } => {
+               let outer_message = "An error occurred while trying select the server.  See the inner error for additional information".to_string();
+               let inner_error = json!({"message" : message});
+               MongoDbConnectionConstructionError::ServerSelectionError(GlyphxErrorData::new(
+                   outer_message,
+                   None,
                     Some(inner_error),
                 ))
-            },
-            _ => {
-                let outer_message = "An unexpected error occurred while trying to connect to a mongodb database.  See the inner error for additional information".to_string();
-                let inner_error = json!({"message" : error.to_string()});
-                MongoDbConnectionConstructionError::UnexpectedError(GlyphxErrorData::new(
-                    outer_message,
-                    None,
+           },
+           _ => {
+               let outer_message = "An unexpected error occurred while trying to connect to a mongodb database.  See the inner error for additional information".to_string();
+               let inner_error = json!({"message" : error.to_string()});
+               MongoDbConnectionConstructionError::UnexpectedError(GlyphxErrorData::new(
+                   outer_message,
+                   None,
                     Some(inner_error),
                 ))
             }

@@ -1,37 +1,12 @@
+mod internal;
+
+use internal::*;
+
 use proc_macro::TokenStream;
-use quote::{format_ident, quote, ToTokens};
-use serde::Deserialize;
+use quote::{ quote, ToTokens};
+use regex::Regex;
 use serde_json::{from_str, Value};
-use syn::{parse_macro_input, Data, DataEnum, DeriveInput, Ident};
-
-#[derive(Debug, Deserialize, Clone)]
-struct ModelDefinition {
-    collection: String,
-}
-
-#[derive(Debug, Deserialize, Clone)]
-enum PushType {
-    Push,
-    Shift,
-}
-
-#[derive(Debug, Deserialize, Clone)]
-struct VectorFieldDefinition {
-    push_type: PushType,
-}
-
-#[derive(Debug, Deserialize, Clone)]
-struct FieldDefinition {
-    name: String,
-    field_type: String,
-    is_option: Option<()>,
-    is_vector: Option<VectorFieldDefinition>,
-    is_updateable: Option<()>,
-    is_createable: Option<()>,
-    is_object_id: Option<()>,
-    pass_through_attributes: Vec<String>,
-    default_value: Option<String>,
-}
+use syn::{parse_macro_input, Data,  DeriveInput};
 
 #[proc_macro_derive(GlyphxDataModel, attributes(model_definition, field_definition))]
 pub fn derive(input: TokenStream) -> TokenStream {
@@ -39,103 +14,76 @@ pub fn derive(input: TokenStream) -> TokenStream {
     let struct_ident = ast.ident.clone();
     let model_definition = get_model_definition(&ast);
     let field_definitions = get_field_definitions(&ast);
-    let build_create_model = build_create_model(&struct_ident, &field_definitions);
-    let q: TokenStream =  quote! {
-        #build_create_model
-    }.into();
-    println!("q: {}", q.to_string());
+
+    let create_model_struct = build_create_model(&struct_ident, &field_definitions);
+    let update_model_struct = build_update_model(&struct_ident, &field_definitions);
+    let glyphx_data_model_impl =
+        build_glyphx_data_model(&struct_ident, &model_definition, &field_definitions);
+    let database_operations_trait = build_database_operations_trait(&struct_ident);
+     
+    let database_operations_impl = build_database_operations_impl(&struct_ident, &model_definition, &field_definitions);
+
+
+    let model_impl = build_model_impl(&struct_ident, &model_definition, &field_definitions);
+
+    let q: TokenStream = quote! {
+        use glyphx_core::Singleton;
+        use futures::stream::TryStreamExt;
+        #create_model_struct
+
+        #update_model_struct
+
+        #glyphx_data_model_impl
+
+        #database_operations_trait
+
+        #database_operations_impl
+
+        #model_impl
+    }
+    .into();
     q
 }
 
-fn build_to_bson_function(field_definitions: &Vec<&FieldDefinition>) -> proc_macro2::TokenStream {
+fn parse_rename_attribute(attribute_str: &str) -> (Option<String>, Option<String>) {
+    //Our traditional rename attribute as a string (rename="foo")
+    let simple_regex = Regex::new(r#"rename\s*=\s*"(\w*)""#).unwrap();
+    let matches = simple_regex.captures(attribute_str);
+    if matches.is_some() {
+        let matches = matches.unwrap();
+        let rename_value = matches.get(1).unwrap().as_str();
+        return (
+            Some(rename_value.to_string()),
+            Some(rename_value.to_string()),
+        );
+    }
 
-  let mut object_id_fields = field_definitions.iter().filter(|field_definition| {
-      field_definition.is_object_id.is_some()
-  }).map(|field_definition| { format!("key == \"{}\"",field_definition.name.as_str())}).collect::<Vec<String>>().join(" || ").parse::<proc_macro2::TokenStream>().unwrap();  
-
-  //It is entirely possible for updates and creates to not have an id field.  This is my lazy way
-  //of handling this condition.  If there are no object_id fields, then we will just pass through
-  //false to our conditional below ensureing that it will never be hit.
-  //TODO: WE need to add logic for handling vectors of ids
-  if object_id_fields.is_empty() {
-      object_id_fields = "false".parse::<proc_macro2::TokenStream>().unwrap();
-  }
-  quote!( pub fn to_bson(&self) -> Result<mongodb::bson::Document, mongodb::bson::ser::Error> {
-        let bson = to_bson(&self);
-        if bson.is_err() {
-            return Err(bson.err().unwrap());
-        }
-        let bson = bson.unwrap();
-        let bson = bson.as_document().unwrap();
-        let mut document = Document::new();
-        bson.keys().for_each(|key| {
-            if #object_id_fields {
-                let str_value = bson.get(key).unwrap().as_str().unwrap();
-                let object_id = ObjectId::parse_str(str_value).unwrap();
-                document.insert(key, mongodb::bson::Bson::ObjectId(object_id)); 
+    let complex_regex = Regex::new(r#"rename\s*\((.*)\)"#).unwrap();
+    let matches = complex_regex.captures(attribute_str);
+    if matches.is_some() {
+        let mut se_rename = None;
+        let mut de_rename = None;
+        let matches = matches.unwrap();
+        let rename_value = matches.get(1).unwrap().as_str();
+        let rename_value = rename_value.split(",").map(|value| value.trim()).collect::<Vec<&str>>();
+        rename_value.iter().for_each(|value|  {
+            let splits = value.split("=").map(|value| value.trim()).collect::<Vec<&str>>();
+            if splits.len() != 2 {
+                panic!("Unable to parse rename attribute: {}", attribute_str);
+            }
+            if splits[0] == "serialize" {
+                se_rename = Some(splits[1].replace("\"", "").trim().to_string());
+            } else if splits[0] == "deserialize" {
+                de_rename = Some(splits[1].replace("\"", "").trim().to_string());
             } else {
-                let v = bson.get(key).unwrap().clone();
-                document.insert(key, v);
+                panic!("Unable to parse rename attribute: {}", attribute_str);
             }
         });
-        
-       Ok(document) 
-    })
-
-}
-
-fn build_creatable_fields(field_definitions: &Vec<&FieldDefinition>) -> proc_macro2::TokenStream {
-    let mut output = proc_macro2::TokenStream::new();
-    for field in field_definitions.iter() {
-      let field_name_ident = format_ident!("{}", field.name);
-      let field_type_token_stream : proc_macro2::TokenStream  = field.field_type.parse().unwrap();  
-      let pass_through_attributes = field.pass_through_attributes.iter().map(|attr| {
-        let attr = attr.parse::<proc_macro2::TokenStream>().unwrap();
-        quote!(
-            #attr
-        )
-      }).collect::<Vec<proc_macro2::TokenStream>>();
-      let builder_default = if field.default_value.is_some() {
-          format!(", default = \"{}\"", field.default_value.as_ref().unwrap())
-      } else {
-            String::new()
-      };
-      let creatable = if field.is_createable.is_some() {
-            "setter(into)".to_string()
-      } else {
-            "setter(skip)".to_string()
-            
-      };
-      let builder_attr = format!("#[builder({} {})]", creatable, builder_default);
-      let builder_attr = builder_attr.parse::<proc_macro2::TokenStream>().unwrap();
-      output.extend(quote!(
-        #builder_attr
-        #(#pass_through_attributes)*
-        #field_name_ident : #field_type_token_stream,
-      ));
+        return (se_rename, de_rename);
     }
-    output
+    (None, None)
 }
 
-fn build_create_model(ident: &syn::Ident, field_definitions: &Vec<FieldDefinition>) -> proc_macro2::TokenStream {
-   let struct_ident = format_ident!("Create{}", ident);
-   let createable_fields = field_definitions.iter().filter(|field_definition| {
-       field_definition.is_createable.is_some() || field_definition.default_value.is_some()
-   }).collect::<Vec<&FieldDefinition>>();
-   let createable_field_definitions = build_creatable_fields(&createable_fields);
-   let bson_impl = build_to_bson_function(&createable_fields);
-   println!("bson_impl: {}", bson_impl.to_string());
-   quote!(
-        #[derive(Clone, Debug, serde::Serialize, serde::Deserialize, derive_builder::Builder)]
-        pub struct #struct_ident {
-          #createable_field_definitions
-        }
-
-        impl #struct_ident {
-            #bson_impl
-        }
-   )
-}
 fn get_model_definition(ast: &DeriveInput) -> ModelDefinition {
     let attr = ast.attrs.iter().find(|attr| {
         let path = &attr.path();
@@ -193,7 +141,7 @@ fn get_field_definitions(ast: &DeriveInput) -> Vec<FieldDefinition> {
     field_definitions
 }
 
-fn get_field_type(field_type: &syn::Type) -> (String, Option<()>, Option<()>) {
+fn get_field_type(field_type: &syn::Type) -> (String, Option<()>, Option<()>, Option<String>) {
     if let syn::Type::Path(type_path) = field_type {
         let mut is_vector: Option<()> = None;
         let mut is_option: Option<()> = None;
@@ -209,7 +157,7 @@ fn get_field_type(field_type: &syn::Type) -> (String, Option<()>, Option<()>) {
             is_vector = Some(());
         }
         if segment.arguments.is_empty() {
-            return (result, is_option, is_vector);
+            return (result, is_option, is_vector, None);
         }
         if let syn::PathArguments::AngleBracketed(angle_bracketed) = &segment.arguments {
             let args = &angle_bracketed.args;
@@ -218,9 +166,13 @@ fn get_field_type(field_type: &syn::Type) -> (String, Option<()>, Option<()>) {
             }
             let arg = args.first().unwrap();
             if let syn::GenericArgument::Type(inner_type) = arg {
-                let (inner_type, _, _) = get_field_type(inner_type);
+                let (inner_type, _, _, _) = get_field_type(inner_type);
                 let type_ = format!("{}<{}>", result, inner_type);
-                return (type_, is_option, is_vector);
+                let mut vec_inner_type = None;
+                if result == "Vec" {
+                    vec_inner_type = Some(inner_type);
+                }
+                return (type_, is_option, is_vector, vec_inner_type);
             }
         }
     }
@@ -286,8 +238,13 @@ fn parse_field_attribute(
     if json_value["object_id"].is_boolean() {
         let object_id = json_value["object_id"].as_bool().unwrap();
         if object_id {
-            if field_type != "String" && field_type != "Option<String>"  && field_type != "Vec<String>" {
-                panic!("object_id is only supported on String, Option<String>, and Vec<String> fields");
+            if field_type != "String"
+                && field_type != "Option<String>"
+                && field_type != "Vec<String>"
+            {
+                panic!(
+                    "object_id is only supported on String, Option<String>, and Vec<String> fields"
+                );
             }
             *is_object_id = Some(());
         } else {
@@ -309,37 +266,60 @@ fn parse_field_attribute(
     }
 }
 
-fn get_pass_through_attributes(field : &syn::Field) -> Vec<String> {
+fn parse_pass_through_attributes(field: &syn::Field) -> (Vec<String>, String) {
     let mut attrs = Vec::new();
-    
-    let attr: Vec<&syn::Attribute> = field.attrs.iter().filter(|attr| {
-        let path = &attr.path();
-        if path.segments.len() != 1 {
-            return false;
-        }
-        let segment = path.segments.first().unwrap();
-        &segment.ident != "field_definition"
-    }).collect();
+    let field_name = field.ident.as_ref().unwrap().to_string();
+    let mut database_name = field_name.clone();
+    let attr: Vec<&syn::Attribute> = field
+        .attrs
+        .iter()
+        .filter(|attr| {
+            let path = &attr.path();
+            if path.segments.len() != 1 {
+                return false;
+            }
+            let segment = path.segments.first().unwrap();
+            &segment.ident != "field_definition"
+        })
+        .collect();
     if attr.len() == 0 {
-        return attrs;
-    } 
+        return (attrs, database_name);
+    }
     attr.iter().for_each(|token| {
+        let ident = token.path().get_ident();
+        if ident.is_some() {
+            let ident = ident.unwrap().to_string();
+            if ident == "serde" {
+                let inner_meta: syn::Result<proc_macro2::TokenStream> = token.parse_args();
+                if inner_meta.is_err() {
+                    panic!("Unable to parse serde attribute");
+                }
+                let inner_meta = inner_meta.unwrap();
+                let inner_meta = inner_meta.to_string();
+                let (ser, der) = parse_rename_attribute(&inner_meta);
+                if ser.is_some() {
+                    database_name = ser.unwrap();   
+                }
+            }
+        }
         let token = token.into_token_stream().to_string();
         if !token.is_empty() {
             attrs.push(token.to_string());
         }
     });
-    attrs
+    (attrs, database_name)
 }
+
 fn get_field_definition(field: &syn::Field) -> FieldDefinition {
     let ident = field.ident.as_ref().unwrap();
     let name = ident.to_string();
-    let (field_type, is_option, is_vector) = get_field_type(&field.ty);
+    let (field_type, is_option, is_vector, vector_inner_type) = get_field_type(&field.ty);
     let mut is_vector = if is_vector.is_none() {
         None
     } else {
         Some(VectorFieldDefinition {
             push_type: PushType::Push,
+            vector_type: vector_inner_type.unwrap(),
         })
     };
     let mut is_updateable = if is_vector.is_none() { Some(()) } else { None };
@@ -357,7 +337,7 @@ fn get_field_definition(field: &syn::Field) -> FieldDefinition {
         &mut is_vector,
     );
 
-    let pass_through_attributes = get_pass_through_attributes(&field);
+    let (pass_through_attributes, database_name) = parse_pass_through_attributes(&field);
     FieldDefinition {
         name,
         field_type,
@@ -368,6 +348,7 @@ fn get_field_definition(field: &syn::Field) -> FieldDefinition {
         is_object_id,
         pass_through_attributes,
         default_value,
+        database_name,
     }
 }
 
@@ -434,7 +415,6 @@ mod get_field_definition {
         assert!(field_definition.is_object_id.is_some());
         assert!(field_definition.pass_through_attributes.len() == 0);
         assert!(field_definition.default_value.is_none());
-
     }
 
     #[test]
@@ -747,8 +727,6 @@ mod get_field_definition {
         let field_definition = &field_definitions[0];
         assert_eq!(field_definition.pass_through_attributes.len(), 1);
         assert!(field_definition.pass_through_attributes[0].contains("serde"));
-
-
     }
 
     #[test]
@@ -775,56 +753,47 @@ mod get_field_definition {
         assert!(field_definition.pass_through_attributes.len() == 0);
         assert_eq!(field_definition.default_value.as_ref().unwrap(), "test");
     }
-
 }
 
 #[cfg(test)]
-mod create_model {
+mod parse_rename_attribute {
     use super::*;
 
     #[test]
-    fn is_ok() {
-
-        let token_stream = quote!(
-        #[model_definition({"collection" : "processtrackings"})]
-        pub struct ProcessTrackingModel {
-            #[serde(rename = "_id", deserialize_with = "deserialize_object_id")]
-            #[field_definition({"updateable" : false, "createable" : false, "object_id" : true})]
-            pub id: String,
-            #[serde(rename = "processId")]
-            pub process_id: String,
-            #[serde(rename = "processName")]
-            pub process_name: String,
-            #[serde(rename = "processStatus")]
-            #[field_definition({"default_value" : "ProcessStatus::Running"})]
-            pub process_status: ProcessStatus,
-            #[serde(rename = "processStartTime")]
-            #[field_definition({"createable" : false, "default_value" : "Some(DateTime::now())"})]
-            pub process_start_time: DateTime,
-            #[serde(rename = "processEndTime", skip_serializing_if = "Option::is_none")]
-            #[field_definition({"createable" : false})]
-            pub process_end_time: Option<DateTime>,
-            #[serde(rename = "processMessages")]
-            #[field_definition({"createable" : false, "default_value" : "Vec::new()"})]
-            pub process_messages: Vec<String>,
-            #[serde(rename = "processError")]
-            #[field_definition({"createable" : false, "default_value" : "Vec::new()"})]
-            pub process_error: Vec<Value>,
-            #[serde(rename = "processResult", skip_serializing_if = "Option::is_none")]
-            #[field_definition({"createable" : false})]
-            pub process_result: Option<Value>,
-            #[serde(rename = "processHeartbeat", skip_serializing_if = "Option::is_none")]
-            #[field_definition({"createable" : false})]
-            pub process_heartbeat: Option<DateTime>,
-}
-        )
-        .to_string();
-        let ast = syn::parse_str::<syn::DeriveInput>(&token_stream).unwrap();
-        let field_definitions = get_field_definitions(&ast);
-        let ident = syn::Ident::new("ProcessTrackingModel", proc_macro2::Span::call_site());
-        let create_model = build_create_model(&ident, &field_definitions);
-        println!("create_model: {}", create_model.to_string());
-
+    fn simple_rename() {
+        let args = "rename = \"test\"";
+        let (ser, des) = parse_rename_attribute(args);
+        let ser = ser.unwrap();
+        let des = des.unwrap();
+        assert_eq!(ser, "test");
+        assert_eq!(des, "test");
     }
 
+    #[test]
+    fn complex_rename() {
+        let args = "rename(serialize=\"test\", deserialize=\"me\")";
+        let (ser, des) = parse_rename_attribute(args);
+        let ser = ser.unwrap();
+        let des = des.unwrap();
+        assert_eq!(ser, "test");
+        assert_eq!(des, "me");
+    }
+
+    #[test]
+    fn complex_rename_no_deserialize() {
+        let args = "rename(serialize=\"test\")";
+        let (ser, des) = parse_rename_attribute(args);
+        let ser = ser.unwrap();
+        assert_eq!(ser, "test");
+        assert!(des.is_none());
+    }
+
+    #[test]
+    fn complex_rename_no_serialize() {
+        let args = "rename(deserialize=\"test\")";
+        let (ser, des) = parse_rename_attribute(args);
+        let des = des.unwrap();
+        assert_eq!(des, "test");
+        assert!(ser.is_none());
+    }
 }
