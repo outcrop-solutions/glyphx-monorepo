@@ -13,7 +13,7 @@ pub enum QueryDocumentsError {
     UnexpectedError(GlyphxErrorData),
 }
 
-mpl QueryDocumentsError {
+impl QueryDocumentsError {
    pub fn from_mongo_db_error(error: &ErrorKind, collection: &str, operation: &str) -> Self {
        let data = json!({"collection" : collection, "operation" : operation});
        match error {

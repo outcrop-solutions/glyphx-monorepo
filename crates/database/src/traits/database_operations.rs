@@ -1,10 +1,8 @@
 use async_trait::async_trait;
 use mockall::automock;
 use mongodb::bson::Document;
-use mongodb::error::{Error as MongoDbError, Result as MongoDbResult};
+use mongodb::error::Result as MongoDbResult;
 use mongodb::options::{FindOneOptions, CountOptions, FindOptions};
-use serde::{Deserialize, Serialize, de::DeserializeOwned};
-use futures::stream::TryStreamExt;
 
 #[automock]
 #[async_trait]

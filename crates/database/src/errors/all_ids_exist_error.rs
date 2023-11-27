@@ -12,7 +12,7 @@ pub enum AllIdsExistError {
 }
 
 
-mpl AllIdsExistError {
+impl AllIdsExistError {
    pub fn from_mongo_db_error(error: &ErrorKind, collection: &str, operation: &str) -> Self {
        let data = json!({"collection" : collection, "operation" : operation});
        match error {

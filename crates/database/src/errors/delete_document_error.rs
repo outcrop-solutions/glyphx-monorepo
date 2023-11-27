@@ -14,7 +14,7 @@ pub enum DeleteDocumentError {
     DeleteFailure(GlyphxErrorData),
 }
 
-mpl DeleteDocumentError {
+impl DeleteDocumentError {
    pub fn from_mongo_db_error(error: &ErrorKind, collection: &str, operation: &str) -> Self {
        let data = json!({"collection" : collection, "operation" : operation});
        match error {

@@ -1,8 +1,4 @@
-mod create_process_tracking_model;
-mod database_operations;
-mod database_operations_impl;
 mod process_status;
-mod update_process_tracking_model;
 
 use crate::errors::*;
 use crate::traits::GlyphxDataModel;
@@ -1396,6 +1392,7 @@ mod add_error_by_filter {
     use super::*;
     use crate::models::common::*;
     use mongodb::error::Error as MongoDbError;
+    use serde_json::json;
 
     #[tokio::test]
     async fn is_ok() {
@@ -1607,6 +1604,7 @@ mod add_error_by_id {
     use super::*;
     use crate::models::common::*;
     use mongodb::bson::oid::ObjectId;
+    use serde_json::json;
 
     #[tokio::test]
     async fn is_ok() {
