@@ -17,6 +17,8 @@ export namespace databaseTypes {
     creator: IUser;
     members: IMember[];
     projects: IProject[];
+    filesystem: IFileStats[];
+    files: FileStats[];
     states: IState[];
   }
 
@@ -109,6 +111,7 @@ export namespace databaseTypes {
     state: Record<string, Property>;
     states: IState[];
     files: FileStats[];
+    filesystem: IFileStats[];
     viewName?: string;
   }
 
@@ -122,6 +125,23 @@ export namespace databaseTypes {
     projects: IProject[];
     tags: ITag[];
     shape: Record<string, {key: string; type: FIELD_TYPE; required: boolean; description: string}>;
+  }
+
+  export interface IFileStats {
+    _id?: mongooseTypes.ObjectId;
+    id?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt?: Date;
+    fileName: string;
+    tableName: string;
+    numberOfRows: number;
+    numberOfColumns: number;
+    columns: Column[];
+    fileSize: number;
+    dataGrid?: RenderableDataGrid;
+    open?: boolean;
+    selected?: boolean;
   }
 
   export interface IState {
