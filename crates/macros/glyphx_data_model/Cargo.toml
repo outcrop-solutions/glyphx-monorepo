@@ -1,0 +1,17 @@
+[package]
+name = "glyphx_data_model"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+proc-macro = true
+
+[dependencies]
+cool_asserts = "2.0.3"
+proc-macro2 = "1.0.69"
+quote = "1.0.9"
+regex = "1.10.2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1.0.107"
+syn = { version = "2.0.38", features = ["full", "extra-traits"] }
