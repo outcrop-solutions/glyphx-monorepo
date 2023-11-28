@@ -1,4 +1,5 @@
 import {FIELD_TYPE} from '../../../fileIngestion/constants';
+import {ACCUMULATOR_TYPE, DATE_GROUPING} from '../../../glyphEngine/constants';
 import {AXIS, ACCEPTS, INTERPOLATION_TYPE, DIRECTION_TYPE} from '../../constants';
 import {Filter} from '../filter';
 
@@ -10,5 +11,7 @@ export type Property = {
   interpolation: INTERPOLATION_TYPE;
   direction: DIRECTION_TYPE;
   filter: Filter;
+  accumulatorType?: ACCUMULATOR_TYPE;
+  dateGrouping?: DATE_GROUPING;
   description?: string;
 };

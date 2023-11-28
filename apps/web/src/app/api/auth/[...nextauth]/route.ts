@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth';
 import type {NextAuthOptions} from 'next-auth/index';
-import {Initializer, dbConnection} from 'business';
+import {Initializer, dbConnection, userService} from 'business';
 import {MongoDBAdapter} from '@next-auth/mongodb-adapter';
 import GoogleProvider from 'next-auth/providers/google';
 import EmailProvider from 'next-auth/providers/email';
@@ -18,9 +18,20 @@ export const authOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(getConnectionPromise),
   callbacks: {
     session: async ({session, user}) => {
-      if (session?.user) {
-        session.user.id = user.id;
+      const userInfo = await userService.getUser(user.id);
+
+      if (!userInfo) {
+        throw new Error('User not found');
+      } else {
+        const newUser = {
+          ...userInfo,
+          image: user.image as string | undefined,
+          color: '#444444',
+          projectIds: userInfo.projects.map((proj) => proj.id as string) ?? [],
+        };
+        session.user = newUser;
       }
+
       return session;
     },
   },

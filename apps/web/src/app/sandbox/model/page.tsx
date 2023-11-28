@@ -1,5 +1,5 @@
 'use client';
-import {Fragment, useEffect, useState} from 'react';
+import {Fragment, useState} from 'react';
 import {Dialog, Transition} from '@headlessui/react';
 import {MenuIcon, XIcon} from '@heroicons/react/outline';
 import {Resizable} from 're-resizable';
