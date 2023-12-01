@@ -2,8 +2,9 @@ use super::FindOneError;
 use glyphx_core::{GlyphxError, GlyphxErrorData};
 use mongodb::error::ErrorKind;
 use serde_json::json;
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Clone, GlyphxError)]
+#[derive(Debug, Clone, GlyphxError, Serialize, Deserialize)]
 #[error_definition("MongoDbOperationError")]
 pub enum InsertDocumentError {
     AuthenticationError(GlyphxErrorData),
