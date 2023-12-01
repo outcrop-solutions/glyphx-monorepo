@@ -242,6 +242,11 @@ mod start {
 #[cfg(test)]
 mod stop {
     use super::*;
+<<<<<<< HEAD
+=======
+    use glyphx_core::GlyphxErrorData;
+    use serde_json::json;
+>>>>>>> 632195ea693a49de570d18982ad670ec63ce8581
 
     #[tokio::test]
     async fn is_ok() {
