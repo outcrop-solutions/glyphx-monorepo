@@ -3,11 +3,12 @@ mod process_status;
 use crate::errors::*;
 use crate::traits::GlyphxDataModel;
 
+use glyphx_core::GlyphxErrorData;
 use glyphx_data_model::GlyphxDataModel;
 
-use mongodb::bson::{doc,  DateTime };
+use mongodb::bson::{doc, DateTime};
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{json, Value};
 
 use super::common::deserialize_object_id;
 pub use process_status::*;
@@ -84,6 +85,54 @@ impl ProcessTrackingModel {
         process_id: &str,
     ) -> Result<Option<ProcessTrackingModel>, FindOneError> {
         ProcessTrackingModel::get_by_process_id_impl(process_id, &DatabaseOperationsImpl).await
+    }
+
+    pub async fn update_heartbeat(process_id: &str) -> Result<(), UpdateDocumentError> {
+        Self::update_heartbeat_impl(process_id, &DatabaseOperationsImpl).await
+    }
+
+    pub async fn update_heartbeat_impl<T: DatabaseOperations>(
+        process_id: &str,
+        database_operations: &T,
+    ) -> Result<(), UpdateDocumentError> {
+        let filter = doc! { "processId": process_id };
+        let document = doc! { "$set": { "processHeartbeat": DateTime::now() } };
+        let results = database_operations.update_one_document(&filter, &document, None).await;
+        if results.is_err() {
+            return Err(UpdateDocumentError::from_mongo_db_error(
+                &results.unwrap_err().kind,
+                "processtrackings",
+                "update_heartbeat",
+            ));
+        }
+        let results = results.unwrap();
+        if results.modified_count == 0 {
+            let message = format!(
+                "No documents found to update that match the process_id : {}",
+                process_id
+            );
+            let data = json!({"processId" : process_id, "operation" : "update_heartbeat", "collection" : "processtrackings"});
+            let error_data = GlyphxErrorData::new(message, Some(data), None);
+            return Err(UpdateDocumentError::UpdateFailure(error_data));
+        }
+        Ok(())
+    }
+}
+
+impl Default for ProcessTrackingModel {
+    fn default() -> Self {
+        ProcessTrackingModel {
+            id: "".to_string(),
+            process_id: "".to_string(),
+            process_name: "".to_string(),
+            process_status: ProcessStatus::Running,
+            process_start_time: DateTime::now(),
+            process_end_time: None,
+            process_messages: Vec::new(),
+            process_error: Vec::new(),
+            process_result: None,
+            process_heartbeat: None,
+        }
     }
 }
 
@@ -277,8 +326,8 @@ mod get_by_process_id {
 #[cfg(test)]
 mod id_exists {
     use super::*;
-    use mongodb::error::{Error as MongoDbError, Result as MongoDbResult};
     use mongodb::bson::oid::ObjectId;
+    use mongodb::error::{Error as MongoDbError, Result as MongoDbResult};
 
     #[tokio::test]
     async fn id_exists() {
@@ -495,8 +544,8 @@ mod process_tracking_model_tests {
 mod all_ids_exist {
     use super::*;
     use crate::models::common::*;
-    use mongodb::error::{Error as MongoDbError, Result as MongoDbResult};
     use mongodb::bson::oid::ObjectId;
+    use mongodb::error::{Error as MongoDbError, Result as MongoDbResult};
 
     #[tokio::test]
     async fn all_ids_exist() {
@@ -1381,7 +1430,12 @@ mod add_message_by_id {
                 process_heartbeat: None,
             })));
 
-        let result = ProcessTrackingModel::add_process_messages_impl(&id, &"message".to_string() , &mock_impl).await;
+        let result = ProcessTrackingModel::add_process_messages_impl(
+            &id,
+            &"message".to_string(),
+            &mock_impl,
+        )
+        .await;
 
         assert!(result.is_ok());
     }
@@ -1986,5 +2040,73 @@ mod query_documents {
         assert!(results.is_ok());
         let results = results.unwrap();
         assert!(results.is_none());
+    }
+}
+
+#[cfg(test)]
+mod update_heartbeat {
+    use super::*;
+    use crate::models::common::*;
+    use mongodb::error::Error as MongoDbError;
+
+    #[tokio::test]
+    async fn is_ok() {
+        let process_id = "process_id";
+
+        let mut mocks = MockDatabaseOperations::new();
+        mocks
+            .expect_update_one_document()
+            .once()
+            .return_const(Ok(UpdateOneData { modified_count: 1 }));
+
+        let result = ProcessTrackingModel::update_heartbeat_impl(process_id, &mocks).await;
+
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn call_to_update_document_fails() {
+        let process_id = "process_id";
+
+        let mut mocks = MockDatabaseOperations::new();
+        mocks
+            .expect_update_one_document()
+            .once()
+            .return_const(Err(MongoDbError::custom("An error occurred")));
+
+        let result = ProcessTrackingModel::update_heartbeat_impl(process_id, &mocks).await;
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            UpdateDocumentError::UnexpectedError(error_data) => {
+                let data = error_data.data.unwrap();
+                assert_eq!(data["operation"], "update_heartbeat");
+                assert_eq!(data["collection"], "processtrackings");
+            }
+            _ => panic!("Unexpected error type"),
+        }
+    }
+
+    #[tokio::test]
+    async fn update_does_not_update_any_documents() {
+        let process_id = "process_id";
+
+        let mut mocks = MockDatabaseOperations::new();
+        mocks
+            .expect_update_one_document()
+            .once()
+            .return_const(Ok(UpdateOneData { modified_count: 0 }));
+
+        let result = ProcessTrackingModel::update_heartbeat_impl(process_id, &mocks).await;
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            UpdateDocumentError::UpdateFailure(error_data) => {
+                let data = error_data.data.unwrap();
+                assert_eq!(data["operation"], "update_heartbeat");
+                assert_eq!(data["collection"], "processtrackings");
+            }
+            _ => panic!("Unexpected error type"),
+        }
     }
 }

@@ -7,7 +7,7 @@ use async_trait::async_trait;
 use mongodb::bson::Document;
 use serde_json::Value;
 
-#[async_trait]
+#[async_trait::async_trait]
 pub trait GlyphxDataModel<T1, T2, T3> 
     where T1: std::fmt::Debug + serde::Serialize + std::clone::Clone{
     fn from_str(value: &str) -> T1;
