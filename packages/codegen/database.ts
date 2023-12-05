@@ -120,7 +120,9 @@ export namespace databaseTypes {
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date;
+    community?: boolean;
     name: string;
+    description?: string;
     projects: IProject[];
     tags: ITag[];
     shape: Record<string, {key: string; type: FIELD_TYPE; required: boolean; description: string}>;

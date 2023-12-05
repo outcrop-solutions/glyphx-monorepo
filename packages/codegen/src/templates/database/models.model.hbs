@@ -68,7 +68,7 @@ const SCHEMA = new Schema<I{{pascalcase this.name}}Document, I{{pascalcase this.
     {{else if (isEnum this.relationType)}}
     type: String,
     required: false,
-    enum: databaseTypes.constants.{{this.type}},
+    enum: databaseTypes.{{this.type}},
     {{else}}
     type: {{this.type}},
     required: {{this.isRequired}},

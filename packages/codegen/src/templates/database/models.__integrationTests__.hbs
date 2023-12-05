@@ -2,7 +2,7 @@
 import 'mocha';
 import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
-import {MongoDbConnection} from 'database';
+import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {error} from 'core';
@@ -154,10 +154,10 @@ describe('#{{pascalcase this.name}}Model', () => {
 
     it('remove a {{camelcase this.name}}', async () => {
       assert.isOk({{camelcase this.name}}DocId);
-      await {{camelcase this.name}}Model.delete{{pascalcase this.name}}ById({{camelcase this.name}}DocId);
+      await {{camelcase this.name}}Model.delete{{pascalcase this.name}}ById({{camelcase this.name}}DocId.toString());
       let errored = false;
       try {
-        await {{camelcase this.name}}Model.get{{pascalcase this.name}}ById({{camelcase this.name}}DocId);
+        await {{camelcase this.name}}Model.get{{pascalcase this.name}}ById({{camelcase this.name}}DocId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
