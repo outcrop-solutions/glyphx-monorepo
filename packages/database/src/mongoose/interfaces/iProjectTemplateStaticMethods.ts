@@ -1,7 +1,9 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
 import {Types as mongooseTypes, Model} from 'mongoose';
 import {IQueryResult, databaseTypes} from 'types';
 import {IProjectTemplateMethods} from './iProjectTemplateMethods';
 import {IProjectTemplateCreateInput} from './iProjectTemplateCreateInput';
+
 export interface IProjectTemplateStaticMethods
   extends Model<databaseTypes.IProjectTemplate, {}, IProjectTemplateMethods> {
   projectTemplateIdExists(projectTemplateId: mongooseTypes.ObjectId): Promise<boolean>;
@@ -16,15 +18,13 @@ export interface IProjectTemplateStaticMethods
   updateProjectTemplateWithFilter(
     filter: Record<string, unknown>,
     projectTemplate: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>
-  ): Promise<void>;
+  ): Promise<databaseTypes.IProjectTemplate>;
   updateProjectTemplateById(
     projectTemplateId: string,
     projectTemplate: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>
   ): Promise<databaseTypes.IProjectTemplate>;
   deleteProjectTemplateById(projectTemplateId: string): Promise<void>;
-  validateProjects(projects: (databaseTypes.IProject | string)[]): Promise<mongooseTypes.ObjectId[]>;
-  validateTags(tags: (databaseTypes.ITag | string)[]): Promise<mongooseTypes.ObjectId[]>;
-  validateUpdateObject(projectTemplate: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>): void;
+  validateUpdateObject(projectTemplate: Omit<Partial<databaseTypes.IProjectTemplate>, '_id'>): Promise<void>;
   addProjects(
     projectTemplateId: string,
     projects: (databaseTypes.IProject | string)[]
@@ -33,6 +33,8 @@ export interface IProjectTemplateStaticMethods
     projectTemplateId: string,
     projects: (databaseTypes.IProject | string)[]
   ): Promise<databaseTypes.IProjectTemplate>;
+  validateProjects(projects: (databaseTypes.IProject | string)[]): Promise<mongooseTypes.ObjectId[]>;
   addTags(projectTemplateId: string, tags: (databaseTypes.ITag | string)[]): Promise<databaseTypes.IProjectTemplate>;
   removeTags(projectTemplateId: string, tags: (databaseTypes.ITag | string)[]): Promise<databaseTypes.IProjectTemplate>;
+  validateTags(tags: (databaseTypes.ITag | string)[]): Promise<mongooseTypes.ObjectId[]>;
 }

@@ -9,39 +9,37 @@ export interface I{{pascalcase this.name}}StaticMethods
   {{camelcase this.name}}IdExists({{camelcase this.name}}Id: mongooseTypes.ObjectId): Promise<boolean>;
   all{{pascalcase this.name}}IdsExist({{camelcase this.name}}Ids: mongooseTypes.ObjectId[]): Promise<boolean>;
   create{{pascalcase this.name}}(input: I{{pascalcase this.name}}CreateInput): Promise<databaseTypes.I{{pascalcase this.name}}>;
-  get{{pascalcase this.name}}ById({{camelcase this.name}}Id: mongooseTypes.ObjectId): Promise<databaseTypes.I{{pascalcase this.name}}>;
+  get{{pascalcase this.name}}ById({{camelcase this.name}}Id: string): Promise<databaseTypes.I{{pascalcase this.name}}>;
   query{{pascalcase this.name}}s(filter?: Record<string, unknown>, page?: number, itemsPerPage?: number): Promise<IQueryResult<databaseTypes.I{{pascalcase this.name}}>>;
   update{{pascalcase this.name}}WithFilter(filter: Record<string, unknown>, {{camelcase this.name}}: Omit<Partial<databaseTypes.I{{pascalcase this.name}}>, '_id'>): Promise<databaseTypes.I{{pascalcase this.name}}>;
-  update{{pascalcase this.name}}ById({{camelcase this.name}}Id: mongooseTypes.ObjectId, {{camelcase this.name}}: Omit<Partial<databaseTypes.I{{pascalcase this.name}}>, '_id'>): Promise<databaseTypes.I{{pascalcase this.name}}>;
-  delete{{pascalcase this.name}}ById({{camelcase this.name}}Id: mongooseTypes.ObjectId): Promise<void>;
+  update{{pascalcase this.name}}ById({{camelcase this.name}}Id: string, {{camelcase this.name}}: Omit<Partial<databaseTypes.I{{pascalcase this.name}}>, '_id'>): Promise<databaseTypes.I{{pascalcase this.name}}>;
+  delete{{pascalcase this.name}}ById({{camelcase this.name}}Id: string): Promise<void>;
   validateUpdateObject({{camelcase this.name}}: Omit<Partial<databaseTypes.I{{pascalcase this.name}}>, '_id'>): Promise<void>;
   {{#each properties}}
-    {{#if (referenceTableExists this)}}
     {{#if (isOneToMany this.relationType)}}
       add{{pluralize (pascalcase this.name)}}(
-        {{camelcase ../this.name}}Id: mongooseTypes.ObjectId, 
-        {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId)[]
+        {{camelcase ../this.name}}Id: string, 
+        {{pluralize (camelcase this.name)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | string)[]
       ): Promise<databaseTypes.I{{pascalcase ../this.name}}>;
       remove{{pluralize (pascalcase this.name)}}(
-        {{camelcase ../this.name}}Id: mongooseTypes.ObjectId, 
-        {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId)[]
+        {{camelcase ../this.name}}Id: string, 
+        {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | string)[]
       ): Promise<databaseTypes.I{{pascalcase ../this.name}}>;
       validate{{pluralize (pascalcase this.name)}}(
-        {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId)[]
+        {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | string)[]
       ): Promise<mongooseTypes.ObjectId[]>;
     {{else if (isOneToOne this.relationType)}}
       add{{pascalcase this.name}}(
-        {{camelcase ../this.name}}Id: mongooseTypes.ObjectId, 
-        {{camelcase this.referenceTable}}: databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId
+        {{camelcase ../this.name}}Id: string, 
+        {{camelcase this.referenceTable}}: databaseTypes.I{{pascalcase this.referenceTable}} | string
       ): Promise<databaseTypes.I{{pascalcase ../this.name}}>;
       remove{{pascalcase this.name}}(
-        {{camelcase ../this.name}}Id: mongooseTypes.ObjectId, 
-        {{camelcase this.referenceTable}}: databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId
+        {{camelcase ../this.name}}Id: string, 
+        {{camelcase this.referenceTable}}: databaseTypes.I{{pascalcase this.referenceTable}} | string
       ): Promise<databaseTypes.I{{pascalcase ../this.name}}>;
       validate{{pascalcase this.name}}(
-        {{camelcase this.referenceTable}}: databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId
+        {{camelcase this.referenceTable}}: databaseTypes.I{{pascalcase this.referenceTable}} | string
       ): Promise<mongooseTypes.ObjectId>;
-    {{/if}}
     {{/if}}
   {{/each}}
 }

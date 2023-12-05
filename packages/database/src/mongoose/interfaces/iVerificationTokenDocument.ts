@@ -1,6 +1,6 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
 import {databaseTypes} from 'types';
+import {Types as mongooseTypes} from 'mongoose';
 
-//this is done this way to support or structure.  token is just amitted and readded so that ts and eslint do not complain
-export interface IVerificationTokenDocument extends Omit<databaseTypes.IVerificationToken, 'token'> {
-  token: string;
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface IVerificationTokenDocument extends databaseTypes.IVerificationToken {}

@@ -1,7 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {Types as mongooseTypes, Model} from 'mongoose';
-import {databaseTypes} from 'types';
-import {IQueryResult} from 'types';
+import {IQueryResult, databaseTypes} from 'types';
 import {IModelConfigMethods} from './iModelConfigMethods';
 import {IModelConfigCreateInput} from './iModelConfigCreateInput';
 

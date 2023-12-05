@@ -1,41 +1,39 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
 import {Types as mongooseTypes, Model} from 'mongoose';
-import {databaseTypes, IQueryResult} from 'types';
+import {IQueryResult, databaseTypes} from 'types';
 import {IMemberMethods} from './iMemberMethods';
 import {IMemberCreateInput} from './iMemberCreateInput';
 
 export interface IMemberStaticMethods extends Model<databaseTypes.IMember, {}, IMemberMethods> {
   memberIdExists(memberId: mongooseTypes.ObjectId): Promise<boolean>;
-  memberExists(
-    memberEmail: string,
-    type: databaseTypes.constants.MEMBERSHIP_TYPE,
-    workspaceId: string,
-    projectId?: string
-  ): Promise<boolean>;
   allMemberIdsExist(memberIds: mongooseTypes.ObjectId[]): Promise<boolean>;
-  createWorkspaceMember(input: IMemberCreateInput): Promise<databaseTypes.IMember>;
-  createProjectMember(input: IMemberCreateInput): Promise<databaseTypes.IMember>;
-  getMemberById(memberId: string, hasProject?: boolean): Promise<databaseTypes.IMember>;
+  createMember(input: IMemberCreateInput): Promise<databaseTypes.IMember>;
+  getMemberById(memberId: string): Promise<databaseTypes.IMember>;
   queryMembers(
     filter?: Record<string, unknown>,
     page?: number,
     itemsPerPage?: number
   ): Promise<IQueryResult<databaseTypes.IMember>>;
-  updateMemberById(id: string, member: Partial<databaseTypes.IMember>): Promise<databaseTypes.IMember>;
-  deleteMemberById(id: string): Promise<void>;
-  validateWorkspace(input: databaseTypes.IWorkspace | string): Promise<mongooseTypes.ObjectId>;
-  validateWorkspaceMember(
-    member: databaseTypes.IUser | string,
-    workspace: databaseTypes.IWorkspace | string
-  ): Promise<mongooseTypes.ObjectId>;
-  validateProjectMember(
-    member: databaseTypes.IUser | string,
-    workspace: databaseTypes.IWorkspace | string,
-    project: databaseTypes.IProject | string
-  ): Promise<mongooseTypes.ObjectId>;
-  validateProject(input: databaseTypes.IProject | string): Promise<mongooseTypes.ObjectId>;
   updateMemberWithFilter(
     filter: Record<string, unknown>,
-    member: Partial<databaseTypes.IMember>
+    member: Omit<Partial<databaseTypes.IMember>, '_id'>
   ): Promise<databaseTypes.IMember>;
-  validateUpdateObject(member: Omit<Partial<databaseTypes.IMember>, '_id'>): Promise<boolean>;
+  updateMemberById(
+    memberId: string,
+    member: Omit<Partial<databaseTypes.IMember>, '_id'>
+  ): Promise<databaseTypes.IMember>;
+  deleteMemberById(memberId: string): Promise<void>;
+  validateUpdateObject(member: Omit<Partial<databaseTypes.IMember>, '_id'>): Promise<void>;
+  addMember(memberId: string, user: databaseTypes.IUser | string): Promise<databaseTypes.IMember>;
+  removeMember(memberId: string, user: databaseTypes.IUser | string): Promise<databaseTypes.IMember>;
+  validateMember(user: databaseTypes.IUser | string): Promise<mongooseTypes.ObjectId>;
+  addInvitedBy(memberId: string, user: databaseTypes.IUser | string): Promise<databaseTypes.IMember>;
+  removeInvitedBy(memberId: string, user: databaseTypes.IUser | string): Promise<databaseTypes.IMember>;
+  validateInvitedBy(user: databaseTypes.IUser | string): Promise<mongooseTypes.ObjectId>;
+  addWorkspace(memberId: string, workspace: databaseTypes.IWorkspace | string): Promise<databaseTypes.IMember>;
+  removeWorkspace(memberId: string, workspace: databaseTypes.IWorkspace | string): Promise<databaseTypes.IMember>;
+  validateWorkspace(workspace: databaseTypes.IWorkspace | string): Promise<mongooseTypes.ObjectId>;
+  addProject(memberId: string, project: databaseTypes.IProject | string): Promise<databaseTypes.IMember>;
+  removeProject(memberId: string, project: databaseTypes.IProject | string): Promise<databaseTypes.IMember>;
+  validateProject(project: databaseTypes.IProject | string): Promise<mongooseTypes.ObjectId>;
 }

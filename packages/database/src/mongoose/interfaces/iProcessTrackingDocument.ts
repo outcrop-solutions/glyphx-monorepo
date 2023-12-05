@@ -1,5 +1,6 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
 import {databaseTypes} from 'types';
+import {Types as mongooseTypes} from 'mongoose';
 
-export interface IProcessTrackingDocument extends Omit<databaseTypes.IProcessTracking, 'ProcessName'> {
-  processName: string;
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface IProcessTrackingDocument extends databaseTypes.IProcessTracking {}

@@ -41,42 +41,55 @@ const SCHEMA = new Schema<I{{pascalcase this.name}}Document, I{{pascalcase this.
   },
   {{#each properties}}
   {{#if (isNotProtected this.name)}}
-  {{this.name}}: {
+  {{this.name}}: 
     {{#if (isDate this)}}
-    type: Date,
-    required: false,
-    default:
-      //istanbul ignore next
-      () => new Date(),
+    {
+      type: Date,
+      required: false,
+      default:
+        //istanbul ignore next
+        () => new Date(),
+    }
     {{else if (and (isOneToOne this.relationType) (referenceTableExists this))}}
-    type: Schema.Types.ObjectId, 
-    required: false,
-    ref: '{{lowercase (pascalcase this.referenceTable)}}'
-    {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
-    type: [Schema.Types.ObjectId],
-    required: true,
-    default: [],
-    ref: '{{camelcase this.name}}'
+    {
+      type: Schema.Types.ObjectId, 
+      required: false,
+      ref: '{{lowercase (pascalcase this.referenceTable)}}'
+    }
+    {{else if (isOneToMany this.relationType)}}
+    [{
+      type: Schema.Types.ObjectId,
+      required: false,
+      ref: '{{camelcase this.name}}'
+    }]
     {{else if (isRecord this)}}
-    type: Schema.Types.Mixed,
-    required: {{this.isRequired}},
-    default: {},
+    {
+      type: Schema.Types.Mixed,
+      required: {{this.isRequired}},
+      default: {},
+    }
     {{else if (isSchema this.relationType)}}
-    type: {{camelcase (singularize this.name)}}Schema,
-    required: false,
-    default: {},
+    {
+      type: {{camelcase (singularize this.name)}}Schema,
+      required: false,
+      default: {},
+    }
     {{else if (isEnum this.relationType)}}
-    type: String,
-    required: false,
-    enum: databaseTypes.{{this.type}},
+    { 
+      type: String,
+      required: false,
+      enum: databaseTypes.{{this.type}},
+    }
     {{else}}
-    type: {{this.type}},
-    required: {{this.isRequired}},
+    {
+      type: {{this.type}},
+      required: {{this.isRequired}},
       {{#if this.hasDefault}}
       default: {{this.default}},
       {{/if}}
+    }
     {{/if}}
-  }{{#unless @last}},{{/unless}}
+  {{#unless @last}},{{/unless}}
   {{/if}}
   {{/each}}
 })
@@ -264,7 +277,7 @@ SCHEMA.static(
         );
       }
     }
-    if (id) return await {{uppercase (pascalcase  this.name)}}_MODEL.get{{pascalcase this.name}}ById(id);
+    if (id) return await {{uppercase (pascalcase  this.name)}}_MODEL.get{{pascalcase this.name}}ById(id.toString());
     else
       throw new error.UnexpectedError(
         'An unexpected error has occurred and the {{camelcase this.name}} may not have been created.  I have no other information to provide.'
@@ -273,7 +286,7 @@ SCHEMA.static(
 );
 
 // READ
-SCHEMA.static('get{{pascalcase this.name}}ById', async ({{camelcase this.name}}Id: mongooseTypes.ObjectId) => {
+SCHEMA.static('get{{pascalcase this.name}}ById', async ({{camelcase this.name}}Id: string) => {
   try {
     const {{camelcase this.name}}Document = (await {{uppercase (pascalcase this.name)}}_MODEL.findById({{camelcase this.name}}Id)
     {{#each properties}}
@@ -429,7 +442,7 @@ SCHEMA.static(
 SCHEMA.static(
   'update{{pascalcase this.name}}ById',
   async (
-    {{camelcase this.name}}Id: mongooseTypes.ObjectId,
+    {{camelcase this.name}}Id: string,
     {{camelcase this.name}}: Omit<Partial<databaseTypes.I{{pascalcase this.name}}>, '_id'>
   ): Promise<databaseTypes.I{{pascalcase this.name}}> => {
     await {{uppercase (pascalcase  this.name)}}_MODEL.update{{pascalcase this.name}}WithFilter({_id: {{camelcase this.name}}Id}, {{camelcase this.name}});
@@ -440,7 +453,7 @@ SCHEMA.static(
 // DELETE
 SCHEMA.static(
   'delete{{pascalcase this.name}}ById',
-  async ({{camelcase this.name}}Id: mongooseTypes.ObjectId): Promise<void> => {
+  async ({{camelcase this.name}}Id: string): Promise<void> => {
     try {
       const results = await {{uppercase (pascalcase  this.name)}}_MODEL.deleteOne({_id: {{camelcase this.name}}Id});
       if (results.deletedCount !== 1)
@@ -469,8 +482,8 @@ SCHEMA.static(
 SCHEMA.static(
     'add{{pluralize (pascalcase this.name)}}',
     async (
-    {{camelcase ../this.name}}Id: mongooseTypes.ObjectId,
-    {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId)[]
+    {{camelcase ../this.name}}Id: string,
+    {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | string)[]
   ): Promise<databaseTypes.I{{pascalcase ../this.name}}> => {
     try {
       if (!{{pluralize (camelcase this.referenceTable)}}.length)
@@ -528,8 +541,8 @@ SCHEMA.static(
 SCHEMA.static(
     'remove{{pluralize (pascalcase this.name)}}',
     async (
-     {{camelcase ../this.name}}Id: mongooseTypes.ObjectId, 
-     {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId)[]
+     {{camelcase ../this.name}}Id: string, 
+     {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | string)[]
   ): Promise<databaseTypes.I{{pascalcase ../this.name}}> => {
     try {
       if (!{{pluralize (camelcase this.referenceTable)}}.length)
@@ -599,12 +612,12 @@ SCHEMA.static(
 SCHEMA.static(
     'validate{{pluralize (pascalcase this.name)}}', 
     async (
-    {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId)[]
+    {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | string)[]
   ): Promise<mongooseTypes.ObjectId[]> => {
     const {{pluralize (camelcase this.referenceTable)}}Ids: mongooseTypes.ObjectId[] = [];
     {{pluralize (camelcase this.referenceTable)}}.forEach((p: any) => {
-      if (p instanceof mongooseTypes.ObjectId) {{pluralize (camelcase this.referenceTable)}}Ids.push(p);
-      else {{pluralize (camelcase this.referenceTable)}}Ids.push(p._id as mongooseTypes.ObjectId);
+      if (typeof p === 'string') {{pluralize (camelcase this.referenceTable)}}Ids.push(new mongooseTypes.ObjectId(p));
+      else {{pluralize (camelcase this.referenceTable)}}Ids.push(new mongooseTypes.ObjectId(p.id));
     });
     try {
       await {{pascalcase this.referenceTable}}Model.all{{pascalcase this.referenceTable}}IdsExist({{pluralize (camelcase this.referenceTable)}}Ids);
@@ -626,8 +639,8 @@ SCHEMA.static(
 SCHEMA.static(
   'add{{pascalcase this.name}}',
   async (
-    {{camelcase ../this.name}}Id: mongooseTypes.ObjectId,
-    {{camelcase this.name}}: databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId
+    {{camelcase ../this.name}}Id: string,
+    {{camelcase this.name}}: databaseTypes.I{{pascalcase this.referenceTable}} | string
   ): Promise<databaseTypes.I{{pascalcase ../this.name}}> => {
     try {
       if (!{{camelcase this.name}}) throw new error.InvalidArgumentError('You must supply at least one id', '{{camelcase this.name}}', {{camelcase this.name}});
@@ -670,7 +683,7 @@ SCHEMA.static(
 SCHEMA.static(
   "remove{{pascalcase this.name}}",
   async (
-    {{camelcase ../this.name}}Id: mongooseTypes.ObjectId
+    {{camelcase ../this.name}}Id: string
   ): Promise<databaseTypes.I{{pascalcase ../this.name}}> => {
     try {
       const {{camelcase ../this.name}}Document = await {{uppercase (pascalcase ../this.name)}}_MODEL.findById({{camelcase ../this.name}}Id);
@@ -708,12 +721,10 @@ SCHEMA.static(
 SCHEMA.static(
   'validate{{pascalcase this.name}}',
   async (
-    input: databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId
+    input: databaseTypes.I{{pascalcase this.referenceTable}} | string
   ): Promise<mongooseTypes.ObjectId> => {
-    const {{ camelcase this.name }}Id =
-      input instanceof mongooseTypes.ObjectId
-        ? input
-        : (input._id as mongooseTypes.ObjectId);
+    const {{ camelcase this.name }}Id = typeof input === 'string' ? new mongooseTypes.ObjectId(input) : new mongooseTypes.ObjectId(input.id);
+        
     if (
       !(await {{pascalcase this.referenceTable}}Model.{{ camelcase this.referenceTable }}IdExists({{ camelcase this.name }}Id))
     ) {

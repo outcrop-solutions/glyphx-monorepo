@@ -485,6 +485,8 @@ export class CodeGenerator {
     if (typeNode && typeNode.kind === 185) {
       const arrayTypeNode = typeNode as ts.ArrayTypeNode;
       refName = (arrayTypeNode.elementType as ts.TypeReferenceNode).typeName?.getText();
+    } else if (typeNode && typeNode.kind === 188) {
+      refName = (typeNode as any).elementType.typeName.escapedText;
     } else {
       refName = (typeNode as ts.TypeReferenceNode).typeName?.getText();
     }

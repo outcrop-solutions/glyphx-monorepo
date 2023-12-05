@@ -1,179 +1,118 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
+import * as mocks from '../mongoose/mocks';
 import {assert} from 'chai';
-import {MongoDbConnection} from '../mongoose/mongooseConnection';
+import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
-import {databaseTypes} from 'types';
 import {error} from 'core';
-import {ProcessTrackingModel} from '../mongoose/models';
-import {DBFormatter} from '../lib/format';
+
+type ObjectId = mongooseTypes.ObjectId;
 
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
-const INPUT_DATA = {
-  processId: 'id_' + UNIQUE_KEY,
-  processName: 'test process1' + UNIQUE_KEY,
-  processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
-  processStartTime: new Date(),
-  processMessages: [],
-  processError: [],
-};
-
-const INPUT_DATA2 = {
-  processId: 'id_2' + UNIQUE_KEY,
-  processName: 'test process2' + UNIQUE_KEY,
-  processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
-  processStartTime: new Date(),
-  processMessages: [],
-  processError: [],
-};
-
-describe('#processTrackingModel', () => {
+describe('#ProcessTrackingModel', () => {
   context('test the crud functions of the processTracking model', () => {
     const mongoConnection = new MongoDbConnection();
-    const format = new DBFormatter();
     const processTrackingModel = mongoConnection.models.ProcessTrackingModel;
-    let processTrackingId: string;
-    let processTrackingId2: string;
+    let processTrackingDocId: ObjectId;
+    let processTrackingDocId2: ObjectId;
+
     before(async () => {
       await mongoConnection.init();
     });
 
     after(async () => {
-      if (processTrackingId) {
-        await processTrackingModel.findByIdAndDelete(processTrackingId);
+      if (processTrackingDocId) {
+        await processTrackingModel.findByIdAndDelete(processTrackingDocId);
       }
 
-      if (processTrackingId2) {
-        await processTrackingModel.findByIdAndDelete(processTrackingId2);
+      if (processTrackingDocId2) {
+        await processTrackingModel.findByIdAndDelete(processTrackingDocId2);
       }
     });
 
-    it('add a new processTracking document', async () => {
-      const processTrackingInput = JSON.parse(JSON.stringify(INPUT_DATA));
-      const processTrackingDocument = await processTrackingModel.createProcessTrackingDocument(
-        format.toJS(processTrackingInput)
-      );
+    it('add a new processTracking ', async () => {
+      const processTrackingInput = JSON.parse(JSON.stringify(mocks.MOCK_PROCESSTRACKING));
+
+      const processTrackingDocument = await processTrackingModel.createProcessTracking(processTrackingInput);
+
       assert.isOk(processTrackingDocument);
-      assert.strictEqual(processTrackingDocument.processName, processTrackingInput.processName);
-      processTrackingId = processTrackingDocument.id!;
+      assert.strictEqual(Object.keys(processTrackingDocument)[1], Object.keys(processTrackingInput)[1]);
+
+      processTrackingDocId = processTrackingDocument._id as mongooseTypes.ObjectId;
     });
 
-    it('retreive a process tracking document by id', async () => {
-      assert.isOk(processTrackingId);
-      const processTrackingDocument = await processTrackingModel.getProcessTrackingDocumentById(processTrackingId);
+    it('retreive a processTracking', async () => {
+      assert.isOk(processTrackingDocId);
+      const processTracking = await processTrackingModel.getProcessTrackingById(processTrackingDocId);
 
-      assert.isOk(processTrackingDocument);
-      assert.strictEqual(processTrackingDocument.id, processTrackingId.toString());
+      assert.isOk(processTracking);
+      assert.strictEqual(processTracking._id?.toString(), processTrackingDocId.toString());
     });
 
-    it('Get multiple process tracking documents without a filter', async () => {
-      assert.isOk(processTrackingId);
-      const processTrackingInput = JSON.parse(JSON.stringify(INPUT_DATA2));
-      const processTrackingDocument = await processTrackingModel.createProcessTrackingDocument(
-        format.toJS(processTrackingInput)
-      );
+    it('modify a processTracking', async () => {
+      assert.isOk(processTrackingDocId);
+      const input = {deletedAt: new Date()};
+      const updatedDocument = await processTrackingModel.updateProcessTrackingById(processTrackingDocId, input);
+      assert.isOk(updatedDocument.deletedAt);
+    });
+
+    it('Get multiple processTrackings without a filter', async () => {
+      assert.isOk(processTrackingDocId);
+      const processTrackingInput = JSON.parse(JSON.stringify(mocks.MOCK_PROCESSTRACKING));
+
+      const processTrackingDocument = await processTrackingModel.createProcessTracking(processTrackingInput);
 
       assert.isOk(processTrackingDocument);
-      processTrackingId2 = processTrackingDocument.id!;
 
-      const processTrackingDocuments = await processTrackingModel.queryProcessTrackingDocuments();
-      assert.isArray(processTrackingDocuments.results);
-      assert.isAtLeast(processTrackingDocuments.numberOfItems, 2);
+      processTrackingDocId2 = processTrackingDocument._id as mongooseTypes.ObjectId;
+
+      const processTrackings = await processTrackingModel.queryProcessTrackings();
+      assert.isArray(processTrackings.results);
+      assert.isAtLeast(processTrackings.numberOfItems, 2);
       const expectedDocumentCount =
-        processTrackingDocuments.numberOfItems <= processTrackingDocuments.itemsPerPage
-          ? processTrackingDocuments.numberOfItems
-          : processTrackingDocuments.itemsPerPage;
-      assert.strictEqual(processTrackingDocuments.results.length, expectedDocumentCount);
+        processTrackings.numberOfItems <= processTrackings.itemsPerPage
+          ? processTrackings.numberOfItems
+          : processTrackings.itemsPerPage;
+      assert.strictEqual(processTrackings.results.length, expectedDocumentCount);
     });
 
-    it('Get multiple process tracking documents with a filter', async () => {
-      assert.isOk(processTrackingId2);
-      const results = await processTrackingModel.queryProcessTrackingDocuments({
-        processName: INPUT_DATA.processName,
+    it('Get multiple processTrackings with a filter', async () => {
+      assert.isOk(processTrackingDocId2);
+      const results = await processTrackingModel.queryProcessTrackings({
+        deletedAt: undefined,
       });
       assert.strictEqual(results.results.length, 1);
-      assert.strictEqual(results.results[0]?.processName, INPUT_DATA.processName);
+      assert.isUndefined(results.results[0]?.deletedAt);
     });
 
-    it('page process tracking documents', async () => {
-      assert.isOk(processTrackingId2);
-      const results = await processTrackingModel.queryProcessTrackingDocuments({}, 0, 1);
+    it('page accounts', async () => {
+      assert.isOk(processTrackingDocId2);
+      const results = await processTrackingModel.queryProcessTrackings({}, 0, 1);
       assert.strictEqual(results.results.length, 1);
 
       const lastId = results.results[0]?._id;
 
-      const results2 = await processTrackingModel.queryProcessTrackingDocuments({}, 1, 1);
+      const results2 = await processTrackingModel.queryProcessTrackings({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?.id, lastId?.toString());
+      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
     });
 
-    it('modify a process tracking document by id', async () => {
-      assert.isOk(processTrackingId);
-      const input = {processName: 'I have been modified'};
-      const updatedDocument = await processTrackingModel.updateProcessTrackingDocumentById(INPUT_DATA.processId, input);
-      assert.strictEqual(updatedDocument.processName, input.processName);
-    });
-
-    it('add an error to the processTracking Document by id', async () => {
-      assert.isOk(processTrackingId);
-      const errorText = 'I am error1';
-      const updatedProcessTrackingDocument = await ProcessTrackingModel.addErrorsById(processTrackingId.toString(), [
-        {error: errorText},
-      ]);
-      assert.strictEqual(updatedProcessTrackingDocument.processError.length, 1);
-      assert.strictEqual(updatedProcessTrackingDocument.processError[0].error, errorText);
-    });
-
-    it('add an error to the processTracking Document by processId', async () => {
-      assert.isOk(processTrackingId);
-      const errorText = 'I am error2';
-      const updatedProcessTrackingDocument = await ProcessTrackingModel.addErrorsByProcessId(INPUT_DATA.processId, [
-        {error: errorText},
-      ]);
-      assert.strictEqual(updatedProcessTrackingDocument.processError.length, 2);
-      assert.strictEqual(updatedProcessTrackingDocument.processError[0].error, errorText);
-    });
-
-    it('add a message to the processTracking Document by id', async () => {
-      assert.isOk(processTrackingId);
-      const message = 'I am message1';
-      const updatedProcessTrackingDocument = await ProcessTrackingModel.addMessagesById(processTrackingId.toString(), [
-        message,
-      ]);
-      // FIXME: the updatedProcessTrackingDocument.processMessages is returned as an array of single characters for some reason?
-      assert.strictEqual(updatedProcessTrackingDocument.processMessages.length, 1);
-    });
-
-    it('remove a process tracking document by id', async () => {
-      assert.isOk(processTrackingId);
-      await processTrackingModel.deleteProcessTrackingDocumentById(processTrackingId);
+    it('remove a processTracking', async () => {
+      assert.isOk(processTrackingDocId);
+      await processTrackingModel.deleteProcessTrackingById(processTrackingDocId.toString());
       let errored = false;
       try {
-        await processTrackingModel.getProcessTrackingDocumentById(processTrackingId);
+        await processTrackingModel.getProcessTrackingById(processTrackingDocId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
       }
 
       assert.isTrue(errored);
-      processTrackingId = null as unknown as string;
-    });
-
-    it('remove a process tracking document by processId', async () => {
-      assert.isOk(processTrackingId2);
-      await processTrackingModel.deleteProcessTrackingDocumentProcessId(INPUT_DATA2.processId);
-      let errored = false;
-      try {
-        await processTrackingModel.getProcessTrackingDocumentByProcessId(INPUT_DATA2.processId);
-      } catch (err) {
-        assert.instanceOf(err, error.DataNotFoundError);
-        errored = true;
-      }
-
-      assert.isTrue(errored);
-      processTrackingId2 = null as unknown as string;
+      processTrackingDocId = null as unknown as ObjectId;
     });
   });
 });

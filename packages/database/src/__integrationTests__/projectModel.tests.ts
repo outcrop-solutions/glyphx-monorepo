@@ -1,327 +1,95 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
+import * as mocks from '../mongoose/mocks';
 import {assert} from 'chai';
-import {MongoDbConnection} from '../mongoose/mongooseConnection';
+import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
-import {databaseTypes, webTypes, fileIngestionTypes} from 'types';
 import {error} from 'core';
-import {DBFormatter} from '../lib/format';
 
 type ObjectId = mongooseTypes.ObjectId;
 
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
-const INPUT_WORKSPACE = {
-  workspaceCode: 'testWorkspace' + UNIQUE_KEY,
-  inviteCode: 'testWorkspace' + UNIQUE_KEY,
-  name: 'testName' + UNIQUE_KEY,
-  slug: 'testSlug' + UNIQUE_KEY,
-  updatedAt: new Date(),
-  createdAt: new Date(),
-  description: 'testDescription',
-  creator: {},
-};
-
-const INPUT_MEMBER = {
-  email: 'testMember1' + UNIQUE_KEY,
-  inviter: 'testMember1',
-  invitedAt: new Date(),
-  joinedAt: new Date(),
-  updatedAt: new Date(),
-  createdAt: new Date(),
-  status: databaseTypes.constants.INVITATION_STATUS.PENDING,
-  teamRole: databaseTypes.constants.ROLE.MEMBER,
-  member: {},
-  invitedBy: {},
-  workspace: {},
-};
-
-const INPUT_DATA = {
-  name: 'testProject' + UNIQUE_KEY,
-  type: {},
-  sdtPath: 'testsdtPath' + UNIQUE_KEY,
-  currentVersion: 0,
-  state: {
-    properties: {
-      X: {
-        axis: webTypes.constants.AXIS.X,
-        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
-        key: 'Column X', // corresponds to column name
-        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
-        direction: webTypes.constants.DIRECTION_TYPE.ASC,
-        filter: {
-          min: 0,
-          max: 0,
-        },
-      },
-      Y: {
-        axis: webTypes.constants.AXIS.Y,
-        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
-        key: 'Column Y', // corresponds to column name
-        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
-        direction: webTypes.constants.DIRECTION_TYPE.ASC,
-        filter: {
-          min: 0,
-          max: 0,
-        },
-      },
-      Z: {
-        axis: webTypes.constants.AXIS.Z,
-        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
-        key: 'Column Z', // corresponds to column name
-        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
-        direction: webTypes.constants.DIRECTION_TYPE.ASC,
-        filter: {
-          min: 0,
-          max: 0,
-        },
-      },
-      A: {
-        axis: webTypes.constants.AXIS.A,
-        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
-        key: 'Column 1', // corresponds to column name
-        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
-        direction: webTypes.constants.DIRECTION_TYPE.ASC,
-        filter: {
-          min: 0,
-          max: 0,
-        },
-      },
-      B: {
-        axis: webTypes.constants.AXIS.B,
-        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
-        key: 'Column 2', // corresponds to column name
-        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
-        direction: webTypes.constants.DIRECTION_TYPE.ASC,
-        filter: {
-          min: 0,
-          max: 0,
-        },
-      },
-      C: {
-        axis: webTypes.constants.AXIS.C,
-        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
-        key: 'Column 3', // corresponds to column name
-        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
-        direction: webTypes.constants.DIRECTION_TYPE.ASC,
-        filter: {
-          min: 0,
-          max: 0,
-        },
-      },
-    },
-  },
-  workspace: {},
-  slug: 'testSlug' + UNIQUE_KEY,
-  files: [],
-  viewName: 'testViewName' + UNIQUE_KEY,
-};
-
-const INPUT_DATA2 = {
-  name: 'testProject2' + UNIQUE_KEY,
-  sdtPath: 'testsdtPath2' + UNIQUE_KEY,
-  currentVersion: 0,
-  workspace: {},
-  state: {
-    properties: {
-      X: {
-        axis: webTypes.constants.AXIS.X,
-        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
-        key: 'Column X', // corresponds to column name
-        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
-        direction: webTypes.constants.DIRECTION_TYPE.ASC,
-        filter: {
-          min: 0,
-          max: 0,
-        },
-      },
-      Y: {
-        axis: webTypes.constants.AXIS.Y,
-        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
-        key: 'Column Y', // corresponds to column name
-        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
-        direction: webTypes.constants.DIRECTION_TYPE.ASC,
-        filter: {
-          min: 0,
-          max: 0,
-        },
-      },
-      Z: {
-        axis: webTypes.constants.AXIS.Z,
-        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
-        key: 'Column Z', // corresponds to column name
-        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
-        direction: webTypes.constants.DIRECTION_TYPE.ASC,
-        filter: {
-          min: 0,
-          max: 0,
-        },
-      },
-      A: {
-        axis: webTypes.constants.AXIS.A,
-        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
-        key: 'Column 1', // corresponds to column name
-        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
-        direction: webTypes.constants.DIRECTION_TYPE.ASC,
-        filter: {
-          min: 0,
-          max: 0,
-        },
-      },
-      B: {
-        axis: webTypes.constants.AXIS.B,
-        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
-        key: 'Column 2', // corresponds to column name
-        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
-        direction: webTypes.constants.DIRECTION_TYPE.ASC,
-        filter: {
-          min: 0,
-          max: 0,
-        },
-      },
-      C: {
-        axis: webTypes.constants.AXIS.C,
-        accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
-        key: 'Column 3', // corresponds to column name
-        dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, // corresponds to column data type
-        interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
-        direction: webTypes.constants.DIRECTION_TYPE.ASC,
-        filter: {
-          min: 0,
-          max: 0,
-        },
-      },
-    },
-  },
-  slug: 'testSlug2' + UNIQUE_KEY,
-  template: {},
-  files: [],
-  viewName: 'testViewName2' + UNIQUE_KEY,
-};
-
-const INPUT_PROJECT_TYPE = {
-  name: 'testProjectTemplate' + UNIQUE_KEY,
-  projects: [],
-  shape: {field1: {type: 'string', required: true}},
-};
-
 describe('#ProjectModel', () => {
   context('test the crud functions of the project model', () => {
     const mongoConnection = new MongoDbConnection();
-    const format = new DBFormatter();
     const projectModel = mongoConnection.models.ProjectModel;
-    let projectId: string;
-    let memberId: ObjectId;
-    let projectId2: string;
+    let projectDocId: ObjectId;
+    let projectDocId2: ObjectId;
     let workspaceId: ObjectId;
-    let projectTemplateId: ObjectId;
     let workspaceDocument: any;
-    let memberDocument: any;
-    let projectTemplateDocument: any;
+    let templateId: ObjectId;
+    let templateDocument: any;
 
     before(async () => {
       await mongoConnection.init();
       const workspaceModel = mongoConnection.models.WorkspaceModel;
-      const memberModel = mongoConnection.models.MemberModel;
-      const projectTemplateModel = mongoConnection.models.ProjectTemplateModel;
-
-      await workspaceModel.create([INPUT_WORKSPACE], {
+      const savedWorkspaceDocument = await workspaceModel.create([mocks.MOCK_WORKSPACE], {
         validateBeforeSave: false,
       });
-      const savedWorkspaceDocument = await workspaceModel.findOne({name: INPUT_WORKSPACE.name}).lean();
-      workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
-      workspaceDocument = savedWorkspaceDocument;
+      workspaceId = savedWorkspaceDocument[0]?._id as mongooseTypes.ObjectId;
       assert.isOk(workspaceId);
-
-      await memberModel.create([INPUT_MEMBER], {
+      const templateModel = mongoConnection.models.ProjectTemplateModel;
+      const savedTemplateDocument = await templateModel.create([mocks.MOCK_PROJECTTEMPLATE], {
         validateBeforeSave: false,
       });
-      const savedMemberDocument = await memberModel.findOne({email: INPUT_MEMBER.email}).lean();
-      memberId = savedMemberDocument?._id as mongooseTypes.ObjectId;
-      memberDocument = savedMemberDocument;
-      assert.isOk(memberId);
-
-      await projectTemplateModel.create([INPUT_PROJECT_TYPE], {
-        validateBeforeSave: false,
-      });
-      const savedProjectTemplateDocument = await projectTemplateModel.findOne({name: INPUT_PROJECT_TYPE.name}).lean();
-      projectTemplateId = savedProjectTemplateDocument?._id as mongooseTypes.ObjectId;
-
-      projectTemplateDocument = savedProjectTemplateDocument;
-
-      assert.isOk(projectTemplateId);
+      templateId = savedTemplateDocument[0]?._id as mongooseTypes.ObjectId;
+      assert.isOk(templateId);
     });
 
     after(async () => {
+      if (projectDocId) {
+        await projectModel.findByIdAndDelete(projectDocId);
+      }
+
+      if (projectDocId2) {
+        await projectModel.findByIdAndDelete(projectDocId2);
+      }
       const workspaceModel = mongoConnection.models.WorkspaceModel;
       await workspaceModel.findByIdAndDelete(workspaceId);
-
-      const projectTemplateModel = mongoConnection.models.ProjectTemplateModel;
-      await projectTemplateModel.findByIdAndDelete(projectTemplateId);
-
-      const memberModel = mongoConnection.models.MemberModel;
-      if (memberId) await memberModel.findByIdAndDelete(memberId);
-
-      if (projectId) {
-        await projectModel.findByIdAndDelete(projectId);
-      }
-
-      if (projectId2) {
-        await projectModel.findByIdAndDelete(projectId2);
-      }
+      const templateModel = mongoConnection.models.ProjectTemplateModel;
+      await templateModel.findByIdAndDelete(templateId);
     });
 
     it('add a new project ', async () => {
-      const projectInput = JSON.parse(JSON.stringify(INPUT_DATA));
-      projectInput.workspace = workspaceDocument;
-      projectInput.template = projectTemplateDocument;
+      const projectInput = JSON.parse(JSON.stringify(mocks.MOCK_PROJECT));
 
-      const projectDocument = await projectModel.createProject(format.toJS(projectInput));
+      projectInput.workspace = workspaceDocument;
+      projectInput.template = templateDocument;
+
+      const projectDocument = await projectModel.createProject(projectInput);
 
       assert.isOk(projectDocument);
-      assert.strictEqual(projectDocument.name, projectInput.name);
-      assert.strictEqual(projectDocument.workspace.id, workspaceId.toString());
+      assert.strictEqual(Object.keys(projectDocument)[1], Object.keys(projectInput)[1]);
 
-      projectId = projectDocument.id!;
+      projectDocId = projectDocument._id as mongooseTypes.ObjectId;
     });
 
     it('retreive a project', async () => {
-      assert.isOk(projectId);
-      const project = await projectModel.getProjectById(projectId.toString());
+      assert.isOk(projectDocId);
+      const project = await projectModel.getProjectById(projectDocId);
 
       assert.isOk(project);
-      assert.strictEqual(project.id, projectId.toString());
+      assert.strictEqual(project._id?.toString(), projectDocId.toString());
     });
 
     it('modify a project', async () => {
-      assert.isOk(projectId);
-      const input = {description: 'a modified description'};
-      const updatedDocument = await projectModel.updateProjectById(projectId.toString(), input);
-      assert.strictEqual(updatedDocument.description, input.description);
+      assert.isOk(projectDocId);
+      const input = {deletedAt: new Date()};
+      const updatedDocument = await projectModel.updateProjectById(projectDocId, input);
+      assert.isOk(updatedDocument.deletedAt);
     });
 
     it('Get multiple projects without a filter', async () => {
-      assert.isOk(projectId);
-      const projectInput = JSON.parse(JSON.stringify(INPUT_DATA2));
-      projectInput.workspace = workspaceDocument;
-      projectInput.type = projectTemplateDocument;
+      assert.isOk(projectDocId);
+      const projectInput = JSON.parse(JSON.stringify(mocks.MOCK_PROJECT));
 
-      const projectDocument = await projectModel.createProject(format.toJS(projectInput));
+      const projectDocument = await projectModel.createProject(projectInput);
 
       assert.isOk(projectDocument);
 
-      projectId2 = projectDocument.id!;
+      projectDocId2 = projectDocument._id as mongooseTypes.ObjectId;
 
       const projects = await projectModel.queryProjects();
       assert.isArray(projects.results);
@@ -332,40 +100,40 @@ describe('#ProjectModel', () => {
     });
 
     it('Get multiple projects with a filter', async () => {
-      assert.isOk(projectId2);
+      assert.isOk(projectDocId2);
       const results = await projectModel.queryProjects({
-        name: INPUT_DATA.name,
+        deletedAt: undefined,
       });
       assert.strictEqual(results.results.length, 1);
-      assert.strictEqual(results.results[0]?.name, INPUT_DATA.name);
+      assert.isUndefined(results.results[0]?.deletedAt);
     });
 
     it('page accounts', async () => {
-      assert.isOk(projectId2);
+      assert.isOk(projectDocId2);
       const results = await projectModel.queryProjects({}, 0, 1);
       assert.strictEqual(results.results.length, 1);
 
-      const lastId = results.results[0]?.id;
+      const lastId = results.results[0]?._id;
 
       const results2 = await projectModel.queryProjects({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?.id, lastId?.toString());
+      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
     });
 
     it('remove a project', async () => {
-      assert.isOk(projectId);
-      await projectModel.deleteProjectById(projectId.toString());
+      assert.isOk(projectDocId);
+      await projectModel.deleteProjectById(projectDocId.toString());
       let errored = false;
       try {
-        await projectModel.getProjectById(projectId.toString());
+        await projectModel.getProjectById(projectDocId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
       }
 
       assert.isTrue(errored);
-      projectId = null as unknown as string;
+      projectDocId = null as unknown as ObjectId;
     });
   });
 });

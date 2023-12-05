@@ -1,21 +1,57 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
 import {IQueryResult, databaseTypes} from 'types';
-import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
-import {ISessionMethods, ISessionStaticMethods, ISessionDocument, ISessionCreateInput} from '../interfaces';
-import {error} from 'core';
-import {UserModel} from './user';
 import {DBFormatter} from '../../lib/format';
+import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
+import {error} from 'core';
+import {ISessionDocument, ISessionCreateInput, ISessionStaticMethods, ISessionMethods} from '../interfaces';
+import {UserModel} from './user';
 
 const SCHEMA = new Schema<ISessionDocument, ISessionStaticMethods, ISessionMethods>({
-  sessionToken: {type: String, required: true},
-  expires: {
+  createdAt: {
     type: Date,
     required: true,
     default:
       //istanbul ignore next
       () => new Date(),
   },
-  userId: {type: String, required: false},
-  user: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
+  updatedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  deletedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  id: {
+    type: String,
+    required: false,
+  },
+  userId: {
+    type: String,
+    required: false,
+  },
+  sessionToken: {
+    type: String,
+    required: true,
+  },
+  expires: {
+    type: Date,
+    required: false,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  user: {
+    type: Schema.Types.ObjectId,
+    required: false,
+    ref: 'user',
+  },
 });
 
 SCHEMA.static('sessionIdExists', async (sessionId: mongooseTypes.ObjectId): Promise<boolean> => {
@@ -66,6 +102,92 @@ SCHEMA.static('allSessionIdsExist', async (sessionIds: mongooseTypes.ObjectId[])
   return true;
 });
 
+SCHEMA.static('validateUpdateObject', async (session: Omit<Partial<databaseTypes.ISession>, '_id'>): Promise<void> => {
+  const idValidator = async (
+    id: mongooseTypes.ObjectId,
+    objectType: string,
+    validator: (id: mongooseTypes.ObjectId) => Promise<boolean>
+  ) => {
+    const result = await validator(id);
+    if (!result) {
+      throw new error.InvalidOperationError(
+        `A ${objectType} with an id: ${id} cannot be found.  You cannot update a session with an invalid ${objectType} id`,
+        {objectType: objectType, id: id}
+      );
+    }
+  };
+
+  const tasks: Promise<void>[] = [];
+
+  if (session.user) tasks.push(idValidator(session.user._id as mongooseTypes.ObjectId, 'User', UserModel.userIdExists));
+
+  if (tasks.length) await Promise.all(tasks); //will throw an exception if anything fails.
+
+  if (session.createdAt)
+    throw new error.InvalidOperationError('The createdAt date is set internally and cannot be altered externally', {
+      createdAt: session.createdAt,
+    });
+  if (session.updatedAt)
+    throw new error.InvalidOperationError('The updatedAt date is set internally and cannot be altered externally', {
+      updatedAt: session.updatedAt,
+    });
+  if ((session as Record<string, unknown>)['_id'])
+    throw new error.InvalidOperationError('The session._id is immutable and cannot be changed', {
+      _id: (session as Record<string, unknown>)['_id'],
+    });
+});
+
+// CREATE
+SCHEMA.static('createSession', async (input: ISessionCreateInput): Promise<databaseTypes.ISession> => {
+  let id: undefined | mongooseTypes.ObjectId = undefined;
+
+  try {
+    const [user] = await Promise.all([SESSION_MODEL.validateUser(input.user)]);
+
+    const createDate = new Date();
+
+    //istanbul ignore next
+    const resolvedInput: ISessionDocument = {
+      createdAt: createDate,
+      updatedAt: createDate,
+      id: input.id,
+      userId: input.userId,
+      sessionToken: input.sessionToken,
+      expires: input.expires,
+      user: user,
+    };
+    try {
+      await SESSION_MODEL.validate(resolvedInput);
+    } catch (err) {
+      throw new error.DataValidationError(
+        'An error occurred while validating the document before creating it.  See the inner error for additional information',
+        'ISessionDocument',
+        resolvedInput,
+        err
+      );
+    }
+    const sessionDocument = (await SESSION_MODEL.create([resolvedInput], {validateBeforeSave: false}))[0];
+    id = sessionDocument._id;
+  } catch (err) {
+    if (err instanceof error.DataValidationError) throw err;
+    else {
+      throw new error.DatabaseOperationError(
+        'An Unexpected Error occurred while adding the session.  See the inner error for additional details',
+        'mongoDb',
+        'addSession',
+        {},
+        err
+      );
+    }
+  }
+  if (id) return await SESSION_MODEL.getSessionById(id.toString());
+  else
+    throw new error.UnexpectedError(
+      'An unexpected error has occurred and the session may not have been created.  I have no other information to provide.'
+    );
+});
+
+// READ
 SCHEMA.static('getSessionById', async (sessionId: string) => {
   try {
     const sessionDocument = (await SESSION_MODEL.findById(sessionId).populate('user').lean()) as databaseTypes.ISession;
@@ -78,7 +200,7 @@ SCHEMA.static('getSessionById', async (sessionId: string) => {
     if (err instanceof error.DataNotFoundError) throw err;
     else
       throw new error.DatabaseOperationError(
-        'An unexpected error occurred while getting the session.  See the inner error for additional information',
+        'An unexpected error occurred while getting the project.  See the inner error for additional information',
         'mongoDb',
         'getSessionById',
         err
@@ -104,6 +226,7 @@ SCHEMA.static('querySessions', async (filter: Record<string, unknown> = {}, page
         page
       );
     }
+
     const sessionDocuments = (await SESSION_MODEL.find(filter, null, {
       skip: skip,
       limit: itemsPerPage,
@@ -112,7 +235,7 @@ SCHEMA.static('querySessions', async (filter: Record<string, unknown> = {}, page
       .lean()) as databaseTypes.ISession[];
 
     const format = new DBFormatter();
-    const sessions = sessionDocuments.map((doc: any) => {
+    const sessions = sessionDocuments?.map((doc: any) => {
       return format.toJS(doc);
     });
 
@@ -136,90 +259,36 @@ SCHEMA.static('querySessions', async (filter: Record<string, unknown> = {}, page
   }
 });
 
-SCHEMA.static('createSession', async (input: ISessionCreateInput): Promise<databaseTypes.ISession> => {
-  const userId =
-    typeof input.user === 'string' ? new mongooseTypes.ObjectId(input.user) : new mongooseTypes.ObjectId(input.user.id);
-  const userExists = await UserModel.userIdExists(userId);
-  if (!userExists)
-    throw new error.InvalidArgumentError(`A user with _id : ${userId} cannot be found`, 'user._id', input.user);
-
-  const transformedDocument: ISessionDocument = {
-    sessionToken: input.sessionToken,
-    expires: input.expires,
-    user: userId,
-  };
-
-  try {
-    await SESSION_MODEL.validate(transformedDocument);
-  } catch (err) {
-    throw new error.DataValidationError(
-      'An error occurred while validating the session document.  See the inner error for additional details.',
-      'session',
-      transformedDocument,
-      err
-    );
-  }
-
-  try {
-    const createdDocument = (
-      await SESSION_MODEL.create([transformedDocument], {
-        validateBeforeSave: false,
-      })
-    )[0];
-    return await SESSION_MODEL.getSessionById(createdDocument._id.toString());
-  } catch (err) {
-    throw new error.DatabaseOperationError(
-      'An unexpected error occurred wile creating the session. See the inner error for additional information',
-      'mongoDb',
-      'create session',
-      input,
-      err
-    );
-  }
-});
-
-SCHEMA.static('validateUpdateObject', async (session: Omit<Partial<databaseTypes.ISession>, '_id'>): Promise<void> => {
-  if (session.user?._id && !(await UserModel.userIdExists(session.user?._id)))
-    throw new error.InvalidOperationError(`A User with the _id: ${session.user._id} cannot be found`, {
-      userId: session.user._id,
-    });
-
-  if ((session as unknown as databaseTypes.ISession)._id)
-    throw new error.InvalidOperationError("A Session's _id is imutable and cannot be changed", {
-      _id: (session as unknown as databaseTypes.ISession)._id,
-    });
-});
-
+// UPDATE
 SCHEMA.static(
   'updateSessionWithFilter',
-  async (filter: Record<string, unknown>, session: Omit<Partial<databaseTypes.ISession>, '_id'>): Promise<boolean> => {
-    await SESSION_MODEL.validateUpdateObject(session);
+  async (filter: Record<string, unknown>, session: Omit<Partial<databaseTypes.ISession>, '_id'>): Promise<void> => {
     try {
-      const transformedSession: Partial<ISessionDocument> & Record<string, any> = {};
+      await SESSION_MODEL.validateUpdateObject(session);
+      const updateDate = new Date();
+      const transformedObject: Partial<ISessionDocument> & Record<string, unknown> = {updatedAt: updateDate};
       for (const key in session) {
         const value = (session as Record<string, any>)[key];
-        if (key !== 'user') transformedSession[key] = value;
-        else {
-          //we only store the user id in our account collection
-          transformedSession[key] = value._id;
-        }
+        if (key === 'user')
+          transformedObject.user =
+            value instanceof mongooseTypes.ObjectId ? value : (value._id as mongooseTypes.ObjectId);
+        else transformedObject[key] = value;
       }
-      const updateResult = await SESSION_MODEL.updateOne(filter, transformedSession);
+      const updateResult = await SESSION_MODEL.updateOne(filter, transformedObject);
       if (updateResult.modifiedCount !== 1) {
-        throw new error.InvalidArgumentError(`No session document with filter: ${filter} was found`, 'filter', filter);
+        throw new error.InvalidArgumentError('No session document with filter: ${filter} was found', 'filter', filter);
       }
     } catch (err) {
       if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) throw err;
       else
         throw new error.DatabaseOperationError(
-          `An unexpected error occurred while updating the session with filter :${filter}.  See the inner error for additional information`,
+          `An unexpected error occurred while updating the project with filter :${filter}.  See the inner error for additional information`,
           'mongoDb',
           'update session',
           {filter: filter, session: session},
           err
         );
     }
-    return true;
   }
 );
 
@@ -227,17 +296,17 @@ SCHEMA.static(
   'updateSessionById',
   async (sessionId: string, session: Omit<Partial<databaseTypes.ISession>, '_id'>): Promise<databaseTypes.ISession> => {
     await SESSION_MODEL.updateSessionWithFilter({_id: sessionId}, session);
-    const retval = await SESSION_MODEL.getSessionById(sessionId);
-    return retval;
+    return await SESSION_MODEL.getSessionById(sessionId);
   }
 );
 
+// DELETE
 SCHEMA.static('deleteSessionById', async (sessionId: string): Promise<void> => {
   try {
     const results = await SESSION_MODEL.deleteOne({_id: sessionId});
     if (results.deletedCount !== 1)
       throw new error.InvalidArgumentError(
-        `An session with a _id: ${sessionId} was not found in the database`,
+        `A session with a _id: ${sessionId} was not found in the database`,
         '_id',
         sessionId
       );
@@ -252,6 +321,84 @@ SCHEMA.static('deleteSessionById', async (sessionId: string): Promise<void> => {
         err
       );
   }
+});
+
+SCHEMA.static(
+  'addUser',
+  async (sessionId: string, user: databaseTypes.IUser | string): Promise<databaseTypes.ISession> => {
+    try {
+      if (!user) throw new error.InvalidArgumentError('You must supply at least one id', 'user', user);
+      const sessionDocument = await SESSION_MODEL.findById(sessionId);
+
+      if (!sessionDocument)
+        throw new error.DataNotFoundError('A sessionDocument with _id cannot be found', 'session._id', sessionId);
+
+      const reconciledId = await SESSION_MODEL.validateUser(user);
+
+      if (sessionDocument.user?.toString() !== reconciledId.toString()) {
+        const reconciledId = await SESSION_MODEL.validateUser(user);
+
+        // @ts-ignore
+        sessionDocument.user = reconciledId;
+        await sessionDocument.save();
+      }
+
+      return await SESSION_MODEL.getSessionById(sessionId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the user. See the inner error for additional information',
+          'mongoDb',
+          'session.addUser',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static('removeUser', async (sessionId: string): Promise<databaseTypes.ISession> => {
+  try {
+    const sessionDocument = await SESSION_MODEL.findById(sessionId);
+    if (!sessionDocument)
+      throw new error.DataNotFoundError('A sessionDocument with _id cannot be found', 'session._id', sessionId);
+
+    // @ts-ignore
+    sessionDocument.user = undefined;
+    await sessionDocument.save();
+
+    return await SESSION_MODEL.getSessionById(sessionId);
+  } catch (err) {
+    if (
+      err instanceof error.DataNotFoundError ||
+      err instanceof error.DataValidationError ||
+      err instanceof error.InvalidArgumentError
+    )
+      throw err;
+    else {
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while removing the user. See the inner error for additional information',
+        'mongoDb',
+        'session.removeUser',
+        err
+      );
+    }
+  }
+});
+
+SCHEMA.static('validateUser', async (input: databaseTypes.IUser | string): Promise<mongooseTypes.ObjectId> => {
+  const userId = typeof input === 'string' ? new mongooseTypes.ObjectId(input) : new mongooseTypes.ObjectId(input.id);
+
+  if (!(await UserModel.userIdExists(userId))) {
+    throw new error.InvalidArgumentError(`The user: ${userId} does not exist`, 'userId', userId);
+  }
+  return userId;
 });
 
 // define the object that holds Mongoose models

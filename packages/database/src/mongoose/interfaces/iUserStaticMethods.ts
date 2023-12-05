@@ -1,3 +1,4 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
 import {Types as mongooseTypes, Model} from 'mongoose';
 import {IQueryResult, databaseTypes} from 'types';
 import {IUserMethods} from './iUserMethods';
@@ -13,30 +14,47 @@ export interface IUserStaticMethods extends Model<databaseTypes.IUser, {}, IUser
     page?: number,
     itemsPerPage?: number
   ): Promise<IQueryResult<databaseTypes.IUser>>;
-  updateUserById(id: string, user: Partial<databaseTypes.IUser>): Promise<databaseTypes.IUser>;
-  deleteUserById(id: string): Promise<void>;
   updateUserWithFilter(
     filter: Record<string, unknown>,
-    user: Partial<databaseTypes.IUser>
+    user: Omit<Partial<databaseTypes.IUser>, '_id'>
   ): Promise<databaseTypes.IUser>;
-  validateAccounts(accounts: (databaseTypes.IAccount | string)[]): Promise<mongooseTypes.ObjectId[]>;
-  validateSessions(sessions: (databaseTypes.ISession | string)[]): Promise<mongooseTypes.ObjectId[]>;
-  validateWebhooks(webhooks: (databaseTypes.IWebhook | string)[]): Promise<mongooseTypes.ObjectId[]>;
-  validateMembership(members: (databaseTypes.IMember | string)[]): Promise<mongooseTypes.ObjectId[]>;
-  validateWorkspaces(workspaces: (databaseTypes.IWorkspace | string)[]): Promise<mongooseTypes.ObjectId[]>;
-  validateProjects(projects: (databaseTypes.IProject | string)[]): Promise<mongooseTypes.ObjectId[]>;
-  validateCustomerPayment(payment?: databaseTypes.ICustomerPayment | string): Promise<mongooseTypes.ObjectId>;
-  validateUpdateObject(input: Omit<Partial<databaseTypes.IUser>, '_id'>): Promise<boolean>;
-  addProjects(userId: string, projects: (databaseTypes.IProject | string)[]): Promise<databaseTypes.IUser>;
-  removeProjects(userId: string, accounts: (databaseTypes.IProject | string)[]): Promise<databaseTypes.IUser>;
+  updateUserById(userId: string, user: Omit<Partial<databaseTypes.IUser>, '_id'>): Promise<databaseTypes.IUser>;
+  deleteUserById(userId: string): Promise<void>;
+  validateUpdateObject(user: Omit<Partial<databaseTypes.IUser>, '_id'>): Promise<void>;
   addAccounts(userId: string, accounts: (databaseTypes.IAccount | string)[]): Promise<databaseTypes.IUser>;
   removeAccounts(userId: string, accounts: (databaseTypes.IAccount | string)[]): Promise<databaseTypes.IUser>;
+  validateAccounts(accounts: (databaseTypes.IAccount | string)[]): Promise<mongooseTypes.ObjectId[]>;
   addSessions(userId: string, sessions: (databaseTypes.ISession | string)[]): Promise<databaseTypes.IUser>;
   removeSessions(userId: string, sessions: (databaseTypes.ISession | string)[]): Promise<databaseTypes.IUser>;
+  validateSessions(sessions: (databaseTypes.ISession | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  addMemberships(userId: string, memberships: (databaseTypes.IMember | string)[]): Promise<databaseTypes.IUser>;
+  removeMemberships(userId: string, members: (databaseTypes.IMember | string)[]): Promise<databaseTypes.IUser>;
+  validateMemberships(members: (databaseTypes.IMember | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  addInvitedMembers(userId: string, invitedMembers: (databaseTypes.IMember | string)[]): Promise<databaseTypes.IUser>;
+  removeInvitedMembers(userId: string, members: (databaseTypes.IMember | string)[]): Promise<databaseTypes.IUser>;
+  validateInvitedMembers(members: (databaseTypes.IMember | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  addCreatedWorkspaces(
+    userId: string,
+    createdWorkspaces: (databaseTypes.IWorkspace | string)[]
+  ): Promise<databaseTypes.IUser>;
+  removeCreatedWorkspaces(
+    userId: string,
+    workspaces: (databaseTypes.IWorkspace | string)[]
+  ): Promise<databaseTypes.IUser>;
+  validateCreatedWorkspaces(workspaces: (databaseTypes.IWorkspace | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  addProjects(userId: string, projects: (databaseTypes.IProject | string)[]): Promise<databaseTypes.IUser>;
+  removeProjects(userId: string, projects: (databaseTypes.IProject | string)[]): Promise<databaseTypes.IUser>;
+  validateProjects(projects: (databaseTypes.IProject | string)[]): Promise<mongooseTypes.ObjectId[]>;
+  addCustomerPayment(
+    userId: string,
+    customerPayment: databaseTypes.ICustomerPayment | string
+  ): Promise<databaseTypes.IUser>;
+  removeCustomerPayment(
+    userId: string,
+    customerPayment: databaseTypes.ICustomerPayment | string
+  ): Promise<databaseTypes.IUser>;
+  validateCustomerPayment(customerPayment: databaseTypes.ICustomerPayment | string): Promise<mongooseTypes.ObjectId>;
   addWebhooks(userId: string, webhooks: (databaseTypes.IWebhook | string)[]): Promise<databaseTypes.IUser>;
   removeWebhooks(userId: string, webhooks: (databaseTypes.IWebhook | string)[]): Promise<databaseTypes.IUser>;
-  addMembership(userId: string, members: (databaseTypes.IMember | string)[]): Promise<databaseTypes.IUser>;
-  removeMembership(userId: string, members: (databaseTypes.IMember | string)[]): Promise<databaseTypes.IUser>;
-  addWorkspaces(userId: string, workspaces: (databaseTypes.IWorkspace | string)[]): Promise<databaseTypes.IUser>;
-  removeWorkspaces(userId: string, workspaces: (databaseTypes.IWorkspace | string)[]): Promise<databaseTypes.IUser>;
+  validateWebhooks(webhooks: (databaseTypes.IWebhook | string)[]): Promise<mongooseTypes.ObjectId[]>;
 }

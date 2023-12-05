@@ -1,13 +1,7 @@
-//istanbul ignore file
-export {fileStatsSchema} from './fileStats';
-export {columnStatsSchema} from './columnStats';
-export {projectTemplateShapeSchema} from './projectTemplateShape';
-export {embeddedStateSchema} from './embeddedState';
-export {filterSchema} from './filterSchema';
-export {propertySchema} from './propertySchema';
-export {cameraSchema} from './camera';
-export {userAgentSchema} from './userAgent';
-export {aspectSchema} from './aspect';
+// THIS CODE WAS AUTOMATICALLY GENERATED
+export * from './aspectRatioSchema';
+export * from './cameraSchema';
+export * from './cursorSchema';
 export * from './minColorSchema';
 export * from './maxColorSchema';
 export * from './backgroundColorSchema';

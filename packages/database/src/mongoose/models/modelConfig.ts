@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
-
-import {IQueryResult, databaseTypes, webTypes} from 'types';
+import {IQueryResult, databaseTypes} from 'types';
+import {DBFormatter} from '../../lib/format';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {error} from 'core';
 import {
@@ -10,15 +10,7 @@ import {
   IModelConfigMethods,
 } from '../interfaces';
 // eslint-disable-next-line import/no-duplicates
-import {
-  backgroundColorSchema,
-  minColorSchema,
-  maxColorSchema,
-  xAxisColorSchema,
-  yAxisColorSchema,
-  zAxisColorSchema,
-} from '../schemas';
-import {DBFormatter} from '../../lib/format';
+import {minColorSchema} from '../schemas';
 
 const SCHEMA = new Schema<IModelConfigDocument, IModelConfigStaticMethods, IModelConfigMethods>({
   createdAt: {
@@ -37,6 +29,13 @@ const SCHEMA = new Schema<IModelConfigDocument, IModelConfigStaticMethods, IMode
   },
   deletedAt: {
     type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  id: {
+    type: String,
     required: false,
   },
   name: {
@@ -47,12 +46,36 @@ const SCHEMA = new Schema<IModelConfigDocument, IModelConfigStaticMethods, IMode
     type: Boolean,
     required: true,
   },
-  min_color: minColorSchema,
-  max_color: maxColorSchema,
-  background_color: backgroundColorSchema,
-  x_axis_color: xAxisColorSchema,
-  y_axis_color: yAxisColorSchema,
-  z_axis_color: zAxisColorSchema,
+  min_color: {
+    type: minColorSchema,
+    required: false,
+    default: {},
+  },
+  max_color: {
+    type: maxColorSchema,
+    required: false,
+    default: {},
+  },
+  background_color: {
+    type: backgroundColorSchema,
+    required: false,
+    default: {},
+  },
+  x_axis_color: {
+    type: xAxisColorSchema,
+    required: false,
+    default: {},
+  },
+  y_axis_color: {
+    type: yAxisColorSchema,
+    required: false,
+    default: {},
+  },
+  z_axis_color: {
+    type: zAxisColorSchema,
+    required: false,
+    default: {},
+  },
   grid_cylinder_radius: {
     type: Number,
     required: true,
@@ -192,6 +215,7 @@ SCHEMA.static('createModelConfig', async (input: IModelConfigCreateInput): Promi
     const resolvedInput: IModelConfigDocument = {
       createdAt: createDate,
       updatedAt: createDate,
+      id: input.id,
       name: input.name,
       current: input.current,
       min_color: input.min_color,
@@ -221,11 +245,7 @@ SCHEMA.static('createModelConfig', async (input: IModelConfigCreateInput): Promi
         err
       );
     }
-    const modelConfigDocument = (
-      await MODELCONFIG_MODEL.create([resolvedInput], {
-        validateBeforeSave: false,
-      })
-    )[0];
+    const modelConfigDocument = (await MODELCONFIG_MODEL.create([resolvedInput], {validateBeforeSave: false}))[0];
     id = modelConfigDocument._id;
   } catch (err) {
     if (err instanceof error.DataValidationError) throw err;
@@ -314,13 +334,12 @@ SCHEMA.static('queryModelConfigs', async (filter: Record<string, unknown> = {}, 
       .lean()) as databaseTypes.IModelConfig[];
 
     const format = new DBFormatter();
-
-    const configs = modelConfigDocuments.map((doc: any) => {
+    const modelConfigs = modelConfigDocuments?.map((doc: any) => {
       return format.toJS(doc);
     });
 
     const retval: IQueryResult<databaseTypes.IModelConfig> = {
-      results: configs as unknown as databaseTypes.IModelConfig[],
+      results: modelConfigs as unknown as databaseTypes.IModelConfig[],
       numberOfItems: count,
       page: page,
       itemsPerPage: itemsPerPage,
@@ -350,12 +369,6 @@ SCHEMA.static(
       await MODELCONFIG_MODEL.validateUpdateObject(modelConfig);
       const updateDate = new Date();
       const transformedObject: Partial<IModelConfigDocument> & Record<string, unknown> = {updatedAt: updateDate};
-
-      for (const key in modelConfig) {
-        const value = (modelConfig as Record<string, any>)[key];
-        transformedObject[key] = value;
-      }
-
       const updateResult = await MODELCONFIG_MODEL.updateOne(filter, transformedObject);
       if (updateResult.modifiedCount !== 1) {
         throw new error.InvalidArgumentError(

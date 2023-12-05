@@ -1,0 +1,2 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
+export interface IUserAgentMethods {}

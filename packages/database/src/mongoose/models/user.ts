@@ -1,25 +1,18 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
 import {IQueryResult, databaseTypes} from 'types';
+import {DBFormatter} from '../../lib/format';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
-import {IUserMethods, IUserStaticMethods, IUserDocument, IUserCreateInput} from '../interfaces';
 import {error} from 'core';
-import {ProjectModel} from './project';
+import {IUserDocument, IUserCreateInput, IUserStaticMethods, IUserMethods} from '../interfaces';
 import {AccountModel} from './account';
 import {SessionModel} from './session';
-import {WebhookModel} from './webhook';
 import {MemberModel} from './member';
 import {WorkspaceModel} from './workspace';
+import {ProjectModel} from './project';
 import {CustomerPaymentModel} from './customerPayment';
-import {DBFormatter} from '../../lib/format';
+import {WebhookModel} from './webhook';
 
 const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
-  userCode: {type: String, required: false},
-  name: {type: String, required: false},
-  username: {type: String, required: false},
-  gh_username: {type: String, required: false},
-  email: {type: String, required: true, unique: true},
-  emailVerified: {type: Date, required: false},
-  isVerified: {type: Boolean, required: true, default: false},
-  image: {type: String, required: false},
   createdAt: {
     type: Date,
     required: true,
@@ -34,24 +27,110 @@ const SCHEMA = new Schema<IUserDocument, IUserStaticMethods, IUserMethods>({
       //istanbul ignore next
       () => new Date(),
   },
-  deletedAt: {type: Date, required: false},
-  accounts: {type: [Schema.Types.ObjectId], ref: 'account', default: []},
-  sessions: {type: [Schema.Types.ObjectId], ref: 'session', default: []},
-  webhooks: {type: [Schema.Types.ObjectId], ref: 'webhook', default: []},
-  membership: {type: [Schema.Types.ObjectId], ref: 'member', default: []},
-  invitedMembers: {type: [Schema.Types.ObjectId], ref: 'member', default: []},
+  deletedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  id: {
+    type: String,
+    required: false,
+  },
+  userCode: {
+    type: String,
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+  username: {
+    type: String,
+    required: true,
+  },
+  gh_username: {
+    type: String,
+    required: false,
+  },
+  email: {
+    type: String,
+    required: true,
+  },
+  emailVerified: {
+    type: Date,
+    required: false,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  isVerified: {
+    type: Boolean,
+    required: true,
+  },
+  image: {
+    type: String,
+    required: false,
+  },
+  accounts: [
+    {
+      type: Schema.Types.ObjectId,
+      required: false,
+      ref: 'accounts',
+    },
+  ],
+  sessions: [
+    {
+      type: Schema.Types.ObjectId,
+      required: false,
+      ref: 'sessions',
+    },
+  ],
+  membership: [
+    {
+      type: Schema.Types.ObjectId,
+      required: false,
+      ref: 'membership',
+    },
+  ],
+  invitedMembers: [
+    {
+      type: Schema.Types.ObjectId,
+      required: false,
+      ref: 'invitedMembers',
+    },
+  ],
+  createdWorkspaces: [
+    {
+      type: Schema.Types.ObjectId,
+      required: false,
+      ref: 'createdWorkspaces',
+    },
+  ],
+  projects: [
+    {
+      type: Schema.Types.ObjectId,
+      required: false,
+      ref: 'projects',
+    },
+  ],
   customerPayment: {
     type: Schema.Types.ObjectId,
     required: false,
-    ref: 'customerPayment',
+    ref: 'customerpayment',
   },
-  createdWorkspaces: {
-    type: [Schema.Types.ObjectId],
-    default: [],
-    ref: 'workspace',
+  webhooks: [
+    {
+      type: Schema.Types.ObjectId,
+      required: false,
+      ref: 'webhooks',
+    },
+  ],
+  apiKey: {
+    type: String,
+    required: false,
   },
-  projects: {type: [Schema.Types.ObjectId], default: [], ref: 'project'},
-  apiKey: {type: String, required: false},
 });
 
 SCHEMA.static('userIdExists', async (userId: mongooseTypes.ObjectId): Promise<boolean> => {
@@ -69,63 +148,6 @@ SCHEMA.static('userIdExists', async (userId: mongooseTypes.ObjectId): Promise<bo
     );
   }
   return retval;
-});
-
-SCHEMA.static('queryUsers', async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
-  try {
-    const count = await USER_MODEL.count(filter);
-
-    if (!count) {
-      throw new error.DataNotFoundError(`Could not find users with the filter: ${filter}`, 'queryUsers', filter);
-    }
-
-    const skip = itemsPerPage * page;
-    if (skip > count) {
-      throw new error.InvalidArgumentError(
-        `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
-          count / itemsPerPage
-        )}`,
-        'page',
-        page
-      );
-    }
-    const userDocuments = (await USER_MODEL.find(filter, null, {
-      skip: skip,
-      limit: itemsPerPage,
-    })
-      .populate('accounts')
-      .populate('sessions')
-      .populate('membership')
-      .populate('invitedMembers')
-      .populate('createdWorkspaces')
-      .populate('projects')
-      .populate('customerPayment')
-      .populate('webhooks')
-      .lean()) as databaseTypes.IUser[];
-
-    const format = new DBFormatter();
-    const users = userDocuments?.map((doc: any) => {
-      return format.toJS(doc);
-    });
-
-    const retval: IQueryResult<databaseTypes.IUser> = {
-      results: users as unknown as databaseTypes.IUser[],
-      numberOfItems: count,
-      page: page,
-      itemsPerPage: itemsPerPage,
-    };
-
-    return retval;
-  } catch (err) {
-    if (err instanceof error.DataNotFoundError || err instanceof error.InvalidArgumentError) throw err;
-    else
-      throw new error.DatabaseOperationError(
-        'An unexpected error occurred while getting the users.  See the inner error for additional information',
-        'mongoDb',
-        'getUsers',
-        err
-      );
-  }
 });
 
 SCHEMA.static('allUserIdsExist', async (userIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
@@ -159,55 +181,34 @@ SCHEMA.static('allUserIdsExist', async (userIds: mongooseTypes.ObjectId[]): Prom
   return true;
 });
 
-SCHEMA.static('validateUpdateObject', async (user: Omit<Partial<databaseTypes.IUser>, '_id'>) => {
-  if (user.accounts?.length)
-    throw new error.InvalidOperationError(
-      'This method cannot be used to alter the users accounts.  Use the add/remove accounts functions to complete this operation',
-      {accounts: user.accounts}
+SCHEMA.static('validateUpdateObject', async (user: Omit<Partial<databaseTypes.IUser>, '_id'>): Promise<void> => {
+  const idValidator = async (
+    id: mongooseTypes.ObjectId,
+    objectType: string,
+    validator: (id: mongooseTypes.ObjectId) => Promise<boolean>
+  ) => {
+    const result = await validator(id);
+    if (!result) {
+      throw new error.InvalidOperationError(
+        `A ${objectType} with an id: ${id} cannot be found.  You cannot update a user with an invalid ${objectType} id`,
+        {objectType: objectType, id: id}
+      );
+    }
+  };
+
+  const tasks: Promise<void>[] = [];
+
+  if (user.customerPayment)
+    tasks.push(
+      idValidator(
+        user.customerPayment._id as mongooseTypes.ObjectId,
+        'CustomerPayment',
+        CustomerPaymentModel.customerPaymentIdExists
+      )
     );
 
-  if (user.sessions?.length)
-    throw new error.InvalidOperationError(
-      "This method cannot be used to alter the users' sessions.  Use the add/remove session functions to complete this operation",
-      {sessions: user.sessions}
-    );
+  if (tasks.length) await Promise.all(tasks); //will throw an exception if anything fails.
 
-  if (user.membership?.length)
-    throw new error.InvalidOperationError(
-      "This method cannot be used to alter the users' membership.  Use the add/remove session functions to complete this operation",
-      {sessions: user.sessions}
-    );
-
-  if (user.invitedMembers?.length)
-    throw new error.InvalidOperationError(
-      "This method cannot be used to alter the users' invites.  Use the add/remove invitedMember functions to complete this operation",
-      {sessions: user.sessions}
-    );
-
-  if (user.createdWorkspaces?.length)
-    throw new error.InvalidOperationError(
-      "This method cannot be used to alter the users' createdWorkspaces.  Use the add/remove workspace functions to complete this operation",
-      {workspaces: user.createdWorkspaces}
-    );
-
-  if (user.projects?.length)
-    throw new error.InvalidOperationError(
-      "This method cannot be used to alter the users' projects.  Use the add/remove project functions to complete this operation",
-      {projects: user.projects}
-    );
-
-  if (user.webhooks?.length)
-    throw new error.InvalidOperationError(
-      "This method cannot be used to alter the users' webhooks.  Use the add/remove webhook functions to complete this operation",
-      {webhooks: user.webhooks}
-    );
-  //this is one of the issues with TypeScript isn't it.  Even though we have set the type on
-  //the function parameter, we still can't be sure that someone through javascript won't
-  //sneak in something unexpected.  So we still need to test for those things
-  if ((user as unknown as databaseTypes.IUser)._id)
-    throw new error.InvalidOperationError("A User's _id is imutable and cannot be changed", {
-      _id: (user as unknown as databaseTypes.IUser)._id,
-    });
   if (user.createdAt)
     throw new error.InvalidOperationError('The createdAt date is set internally and cannot be altered externally', {
       createdAt: user.createdAt,
@@ -216,290 +217,36 @@ SCHEMA.static('validateUpdateObject', async (user: Omit<Partial<databaseTypes.IU
     throw new error.InvalidOperationError('The updatedAt date is set internally and cannot be altered externally', {
       updatedAt: user.updatedAt,
     });
-
-  if (user.customerPayment) {
-    try {
-      await USER_MODEL.validateCustomerPayment(user.customerPayment);
-    } catch (err) {
-      if (err instanceof error.DataValidationError) {
-        throw new error.InvalidOperationError(
-          'The customerPayment cannot be validated.  Are you sure that it exists in the database?',
-          {customerPayment: user.customerPayment},
-          err
-        );
-      } else throw err;
-    }
-  }
-  return true;
+  if ((user as Record<string, unknown>)['_id'])
+    throw new error.InvalidOperationError('The user._id is immutable and cannot be changed', {
+      _id: (user as Record<string, unknown>)['_id'],
+    });
 });
 
-//TODO: we need to set and validate the updateDate and make the createdDate immutable.
-SCHEMA.static(
-  'updateUserWithFilter',
-  async (filter: Record<string, unknown>, user: Omit<Partial<databaseTypes.IUser>, '_id'>): Promise<boolean> => {
-    try {
-      const updateDate = new Date();
-      await USER_MODEL.validateUpdateObject(user);
-      const transformedObject: Partial<IUserDocument> & Record<string, unknown> = {updatedAt: updateDate};
-      for (const key in user) {
-        const value = (user as Record<string, any>)[key];
-        if (key === 'customerPayment') {
-          transformedObject.customerPayment =
-            value instanceof mongooseTypes.ObjectId ? value : (value._id as mongooseTypes.ObjectId);
-        } else {
-          transformedObject[key] = value;
-        }
-      }
-      const updateResult = await USER_MODEL.updateOne(filter, transformedObject);
-      if (updateResult.modifiedCount !== 1) {
-        throw new error.InvalidArgumentError(`No user document with filter: ${filter} was found`, 'filter', filter);
-      }
-    } catch (err) {
-      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) throw err;
-      else
-        throw new error.DatabaseOperationError(
-          `An unexpected error occurred while updating the user with filter :${filter}.  See the inner error for additional information`,
-          'mongoDb',
-          'update user',
-          {filter: filter, user: user},
-          err
-        );
-    }
-
-    return true;
-  }
-);
-
-SCHEMA.static(
-  'updateUserById',
-  async (id: string, user: Partial<databaseTypes.IUser>): Promise<databaseTypes.IUser> => {
-    await USER_MODEL.updateUserWithFilter({_id: id}, user);
-    return await USER_MODEL.getUserById(id);
-  }
-);
-
-SCHEMA.static(
-  'validateAccounts',
-  async (accounts: (databaseTypes.IAccount | string)[]): Promise<mongooseTypes.ObjectId[]> => {
-    const accountIds: mongooseTypes.ObjectId[] = [];
-    accounts.forEach((p) => {
-      if (typeof p === 'string') accountIds.push(new mongooseTypes.ObjectId(p));
-      else accountIds.push(new mongooseTypes.ObjectId(p.id));
-    });
-    try {
-      await AccountModel.allAccountIdsExist(accountIds);
-    } catch (err) {
-      if (err instanceof error.DataNotFoundError)
-        throw new error.DataValidationError(
-          'One or more account ids do not exisit in the database.  See the inner error for additional information',
-          'accounts',
-          accounts,
-          err
-        );
-      else throw err;
-    }
-
-    return accountIds;
-  }
-);
-
-SCHEMA.static(
-  'validateSessions',
-  async (sessions: (databaseTypes.ISession | string)[]): Promise<mongooseTypes.ObjectId[]> => {
-    const sessionIds: mongooseTypes.ObjectId[] = [];
-    sessions.forEach((p) => {
-      if (typeof p === 'string') sessionIds.push(new mongooseTypes.ObjectId(p));
-      else sessionIds.push(new mongooseTypes.ObjectId(p.id));
-    });
-    try {
-      await SessionModel.allSessionIdsExist(sessionIds);
-    } catch (err) {
-      if (err instanceof error.DataNotFoundError)
-        throw new error.DataValidationError(
-          'One or more session ids do not exisit in the database.  See the inner error for additional information',
-          'session',
-          sessions,
-          err
-        );
-      else throw err;
-    }
-
-    return sessionIds;
-  }
-);
-
-SCHEMA.static(
-  'validateWebhooks',
-  async (webhooks: (databaseTypes.IWebhook | string)[]): Promise<mongooseTypes.ObjectId[]> => {
-    const webhookIds: mongooseTypes.ObjectId[] = [];
-    webhooks.forEach((p) => {
-      if (typeof p === 'string') webhookIds.push(new mongooseTypes.ObjectId(p));
-      else webhookIds.push(new mongooseTypes.ObjectId(p.id));
-    });
-    try {
-      await WebhookModel.allWebhookIdsExist(webhookIds);
-    } catch (err) {
-      if (err instanceof error.DataNotFoundError)
-        throw new error.DataValidationError(
-          'One or more webhook ids do not exisit in the database.  See the inner error for additional information',
-          'webhook',
-          webhooks,
-          err
-        );
-      else throw err;
-    }
-
-    return webhookIds;
-  }
-);
-
-SCHEMA.static(
-  'validateWorkspaces',
-  async (workspaces: (databaseTypes.IWorkspace | string)[]): Promise<mongooseTypes.ObjectId[]> => {
-    const workspaceIds: mongooseTypes.ObjectId[] = [];
-    workspaces.forEach((p) => {
-      if (typeof p === 'string') workspaceIds.push(new mongooseTypes.ObjectId(p));
-      else workspaceIds.push(new mongooseTypes.ObjectId(p.id));
-    });
-    try {
-      await WorkspaceModel.allWorkspaceIdsExist(workspaceIds);
-    } catch (err) {
-      if (err instanceof error.DataNotFoundError)
-        throw new error.DataValidationError(
-          'One or more workspace ids do not exisit in the database.  See the inner error for additional information',
-          'workspace',
-          workspaces,
-          err
-        );
-      else throw err;
-    }
-
-    return workspaceIds;
-  }
-);
-
-SCHEMA.static(
-  'validateMembership',
-  async (members: (databaseTypes.IMember | string)[]): Promise<mongooseTypes.ObjectId[]> => {
-    const memberIds: mongooseTypes.ObjectId[] = [];
-    members.forEach((p) => {
-      if (typeof p === 'string') memberIds.push(new mongooseTypes.ObjectId(p));
-      else memberIds.push(new mongooseTypes.ObjectId(p.id));
-    });
-    try {
-      await MemberModel.allMemberIdsExist(memberIds);
-    } catch (err) {
-      if (err instanceof error.DataNotFoundError)
-        throw new error.DataValidationError(
-          'One or more member ids do not exisit in the database.  See the inner error for additional information',
-          'member',
-          members,
-          err
-        );
-      else throw err;
-    }
-
-    return memberIds;
-  }
-);
-
-//give our user some flexibily to pass object ids instead of a full project.
-SCHEMA.static(
-  'validateProjects',
-  async (projects: (databaseTypes.IProject | string)[]): Promise<mongooseTypes.ObjectId[]> => {
-    const projectIds: mongooseTypes.ObjectId[] = [];
-    projects.forEach((p) => {
-      if (typeof p === 'string') projectIds.push(new mongooseTypes.ObjectId(p));
-      else projectIds.push(new mongooseTypes.ObjectId(p.id));
-    });
-    try {
-      await ProjectModel.allProjectIdsExist(projectIds);
-    } catch (err) {
-      if (err instanceof error.DataNotFoundError)
-        throw new error.DataValidationError(
-          'One or more project ids do not exisit in the database.  See the inner error for additional information',
-          'projects',
-          projects,
-          err
-        );
-      else throw err;
-    }
-
-    return projectIds;
-  }
-);
-
-SCHEMA.static(
-  'validateCustomerPayment',
-  async (payment: databaseTypes.ICustomerPayment | string): Promise<mongooseTypes.ObjectId> => {
-    if (payment) {
-      const paymentId =
-        typeof payment === 'string' ? new mongooseTypes.ObjectId(payment) : new mongooseTypes.ObjectId(payment.id);
-      const exists = await CustomerPaymentModel.customerPaymentIdExists(paymentId);
-      if (!exists) {
-        throw new error.DataValidationError(
-          'the customerPayment id does not exisit in the database.',
-          'customerPayment',
-          payment
-        );
-      }
-
-      return paymentId;
-    } else return null as unknown as mongooseTypes.ObjectId;
-  }
-);
-SCHEMA.static('getUserById', async (userId: string) => {
-  try {
-    const userDocument = await USER_MODEL.findById(userId)
-      .populate('accounts')
-      .populate('sessions')
-      .populate('membership')
-      .populate('invitedMembers')
-      .populate('createdWorkspaces')
-      .populate('customerPayment')
-      .populate('projects')
-      .populate('webhooks')
-      .lean();
-    if (!userDocument) {
-      throw new error.DataNotFoundError(`Could not find a user with the _id: ${userId}`, 'user_id', userId);
-    }
-    const format = new DBFormatter();
-    return format.toJS(userDocument);
-  } catch (err) {
-    if (err instanceof error.DataNotFoundError) throw err;
-    else
-      throw new error.DatabaseOperationError(
-        'An unexpected error occurred while getting the user.  See the inner error for additional information',
-        'mongoDb',
-        'getUserById',
-        err
-      );
-  }
-});
-
-SCHEMA.static('createUser', async (input: IUserCreateInput) => {
-  // const workspaces = Array.from(
-  //   //istanbul ignore next
-  //   input.createdWorkspaces ?? []
-  // ) as (databaseTypes.IWorkspace | mongooseTypes.ObjectId)[];
-  //istanbul ignore else
-  // if (input.createdWorkspaces) workspaces.unshift(input.createdWorkspaces);
+// CREATE
+SCHEMA.static('createUser', async (input: IUserCreateInput): Promise<databaseTypes.IUser> => {
   let id: undefined | mongooseTypes.ObjectId = undefined;
+
   try {
-    const [accounts, sessions, webhooks, membership, invitedMembers, createdWorkspaces, projects, customerPaymentId] =
+    const [accounts, sessions, membership, invitedMembers, createdWorkspaces, projects, customerPayment, webhooks] =
       await Promise.all([
         USER_MODEL.validateAccounts(input.accounts ?? []),
         USER_MODEL.validateSessions(input.sessions ?? []),
-        USER_MODEL.validateWebhooks(input.webhooks ?? []),
-        USER_MODEL.validateMembership(input.membership ?? []),
-        USER_MODEL.validateMembership(input.invitedMembers ?? []),
-        USER_MODEL.validateWorkspaces(input.createdWorkspaces ?? []),
+        USER_MODEL.validateMemberships(input.membership ?? []),
+        USER_MODEL.validateInvitedMembers(input.invitedMembers ?? []),
+        USER_MODEL.validateCreatedWorkspaces(input.createdWorkspaces ?? []),
         USER_MODEL.validateProjects(input.projects ?? []),
         USER_MODEL.validateCustomerPayment(input.customerPayment),
+        USER_MODEL.validateWebhooks(input.webhooks ?? []),
       ]);
+
     const createDate = new Date();
 
+    //istanbul ignore next
     const resolvedInput: IUserDocument = {
+      createdAt: createDate,
+      updatedAt: createDate,
+      id: input.id,
       userCode: input.userCode,
       name: input.name,
       username: input.username,
@@ -508,17 +255,15 @@ SCHEMA.static('createUser', async (input: IUserCreateInput) => {
       emailVerified: input.emailVerified,
       isVerified: input.isVerified,
       image: input.image,
-      createdAt: createDate,
-      updatedAt: createDate,
       accounts: accounts,
       sessions: sessions,
       membership: membership,
       invitedMembers: invitedMembers,
-      webhooks: webhooks,
-      apiKey: input.apiKey,
       createdWorkspaces: createdWorkspaces,
       projects: projects,
-      customerPayment: customerPaymentId,
+      customerPayment: customerPayment,
+      webhooks: webhooks,
+      apiKey: input.apiKey,
     };
     try {
       await USER_MODEL.validate(resolvedInput);
@@ -538,7 +283,7 @@ SCHEMA.static('createUser', async (input: IUserCreateInput) => {
       throw new error.DatabaseOperationError(
         'An Unexpected Error occurred while adding the user.  See the inner error for additional details',
         'mongoDb',
-        'add User',
+        'addUser',
         {},
         err
       );
@@ -551,11 +296,141 @@ SCHEMA.static('createUser', async (input: IUserCreateInput) => {
     );
 });
 
-SCHEMA.static('deleteUserById', async (id: string): Promise<void> => {
+// READ
+SCHEMA.static('getUserById', async (userId: string) => {
   try {
-    const results = await USER_MODEL.deleteOne({_id: id});
+    const userDocument = (await USER_MODEL.findById(userId)
+      .populate('accounts')
+      .populate('sessions')
+      .populate('membership')
+      .populate('invitedMembers')
+      .populate('createdWorkspaces')
+      .populate('projects')
+      .populate('customerPayment')
+      .populate('webhooks')
+      .lean()) as databaseTypes.IUser;
+    if (!userDocument) {
+      throw new error.DataNotFoundError(`Could not find a user with the _id: ${userId}`, 'user_id', userId);
+    }
+    const format = new DBFormatter();
+    return format.toJS(userDocument);
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the project.  See the inner error for additional information',
+        'mongoDb',
+        'getUserById',
+        err
+      );
+  }
+});
+
+SCHEMA.static('queryUsers', async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+  try {
+    const count = await USER_MODEL.count(filter);
+
+    if (!count) {
+      throw new error.DataNotFoundError(`Could not find users with the filter: ${filter}`, 'queryUsers', filter);
+    }
+
+    const skip = itemsPerPage * page;
+    if (skip > count) {
+      throw new error.InvalidArgumentError(
+        `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
+          count / itemsPerPage
+        )}`,
+        'page',
+        page
+      );
+    }
+
+    const userDocuments = (await USER_MODEL.find(filter, null, {
+      skip: skip,
+      limit: itemsPerPage,
+    })
+      .populate('accounts')
+      .populate('sessions')
+      .populate('membership')
+      .populate('invitedMembers')
+      .populate('createdWorkspaces')
+      .populate('projects')
+      .populate('customerPayment')
+      .populate('webhooks')
+      .lean()) as databaseTypes.IUser[];
+
+    const format = new DBFormatter();
+    const users = userDocuments?.map((doc: any) => {
+      return format.toJS(doc);
+    });
+
+    const retval: IQueryResult<databaseTypes.IUser> = {
+      results: users as unknown as databaseTypes.IUser[],
+      numberOfItems: count,
+      page: page,
+      itemsPerPage: itemsPerPage,
+    };
+
+    return retval;
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError || err instanceof error.InvalidArgumentError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the users.  See the inner error for additional information',
+        'mongoDb',
+        'queryUsers',
+        err
+      );
+  }
+});
+
+// UPDATE
+SCHEMA.static(
+  'updateUserWithFilter',
+  async (filter: Record<string, unknown>, user: Omit<Partial<databaseTypes.IUser>, '_id'>): Promise<void> => {
+    try {
+      await USER_MODEL.validateUpdateObject(user);
+      const updateDate = new Date();
+      const transformedObject: Partial<IUserDocument> & Record<string, unknown> = {updatedAt: updateDate};
+      for (const key in user) {
+        const value = (user as Record<string, any>)[key];
+        if (key === 'customerPayment')
+          transformedObject.customerPayment =
+            value instanceof mongooseTypes.ObjectId ? value : (value._id as mongooseTypes.ObjectId);
+        else transformedObject[key] = value;
+      }
+      const updateResult = await USER_MODEL.updateOne(filter, transformedObject);
+      if (updateResult.modifiedCount !== 1) {
+        throw new error.InvalidArgumentError('No user document with filter: ${filter} was found', 'filter', filter);
+      }
+    } catch (err) {
+      if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) throw err;
+      else
+        throw new error.DatabaseOperationError(
+          `An unexpected error occurred while updating the project with filter :${filter}.  See the inner error for additional information`,
+          'mongoDb',
+          'update user',
+          {filter: filter, user: user},
+          err
+        );
+    }
+  }
+);
+
+SCHEMA.static(
+  'updateUserById',
+  async (userId: string, user: Omit<Partial<databaseTypes.IUser>, '_id'>): Promise<databaseTypes.IUser> => {
+    await USER_MODEL.updateUserWithFilter({_id: userId}, user);
+    return await USER_MODEL.getUserById(userId);
+  }
+);
+
+// DELETE
+SCHEMA.static('deleteUserById', async (userId: string): Promise<void> => {
+  try {
+    const results = await USER_MODEL.deleteOne({_id: userId});
     if (results.deletedCount !== 1)
-      throw new error.InvalidArgumentError(`A user with a _id: ${id} was not found in the database`, '_id', id);
+      throw new error.InvalidArgumentError(`A user with a _id: ${userId} was not found in the database`, '_id', userId);
   } catch (err) {
     if (err instanceof error.InvalidArgumentError) throw err;
     else
@@ -563,27 +438,610 @@ SCHEMA.static('deleteUserById', async (id: string): Promise<void> => {
         'An unexpected error occurred while deleteing the user from the database. The user may still exist.  See the inner error for additional information',
         'mongoDb',
         'delete user',
-        {_id: id},
+        {_id: userId},
         err
       );
   }
 });
 
 SCHEMA.static(
+  'addAccounts',
+  async (userId: string, accounts: (databaseTypes.IAccount | string)[]): Promise<databaseTypes.IUser> => {
+    try {
+      if (!accounts.length)
+        throw new error.InvalidArgumentError('You must supply at least one id', 'accounts', accounts);
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError('A userDocument with _id cannot be found', 'user._id', userId);
+
+      const reconciledIds = await USER_MODEL.validateAccounts(accounts);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // @ts-ignore
+        if (!userDocument.accounts.find((id: any) => id.toString() === p.toString())) {
+          dirty = true;
+          // @ts-ignore
+          userDocument.accounts.push(p as unknown as databaseTypes.IAccount);
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Accounts. See the inner error for additional information',
+          'mongoDb',
+          'user.addAccounts',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeAccounts',
+  async (userId: string, accounts: (databaseTypes.IAccount | string)[]): Promise<databaseTypes.IUser> => {
+    try {
+      if (!accounts.length)
+        throw new error.InvalidArgumentError('You must supply at least one id', 'accounts', accounts);
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument) throw new error.DataNotFoundError('A Document cannot be found', '._id', userId);
+
+      const reconciledIds = accounts.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // @ts-ignore
+      const updatedAccounts = userDocument.accounts.filter((p: any) => {
+        let retval = true;
+        if (reconciledIds.find((r: any) => r.toString() === (p as unknown as mongooseTypes.ObjectId).toString())) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // @ts-ignore
+        userDocument.accounts = updatedAccounts as unknown as databaseTypes.IAccount[];
+        await userDocument.save();
+      }
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'user.removeAccounts',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateAccounts',
+  async (accounts: (databaseTypes.IAccount | string)[]): Promise<mongooseTypes.ObjectId[]> => {
+    const accountsIds: mongooseTypes.ObjectId[] = [];
+    accounts.forEach((p: any) => {
+      if (typeof p === 'string') accountsIds.push(new mongooseTypes.ObjectId(p));
+      else accountsIds.push(new mongooseTypes.ObjectId(p.id));
+    });
+    try {
+      await AccountModel.allAccountIdsExist(accountsIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'accounts',
+          accounts,
+          err
+        );
+      else throw err;
+    }
+
+    return accountsIds;
+  }
+);
+SCHEMA.static(
+  'addSessions',
+  async (userId: string, sessions: (databaseTypes.ISession | string)[]): Promise<databaseTypes.IUser> => {
+    try {
+      if (!sessions.length)
+        throw new error.InvalidArgumentError('You must supply at least one id', 'sessions', sessions);
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError('A userDocument with _id cannot be found', 'user._id', userId);
+
+      const reconciledIds = await USER_MODEL.validateSessions(sessions);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // @ts-ignore
+        if (!userDocument.sessions.find((id: any) => id.toString() === p.toString())) {
+          dirty = true;
+          // @ts-ignore
+          userDocument.sessions.push(p as unknown as databaseTypes.ISession);
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Sessions. See the inner error for additional information',
+          'mongoDb',
+          'user.addSessions',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeSessions',
+  async (userId: string, sessions: (databaseTypes.ISession | string)[]): Promise<databaseTypes.IUser> => {
+    try {
+      if (!sessions.length)
+        throw new error.InvalidArgumentError('You must supply at least one id', 'sessions', sessions);
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument) throw new error.DataNotFoundError('A Document cannot be found', '._id', userId);
+
+      const reconciledIds = sessions.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // @ts-ignore
+      const updatedSessions = userDocument.sessions.filter((p: any) => {
+        let retval = true;
+        if (reconciledIds.find((r: any) => r.toString() === (p as unknown as mongooseTypes.ObjectId).toString())) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // @ts-ignore
+        userDocument.sessions = updatedSessions as unknown as databaseTypes.ISession[];
+        await userDocument.save();
+      }
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'user.removeSessions',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateSessions',
+  async (sessions: (databaseTypes.ISession | string)[]): Promise<mongooseTypes.ObjectId[]> => {
+    const sessionsIds: mongooseTypes.ObjectId[] = [];
+    sessions.forEach((p: any) => {
+      if (typeof p === 'string') sessionsIds.push(new mongooseTypes.ObjectId(p));
+      else sessionsIds.push(new mongooseTypes.ObjectId(p.id));
+    });
+    try {
+      await SessionModel.allSessionIdsExist(sessionsIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'sessions',
+          sessions,
+          err
+        );
+      else throw err;
+    }
+
+    return sessionsIds;
+  }
+);
+SCHEMA.static(
+  'addMemberships',
+  async (userId: string, members: (databaseTypes.IMember | string)[]): Promise<databaseTypes.IUser> => {
+    try {
+      if (!members.length) throw new error.InvalidArgumentError('You must supply at least one id', 'members', members);
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError('A userDocument with _id cannot be found', 'user._id', userId);
+
+      const reconciledIds = await USER_MODEL.validateMemberships(members);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // @ts-ignore
+        if (!userDocument.membership.find((id: any) => id.toString() === p.toString())) {
+          dirty = true;
+          // @ts-ignore
+          userDocument.membership.push(p as unknown as databaseTypes.IMember);
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Members. See the inner error for additional information',
+          'mongoDb',
+          'user.addMembers',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeMemberships',
+  async (userId: string, members: (databaseTypes.IMember | string)[]): Promise<databaseTypes.IUser> => {
+    try {
+      if (!members.length) throw new error.InvalidArgumentError('You must supply at least one id', 'members', members);
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument) throw new error.DataNotFoundError('A Document cannot be found', '._id', userId);
+
+      const reconciledIds = members.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // @ts-ignore
+      const updatedMembers = userDocument.members.filter((p: any) => {
+        let retval = true;
+        if (reconciledIds.find((r: any) => r.toString() === (p as unknown as mongooseTypes.ObjectId).toString())) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // @ts-ignore
+        userDocument.members = updatedMembers as unknown as databaseTypes.IMember[];
+        await userDocument.save();
+      }
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'user.removeMembers',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateMemberships',
+  async (members: (databaseTypes.IMember | string)[]): Promise<mongooseTypes.ObjectId[]> => {
+    const membersIds: mongooseTypes.ObjectId[] = [];
+    members.forEach((p: any) => {
+      if (typeof p === 'string') membersIds.push(new mongooseTypes.ObjectId(p));
+      else membersIds.push(new mongooseTypes.ObjectId(p.id));
+    });
+    try {
+      await MemberModel.allMemberIdsExist(membersIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'members',
+          members,
+          err
+        );
+      else throw err;
+    }
+
+    return membersIds;
+  }
+);
+SCHEMA.static(
+  'addInvitedMembers',
+  async (userId: string, members: (databaseTypes.IMember | string)[]): Promise<databaseTypes.IUser> => {
+    try {
+      if (!members.length) throw new error.InvalidArgumentError('You must supply at least one id', 'members', members);
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError('A userDocument with _id cannot be found', 'user._id', userId);
+
+      const reconciledIds = await USER_MODEL.validateInvitedMembers(members);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // @ts-ignore
+        if (!userDocument.invitedMembers.find((id: any) => id.toString() === p.toString())) {
+          dirty = true;
+          // @ts-ignore
+          userDocument.invitedMembers.push(p as unknown as databaseTypes.IMember);
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Members. See the inner error for additional information',
+          'mongoDb',
+          'user.addMembers',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeInvitedMembers',
+  async (userId: string, members: (databaseTypes.IMember | string)[]): Promise<databaseTypes.IUser> => {
+    try {
+      if (!members.length) throw new error.InvalidArgumentError('You must supply at least one id', 'members', members);
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument) throw new error.DataNotFoundError('A Document cannot be found', '._id', userId);
+
+      const reconciledIds = members.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // @ts-ignore
+      const updatedMembers = userDocument.members.filter((p: any) => {
+        let retval = true;
+        if (reconciledIds.find((r: any) => r.toString() === (p as unknown as mongooseTypes.ObjectId).toString())) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // @ts-ignore
+        userDocument.members = updatedMembers as unknown as databaseTypes.IMember[];
+        await userDocument.save();
+      }
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'user.removeMembers',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateInvitedMembers',
+  async (members: (databaseTypes.IMember | string)[]): Promise<mongooseTypes.ObjectId[]> => {
+    const membersIds: mongooseTypes.ObjectId[] = [];
+    members.forEach((p: any) => {
+      if (typeof p === 'string') membersIds.push(new mongooseTypes.ObjectId(p));
+      else membersIds.push(new mongooseTypes.ObjectId(p.id));
+    });
+    try {
+      await MemberModel.allMemberIdsExist(membersIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'members',
+          members,
+          err
+        );
+      else throw err;
+    }
+
+    return membersIds;
+  }
+);
+SCHEMA.static(
+  'addCreatedWorkspaces',
+  async (userId: string, workspaces: (databaseTypes.IWorkspace | string)[]): Promise<databaseTypes.IUser> => {
+    try {
+      if (!workspaces.length)
+        throw new error.InvalidArgumentError('You must supply at least one id', 'workspaces', workspaces);
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument)
+        throw new error.DataNotFoundError('A userDocument with _id cannot be found', 'user._id', userId);
+
+      const reconciledIds = await USER_MODEL.validateCreatedWorkspaces(workspaces);
+      let dirty = false;
+      reconciledIds.forEach((p: any) => {
+        // @ts-ignore
+        if (!userDocument.createdWorkspaces.find((id: any) => id.toString() === p.toString())) {
+          dirty = true;
+          // @ts-ignore
+          userDocument.createdWorkspaces.push(p as unknown as databaseTypes.IWorkspace);
+        }
+      });
+
+      if (dirty) await userDocument.save();
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the Workspaces. See the inner error for additional information',
+          'mongoDb',
+          'user.addWorkspaces',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'removeCreatedWorkspaces',
+  async (userId: string, workspaces: (databaseTypes.IWorkspace | string)[]): Promise<databaseTypes.IUser> => {
+    try {
+      if (!workspaces.length)
+        throw new error.InvalidArgumentError('You must supply at least one id', 'workspaces', workspaces);
+      const userDocument = await USER_MODEL.findById(userId);
+      if (!userDocument) throw new error.DataNotFoundError('A Document cannot be found', '._id', userId);
+
+      const reconciledIds = workspaces.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
+      );
+      let dirty = false;
+      // @ts-ignore
+      const updatedWorkspaces = userDocument.workspaces.filter((p: any) => {
+        let retval = true;
+        if (reconciledIds.find((r: any) => r.toString() === (p as unknown as mongooseTypes.ObjectId).toString())) {
+          dirty = true;
+          retval = false;
+        }
+
+        return retval;
+      });
+
+      if (dirty) {
+        // @ts-ignore
+        userDocument.workspaces = updatedWorkspaces as unknown as databaseTypes.IWorkspace[];
+        await userDocument.save();
+      }
+
+      return await USER_MODEL.getUserById(userId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while removing. See the inner error for additional information',
+          'mongoDb',
+          'user.removeWorkspaces',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static(
+  'validateCreatedWorkspaces',
+  async (workspaces: (databaseTypes.IWorkspace | string)[]): Promise<mongooseTypes.ObjectId[]> => {
+    const workspacesIds: mongooseTypes.ObjectId[] = [];
+    workspaces.forEach((p: any) => {
+      if (typeof p === 'string') workspacesIds.push(new mongooseTypes.ObjectId(p));
+      else workspacesIds.push(new mongooseTypes.ObjectId(p.id));
+    });
+    try {
+      await WorkspaceModel.allWorkspaceIdsExist(workspacesIds);
+    } catch (err) {
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'workspaces',
+          workspaces,
+          err
+        );
+      else throw err;
+    }
+
+    return workspacesIds;
+  }
+);
+SCHEMA.static(
   'addProjects',
   async (userId: string, projects: (databaseTypes.IProject | string)[]): Promise<databaseTypes.IUser> => {
     try {
       if (!projects.length)
-        throw new error.InvalidArgumentError('You must supply at least one projectId', 'projects', projects);
+        throw new error.InvalidArgumentError('You must supply at least one id', 'projects', projects);
       const userDocument = await USER_MODEL.findById(userId);
       if (!userDocument)
-        throw new error.DataNotFoundError(`A User Document with _id : ${userId} cannot be found`, 'user._id', userId);
+        throw new error.DataNotFoundError('A userDocument with _id cannot be found', 'user._id', userId);
 
       const reconciledIds = await USER_MODEL.validateProjects(projects);
       let dirty = false;
-      reconciledIds.forEach((p) => {
-        if (!userDocument.projects.find((progId) => progId.toString() === p.toString())) {
+      reconciledIds.forEach((p: any) => {
+        // @ts-ignore
+        if (!userDocument.projects.find((id: any) => id.toString() === p.toString())) {
           dirty = true;
+          // @ts-ignore
           userDocument.projects.push(p as unknown as databaseTypes.IProject);
         }
       });
@@ -600,7 +1058,7 @@ SCHEMA.static(
         throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while adding the projects. See the innner error for additional information',
+          'An unexpected error occurred while adding the Projects. See the inner error for additional information',
           'mongoDb',
           'user.addProjects',
           err
@@ -615,19 +1073,18 @@ SCHEMA.static(
   async (userId: string, projects: (databaseTypes.IProject | string)[]): Promise<databaseTypes.IUser> => {
     try {
       if (!projects.length)
-        throw new error.InvalidArgumentError('You must supply at least one projectId', 'projects', projects);
+        throw new error.InvalidArgumentError('You must supply at least one id', 'projects', projects);
       const userDocument = await USER_MODEL.findById(userId);
-      if (!userDocument)
-        throw new error.DataNotFoundError(`A User Document with _id : ${userId} cannot be found`, 'user._id', userId);
+      if (!userDocument) throw new error.DataNotFoundError('A Document cannot be found', '._id', userId);
 
-      const reconciledIds = projects.map((i) =>
-        //istanbul ignore next
-        typeof i === 'string' ? new mongooseTypes.ObjectId(i) : new mongooseTypes.ObjectId(i.id)
+      const reconciledIds = projects.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
-      const updatedProjects = userDocument.projects.filter((p) => {
+      // @ts-ignore
+      const updatedProjects = userDocument.projects.filter((p: any) => {
         let retval = true;
-        if (reconciledIds.find((r) => r.toString() === (p as unknown as mongooseTypes.ObjectId).toString())) {
+        if (reconciledIds.find((r: any) => r.toString() === (p as unknown as mongooseTypes.ObjectId).toString())) {
           dirty = true;
           retval = false;
         }
@@ -636,6 +1093,7 @@ SCHEMA.static(
       });
 
       if (dirty) {
+        // @ts-ignore
         userDocument.projects = updatedProjects as unknown as databaseTypes.IProject[];
         await userDocument.save();
       }
@@ -650,7 +1108,7 @@ SCHEMA.static(
         throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while removing the projects. See the innner error for additional information',
+          'An unexpected error occurred while removing. See the inner error for additional information',
           'mongoDb',
           'user.removeProjects',
           err
@@ -661,73 +1119,48 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'addAccounts',
-  async (userId: string, accounts: (databaseTypes.IAccount | string)[]): Promise<databaseTypes.IUser> => {
+  'validateProjects',
+  async (projects: (databaseTypes.IProject | string)[]): Promise<mongooseTypes.ObjectId[]> => {
+    const projectsIds: mongooseTypes.ObjectId[] = [];
+    projects.forEach((p: any) => {
+      if (typeof p === 'string') projectsIds.push(new mongooseTypes.ObjectId(p));
+      else projectsIds.push(new mongooseTypes.ObjectId(p.id));
+    });
     try {
-      if (!accounts.length)
-        throw new error.InvalidArgumentError('You must supply at least one accountId', 'accounts', accounts);
-      const userDocument = await USER_MODEL.findById(userId);
-      if (!userDocument)
-        throw new error.DataNotFoundError(`A User Document with _id : ${userId} cannot be found`, 'user._id', userId);
-
-      const reconciledIds = await USER_MODEL.validateAccounts(accounts);
-      let dirty = false;
-      reconciledIds.forEach((a) => {
-        if (!userDocument.accounts.find((acctId) => acctId.toString() === a.toString())) {
-          dirty = true;
-          userDocument.accounts.push(a as unknown as databaseTypes.IAccount);
-        }
-      });
-
-      if (dirty) await userDocument.save();
-
-      return await USER_MODEL.getUserById(userId);
+      await ProjectModel.allProjectIdsExist(projectsIds);
     } catch (err) {
-      if (
-        err instanceof error.DataNotFoundError ||
-        err instanceof error.DataValidationError ||
-        err instanceof error.InvalidArgumentError
-      )
-        throw err;
-      else {
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while adding the accounts. See the innner error for additional information',
-          'mongoDb',
-          'user.addAccounts',
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'projects',
+          projects,
           err
         );
-      }
+      else throw err;
     }
+
+    return projectsIds;
   }
 );
 
 SCHEMA.static(
-  'removeAccounts',
-  async (userId: string, accounts: (databaseTypes.IAccount | string)[]): Promise<databaseTypes.IUser> => {
+  'addCustomerPayment',
+  async (userId: string, customerPayment: databaseTypes.ICustomerPayment | string): Promise<databaseTypes.IUser> => {
     try {
-      if (!accounts.length)
-        throw new error.InvalidArgumentError('You must supply at least one accountId', 'accounts', accounts);
+      if (!customerPayment)
+        throw new error.InvalidArgumentError('You must supply at least one id', 'customerPayment', customerPayment);
       const userDocument = await USER_MODEL.findById(userId);
+
       if (!userDocument)
-        throw new error.DataNotFoundError(`A User Document with _id : ${userId} cannot be found`, 'user._id', userId);
+        throw new error.DataNotFoundError('A userDocument with _id cannot be found', 'user._id', userId);
 
-      const reconciledIds = accounts.map((i) =>
-        //istanbul ignore next
-        typeof i === 'string' ? new mongooseTypes.ObjectId(i) : new mongooseTypes.ObjectId(i.id)
-      );
-      let dirty = false;
-      const updatedAccounts = userDocument.accounts.filter((a) => {
-        let retval = true;
-        if (reconciledIds.find((r) => r.toString() === (a as unknown as mongooseTypes.ObjectId).toString())) {
-          dirty = true;
-          retval = false;
-        }
+      const reconciledId = await USER_MODEL.validateCustomerPayment(customerPayment);
 
-        return retval;
-      });
+      if (userDocument.customerPayment?.toString() !== reconciledId.toString()) {
+        const reconciledId = await USER_MODEL.validateCustomerPayment(customerPayment);
 
-      if (dirty) {
-        userDocument.accounts = updatedAccounts as unknown as databaseTypes.IAccount[];
+        // @ts-ignore
+        userDocument.customerPayment = reconciledId;
         await userDocument.save();
       }
 
@@ -741,9 +1174,9 @@ SCHEMA.static(
         throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while removing the accounts. See the innner error for additional information',
+          'An unexpected error occurred while adding the customerPayment. See the inner error for additional information',
           'mongoDb',
-          'user.removeAccounts',
+          'user.addCustomerPayment',
           err
         );
       }
@@ -751,113 +1184,68 @@ SCHEMA.static(
   }
 );
 
-SCHEMA.static(
-  'addSessions',
-  async (userId: string, sessions: (databaseTypes.ISession | string)[]): Promise<databaseTypes.IUser> => {
-    try {
-      if (!sessions.length)
-        throw new error.InvalidArgumentError('You must supply at least one sessionId', 'sessions', sessions);
-      const userDocument = await USER_MODEL.findById(userId);
-      if (!userDocument)
-        throw new error.DataNotFoundError(`A User Document with _id : ${userId} cannot be found`, 'user._id', userId);
+SCHEMA.static('removeCustomerPayment', async (userId: string): Promise<databaseTypes.IUser> => {
+  try {
+    const userDocument = await USER_MODEL.findById(userId);
+    if (!userDocument) throw new error.DataNotFoundError('A userDocument with _id cannot be found', 'user._id', userId);
 
-      const reconciledIds = await USER_MODEL.validateSessions(sessions);
-      let dirty = false;
-      reconciledIds.forEach((s) => {
-        if (!userDocument.sessions.find((sessId) => sessId.toString() === s.toString())) {
-          dirty = true;
-          userDocument.sessions.push(s as unknown as databaseTypes.ISession);
-        }
-      });
+    // @ts-ignore
+    userDocument.customerPayment = undefined;
+    await userDocument.save();
 
-      if (dirty) await userDocument.save();
-
-      return await USER_MODEL.getUserById(userId);
-    } catch (err) {
-      if (
-        err instanceof error.DataNotFoundError ||
-        err instanceof error.DataValidationError ||
-        err instanceof error.InvalidArgumentError
-      )
-        throw err;
-      else {
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while adding the sessions. See the innner error for additional information',
-          'mongoDb',
-          'user.addSessions',
-          err
-        );
-      }
-    }
-  }
-);
-
-SCHEMA.static(
-  'removeSessions',
-  async (userId: string, sessions: (databaseTypes.ISession | string)[]): Promise<databaseTypes.IUser> => {
-    try {
-      if (!sessions.length)
-        throw new error.InvalidArgumentError('You must supply at least one sessionId', 'sessions', sessions);
-      const userDocument = await USER_MODEL.findById(userId);
-      if (!userDocument)
-        throw new error.DataNotFoundError(`A User Document with _id : ${userId} cannot be found`, 'user._id', userId);
-
-      const reconciledIds = sessions.map((i) =>
-        //istanbul ignore next
-        typeof i === 'string' ? new mongooseTypes.ObjectId(i) : new mongooseTypes.ObjectId(i.id)
+    return await USER_MODEL.getUserById(userId);
+  } catch (err) {
+    if (
+      err instanceof error.DataNotFoundError ||
+      err instanceof error.DataValidationError ||
+      err instanceof error.InvalidArgumentError
+    )
+      throw err;
+    else {
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while removing the customerPayment. See the inner error for additional information',
+        'mongoDb',
+        'user.removeCustomerPayment',
+        err
       );
-      let dirty = false;
-      const updatedSessions = userDocument.sessions.filter((s) => {
-        let retval = true;
-        if (reconciledIds.find((r) => r.toString() === (s as unknown as mongooseTypes.ObjectId).toString())) {
-          dirty = true;
-          retval = false;
-        }
-
-        return retval;
-      });
-
-      if (dirty) {
-        userDocument.sessions = updatedSessions as unknown as databaseTypes.ISession[];
-        await userDocument.save();
-      }
-
-      return await USER_MODEL.getUserById(userId);
-    } catch (err) {
-      if (
-        err instanceof error.DataNotFoundError ||
-        err instanceof error.DataValidationError ||
-        err instanceof error.InvalidArgumentError
-      )
-        throw err;
-      else {
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while removing the sessions. See the innner error for additional information',
-          'mongoDb',
-          'user.removeSession',
-          err
-        );
-      }
     }
   }
-);
+});
 
+SCHEMA.static(
+  'validateCustomerPayment',
+  async (input: databaseTypes.ICustomerPayment | string): Promise<mongooseTypes.ObjectId> => {
+    const customerPaymentId =
+      typeof input === 'string' ? new mongooseTypes.ObjectId(input) : new mongooseTypes.ObjectId(input.id);
+
+    if (!(await CustomerPaymentModel.customerPaymentIdExists(customerPaymentId))) {
+      throw new error.InvalidArgumentError(
+        `The customerPayment: ${customerPaymentId} does not exist`,
+        'customerPaymentId',
+        customerPaymentId
+      );
+    }
+    return customerPaymentId;
+  }
+);
 SCHEMA.static(
   'addWebhooks',
   async (userId: string, webhooks: (databaseTypes.IWebhook | string)[]): Promise<databaseTypes.IUser> => {
     try {
       if (!webhooks.length)
-        throw new error.InvalidArgumentError('You must supply at least one webhookId', 'webhooks', webhooks);
+        throw new error.InvalidArgumentError('You must supply at least one id', 'webhooks', webhooks);
       const userDocument = await USER_MODEL.findById(userId);
       if (!userDocument)
-        throw new error.DataNotFoundError(`A User Document with _id : ${userId} cannot be found`, 'user._id', userId);
+        throw new error.DataNotFoundError('A userDocument with _id cannot be found', 'user._id', userId);
 
       const reconciledIds = await USER_MODEL.validateWebhooks(webhooks);
       let dirty = false;
-      reconciledIds.forEach((w) => {
-        if (!userDocument.webhooks.find((whId) => whId.toString() === w.toString())) {
+      reconciledIds.forEach((p: any) => {
+        // @ts-ignore
+        if (!userDocument.webhooks.find((id: any) => id.toString() === p.toString())) {
           dirty = true;
-          userDocument.webhooks.push(w as unknown as databaseTypes.IWebhook);
+          // @ts-ignore
+          userDocument.webhooks.push(p as unknown as databaseTypes.IWebhook);
         }
       });
 
@@ -873,7 +1261,7 @@ SCHEMA.static(
         throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while adding the webhooks. See the innner error for additional information',
+          'An unexpected error occurred while adding the Webhooks. See the inner error for additional information',
           'mongoDb',
           'user.addWebhooks',
           err
@@ -888,19 +1276,18 @@ SCHEMA.static(
   async (userId: string, webhooks: (databaseTypes.IWebhook | string)[]): Promise<databaseTypes.IUser> => {
     try {
       if (!webhooks.length)
-        throw new error.InvalidArgumentError('You must supply at least one webhookId', 'sessions', webhooks);
+        throw new error.InvalidArgumentError('You must supply at least one id', 'webhooks', webhooks);
       const userDocument = await USER_MODEL.findById(userId);
-      if (!userDocument)
-        throw new error.DataNotFoundError(`A User Document with _id : ${userId} cannot be found`, 'user._id', userId);
+      if (!userDocument) throw new error.DataNotFoundError('A Document cannot be found', '._id', userId);
 
-      const reconciledIds = webhooks.map((i) =>
-        //istanbul ignore next
-        typeof i === 'string' ? new mongooseTypes.ObjectId(i) : new mongooseTypes.ObjectId(i.id)
+      const reconciledIds = webhooks.map((i: any) =>
+        i instanceof mongooseTypes.ObjectId ? i : (i._id as mongooseTypes.ObjectId)
       );
       let dirty = false;
-      const updatedWebhooks = userDocument.webhooks.filter((w) => {
+      // @ts-ignore
+      const updatedWebhooks = userDocument.webhooks.filter((p: any) => {
         let retval = true;
-        if (reconciledIds.find((r) => r.toString() === (w as unknown as mongooseTypes.ObjectId).toString())) {
+        if (reconciledIds.find((r: any) => r.toString() === (p as unknown as mongooseTypes.ObjectId).toString())) {
           dirty = true;
           retval = false;
         }
@@ -909,6 +1296,7 @@ SCHEMA.static(
       });
 
       if (dirty) {
+        // @ts-ignore
         userDocument.webhooks = updatedWebhooks as unknown as databaseTypes.IWebhook[];
         await userDocument.save();
       }
@@ -923,9 +1311,9 @@ SCHEMA.static(
         throw err;
       else {
         throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while removing the webhooks. See the innner error for additional information',
+          'An unexpected error occurred while removing. See the inner error for additional information',
           'mongoDb',
-          'user.removeWebhook',
+          'user.removeWebhooks',
           err
         );
       }
@@ -934,184 +1322,27 @@ SCHEMA.static(
 );
 
 SCHEMA.static(
-  'addMembership',
-  async (userId: string, members: (databaseTypes.IMember | string)[]): Promise<databaseTypes.IUser> => {
+  'validateWebhooks',
+  async (webhooks: (databaseTypes.IWebhook | string)[]): Promise<mongooseTypes.ObjectId[]> => {
+    const webhooksIds: mongooseTypes.ObjectId[] = [];
+    webhooks.forEach((p: any) => {
+      if (typeof p === 'string') webhooksIds.push(new mongooseTypes.ObjectId(p));
+      else webhooksIds.push(new mongooseTypes.ObjectId(p.id));
+    });
     try {
-      if (!members.length)
-        throw new error.InvalidArgumentError('You must supply at least one memberId', 'members', members);
-      const userDocument = await USER_MODEL.findById(userId);
-      if (!userDocument)
-        throw new error.DataNotFoundError(`A User Document with _id : ${userId} cannot be found`, 'user._id', userId);
-
-      const reconciledIds = await USER_MODEL.validateMembership(members);
-      let dirty = false;
-      reconciledIds.forEach((m) => {
-        if (!userDocument.membership.find((mhId) => mhId.toString() === m.toString())) {
-          dirty = true;
-          userDocument.membership.push(m as unknown as databaseTypes.IMember);
-        }
-      });
-
-      if (dirty) await userDocument.save();
-
-      return await USER_MODEL.getUserById(userId);
+      await WebhookModel.allWebhookIdsExist(webhooksIds);
     } catch (err) {
-      if (
-        err instanceof error.DataNotFoundError ||
-        err instanceof error.DataValidationError ||
-        err instanceof error.InvalidArgumentError
-      )
-        throw err;
-      else {
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while adding the Members. See the innner error for additional information',
-          'mongoDb',
-          'user.addMembers',
+      if (err instanceof error.DataNotFoundError)
+        throw new error.DataValidationError(
+          'One or more ids do not exist in the database. See the inner error for additional information',
+          'webhooks',
+          webhooks,
           err
         );
-      }
+      else throw err;
     }
-  }
-);
 
-SCHEMA.static(
-  'removeMembership',
-  async (userId: string, members: (databaseTypes.IMember | string)[]): Promise<databaseTypes.IUser> => {
-    try {
-      if (!members.length)
-        throw new error.InvalidArgumentError('You must supply at least one memberId', 'memebrship', members);
-      const userDocument = await USER_MODEL.findById(userId);
-      if (!userDocument)
-        throw new error.DataNotFoundError(`A User Document with _id : ${userId} cannot be found`, 'user._id', userId);
-
-      const reconciledIds = members.map((i) =>
-        //istanbul ignore next
-        typeof i === 'string' ? new mongooseTypes.ObjectId(i) : new mongooseTypes.ObjectId(i.id)
-      );
-      let dirty = false;
-      const updatedMemberships = userDocument.membership.filter((w) => {
-        let retval = true;
-        if (reconciledIds.find((r) => r.toString() === (w as unknown as mongooseTypes.ObjectId).toString())) {
-          dirty = true;
-          retval = false;
-        }
-
-        return retval;
-      });
-
-      if (dirty) {
-        userDocument.membership = updatedMemberships as unknown as databaseTypes.IMember[];
-        await userDocument.save();
-      }
-
-      return await USER_MODEL.getUserById(userId);
-    } catch (err) {
-      if (
-        err instanceof error.DataNotFoundError ||
-        err instanceof error.DataValidationError ||
-        err instanceof error.InvalidArgumentError
-      )
-        throw err;
-      else {
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while removing the members. See the innner error for additional information',
-          'mongoDb',
-          'user.removeMember',
-          err
-        );
-      }
-    }
-  }
-);
-
-SCHEMA.static(
-  'addWorkspaces',
-  async (userId: string, workspaces: (databaseTypes.IWorkspace | string)[]): Promise<databaseTypes.IUser> => {
-    try {
-      if (!workspaces.length)
-        throw new error.InvalidArgumentError('You must supply at least one workspaceId', 'workspaces', workspaces);
-      const userDocument = await USER_MODEL.findById(userId);
-      if (!userDocument)
-        throw new error.DataNotFoundError(`A User Document with _id : ${userId} cannot be found`, 'user._id', userId);
-
-      const reconciledIds = await USER_MODEL.validateWorkspaces(workspaces);
-      let dirty = false;
-      reconciledIds.forEach((o) => {
-        if (!userDocument.createdWorkspaces.find((orgId) => orgId.toString() === o.toString())) {
-          dirty = true;
-          userDocument.createdWorkspaces.push(o as unknown as databaseTypes.IWorkspace);
-        }
-      });
-
-      if (dirty) await userDocument.save();
-
-      return await USER_MODEL.getUserById(userId);
-    } catch (err) {
-      if (
-        err instanceof error.DataNotFoundError ||
-        err instanceof error.DataValidationError ||
-        err instanceof error.InvalidArgumentError
-      )
-        throw err;
-      else {
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while adding the workspaces. See the innner error for additional information',
-          'mongoDb',
-          'user.addWorkspaces',
-          err
-        );
-      }
-    }
-  }
-);
-
-SCHEMA.static(
-  'removeWorkspaces',
-  async (userId: string, workspaces: (databaseTypes.IWorkspace | string)[]): Promise<databaseTypes.IUser> => {
-    try {
-      if (!workspaces.length)
-        throw new error.InvalidArgumentError('You must supply at least one workspaceId', 'workspaces', workspaces);
-      const userDocument = await USER_MODEL.findById(userId);
-      if (!userDocument)
-        throw new error.DataNotFoundError(`A User Document with _id : ${userId} cannot be found`, 'user._id', userId);
-
-      const reconciledIds = workspaces.map((i) =>
-        //istanbul ignore next
-        typeof i === 'string' ? new mongooseTypes.ObjectId(i) : new mongooseTypes.ObjectId(i.id)
-      );
-      let dirty = false;
-      const updatedWorkspaces = userDocument.createdWorkspaces.filter((o) => {
-        let retval = true;
-        if (reconciledIds.find((r) => r.toString() === (o as unknown as mongooseTypes.ObjectId).toString())) {
-          dirty = true;
-          retval = false;
-        }
-
-        return retval;
-      });
-
-      if (dirty) {
-        userDocument.createdWorkspaces = updatedWorkspaces as unknown as databaseTypes.IWorkspace[];
-        await userDocument.save();
-      }
-
-      return await USER_MODEL.getUserById(userId);
-    } catch (err) {
-      if (
-        err instanceof error.DataNotFoundError ||
-        err instanceof error.DataValidationError ||
-        err instanceof error.InvalidArgumentError
-      )
-        throw err;
-      else {
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while removing the workspaces. See the innner error for additional information',
-          'mongoDb',
-          'user.removeWorkspaces',
-          err
-        );
-      }
-    }
+    return webhooksIds;
   }
 );
 

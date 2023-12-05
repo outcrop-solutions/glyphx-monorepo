@@ -1,46 +1,102 @@
-import {databaseTypes, IQueryResult} from 'types';
-import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
-import {IAccountMethods, IAccountStaticMethods, IAccountDocument, IAccountCreateInput} from '../interfaces';
-import {error} from 'core';
-import {UserModel} from './user';
+// THIS CODE WAS AUTOMATICALLY GENERATED
+import {IQueryResult, databaseTypes} from 'types';
 import {DBFormatter} from '../../lib/format';
+import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
+import {error} from 'core';
+import {IAccountDocument, IAccountCreateInput, IAccountStaticMethods, IAccountMethods} from '../interfaces';
+import {UserModel} from './user';
 
 const SCHEMA = new Schema<IAccountDocument, IAccountStaticMethods, IAccountMethods>({
-  type: {
-    type: Number,
+  createdAt: {
+    type: Date,
     required: true,
-    enum: databaseTypes.constants.ACCOUNT_TYPE,
-    default: databaseTypes.constants.ACCOUNT_TYPE.CUSTOMER,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  updatedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  deletedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  id: {
+    type: String,
+    required: false,
+  },
+  type: {
+    type: String,
+    required: false,
+    enum: databaseTypes.ACCOUNT_TYPE,
+  },
+  userId: {
+    type: String,
+    required: false,
   },
   provider: {
-    type: Number,
-    required: true,
-    enum: databaseTypes.constants.ACCOUNT_PROVIDER,
-    default: databaseTypes.constants.ACCOUNT_PROVIDER.COGNITO,
-  },
-  userId: {type: String, required: false},
-  providerAccountId: {type: String, required: true},
-  refresh_token: {type: String, required: false},
-  refresh_token_expires_in: {type: Number, required: false},
-  access_token: {type: String, required: false},
-  expires_at: {type: Number, required: false},
-  token_type: {
-    type: Number,
+    type: String,
     required: false,
-    enum: databaseTypes.constants.TOKEN_TYPE,
-    default: databaseTypes.constants.TOKEN_TYPE.ACCESS,
+    enum: databaseTypes.ACCOUNT_PROVIDER,
   },
-  scope: {type: String, required: false},
-  id_token: {type: String, required: false},
-  session_state: {
+  providerAccountId: {
+    type: String,
+    required: true,
+  },
+  refresh_token: {
+    type: String,
+    required: true,
+  },
+  refresh_token_expires_in: {
     type: Number,
     required: true,
-    enum: databaseTypes.constants.SESSION_STATE,
-    default: databaseTypes.constants.SESSION_STATE.NEW,
   },
-  oauth_token_secret: {type: String, required: true},
-  oauth_token: {type: String, required: true},
-  user: {type: Schema.Types.ObjectId, required: true, ref: 'user'},
+  access_token: {
+    type: String,
+    required: true,
+  },
+  expires_at: {
+    type: Number,
+    required: true,
+  },
+  token_type: {
+    type: String,
+    required: false,
+    enum: databaseTypes.TOKEN_TYPE,
+  },
+  scope: {
+    type: String,
+    required: true,
+  },
+  id_token: {
+    type: String,
+    required: true,
+  },
+  session_state: {
+    type: String,
+    required: false,
+    enum: databaseTypes.SESSION_STATE,
+  },
+  oauth_token_secret: {
+    type: String,
+    required: true,
+  },
+  oauth_token: {
+    type: String,
+    required: true,
+  },
+  user: {
+    type: Schema.Types.ObjectId,
+    required: false,
+    ref: 'user',
+  },
 });
 
 SCHEMA.static('accountIdExists', async (accountId: mongooseTypes.ObjectId): Promise<boolean> => {
@@ -91,20 +147,122 @@ SCHEMA.static('allAccountIdsExist', async (accountIds: mongooseTypes.ObjectId[])
   return true;
 });
 
+SCHEMA.static('validateUpdateObject', async (account: Omit<Partial<databaseTypes.IAccount>, '_id'>): Promise<void> => {
+  const idValidator = async (
+    id: mongooseTypes.ObjectId,
+    objectType: string,
+    validator: (id: mongooseTypes.ObjectId) => Promise<boolean>
+  ) => {
+    const result = await validator(id);
+    if (!result) {
+      throw new error.InvalidOperationError(
+        `A ${objectType} with an id: ${id} cannot be found.  You cannot update a account with an invalid ${objectType} id`,
+        {objectType: objectType, id: id}
+      );
+    }
+  };
+
+  const tasks: Promise<void>[] = [];
+
+  if (account.user) tasks.push(idValidator(account.user._id as mongooseTypes.ObjectId, 'User', UserModel.userIdExists));
+
+  if (tasks.length) await Promise.all(tasks); //will throw an exception if anything fails.
+
+  if (account.createdAt)
+    throw new error.InvalidOperationError('The createdAt date is set internally and cannot be altered externally', {
+      createdAt: account.createdAt,
+    });
+  if (account.updatedAt)
+    throw new error.InvalidOperationError('The updatedAt date is set internally and cannot be altered externally', {
+      updatedAt: account.updatedAt,
+    });
+  if ((account as Record<string, unknown>)['_id'])
+    throw new error.InvalidOperationError('The account._id is immutable and cannot be changed', {
+      _id: (account as Record<string, unknown>)['_id'],
+    });
+});
+
+// CREATE
+SCHEMA.static('createAccount', async (input: IAccountCreateInput): Promise<databaseTypes.IAccount> => {
+  let id: undefined | mongooseTypes.ObjectId = undefined;
+
+  try {
+    const [user] = await Promise.all([ACCOUNT_MODEL.validateUser(input.user)]);
+
+    const createDate = new Date();
+
+    //istanbul ignore next
+    const resolvedInput: IAccountDocument = {
+      createdAt: createDate,
+      updatedAt: createDate,
+      id: input.id,
+      type: input.type,
+      userId: input.userId,
+      provider: input.provider,
+      providerAccountId: input.providerAccountId,
+      refresh_token: input.refresh_token,
+      refresh_token_expires_in: input.refresh_token_expires_in,
+      access_token: input.access_token,
+      expires_at: input.expires_at,
+      token_type: input.token_type,
+      scope: input.scope,
+      id_token: input.id_token,
+      session_state: input.session_state,
+      oauth_token_secret: input.oauth_token_secret,
+      oauth_token: input.oauth_token,
+      user: user,
+    };
+    try {
+      await ACCOUNT_MODEL.validate(resolvedInput);
+    } catch (err) {
+      throw new error.DataValidationError(
+        'An error occurred while validating the document before creating it.  See the inner error for additional information',
+        'IAccountDocument',
+        resolvedInput,
+        err
+      );
+    }
+    const accountDocument = (await ACCOUNT_MODEL.create([resolvedInput], {validateBeforeSave: false}))[0];
+    id = accountDocument._id;
+  } catch (err) {
+    if (err instanceof error.DataValidationError) throw err;
+    else {
+      throw new error.DatabaseOperationError(
+        'An Unexpected Error occurred while adding the account.  See the inner error for additional details',
+        'mongoDb',
+        'addAccount',
+        {},
+        err
+      );
+    }
+  }
+  if (id) return await ACCOUNT_MODEL.getAccountById(id.toString());
+  else
+    throw new error.UnexpectedError(
+      'An unexpected error has occurred and the account may not have been created.  I have no other information to provide.'
+    );
+});
+
+// READ
 SCHEMA.static('getAccountById', async (accountId: string) => {
   try {
-    const accountDocument = (await ACCOUNT_MODEL.findById(accountId).populate('user').lean()) as databaseTypes.IAccount;
+    const accountDocument = (await ACCOUNT_MODEL.findById(accountId)
+      .populate('type')
+      .populate('provider')
+      .populate('token_type')
+      .populate('session_state')
+      .populate('user')
+      .lean()) as databaseTypes.IAccount;
     if (!accountDocument) {
       throw new error.DataNotFoundError(`Could not find a account with the _id: ${accountId}`, 'account_id', accountId);
     }
-
     const format = new DBFormatter();
     return format.toJS(accountDocument);
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
       throw new error.DatabaseOperationError(
-        'An unexpected error occurred while getting the account.  See the inner error for additional information',
+        'An unexpected error occurred while getting the project.  See the inner error for additional information',
         'mongoDb',
         'getAccountById',
         err
@@ -135,18 +293,20 @@ SCHEMA.static('queryAccounts', async (filter: Record<string, unknown> = {}, page
       skip: skip,
       limit: itemsPerPage,
     })
+      .populate('type')
+      .populate('provider')
+      .populate('token_type')
+      .populate('session_state')
       .populate('user')
       .lean()) as databaseTypes.IAccount[];
 
     const format = new DBFormatter();
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    const formattedAccounts = accountDocuments?.map((doc: databaseTypes.IAccount) => {
+    const accounts = accountDocuments?.map((doc: any) => {
       return format.toJS(doc);
     });
 
     const retval: IQueryResult<databaseTypes.IAccount> = {
-      results: formattedAccounts as unknown as databaseTypes.IAccount[],
+      results: accounts as unknown as databaseTypes.IAccount[],
       numberOfItems: count,
       page: page,
       itemsPerPage: itemsPerPage,
@@ -157,57 +317,44 @@ SCHEMA.static('queryAccounts', async (filter: Record<string, unknown> = {}, page
     if (err instanceof error.DataNotFoundError || err instanceof error.InvalidArgumentError) throw err;
     else
       throw new error.DatabaseOperationError(
-        'An unexpected error occurred while querying the accounts.  See the inner error for additional information',
+        'An unexpected error occurred while getting the accounts.  See the inner error for additional information',
         'mongoDb',
-        'queryProjectTemplates',
+        'queryAccounts',
         err
       );
   }
 });
 
-SCHEMA.static('validateUpdateObject', async (account: Omit<Partial<databaseTypes.IAccount>, '_id'>): Promise<void> => {
-  if (account.user?._id && !(await UserModel.userIdExists(account.user?._id)))
-    throw new error.InvalidOperationError(`A User with the _id: ${account.user._id} cannot be found`, {
-      userId: account.user._id,
-    });
-
-  if ((account as unknown as databaseTypes.IAccount)._id)
-    throw new error.InvalidOperationError("An Account's _id is imutable and cannot be changed", {
-      _id: (account as unknown as databaseTypes.IAccount)._id,
-    });
-});
-
+// UPDATE
 SCHEMA.static(
   'updateAccountWithFilter',
-  async (filter: Record<string, unknown>, account: Omit<Partial<databaseTypes.IAccount>, '_id'>): Promise<boolean> => {
-    //TODO: we need to set and validate the updateDate and make the createdDate immutable.
-    await ACCOUNT_MODEL.validateUpdateObject(account);
+  async (filter: Record<string, unknown>, account: Omit<Partial<databaseTypes.IAccount>, '_id'>): Promise<void> => {
     try {
-      const transformedAccount: Partial<IAccountDocument> & Record<string, any> = {};
+      await ACCOUNT_MODEL.validateUpdateObject(account);
+      const updateDate = new Date();
+      const transformedObject: Partial<IAccountDocument> & Record<string, unknown> = {updatedAt: updateDate};
       for (const key in account) {
         const value = (account as Record<string, any>)[key];
-        if (key !== 'user') transformedAccount[key] = value;
-        else {
-          //we only store the user id in our account collection
-          transformedAccount[key] = value._id;
-        }
+        if (key === 'user')
+          transformedObject.user =
+            value instanceof mongooseTypes.ObjectId ? value : (value._id as mongooseTypes.ObjectId);
+        else transformedObject[key] = value;
       }
-      const updateResult = await ACCOUNT_MODEL.updateOne(filter, transformedAccount);
+      const updateResult = await ACCOUNT_MODEL.updateOne(filter, transformedObject);
       if (updateResult.modifiedCount !== 1) {
-        throw new error.InvalidArgumentError(`No account document with filter: ${filter} was found`, 'filter', filter);
+        throw new error.InvalidArgumentError('No account document with filter: ${filter} was found', 'filter', filter);
       }
     } catch (err) {
       if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) throw err;
       else
         throw new error.DatabaseOperationError(
-          `An unexpected error occurred while updating the account with filter :${filter}.  See the inner error for additional information`,
+          `An unexpected error occurred while updating the project with filter :${filter}.  See the inner error for additional information`,
           'mongoDb',
           'update account',
           {filter: filter, account: account},
           err
         );
     }
-    return true;
   }
 );
 
@@ -215,72 +362,17 @@ SCHEMA.static(
   'updateAccountById',
   async (accountId: string, account: Omit<Partial<databaseTypes.IAccount>, '_id'>): Promise<databaseTypes.IAccount> => {
     await ACCOUNT_MODEL.updateAccountWithFilter({_id: accountId}, account);
-    const retval = await ACCOUNT_MODEL.getAccountById(accountId);
-    const format = new DBFormatter();
-    return format.toJS(retval);
+    return await ACCOUNT_MODEL.getAccountById(accountId);
   }
 );
 
-SCHEMA.static('createAccount', async (input: IAccountCreateInput): Promise<databaseTypes.IAccount> => {
-  const userId =
-    typeof input.user === 'string' ? new mongooseTypes.ObjectId(input.user) : new mongooseTypes.ObjectId(input.user.id);
-
-  const userExists = await UserModel.userIdExists(userId);
-  if (!userExists)
-    throw new error.InvalidArgumentError(`A user with _id : ${userId} cannot be found`, 'user._id', input.userId);
-
-  const transformedDocument: IAccountDocument = {
-    type: input.type,
-    provider: input.provider,
-    providerAccountId: input.providerAccountId,
-    refresh_token: input.refresh_token,
-    refresh_token_expires_in: input.refresh_token_expires_in,
-    access_token: input.refresh_token,
-    expires_at: input.expires_at,
-    token_type: input.token_type,
-    scope: input.scope,
-    id_token: input.id_token,
-    session_state: input.session_state,
-    oauth_token: input.oauth_token,
-    oauth_token_secret: input.oauth_token_secret,
-    user: userId,
-  };
-
-  try {
-    await ACCOUNT_MODEL.validate(transformedDocument);
-  } catch (err) {
-    throw new error.DataValidationError(
-      'An error occurred while validating the account document.  See the inner error for additional details.',
-      'account',
-      transformedDocument,
-      err
-    );
-  }
-
-  try {
-    const createdDocument = (
-      await ACCOUNT_MODEL.create([transformedDocument], {
-        validateBeforeSave: false,
-      })
-    )[0];
-    return await ACCOUNT_MODEL.getAccountById(createdDocument._id.toString());
-  } catch (err) {
-    throw new error.DatabaseOperationError(
-      'An unexpected error occurred wile creating the account. See the inner error for additional information',
-      'mongoDb',
-      'create account',
-      input,
-      err
-    );
-  }
-});
-
+// DELETE
 SCHEMA.static('deleteAccountById', async (accountId: string): Promise<void> => {
   try {
     const results = await ACCOUNT_MODEL.deleteOne({_id: accountId});
     if (results.deletedCount !== 1)
       throw new error.InvalidArgumentError(
-        `An account with a _id: ${accountId} was not found in the database`,
+        `A account with a _id: ${accountId} was not found in the database`,
         '_id',
         accountId
       );
@@ -295,6 +387,84 @@ SCHEMA.static('deleteAccountById', async (accountId: string): Promise<void> => {
         err
       );
   }
+});
+
+SCHEMA.static(
+  'addUser',
+  async (accountId: string, user: databaseTypes.IUser | string): Promise<databaseTypes.IAccount> => {
+    try {
+      if (!user) throw new error.InvalidArgumentError('You must supply at least one id', 'user', user);
+      const accountDocument = await ACCOUNT_MODEL.findById(accountId);
+
+      if (!accountDocument)
+        throw new error.DataNotFoundError('A accountDocument with _id cannot be found', 'account._id', accountId);
+
+      const reconciledId = await ACCOUNT_MODEL.validateUser(user);
+
+      if (accountDocument.user?.toString() !== reconciledId.toString()) {
+        const reconciledId = await ACCOUNT_MODEL.validateUser(user);
+
+        // @ts-ignore
+        accountDocument.user = reconciledId;
+        await accountDocument.save();
+      }
+
+      return await ACCOUNT_MODEL.getAccountById(accountId);
+    } catch (err) {
+      if (
+        err instanceof error.DataNotFoundError ||
+        err instanceof error.DataValidationError ||
+        err instanceof error.InvalidArgumentError
+      )
+        throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An unexpected error occurred while adding the user. See the inner error for additional information',
+          'mongoDb',
+          'account.addUser',
+          err
+        );
+      }
+    }
+  }
+);
+
+SCHEMA.static('removeUser', async (accountId: string): Promise<databaseTypes.IAccount> => {
+  try {
+    const accountDocument = await ACCOUNT_MODEL.findById(accountId);
+    if (!accountDocument)
+      throw new error.DataNotFoundError('A accountDocument with _id cannot be found', 'account._id', accountId);
+
+    // @ts-ignore
+    accountDocument.user = undefined;
+    await accountDocument.save();
+
+    return await ACCOUNT_MODEL.getAccountById(accountId);
+  } catch (err) {
+    if (
+      err instanceof error.DataNotFoundError ||
+      err instanceof error.DataValidationError ||
+      err instanceof error.InvalidArgumentError
+    )
+      throw err;
+    else {
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while removing the user. See the inner error for additional information',
+        'mongoDb',
+        'account.removeUser',
+        err
+      );
+    }
+  }
+});
+
+SCHEMA.static('validateUser', async (input: databaseTypes.IUser | string): Promise<mongooseTypes.ObjectId> => {
+  const userId = typeof input === 'string' ? new mongooseTypes.ObjectId(input) : new mongooseTypes.ObjectId(input.id);
+
+  if (!(await UserModel.userIdExists(userId))) {
+    throw new error.InvalidArgumentError(`The user: ${userId} does not exist`, 'userId', userId);
+  }
+  return userId;
 });
 
 // define the object that holds Mongoose models

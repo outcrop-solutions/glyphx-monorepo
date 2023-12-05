@@ -1,13 +1,14 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
 import {Types as mongooseTypes, Model} from 'mongoose';
 import {IQueryResult, databaseTypes} from 'types';
 import {IVerificationTokenMethods} from './iVerificationTokenMethods';
+import {IVerificationTokenCreateInput} from './iVerificationTokenCreateInput';
+
 export interface IVerificationTokenStaticMethods
   extends Model<databaseTypes.IVerificationToken, {}, IVerificationTokenMethods> {
   verificationTokenIdExists(verificationTokenId: mongooseTypes.ObjectId): Promise<boolean>;
   allVerificationTokenIdsExist(verificationTokenIds: mongooseTypes.ObjectId[]): Promise<boolean>;
-  createVerificationToken(
-    input: Omit<databaseTypes.IVerificationToken, '_id'>
-  ): Promise<databaseTypes.IVerificationToken>;
+  createVerificationToken(input: IVerificationTokenCreateInput): Promise<databaseTypes.IVerificationToken>;
   getVerificationTokenById(verificationTokenId: string): Promise<databaseTypes.IVerificationToken>;
   queryVerificationTokens(
     filter?: Record<string, unknown>,
@@ -17,11 +18,11 @@ export interface IVerificationTokenStaticMethods
   updateVerificationTokenWithFilter(
     filter: Record<string, unknown>,
     verificationToken: Omit<Partial<databaseTypes.IVerificationToken>, '_id'>
-  ): Promise<void>;
+  ): Promise<databaseTypes.IVerificationToken>;
   updateVerificationTokenById(
     verificationTokenId: string,
     verificationToken: Omit<Partial<databaseTypes.IVerificationToken>, '_id'>
   ): Promise<databaseTypes.IVerificationToken>;
-  deleteVerificationTokenById(sessionId: string): Promise<void>;
+  deleteVerificationTokenById(verificationTokenId: string): Promise<void>;
   validateUpdateObject(verificationToken: Omit<Partial<databaseTypes.IVerificationToken>, '_id'>): Promise<void>;
 }

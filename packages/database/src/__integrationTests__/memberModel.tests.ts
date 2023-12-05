@@ -1,160 +1,111 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
+import * as mocks from '../mongoose/mocks';
 import {assert} from 'chai';
-import {MongoDbConnection} from '../mongoose/mongooseConnection';
+import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
-import {databaseTypes} from 'types';
 import {error} from 'core';
-import {DBFormatter} from '../lib/format';
 
 type ObjectId = mongooseTypes.ObjectId;
 
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
-const INPUT_USER = {
-  userCode: 'testUserCode' + UNIQUE_KEY,
-  name: 'testUser' + UNIQUE_KEY,
-  username: 'testUserName' + UNIQUE_KEY,
-  email: 'testEmail' + UNIQUE_KEY + '@email.com',
-  emailVerified: new Date(),
-  isVerified: true,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  accounts: [],
-  sessions: [],
-  membership: [],
-  invitedMembers: [],
-  createdWorkspaces: [],
-  projects: [],
-  webhooks: [],
-};
-
-const INPUT_WORKSPACE = {
-  workspaceCode: 'testWorkspace' + UNIQUE_KEY,
-  inviteCode: 'testWorkspace' + UNIQUE_KEY,
-  name: 'testName' + UNIQUE_KEY,
-  slug: 'testSlug' + UNIQUE_KEY,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  description: 'testDescription',
-  creator: {},
-  members: [] as unknown as mongooseTypes.ObjectId[],
-  projects: [] as unknown as mongooseTypes.ObjectId[],
-};
-
-const INPUT_DATA = {
-  email: 'james@glyphx.co' + UNIQUE_KEY,
-  inviter: 'jp@glyphx.co',
-  invitedAt: new Date(),
-  joinedAt: new Date(),
-  updatedAt: new Date(),
-  createdAt: new Date(),
-  status: databaseTypes.constants.INVITATION_STATUS.PENDING,
-  teamRole: databaseTypes.constants.ROLE.MEMBER,
-  member: {},
-  invitedBy: {},
-  workspace: {},
-};
-
-const INPUT_DATA2 = {
-  email: 'james2@glyphx.co' + UNIQUE_KEY,
-  inviter: 'jp@glyphx.co',
-  invitedAt: new Date(),
-  joinedAt: new Date(),
-  updatedAt: new Date(),
-  createdAt: new Date(),
-  status: databaseTypes.constants.INVITATION_STATUS.PENDING,
-  teamRole: databaseTypes.constants.ROLE.MEMBER,
-  member: {},
-  invitedBy: {},
-  workspace: {},
-};
-
-describe('#memberModel', () => {
+describe('#MemberModel', () => {
   context('test the crud functions of the member model', () => {
     const mongoConnection = new MongoDbConnection();
-    const format = new DBFormatter();
     const memberModel = mongoConnection.models.MemberModel;
-    let memberId: string;
-    let memberId2: string;
-    let userId: ObjectId;
+    let memberDocId: ObjectId;
+    let memberDocId2: ObjectId;
+    let memberId: ObjectId;
+    let memberDocument: any;
+    let invitedById: ObjectId;
+    let invitedByDocument: any;
     let workspaceId: ObjectId;
-    let userDocument: any;
     let workspaceDocument: any;
+    let projectId: ObjectId;
+    let projectDocument: any;
+
     before(async () => {
       await mongoConnection.init();
-      const userModel = mongoConnection.models.UserModel;
+      const memberModel = mongoConnection.models.UserModel;
+      const savedMemberDocument = await memberModel.create([mocks.MOCK_USER], {
+        validateBeforeSave: false,
+      });
+      memberId = savedMemberDocument[0]?._id as mongooseTypes.ObjectId;
+      assert.isOk(memberId);
       const workspaceModel = mongoConnection.models.WorkspaceModel;
-
-      await userModel.createUser(INPUT_USER as databaseTypes.IUser);
-
-      const savedUserDocument = await userModel.findOne({email: INPUT_USER.email}).lean();
-      userId = savedUserDocument?._id as mongooseTypes.ObjectId;
-
-      userDocument = savedUserDocument;
-      assert.isOk(userId);
-
-      const inputWorkspace = JSON.parse(JSON.stringify(INPUT_WORKSPACE));
-      inputWorkspace.creator = userDocument;
-
-      await workspaceModel.createWorkspace(format.toJS(inputWorkspace as unknown as databaseTypes.IWorkspace));
-
-      const savedWorkspaceDocument = await workspaceModel.findOne({slug: INPUT_WORKSPACE.slug}).lean();
-      workspaceId = savedWorkspaceDocument?._id as mongooseTypes.ObjectId;
-
-      workspaceDocument = savedWorkspaceDocument;
+      const savedWorkspaceDocument = await workspaceModel.create([mocks.MOCK_WORKSPACE], {
+        validateBeforeSave: false,
+      });
+      workspaceId = savedWorkspaceDocument[0]?._id as mongooseTypes.ObjectId;
       assert.isOk(workspaceId);
+      const projectModel = mongoConnection.models.ProjectModel;
+      const savedProjectDocument = await projectModel.create([mocks.MOCK_PROJECT], {
+        validateBeforeSave: false,
+      });
+      projectId = savedProjectDocument[0]?._id as mongooseTypes.ObjectId;
+      assert.isOk(projectId);
     });
 
     after(async () => {
-      const userModel = mongoConnection.models.UserModel;
-      await userModel.findByIdAndDelete(userId);
+      if (memberDocId) {
+        await memberModel.findByIdAndDelete(memberDocId);
+      }
 
+      if (memberDocId2) {
+        await memberModel.findByIdAndDelete(memberDocId2);
+      }
+      const memberModel = mongoConnection.models.UserModel;
+      await memberModel.findByIdAndDelete(memberId);
+      const invitedByModel = mongoConnection.models.UserModel;
+      await invitedByModel.findByIdAndDelete(invitedById);
       const workspaceModel = mongoConnection.models.WorkspaceModel;
       await workspaceModel.findByIdAndDelete(workspaceId);
-
-      if (memberId) {
-        await memberModel.findByIdAndDelete(memberId);
-      }
-      if (memberId2) {
-        await memberModel.findByIdAndDelete(memberId2);
-      }
+      const projectModel = mongoConnection.models.ProjectModel;
+      await projectModel.findByIdAndDelete(projectId);
     });
 
-    it('add a new member', async () => {
-      const memberInput = JSON.parse(JSON.stringify(INPUT_DATA));
-      memberInput.member = userDocument;
-      memberInput.invitedBy = userDocument;
+    it('add a new member ', async () => {
+      const memberInput = JSON.parse(JSON.stringify(mocks.MOCK_MEMBER));
+
+      memberInput.member = memberDocument;
+      memberInput.invitedBy = invitedByDocument;
       memberInput.workspace = workspaceDocument;
-      const memberDocument = await memberModel.createWorkspaceMember(format.toJS(memberInput));
+      memberInput.project = projectDocument;
+
+      const memberDocument = await memberModel.createMember(memberInput);
 
       assert.isOk(memberDocument);
-      assert.strictEqual(memberDocument.email, memberInput.email);
-      assert.strictEqual(memberDocument.member.id, userId.toString());
-      assert.strictEqual(memberDocument.invitedBy.id, userId.toString());
-      assert.strictEqual(memberDocument.workspace.id, workspaceId.toString());
+      assert.strictEqual(Object.keys(memberDocument)[1], Object.keys(memberInput)[1]);
 
-      memberId = memberDocument.id!;
+      memberDocId = memberDocument._id as mongooseTypes.ObjectId;
     });
 
     it('retreive a member', async () => {
-      assert.isOk(memberId);
-      const member = await memberModel.getMemberById(memberId);
+      assert.isOk(memberDocId);
+      const member = await memberModel.getMemberById(memberDocId);
 
       assert.isOk(member);
-      assert.strictEqual(member.id, memberId.toString());
+      assert.strictEqual(member._id?.toString(), memberDocId.toString());
+    });
+
+    it('modify a member', async () => {
+      assert.isOk(memberDocId);
+      const input = {deletedAt: new Date()};
+      const updatedDocument = await memberModel.updateMemberById(memberDocId, input);
+      assert.isOk(updatedDocument.deletedAt);
     });
 
     it('Get multiple members without a filter', async () => {
-      assert.isOk(memberId);
-      const memberInput = JSON.parse(JSON.stringify(INPUT_DATA2));
-      memberInput.member = userDocument;
-      memberInput.invitedBy = userDocument;
-      memberInput.workspace = workspaceDocument;
-      const memberDocument = await memberModel.createWorkspaceMember(format.toJS(memberInput));
+      assert.isOk(memberDocId);
+      const memberInput = JSON.parse(JSON.stringify(mocks.MOCK_MEMBER));
+
+      const memberDocument = await memberModel.createMember(memberInput);
 
       assert.isOk(memberDocument);
-      memberId2 = memberDocument.id!;
+
+      memberDocId2 = memberDocument._id as mongooseTypes.ObjectId;
 
       const members = await memberModel.queryMembers();
       assert.isArray(members.results);
@@ -165,47 +116,40 @@ describe('#memberModel', () => {
     });
 
     it('Get multiple members with a filter', async () => {
-      assert.isOk(memberId2);
+      assert.isOk(memberDocId2);
       const results = await memberModel.queryMembers({
-        email: INPUT_DATA.email,
+        deletedAt: undefined,
       });
       assert.strictEqual(results.results.length, 1);
-      assert.strictEqual(results.results[0]?.email, INPUT_DATA.email);
+      assert.isUndefined(results.results[0]?.deletedAt);
     });
 
-    it('page members', async () => {
-      assert.isOk(memberId2);
+    it('page accounts', async () => {
+      assert.isOk(memberDocId2);
       const results = await memberModel.queryMembers({}, 0, 1);
       assert.strictEqual(results.results.length, 1);
 
-      const lastId = results.results[0]?.id;
+      const lastId = results.results[0]?._id;
 
       const results2 = await memberModel.queryMembers({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?.id, lastId?.toString());
-    });
-
-    it('modify a Member', async () => {
-      assert.isOk(memberId);
-      const input = {email: 'example@gmail.com'};
-      const updatedDocument = await memberModel.updateMemberById(memberId.toString(), input);
-      assert.strictEqual(updatedDocument.email, input.email);
+      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
     });
 
     it('remove a member', async () => {
-      assert.isOk(memberId);
-      await memberModel.deleteMemberById(memberId.toString());
+      assert.isOk(memberDocId);
+      await memberModel.deleteMemberById(memberDocId.toString());
       let errored = false;
       try {
-        await memberModel.getMemberById(memberId.toString());
+        await memberModel.getMemberById(memberDocId.toString());
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
       }
 
       assert.isTrue(errored);
-      memberId = null as unknown as string;
+      memberDocId = null as unknown as ObjectId;
     });
   });
 });

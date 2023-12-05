@@ -1,9 +1,7 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
 import {databaseTypes} from 'types';
-/**
- * This interface is created to allow lookups to work with our IUser interface in mongoDb.
- * This will omit the types from IUser which are lookups and coalesce them to either objectIds
- * (the underlying  mongoose types) or the document that is related.
- */
+import {Types as mongooseTypes} from 'mongoose';
+
 export interface IUserCreateInput
   extends Omit<
     databaseTypes.IUser,
@@ -15,16 +13,16 @@ export interface IUserCreateInput
     | 'membership'
     | 'invitedMembers'
     | 'createdWorkspaces'
-    | 'webhooks'
     | 'projects'
     | 'customerPayment'
+    | 'webhooks'
   > {
   accounts: (string | databaseTypes.IAccount)[];
   sessions: (string | databaseTypes.ISession)[];
   membership: (string | databaseTypes.IMember)[];
   invitedMembers: (string | databaseTypes.IMember)[];
   createdWorkspaces: (string | databaseTypes.IWorkspace)[];
-  webhooks: (string | databaseTypes.IWebhook)[];
   projects: (string | databaseTypes.IProject)[];
-  customerPayment?: string | databaseTypes.ICustomerPayment;
+  customerPayment: string | databaseTypes.ICustomerPayment;
+  webhooks: (string | databaseTypes.IWebhook)[];
 }

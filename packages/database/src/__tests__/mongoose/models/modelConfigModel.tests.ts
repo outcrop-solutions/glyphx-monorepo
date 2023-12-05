@@ -1,11 +1,13 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {assert} from 'chai';
 import {ModelConfigModel} from '../../../mongoose/models/modelConfig';
-import {databaseTypes} from 'types';
+import * as mocks from '../../../mongoose/mocks';
+// eslint-disable-next-line import/no-duplicates
+import {minColorSchema} from '../../../mongoose/schemas';
+import {IQueryResult, databaseTypes} from 'types';
 import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
-import * as mocks from '../../../mongoose/mocks';
 
 describe('#mongoose/models/modelConfig', () => {
   context('modelConfigIdExists', () => {
@@ -130,11 +132,22 @@ describe('#mongoose/models/modelConfig', () => {
     it('will not throw an error when no unsafe fields are present', async () => {
       let errored = false;
 
-      const safeMock = {...mocks.MOCK_MODELCONFIG};
-      delete safeMock['_id'];
       try {
         await ModelConfigModel.validateUpdateObject(
-          safeMock as unknown as Omit<Partial<databaseTypes.IModelConfig>, '_id'>
+          mocks.MOCK_MODELCONFIG as unknown as Omit<Partial<databaseTypes.IModelConfig>, '_id'>
+        );
+      } catch (err) {
+        errored = true;
+      }
+      assert.isFalse(errored);
+    });
+
+    it('will not throw an error when the related fields exist in the database', async () => {
+      let errored = false;
+
+      try {
+        await ModelConfigModel.validateUpdateObject(
+          mocks.MOCK_MODELCONFIG as unknown as Omit<Partial<databaseTypes.IModelConfig>, '_id'>
         );
       } catch (err) {
         errored = true;
@@ -297,12 +310,12 @@ describe('#mongoose/models/modelConfig', () => {
       findByIdStub.returns(new MockMongooseQuery(mocks.MOCK_MODELCONFIG));
       sandbox.replace(ModelConfigModel, 'findById', findByIdStub);
 
-      const doc = await ModelConfigModel.getModelConfigById(mocks.MOCK_MODELCONFIG._id!.toString());
+      const doc = await ModelConfigModel.getModelConfigById(mocks.MOCK_MODELCONFIG._id as mongoose.Types.ObjectId);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any)?.__v);
 
-      assert.strictEqual(doc.id, mocks.MOCK_MODELCONFIG._id!.toString());
+      assert.strictEqual(doc._id, mocks.MOCK_MODELCONFIG._id);
     });
 
     it('will throw a DataNotFoundError when the modelConfig does not exist', async () => {
@@ -312,7 +325,7 @@ describe('#mongoose/models/modelConfig', () => {
 
       let errored = false;
       try {
-        await ModelConfigModel.getModelConfigById(mocks.MOCK_MODELCONFIG._id!.toString());
+        await ModelConfigModel.getModelConfigById(mocks.MOCK_MODELCONFIG._id as mongoose.Types.ObjectId);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -328,7 +341,7 @@ describe('#mongoose/models/modelConfig', () => {
 
       let errored = false;
       try {
-        await ModelConfigModel.getModelConfigById(mocks.MOCK_MODELCONFIG._id!.toString());
+        await ModelConfigModel.getModelConfigById(mocks.MOCK_MODELCONFIG._id as mongoose.Types.ObjectId);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -470,7 +483,7 @@ describe('#mongoose/models/modelConfig', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(ModelConfigModel, 'validateUpdateObject', validateStub);
 
-      const result = await ModelConfigModel.updateModelConfigById(modelConfigId.toString(), updateModelConfig);
+      const result = await ModelConfigModel.updateModelConfigById(modelConfigId, updateModelConfig);
 
       assert.strictEqual(result._id, modelConfigId);
       assert.isTrue(updateStub.calledOnce);
@@ -498,7 +511,7 @@ describe('#mongoose/models/modelConfig', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(ModelConfigModel, 'validateUpdateObject', validateStub);
 
-      const result = await ModelConfigModel.updateModelConfigById(modelConfigId.toString(), updateModelConfig);
+      const result = await ModelConfigModel.updateModelConfigById(modelConfigId, updateModelConfig);
 
       assert.strictEqual(result._id, modelConfigId);
       assert.isTrue(updateStub.calledOnce);
@@ -528,7 +541,7 @@ describe('#mongoose/models/modelConfig', () => {
 
       let errorred = false;
       try {
-        await ModelConfigModel.updateModelConfigById(modelConfigId.toString(), updateModelConfig);
+        await ModelConfigModel.updateModelConfigById(modelConfigId, updateModelConfig);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -557,7 +570,7 @@ describe('#mongoose/models/modelConfig', () => {
       sandbox.replace(ModelConfigModel, 'validateUpdateObject', validateStub);
       let errorred = false;
       try {
-        await ModelConfigModel.updateModelConfigById(modelConfigId.toString(), updateModelConfig);
+        await ModelConfigModel.updateModelConfigById(modelConfigId, updateModelConfig);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errorred = true;
@@ -587,7 +600,7 @@ describe('#mongoose/models/modelConfig', () => {
 
       let errorred = false;
       try {
-        await ModelConfigModel.updateModelConfigById(modelConfigId.toString(), updateModelConfig);
+        await ModelConfigModel.updateModelConfigById(modelConfigId, updateModelConfig);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -610,7 +623,7 @@ describe('#mongoose/models/modelConfig', () => {
 
       const modelConfigId = new mongoose.Types.ObjectId();
 
-      await ModelConfigModel.deleteModelConfigById(modelConfigId.toString());
+      await ModelConfigModel.deleteModelConfigById(modelConfigId);
 
       assert.isTrue(deleteStub.calledOnce);
     });
@@ -624,7 +637,7 @@ describe('#mongoose/models/modelConfig', () => {
 
       let errorred = false;
       try {
-        await ModelConfigModel.deleteModelConfigById(modelConfigId.toString());
+        await ModelConfigModel.deleteModelConfigById(modelConfigId);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -642,7 +655,7 @@ describe('#mongoose/models/modelConfig', () => {
 
       let errorred = false;
       try {
-        await ModelConfigModel.deleteModelConfigById(modelConfigId.toString());
+        await ModelConfigModel.deleteModelConfigById(modelConfigId);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;

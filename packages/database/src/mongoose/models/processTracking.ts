@@ -1,44 +1,104 @@
-import mongoose, {Types as mongooseTypes, Model} from 'mongoose';
-
+// THIS CODE WAS AUTOMATICALLY GENERATED
 import {IQueryResult, databaseTypes} from 'types';
-import {IProcessTrackingMethods, IProcessTrackingStaticMethods, IProcessTrackingDocument} from '../interfaces';
 import {DBFormatter} from '../../lib/format';
+import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {error} from 'core';
+import {
+  IProcessTrackingDocument,
+  IProcessTrackingCreateInput,
+  IProcessTrackingStaticMethods,
+  IProcessTrackingMethods,
+} from '../interfaces';
 
-const SCHEMA = new mongoose.Schema<IProcessTrackingDocument, IProcessTrackingStaticMethods, IProcessTrackingMethods>({
-  processId: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  processName: {type: String, required: true},
-  processStatus: {
-    type: String,
-    required: true,
-    enum: databaseTypes.constants.PROCESS_STATUS,
-  },
-  processStartTime: {
+const SCHEMA = new Schema<IProcessTrackingDocument, IProcessTrackingStaticMethods, IProcessTrackingMethods>({
+  createdAt: {
     type: Date,
     required: true,
     default:
       //istanbul ignore next
       () => new Date(),
   },
-  processEndTime: {type: Date, required: false},
-  processMessages: {type: [String], required: true},
-  processError: {type: [Object], required: true},
-  processResult: {type: Object, required: false},
-  processHeartbeat: {type: Date, required: false},
+  updatedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  deletedAt: {
+    type: Date,
+    required: true,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  id: {
+    type: String,
+    required: false,
+  },
+  processId: {
+    type: String,
+    required: true,
+  },
+  processName: {
+    type: String,
+    required: true,
+  },
+  processStatus: {
+    type: String,
+    required: false,
+    enum: databaseTypes.PROCESS_STATUS,
+  },
+  processStartTime: {
+    type: Date,
+    required: false,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  processEndTime: {
+    type: Date,
+    required: false,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
+  processMessages: [
+    {
+      type: Schema.Types.ObjectId,
+      required: false,
+      ref: 'processMessages',
+    },
+  ],
+  processError: [
+    {
+      type: Schema.Types.ObjectId,
+      required: false,
+      ref: 'processError',
+    },
+  ],
+  processResult: {
+    type: Schema.Types.Mixed,
+    required: false,
+    default: {},
+  },
+  processHeartbeat: {
+    type: Date,
+    required: false,
+    default:
+      //istanbul ignore next
+      () => new Date(),
+  },
 });
 
 SCHEMA.static('processTrackingIdExists', async (processTrackingId: mongooseTypes.ObjectId): Promise<boolean> => {
   let retval = false;
   try {
-    const result = await PROCESS_TRACKING_MODEL.findById(processTrackingId, ['_id']);
+    const result = await PROCESSTRACKING_MODEL.findById(processTrackingId, ['_id']);
     if (result) retval = true;
   } catch (err) {
     throw new error.DatabaseOperationError(
-      'an unexpected error occurred while trying to find the process tracking document.  See the inner error for additional information',
+      'an unexpected error occurred while trying to find the processTracking.  See the inner error for additional information',
       'mongoDb',
       'processTrackingIdExists',
       {_id: processTrackingId},
@@ -48,27 +108,10 @@ SCHEMA.static('processTrackingIdExists', async (processTrackingId: mongooseTypes
   return retval;
 });
 
-SCHEMA.static('processIdExists', async (processId: string): Promise<boolean> => {
-  let retval = false;
-  try {
-    const result = await PROCESS_TRACKING_MODEL.findOne({processId: processId}, ['_id']);
-    if (result) retval = true;
-  } catch (err) {
-    throw new error.DatabaseOperationError(
-      'an unexpected error occurred while trying to find the process tracking document.  See the inner error for additional information',
-      'mongoDb',
-      'processIdExists',
-      {_id: processId},
-      err
-    );
-  }
-  return retval;
-});
-
 SCHEMA.static('allProcessTrackingIdsExist', async (processTrackingIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
   try {
     const notFoundIds: mongooseTypes.ObjectId[] = [];
-    const foundIds = (await PROCESS_TRACKING_MODEL.find({_id: {$in: processTrackingIds}}, ['_id'])) as {
+    const foundIds = (await PROCESSTRACKING_MODEL.find({_id: {$in: processTrackingIds}}, ['_id'])) as {
       _id: mongooseTypes.ObjectId;
     }[];
 
@@ -99,173 +142,202 @@ SCHEMA.static('allProcessTrackingIdsExist', async (processTrackingIds: mongooseT
 });
 
 SCHEMA.static(
-  'createProcessTrackingDocument',
-  async (input: Omit<databaseTypes.IProcessTracking, '_id'>): Promise<databaseTypes.IProcessTracking> => {
-    const transformedDocument: IProcessTrackingDocument = {
-      processId: input.processId,
-      processName: input.processName,
-      processStatus: input.processStatus ?? databaseTypes.constants.PROCESS_STATUS.PENDING,
-      processStartTime: input.processStartTime ?? new Date(),
-      processMessages: input.processMessages ?? [],
-      processError: input.processError ?? [],
+  'validateUpdateObject',
+  async (processTracking: Omit<Partial<databaseTypes.IProcessTracking>, '_id'>): Promise<void> => {
+    const idValidator = async (
+      id: mongooseTypes.ObjectId,
+      objectType: string,
+      validator: (id: mongooseTypes.ObjectId) => Promise<boolean>
+    ) => {
+      const result = await validator(id);
+      if (!result) {
+        throw new error.InvalidOperationError(
+          `A ${objectType} with an id: ${id} cannot be found.  You cannot update a processTracking with an invalid ${objectType} id`,
+          {objectType: objectType, id: id}
+        );
+      }
     };
 
-    try {
-      await PROCESS_TRACKING_MODEL.validate(transformedDocument);
-    } catch (err) {
-      throw new error.DataValidationError(
-        'An error occurred while validating the processTracking document.  See the inner error for additional details.',
-        'processTracking',
-        transformedDocument,
-        err
-      );
-    }
+    const tasks: Promise<void>[] = [];
 
-    try {
-      const createdDocument = (
-        await PROCESS_TRACKING_MODEL.create([transformedDocument], {
-          validateBeforeSave: false,
-        })
-      )[0];
-      return await PROCESS_TRACKING_MODEL.getProcessTrackingDocumentById(createdDocument._id.toString());
-    } catch (err) {
-      throw new error.DatabaseOperationError(
-        'An unexpected error occurred wile creating the process tracking document. See the inner error for additional information',
-        'mongoDb',
-        'createProcessTrackingDocument',
-        input,
-        err
-      );
-    }
-  }
-);
+    if (tasks.length) await Promise.all(tasks); //will throw an exception if anything fails.
 
-SCHEMA.static(
-  'getProcessTrackingDocumentById',
-  async (processTrackingId: string): Promise<databaseTypes.IProcessTracking> => {
-    return await PROCESS_TRACKING_MODEL.getProcessTrackingDocumentByFilter({
-      _id: processTrackingId,
-    });
-  }
-);
-
-SCHEMA.static(
-  'getProcessTrackingDocumentByProcessId',
-  async (processId: string): Promise<databaseTypes.IProcessTracking> => {
-    return await PROCESS_TRACKING_MODEL.getProcessTrackingDocumentByFilter({
-      processId: processId,
-    });
-  }
-);
-
-SCHEMA.static(
-  'getProcessTrackingDocumentByFilter',
-  async (filter: Record<string, unknown>): Promise<databaseTypes.IProcessTracking> => {
-    try {
-      const processTrackingDocument = (await PROCESS_TRACKING_MODEL.findOne(
-        filter
-      ).lean()) as databaseTypes.IProcessTracking;
-      if (!processTrackingDocument) {
-        throw new error.DataNotFoundError(
-          `Could not find a process traking document using the filter: ${filter}`,
-          'filter',
-          filter
-        );
-      }
-      const format = new DBFormatter();
-      return format.toJS(processTrackingDocument);
-    } catch (err) {
-      if (err instanceof error.DataNotFoundError) throw err;
-      else
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurred while getting the process tracking document.  See the inner error for additional information',
-          'mongoDb',
-          'getProcessTrackingDocumentByFilter',
-          err
-        );
-    }
-  }
-);
-
-SCHEMA.static(
-  'queryProcessTrackingDocuments',
-  async (
-    filter: Record<string, unknown> = {},
-    page = 0,
-    itemsPerPage = 10
-  ): Promise<IQueryResult<databaseTypes.IProcessTracking>> => {
-    try {
-      const count = await PROCESS_TRACKING_MODEL.count(filter);
-
-      if (!count) {
-        throw new error.DataNotFoundError(
-          `Could not find process tracking document(s) with the filter: ${filter}`,
-          'queryProcessTrackingDocuments',
-          filter
-        );
-      }
-
-      const skip = itemsPerPage * page;
-      if (skip > count) {
-        throw new error.InvalidArgumentError(
-          `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
-            count / itemsPerPage
-          )}`,
-          'page',
-          page
-        );
-      }
-
-      const processTrackingDocuments = (await PROCESS_TRACKING_MODEL.find(filter, null, {
-        skip: skip,
-        limit: itemsPerPage,
-      }).lean()) as databaseTypes.IProcessTracking[];
-
-      const format = new DBFormatter();
-
-      const processObjects = processTrackingDocuments.map((doc: any) => {
-        return format.toJS(doc);
+    if (processTracking.createdAt)
+      throw new error.InvalidOperationError('The createdAt date is set internally and cannot be altered externally', {
+        createdAt: processTracking.createdAt,
       });
-
-      const retval: IQueryResult<databaseTypes.IProcessTracking> = {
-        results: processObjects as unknown as databaseTypes.IProcessTracking[],
-        numberOfItems: count,
-        page: page,
-        itemsPerPage: itemsPerPage,
-      };
-
-      return retval;
-    } catch (err) {
-      if (err instanceof error.DataNotFoundError || err instanceof error.InvalidArgumentError) throw err;
-      else
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurred while querying the process tracking documents.  See the inner error for additional information',
-          'mongoDb',
-          'queryProcessTrackingDocuments',
-          err
-        );
-    }
+    if (processTracking.updatedAt)
+      throw new error.InvalidOperationError('The updatedAt date is set internally and cannot be altered externally', {
+        updatedAt: processTracking.updatedAt,
+      });
+    if ((processTracking as Record<string, unknown>)['_id'])
+      throw new error.InvalidOperationError('The processTracking._id is immutable and cannot be changed', {
+        _id: (processTracking as Record<string, unknown>)['_id'],
+      });
   }
 );
 
+// CREATE
 SCHEMA.static(
-  'updateProcessTrackingDocumentWithFilter',
+  'createProcessTracking',
+  async (input: IProcessTrackingCreateInput): Promise<databaseTypes.IProcessTracking> => {
+    let id: undefined | mongooseTypes.ObjectId = undefined;
+
+    try {
+      const createDate = new Date();
+
+      //istanbul ignore next
+      const resolvedInput: IProcessTrackingDocument = {
+        createdAt: createDate,
+        updatedAt: createDate,
+        id: input.id,
+        processId: input.processId,
+        processName: input.processName,
+        processStatus: input.processStatus,
+        processStartTime: input.processStartTime,
+        processEndTime: input.processEndTime,
+        processMessages: input.processMessages,
+        processError: input.processError,
+        processResult: input.processResult,
+        processHeartbeat: input.processHeartbeat,
+      };
+      try {
+        await PROCESSTRACKING_MODEL.validate(resolvedInput);
+      } catch (err) {
+        throw new error.DataValidationError(
+          'An error occurred while validating the document before creating it.  See the inner error for additional information',
+          'IProcessTrackingDocument',
+          resolvedInput,
+          err
+        );
+      }
+      const processTrackingDocument = (
+        await PROCESSTRACKING_MODEL.create([resolvedInput], {validateBeforeSave: false})
+      )[0];
+      id = processTrackingDocument._id;
+    } catch (err) {
+      if (err instanceof error.DataValidationError) throw err;
+      else {
+        throw new error.DatabaseOperationError(
+          'An Unexpected Error occurred while adding the processTracking.  See the inner error for additional details',
+          'mongoDb',
+          'addProcessTracking',
+          {},
+          err
+        );
+      }
+    }
+    if (id) return await PROCESSTRACKING_MODEL.getProcessTrackingById(id);
+    else
+      throw new error.UnexpectedError(
+        'An unexpected error has occurred and the processTracking may not have been created.  I have no other information to provide.'
+      );
+  }
+);
+
+// READ
+SCHEMA.static('getProcessTrackingById', async (processTrackingId: mongooseTypes.ObjectId) => {
+  try {
+    const processTrackingDocument = (await PROCESSTRACKING_MODEL.findById(processTrackingId)
+      .populate('processStatus')
+      .populate('processMessages')
+      .populate('processError')
+      .populate('processResult')
+      .lean()) as databaseTypes.IProcessTracking;
+    if (!processTrackingDocument) {
+      throw new error.DataNotFoundError(
+        `Could not find a processTracking with the _id: ${processTrackingId}`,
+        'processTracking_id',
+        processTrackingId
+      );
+    }
+    const format = new DBFormatter();
+    return format.toJS(processTrackingDocument);
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the project.  See the inner error for additional information',
+        'mongoDb',
+        'getProcessTrackingById',
+        err
+      );
+  }
+});
+
+SCHEMA.static('queryProcessTrackings', async (filter: Record<string, unknown> = {}, page = 0, itemsPerPage = 10) => {
+  try {
+    const count = await PROCESSTRACKING_MODEL.count(filter);
+
+    if (!count) {
+      throw new error.DataNotFoundError(
+        `Could not find processtrackings with the filter: ${filter}`,
+        'queryProcessTrackings',
+        filter
+      );
+    }
+
+    const skip = itemsPerPage * page;
+    if (skip > count) {
+      throw new error.InvalidArgumentError(
+        `The page number supplied: ${page} exceeds the number of pages contained in the reults defined by the filter: ${Math.floor(
+          count / itemsPerPage
+        )}`,
+        'page',
+        page
+      );
+    }
+
+    const processTrackingDocuments = (await PROCESSTRACKING_MODEL.find(filter, null, {
+      skip: skip,
+      limit: itemsPerPage,
+    })
+      .populate('processStatus')
+      .populate('processMessages')
+      .populate('processError')
+      .populate('processResult')
+      .lean()) as databaseTypes.IProcessTracking[];
+
+    const format = new DBFormatter();
+    const processTrackings = processTrackingDocuments?.map((doc: any) => {
+      return format.toJS(doc);
+    });
+
+    const retval: IQueryResult<databaseTypes.IProcessTracking> = {
+      results: processTrackings as unknown as databaseTypes.IProcessTracking[],
+      numberOfItems: count,
+      page: page,
+      itemsPerPage: itemsPerPage,
+    };
+
+    return retval;
+  } catch (err) {
+    if (err instanceof error.DataNotFoundError || err instanceof error.InvalidArgumentError) throw err;
+    else
+      throw new error.DatabaseOperationError(
+        'An unexpected error occurred while getting the processTrackings.  See the inner error for additional information',
+        'mongoDb',
+        'queryProcessTrackings',
+        err
+      );
+  }
+});
+
+// UPDATE
+SCHEMA.static(
+  'updateProcessTrackingWithFilter',
   async (
     filter: Record<string, unknown>,
-    processTrackingDocument: Omit<Partial<databaseTypes.IProcessTracking>, '_id'>
-  ): Promise<boolean> => {
-    await PROCESS_TRACKING_MODEL.validateUpdateObject(processTrackingDocument);
+    processTracking: Omit<Partial<databaseTypes.IProcessTracking>, '_id'>
+  ): Promise<void> => {
     try {
-      const transformedProcessTrackingDocument: Partial<IProcessTrackingDocument> & Record<string, any> = {};
-      for (const key in processTrackingDocument) {
-        const value = (processTrackingDocument as Record<string, any>)[key];
-
-        transformedProcessTrackingDocument[key] = value;
-      }
-      const updateResult = await PROCESS_TRACKING_MODEL.updateOne(filter, transformedProcessTrackingDocument);
+      await PROCESSTRACKING_MODEL.validateUpdateObject(processTracking);
+      const updateDate = new Date();
+      const transformedObject: Partial<IProcessTrackingDocument> & Record<string, unknown> = {updatedAt: updateDate};
+      const updateResult = await PROCESSTRACKING_MODEL.updateOne(filter, transformedObject);
       if (updateResult.modifiedCount !== 1) {
         throw new error.InvalidArgumentError(
-          `No process tracking document with filter: ${filter} was found`,
+          'No processTracking document with filter: ${filter} was found',
           'filter',
           filter
         );
@@ -274,217 +346,55 @@ SCHEMA.static(
       if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) throw err;
       else
         throw new error.DatabaseOperationError(
-          `An unexpected error occurred while updating the process tracking document with filter :${filter}.  See the inner error for additional information`,
+          `An unexpected error occurred while updating the project with filter :${filter}.  See the inner error for additional information`,
           'mongoDb',
-          'updateProcessTrackingDocumentWithFilter',
-          {filter: filter, processTrackingDocument: processTrackingDocument},
+          'update processTracking',
+          {filter: filter, processTracking: processTracking},
           err
         );
     }
-    return true;
   }
 );
 
 SCHEMA.static(
-  'updateProcessTrackingDocumentById',
+  'updateProcessTrackingById',
   async (
-    processTrackingDocumentId: string,
-    processTrackingDocument: Omit<Partial<databaseTypes.IProcessTracking>, '_id'>
+    processTrackingId: mongooseTypes.ObjectId,
+    processTracking: Omit<Partial<databaseTypes.IProcessTracking>, '_id'>
   ): Promise<databaseTypes.IProcessTracking> => {
-    await PROCESS_TRACKING_MODEL.updateProcessTrackingDocumentWithFilter(
-      {processId: processTrackingDocumentId},
-      processTrackingDocument
-    );
-
-    const retval = await PROCESS_TRACKING_MODEL.getProcessTrackingDocumentByFilter({
-      processId: processTrackingDocumentId,
-    });
-    return retval;
+    await PROCESSTRACKING_MODEL.updateProcessTrackingWithFilter({_id: processTrackingId}, processTracking);
+    return await PROCESSTRACKING_MODEL.getProcessTrackingById(processTrackingId);
   }
 );
 
-SCHEMA.static(
-  'updateProcessTrackingDocumentByProcessId',
-  async (
-    processId: string,
-    processTrackingDocument: Omit<Partial<databaseTypes.IProcessTracking>, '_id'>
-  ): Promise<databaseTypes.IProcessTracking> => {
-    await PROCESS_TRACKING_MODEL.updateProcessTrackingDocumentWithFilter(
-      {processId: processId},
-      processTrackingDocument
-    );
-
-    const retval = await PROCESS_TRACKING_MODEL.getProcessTrackingDocumentByProcessId(processId);
-    return retval;
-  }
-);
-SCHEMA.static('deleteProcessTrackingDocumentByFilter', async (filter: Record<string, unknown>): Promise<void> => {
+// DELETE
+SCHEMA.static('deleteProcessTrackingById', async (processTrackingId: mongooseTypes.ObjectId): Promise<void> => {
   try {
-    const results = await PROCESS_TRACKING_MODEL.deleteOne(filter);
+    const results = await PROCESSTRACKING_MODEL.deleteOne({_id: processTrackingId});
     if (results.deletedCount !== 1)
       throw new error.InvalidArgumentError(
-        `A process tracking document with a filter: ${filter} was not found in the database`,
-        'filter',
-        filter
+        `A processTracking with a _id: ${processTrackingId} was not found in the database`,
+        '_id',
+        processTrackingId
       );
   } catch (err) {
     if (err instanceof error.InvalidArgumentError) throw err;
     else
       throw new error.DatabaseOperationError(
-        'An unexpected error occurred while deleteing the process tracking document from the database. The process tracing document may still exist.  See the inner error for additional information',
+        'An unexpected error occurred while deleteing the processTracking from the database. The processTracking may still exist.  See the inner error for additional information',
         'mongoDb',
-        'deleteProcessTrackingDocumentByFilter',
-        filter,
+        'delete processTracking',
+        {_id: processTrackingId},
         err
       );
   }
 });
-SCHEMA.static('deleteProcessTrackingDocumentById', async (processTrackingDocumentId: string): Promise<void> => {
-  await PROCESS_TRACKING_MODEL.deleteProcessTrackingDocumentByFilter({
-    _id: processTrackingDocumentId,
-  });
-});
-
-SCHEMA.static('deleteProcessTrackingDocumentProcessId', async (processId: string): Promise<void> => {
-  await PROCESS_TRACKING_MODEL.deleteProcessTrackingDocumentByFilter({
-    processId: processId,
-  });
-});
-
-SCHEMA.static(
-  'validateUpdateObject',
-  async (processTrackingDocument: Omit<Partial<databaseTypes.IProcessTracking>, '_id'>): Promise<void> => {
-    if (processTrackingDocument.processError?.length)
-      throw new error.InvalidOperationError(
-        'This method cannot be used to alter the process tracking error array.  Use the add error function to complete this operation',
-        {error: processTrackingDocument.processError}
-      );
-
-    if (processTrackingDocument.processMessages?.length)
-      throw new error.InvalidOperationError(
-        'This method cannot be used to alter the process tracking messages array.  Use the add message function to complete this operation',
-        {messages: processTrackingDocument.processMessages}
-      );
-
-    if (processTrackingDocument.processId) {
-      throw new error.InvalidOperationError('The processId is imutable and cannot changed', {
-        processId: processTrackingDocument.processId,
-      });
-    }
-
-    if ((processTrackingDocument as unknown as databaseTypes.IVerificationToken)._id)
-      throw new error.InvalidOperationError("A processTracking document's _id is imutable and cannot be changed", {
-        _id: (processTrackingDocument as unknown as databaseTypes.IProcessTracking)._id,
-      });
-  }
-);
-
-SCHEMA.static(
-  'addErrorsById',
-  async (processTrackingId: string, errors: Record<string, unknown>[]): Promise<databaseTypes.IProcessTracking> => {
-    return await PROCESS_TRACKING_MODEL.addErrorsByFilter({_id: processTrackingId}, errors);
-  }
-);
-SCHEMA.static(
-  'addErrorsByProcessId',
-  async (processId: string, errors: Record<string, unknown>[]): Promise<databaseTypes.IProcessTracking> => {
-    return await PROCESS_TRACKING_MODEL.addErrorsByFilter({processId: processId}, errors);
-  }
-);
-SCHEMA.static(
-  'addErrorsByFilter',
-  async (
-    filter: Record<string, unknown>,
-    errors: Record<string, unknown>[]
-  ): Promise<databaseTypes.IProcessTracking> => {
-    try {
-      if (!errors.length) throw new error.InvalidArgumentError('You must supply at least one error', 'errors', errors);
-      const processTrackingDocument = await PROCESS_TRACKING_MODEL.findOne(filter);
-      if (!processTrackingDocument)
-        throw new error.DataNotFoundError(
-          `A process tracking document with filter : ${filter} cannot be found`,
-          'filter',
-          filter
-        );
-      processTrackingDocument.processError.unshift(...errors);
-      await processTrackingDocument.save();
-
-      return await PROCESS_TRACKING_MODEL.getProcessTrackingDocumentByFilter(filter);
-    } catch (err) {
-      if (
-        err instanceof error.DataNotFoundError ||
-        err instanceof error.DataValidationError ||
-        err instanceof error.InvalidArgumentError
-      )
-        throw err;
-      else {
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while adding the errors. See the innner error for additional information',
-          'mongoDb',
-          'processTracking.addErrorsByFilter',
-          err
-        );
-      }
-    }
-  }
-);
-
-SCHEMA.static(
-  'addMessagesById',
-  async (processTrackingId: string, messages: string[]): Promise<databaseTypes.IProcessTracking> => {
-    return await PROCESS_TRACKING_MODEL.addMessagesByFilter({_id: processTrackingId}, messages);
-  }
-);
-SCHEMA.static(
-  'addMessagesByProcessId',
-  async (processId: string, messages: string[]): Promise<databaseTypes.IProcessTracking> => {
-    return await PROCESS_TRACKING_MODEL.addMessagesByFilter({processId: processId}, messages);
-  }
-);
-SCHEMA.static(
-  'addMessagesByFilter',
-  async (filter: Record<string, unknown>, messages: string[]): Promise<databaseTypes.IProcessTracking> => {
-    try {
-      if (!messages.length)
-        throw new error.InvalidArgumentError('You must supply at least one message', 'messages', messages);
-      const processTrackingDocument = await PROCESS_TRACKING_MODEL.findOne(filter);
-      if (!processTrackingDocument)
-        throw new error.DataNotFoundError(
-          `A process tracking document with filter : ${filter} cannot be found`,
-          'filter',
-          filter
-        );
-      processTrackingDocument.processMessages.unshift(...messages);
-      await processTrackingDocument.save();
-
-      return await PROCESS_TRACKING_MODEL.getProcessTrackingDocumentByFilter(filter);
-    } catch (err) {
-      if (
-        err instanceof error.DataNotFoundError ||
-        err instanceof error.DataValidationError ||
-        err instanceof error.InvalidArgumentError
-      )
-        throw err;
-      else {
-        throw new error.DatabaseOperationError(
-          'An unexpected error occurrred while adding the messages. See the innner error for additional information',
-          'mongoDb',
-          'processTracking.addMessagesByFilter',
-          err
-        );
-      }
-    }
-  }
-);
 
 // define the object that holds Mongoose models
 const MODELS = mongoose.connection.models as {[index: string]: Model<any>};
 
 delete MODELS['processTracking'];
 
-const PROCESS_TRACKING_MODEL = mongoose.model<IProcessTrackingDocument, IProcessTrackingStaticMethods>(
-  'processTracking',
-  SCHEMA
-);
+const PROCESSTRACKING_MODEL = model<IProcessTrackingDocument, IProcessTrackingStaticMethods>('processTracking', SCHEMA);
 
-export {PROCESS_TRACKING_MODEL as ProcessTrackingModel};
+export {PROCESSTRACKING_MODEL as ProcessTrackingModel};

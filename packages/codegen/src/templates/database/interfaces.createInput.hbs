@@ -7,10 +7,10 @@ export interface I{{pascalcase this.name}}CreateInput
   extends Omit<databaseTypes.I{{pascalcase this.name}}, '_id' | 'createdAt' | 'updatedAt' {{#each properties}}{{#if (and (isOneToOne this.relationType) (referenceTableExists this))}} | '{{camelcase this.name}}'{{else}}{{#if (and (isOneToMany this.relationType) (referenceTableExists this))}} | '{{camelcase this.name}}'{{/if}}{{/if}}{{/each}}> {
     {{#each properties}}
         {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
-            {{camelcase this.name}}: mongooseTypes.ObjectId | databaseTypes.I{{pascalcase this.referenceTable}};
+            {{camelcase this.name}}: string | databaseTypes.I{{pascalcase this.referenceTable}};
         {{else}}
             {{#if (and (isOneToMany this.relationType) (referenceTableExists this))}}
-                {{camelcase this.name}}: (mongooseTypes.ObjectId | databaseTypes.I{{pascalcase this.referenceTable}})[];
+                {{camelcase this.name}}: (string | databaseTypes.I{{pascalcase this.referenceTable}})[];
             {{/if}}
         {{/if}}
     {{/each}}

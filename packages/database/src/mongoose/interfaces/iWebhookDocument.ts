@@ -1,3 +1,4 @@
+// THIS CODE WAS AUTOMATICALLY GENERATED
 import {databaseTypes} from 'types';
 import {Types as mongooseTypes} from 'mongoose';
 
