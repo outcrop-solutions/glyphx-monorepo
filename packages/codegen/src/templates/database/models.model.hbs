@@ -1,5 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {IQueryResult, databaseTypes} from 'types'
+import {DBFormatter} from '../../lib/format';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {error} from 'core';
 import {I{{pascalcase this.name}}Document, I{{pascalcase this.name}}CreateInput, I{{pascalcase this.name}}StaticMethods, I{{pascalcase name}}Methods} from '../interfaces';
@@ -67,7 +68,7 @@ const SCHEMA = new Schema<I{{pascalcase this.name}}Document, I{{pascalcase this.
     {{else if (isEnum this.relationType)}}
     type: String,
     required: false,
-    enum: databaseTypes.{{this.type}},
+    enum: databaseTypes.constants.{{this.type}},
     {{else}}
     type: {{this.type}},
     required: {{this.isRequired}},
@@ -288,19 +289,9 @@ SCHEMA.static('get{{pascalcase this.name}}ById', async ({{camelcase this.name}}I
         {{camelcase this.name}}Id
       );
     }
-    //this is added by mongoose, so we will want to remove it before returning the document
-    //to the user.
-    delete ({{camelcase this.name}}Document as any)['__v'];
+    const format = new DBFormatter();
+    return format.toJS({{camelcase this.name}}Document);
 
-    {{#each properties}}
-    {{#if (isOneToOne this.relationType)}}
-    delete ({{camelcase ../this.name}}Document as any).{{camelcase this.name}}?.['__v'];
-    {{else if (isOneToMany this.relationType)}}
-    {{camelcase ../this.name}}Document.{{camelcase this.name}}?.forEach((m: any) => delete (m as any)['__v']);
-    {{/if}}
-    {{/each}}
-
-    return {{camelcase this.name}}Document;
   } catch (err) {
     if (err instanceof error.DataNotFoundError) throw err;
     else
@@ -349,21 +340,13 @@ SCHEMA.static(
       {{/each}}
         .lean()) as databaseTypes.I{{pascalcase this.name}}[];
 
-      //this is added by mongoose, so we will want to remove it before returning the document
-      //to the user.
-      {{camelcase this.name}}Documents.forEach((doc: any) => {
-      delete (doc as any)['__v'];
-      {{#each properties}}
-      {{#if (isOneToOne this.relationType)}}
-      delete (doc as any).{{camelcase this.name}}?.['__v'];
-      {{else if (isOneToMany this.relationType)}}
-      (doc as any).{{camelcase this.name}}?.forEach((m: any) => delete (m as any)['__v']);
-      {{/if}}
-      {{/each}}
+      const format = new DBFormatter();
+      const {{pluralize (camelcase this.name)}} = {{camelcase this.name}}Documents?.map((doc: any) => {
+        return format.toJS(doc);
       });
 
       const retval: IQueryResult<databaseTypes.I{{pascalcase this.name}}> = {
-        results: {{camelcase this.name}}Documents,
+        results: {{pluralize (camelcase this.name)}} as unknown as databaseTypes.I{{pascalcase this.name}}[],
         numberOfItems: count,
         page: page,
         itemsPerPage: itemsPerPage,

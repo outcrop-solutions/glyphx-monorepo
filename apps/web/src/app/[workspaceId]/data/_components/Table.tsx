@@ -1,6 +1,5 @@
 'use client';
 import React, {useState} from 'react';
-import {Files} from './Files';
 import {fileIngestionTypes} from 'types';
 import TableItemInfoIcon from 'public/svg/table-item-info.svg';
 import {CogIcon, TableIcon} from '@heroicons/react/outline';
@@ -13,7 +12,7 @@ const dateOptions = {
   day: 'numeric',
 };
 
-export const Table = ({table}) => {
+export const Table = ({table, children}) => {
   const [isCollapsed, setCollapsed] = useState(true);
   function sumFileSizes(fileStats: fileIngestionTypes.IFileStats[]): number {
     return fileStats.reduce((totalSize, file) => totalSize + file.fileSize, 0);
@@ -57,7 +56,7 @@ export const Table = ({table}) => {
           </div>
         </div>
       </summary>
-      {!isCollapsed && <Files files={table.files} />}
+      {!isCollapsed && children}
     </div>
   );
 };

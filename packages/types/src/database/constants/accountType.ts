@@ -1,4 +1,4 @@
 export enum ACCOUNT_TYPE {
-  GLYPHX,
-  CUSTOMER,
+  GLYPHX = 'GLYPHX',
+  CUSTOMER = 'CUSOTMER',
 }

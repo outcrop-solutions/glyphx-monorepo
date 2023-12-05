@@ -1,5 +1,5 @@
 export enum SESSION_STATE {
-  NEW,
-  SAVED,
-  DELETED,
+  NEW = 'NEW',
+  SAVED = 'SAVED',
+  DELETED = 'DELETED',
 }

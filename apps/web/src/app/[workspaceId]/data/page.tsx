@@ -26,6 +26,8 @@ export default async function DataPage({params}) {
     tables = Object.values(tablesMap);
   }
 
+  console.dir({tables, files}, {depth: null});
+
   return (
     <div className="flex flex-col h-full w-full overflow-y-auto bg-transparent">
       <div className="flex flex-col grow relative h-full px-4 sm:px-6 lg:px-8 py-2 w-full max-w-9xl mx-auto">

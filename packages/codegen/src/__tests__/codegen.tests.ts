@@ -693,6 +693,7 @@ describe('#codegen/generator', () => {
           path: '',
           properties: [] as unknown as databaseTypes.meta.IProperty[],
           relationships: [] as unknown as databaseTypes.meta.IRelation[],
+          isPublic: false,
         };
         const sourceFromTemplateStub = sandbox.stub();
         sourceFromTemplateStub.resolves();
@@ -714,6 +715,7 @@ describe('#codegen/generator', () => {
           path: '',
           properties: [] as unknown as databaseTypes.meta.IProperty[],
           relationships: [] as unknown as databaseTypes.meta.IRelation[],
+          isPublic: false,
         };
         const sourceFromTemplateStub = sandbox.stub();
         sourceFromTemplateStub.rejects();
@@ -737,6 +739,7 @@ describe('#codegen/generator', () => {
           path: '',
           properties: [] as unknown as databaseTypes.meta.IProperty[],
           relationships: [] as unknown as databaseTypes.meta.IRelation[],
+          isPublic: false,
         };
         const templatePath = '';
         const outputPath = '';
@@ -769,6 +772,7 @@ describe('#codegen/generator', () => {
           path: '',
           properties: [] as unknown as databaseTypes.meta.IProperty[],
           relationships: [] as unknown as databaseTypes.meta.IRelation[],
+          isPublic: false,
         };
         const templatePath = '';
         const outputPath = '';

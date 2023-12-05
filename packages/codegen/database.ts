@@ -18,7 +18,6 @@ export namespace databaseTypes {
     members: IMember[];
     projects: IProject[];
     filesystem: IFileStats[];
-    files: FileStats[];
     states: IState[];
   }
 

@@ -1,5 +1,5 @@
 export enum SUBSCRIPTION_TYPE {
-  FREE,
-  STANDARD,
-  PREMIUM,
+  FREE = 'FREE',
+  STANDARD = 'STANDARD',
+  PREMIUM = 'PREMIUM',
 }
