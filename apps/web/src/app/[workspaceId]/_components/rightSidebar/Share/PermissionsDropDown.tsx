@@ -33,12 +33,10 @@ export function PermissionsDropDown() {
                       className="w-full px-5 py-2 capitalize rounded appearance-none bg-transparent"
                       disabled={isSubmitting}
                     >
-                      <option value={databaseTypes.constants.PROJECT_ROLE.READ_ONLY}>
-                        {databaseTypes.constants.PROJECT_ROLE.READ_ONLY.toLowerCase()}
+                      <option value={databaseTypes.PROJECT_ROLE.READ_ONLY}>
+                        {databaseTypes.PROJECT_ROLE.READ_ONLY.toLowerCase()}
                       </option>
-                      <option value={databaseTypes.constants.ROLE.OWNER}>
-                        {databaseTypes.constants.ROLE.OWNER.toLowerCase()}
-                      </option>
+                      <option value={databaseTypes.ROLE.OWNER}>{databaseTypes.ROLE.OWNER.toLowerCase()}</option>
                     </select>
                     <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                       <ChevronDownIcon className="w-5 h-5" />

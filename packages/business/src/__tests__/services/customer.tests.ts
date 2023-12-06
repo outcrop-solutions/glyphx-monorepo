@@ -135,7 +135,7 @@ describe('#services/customer', () => {
       createCustomerPaymentFromModelStub.resolves({
         _id: customerPaymentId,
         email: customerPaymentEmail,
-        subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
+        subscriptionType: databaseTypes.SUBSCRIPTION_TYPE.FREE,
         customer: {
           id: userId,
           customerPayment: {
@@ -192,7 +192,7 @@ describe('#services/customer', () => {
       createCustomerPaymentFromModelStub.resolves({
         _id: customerPaymentId,
         email: customerPaymentEmail,
-        subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
+        subscriptionType: databaseTypes.SUBSCRIPTION_TYPE.FREE,
         customer: {
           _id: userId,
           customerPayment: {
@@ -392,7 +392,7 @@ describe('#services/customer', () => {
   context('updateSubscription', () => {
     it('will update a customerPayment subscription', async () => {
       const customerId = 'testCustomerId'; //comes from stripe
-      const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
+      const subscription = databaseTypes.SUBSCRIPTION_TYPE.PREMIUM;
       const updateCustomerPaymentFromModelStub = sandbox.stub();
       updateCustomerPaymentFromModelStub.resolves();
 
@@ -407,7 +407,7 @@ describe('#services/customer', () => {
     });
     it('will publish and rethrow an InvalidArgumentError when customerPayment model throws it ', async () => {
       const customerId = 'testCustomerId'; //comes from stripe
-      const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
+      const subscription = databaseTypes.SUBSCRIPTION_TYPE.PREMIUM;
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'emailVerified', true);
       const updateCustomerPaymentFromModelStub = sandbox.stub();
@@ -444,7 +444,7 @@ describe('#services/customer', () => {
     });
     it('will publish and rethrow an InvalidOperationError when customerPayment model throws it ', async () => {
       const customerId = 'testCustomerId'; //comes from stripe
-      const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
+      const subscription = databaseTypes.SUBSCRIPTION_TYPE.PREMIUM;
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
       const updateCustomerPaymentFromModelStub = sandbox.stub();
@@ -481,7 +481,7 @@ describe('#services/customer', () => {
     });
     it('will publish and throw an DataServiceError when customerPayment model throws a DataOperationError ', async () => {
       const customerId = 'testCustomerId'; //comes from stripe
-      const subscription = databaseTypes.constants.SUBSCRIPTION_TYPE.PREMIUM;
+      const subscription = databaseTypes.SUBSCRIPTION_TYPE.PREMIUM;
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateCustomerPaymentById');
       const updateCustomerPaymentFromModelStub = sandbox.stub();

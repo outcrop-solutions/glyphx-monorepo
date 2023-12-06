@@ -27,8 +27,8 @@ export const updateName = async (req: NextApiRequest, res: NextApiResponse, sess
       resourceId: user.id!,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.USER,
-      action: databaseTypes.constants.ACTION_TYPE.UPDATED,
+      onModel: databaseTypes.RESOURCE_MODEL.USER,
+      action: databaseTypes.ACTION_TYPE.UPDATED,
     });
     res.status(200).json({data: {name}});
   } catch (error) {
@@ -59,8 +59,8 @@ export const updateEmail = async (req: NextApiRequest, res: NextApiResponse, ses
       resourceId: user.id!,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.USER,
-      action: databaseTypes.constants.ACTION_TYPE.UPDATED,
+      onModel: databaseTypes.RESOURCE_MODEL.USER,
+      action: databaseTypes.ACTION_TYPE.UPDATED,
     });
 
     res.status(200).json({data: {email}});
@@ -93,8 +93,8 @@ export const deactivateUser = async (req: NextApiRequest, res: NextApiResponse, 
         resourceId: user.id!,
         location: location,
         userAgent: agentData,
-        onModel: databaseTypes.constants.RESOURCE_MODEL.USER,
-        action: databaseTypes.constants.ACTION_TYPE.DELETED,
+        onModel: databaseTypes.RESOURCE_MODEL.USER,
+        action: databaseTypes.ACTION_TYPE.DELETED,
       });
     }
     res.status(200).json({data: {email: session?.user?.email}});

@@ -104,8 +104,8 @@ const MOCK_PROJECT_LOG: databaseTypes.IActivityLog = {
 
   projectId: new mongooseTypes.ObjectId(),
   userAgent: MOCK_USER_AGENT,
-  action: databaseTypes.constants.ACTION_TYPE.UPDATED,
-  onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
+  action: databaseTypes.ACTION_TYPE.UPDATED,
+  onModel: databaseTypes.RESOURCE_MODEL.PROJECT,
   resource: MOCK_USER,
 };
 const MOCK_WORKSPACE_LOG: databaseTypes.IActivityLog = {
@@ -115,8 +115,8 @@ const MOCK_WORKSPACE_LOG: databaseTypes.IActivityLog = {
   workspaceId: 'workspaceId' as unknown as mongooseTypes.ObjectId,
   location: MOCK_LOCATION,
   userAgent: MOCK_USER_AGENT,
-  action: databaseTypes.constants.ACTION_TYPE.UPDATED,
-  onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
+  action: databaseTypes.ACTION_TYPE.UPDATED,
+  onModel: databaseTypes.RESOURCE_MODEL.WORKSPACE,
   resource: MOCK_WORKSPACE,
 };
 

@@ -9,11 +9,11 @@ export class ProcessTrackingService {
   public static async createProcessTracking(
     processId: string,
     processName: string,
-    processStatus: databaseTypes.constants.PROCESS_STATUS = databaseTypes.constants.PROCESS_STATUS.PENDING
+    processStatus: databaseTypes.PROCESS_STATUS = databaseTypes.PROCESS_STATUS.PENDING
   ): Promise<Pick<databaseTypes.IProcessTracking, 'id' | 'processId'>> {
     try {
       const processTrackingModel = mongoDbConnection.models.ProcessTrackingModel;
-      const processTrackingDocument: databaseTypes.IProcessTracking = {
+      const processTrackingDocument = {
         processId: processId,
         processName: processName,
         processStatus: processStatus,
@@ -21,7 +21,7 @@ export class ProcessTrackingService {
         processMessages: [],
         processError: [],
       };
-      const createdDocument = await processTrackingModel.createProcessTrackingDocument(processTrackingDocument);
+      const createdDocument = await processTrackingModel.createProcessTracking(processTrackingDocument);
       const retval = createdDocument.processId;
       return {processId: retval, id: createdDocument.id};
     } catch (err) {
@@ -50,19 +50,15 @@ export class ProcessTrackingService {
     processTracking: databaseTypes.IProcessTracking
   ): Promise<databaseTypes.IProcessTracking> {
     if (
-      processTracking.processStatus === databaseTypes.constants.PROCESS_STATUS.PENDING ||
-      processTracking.processStatus === databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS
+      processTracking.processStatus === databaseTypes.PROCESS_STATUS.PENDING ||
+      processTracking.processStatus === databaseTypes.PROCESS_STATUS.IN_PROGRESS
     ) {
       const now = new Date().getTime();
       const startDate = (processTracking.processHeartbeat ?? processTracking.processStartTime).getTime();
 
       //The process appears to be hung
       if (now - startDate > TIMEOUT) {
-        ProcessTrackingService.completeProcess(
-          processTracking.processId,
-          {},
-          databaseTypes.constants.PROCESS_STATUS.HUNG
-        );
+        ProcessTrackingService.completeProcess(processTracking.processId, {}, databaseTypes.PROCESS_STATUS.HUNG);
         ProcessTrackingService.addProcessMessage(
           processTracking.processId,
           'The process has timed out without updating the heart beat or completing'
@@ -88,9 +84,9 @@ export class ProcessTrackingService {
       const processTrackingModel = mongoDbConnection.models.ProcessTrackingModel;
       let processTrackingDocument: databaseTypes.IProcessTracking | null = null;
 
-      processTrackingDocument = (await processTrackingModel.getProcessTrackingDocumentByProcessId(
-        processId
-      )) as databaseTypes.IProcessTracking;
+      processTrackingDocument = (await processTrackingModel.queryProcessTrackings({
+        processId,
+      })[0]) as databaseTypes.IProcessTracking;
 
       const updatedStatus = await ProcessTrackingService.reconcileStatus(processTrackingDocument);
       const processMessages = updatedStatus.processMessages.slice(0, 10);
@@ -125,7 +121,7 @@ export class ProcessTrackingService {
 
   public static async updateProcessStatus(
     processId: string,
-    processStatus: databaseTypes.constants.PROCESS_STATUS,
+    processStatus: databaseTypes.PROCESS_STATUS,
     message?: string
   ): Promise<void> {
     try {
@@ -137,8 +133,8 @@ export class ProcessTrackingService {
         processStatus: processStatus,
       };
       if (
-        processStatus === databaseTypes.constants.PROCESS_STATUS.COMPLETED ||
-        processStatus === databaseTypes.constants.PROCESS_STATUS.FAILED
+        processStatus === databaseTypes.PROCESS_STATUS.COMPLETED ||
+        processStatus === databaseTypes.PROCESS_STATUS.FAILED
       ) {
         inputDocument.processEndTime = new Date();
         inputDocument.processResult = {};
@@ -176,7 +172,7 @@ export class ProcessTrackingService {
   public static async completeProcess(
     processId: string,
     result: Record<string, unknown>,
-    processStatus: databaseTypes.constants.PROCESS_STATUS = databaseTypes.constants.PROCESS_STATUS.COMPLETED
+    processStatus: databaseTypes.PROCESS_STATUS = databaseTypes.PROCESS_STATUS.COMPLETED
   ): Promise<void> {
     try {
       const processTrackingModel = mongoDbConnection.models.ProcessTrackingModel;

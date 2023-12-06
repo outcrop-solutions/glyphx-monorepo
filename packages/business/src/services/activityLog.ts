@@ -27,13 +27,11 @@ export class ActivityLogService {
 
   public static async getLogs(
     resourceId: string | undefined,
-    type:
-      | typeof databaseTypes.constants.RESOURCE_MODEL.PROJECT
-      | typeof databaseTypes.constants.RESOURCE_MODEL.WORKSPACE
+    type: typeof databaseTypes.RESOURCE_MODEL.PROJECT | typeof databaseTypes.RESOURCE_MODEL.WORKSPACE
   ): Promise<databaseTypes.IActivityLog[] | null> {
     try {
       let logs;
-      if (type === databaseTypes.constants.RESOURCE_MODEL.PROJECT) {
+      if (type === databaseTypes.RESOURCE_MODEL.PROJECT) {
         logs = await mongoDbConnection.models.ActivityLogModel.queryActivityLogs({
           projectId: resourceId,
           onModel: {$ne: 'processTracking'},
@@ -77,8 +75,8 @@ export class ActivityLogService {
     resourceId: string;
     location: string;
     userAgent: databaseTypes.IUserAgent;
-    onModel: databaseTypes.constants.RESOURCE_MODEL;
-    action: databaseTypes.constants.ACTION_TYPE;
+    onModel: databaseTypes.RESOURCE_MODEL;
+    action: databaseTypes.ACTION_TYPE;
     workspaceId?: string;
     projectId?: string;
   }): Promise<databaseTypes.IActivityLog | null> {

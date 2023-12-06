@@ -5,7 +5,7 @@ import {projectAtom} from './project';
 import {Types as mongooseTypes} from 'mongoose';
 
 export const annotationResourceIdSelector = selector<{
-  type: databaseTypes.constants.ANNOTATION_TYPE;
+  type: databaseTypes.ANNOTATION_TYPE;
   id: mongooseTypes.ObjectId | string;
 }>({
   key: 'annotationIdSelector',
@@ -14,9 +14,9 @@ export const annotationResourceIdSelector = selector<{
     const state = get(stateSelector);
     const project = get(projectAtom);
     if (activeStateIndex === -1) {
-      return {type: databaseTypes.constants.ANNOTATION_TYPE.PROJECT, id: project?.id};
+      return {type: databaseTypes.ANNOTATION_TYPE.PROJECT, id: project?.id};
     } else {
-      return {type: databaseTypes.constants.ANNOTATION_TYPE.STATE, id: state?.id};
+      return {type: databaseTypes.ANNOTATION_TYPE.STATE, id: state?.id};
     }
   },
 });

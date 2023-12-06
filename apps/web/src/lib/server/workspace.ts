@@ -65,8 +65,8 @@ export const createWorkspace = async (req: NextApiRequest, res: NextApiResponse,
       workspaceId: workspace?.id,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
-      action: databaseTypes.constants.ACTION_TYPE.CREATED,
+      onModel: databaseTypes.RESOURCE_MODEL.WORKSPACE,
+      action: databaseTypes.ACTION_TYPE.CREATED,
     });
 
     res.status(200).json({data: workspace});
@@ -106,8 +106,8 @@ export const updateWorkspaceSlug = async (req: NextApiRequest, res: NextApiRespo
       workspaceId: workspaceId,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
-      action: databaseTypes.constants.ACTION_TYPE.UPDATED,
+      onModel: databaseTypes.RESOURCE_MODEL.WORKSPACE,
+      action: databaseTypes.ACTION_TYPE.UPDATED,
     });
 
     res.status(200).json({data: {workspace}});
@@ -146,8 +146,8 @@ export const updateWorkspaceName = async (req: NextApiRequest, res: NextApiRespo
       workspaceId: workspaceId as string,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
-      action: databaseTypes.constants.ACTION_TYPE.UPDATED,
+      onModel: databaseTypes.RESOURCE_MODEL.WORKSPACE,
+      action: databaseTypes.ACTION_TYPE.UPDATED,
     });
     res.status(200).json({data: {name: updatedName}});
   } catch (error) {
@@ -216,8 +216,8 @@ export const inviteUsers = async (req: NextApiRequest, res: NextApiResponse, ses
       workspaceId: workspace.id,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
-      action: databaseTypes.constants.ACTION_TYPE.INVITED,
+      onModel: databaseTypes.RESOURCE_MODEL.WORKSPACE,
+      action: databaseTypes.ACTION_TYPE.INVITED,
     });
 
     res.status(200).json({data: {members: memberData}});
@@ -258,8 +258,8 @@ export const deleteWorkspace = async (req: NextApiRequest, res: NextApiResponse,
       workspaceId: workspace?.id,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
-      action: databaseTypes.constants.ACTION_TYPE.DELETED,
+      onModel: databaseTypes.RESOURCE_MODEL.WORKSPACE,
+      action: databaseTypes.ACTION_TYPE.DELETED,
     });
     res.status(200).json({data: {workspace}});
   } catch (error) {

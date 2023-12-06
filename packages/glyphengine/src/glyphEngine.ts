@@ -157,7 +157,7 @@ export class GlyphEngine {
   ): Promise<{sdtFileName: string; sgnFileName: string; sgcFileName: string}> {
     await processTrackingService.updateProcessStatus(
       this.processId,
-      databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
+      databaseTypes.PROCESS_STATUS.IN_PROGRESS,
       `File Ingestion has started : ${new Date()}`
     );
     //Use the default of 1 minute.
@@ -217,11 +217,7 @@ export class GlyphEngine {
       }
       const retval = {sdtFileName, sgnFileName, sgcFileName};
       heartBeat.stop();
-      await processTrackingService.completeProcess(
-        this.processId,
-        retval,
-        databaseTypes.constants.PROCESS_STATUS.COMPLETED
-      );
+      await processTrackingService.completeProcess(this.processId, retval, databaseTypes.PROCESS_STATUS.COMPLETED);
       return retval;
     } catch (err) {
       const e = new error.UnexpectedError(
@@ -231,7 +227,7 @@ export class GlyphEngine {
       e.publish();
       heartBeat.stop();
       await processTrackingService.addProcessError(this.processId, e);
-      await processTrackingService.completeProcess(this.processId, {}, databaseTypes.constants.PROCESS_STATUS.FAILED);
+      await processTrackingService.completeProcess(this.processId, {}, databaseTypes.PROCESS_STATUS.FAILED);
 
       throw e;
     }

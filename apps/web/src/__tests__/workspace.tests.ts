@@ -83,13 +83,13 @@ const MOCK_MEMBER_1: databaseTypes.IMember = {
   _id: 'mockMemberId1' as unknown as mongooseTypes.ObjectId,
   email: 'jamesmurdockgraham@gmail.com',
   inviter: 'jp@glyphx.co',
-  type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
+  type: databaseTypes.MEMBERSHIP_TYPE.WORKSPACE,
   createdAt: new Date(),
   updatedAt: new Date(),
   joinedAt: new Date(),
   invitedAt: new Date(),
-  status: databaseTypes.constants.INVITATION_STATUS.PENDING,
-  teamRole: databaseTypes.constants.ROLE.MEMBER,
+  status: databaseTypes.INVITATION_STATUS.PENDING,
+  teamRole: databaseTypes.ROLE.MEMBER,
   member: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IUser,
   invitedBy: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IUser,
   workspace: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IWorkspace,
@@ -97,13 +97,13 @@ const MOCK_MEMBER_1: databaseTypes.IMember = {
 const MOCK_MEMBER_2: databaseTypes.IMember = {
   email: 'jamesmurdockgraham@gmail.com',
   inviter: 'jp@glyphx.co',
-  type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
+  type: databaseTypes.MEMBERSHIP_TYPE.WORKSPACE,
   createdAt: new Date(),
   updatedAt: new Date(),
   joinedAt: new Date(),
   invitedAt: new Date(),
-  status: databaseTypes.constants.INVITATION_STATUS.PENDING,
-  teamRole: databaseTypes.constants.ROLE.MEMBER,
+  status: databaseTypes.INVITATION_STATUS.PENDING,
+  teamRole: databaseTypes.ROLE.MEMBER,
   member: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IUser,
   invitedBy: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IUser,
   workspace: {_id: new mongoose.Types.ObjectId()} as databaseTypes.IWorkspace,
@@ -2055,7 +2055,7 @@ describe('WORKSPACE ROUTES', () => {
           handler: updateRoleRouteWrapper,
           url: '/api/workspace/team/role',
           test: async ({fetch}) => {
-            const config = _updateRole(MOCK_MEMBER_1._id!.toString(), databaseTypes.constants.ROLE.OWNER);
+            const config = _updateRole(MOCK_MEMBER_1._id!.toString(), databaseTypes.ROLE.OWNER);
             const res = await fetch(wrapConfig(config));
             assert.strictEqual(res.status, 200);
           },

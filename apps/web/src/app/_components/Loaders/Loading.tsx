@@ -19,9 +19,9 @@ export const Loading = () => {
 
   const loading =
     Object.keys(showLoading).length > 0
-      ? showLoading.processStatus !== databaseTypes.constants.PROCESS_STATUS.COMPLETED &&
-        showLoading.processStatus !== databaseTypes.constants.PROCESS_STATUS.HUNG &&
-        showLoading.processStatus !== databaseTypes.constants.PROCESS_STATUS.FAILED
+      ? showLoading.processStatus !== databaseTypes.PROCESS_STATUS.COMPLETED &&
+        showLoading.processStatus !== databaseTypes.PROCESS_STATUS.HUNG &&
+        showLoading.processStatus !== databaseTypes.PROCESS_STATUS.FAILED
       : false;
 
   return loading ? (

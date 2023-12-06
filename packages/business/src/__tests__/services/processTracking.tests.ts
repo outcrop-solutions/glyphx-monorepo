@@ -15,7 +15,7 @@ describe('ProcessTrackingService', () => {
         new mongooseTypes.ObjectId(),
       processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
-      processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
+      processStatus: databaseTypes.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
       processMessages: [],
       processError: [],
@@ -37,7 +37,7 @@ describe('ProcessTrackingService', () => {
         mockProcessTracking.processName
       );
       assert.equal(result.processId, mockProcessTracking.processId);
-      assert.equal(createStub.getCall(0).args[0].processStatus, databaseTypes.constants.PROCESS_STATUS.PENDING);
+      assert.equal(createStub.getCall(0).args[0].processStatus, databaseTypes.PROCESS_STATUS.PENDING);
     });
 
     it('should create a processTracking document respecting our passed status', async () => {
@@ -48,10 +48,10 @@ describe('ProcessTrackingService', () => {
       const result = await ProcessTrackingService.createProcessTracking(
         mockProcessTracking.processId,
         mockProcessTracking.processName,
-        databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS
+        databaseTypes.PROCESS_STATUS.IN_PROGRESS
       );
       assert.equal(result.processId, mockProcessTracking.processId);
-      assert.equal(createStub.getCall(0).args[0].processStatus, databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS);
+      assert.equal(createStub.getCall(0).args[0].processStatus, databaseTypes.PROCESS_STATUS.IN_PROGRESS);
     });
 
     it('should publish and throw a DataValidationError thrown by the model', async () => {
@@ -124,7 +124,7 @@ describe('ProcessTrackingService', () => {
       id: new mongooseTypes.ObjectId().toString(),
       processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
-      processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
+      processStatus: databaseTypes.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
       processHeartbeat: new Date(),
       processMessages: [
@@ -277,7 +277,7 @@ describe('ProcessTrackingService', () => {
         new mongooseTypes.ObjectId(),
       processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
-      processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
+      processStatus: databaseTypes.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
       processMessages: [],
       processError: [],
@@ -299,7 +299,7 @@ describe('ProcessTrackingService', () => {
       sandbox.replace(dbConnection.models.ProcessTrackingModel, 'addMessagesById', addMessageStub);
 
       const processId = mockProcessTracking.processId;
-      const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+      const processStatus = databaseTypes.PROCESS_STATUS.IN_PROGRESS;
 
       await ProcessTrackingService.updateProcessStatus(processId, processStatus);
 
@@ -327,7 +327,7 @@ describe('ProcessTrackingService', () => {
       const processId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+      const processStatus = databaseTypes.PROCESS_STATUS.IN_PROGRESS;
 
       await ProcessTrackingService.updateProcessStatus(processId.toString(), processStatus);
 
@@ -355,7 +355,7 @@ describe('ProcessTrackingService', () => {
       const processId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const processStatus = databaseTypes.constants.PROCESS_STATUS.COMPLETED;
+      const processStatus = databaseTypes.PROCESS_STATUS.COMPLETED;
 
       await ProcessTrackingService.updateProcessStatus(processId.toString(), processStatus);
 
@@ -383,7 +383,7 @@ describe('ProcessTrackingService', () => {
       const processId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
+      const processStatus = databaseTypes.PROCESS_STATUS.FAILED;
 
       await ProcessTrackingService.updateProcessStatus(processId.toString(), processStatus);
 
@@ -411,7 +411,7 @@ describe('ProcessTrackingService', () => {
       const processId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+      const processStatus = databaseTypes.PROCESS_STATUS.IN_PROGRESS;
       const message = 'test message';
       await ProcessTrackingService.updateProcessStatus(processId.toString(), processStatus, message);
 
@@ -453,7 +453,7 @@ describe('ProcessTrackingService', () => {
       const processId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+      const processStatus = databaseTypes.PROCESS_STATUS.IN_PROGRESS;
       const message = 'test message';
       let errored = false;
       try {
@@ -495,7 +495,7 @@ describe('ProcessTrackingService', () => {
       const processId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+      const processStatus = databaseTypes.PROCESS_STATUS.IN_PROGRESS;
       const message = 'test message';
       let errored = false;
       try {
@@ -532,7 +532,7 @@ describe('ProcessTrackingService', () => {
       const processId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+      const processStatus = databaseTypes.PROCESS_STATUS.IN_PROGRESS;
       const message = 'test message';
       let errored = false;
       try {
@@ -556,7 +556,7 @@ describe('ProcessTrackingService', () => {
         new mongooseTypes.ObjectId(),
       processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
-      processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
+      processStatus: databaseTypes.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
       processMessages: [],
       processError: [],
@@ -574,7 +574,7 @@ describe('ProcessTrackingService', () => {
       sandbox.replace(dbConnection.models.ProcessTrackingModel, 'updateProcessTrackingDocumentById', updateStub);
 
       const processId = mockProcessTracking.processId;
-      const processStatus = databaseTypes.constants.PROCESS_STATUS.COMPLETED;
+      const processStatus = databaseTypes.PROCESS_STATUS.COMPLETED;
       const result = {text: 'I am finished'};
 
       await ProcessTrackingService.completeProcess(processId, result, processStatus);
@@ -595,7 +595,7 @@ describe('ProcessTrackingService', () => {
       sandbox.replace(dbConnection.models.ProcessTrackingModel, 'updateProcessTrackingDocumentById', updateStub);
 
       const processId = mockProcessTracking._id as mongooseTypes.ObjectId;
-      const processStatus = databaseTypes.constants.PROCESS_STATUS.COMPLETED;
+      const processStatus = databaseTypes.PROCESS_STATUS.COMPLETED;
       const result = {text: 'I am finished'};
 
       await ProcessTrackingService.completeProcess(processId.toString(), result, processStatus);
@@ -632,7 +632,7 @@ describe('ProcessTrackingService', () => {
       const processId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+      const processStatus = databaseTypes.PROCESS_STATUS.IN_PROGRESS;
       const result = {text: 'I am finished'};
       let errored = false;
       try {
@@ -669,7 +669,7 @@ describe('ProcessTrackingService', () => {
       const processId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+      const processStatus = databaseTypes.PROCESS_STATUS.IN_PROGRESS;
       const result = {text: 'I am finished'};
       let errored = false;
       try {
@@ -701,7 +701,7 @@ describe('ProcessTrackingService', () => {
       const processId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+      const processStatus = databaseTypes.PROCESS_STATUS.IN_PROGRESS;
       const result = {text: 'I am finished'};
       let errored = false;
       try {
@@ -724,7 +724,7 @@ describe('ProcessTrackingService', () => {
         new mongooseTypes.ObjectId(),
       processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
-      processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
+      processStatus: databaseTypes.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
       processMessages: [],
       processError: [],
@@ -876,7 +876,7 @@ describe('ProcessTrackingService', () => {
         new mongooseTypes.ObjectId(),
       processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
-      processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
+      processStatus: databaseTypes.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
       processMessages: [],
       processError: [],
@@ -1028,7 +1028,7 @@ describe('ProcessTrackingService', () => {
         new mongooseTypes.ObjectId(),
       processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
-      processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
+      processStatus: databaseTypes.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
       processMessages: [
         'message1',
@@ -1166,7 +1166,7 @@ describe('ProcessTrackingService', () => {
         new mongooseTypes.ObjectId(),
       processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
-      processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
+      processStatus: databaseTypes.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
       processMessages: [],
       processError: [
@@ -1233,7 +1233,7 @@ describe('ProcessTrackingService', () => {
         new mongooseTypes.ObjectId(),
       processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
-      processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
+      processStatus: databaseTypes.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
       processMessages: [
         'message1',
@@ -1302,7 +1302,7 @@ describe('ProcessTrackingService', () => {
         new mongooseTypes.ObjectId(),
       processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
-      processStatus: databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
+      processStatus: databaseTypes.PROCESS_STATUS.IN_PROGRESS,
       processStartTime: new Date(),
       processMessages: [],
       processError: [],
@@ -1568,7 +1568,7 @@ describe('ProcessTrackingService', () => {
     const mockProcessTracking: databaseTypes.IProcessTracking = {
       processId: new mongooseTypes.ObjectId().toString(),
       processName: 'testProcessName',
-      processStatus: databaseTypes.constants.PROCESS_STATUS.PENDING,
+      processStatus: databaseTypes.PROCESS_STATUS.PENDING,
       processStartTime: new Date(),
       processMessages: [],
       processError: [],
@@ -1580,7 +1580,7 @@ describe('ProcessTrackingService', () => {
 
     it('will pass through a processTracking document whoes status === "COMPLETED"', async () => {
       const mockDocument = JSON.parse(JSON.stringify(mockProcessTracking)) as databaseTypes.IProcessTracking;
-      mockDocument.processStatus = databaseTypes.constants.PROCESS_STATUS.COMPLETED;
+      mockDocument.processStatus = databaseTypes.PROCESS_STATUS.COMPLETED;
 
       const completeProcessStub = sandbox.stub();
       completeProcessStub.resolves();
@@ -1606,7 +1606,7 @@ describe('ProcessTrackingService', () => {
 
     it('will pass through a processTracking document whoes status === "In Progress" and it has a recent heartbeat', async () => {
       const mockDocument = JSON.parse(JSON.stringify(mockProcessTracking)) as databaseTypes.IProcessTracking;
-      mockDocument.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+      mockDocument.processStatus = databaseTypes.PROCESS_STATUS.IN_PROGRESS;
       mockDocument.processHeartbeat = new Date();
 
       const completeProcessStub = sandbox.stub();
@@ -1632,7 +1632,7 @@ describe('ProcessTrackingService', () => {
     });
     it('will pass through a processTracking document whoes status === "Pendig" and it has a recent start date', async () => {
       const mockDocument = JSON.parse(JSON.stringify(mockProcessTracking)) as databaseTypes.IProcessTracking;
-      mockDocument.processStatus = databaseTypes.constants.PROCESS_STATUS.PENDING;
+      mockDocument.processStatus = databaseTypes.PROCESS_STATUS.PENDING;
       mockDocument.processStartTime = new Date(mockDocument.processStartTime);
 
       const completeProcessStub = sandbox.stub();
@@ -1659,13 +1659,13 @@ describe('ProcessTrackingService', () => {
 
     it('will set a processTracking document to hung if the heartbeat is > 15 minutes old', async () => {
       const mockDocument = JSON.parse(JSON.stringify(mockProcessTracking)) as databaseTypes.IProcessTracking;
-      mockDocument.processStatus = databaseTypes.constants.PROCESS_STATUS.PENDING;
+      mockDocument.processStatus = databaseTypes.PROCESS_STATUS.PENDING;
       mockDocument.processStartTime = new Date(mockDocument.processStartTime);
 
       mockDocument.processHeartbeat = new Date(new Date().getTime() - 900001);
       const completeProcessStub = sandbox.stub();
       const completeRetval = JSON.parse(JSON.stringify(mockDocument));
-      completeRetval.processStatus = databaseTypes.constants.PROCESS_STATUS.HUNG;
+      completeRetval.processStatus = databaseTypes.PROCESS_STATUS.HUNG;
       completeProcessStub.resolves(completeRetval);
       sandbox.replace(ProcessTrackingService, 'completeProcess', completeProcessStub);
 
@@ -1686,17 +1686,17 @@ describe('ProcessTrackingService', () => {
       assert.isTrue(getProcessStub.called);
 
       const completedArgs = completeProcessStub.getCall(0).args;
-      assert.strictEqual(completedArgs[2], databaseTypes.constants.PROCESS_STATUS.HUNG);
+      assert.strictEqual(completedArgs[2], databaseTypes.PROCESS_STATUS.HUNG);
     });
 
     it('will set a processTracking document to hung if the heartbeat is not set and start date is > 15 min', async () => {
       const mockDocument = JSON.parse(JSON.stringify(mockProcessTracking)) as databaseTypes.IProcessTracking;
-      mockDocument.processStatus = databaseTypes.constants.PROCESS_STATUS.PENDING;
+      mockDocument.processStatus = databaseTypes.PROCESS_STATUS.PENDING;
 
       mockDocument.processStartTime = new Date(new Date().getTime() - 900001);
       const completeProcessStub = sandbox.stub();
       const completeRetval = JSON.parse(JSON.stringify(mockDocument));
-      completeRetval.processStatus = databaseTypes.constants.PROCESS_STATUS.HUNG;
+      completeRetval.processStatus = databaseTypes.PROCESS_STATUS.HUNG;
       completeProcessStub.resolves(completeRetval);
       sandbox.replace(ProcessTrackingService, 'completeProcess', completeProcessStub);
 
@@ -1717,7 +1717,7 @@ describe('ProcessTrackingService', () => {
       assert.isTrue(getProcessStub.called);
 
       const completedArgs = completeProcessStub.getCall(0).args;
-      assert.strictEqual(completedArgs[2], databaseTypes.constants.PROCESS_STATUS.HUNG);
+      assert.strictEqual(completedArgs[2], databaseTypes.PROCESS_STATUS.HUNG);
     });
   });
 });

@@ -60,8 +60,8 @@ const INPUT_ACTIVITY_LOG: databaseTypes.IActivityLog = {
     language: '',
     cookieEnabled: false,
   },
-  action: databaseTypes.constants.ACTION_TYPE.CREATED,
-  onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
+  action: databaseTypes.ACTION_TYPE.CREATED,
+  onModel: databaseTypes.RESOURCE_MODEL.WORKSPACE,
   resource: INPUT_WORKSPACE,
 };
 
@@ -151,7 +151,7 @@ describe('#ActivityLogService', () => {
     it('will retreive activityLogs from the database', async () => {
       const activityLogs = await activityLogService.getLogs(
         workspaceDocument._id.toString(),
-        databaseTypes.constants.RESOURCE_MODEL.WORKSPACE
+        databaseTypes.RESOURCE_MODEL.WORKSPACE
       );
       assert.isOk(activityLogs);
     });

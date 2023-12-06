@@ -57,8 +57,8 @@ export class MembershipService {
       const members = await MembershipService.getMembers({
         email,
         deletedAt: undefined,
-        status: databaseTypes.constants.INVITATION_STATUS.PENDING,
-        type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
+        status: databaseTypes.INVITATION_STATUS.PENDING,
+        type: databaseTypes.MEMBERSHIP_TYPE.WORKSPACE,
       });
       return members;
     } catch (err: any) {
@@ -105,18 +105,18 @@ export class MembershipService {
 
   public static async updateRole(
     memberId: string,
-    role: databaseTypes.constants.ROLE | databaseTypes.constants.PROJECT_ROLE
+    role: databaseTypes.ROLE | databaseTypes.PROJECT_ROLE
   ): Promise<databaseTypes.IMember | null> {
     try {
-      if (role === databaseTypes.constants.ROLE.MEMBER || role === databaseTypes.constants.ROLE.OWNER) {
+      if (role === databaseTypes.ROLE.MEMBER || role === databaseTypes.ROLE.OWNER) {
         const member = await mongoDbConnection.models.MemberModel.updateMemberById(memberId, {
           teamRole: role,
         });
         return member;
       } else if (
-        role === databaseTypes.constants.PROJECT_ROLE.CAN_EDIT ||
-        role === databaseTypes.constants.PROJECT_ROLE.READ_ONLY ||
-        role === databaseTypes.constants.PROJECT_ROLE.OWNER
+        role === databaseTypes.PROJECT_ROLE.CAN_EDIT ||
+        role === databaseTypes.PROJECT_ROLE.READ_ONLY ||
+        role === databaseTypes.PROJECT_ROLE.OWNER
       ) {
         const member = await mongoDbConnection.models.MemberModel.updateMemberById(memberId, {
           projectRole: role,
@@ -145,7 +145,7 @@ export class MembershipService {
 
   public static async updateStatus(
     memberId: string,
-    status: databaseTypes.constants.INVITATION_STATUS
+    status: databaseTypes.INVITATION_STATUS
   ): Promise<databaseTypes.IMember | null> {
     try {
       const member = await mongoDbConnection.models.MemberModel.updateMemberById(memberId, {

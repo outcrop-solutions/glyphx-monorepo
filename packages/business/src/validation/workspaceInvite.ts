@@ -6,7 +6,7 @@ const rules = [
   check('members').isArray().withMessage('Members data must be a list of emails and roles'),
   check('members.*.email').isEmail().withMessage('Email must be valid'),
   check('members.*.role')
-    .isIn([databaseTypes.constants.ROLE.MEMBER, databaseTypes.constants.ROLE.OWNER])
+    .isIn([databaseTypes.ROLE.MEMBER, databaseTypes.ROLE.OWNER])
     .withMessage('Rule must either be MEMBER or OWNER'),
 ];
 

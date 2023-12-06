@@ -9,7 +9,7 @@ import {webTypes, databaseTypes} from 'types';
  */
 export const _updateRole = (
   memberId: string,
-  role: databaseTypes.constants.ROLE | databaseTypes.constants.PROJECT_ROLE
+  role: databaseTypes.ROLE | databaseTypes.PROJECT_ROLE
 ): webTypes.IFetchConfig => {
   return {
     url: `/api/workspace/team/role`,

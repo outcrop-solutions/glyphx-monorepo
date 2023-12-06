@@ -53,9 +53,9 @@ export class WorkspaceService {
         inviter: email,
         email: email,
         joinedAt: new Date(),
-        type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
-        status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
-        teamRole: databaseTypes.constants.ROLE.OWNER,
+        type: databaseTypes.MEMBERSHIP_TYPE.WORKSPACE,
+        status: databaseTypes.INVITATION_STATUS.ACCEPTED,
+        teamRole: databaseTypes.ROLE.OWNER,
         member: creatorId,
         invitedBy: creatorId,
         workspace: workspace.id!,
@@ -179,8 +179,7 @@ export class WorkspaceService {
       const filteredWorkspaces = workspaces.results.filter(
         (space) =>
           space.members.filter(
-            (mem) =>
-              mem.email === email && mem.teamRole === databaseTypes.constants.ROLE.OWNER && mem.deletedAt === undefined
+            (mem) => mem.email === email && mem.teamRole === databaseTypes.ROLE.OWNER && mem.deletedAt === undefined
           ).length > 0
       );
       if (filteredWorkspaces.length > 0) {
@@ -399,7 +398,7 @@ export class WorkspaceService {
     email: string,
     members: {
       email: string;
-      teamRole: databaseTypes.constants.ROLE;
+      teamRole: databaseTypes.ROLE;
     }[],
     workspaceId: string
   ): Promise<{
@@ -413,18 +412,16 @@ export class WorkspaceService {
       const invitedBy = await mongoDbConnection.models.UserModel.getUserById(userId);
 
       if (workspace) {
-        const membersList = members.map(
-          ({email, teamRole}: {email: string; teamRole: databaseTypes.constants.ROLE}) => ({
-            email,
-            inviter,
-            type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
-            invitedAt: new Date(),
-            status: databaseTypes.constants.INVITATION_STATUS.PENDING,
-            teamRole,
-            invitedBy: invitedBy.id,
-            workspace: workspace.id,
-          })
-        );
+        const membersList = members.map(({email, teamRole}: {email: string; teamRole: databaseTypes.ROLE}) => ({
+          email,
+          inviter,
+          type: databaseTypes.MEMBERSHIP_TYPE.WORKSPACE,
+          invitedAt: new Date(),
+          status: databaseTypes.INVITATION_STATUS.PENDING,
+          teamRole,
+          invitedBy: invitedBy.id,
+          workspace: workspace.id,
+        }));
 
         const createdMembers = await mongoDbConnection.models.MemberModel.create(membersList);
         const memberIds = createdMembers.map((mem) => {
@@ -484,7 +481,7 @@ export class WorkspaceService {
   static async isWorkspaceOwner(email: string, workspace: databaseTypes.IWorkspace): Promise<boolean> {
     let isTeamOwner = false;
     const member = workspace.members.find(
-      (member) => member.email === email && member.teamRole === databaseTypes.constants.ROLE.OWNER
+      (member) => member.email === email && member.teamRole === databaseTypes.ROLE.OWNER
     );
 
     if (member) {
@@ -512,19 +509,19 @@ export class WorkspaceService {
         // does the member email / workspace combo exist?
         memberExists = await mongoDbConnection.models.MemberModel.memberExists(
           email,
-          databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
+          databaseTypes.MEMBERSHIP_TYPE.WORKSPACE,
           workspaces.results[0].id!
         );
 
         const input = {
           workspace: workspaces.results[0],
           inviter: workspaces.results[0].creator.email,
-          type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
+          type: databaseTypes.MEMBERSHIP_TYPE.WORKSPACE,
           member: memberId,
           invitedAt: new Date(),
           joinedAt: new Date(),
           email,
-          status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
+          status: databaseTypes.INVITATION_STATUS.ACCEPTED,
         };
 
         if (!memberExists) {

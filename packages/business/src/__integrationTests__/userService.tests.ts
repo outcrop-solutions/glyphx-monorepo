@@ -47,31 +47,31 @@ const INPUT_WORKSPACE: Partial<databaseTypes.IWorkspace> = {
 const INPUT_MEMBER_1: Partial<databaseTypes.IMember> = {
   email: USER_EMAIL,
   inviter: 'testEmail' + UNIQUE_KEY + '@email.com',
-  type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+  type: databaseTypes.MEMBERSHIP_TYPE.PROJECT,
   invitedAt: new Date(),
   joinedAt: new Date(),
   updatedAt: new Date(),
   createdAt: new Date(),
-  status: databaseTypes.constants.INVITATION_STATUS.PENDING,
-  teamRole: databaseTypes.constants.ROLE.MEMBER,
+  status: databaseTypes.INVITATION_STATUS.PENDING,
+  teamRole: databaseTypes.ROLE.MEMBER,
 };
 
 const INPUT_MEMBER_2: Partial<databaseTypes.IMember> = {
   email: 'testEmail' + UNIQUE_KEY + '@email.com',
   inviter: USER_EMAIL,
-  type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+  type: databaseTypes.MEMBERSHIP_TYPE.PROJECT,
   invitedAt: new Date(),
   joinedAt: new Date(),
   updatedAt: new Date(),
   createdAt: new Date(),
-  status: databaseTypes.constants.INVITATION_STATUS.PENDING,
-  teamRole: databaseTypes.constants.ROLE.MEMBER,
+  status: databaseTypes.INVITATION_STATUS.PENDING,
+  teamRole: databaseTypes.ROLE.MEMBER,
 };
 
 const INPUT_CUSTOMER_PAYMENT: Partial<databaseTypes.ICustomerPayment> = {
   paymentId: 'testPaymentId' + UNIQUE_KEY,
   email: 'testuniqueemail@gmail.com',
-  subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
+  subscriptionType: databaseTypes.SUBSCRIPTION_TYPE.FREE,
   createdAt: new Date(),
   updatedAt: new Date(),
 };

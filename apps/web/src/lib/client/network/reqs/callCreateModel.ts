@@ -19,7 +19,7 @@ export const callCreateModel = async ({
   setLoading(
     produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
       draft.processName = 'Generating Data Model...';
-      draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+      draft.processStatus = databaseTypes.PROCESS_STATUS.IN_PROGRESS;
       draft.processStartTime = new Date();
     })
   );
@@ -49,7 +49,7 @@ export const callCreateModel = async ({
           setLoading(
             produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
               draft.processName = 'Failed to Open Model';
-              draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
+              draft.processStatus = databaseTypes.PROCESS_STATUS.FAILED;
               draft.processEndTime = new Date();
             })
           );
@@ -60,7 +60,7 @@ export const callCreateModel = async ({
       setLoading(
         produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
           draft.processName = 'Failed to Generate Model';
-          draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
+          draft.processStatus = databaseTypes.PROCESS_STATUS.FAILED;
           draft.processEndTime = new Date();
         })
       );

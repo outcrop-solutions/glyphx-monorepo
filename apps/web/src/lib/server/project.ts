@@ -36,8 +36,8 @@ export const createProject = async (req: NextApiRequest, res: NextApiResponse, s
       workspaceId: project.workspace.id,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
-      action: databaseTypes.constants.ACTION_TYPE.CREATED,
+      onModel: databaseTypes.RESOURCE_MODEL.PROJECT,
+      action: databaseTypes.ACTION_TYPE.CREATED,
     });
 
     res.status(200).json({data: project});
@@ -98,8 +98,8 @@ export const updateProjectState = async (req: NextApiRequest, res: NextApiRespon
       workspaceId: project.workspace.id,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
-      action: databaseTypes.constants.ACTION_TYPE.UPDATED,
+      onModel: databaseTypes.RESOURCE_MODEL.PROJECT,
+      action: databaseTypes.ACTION_TYPE.UPDATED,
     });
     res.status(200).json({data: {project}});
   } catch (error) {
@@ -137,8 +137,8 @@ export const deleteProject = async (req: NextApiRequest, res: NextApiResponse, s
         projectId: project.id,
         location: location,
         userAgent: agentData,
-        onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
-        action: databaseTypes.constants.ACTION_TYPE.DELETED,
+        onModel: databaseTypes.RESOURCE_MODEL.PROJECT,
+        action: databaseTypes.ACTION_TYPE.DELETED,
       });
     }
     res.status(200).json({data: {email: session?.user?.email}});

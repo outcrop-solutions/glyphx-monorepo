@@ -62,8 +62,8 @@ export const createProjectFromTemplate = async (req: NextApiRequest, res: NextAp
     //   workspaceId: template.workspace.id,
     //   location: location,
     //   userAgent: agentData,
-    //   onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT_TEMPLATE,
-    //   action: databaseTypes.constants.ACTION_TYPE.CREATED,
+    //   onModel: databaseTypes.RESOURCE_MODEL.PROJECT_TEMPLATE,
+    //   action: databaseTypes.ACTION_TYPE.CREATED,
     // });
 
     res.status(200).json({data: result});
@@ -118,8 +118,8 @@ export const updateProjectTemplate = async (req: NextApiRequest, res: NextApiRes
       resourceId: template.id!,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT_TEMPLATE,
-      action: databaseTypes.constants.ACTION_TYPE.UPDATED,
+      onModel: databaseTypes.RESOURCE_MODEL.PROJECT_TEMPLATE,
+      action: databaseTypes.ACTION_TYPE.UPDATED,
     });
     res.status(200).json({data: {template}});
   } catch (error) {
@@ -155,8 +155,8 @@ export const deleteProjectTemplate = async (req: NextApiRequest, res: NextApiRes
         resourceId: template.id!,
         location: location,
         userAgent: agentData,
-        onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT_TEMPLATE,
-        action: databaseTypes.constants.ACTION_TYPE.DELETED,
+        onModel: databaseTypes.RESOURCE_MODEL.PROJECT_TEMPLATE,
+        action: databaseTypes.ACTION_TYPE.DELETED,
       });
     }
     res.status(200).json({data: {email: session?.user?.email}});

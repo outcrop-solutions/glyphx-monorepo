@@ -48,13 +48,13 @@ describe('#ProcessTrackingService', () => {
 
       await processTrackingService.updateProcessStatus(
         processTrackingId,
-        databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
+        databaseTypes.PROCESS_STATUS.IN_PROGRESS,
         message
       );
 
       const status = await processTrackingService.getProcessStatus(processTrackingId);
 
-      assert.strictEqual(status?.processStatus, databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS);
+      assert.strictEqual(status?.processStatus, databaseTypes.PROCESS_STATUS.IN_PROGRESS);
       assert.strictEqual(status?.processMessages.length, 1);
       assert.strictEqual(status?.processMessages[0], message);
     });

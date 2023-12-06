@@ -229,7 +229,7 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.COMPLETED);
+      assert.strictEqual(completedStatus, databaseTypes.PROCESS_STATUS.COMPLETED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
@@ -292,7 +292,7 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
+      assert.strictEqual(completedStatus, databaseTypes.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
@@ -356,7 +356,7 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
+      assert.strictEqual(completedStatus, databaseTypes.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
@@ -415,7 +415,7 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
+      assert.strictEqual(completedStatus, databaseTypes.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
@@ -475,7 +475,7 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
+      assert.strictEqual(completedStatus, databaseTypes.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
   });
@@ -573,7 +573,7 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.COMPLETED);
+      assert.strictEqual(completedStatus, databaseTypes.PROCESS_STATUS.COMPLETED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
@@ -637,7 +637,7 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.COMPLETED);
+      assert.strictEqual(completedStatus, databaseTypes.PROCESS_STATUS.COMPLETED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
@@ -697,7 +697,7 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
+      assert.strictEqual(completedStatus, databaseTypes.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
@@ -756,7 +756,7 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
+      assert.strictEqual(completedStatus, databaseTypes.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
@@ -824,7 +824,7 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
+      assert.strictEqual(completedStatus, databaseTypes.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
   });
@@ -936,7 +936,7 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.COMPLETED);
+      assert.strictEqual(completedStatus, databaseTypes.PROCESS_STATUS.COMPLETED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
@@ -1006,7 +1006,7 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
+      assert.strictEqual(completedStatus, databaseTypes.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
@@ -1080,7 +1080,7 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
+      assert.strictEqual(completedStatus, databaseTypes.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
   });
@@ -1191,7 +1191,7 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.COMPLETED);
+      assert.strictEqual(completedStatus, databaseTypes.PROCESS_STATUS.COMPLETED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
@@ -1261,7 +1261,7 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
+      assert.strictEqual(completedStatus, databaseTypes.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
 
@@ -1335,7 +1335,7 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.FAILED);
+      assert.strictEqual(completedStatus, databaseTypes.PROCESS_STATUS.FAILED);
       assert.isTrue(setHeartBeatStub.called);
     });
   });
@@ -1512,7 +1512,7 @@ describe('fileIngestor', () => {
       assert.isTrue(completeStub.calledOnce);
       const completedArgs = completeStub.getCall(0).args;
       const completedStatus = completedArgs[2];
-      assert.strictEqual(completedStatus, databaseTypes.constants.PROCESS_STATUS.COMPLETED);
+      assert.strictEqual(completedStatus, databaseTypes.PROCESS_STATUS.COMPLETED);
       assert.isTrue(setHeartBeatStub.called);
     });
   });

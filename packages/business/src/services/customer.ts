@@ -6,8 +6,8 @@ import mongoDbConnection from '../lib/databaseConnection';
 export class CustomerPaymentService {
   public static async getPayment(email: string): Promise<databaseTypes.ICustomerPayment | null> {
     try {
-      const customerPayment = await mongoDbConnection.models.CustomerPaymentModel.getCustomerPaymentByEmail(email);
-      return customerPayment;
+      const customerPayment = await mongoDbConnection.models.CustomerPaymentModel.queryCustomerPayments({email});
+      return customerPayment[0];
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
@@ -36,7 +36,7 @@ export class CustomerPaymentService {
       const input = {
         email,
         paymentId: paymentAccount.id,
-        subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE.FREE,
+        subscriptionType: databaseTypes.SUBSCRIPTION_TYPE.FREE,
         customer: customerId,
       };
 
@@ -69,7 +69,7 @@ export class CustomerPaymentService {
 
   public static async updateSubscription(
     customerId: string,
-    subscriptionType: databaseTypes.constants.SUBSCRIPTION_TYPE
+    subscriptionType: databaseTypes.SUBSCRIPTION_TYPE
   ): Promise<void> {
     try {
       await mongoDbConnection.models.CustomerPaymentModel.updateCustomerPaymentWithFilter(

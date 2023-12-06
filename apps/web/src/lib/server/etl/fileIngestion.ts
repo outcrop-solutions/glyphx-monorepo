@@ -111,8 +111,8 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
       projectId: newPayload.modelId,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
-      action: databaseTypes.constants.ACTION_TYPE.FILES_INGESTED,
+      onModel: databaseTypes.RESOURCE_MODEL.PROJECT,
+      action: databaseTypes.ACTION_TYPE.FILES_INGESTED,
     });
 
     await activityLogService.createLog({
@@ -122,8 +122,8 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
       projectId: newPayload.modelId,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.PROCESS_TRACKING,
-      action: databaseTypes.constants.ACTION_TYPE.PROCESS_TRACKING,
+      onModel: databaseTypes.RESOURCE_MODEL.PROCESS_TRACKING,
+      action: databaseTypes.ACTION_TYPE.PROCESS_TRACKING,
     });
     //get the updated project
     const project = await projectService.getProject(newPayload.modelId);

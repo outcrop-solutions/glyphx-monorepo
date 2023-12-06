@@ -124,7 +124,7 @@ export const useFileSystem = () => {
         setLoading(
           produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
             draft.processName = 'File Upload';
-            draft.processStatus = databaseTypes.constants.PROCESS_STATUS.PENDING;
+            draft.processStatus = databaseTypes.PROCESS_STATUS.PENDING;
           })
         );
         // get s3 keys for upload
@@ -140,7 +140,7 @@ export const useFileSystem = () => {
             // upload raw file data to s3
             setLoading(
               produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-                draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+                draft.processStatus = databaseTypes.PROCESS_STATUS.IN_PROGRESS;
                 draft.processStartTime = new Date();
               })
             );
@@ -150,7 +150,7 @@ export const useFileSystem = () => {
               onError: () => {
                 setLoading(
                   produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-                    draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
+                    draft.processStatus = databaseTypes.PROCESS_STATUS.FAILED;
                     draft.processEndTime = new Date();
                   })
                 );
@@ -158,7 +158,7 @@ export const useFileSystem = () => {
               onSuccess: () => {
                 setLoading(
                   produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-                    draft.processStatus = databaseTypes.constants.PROCESS_STATUS.COMPLETED;
+                    draft.processStatus = databaseTypes.PROCESS_STATUS.COMPLETED;
                   })
                 );
               },
@@ -169,7 +169,7 @@ export const useFileSystem = () => {
         setLoading(
           produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
             draft.processName = 'File Ingestion';
-            draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+            draft.processStatus = databaseTypes.PROCESS_STATUS.IN_PROGRESS;
           })
         );
 
@@ -179,7 +179,7 @@ export const useFileSystem = () => {
           onSuccess: (data) => {
             setLoading(
               produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-                draft.processStatus = databaseTypes.constants.PROCESS_STATUS.COMPLETED;
+                draft.processStatus = databaseTypes.PROCESS_STATUS.COMPLETED;
                 draft.processEndTime = new Date();
               })
             );
@@ -188,7 +188,7 @@ export const useFileSystem = () => {
           onError: () => {
             setLoading(
               produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-                draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
+                draft.processStatus = databaseTypes.PROCESS_STATUS.FAILED;
                 draft.processEndTime = new Date();
               })
             );

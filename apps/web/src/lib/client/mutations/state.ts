@@ -8,12 +8,12 @@ export const _createAnnotation = ({
   value,
 }: {
   id: string;
-  type: databaseTypes.constants.ANNOTATION_TYPE;
+  type: databaseTypes.ANNOTATION_TYPE;
   value: string;
 }) => {
   return {
     url:
-      type === databaseTypes.constants.ANNOTATION_TYPE.PROJECT
+      type === databaseTypes.ANNOTATION_TYPE.PROJECT
         ? `/api/annotations/project/${id}`
         : `/api/annotations/state/${id}`,
     options: {

@@ -65,8 +65,8 @@ export class AnnotationService {
     try {
       const input = {
         author: authorId,
-        stateId: stateId,
-        value: value,
+        state: stateId,
+        content: value,
       };
 
       const annotation = await mongoDbConnection.models.AnnotationModel.createAnnotation(input);
@@ -105,7 +105,7 @@ export class AnnotationService {
       const input = {
         author: authorId,
         projectId: projectId,
-        value: value,
+        content: value,
       };
 
       const annotation = await mongoDbConnection.models.AnnotationModel.createAnnotation(input);

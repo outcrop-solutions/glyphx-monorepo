@@ -166,8 +166,8 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
         projectId: payload.model_id,
         location: location,
         userAgent: agentData,
-        onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
-        action: databaseTypes.constants.ACTION_TYPE.MODEL_GENERATED,
+        onModel: databaseTypes.RESOURCE_MODEL.PROJECT,
+        action: databaseTypes.ACTION_TYPE.MODEL_GENERATED,
       });
 
       res.status(200).json({data: {sdtFileName, sgnFileName, sgcFileName, updatedProject}});

@@ -315,7 +315,7 @@ export class FileIngestor {
   public async process(): Promise<IFileProcessingResult> {
     await processTrackingService.updateProcessStatus(
       config.processId,
-      databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
+      databaseTypes.PROCESS_STATUS.IN_PROGRESS,
       `File Ingestion has started : ${new Date()}`
     );
     //Use the default of 1 minute.
@@ -394,8 +394,8 @@ export class FileIngestor {
 
     const status =
       processingResults === FILE_PROCESSING_STATUS.ERROR
-        ? databaseTypes.constants.PROCESS_STATUS.FAILED
-        : databaseTypes.constants.PROCESS_STATUS.COMPLETED;
+        ? databaseTypes.PROCESS_STATUS.FAILED
+        : databaseTypes.PROCESS_STATUS.COMPLETED;
 
     heartBeat.stop();
     await processTrackingService.completeProcess(config.processId, retval, status);

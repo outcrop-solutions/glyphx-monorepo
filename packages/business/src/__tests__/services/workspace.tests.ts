@@ -437,7 +437,7 @@ describe('#services/workspace', () => {
           {
             _id: userId,
             email: userEmail,
-            teamRole: databaseTypes.constants.ROLE.OWNER,
+            teamRole: databaseTypes.ROLE.OWNER,
             deletedAt: null,
             member: userId,
           } as unknown as databaseTypes.IMember,
@@ -503,7 +503,7 @@ describe('#services/workspace', () => {
           {
             _id: userId,
             email: userEmail,
-            teamRole: databaseTypes.constants.ROLE.OWNER,
+            teamRole: databaseTypes.ROLE.OWNER,
             deletedAt: null,
             member: userId,
           } as unknown as databaseTypes.IMember,
@@ -725,7 +725,7 @@ describe('#services/workspace', () => {
           {
             _id: userId,
             email: userEmail,
-            teamRole: databaseTypes.constants.ROLE.OWNER,
+            teamRole: databaseTypes.ROLE.OWNER,
             deletedAt: new Date(),
           } as unknown as databaseTypes.IUser,
         ],
@@ -782,7 +782,7 @@ describe('#services/workspace', () => {
           {
             _id: userId,
             email: userEmail,
-            teamRole: databaseTypes.constants.ROLE.OWNER,
+            teamRole: databaseTypes.ROLE.OWNER,
             deletedAt: new Date(),
           } as unknown as databaseTypes.IUser,
         ],
@@ -839,7 +839,7 @@ describe('#services/workspace', () => {
           {
             _id: userId,
             email: userEmail,
-            teamRole: databaseTypes.constants.ROLE.OWNER,
+            teamRole: databaseTypes.ROLE.OWNER,
             deletedAt: new Date(),
           } as unknown as databaseTypes.IUser,
         ],
@@ -889,7 +889,7 @@ describe('#services/workspace', () => {
               {
                 _id: userId,
                 email: userEmail,
-                teamRole: databaseTypes.constants.ROLE.OWNER,
+                teamRole: databaseTypes.ROLE.OWNER,
                 deletedAt: undefined,
               } as unknown as databaseTypes.IUser,
             ],
@@ -929,7 +929,7 @@ describe('#services/workspace', () => {
               {
                 _id: differentUserId,
                 email: 'differentemail@gmail.com',
-                teamRole: databaseTypes.constants.ROLE.OWNER,
+                teamRole: databaseTypes.ROLE.OWNER,
                 deletedAt: null,
               } as unknown as databaseTypes.IUser,
             ],
@@ -967,7 +967,7 @@ describe('#services/workspace', () => {
               {
                 _id: differentUserId,
                 email: userEmail,
-                teamRole: databaseTypes.constants.ROLE.MEMBER,
+                teamRole: databaseTypes.ROLE.MEMBER,
                 deletedAt: null,
               } as unknown as databaseTypes.IUser,
             ],
@@ -1005,7 +1005,7 @@ describe('#services/workspace', () => {
               {
                 _id: differentUserId,
                 email: userEmail,
-                teamRole: databaseTypes.constants.ROLE.OWNER,
+                teamRole: databaseTypes.ROLE.OWNER,
                 deletedAt: new Date(),
               } as unknown as databaseTypes.IUser,
             ],
@@ -1370,7 +1370,7 @@ describe('#services/workspace', () => {
               {
                 _id: userId,
                 email: userEmail,
-                teamRole: databaseTypes.constants.ROLE.MEMBER,
+                teamRole: databaseTypes.ROLE.MEMBER,
                 deletedAt: undefined,
               } as unknown as databaseTypes.IUser,
             ],
@@ -1410,7 +1410,7 @@ describe('#services/workspace', () => {
               {
                 _id: differentUserId,
                 email: 'differentemail@gmail.com',
-                teamRole: databaseTypes.constants.ROLE.MEMBER,
+                teamRole: databaseTypes.ROLE.MEMBER,
                 deletedAt: null,
               } as unknown as databaseTypes.IUser,
             ],
@@ -1448,7 +1448,7 @@ describe('#services/workspace', () => {
               {
                 _id: differentUserId,
                 email: userEmail,
-                teamRole: databaseTypes.constants.ROLE.MEMBER,
+                teamRole: databaseTypes.ROLE.MEMBER,
                 deletedAt: new Date(),
               } as unknown as databaseTypes.IUser,
             ],
@@ -1584,7 +1584,7 @@ describe('#services/workspace', () => {
             {
               _id: userId,
               email: userEmail,
-              status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
+              status: databaseTypes.INVITATION_STATUS.ACCEPTED,
               deletedAt: undefined,
             } as unknown as databaseTypes.IUser,
           ],
@@ -1754,7 +1754,7 @@ describe('#services/workspace', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const memberEmail = 'testMemberEmail';
-      const memberRole = databaseTypes.constants.ROLE.MEMBER;
+      const memberRole = databaseTypes.ROLE.MEMBER;
       const members = [{email: memberEmail, teamRole: memberRole}];
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
@@ -1831,7 +1831,7 @@ describe('#services/workspace', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const memberEmail = 'testMemberEmail';
-      const memberRole = databaseTypes.constants.ROLE.MEMBER;
+      const memberRole = databaseTypes.ROLE.MEMBER;
       const members = [{email: memberEmail, teamRole: memberRole}];
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
@@ -1903,7 +1903,7 @@ describe('#services/workspace', () => {
         new mongooseTypes.ObjectId();
       const userEmail = 'testuserEmail';
       const memberEmail = 'testMemberEmail';
-      const memberRole = databaseTypes.constants.ROLE.MEMBER;
+      const memberRole = databaseTypes.ROLE.MEMBER;
       const members = [{email: memberEmail, teamRole: memberRole}];
       const errMessage = 'Cannot find the workspace';
 
@@ -1947,7 +1947,7 @@ describe('#services/workspace', () => {
         new mongooseTypes.ObjectId();
       const userEmail = 'testuserEmail';
       const memberEmail = 'testMemberEmail';
-      const memberRole = databaseTypes.constants.ROLE.MEMBER;
+      const memberRole = databaseTypes.ROLE.MEMBER;
       const members = [{email: memberEmail, teamRole: memberRole}];
 
       const errMessage = 'Cannot find the user';
@@ -2003,7 +2003,7 @@ describe('#services/workspace', () => {
         new mongooseTypes.ObjectId();
       const userEmail = 'testuserEmail';
       const memberEmail = 'testMemberEmail';
-      const memberRole = databaseTypes.constants.ROLE.MEMBER;
+      const memberRole = databaseTypes.ROLE.MEMBER;
       const members = [{email: memberEmail, teamRole: memberRole}];
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
@@ -2064,7 +2064,7 @@ describe('#services/workspace', () => {
         new mongooseTypes.ObjectId();
       const userEmail = 'testuserEmail';
       const memberEmail = 'testMemberEmail';
-      const memberRole = databaseTypes.constants.ROLE.MEMBER;
+      const memberRole = databaseTypes.ROLE.MEMBER;
       const members = [{email: memberEmail, teamRole: memberRole}];
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
@@ -2127,7 +2127,7 @@ describe('#services/workspace', () => {
         new mongooseTypes.ObjectId();
       const userEmail = 'testuserEmail';
       const memberEmail = 'testMemberEmail';
-      const memberRole = databaseTypes.constants.ROLE.MEMBER;
+      const memberRole = databaseTypes.ROLE.MEMBER;
       const members = [{email: memberEmail, teamRole: memberRole}];
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
@@ -2201,7 +2201,7 @@ describe('#services/workspace', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const memberEmail = 'testMemberEmail';
-      const memberRole = databaseTypes.constants.ROLE.MEMBER;
+      const memberRole = databaseTypes.ROLE.MEMBER;
       const members = [{email: memberEmail, teamRole: memberRole}];
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
@@ -2279,7 +2279,7 @@ describe('#services/workspace', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const memberEmail = 'testMemberEmail';
-      const memberRole = databaseTypes.constants.ROLE.MEMBER;
+      const memberRole = databaseTypes.ROLE.MEMBER;
       const members = [{email: memberEmail, teamRole: memberRole}];
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
@@ -2357,7 +2357,7 @@ describe('#services/workspace', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const memberEmail = 'testMemberEmail';
-      const memberRole = databaseTypes.constants.ROLE.MEMBER;
+      const memberRole = databaseTypes.ROLE.MEMBER;
       const members = [{email: memberEmail, teamRole: memberRole}];
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
@@ -2435,7 +2435,7 @@ describe('#services/workspace', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const memberEmail = 'testMemberEmail';
-      const memberRole = databaseTypes.constants.ROLE.MEMBER;
+      const memberRole = databaseTypes.ROLE.MEMBER;
       const members = [{email: memberEmail, teamRole: memberRole}];
       const inviteCode = v4().replaceAll('-', '');
       const workspaceCode = v4().replaceAll('-', '');
@@ -2521,7 +2521,7 @@ describe('#services/workspace', () => {
           {
             _id: userId,
             email: userEmail,
-            teamRole: databaseTypes.constants.ROLE.OWNER,
+            teamRole: databaseTypes.ROLE.OWNER,
             deletedAt: null,
           } as unknown as databaseTypes.IUser,
         ],
@@ -2547,7 +2547,7 @@ describe('#services/workspace', () => {
           {
             _id: userId,
             email: userEmail,
-            teamRole: databaseTypes.constants.ROLE.MEMBER,
+            teamRole: databaseTypes.ROLE.MEMBER,
             deletedAt: null,
           } as unknown as databaseTypes.IUser,
         ],
@@ -2575,7 +2575,7 @@ describe('#services/workspace', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const invitedBy = new mongooseTypes.ObjectId();
-      const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
+      const memberStatus = databaseTypes.INVITATION_STATUS.PENDING;
       const memberEmail = 'testmember@gmail.com';
 
       const queryWorkspacesFromModelStub = sandbox.stub();
@@ -2596,7 +2596,7 @@ describe('#services/workspace', () => {
                 email: userEmail,
                 invitedAt: joinedDate,
                 joinedDate: joinedDate,
-                teamRole: databaseTypes.constants.ROLE.OWNER,
+                teamRole: databaseTypes.ROLE.OWNER,
                 deletedAt: null,
                 status: memberStatus,
               } as unknown as databaseTypes.IUser,
@@ -2619,7 +2619,7 @@ describe('#services/workspace', () => {
         email: memberEmail,
         invitedAt: joinedDate,
         joinedDate: joinedDate,
-        teamRole: databaseTypes.constants.ROLE.OWNER,
+        teamRole: databaseTypes.ROLE.OWNER,
         deletedAt: null,
         status: memberStatus,
       } as unknown as databaseTypes.IMember);
@@ -2632,7 +2632,7 @@ describe('#services/workspace', () => {
         email: memberEmail,
         invitedAt: joinedDate,
         joinedDate: joinedDate,
-        teamRole: databaseTypes.constants.ROLE.OWNER,
+        teamRole: databaseTypes.ROLE.OWNER,
         deletedAt: null,
         status: memberStatus,
       } as unknown as databaseTypes.IMember);
@@ -2666,7 +2666,7 @@ describe('#services/workspace', () => {
       const userEmail = 'testemail@gmail.com';
       const memberId = new mongooseTypes.ObjectId();
       const invitedBy = new mongooseTypes.ObjectId();
-      const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
+      const memberStatus = databaseTypes.INVITATION_STATUS.PENDING;
       const memberEmail = 'testmember@gmail.com';
 
       const queryWorkspacesFromModelStub = sandbox.stub();
@@ -2687,7 +2687,7 @@ describe('#services/workspace', () => {
                 email: userEmail,
                 invitedAt: joinedDate,
                 joinedDate: joinedDate,
-                teamRole: databaseTypes.constants.ROLE.OWNER,
+                teamRole: databaseTypes.ROLE.OWNER,
                 deletedAt: null,
                 status: memberStatus,
               } as unknown as databaseTypes.IUser,
@@ -2710,7 +2710,7 @@ describe('#services/workspace', () => {
         email: memberEmail,
         invitedAt: joinedDate,
         joinedDate: joinedDate,
-        teamRole: databaseTypes.constants.ROLE.OWNER,
+        teamRole: databaseTypes.ROLE.OWNER,
         deletedAt: null,
         status: memberStatus,
       } as unknown as databaseTypes.IMember);
@@ -2858,7 +2858,7 @@ describe('#services/workspace', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
+      const memberStatus = databaseTypes.INVITATION_STATUS.PENDING;
 
       const errMessage = 'Cannot find the workspace';
       const err = new error.DatabaseOperationError(errMessage, 'mongoDb', 'queryWorkspaces');
@@ -2881,7 +2881,7 @@ describe('#services/workspace', () => {
                 email: userEmail,
                 invitedAt: joinedDate,
                 joinedDate: joinedDate,
-                teamRole: databaseTypes.constants.ROLE.OWNER,
+                teamRole: databaseTypes.ROLE.OWNER,
                 deletedAt: null,
                 status: memberStatus,
               } as unknown as databaseTypes.IUser,
@@ -2937,7 +2937,7 @@ describe('#services/workspace', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
+      const memberStatus = databaseTypes.INVITATION_STATUS.PENDING;
 
       const errMessage = 'Cannot find the workspace';
       const err = new error.InvalidArgumentError(errMessage, 'email', {
@@ -2962,7 +2962,7 @@ describe('#services/workspace', () => {
                 email: userEmail,
                 invitedAt: joinedDate,
                 joinedDate: joinedDate,
-                teamRole: databaseTypes.constants.ROLE.OWNER,
+                teamRole: databaseTypes.ROLE.OWNER,
                 deletedAt: null,
                 status: memberStatus,
               } as unknown as databaseTypes.IUser,
@@ -3022,7 +3022,7 @@ describe('#services/workspace', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
+      const memberStatus = databaseTypes.INVITATION_STATUS.PENDING;
 
       const errMessage = 'Cannot find the workspace';
       const err = new error.DataValidationError(errMessage, 'email', {
@@ -3047,7 +3047,7 @@ describe('#services/workspace', () => {
                 email: userEmail,
                 invitedAt: joinedDate,
                 joinedDate: joinedDate,
-                teamRole: databaseTypes.constants.ROLE.OWNER,
+                teamRole: databaseTypes.ROLE.OWNER,
                 deletedAt: null,
                 status: memberStatus,
               } as unknown as databaseTypes.IUser,
@@ -3107,7 +3107,7 @@ describe('#services/workspace', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
+      const memberStatus = databaseTypes.INVITATION_STATUS.PENDING;
 
       const errMessage = 'Cannot find the workspace';
       const err = new error.DatabaseOperationError(errMessage, 'mongoDb', 'queryWorkspaces');
@@ -3130,7 +3130,7 @@ describe('#services/workspace', () => {
                 email: userEmail,
                 invitedAt: joinedDate,
                 joinedDate: joinedDate,
-                teamRole: databaseTypes.constants.ROLE.OWNER,
+                teamRole: databaseTypes.ROLE.OWNER,
                 deletedAt: null,
                 status: memberStatus,
               } as unknown as databaseTypes.IUser,
@@ -3194,7 +3194,7 @@ describe('#services/workspace', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
+      const memberStatus = databaseTypes.INVITATION_STATUS.PENDING;
 
       const errMessage = 'Cannot find the workspace';
       const err = new error.InvalidArgumentError(errMessage, 'email', {
@@ -3219,7 +3219,7 @@ describe('#services/workspace', () => {
                 email: userEmail,
                 invitedAt: joinedDate,
                 joinedDate: joinedDate,
-                teamRole: databaseTypes.constants.ROLE.OWNER,
+                teamRole: databaseTypes.ROLE.OWNER,
                 deletedAt: null,
                 status: memberStatus,
               } as unknown as databaseTypes.IUser,
@@ -3279,7 +3279,7 @@ describe('#services/workspace', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
+      const memberStatus = databaseTypes.INVITATION_STATUS.PENDING;
 
       const errMessage = 'Cannot find the workspace';
       const err = new error.InvalidOperationError(errMessage, {
@@ -3304,7 +3304,7 @@ describe('#services/workspace', () => {
                 email: userEmail,
                 invitedAt: joinedDate,
                 joinedDate: joinedDate,
-                teamRole: databaseTypes.constants.ROLE.OWNER,
+                teamRole: databaseTypes.ROLE.OWNER,
                 deletedAt: null,
                 status: memberStatus,
               } as unknown as databaseTypes.IUser,
@@ -3364,7 +3364,7 @@ describe('#services/workspace', () => {
         // @ts-ignore
         new mongooseTypes.ObjectId();
       const userEmail = 'testemail@gmail.com';
-      const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
+      const memberStatus = databaseTypes.INVITATION_STATUS.PENDING;
 
       const errMessage = 'Cannot find the workspace';
       const err = new error.DatabaseOperationError(errMessage, 'mongoDb', 'queryWorkspaces');
@@ -3387,7 +3387,7 @@ describe('#services/workspace', () => {
                 email: userEmail,
                 invitedAt: joinedDate,
                 joinedDate: joinedDate,
-                teamRole: databaseTypes.constants.ROLE.OWNER,
+                teamRole: databaseTypes.ROLE.OWNER,
                 deletedAt: null,
                 status: memberStatus,
               } as unknown as databaseTypes.IUser,
@@ -3453,7 +3453,7 @@ describe('#services/workspace', () => {
       const memberId = new mongooseTypes.ObjectId();
       const invitedBy = new mongooseTypes.ObjectId();
       const memberEmail = 'testmember@gmail.com';
-      const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
+      const memberStatus = databaseTypes.INVITATION_STATUS.PENDING;
 
       const errMessage = 'Cannot find the workspace';
       const err = new error.InvalidArgumentError(errMessage, 'email', {
@@ -3478,7 +3478,7 @@ describe('#services/workspace', () => {
                 email: userEmail,
                 invitedAt: joinedDate,
                 joinedDate: joinedDate,
-                teamRole: databaseTypes.constants.ROLE.OWNER,
+                teamRole: databaseTypes.ROLE.OWNER,
                 deletedAt: null,
                 status: memberStatus,
               } as unknown as databaseTypes.IUser,
@@ -3500,7 +3500,7 @@ describe('#services/workspace', () => {
         email: memberEmail,
         invitedAt: joinedDate,
         joinedDate: joinedDate,
-        teamRole: databaseTypes.constants.ROLE.OWNER,
+        teamRole: databaseTypes.ROLE.OWNER,
         deletedAt: null,
         status: memberStatus,
       } as unknown as databaseTypes.IMember);
@@ -3552,7 +3552,7 @@ describe('#services/workspace', () => {
       const memberId = new mongooseTypes.ObjectId();
       const invitedBy = new mongooseTypes.ObjectId();
       const memberEmail = 'testmember@gmail.com';
-      const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
+      const memberStatus = databaseTypes.INVITATION_STATUS.PENDING;
 
       const errMessage = 'Cannot find the workspace';
       const err = new error.DataNotFoundError(errMessage, 'email', {
@@ -3577,7 +3577,7 @@ describe('#services/workspace', () => {
                 email: userEmail,
                 invitedAt: joinedDate,
                 joinedDate: joinedDate,
-                teamRole: databaseTypes.constants.ROLE.OWNER,
+                teamRole: databaseTypes.ROLE.OWNER,
                 deletedAt: null,
                 status: memberStatus,
               } as unknown as databaseTypes.IUser,
@@ -3599,7 +3599,7 @@ describe('#services/workspace', () => {
         email: memberEmail,
         invitedAt: joinedDate,
         joinedDate: joinedDate,
-        teamRole: databaseTypes.constants.ROLE.OWNER,
+        teamRole: databaseTypes.ROLE.OWNER,
         deletedAt: null,
         status: memberStatus,
       } as unknown as databaseTypes.IMember);
@@ -3651,7 +3651,7 @@ describe('#services/workspace', () => {
       const memberId = new mongooseTypes.ObjectId();
       const invitedBy = new mongooseTypes.ObjectId();
       const memberEmail = 'testmember@gmail.com';
-      const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
+      const memberStatus = databaseTypes.INVITATION_STATUS.PENDING;
 
       const errMessage = 'Cannot find the workspace';
       const err = new error.DataValidationError(errMessage, 'email', {
@@ -3676,7 +3676,7 @@ describe('#services/workspace', () => {
                 email: userEmail,
                 invitedAt: joinedDate,
                 joinedDate: joinedDate,
-                teamRole: databaseTypes.constants.ROLE.OWNER,
+                teamRole: databaseTypes.ROLE.OWNER,
                 deletedAt: null,
                 status: memberStatus,
               } as unknown as databaseTypes.IUser,
@@ -3698,7 +3698,7 @@ describe('#services/workspace', () => {
         email: memberEmail,
         invitedAt: joinedDate,
         joinedDate: joinedDate,
-        teamRole: databaseTypes.constants.ROLE.OWNER,
+        teamRole: databaseTypes.ROLE.OWNER,
         deletedAt: null,
         status: memberStatus,
       } as unknown as databaseTypes.IMember);
@@ -3750,7 +3750,7 @@ describe('#services/workspace', () => {
       const memberId = new mongooseTypes.ObjectId();
       const invitedBy = new mongooseTypes.ObjectId();
       const memberEmail = 'testmember@gmail.com';
-      const memberStatus = databaseTypes.constants.INVITATION_STATUS.PENDING;
+      const memberStatus = databaseTypes.INVITATION_STATUS.PENDING;
 
       const errMessage = 'Cannot find the workspace';
       const err = new error.DatabaseOperationError(errMessage, 'mongoDb', 'queryWorkspaces');
@@ -3773,7 +3773,7 @@ describe('#services/workspace', () => {
                 email: userEmail,
                 invitedAt: joinedDate,
                 joinedDate: joinedDate,
-                teamRole: databaseTypes.constants.ROLE.OWNER,
+                teamRole: databaseTypes.ROLE.OWNER,
                 deletedAt: null,
                 status: memberStatus,
               } as unknown as databaseTypes.IUser,
@@ -3795,7 +3795,7 @@ describe('#services/workspace', () => {
         email: memberEmail,
         invitedAt: joinedDate,
         joinedDate: joinedDate,
-        teamRole: databaseTypes.constants.ROLE.OWNER,
+        teamRole: databaseTypes.ROLE.OWNER,
         deletedAt: null,
         status: memberStatus,
       } as unknown as databaseTypes.IMember);
@@ -3855,7 +3855,7 @@ describe('#services/workspace', () => {
           {
             _id: userId,
             email: userEmail,
-            teamRole: databaseTypes.constants.ROLE.MEMBER,
+            teamRole: databaseTypes.ROLE.MEMBER,
             deletedAt: null,
           } as unknown as databaseTypes.IUser,
         ],
@@ -4100,7 +4100,7 @@ describe('#services/workspace', () => {
           {
             _id: userId,
             email: userEmail,
-            teamRole: databaseTypes.constants.ROLE.MEMBER,
+            teamRole: databaseTypes.ROLE.MEMBER,
             deletedAt: null,
           } as unknown as databaseTypes.IUser,
         ],

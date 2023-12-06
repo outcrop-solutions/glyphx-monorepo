@@ -132,8 +132,8 @@ describe('#services/membership', () => {
             _id: memberId,
             email: memberEmail,
             deletedAt: undefined,
-            status: databaseTypes.constants.INVITATION_STATUS.PENDING,
-            type: databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE,
+            status: databaseTypes.INVITATION_STATUS.PENDING,
+            type: databaseTypes.MEMBERSHIP_TYPE.WORKSPACE,
           },
         ] as unknown as databaseTypes.IMember[],
       });
@@ -429,7 +429,7 @@ describe('#services/membership', () => {
       const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const teamRole = databaseTypes.constants.ROLE.MEMBER;
+      const teamRole = databaseTypes.ROLE.MEMBER;
 
       const updateMembershipFromModelStub = sandbox.stub();
       updateMembershipFromModelStub.resolves({
@@ -446,7 +446,7 @@ describe('#services/membership', () => {
       const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const teamRole = databaseTypes.constants.ROLE.MEMBER;
+      const teamRole = databaseTypes.ROLE.MEMBER;
 
       const updateMembershipFromModelStub = sandbox.stub();
       updateMembershipFromModelStub.resolves({
@@ -463,7 +463,7 @@ describe('#services/membership', () => {
       const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const teamRole = databaseTypes.constants.ROLE.MEMBER;
+      const teamRole = databaseTypes.ROLE.MEMBER;
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'memberId', true);
       const updateMembershipFromModelStub = sandbox.stub();
@@ -498,7 +498,7 @@ describe('#services/membership', () => {
       const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const teamRole = databaseTypes.constants.ROLE.MEMBER;
+      const teamRole = databaseTypes.ROLE.MEMBER;
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
       const updateMembershipFromModelStub = sandbox.stub();
@@ -533,7 +533,7 @@ describe('#services/membership', () => {
       const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const teamRole = databaseTypes.constants.ROLE.MEMBER;
+      const teamRole = databaseTypes.ROLE.MEMBER;
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateMembershipById');
       const updateMembershipFromModelStub = sandbox.stub();
@@ -570,7 +570,7 @@ describe('#services/membership', () => {
       const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const status = databaseTypes.constants.INVITATION_STATUS.ACCEPTED;
+      const status = databaseTypes.INVITATION_STATUS.ACCEPTED;
 
       const updateMembershipFromModelStub = sandbox.stub();
       updateMembershipFromModelStub.resolves({
@@ -587,7 +587,7 @@ describe('#services/membership', () => {
       const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const status = databaseTypes.constants.INVITATION_STATUS.ACCEPTED;
+      const status = databaseTypes.INVITATION_STATUS.ACCEPTED;
 
       const updateMembershipFromModelStub = sandbox.stub();
       updateMembershipFromModelStub.resolves({
@@ -604,7 +604,7 @@ describe('#services/membership', () => {
       const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const status = databaseTypes.constants.INVITATION_STATUS.ACCEPTED;
+      const status = databaseTypes.INVITATION_STATUS.ACCEPTED;
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'memberId', true);
       const updateMembershipFromModelStub = sandbox.stub();
@@ -639,7 +639,7 @@ describe('#services/membership', () => {
       const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const status = databaseTypes.constants.INVITATION_STATUS.ACCEPTED;
+      const status = databaseTypes.INVITATION_STATUS.ACCEPTED;
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
       const updateMembershipFromModelStub = sandbox.stub();
@@ -674,7 +674,7 @@ describe('#services/membership', () => {
       const memberId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
-      const status = databaseTypes.constants.INVITATION_STATUS.ACCEPTED;
+      const status = databaseTypes.INVITATION_STATUS.ACCEPTED;
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateMembershipById');
       const updateMembershipFromModelStub = sandbox.stub();

@@ -148,7 +148,7 @@ describe('#services/project', () => {
       const createProjectMemberFromModelStub = sandbox.stub();
       createProjectMemberFromModelStub.resolves({
         _id: memberId,
-        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        type: databaseTypes.MEMBERSHIP_TYPE.PROJECT,
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IMember);
 
@@ -230,7 +230,7 @@ describe('#services/project', () => {
       const createProjectMemberFromModelStub = sandbox.stub();
       createProjectMemberFromModelStub.resolves({
         _id: memberId,
-        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        type: databaseTypes.MEMBERSHIP_TYPE.PROJECT,
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IMember);
 
@@ -306,7 +306,7 @@ describe('#services/project', () => {
       const createProjectMemberFromModelStub = sandbox.stub();
       createProjectMemberFromModelStub.resolves({
         _id: memberId,
-        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        type: databaseTypes.MEMBERSHIP_TYPE.PROJECT,
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IMember);
 
@@ -705,7 +705,7 @@ describe('#services/project', () => {
       const createProjectMemberFromModelStub = sandbox.stub();
       createProjectMemberFromModelStub.resolves({
         _id: memberId,
-        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        type: databaseTypes.MEMBERSHIP_TYPE.PROJECT,
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IMember);
 
@@ -780,7 +780,7 @@ describe('#services/project', () => {
       const createProjectMemberFromModelStub = sandbox.stub();
       createProjectMemberFromModelStub.resolves({
         _id: memberId,
-        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        type: databaseTypes.MEMBERSHIP_TYPE.PROJECT,
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IMember);
 
@@ -855,7 +855,7 @@ describe('#services/project', () => {
       const createProjectMemberFromModelStub = sandbox.stub();
       createProjectMemberFromModelStub.resolves({
         _id: memberId,
-        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        type: databaseTypes.MEMBERSHIP_TYPE.PROJECT,
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IMember);
 
@@ -931,7 +931,7 @@ describe('#services/project', () => {
       const createProjectMemberFromModelStub = sandbox.stub();
       createProjectMemberFromModelStub.resolves({
         _id: memberId,
-        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        type: databaseTypes.MEMBERSHIP_TYPE.PROJECT,
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IMember);
 
@@ -1016,7 +1016,7 @@ describe('#services/project', () => {
       const createProjectMemberFromModelStub = sandbox.stub();
       createProjectMemberFromModelStub.resolves({
         _id: memberId,
-        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        type: databaseTypes.MEMBERSHIP_TYPE.PROJECT,
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IMember);
 
@@ -1101,7 +1101,7 @@ describe('#services/project', () => {
       const createProjectMemberFromModelStub = sandbox.stub();
       createProjectMemberFromModelStub.resolves({
         _id: memberId,
-        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        type: databaseTypes.MEMBERSHIP_TYPE.PROJECT,
         projects: [{_id: projectId}],
       } as unknown as databaseTypes.IMember);
 

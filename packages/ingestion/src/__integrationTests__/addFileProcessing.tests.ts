@@ -117,7 +117,7 @@ describe('#fileProcessing', () => {
       assert.strictEqual(documentViewName, viewName);
 
       const processStatus = await processTrackingService.getProcessStatus(PROCESS_ID);
-      assert.strictEqual(processStatus?.processStatus, databaseTypes.constants.PROCESS_STATUS.COMPLETED);
+      assert.strictEqual(processStatus?.processStatus, databaseTypes.PROCESS_STATUS.COMPLETED);
 
       assert.strictEqual(processStatus?.processResult?.status, status);
       console.log('I am done');

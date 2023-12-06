@@ -24,7 +24,7 @@ export const callDownloadModel = async ({project, payloadHash, session, url, set
       setLoading(
         produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
           draft.processName = 'Failed to Open Model';
-          draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
+          draft.processStatus = databaseTypes.PROCESS_STATUS.FAILED;
           draft.processEndTime = new Date();
         })
       );

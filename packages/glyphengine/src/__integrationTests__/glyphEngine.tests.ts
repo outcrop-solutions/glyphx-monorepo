@@ -128,7 +128,7 @@ describe('GlyphEngine', () => {
       assert.isTrue(await s3Bucket.fileExists(sgnFileName));
       assert.isTrue(await s3Bucket.fileExists(sgcFileName));
       const processStatus = await processTrackingService.getProcessStatus(PROCESS_ID);
-      assert.strictEqual(processStatus?.processStatus, databaseTypes.constants.PROCESS_STATUS.COMPLETED);
+      assert.strictEqual(processStatus?.processStatus, databaseTypes.PROCESS_STATUS.COMPLETED);
     });
   });
 });

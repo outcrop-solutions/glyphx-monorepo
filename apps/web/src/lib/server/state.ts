@@ -47,8 +47,8 @@ export const createState = async (req: NextApiRequest, res: NextApiResponse, ses
         workspaceId: state.workspace.id,
         location: location,
         userAgent: agentData,
-        onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
-        action: databaseTypes.constants.ACTION_TYPE.CREATED,
+        onModel: databaseTypes.RESOURCE_MODEL.STATE,
+        action: databaseTypes.ACTION_TYPE.CREATED,
       });
     }
 
@@ -82,8 +82,8 @@ export const updateState = async (req: NextApiRequest, res: NextApiResponse, ses
       projectId: state.project.id,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
-      action: databaseTypes.constants.ACTION_TYPE.UPDATED,
+      onModel: databaseTypes.RESOURCE_MODEL.STATE,
+      action: databaseTypes.ACTION_TYPE.UPDATED,
     });
     res.status(200).json({data: {name}});
   } catch (error) {
@@ -115,8 +115,8 @@ export const deleteState = async (req: NextApiRequest, res: NextApiResponse, ses
       projectId: state.project.id,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
-      action: databaseTypes.constants.ACTION_TYPE.DELETED,
+      onModel: databaseTypes.RESOURCE_MODEL.STATE,
+      action: databaseTypes.ACTION_TYPE.DELETED,
     });
     res.status(200).json({data: {deleted: true}});
   } catch (error) {

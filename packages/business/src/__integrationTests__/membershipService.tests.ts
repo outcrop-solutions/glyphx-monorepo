@@ -31,13 +31,13 @@ const MOCK_USER: databaseTypes.IUser = {
 const INPUT_MEMBER: Partial<databaseTypes.IMember> = {
   email: 'testemail@gmail.com',
   inviter: 'testEmail' + UNIQUE_KEY + '@email.com',
-  type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+  type: databaseTypes.MEMBERSHIP_TYPE.PROJECT,
   invitedAt: new Date(),
   joinedAt: new Date(),
   updatedAt: new Date(),
   createdAt: new Date(),
-  status: databaseTypes.constants.INVITATION_STATUS.PENDING,
-  teamRole: databaseTypes.constants.ROLE.MEMBER,
+  status: databaseTypes.INVITATION_STATUS.PENDING,
+  teamRole: databaseTypes.ROLE.MEMBER,
 };
 
 describe('#MembershipService', () => {
@@ -78,14 +78,14 @@ describe('#MembershipService', () => {
       assert.isOk(members);
     });
     it('will update the member role', async () => {
-      const member = await membershipService.updateRole(memberId.toString(), databaseTypes.constants.ROLE.OWNER);
+      const member = await membershipService.updateRole(memberId.toString(), databaseTypes.ROLE.OWNER);
       assert.isOk(member);
-      assert.strictEqual(member?.projectRole!, databaseTypes.constants.PROJECT_ROLE.OWNER);
+      assert.strictEqual(member?.projectRole!, databaseTypes.PROJECT_ROLE.OWNER);
     });
     it('will update our member invitation status', async () => {
       const member = await membershipService.updateStatus(
         memberId.toString(),
-        databaseTypes.constants.INVITATION_STATUS.ACCEPTED
+        databaseTypes.INVITATION_STATUS.ACCEPTED
       );
       assert.isOk(member);
 

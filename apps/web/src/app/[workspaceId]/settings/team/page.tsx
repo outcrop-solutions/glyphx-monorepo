@@ -18,7 +18,7 @@ import Content from 'app/_components/Content';
 import {_createMember, _removeMember, _updateRole, api, useWorkspace} from 'lib/client';
 import useIsTeamOwner from 'lib/client/hooks/useIsOwner';
 
-const MEMBERS_TEMPLATE = {email: '', teamRole: databaseTypes.constants.ROLE.MEMBER};
+const MEMBERS_TEMPLATE = {email: '', teamRole: databaseTypes.ROLE.MEMBER};
 
 const Team = () => {
   const {data, isLoading: isWorkspaceLoading} = useWorkspace();
@@ -117,11 +117,11 @@ const Team = () => {
                           disabled={isSubmitting}
                           onChange={(event) => handleRoleChange(event, index)}
                         >
-                          <option key={index} value={databaseTypes.constants.ROLE.MEMBER}>
-                            {databaseTypes.constants.ROLE.MEMBER.toLowerCase()}
+                          <option key={index} value={databaseTypes.ROLE.MEMBER}>
+                            {databaseTypes.ROLE.MEMBER.toLowerCase()}
                           </option>
-                          <option key={index} value={databaseTypes.constants.ROLE.OWNER}>
-                            {databaseTypes.constants.ROLE.OWNER.toLowerCase()}
+                          <option key={index} value={databaseTypes.ROLE.OWNER}>
+                            {databaseTypes.ROLE.OWNER.toLowerCase()}
                           </option>
                         </select>
                         <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
@@ -190,11 +190,11 @@ const Team = () => {
                               <span
                                 className={[
                                   'font-mono text-xs px-2 py-0.5 rounded-full capitalize',
-                                  member.status === databaseTypes.constants.INVITATION_STATUS.ACCEPTED
+                                  member.status === databaseTypes.INVITATION_STATUS.ACCEPTED
                                     ? 'bg-green-200 text-green-600'
-                                    : member.status === databaseTypes.constants.INVITATION_STATUS.PENDING
-                                    ? 'bg-blue-200 text-blue-600'
-                                    : 'bg-red-200 text-red-600',
+                                    : member.status === databaseTypes.INVITATION_STATUS.PENDING
+                                      ? 'bg-blue-200 text-blue-600'
+                                      : 'bg-red-200 text-red-600',
                                 ].join(' ')}
                               >
                                 {member?.status.toLowerCase()}
@@ -230,16 +230,16 @@ const Team = () => {
                                                     changeRole(
                                                       member.id,
                                                       event.target.value as unknown as
-                                                        | databaseTypes.constants.ROLE
-                                                        | databaseTypes.constants.PROJECT_ROLE
+                                                        | databaseTypes.ROLE
+                                                        | databaseTypes.PROJECT_ROLE
                                                     )
                                                   }
                                                 >
-                                                  <option key={index} value={databaseTypes.constants.ROLE.MEMBER}>
-                                                    {databaseTypes.constants.ROLE.MEMBER.toLowerCase()}
+                                                  <option key={index} value={databaseTypes.ROLE.MEMBER}>
+                                                    {databaseTypes.ROLE.MEMBER.toLowerCase()}
                                                   </option>
-                                                  <option key={index} value={databaseTypes.constants.ROLE.OWNER}>
-                                                    {databaseTypes.constants.ROLE.OWNER.toLowerCase()}
+                                                  <option key={index} value={databaseTypes.ROLE.OWNER}>
+                                                    {databaseTypes.ROLE.OWNER.toLowerCase()}
                                                   </option>
                                                 </select>
                                                 <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">

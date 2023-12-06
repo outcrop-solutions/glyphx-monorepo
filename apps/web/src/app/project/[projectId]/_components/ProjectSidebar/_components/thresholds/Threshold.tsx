@@ -43,7 +43,7 @@ export const Threshold = ({item, idx}) => {
       setLoading(
         produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
           draft.processName = 'Retreiving State Snapshot...';
-          draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+          draft.processStatus = databaseTypes.PROCESS_STATUS.IN_PROGRESS;
           draft.processStartTime = new Date();
         })
       );
@@ -64,7 +64,7 @@ export const Threshold = ({item, idx}) => {
           setLoading(
             produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
               draft.processName = 'Failed to Open State Snapshot';
-              draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
+              draft.processStatus = databaseTypes.PROCESS_STATUS.FAILED;
               draft.processEndTime = new Date();
             })
           );

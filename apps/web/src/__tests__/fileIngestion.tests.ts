@@ -176,7 +176,7 @@ const MOCK_FILE_INFO: Omit<fileIngestionTypes.IFileInfo, 'fileStream'>[] = [
     operation: 2,
   },
 ];
-const MOCK_STATUS: databaseTypes.constants.PROCESS_STATUS = databaseTypes.constants.PROCESS_STATUS.COMPLETED;
+const MOCK_STATUS: databaseTypes.PROCESS_STATUS = databaseTypes.PROCESS_STATUS.COMPLETED;
 
 describe('FILE INGESTION ROUTE', () => {
   const sandbox = createSandbox();

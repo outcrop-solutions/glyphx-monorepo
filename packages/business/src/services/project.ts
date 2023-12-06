@@ -70,8 +70,9 @@ export class ProjectService {
         workspace: workspaceId,
         template: templateId,
         files: [],
+        filesystem: [],
         members: [],
-        stateHistory: [],
+        states: [],
         tags: [],
         docId: docId,
         state: {
@@ -156,13 +157,13 @@ export class ProjectService {
       const project = await mongoDbConnection.models.ProjectModel.createProject(input);
 
       const memberInput = {
-        type: databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT,
+        type: databaseTypes.MEMBERSHIP_TYPE.PROJECT,
         inviter: email,
         email: email,
         invitedAt: new Date(),
         joinedAt: new Date(),
-        status: databaseTypes.constants.INVITATION_STATUS.ACCEPTED,
-        projectRole: databaseTypes.constants.PROJECT_ROLE.OWNER,
+        status: databaseTypes.INVITATION_STATUS.ACCEPTED,
+        projectRole: databaseTypes.PROJECT_ROLE.OWNER,
         member: userId,
         invitedBy: userId,
         project: project,

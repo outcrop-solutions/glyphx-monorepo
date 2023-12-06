@@ -29,8 +29,8 @@ export const updateRole = async (req: NextApiRequest, res: NextApiResponse, sess
       workspaceId: member?.workspace.id,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
-      action: databaseTypes.constants.ACTION_TYPE.ROLE_UPDATED,
+      onModel: databaseTypes.RESOURCE_MODEL.MEMBER,
+      action: databaseTypes.ACTION_TYPE.ROLE_UPDATED,
     });
 
     res.status(200).json({data: {updatedAt: new Date()}});
@@ -62,8 +62,8 @@ export const removeMember = async (req: NextApiRequest, res: NextApiResponse, se
       workspaceId: member?.workspace.id,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
-      action: databaseTypes.constants.ACTION_TYPE.DELETED,
+      onModel: databaseTypes.RESOURCE_MODEL.MEMBER,
+      action: databaseTypes.ACTION_TYPE.DELETED,
     });
 
     res.status(200).json({data: {deletedAt: new Date()}});
@@ -100,8 +100,8 @@ export const joinWorkspace = async (req: NextApiRequest, res: NextApiResponse, s
       workspaceId: workspace?.id,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
-      action: databaseTypes.constants.ACTION_TYPE.WORKSPACE_JOINED,
+      onModel: databaseTypes.RESOURCE_MODEL.WORKSPACE,
+      action: databaseTypes.ACTION_TYPE.WORKSPACE_JOINED,
     });
     res.status(200).json({data: {workspace}});
   } catch (error) {
@@ -123,7 +123,7 @@ export const joinWorkspace = async (req: NextApiRequest, res: NextApiResponse, s
 export const declineInvitation = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const {memberId} = req.body;
   try {
-    const member = await membershipService.updateStatus(memberId, databaseTypes.constants.INVITATION_STATUS.DECLINED);
+    const member = await membershipService.updateStatus(memberId, databaseTypes.INVITATION_STATUS.DECLINED);
 
     const {agentData, location} = formatUserAgent(req);
 
@@ -133,8 +133,8 @@ export const declineInvitation = async (req: NextApiRequest, res: NextApiRespons
       workspaceId: member?.workspace.id,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
-      action: databaseTypes.constants.ACTION_TYPE.INVITATION_DECLINED,
+      onModel: databaseTypes.RESOURCE_MODEL.MEMBER,
+      action: databaseTypes.ACTION_TYPE.INVITATION_DECLINED,
     });
     res.status(200).json({data: {updatedAt: new Date()}});
   } catch (error) {
@@ -156,7 +156,7 @@ export const declineInvitation = async (req: NextApiRequest, res: NextApiRespons
 export const acceptInvitation = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const {memberId} = req.body;
   try {
-    const member = await membershipService.updateStatus(memberId, databaseTypes.constants.INVITATION_STATUS.ACCEPTED);
+    const member = await membershipService.updateStatus(memberId, databaseTypes.INVITATION_STATUS.ACCEPTED);
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
@@ -165,8 +165,8 @@ export const acceptInvitation = async (req: NextApiRequest, res: NextApiResponse
       workspaceId: member?.workspace.id,
       location: location,
       userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
-      action: databaseTypes.constants.ACTION_TYPE.INVITATION_ACCEPTED,
+      onModel: databaseTypes.RESOURCE_MODEL.MEMBER,
+      action: databaseTypes.ACTION_TYPE.INVITATION_ACCEPTED,
     });
     res.status(200).json({data: {member}});
   } catch (error) {
