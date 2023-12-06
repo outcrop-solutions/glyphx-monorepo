@@ -1,11 +1,11 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {assert} from 'chai';
-import {TagModel} from '../../../mongoose/models/tag';
+import { TagModel} from '../../../mongoose/models/tag'
 import * as mocks from '../../../mongoose/mocks';
-import {WorkspaceModel} from '../../../mongoose/models/workspace';
-import {ProjectTemplateModel} from '../../../mongoose/models/projectTemplate';
-import {ProjectModel} from '../../../mongoose/models/project';
-import {IQueryResult, databaseTypes} from 'types';
+import { WorkspaceModel} from '../../../mongoose/models/workspace'
+import { ProjectTemplateModel} from '../../../mongoose/models/projectTemplate'
+import { ProjectModel} from '../../../mongoose/models/project'
+import {IQueryResult, databaseTypes} from 'types'
 import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
@@ -19,7 +19,7 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('should return true if the tagId exists', async () => {
-      const tagId = new mongoose.Types.ObjectId();
+      const tagId = mocks.MOCK_TAG._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves({_id: tagId});
       sandbox.replace(TagModel, 'findById', findByIdStub);
@@ -30,7 +30,7 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('should return false if the tagId does not exist', async () => {
-      const tagId = new mongoose.Types.ObjectId();
+      const tagId = mocks.MOCK_TAG._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
       sandbox.replace(TagModel, 'findById', findByIdStub);
@@ -41,7 +41,7 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection errors', async () => {
-      const tagId = new mongoose.Types.ObjectId();
+      const tagId = mocks.MOCK_TAG._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.rejects('something unexpected has happend');
       sandbox.replace(TagModel, 'findById', findByIdStub);
@@ -65,9 +65,12 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('should return true when all the tag ids exist', async () => {
-      const tagIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const tagIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
-      const returnedTagIds = tagIds.map((tagId) => {
+      const returnedTagIds = tagIds.map(tagId => {
         return {
           _id: tagId,
         };
@@ -82,7 +85,10 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
-      const tagIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const tagIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
       const returnedTagIds = [
         {
@@ -98,7 +104,10 @@ describe('#mongoose/models/tag', () => {
         await TagModel.allTagIdsExist(tagIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
-        assert.strictEqual(err.data.value[0].toString(), tagIds[1].toString());
+        assert.strictEqual(
+          err.data.value[0].toString(),
+          tagIds[1].toString()
+        );
         errored = true;
       }
       assert.isTrue(errored);
@@ -106,7 +115,10 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
-      const tagIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const tagIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
       const findStub = sandbox.stub();
       findStub.rejects('something bad has happened');
@@ -131,6 +143,7 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('will not throw an error when no unsafe fields are present', async () => {
+
       let errored = false;
 
       try {
@@ -142,6 +155,7 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('will not throw an error when the related fields exist in the database', async () => {
+
       let errored = false;
 
       try {
@@ -152,14 +166,14 @@ describe('#mongoose/models/tag', () => {
       assert.isFalse(errored);
     });
 
+
+
     it('will fail when trying to update the _id', async () => {
+
       let errored = false;
 
       try {
-        await TagModel.validateUpdateObject({...mocks.MOCK_TAG, _id: new mongoose.Types.ObjectId()} as unknown as Omit<
-          Partial<databaseTypes.ITag>,
-          '_id'
-        >);
+        await TagModel.validateUpdateObject({...mocks.MOCK_TAG, _id: new mongoose.Types.ObjectId() } as unknown as Omit<Partial<databaseTypes.ITag>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -168,13 +182,11 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('will fail when trying to update the createdAt', async () => {
+
       let errored = false;
 
       try {
-        await TagModel.validateUpdateObject({...mocks.MOCK_TAG, createdAt: new Date()} as unknown as Omit<
-          Partial<databaseTypes.ITag>,
-          '_id'
-        >);
+        await TagModel.validateUpdateObject({...mocks.MOCK_TAG, createdAt: new Date() } as unknown as Omit<Partial<databaseTypes.ITag>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -183,13 +195,11 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('will fail when trying to update the updatedAt', async () => {
+
       let errored = false;
 
       try {
-        await TagModel.validateUpdateObject({...mocks.MOCK_TAG, updatedAt: new Date()} as unknown as Omit<
-          Partial<databaseTypes.ITag>,
-          '_id'
-        >);
+        await TagModel.validateUpdateObject({...mocks.MOCK_TAG, updatedAt: new Date() }  as unknown as Omit<Partial<databaseTypes.ITag>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -206,15 +216,31 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('will create a tag document', async () => {
-      sandbox.replace(TagModel, 'validateWorkspaces', sandbox.stub().resolves(mocks.MOCK_TAG.workspaces));
-      sandbox.replace(TagModel, 'validateTemplates', sandbox.stub().resolves(mocks.MOCK_TAG.templates));
-      sandbox.replace(TagModel, 'validateProjects', sandbox.stub().resolves(mocks.MOCK_TAG.projects));
-
+      sandbox.replace(
+        TagModel,
+        'validateWorkspaces',
+        sandbox.stub().resolves(mocks.MOCK_TAG.workspaces)
+      );
+            sandbox.replace(
+        TagModel,
+        'validateTemplates',
+        sandbox.stub().resolves(mocks.MOCK_TAG.templates)
+      );
+            sandbox.replace(
+        TagModel,
+        'validateProjects',
+        sandbox.stub().resolves(mocks.MOCK_TAG.projects)
+      );
+      
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(TagModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(
+        TagModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
 
       sandbox.replace(TagModel, 'validate', sandbox.stub().resolves(true));
-
+      
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
 
@@ -226,14 +252,32 @@ describe('#mongoose/models/tag', () => {
       assert.isTrue(stub.calledOnce);
     });
 
-    it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
-      sandbox.replace(TagModel, 'validateWorkspaces', sandbox.stub().resolves(mocks.MOCK_TAG.workspaces));
-      sandbox.replace(TagModel, 'validateTemplates', sandbox.stub().resolves(mocks.MOCK_TAG.templates));
-      sandbox.replace(TagModel, 'validateProjects', sandbox.stub().resolves(mocks.MOCK_TAG.projects));
 
+
+    it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
+      sandbox.replace(
+        TagModel,
+        'validateWorkspaces',
+        sandbox.stub().resolves(mocks.MOCK_TAG.workspaces)
+      );
+            sandbox.replace(
+        TagModel,
+        'validateTemplates',
+        sandbox.stub().resolves(mocks.MOCK_TAG.templates)
+      );
+            sandbox.replace(
+        TagModel,
+        'validateProjects',
+        sandbox.stub().resolves(mocks.MOCK_TAG.projects)
+      );
+      
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(TagModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(TagModel, 'create', sandbox.stub().rejects('oops, something bad has happened'));
+      sandbox.replace(
+        TagModel,
+        'create',
+        sandbox.stub().rejects('oops, something bad has happened')
+      );
 
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
@@ -249,10 +293,22 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('will throw an Unexpected Error when create does not return an object with an _id', async () => {
-      sandbox.replace(TagModel, 'validateWorkspaces', sandbox.stub().resolves(mocks.MOCK_TAG.workspaces));
-      sandbox.replace(TagModel, 'validateTemplates', sandbox.stub().resolves(mocks.MOCK_TAG.templates));
-      sandbox.replace(TagModel, 'validateProjects', sandbox.stub().resolves(mocks.MOCK_TAG.projects));
-
+      sandbox.replace(
+        TagModel,
+        'validateWorkspaces',
+        sandbox.stub().resolves(mocks.MOCK_TAG.workspaces)
+      );
+            sandbox.replace(
+        TagModel,
+        'validateTemplates',
+        sandbox.stub().resolves(mocks.MOCK_TAG.templates)
+      );
+            sandbox.replace(
+        TagModel,
+        'validateProjects',
+        sandbox.stub().resolves(mocks.MOCK_TAG.projects)
+      );
+      
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(TagModel, 'validate', sandbox.stub().resolves(true));
       sandbox.replace(TagModel, 'create', sandbox.stub().resolves([{}]));
@@ -272,13 +328,33 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('will rethrow a DataValidationError when the validate method on the model errors', async () => {
-      sandbox.replace(TagModel, 'validateWorkspaces', sandbox.stub().resolves(mocks.MOCK_TAG.workspaces));
-      sandbox.replace(TagModel, 'validateTemplates', sandbox.stub().resolves(mocks.MOCK_TAG.templates));
-      sandbox.replace(TagModel, 'validateProjects', sandbox.stub().resolves(mocks.MOCK_TAG.projects));
-
+      sandbox.replace(
+        TagModel,
+        'validateWorkspaces',
+        sandbox.stub().resolves(mocks.MOCK_TAG.workspaces)
+      );
+            sandbox.replace(
+        TagModel,
+        'validateTemplates',
+        sandbox.stub().resolves(mocks.MOCK_TAG.templates)
+      );
+            sandbox.replace(
+        TagModel,
+        'validateProjects',
+        sandbox.stub().resolves(mocks.MOCK_TAG.projects)
+      );
+      
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(TagModel, 'validate', sandbox.stub().rejects('oops an error has occurred'));
-      sandbox.replace(TagModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(
+        TagModel,
+        'validate',
+        sandbox.stub().rejects('oops an error has occurred')
+      );
+      sandbox.replace(
+        TagModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
       sandbox.replace(TagModel, 'getTagById', stub);
@@ -323,14 +399,16 @@ describe('#mongoose/models/tag', () => {
       findByIdStub.returns(new MockMongooseQuery(mocks.MOCK_TAG));
       sandbox.replace(TagModel, 'findById', findByIdStub);
 
-      const doc = await TagModel.getTagById(mocks.MOCK_TAG._id as mongoose.Types.ObjectId);
+      const doc = await TagModel.getTagById(
+        mocks.MOCK_TAG._id
+      );
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any)?.__v);
-      assert.isUndefined((doc.workspaces[0] as any)?.__v);
-      assert.isUndefined((doc.templates[0] as any)?.__v);
-      assert.isUndefined((doc.projects[0] as any)?.__v);
-
+      assert.isUndefined((doc.workspaces![0] as any)?.__v);
+            assert.isUndefined((doc.templates![0] as any)?.__v);
+            assert.isUndefined((doc.projects![0] as any)?.__v);
+      
       assert.strictEqual(doc._id, mocks.MOCK_TAG._id);
     });
 
@@ -341,7 +419,9 @@ describe('#mongoose/models/tag', () => {
 
       let errored = false;
       try {
-        await TagModel.getTagById(mocks.MOCK_TAG._id as mongoose.Types.ObjectId);
+        await TagModel.getTagById(
+          mocks.MOCK_TAG._id
+        );
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -352,12 +432,16 @@ describe('#mongoose/models/tag', () => {
 
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new MockMongooseQuery('something bad happened', true));
+      findByIdStub.returns(
+        new MockMongooseQuery('something bad happened', true)
+      );
       sandbox.replace(TagModel, 'findById', findByIdStub);
 
       let errored = false;
       try {
-        await TagModel.getTagById(mocks.MOCK_TAG._id as mongoose.Types.ObjectId);
+        await TagModel.getTagById(
+          mocks.MOCK_TAG.id
+        );
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -389,19 +473,19 @@ describe('#mongoose/models/tag', () => {
 
     const mockTags = [
       {
-        ...mocks.MOCK_TAG,
+       ...mocks.MOCK_TAG,
         _id: new mongoose.Types.ObjectId(),
         workspaces: [],
-        templates: [],
-        projects: [],
-      } as databaseTypes.ITag,
+                templates: [],
+                projects: [],
+              } as databaseTypes.ITag,
       {
         ...mocks.MOCK_TAG,
         _id: new mongoose.Types.ObjectId(),
         workspaces: [],
-        templates: [],
-        projects: [],
-      } as databaseTypes.ITag,
+                templates: [],
+                projects: [],
+              } as databaseTypes.ITag,
     ];
     const sandbox = createSandbox();
 
@@ -410,9 +494,17 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('will return the filtered tags', async () => {
-      sandbox.replace(TagModel, 'count', sandbox.stub().resolves(mockTags.length));
+      sandbox.replace(
+        TagModel,
+        'count',
+        sandbox.stub().resolves(mockTags.length)
+      );
 
-      sandbox.replace(TagModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockTags)));
+      sandbox.replace(
+        TagModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockTags))
+      );
 
       const results = await TagModel.queryTags({});
 
@@ -423,15 +515,19 @@ describe('#mongoose/models/tag', () => {
       results.results.forEach((doc: any) => {
         assert.isUndefined((doc as any)?.__v);
         assert.isUndefined((doc.workspaces[0] as any)?.__v);
-        assert.isUndefined((doc.templates[0] as any)?.__v);
-        assert.isUndefined((doc.projects[0] as any)?.__v);
-      });
+                assert.isUndefined((doc.templates[0] as any)?.__v);
+                assert.isUndefined((doc.projects[0] as any)?.__v);
+              });
     });
 
     it('will throw a DataNotFoundError when no values match the filter', async () => {
       sandbox.replace(TagModel, 'count', sandbox.stub().resolves(0));
 
-      sandbox.replace(TagModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockTags)));
+      sandbox.replace(
+        TagModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockTags))
+      );
 
       let errored = false;
       try {
@@ -445,9 +541,17 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
-      sandbox.replace(TagModel, 'count', sandbox.stub().resolves(mockTags.length));
+      sandbox.replace(
+        TagModel,
+        'count',
+        sandbox.stub().resolves(mockTags.length)
+      );
 
-      sandbox.replace(TagModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockTags)));
+      sandbox.replace(
+        TagModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockTags))
+      );
 
       let errored = false;
       try {
@@ -461,12 +565,18 @@ describe('#mongoose/models/tag', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
-      sandbox.replace(TagModel, 'count', sandbox.stub().resolves(mockTags.length));
+      sandbox.replace(
+        TagModel,
+        'count',
+        sandbox.stub().resolves(mockTags.length)
+      );
 
       sandbox.replace(
         TagModel,
         'find',
-        sandbox.stub().returns(new MockMongooseQuery('something bad has happened', true))
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
       );
 
       let errored = false;
@@ -493,11 +603,11 @@ describe('#mongoose/models/tag', () => {
         ...mocks.MOCK_TAG,
         deletedAt: new Date(),
         workspaces: [],
-        templates: [],
-        projects: [],
-      } as unknown as databaseTypes.ITag;
+                templates: [],
+                projects: [],
+              } as unknown as databaseTypes.ITag;
 
-      const tagId = new mongoose.Types.ObjectId();
+      const tagId = mocks.MOCK_TAG._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -511,9 +621,12 @@ describe('#mongoose/models/tag', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(TagModel, 'validateUpdateObject', validateStub);
 
-      const result = await TagModel.updateTagById(tagId, updateTag);
+      const result = await TagModel.updateTagById(
+        tagId,
+        updateTag
+      );
 
-      assert.strictEqual(result._id, tagId);
+      assert.strictEqual(result._id, mocks.MOCK_TAG._id);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(getTagStub.calledOnce);
       assert.isTrue(validateStub.calledOnce);
@@ -522,10 +635,10 @@ describe('#mongoose/models/tag', () => {
     it('Should update a tag with references as ObjectIds', async () => {
       const updateTag = {
         ...mocks.MOCK_TAG,
-        deletedAt: new Date(),
+        deletedAt: new Date()
       } as unknown as databaseTypes.ITag;
 
-      const tagId = new mongoose.Types.ObjectId();
+      const tagId = mocks.MOCK_TAG._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -539,7 +652,10 @@ describe('#mongoose/models/tag', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(TagModel, 'validateUpdateObject', validateStub);
 
-      const result = await TagModel.updateTagById(tagId, updateTag);
+      const result = await TagModel.updateTagById(
+        tagId,
+        updateTag
+      );
 
       assert.strictEqual(result._id, tagId);
       assert.isTrue(updateStub.calledOnce);
@@ -553,7 +669,7 @@ describe('#mongoose/models/tag', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.ITag;
 
-      const tagId = new mongoose.Types.ObjectId();
+      const tagId = mocks.MOCK_TAG._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
@@ -579,11 +695,11 @@ describe('#mongoose/models/tag', () => {
 
     it('Will fail when validateUpdateObject fails', async () => {
       const updateTag = {
-        ...mocks.MOCK_TAG,
+       ...mocks.MOCK_TAG,
         deletedAt: new Date(),
       } as unknown as databaseTypes.ITag;
 
-      const tagId = new mongoose.Types.ObjectId();
+      const tagId = mocks.MOCK_TAG._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -594,7 +710,9 @@ describe('#mongoose/models/tag', () => {
       sandbox.replace(TagModel, 'getTagById', getTagStub);
 
       const validateStub = sandbox.stub();
-      validateStub.rejects(new error.InvalidOperationError("You can't do this", {}));
+      validateStub.rejects(
+        new error.InvalidOperationError("You can't do this", {})
+      );
       sandbox.replace(TagModel, 'validateUpdateObject', validateStub);
       let errorred = false;
       try {
@@ -608,11 +726,11 @@ describe('#mongoose/models/tag', () => {
 
     it('Will fail when a database error occurs', async () => {
       const updateTag = {
-        ...mocks.MOCK_TAG,
-        deletedAt: new Date(),
+       ...mocks.MOCK_TAG,
+        deletedAt: new Date()
       } as unknown as databaseTypes.ITag;
 
-      const tagId = new mongoose.Types.ObjectId();
+      const tagId = mocks.MOCK_TAG._id;
 
       const updateStub = sandbox.stub();
       updateStub.rejects('something terrible has happened');
@@ -649,7 +767,7 @@ describe('#mongoose/models/tag', () => {
       deleteStub.resolves({deletedCount: 1});
       sandbox.replace(TagModel, 'deleteOne', deleteStub);
 
-      const tagId = new mongoose.Types.ObjectId();
+      const tagId = mocks.MOCK_TAG._id;
 
       await TagModel.deleteTagById(tagId);
 
@@ -661,7 +779,7 @@ describe('#mongoose/models/tag', () => {
       deleteStub.resolves({deletedCount: 0});
       sandbox.replace(TagModel, 'deleteOne', deleteStub);
 
-      const tagId = new mongoose.Types.ObjectId();
+      const tagId = mocks.MOCK_TAG._id;
 
       let errorred = false;
       try {
@@ -679,7 +797,7 @@ describe('#mongoose/models/tag', () => {
       deleteStub.rejects('something bad has happened');
       sandbox.replace(TagModel, 'deleteOne', deleteStub);
 
-      const tagId = new mongoose.Types.ObjectId();
+      const tagId = mocks.MOCK_TAG._id;
 
       let errorred = false;
       try {
@@ -692,4 +810,5 @@ describe('#mongoose/models/tag', () => {
       assert.isTrue(errorred);
     });
   });
+
 });

@@ -11,4 +11,4 @@ export const MOCK_DOCUMENT = {
   annotations: [],
   thresholds: [],
   configs: [],
-} as unknown as IDocumentDocument;
+} as any;

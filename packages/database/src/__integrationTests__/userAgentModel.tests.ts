@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks';
+import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
@@ -15,8 +15,8 @@ describe('#UserAgentModel', () => {
   context('test the crud functions of the userAgent model', () => {
     const mongoConnection = new MongoDbConnection();
     const userAgentModel = mongoConnection.models.UserAgentModel;
-    let userAgentDocId: ObjectId;
-    let userAgentDocId2: ObjectId;
+    let userAgentDocId: string;
+    let userAgentDocId2: string;
 
     before(async () => {
       await mongoConnection.init();
@@ -30,17 +30,20 @@ describe('#UserAgentModel', () => {
       if (userAgentDocId2) {
         await userAgentModel.findByIdAndDelete(userAgentDocId2);
       }
+
     });
 
     it('add a new userAgent ', async () => {
       const userAgentInput = JSON.parse(JSON.stringify(mocks.MOCK_USERAGENT));
+
 
       const userAgentDocument = await userAgentModel.createUserAgent(userAgentInput);
 
       assert.isOk(userAgentDocument);
       assert.strictEqual(Object.keys(userAgentDocument)[1], Object.keys(userAgentInput)[1]);
 
-      userAgentDocId = userAgentDocument._id as mongooseTypes.ObjectId;
+
+      userAgentDocId = userAgentDocument._id!.toString();
     });
 
     it('retreive a userAgent', async () => {
@@ -54,7 +57,10 @@ describe('#UserAgentModel', () => {
     it('modify a userAgent', async () => {
       assert.isOk(userAgentDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await userAgentModel.updateUserAgentById(userAgentDocId, input);
+      const updatedDocument = await userAgentModel.updateUserAgentById(
+        userAgentDocId,
+        input
+      );
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -62,17 +68,21 @@ describe('#UserAgentModel', () => {
       assert.isOk(userAgentDocId);
       const userAgentInput = JSON.parse(JSON.stringify(mocks.MOCK_USERAGENT));
 
+
+
       const userAgentDocument = await userAgentModel.createUserAgent(userAgentInput);
 
       assert.isOk(userAgentDocument);
 
-      userAgentDocId2 = userAgentDocument._id as mongooseTypes.ObjectId;
+      userAgentDocId2 = userAgentDocument._id!.toString();
 
       const userAgents = await userAgentModel.queryUserAgents();
       assert.isArray(userAgents.results);
       assert.isAtLeast(userAgents.numberOfItems, 2);
       const expectedDocumentCount =
-        userAgents.numberOfItems <= userAgents.itemsPerPage ? userAgents.numberOfItems : userAgents.itemsPerPage;
+        userAgents.numberOfItems <= userAgents.itemsPerPage
+          ? userAgents.numberOfItems
+          : userAgents.itemsPerPage;
       assert.strictEqual(userAgents.results.length, expectedDocumentCount);
     });
 
@@ -95,7 +105,10 @@ describe('#UserAgentModel', () => {
       const results2 = await userAgentModel.queryUserAgents({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a userAgent', async () => {
@@ -110,7 +123,7 @@ describe('#UserAgentModel', () => {
       }
 
       assert.isTrue(errored);
-      userAgentDocId = null as unknown as ObjectId;
+      userAgentDocId = null as unknown as string;
     });
   });
 });

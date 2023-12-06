@@ -1,9 +1,9 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {assert} from 'chai';
-import {WebhookModel} from '../../../mongoose/models/webhook';
+import { WebhookModel} from '../../../mongoose/models/webhook'
 import * as mocks from '../../../mongoose/mocks';
-import {UserModel} from '../../../mongoose/models/user';
-import {IQueryResult, databaseTypes} from 'types';
+import { UserModel} from '../../../mongoose/models/user'
+import {IQueryResult, databaseTypes} from 'types'
 import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
@@ -17,7 +17,7 @@ describe('#mongoose/models/webhook', () => {
     });
 
     it('should return true if the webhookId exists', async () => {
-      const webhookId = new mongoose.Types.ObjectId();
+      const webhookId = mocks.MOCK_WEBHOOK._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves({_id: webhookId});
       sandbox.replace(WebhookModel, 'findById', findByIdStub);
@@ -28,7 +28,7 @@ describe('#mongoose/models/webhook', () => {
     });
 
     it('should return false if the webhookId does not exist', async () => {
-      const webhookId = new mongoose.Types.ObjectId();
+      const webhookId = mocks.MOCK_WEBHOOK._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
       sandbox.replace(WebhookModel, 'findById', findByIdStub);
@@ -39,7 +39,7 @@ describe('#mongoose/models/webhook', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection errors', async () => {
-      const webhookId = new mongoose.Types.ObjectId();
+      const webhookId = mocks.MOCK_WEBHOOK._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.rejects('something unexpected has happend');
       sandbox.replace(WebhookModel, 'findById', findByIdStub);
@@ -63,9 +63,12 @@ describe('#mongoose/models/webhook', () => {
     });
 
     it('should return true when all the webhook ids exist', async () => {
-      const webhookIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const webhookIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
-      const returnedWebhookIds = webhookIds.map((webhookId) => {
+      const returnedWebhookIds = webhookIds.map(webhookId => {
         return {
           _id: webhookId,
         };
@@ -80,7 +83,10 @@ describe('#mongoose/models/webhook', () => {
     });
 
     it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
-      const webhookIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const webhookIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
       const returnedWebhookIds = [
         {
@@ -96,7 +102,10 @@ describe('#mongoose/models/webhook', () => {
         await WebhookModel.allWebhookIdsExist(webhookIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
-        assert.strictEqual(err.data.value[0].toString(), webhookIds[1].toString());
+        assert.strictEqual(
+          err.data.value[0].toString(),
+          webhookIds[1].toString()
+        );
         errored = true;
       }
       assert.isTrue(errored);
@@ -104,7 +113,10 @@ describe('#mongoose/models/webhook', () => {
     });
 
     it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
-      const webhookIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const webhookIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
       const findStub = sandbox.stub();
       findStub.rejects('something bad has happened');
@@ -131,14 +143,16 @@ describe('#mongoose/models/webhook', () => {
     it('will not throw an error when no unsafe fields are present', async () => {
       const userStub = sandbox.stub();
       userStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', userStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        userStub
+      );
 
       let errored = false;
 
       try {
-        await WebhookModel.validateUpdateObject(
-          mocks.MOCK_WEBHOOK as unknown as Omit<Partial<databaseTypes.IWebhook>, '_id'>
-        );
+        await WebhookModel.validateUpdateObject(mocks.MOCK_WEBHOOK as unknown as Omit<Partial<databaseTypes.IWebhook>, '_id'>);
       } catch (err) {
         errored = true;
       }
@@ -148,14 +162,16 @@ describe('#mongoose/models/webhook', () => {
     it('will not throw an error when the related fields exist in the database', async () => {
       const userStub = sandbox.stub();
       userStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', userStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        userStub
+      );
 
       let errored = false;
 
       try {
-        await WebhookModel.validateUpdateObject(
-          mocks.MOCK_WEBHOOK as unknown as Omit<Partial<databaseTypes.IWebhook>, '_id'>
-        );
+        await WebhookModel.validateUpdateObject(mocks.MOCK_WEBHOOK as unknown as Omit<Partial<databaseTypes.IWebhook>, '_id'>);
       } catch (err) {
         errored = true;
       }
@@ -164,16 +180,19 @@ describe('#mongoose/models/webhook', () => {
     });
 
     it('will fail when the user does not exist.', async () => {
+      
       const userStub = sandbox.stub();
       userStub.resolves(false);
-      sandbox.replace(UserModel, 'userIdExists', userStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        userStub
+      );
 
       let errored = false;
 
       try {
-        await WebhookModel.validateUpdateObject(
-          mocks.MOCK_WEBHOOK as unknown as Omit<Partial<databaseTypes.IWebhook>, '_id'>
-        );
+        await WebhookModel.validateUpdateObject(mocks.MOCK_WEBHOOK as unknown as Omit<Partial<databaseTypes.IWebhook>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -181,18 +200,20 @@ describe('#mongoose/models/webhook', () => {
       assert.isTrue(errored);
     });
 
+
     it('will fail when trying to update the _id', async () => {
       const userStub = sandbox.stub();
       userStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', userStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        userStub
+      );
 
       let errored = false;
 
       try {
-        await WebhookModel.validateUpdateObject({
-          ...mocks.MOCK_WEBHOOK,
-          _id: new mongoose.Types.ObjectId(),
-        } as unknown as Omit<Partial<databaseTypes.IWebhook>, '_id'>);
+        await WebhookModel.validateUpdateObject({...mocks.MOCK_WEBHOOK, _id: new mongoose.Types.ObjectId() } as unknown as Omit<Partial<databaseTypes.IWebhook>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -203,15 +224,16 @@ describe('#mongoose/models/webhook', () => {
     it('will fail when trying to update the createdAt', async () => {
       const userStub = sandbox.stub();
       userStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', userStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        userStub
+      );
 
       let errored = false;
 
       try {
-        await WebhookModel.validateUpdateObject({...mocks.MOCK_WEBHOOK, createdAt: new Date()} as unknown as Omit<
-          Partial<databaseTypes.IWebhook>,
-          '_id'
-        >);
+        await WebhookModel.validateUpdateObject({...mocks.MOCK_WEBHOOK, createdAt: new Date() } as unknown as Omit<Partial<databaseTypes.IWebhook>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -222,15 +244,16 @@ describe('#mongoose/models/webhook', () => {
     it('will fail when trying to update the updatedAt', async () => {
       const userStub = sandbox.stub();
       userStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', userStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        userStub
+      );
 
       let errored = false;
 
       try {
-        await WebhookModel.validateUpdateObject({...mocks.MOCK_WEBHOOK, updatedAt: new Date()} as unknown as Omit<
-          Partial<databaseTypes.IWebhook>,
-          '_id'
-        >);
+        await WebhookModel.validateUpdateObject({...mocks.MOCK_WEBHOOK, updatedAt: new Date() }  as unknown as Omit<Partial<databaseTypes.IWebhook>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -247,13 +270,21 @@ describe('#mongoose/models/webhook', () => {
     });
 
     it('will create a webhook document', async () => {
-      sandbox.replace(WebhookModel, 'validateUser', sandbox.stub().resolves(mocks.MOCK_WEBHOOK.user));
+      sandbox.replace(
+        WebhookModel,
+        'validateUser',
+        sandbox.stub().resolves(mocks.MOCK_WEBHOOK.user)
+      );
 
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(WebhookModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(
+        WebhookModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
 
       sandbox.replace(WebhookModel, 'validate', sandbox.stub().resolves(true));
-
+      
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
 
@@ -265,18 +296,32 @@ describe('#mongoose/models/webhook', () => {
       assert.isTrue(stub.calledOnce);
     });
 
+
+
     it('will rethrow a DataValidationError when the user validator throws one', async () => {
-      sandbox.replace(
+       sandbox.replace(
         WebhookModel,
         'validateUser',
-        sandbox.stub().rejects(new error.DataValidationError('The user does not exist', 'user ', {}))
+        sandbox
+          .stub()
+          .rejects(
+            new error.DataValidationError(
+              'The user does not exist',
+              'user ',
+              {}
+            )
+          )
+      );
+      
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        WebhookModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
       );
 
-      const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(WebhookModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
-
       sandbox.replace(WebhookModel, 'validate', sandbox.stub().resolves(true));
-
+      
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
 
@@ -293,12 +338,21 @@ describe('#mongoose/models/webhook', () => {
       assert.isTrue(errored);
     });
 
+
     it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
-      sandbox.replace(WebhookModel, 'validateUser', sandbox.stub().resolves(mocks.MOCK_WEBHOOK.user));
+      sandbox.replace(
+        WebhookModel,
+        'validateUser',
+        sandbox.stub().resolves(mocks.MOCK_WEBHOOK.user)
+      );
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(WebhookModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(WebhookModel, 'create', sandbox.stub().rejects('oops, something bad has happened'));
+      sandbox.replace(
+        WebhookModel,
+        'create',
+        sandbox.stub().rejects('oops, something bad has happened')
+      );
 
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
@@ -314,7 +368,11 @@ describe('#mongoose/models/webhook', () => {
     });
 
     it('will throw an Unexpected Error when create does not return an object with an _id', async () => {
-      sandbox.replace(WebhookModel, 'validateUser', sandbox.stub().resolves(mocks.MOCK_WEBHOOK.user));
+      sandbox.replace(
+        WebhookModel,
+        'validateUser',
+        sandbox.stub().resolves(mocks.MOCK_WEBHOOK.user)
+      );
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(WebhookModel, 'validate', sandbox.stub().resolves(true));
@@ -335,11 +393,23 @@ describe('#mongoose/models/webhook', () => {
     });
 
     it('will rethrow a DataValidationError when the validate method on the model errors', async () => {
-      sandbox.replace(WebhookModel, 'validateUser', sandbox.stub().resolves(mocks.MOCK_WEBHOOK.user));
+      sandbox.replace(
+        WebhookModel,
+        'validateUser',
+        sandbox.stub().resolves(mocks.MOCK_WEBHOOK.user)
+      );
 
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(WebhookModel, 'validate', sandbox.stub().rejects('oops an error has occurred'));
-      sandbox.replace(WebhookModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(
+        WebhookModel,
+        'validate',
+        sandbox.stub().rejects('oops an error has occurred')
+      );
+      sandbox.replace(
+        WebhookModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
       sandbox.replace(WebhookModel, 'getWebhookById', stub);
@@ -384,7 +454,9 @@ describe('#mongoose/models/webhook', () => {
       findByIdStub.returns(new MockMongooseQuery(mocks.MOCK_WEBHOOK));
       sandbox.replace(WebhookModel, 'findById', findByIdStub);
 
-      const doc = await WebhookModel.getWebhookById(mocks.MOCK_WEBHOOK._id as mongoose.Types.ObjectId);
+      const doc = await WebhookModel.getWebhookById(
+        mocks.MOCK_WEBHOOK._id
+      );
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any)?.__v);
@@ -400,7 +472,9 @@ describe('#mongoose/models/webhook', () => {
 
       let errored = false;
       try {
-        await WebhookModel.getWebhookById(mocks.MOCK_WEBHOOK._id as mongoose.Types.ObjectId);
+        await WebhookModel.getWebhookById(
+          mocks.MOCK_WEBHOOK._id
+        );
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -411,12 +485,16 @@ describe('#mongoose/models/webhook', () => {
 
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new MockMongooseQuery('something bad happened', true));
+      findByIdStub.returns(
+        new MockMongooseQuery('something bad happened', true)
+      );
       sandbox.replace(WebhookModel, 'findById', findByIdStub);
 
       let errored = false;
       try {
-        await WebhookModel.getWebhookById(mocks.MOCK_WEBHOOK._id as mongoose.Types.ObjectId);
+        await WebhookModel.getWebhookById(
+          mocks.MOCK_WEBHOOK.id
+        );
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -448,7 +526,7 @@ describe('#mongoose/models/webhook', () => {
 
     const mockWebhooks = [
       {
-        ...mocks.MOCK_WEBHOOK,
+       ...mocks.MOCK_WEBHOOK,
         _id: new mongoose.Types.ObjectId(),
         user: {
           _id: new mongoose.Types.ObjectId(),
@@ -471,9 +549,17 @@ describe('#mongoose/models/webhook', () => {
     });
 
     it('will return the filtered webhooks', async () => {
-      sandbox.replace(WebhookModel, 'count', sandbox.stub().resolves(mockWebhooks.length));
+      sandbox.replace(
+        WebhookModel,
+        'count',
+        sandbox.stub().resolves(mockWebhooks.length)
+      );
 
-      sandbox.replace(WebhookModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockWebhooks)));
+      sandbox.replace(
+        WebhookModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockWebhooks))
+      );
 
       const results = await WebhookModel.queryWebhooks({});
 
@@ -490,7 +576,11 @@ describe('#mongoose/models/webhook', () => {
     it('will throw a DataNotFoundError when no values match the filter', async () => {
       sandbox.replace(WebhookModel, 'count', sandbox.stub().resolves(0));
 
-      sandbox.replace(WebhookModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockWebhooks)));
+      sandbox.replace(
+        WebhookModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockWebhooks))
+      );
 
       let errored = false;
       try {
@@ -504,9 +594,17 @@ describe('#mongoose/models/webhook', () => {
     });
 
     it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
-      sandbox.replace(WebhookModel, 'count', sandbox.stub().resolves(mockWebhooks.length));
+      sandbox.replace(
+        WebhookModel,
+        'count',
+        sandbox.stub().resolves(mockWebhooks.length)
+      );
 
-      sandbox.replace(WebhookModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockWebhooks)));
+      sandbox.replace(
+        WebhookModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockWebhooks))
+      );
 
       let errored = false;
       try {
@@ -520,12 +618,18 @@ describe('#mongoose/models/webhook', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
-      sandbox.replace(WebhookModel, 'count', sandbox.stub().resolves(mockWebhooks.length));
+      sandbox.replace(
+        WebhookModel,
+        'count',
+        sandbox.stub().resolves(mockWebhooks.length)
+      );
 
       sandbox.replace(
         WebhookModel,
         'find',
-        sandbox.stub().returns(new MockMongooseQuery('something bad has happened', true))
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
       );
 
       let errored = false;
@@ -557,7 +661,7 @@ describe('#mongoose/models/webhook', () => {
         } as unknown as databaseTypes.IUser,
       } as unknown as databaseTypes.IWebhook;
 
-      const webhookId = new mongoose.Types.ObjectId();
+      const webhookId = mocks.MOCK_WEBHOOK._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -571,9 +675,12 @@ describe('#mongoose/models/webhook', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(WebhookModel, 'validateUpdateObject', validateStub);
 
-      const result = await WebhookModel.updateWebhookById(webhookId, updateWebhook);
+      const result = await WebhookModel.updateWebhookById(
+        webhookId,
+        updateWebhook
+      );
 
-      assert.strictEqual(result._id, webhookId);
+      assert.strictEqual(result._id, mocks.MOCK_WEBHOOK._id);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(getWebhookStub.calledOnce);
       assert.isTrue(validateStub.calledOnce);
@@ -582,10 +689,10 @@ describe('#mongoose/models/webhook', () => {
     it('Should update a webhook with references as ObjectIds', async () => {
       const updateWebhook = {
         ...mocks.MOCK_WEBHOOK,
-        deletedAt: new Date(),
+        deletedAt: new Date()
       } as unknown as databaseTypes.IWebhook;
 
-      const webhookId = new mongoose.Types.ObjectId();
+      const webhookId = mocks.MOCK_WEBHOOK._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -599,7 +706,10 @@ describe('#mongoose/models/webhook', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(WebhookModel, 'validateUpdateObject', validateStub);
 
-      const result = await WebhookModel.updateWebhookById(webhookId, updateWebhook);
+      const result = await WebhookModel.updateWebhookById(
+        webhookId,
+        updateWebhook
+      );
 
       assert.strictEqual(result._id, webhookId);
       assert.isTrue(updateStub.calledOnce);
@@ -613,7 +723,7 @@ describe('#mongoose/models/webhook', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.IWebhook;
 
-      const webhookId = new mongoose.Types.ObjectId();
+      const webhookId = mocks.MOCK_WEBHOOK._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
@@ -639,11 +749,11 @@ describe('#mongoose/models/webhook', () => {
 
     it('Will fail when validateUpdateObject fails', async () => {
       const updateWebhook = {
-        ...mocks.MOCK_WEBHOOK,
+       ...mocks.MOCK_WEBHOOK,
         deletedAt: new Date(),
       } as unknown as databaseTypes.IWebhook;
 
-      const webhookId = new mongoose.Types.ObjectId();
+      const webhookId = mocks.MOCK_WEBHOOK._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -654,7 +764,9 @@ describe('#mongoose/models/webhook', () => {
       sandbox.replace(WebhookModel, 'getWebhookById', getWebhookStub);
 
       const validateStub = sandbox.stub();
-      validateStub.rejects(new error.InvalidOperationError("You can't do this", {}));
+      validateStub.rejects(
+        new error.InvalidOperationError("You can't do this", {})
+      );
       sandbox.replace(WebhookModel, 'validateUpdateObject', validateStub);
       let errorred = false;
       try {
@@ -668,11 +780,11 @@ describe('#mongoose/models/webhook', () => {
 
     it('Will fail when a database error occurs', async () => {
       const updateWebhook = {
-        ...mocks.MOCK_WEBHOOK,
-        deletedAt: new Date(),
+       ...mocks.MOCK_WEBHOOK,
+        deletedAt: new Date()
       } as unknown as databaseTypes.IWebhook;
 
-      const webhookId = new mongoose.Types.ObjectId();
+      const webhookId = mocks.MOCK_WEBHOOK._id;
 
       const updateStub = sandbox.stub();
       updateStub.rejects('something terrible has happened');
@@ -709,7 +821,7 @@ describe('#mongoose/models/webhook', () => {
       deleteStub.resolves({deletedCount: 1});
       sandbox.replace(WebhookModel, 'deleteOne', deleteStub);
 
-      const webhookId = new mongoose.Types.ObjectId();
+      const webhookId = mocks.MOCK_WEBHOOK._id;
 
       await WebhookModel.deleteWebhookById(webhookId);
 
@@ -721,7 +833,7 @@ describe('#mongoose/models/webhook', () => {
       deleteStub.resolves({deletedCount: 0});
       sandbox.replace(WebhookModel, 'deleteOne', deleteStub);
 
-      const webhookId = new mongoose.Types.ObjectId();
+      const webhookId = mocks.MOCK_WEBHOOK._id;
 
       let errorred = false;
       try {
@@ -739,7 +851,7 @@ describe('#mongoose/models/webhook', () => {
       deleteStub.rejects('something bad has happened');
       sandbox.replace(WebhookModel, 'deleteOne', deleteStub);
 
-      const webhookId = new mongoose.Types.ObjectId();
+      const webhookId = mocks.MOCK_WEBHOOK._id;
 
       let errorred = false;
       try {
@@ -752,4 +864,5 @@ describe('#mongoose/models/webhook', () => {
       assert.isTrue(errorred);
     });
   });
+
 });

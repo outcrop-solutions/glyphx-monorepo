@@ -4,8 +4,6 @@ import {DBFormatter} from '../../lib/format';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {error} from 'core';
 import {IFileStatsDocument, IFileStatsCreateInput, IFileStatsStaticMethods, IFileStatsMethods} from '../interfaces';
-// eslint-disable-next-line import/no-duplicates
-import {dataGridSchema} from '../schemas';
 
 const SCHEMA = new Schema<IFileStatsDocument, IFileStatsStaticMethods, IFileStatsMethods>({
   createdAt: {
@@ -61,7 +59,7 @@ const SCHEMA = new Schema<IFileStatsDocument, IFileStatsStaticMethods, IFileStat
     required: true,
   },
   dataGrid: {
-    type: dataGridSchema,
+    type: Schema.Types.Mixed,
     required: false,
     default: {},
   },
@@ -92,7 +90,7 @@ SCHEMA.static('fileStatsIdExists', async (fileStatsId: mongooseTypes.ObjectId): 
   return retval;
 });
 
-SCHEMA.static('allFileStatIdsExist', async (fileStatsIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
+SCHEMA.static('allFileStatsIdsExist', async (fileStatsIds: mongooseTypes.ObjectId[]): Promise<boolean> => {
   try {
     const notFoundIds: mongooseTypes.ObjectId[] = [];
     const foundIds = (await FILESTATS_MODEL.find({_id: {$in: fileStatsIds}}, ['_id'])) as {

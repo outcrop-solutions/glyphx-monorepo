@@ -1,9 +1,9 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {assert} from 'chai';
-import {CustomerPaymentModel} from '../../../mongoose/models/customerPayment';
+import { CustomerPaymentModel} from '../../../mongoose/models/customerPayment'
 import * as mocks from '../../../mongoose/mocks';
-import {UserModel} from '../../../mongoose/models/user';
-import {IQueryResult, databaseTypes} from 'types';
+import { UserModel} from '../../../mongoose/models/user'
+import {IQueryResult, databaseTypes} from 'types'
 import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
@@ -17,7 +17,7 @@ describe('#mongoose/models/customerPayment', () => {
     });
 
     it('should return true if the customerPaymentId exists', async () => {
-      const customerPaymentId = new mongoose.Types.ObjectId();
+      const customerPaymentId = mocks.MOCK_CUSTOMERPAYMENT._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves({_id: customerPaymentId});
       sandbox.replace(CustomerPaymentModel, 'findById', findByIdStub);
@@ -28,7 +28,7 @@ describe('#mongoose/models/customerPayment', () => {
     });
 
     it('should return false if the customerPaymentId does not exist', async () => {
-      const customerPaymentId = new mongoose.Types.ObjectId();
+      const customerPaymentId = mocks.MOCK_CUSTOMERPAYMENT._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
       sandbox.replace(CustomerPaymentModel, 'findById', findByIdStub);
@@ -39,7 +39,7 @@ describe('#mongoose/models/customerPayment', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection errors', async () => {
-      const customerPaymentId = new mongoose.Types.ObjectId();
+      const customerPaymentId = mocks.MOCK_CUSTOMERPAYMENT._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.rejects('something unexpected has happend');
       sandbox.replace(CustomerPaymentModel, 'findById', findByIdStub);
@@ -63,9 +63,12 @@ describe('#mongoose/models/customerPayment', () => {
     });
 
     it('should return true when all the customerPayment ids exist', async () => {
-      const customerPaymentIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const customerPaymentIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
-      const returnedCustomerPaymentIds = customerPaymentIds.map((customerPaymentId) => {
+      const returnedCustomerPaymentIds = customerPaymentIds.map(customerPaymentId => {
         return {
           _id: customerPaymentId,
         };
@@ -80,7 +83,10 @@ describe('#mongoose/models/customerPayment', () => {
     });
 
     it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
-      const customerPaymentIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const customerPaymentIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
       const returnedCustomerPaymentIds = [
         {
@@ -96,7 +102,10 @@ describe('#mongoose/models/customerPayment', () => {
         await CustomerPaymentModel.allCustomerPaymentIdsExist(customerPaymentIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
-        assert.strictEqual(err.data.value[0].toString(), customerPaymentIds[1].toString());
+        assert.strictEqual(
+          err.data.value[0].toString(),
+          customerPaymentIds[1].toString()
+        );
         errored = true;
       }
       assert.isTrue(errored);
@@ -104,7 +113,10 @@ describe('#mongoose/models/customerPayment', () => {
     });
 
     it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
-      const customerPaymentIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const customerPaymentIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
       const findStub = sandbox.stub();
       findStub.rejects('something bad has happened');
@@ -131,14 +143,16 @@ describe('#mongoose/models/customerPayment', () => {
     it('will not throw an error when no unsafe fields are present', async () => {
       const customerStub = sandbox.stub();
       customerStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', customerStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        customerStub
+      );
 
       let errored = false;
 
       try {
-        await CustomerPaymentModel.validateUpdateObject(
-          mocks.MOCK_CUSTOMERPAYMENT as unknown as Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>
-        );
+        await CustomerPaymentModel.validateUpdateObject(mocks.MOCK_CUSTOMERPAYMENT as unknown as Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>);
       } catch (err) {
         errored = true;
       }
@@ -148,14 +162,16 @@ describe('#mongoose/models/customerPayment', () => {
     it('will not throw an error when the related fields exist in the database', async () => {
       const customerStub = sandbox.stub();
       customerStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', customerStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        customerStub
+      );
 
       let errored = false;
 
       try {
-        await CustomerPaymentModel.validateUpdateObject(
-          mocks.MOCK_CUSTOMERPAYMENT as unknown as Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>
-        );
+        await CustomerPaymentModel.validateUpdateObject(mocks.MOCK_CUSTOMERPAYMENT as unknown as Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>);
       } catch (err) {
         errored = true;
       }
@@ -164,16 +180,19 @@ describe('#mongoose/models/customerPayment', () => {
     });
 
     it('will fail when the customer does not exist.', async () => {
+      
       const customerStub = sandbox.stub();
       customerStub.resolves(false);
-      sandbox.replace(UserModel, 'userIdExists', customerStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        customerStub
+      );
 
       let errored = false;
 
       try {
-        await CustomerPaymentModel.validateUpdateObject(
-          mocks.MOCK_CUSTOMERPAYMENT as unknown as Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>
-        );
+        await CustomerPaymentModel.validateUpdateObject(mocks.MOCK_CUSTOMERPAYMENT as unknown as Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -181,18 +200,20 @@ describe('#mongoose/models/customerPayment', () => {
       assert.isTrue(errored);
     });
 
+
     it('will fail when trying to update the _id', async () => {
       const customerStub = sandbox.stub();
       customerStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', customerStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        customerStub
+      );
 
       let errored = false;
 
       try {
-        await CustomerPaymentModel.validateUpdateObject({
-          ...mocks.MOCK_CUSTOMERPAYMENT,
-          _id: new mongoose.Types.ObjectId(),
-        } as unknown as Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>);
+        await CustomerPaymentModel.validateUpdateObject({...mocks.MOCK_CUSTOMERPAYMENT, _id: new mongoose.Types.ObjectId() } as unknown as Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -203,15 +224,16 @@ describe('#mongoose/models/customerPayment', () => {
     it('will fail when trying to update the createdAt', async () => {
       const customerStub = sandbox.stub();
       customerStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', customerStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        customerStub
+      );
 
       let errored = false;
 
       try {
-        await CustomerPaymentModel.validateUpdateObject({
-          ...mocks.MOCK_CUSTOMERPAYMENT,
-          createdAt: new Date(),
-        } as unknown as Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>);
+        await CustomerPaymentModel.validateUpdateObject({...mocks.MOCK_CUSTOMERPAYMENT, createdAt: new Date() } as unknown as Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -222,15 +244,16 @@ describe('#mongoose/models/customerPayment', () => {
     it('will fail when trying to update the updatedAt', async () => {
       const customerStub = sandbox.stub();
       customerStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', customerStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        customerStub
+      );
 
       let errored = false;
 
       try {
-        await CustomerPaymentModel.validateUpdateObject({
-          ...mocks.MOCK_CUSTOMERPAYMENT,
-          updatedAt: new Date(),
-        } as unknown as Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>);
+        await CustomerPaymentModel.validateUpdateObject({...mocks.MOCK_CUSTOMERPAYMENT, updatedAt: new Date() }  as unknown as Omit<Partial<databaseTypes.ICustomerPayment>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -254,10 +277,14 @@ describe('#mongoose/models/customerPayment', () => {
       );
 
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(CustomerPaymentModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(
+        CustomerPaymentModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
 
       sandbox.replace(CustomerPaymentModel, 'validate', sandbox.stub().resolves(true));
-
+      
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
 
@@ -269,18 +296,32 @@ describe('#mongoose/models/customerPayment', () => {
       assert.isTrue(stub.calledOnce);
     });
 
+
+
     it('will rethrow a DataValidationError when the customer validator throws one', async () => {
-      sandbox.replace(
+       sandbox.replace(
         CustomerPaymentModel,
         'validateCustomer',
-        sandbox.stub().rejects(new error.DataValidationError('The customer does not exist', 'customer ', {}))
+        sandbox
+          .stub()
+          .rejects(
+            new error.DataValidationError(
+              'The customer does not exist',
+              'customer ',
+              {}
+            )
+          )
+      );
+      
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        CustomerPaymentModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
       );
 
-      const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(CustomerPaymentModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
-
       sandbox.replace(CustomerPaymentModel, 'validate', sandbox.stub().resolves(true));
-
+      
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
 
@@ -297,6 +338,7 @@ describe('#mongoose/models/customerPayment', () => {
       assert.isTrue(errored);
     });
 
+
     it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
       sandbox.replace(
         CustomerPaymentModel,
@@ -306,7 +348,11 @@ describe('#mongoose/models/customerPayment', () => {
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(CustomerPaymentModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(CustomerPaymentModel, 'create', sandbox.stub().rejects('oops, something bad has happened'));
+      sandbox.replace(
+        CustomerPaymentModel,
+        'create',
+        sandbox.stub().rejects('oops, something bad has happened')
+      );
 
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
@@ -354,8 +400,16 @@ describe('#mongoose/models/customerPayment', () => {
       );
 
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(CustomerPaymentModel, 'validate', sandbox.stub().rejects('oops an error has occurred'));
-      sandbox.replace(CustomerPaymentModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(
+        CustomerPaymentModel,
+        'validate',
+        sandbox.stub().rejects('oops an error has occurred')
+      );
+      sandbox.replace(
+        CustomerPaymentModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
       sandbox.replace(CustomerPaymentModel, 'getCustomerPaymentById', stub);
@@ -401,7 +455,7 @@ describe('#mongoose/models/customerPayment', () => {
       sandbox.replace(CustomerPaymentModel, 'findById', findByIdStub);
 
       const doc = await CustomerPaymentModel.getCustomerPaymentById(
-        mocks.MOCK_CUSTOMERPAYMENT._id as mongoose.Types.ObjectId
+        mocks.MOCK_CUSTOMERPAYMENT._id
       );
 
       assert.isTrue(findByIdStub.calledOnce);
@@ -418,7 +472,9 @@ describe('#mongoose/models/customerPayment', () => {
 
       let errored = false;
       try {
-        await CustomerPaymentModel.getCustomerPaymentById(mocks.MOCK_CUSTOMERPAYMENT._id as mongoose.Types.ObjectId);
+        await CustomerPaymentModel.getCustomerPaymentById(
+          mocks.MOCK_CUSTOMERPAYMENT._id
+        );
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -429,12 +485,16 @@ describe('#mongoose/models/customerPayment', () => {
 
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new MockMongooseQuery('something bad happened', true));
+      findByIdStub.returns(
+        new MockMongooseQuery('something bad happened', true)
+      );
       sandbox.replace(CustomerPaymentModel, 'findById', findByIdStub);
 
       let errored = false;
       try {
-        await CustomerPaymentModel.getCustomerPaymentById(mocks.MOCK_CUSTOMERPAYMENT._id as mongoose.Types.ObjectId);
+        await CustomerPaymentModel.getCustomerPaymentById(
+          mocks.MOCK_CUSTOMERPAYMENT.id
+        );
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -466,7 +526,7 @@ describe('#mongoose/models/customerPayment', () => {
 
     const mockCustomerPayments = [
       {
-        ...mocks.MOCK_CUSTOMERPAYMENT,
+       ...mocks.MOCK_CUSTOMERPAYMENT,
         _id: new mongoose.Types.ObjectId(),
         customer: {
           _id: new mongoose.Types.ObjectId(),
@@ -489,7 +549,11 @@ describe('#mongoose/models/customerPayment', () => {
     });
 
     it('will return the filtered customerPayments', async () => {
-      sandbox.replace(CustomerPaymentModel, 'count', sandbox.stub().resolves(mockCustomerPayments.length));
+      sandbox.replace(
+        CustomerPaymentModel,
+        'count',
+        sandbox.stub().resolves(mockCustomerPayments.length)
+      );
 
       sandbox.replace(
         CustomerPaymentModel,
@@ -530,7 +594,11 @@ describe('#mongoose/models/customerPayment', () => {
     });
 
     it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
-      sandbox.replace(CustomerPaymentModel, 'count', sandbox.stub().resolves(mockCustomerPayments.length));
+      sandbox.replace(
+        CustomerPaymentModel,
+        'count',
+        sandbox.stub().resolves(mockCustomerPayments.length)
+      );
 
       sandbox.replace(
         CustomerPaymentModel,
@@ -550,12 +618,18 @@ describe('#mongoose/models/customerPayment', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
-      sandbox.replace(CustomerPaymentModel, 'count', sandbox.stub().resolves(mockCustomerPayments.length));
+      sandbox.replace(
+        CustomerPaymentModel,
+        'count',
+        sandbox.stub().resolves(mockCustomerPayments.length)
+      );
 
       sandbox.replace(
         CustomerPaymentModel,
         'find',
-        sandbox.stub().returns(new MockMongooseQuery('something bad has happened', true))
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
       );
 
       let errored = false;
@@ -587,7 +661,7 @@ describe('#mongoose/models/customerPayment', () => {
         } as unknown as databaseTypes.IUser,
       } as unknown as databaseTypes.ICustomerPayment;
 
-      const customerPaymentId = new mongoose.Types.ObjectId();
+      const customerPaymentId = mocks.MOCK_CUSTOMERPAYMENT._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -601,9 +675,12 @@ describe('#mongoose/models/customerPayment', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(CustomerPaymentModel, 'validateUpdateObject', validateStub);
 
-      const result = await CustomerPaymentModel.updateCustomerPaymentById(customerPaymentId, updateCustomerPayment);
+      const result = await CustomerPaymentModel.updateCustomerPaymentById(
+        customerPaymentId,
+        updateCustomerPayment
+      );
 
-      assert.strictEqual(result._id, customerPaymentId);
+      assert.strictEqual(result._id, mocks.MOCK_CUSTOMERPAYMENT._id);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(getCustomerPaymentStub.calledOnce);
       assert.isTrue(validateStub.calledOnce);
@@ -612,10 +689,10 @@ describe('#mongoose/models/customerPayment', () => {
     it('Should update a customerPayment with references as ObjectIds', async () => {
       const updateCustomerPayment = {
         ...mocks.MOCK_CUSTOMERPAYMENT,
-        deletedAt: new Date(),
+        deletedAt: new Date()
       } as unknown as databaseTypes.ICustomerPayment;
 
-      const customerPaymentId = new mongoose.Types.ObjectId();
+      const customerPaymentId = mocks.MOCK_CUSTOMERPAYMENT._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -629,7 +706,10 @@ describe('#mongoose/models/customerPayment', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(CustomerPaymentModel, 'validateUpdateObject', validateStub);
 
-      const result = await CustomerPaymentModel.updateCustomerPaymentById(customerPaymentId, updateCustomerPayment);
+      const result = await CustomerPaymentModel.updateCustomerPaymentById(
+        customerPaymentId,
+        updateCustomerPayment
+      );
 
       assert.strictEqual(result._id, customerPaymentId);
       assert.isTrue(updateStub.calledOnce);
@@ -643,7 +723,7 @@ describe('#mongoose/models/customerPayment', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.ICustomerPayment;
 
-      const customerPaymentId = new mongoose.Types.ObjectId();
+      const customerPaymentId = mocks.MOCK_CUSTOMERPAYMENT._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
@@ -669,11 +749,11 @@ describe('#mongoose/models/customerPayment', () => {
 
     it('Will fail when validateUpdateObject fails', async () => {
       const updateCustomerPayment = {
-        ...mocks.MOCK_CUSTOMERPAYMENT,
+       ...mocks.MOCK_CUSTOMERPAYMENT,
         deletedAt: new Date(),
       } as unknown as databaseTypes.ICustomerPayment;
 
-      const customerPaymentId = new mongoose.Types.ObjectId();
+      const customerPaymentId = mocks.MOCK_CUSTOMERPAYMENT._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -684,7 +764,9 @@ describe('#mongoose/models/customerPayment', () => {
       sandbox.replace(CustomerPaymentModel, 'getCustomerPaymentById', getCustomerPaymentStub);
 
       const validateStub = sandbox.stub();
-      validateStub.rejects(new error.InvalidOperationError("You can't do this", {}));
+      validateStub.rejects(
+        new error.InvalidOperationError("You can't do this", {})
+      );
       sandbox.replace(CustomerPaymentModel, 'validateUpdateObject', validateStub);
       let errorred = false;
       try {
@@ -698,11 +780,11 @@ describe('#mongoose/models/customerPayment', () => {
 
     it('Will fail when a database error occurs', async () => {
       const updateCustomerPayment = {
-        ...mocks.MOCK_CUSTOMERPAYMENT,
-        deletedAt: new Date(),
+       ...mocks.MOCK_CUSTOMERPAYMENT,
+        deletedAt: new Date()
       } as unknown as databaseTypes.ICustomerPayment;
 
-      const customerPaymentId = new mongoose.Types.ObjectId();
+      const customerPaymentId = mocks.MOCK_CUSTOMERPAYMENT._id;
 
       const updateStub = sandbox.stub();
       updateStub.rejects('something terrible has happened');
@@ -739,7 +821,7 @@ describe('#mongoose/models/customerPayment', () => {
       deleteStub.resolves({deletedCount: 1});
       sandbox.replace(CustomerPaymentModel, 'deleteOne', deleteStub);
 
-      const customerPaymentId = new mongoose.Types.ObjectId();
+      const customerPaymentId = mocks.MOCK_CUSTOMERPAYMENT._id;
 
       await CustomerPaymentModel.deleteCustomerPaymentById(customerPaymentId);
 
@@ -751,7 +833,7 @@ describe('#mongoose/models/customerPayment', () => {
       deleteStub.resolves({deletedCount: 0});
       sandbox.replace(CustomerPaymentModel, 'deleteOne', deleteStub);
 
-      const customerPaymentId = new mongoose.Types.ObjectId();
+      const customerPaymentId = mocks.MOCK_CUSTOMERPAYMENT._id;
 
       let errorred = false;
       try {
@@ -769,7 +851,7 @@ describe('#mongoose/models/customerPayment', () => {
       deleteStub.rejects('something bad has happened');
       sandbox.replace(CustomerPaymentModel, 'deleteOne', deleteStub);
 
-      const customerPaymentId = new mongoose.Types.ObjectId();
+      const customerPaymentId = mocks.MOCK_CUSTOMERPAYMENT._id;
 
       let errorred = false;
       try {
@@ -782,4 +864,5 @@ describe('#mongoose/models/customerPayment', () => {
       assert.isTrue(errorred);
     });
   });
+
 });

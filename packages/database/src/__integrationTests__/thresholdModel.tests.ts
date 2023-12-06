@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks';
+import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
@@ -15,8 +15,8 @@ describe('#ThresholdModel', () => {
   context('test the crud functions of the threshold model', () => {
     const mongoConnection = new MongoDbConnection();
     const thresholdModel = mongoConnection.models.ThresholdModel;
-    let thresholdDocId: ObjectId;
-    let thresholdDocId2: ObjectId;
+    let thresholdDocId: string;
+    let thresholdDocId2: string;
 
     before(async () => {
       await mongoConnection.init();
@@ -30,17 +30,20 @@ describe('#ThresholdModel', () => {
       if (thresholdDocId2) {
         await thresholdModel.findByIdAndDelete(thresholdDocId2);
       }
+
     });
 
     it('add a new threshold ', async () => {
       const thresholdInput = JSON.parse(JSON.stringify(mocks.MOCK_THRESHOLD));
+
 
       const thresholdDocument = await thresholdModel.createThreshold(thresholdInput);
 
       assert.isOk(thresholdDocument);
       assert.strictEqual(Object.keys(thresholdDocument)[1], Object.keys(thresholdInput)[1]);
 
-      thresholdDocId = thresholdDocument._id as mongooseTypes.ObjectId;
+
+      thresholdDocId = thresholdDocument._id!.toString();
     });
 
     it('retreive a threshold', async () => {
@@ -54,7 +57,10 @@ describe('#ThresholdModel', () => {
     it('modify a threshold', async () => {
       assert.isOk(thresholdDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await thresholdModel.updateThresholdById(thresholdDocId, input);
+      const updatedDocument = await thresholdModel.updateThresholdById(
+        thresholdDocId,
+        input
+      );
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -62,17 +68,21 @@ describe('#ThresholdModel', () => {
       assert.isOk(thresholdDocId);
       const thresholdInput = JSON.parse(JSON.stringify(mocks.MOCK_THRESHOLD));
 
+
+
       const thresholdDocument = await thresholdModel.createThreshold(thresholdInput);
 
       assert.isOk(thresholdDocument);
 
-      thresholdDocId2 = thresholdDocument._id as mongooseTypes.ObjectId;
+      thresholdDocId2 = thresholdDocument._id!.toString();
 
       const thresholds = await thresholdModel.queryThresholds();
       assert.isArray(thresholds.results);
       assert.isAtLeast(thresholds.numberOfItems, 2);
       const expectedDocumentCount =
-        thresholds.numberOfItems <= thresholds.itemsPerPage ? thresholds.numberOfItems : thresholds.itemsPerPage;
+        thresholds.numberOfItems <= thresholds.itemsPerPage
+          ? thresholds.numberOfItems
+          : thresholds.itemsPerPage;
       assert.strictEqual(thresholds.results.length, expectedDocumentCount);
     });
 
@@ -95,7 +105,10 @@ describe('#ThresholdModel', () => {
       const results2 = await thresholdModel.queryThresholds({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a threshold', async () => {
@@ -110,7 +123,7 @@ describe('#ThresholdModel', () => {
       }
 
       assert.isTrue(errored);
-      thresholdDocId = null as unknown as ObjectId;
+      thresholdDocId = null as unknown as string;
     });
   });
 });

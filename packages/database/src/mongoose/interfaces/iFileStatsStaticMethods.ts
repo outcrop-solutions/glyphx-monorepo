@@ -9,7 +9,7 @@ export interface IFileStatsStaticMethods extends Model<databaseTypes.IFileStats,
   allFileStatsIdsExist(fileStatsIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createFileStats(input: IFileStatsCreateInput): Promise<databaseTypes.IFileStats>;
   getFileStatsById(fileStatsId: mongooseTypes.ObjectId): Promise<databaseTypes.IFileStats>;
-  queryFileStatss(
+  queryFileStats(
     filter?: Record<string, unknown>,
     page?: number,
     itemsPerPage?: number
@@ -26,11 +26,11 @@ export interface IFileStatsStaticMethods extends Model<databaseTypes.IFileStats,
   validateUpdateObject(fileStats: Omit<Partial<databaseTypes.IFileStats>, '_id'>): Promise<void>;
   addColumns(
     fileStatsId: mongooseTypes.ObjectId,
-    columns: (databaseTypes.IColumns | mongooseTypes.ObjectId)[]
+    columns: (databaseTypes.Column | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IFileStats>;
   removeColumns(
     fileStatsId: mongooseTypes.ObjectId,
-    columns: (databaseTypes.IColumns | mongooseTypes.ObjectId)[]
+    columns: (databaseTypes.Column | mongooseTypes.ObjectId)[]
   ): Promise<databaseTypes.IFileStats>;
-  validateColumns(columns: (databaseTypes.IColumns | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]>;
+  validateColumns(columns: (databaseTypes.Column | mongooseTypes.ObjectId)[]): Promise<mongooseTypes.ObjectId[]>;
 }

@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks';
+import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
@@ -15,15 +15,15 @@ describe('#StateModel', () => {
   context('test the crud functions of the state model', () => {
     const mongoConnection = new MongoDbConnection();
     const stateModel = mongoConnection.models.StateModel;
-    let stateDocId: ObjectId;
-    let stateDocId2: ObjectId;
-    let createdById: ObjectId;
+    let stateDocId: string;
+    let stateDocId2: string;
+    let createdById: string;
     let createdByDocument: any;
-    let projectId: ObjectId;
+    let projectId: string;
     let projectDocument: any;
-    let workspaceId: ObjectId;
+    let workspaceId: string;
     let workspaceDocument: any;
-    let documentId: ObjectId;
+    let documentId: string;
     let documentDocument: any;
 
     before(async () => {
@@ -32,26 +32,26 @@ describe('#StateModel', () => {
       const savedCreatedByDocument = await createdByModel.create([mocks.MOCK_USER], {
         validateBeforeSave: false,
       });
-      createdById = savedCreatedByDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(createdById);
+      createdById =  savedCreatedByDocument[0]!._id.toString();
+      assert.isOk(createdById)
       const projectModel = mongoConnection.models.ProjectModel;
       const savedProjectDocument = await projectModel.create([mocks.MOCK_PROJECT], {
         validateBeforeSave: false,
       });
-      projectId = savedProjectDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(projectId);
+      projectId =  savedProjectDocument[0]!._id.toString();
+      assert.isOk(projectId)
       const workspaceModel = mongoConnection.models.WorkspaceModel;
       const savedWorkspaceDocument = await workspaceModel.create([mocks.MOCK_WORKSPACE], {
         validateBeforeSave: false,
       });
-      workspaceId = savedWorkspaceDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(workspaceId);
+      workspaceId =  savedWorkspaceDocument[0]!._id.toString();
+      assert.isOk(workspaceId)
       const documentModel = mongoConnection.models.DocumentModel;
       const savedDocumentDocument = await documentModel.create([mocks.MOCK_DOCUMENT], {
         validateBeforeSave: false,
       });
-      documentId = savedDocumentDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(documentId);
+      documentId =  savedDocumentDocument[0]!._id.toString();
+      assert.isOk(documentId)
     });
 
     after(async () => {
@@ -70,6 +70,7 @@ describe('#StateModel', () => {
       await workspaceModel.findByIdAndDelete(workspaceId);
       const documentModel = mongoConnection.models.DocumentModel;
       await documentModel.findByIdAndDelete(documentId);
+
     });
 
     it('add a new state ', async () => {
@@ -85,7 +86,8 @@ describe('#StateModel', () => {
       assert.isOk(stateDocument);
       assert.strictEqual(Object.keys(stateDocument)[1], Object.keys(stateInput)[1]);
 
-      stateDocId = stateDocument._id as mongooseTypes.ObjectId;
+
+      stateDocId = stateDocument._id!.toString();
     });
 
     it('retreive a state', async () => {
@@ -99,7 +101,10 @@ describe('#StateModel', () => {
     it('modify a state', async () => {
       assert.isOk(stateDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await stateModel.updateStateById(stateDocId, input);
+      const updatedDocument = await stateModel.updateStateById(
+        stateDocId,
+        input
+      );
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -107,17 +112,21 @@ describe('#StateModel', () => {
       assert.isOk(stateDocId);
       const stateInput = JSON.parse(JSON.stringify(mocks.MOCK_STATE));
 
+
+
       const stateDocument = await stateModel.createState(stateInput);
 
       assert.isOk(stateDocument);
 
-      stateDocId2 = stateDocument._id as mongooseTypes.ObjectId;
+      stateDocId2 = stateDocument._id!.toString();
 
       const states = await stateModel.queryStates();
       assert.isArray(states.results);
       assert.isAtLeast(states.numberOfItems, 2);
       const expectedDocumentCount =
-        states.numberOfItems <= states.itemsPerPage ? states.numberOfItems : states.itemsPerPage;
+        states.numberOfItems <= states.itemsPerPage
+          ? states.numberOfItems
+          : states.itemsPerPage;
       assert.strictEqual(states.results.length, expectedDocumentCount);
     });
 
@@ -140,7 +149,10 @@ describe('#StateModel', () => {
       const results2 = await stateModel.queryStates({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a state', async () => {
@@ -155,7 +167,7 @@ describe('#StateModel', () => {
       }
 
       assert.isTrue(errored);
-      stateDocId = null as unknown as ObjectId;
+      stateDocId = null as unknown as string;
     });
   });
 });

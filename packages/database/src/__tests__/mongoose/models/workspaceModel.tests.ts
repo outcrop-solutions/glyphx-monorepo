@@ -6,7 +6,7 @@ import {TagModel} from '../../../mongoose/models/tag';
 import {UserModel} from '../../../mongoose/models/user';
 import {MemberModel} from '../../../mongoose/models/member';
 import {ProjectModel} from '../../../mongoose/models/project';
-import {FileStatModel} from '../../../mongoose/models/fileStat';
+import {FileStatsModel} from '../../../mongoose/models/fileStats';
 import {StateModel} from '../../../mongoose/models/state';
 import {IQueryResult, databaseTypes} from 'types';
 import {error} from 'core';
@@ -22,7 +22,7 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('should return true if the workspaceId exists', async () => {
-      const workspaceId = new mongoose.Types.ObjectId();
+      const workspaceId = mocks.MOCK_WORKSPACE._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves({_id: workspaceId});
       sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
@@ -33,7 +33,7 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('should return false if the workspaceId does not exist', async () => {
-      const workspaceId = new mongoose.Types.ObjectId();
+      const workspaceId = mocks.MOCK_WORKSPACE._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
       sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
@@ -44,7 +44,7 @@ describe('#mongoose/models/workspace', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection errors', async () => {
-      const workspaceId = new mongoose.Types.ObjectId();
+      const workspaceId = mocks.MOCK_WORKSPACE._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.rejects('something unexpected has happend');
       sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
@@ -414,16 +414,16 @@ describe('#mongoose/models/workspace', () => {
       findByIdStub.returns(new MockMongooseQuery(mocks.MOCK_WORKSPACE));
       sandbox.replace(WorkspaceModel, 'findById', findByIdStub);
 
-      const doc = await WorkspaceModel.getWorkspaceById(mocks.MOCK_WORKSPACE._id as mongoose.Types.ObjectId);
+      const doc = await WorkspaceModel.getWorkspaceById(mocks.MOCK_WORKSPACE._id);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any)?.__v);
-      assert.isUndefined((doc.tags[0] as any)?.__v);
+      assert.isUndefined((doc.tags![0] as any)?.__v);
       assert.isUndefined((doc.creator as any)?.__v);
-      assert.isUndefined((doc.members[0] as any)?.__v);
-      assert.isUndefined((doc.projects[0] as any)?.__v);
-      assert.isUndefined((doc.filesystem[0] as any)?.__v);
-      assert.isUndefined((doc.states[0] as any)?.__v);
+      assert.isUndefined((doc.members![0] as any)?.__v);
+      assert.isUndefined((doc.projects![0] as any)?.__v);
+      assert.isUndefined((doc.filesystem![0] as any)?.__v);
+      assert.isUndefined((doc.states![0] as any)?.__v);
 
       assert.strictEqual(doc._id, mocks.MOCK_WORKSPACE._id);
     });
@@ -435,7 +435,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.getWorkspaceById(mocks.MOCK_WORKSPACE._id as mongoose.Types.ObjectId);
+        await WorkspaceModel.getWorkspaceById(mocks.MOCK_WORKSPACE._id);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -451,7 +451,7 @@ describe('#mongoose/models/workspace', () => {
 
       let errored = false;
       try {
-        await WorkspaceModel.getWorkspaceById(mocks.MOCK_WORKSPACE._id as mongoose.Types.ObjectId);
+        await WorkspaceModel.getWorkspaceById(mocks.MOCK_WORKSPACE.id);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -612,7 +612,7 @@ describe('#mongoose/models/workspace', () => {
         states: [],
       } as unknown as databaseTypes.IWorkspace;
 
-      const workspaceId = new mongoose.Types.ObjectId();
+      const workspaceId = mocks.MOCK_WORKSPACE._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -628,7 +628,7 @@ describe('#mongoose/models/workspace', () => {
 
       const result = await WorkspaceModel.updateWorkspaceById(workspaceId, updateWorkspace);
 
-      assert.strictEqual(result._id, workspaceId);
+      assert.strictEqual(result._id, mocks.MOCK_WORKSPACE._id);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(getWorkspaceStub.calledOnce);
       assert.isTrue(validateStub.calledOnce);
@@ -640,7 +640,7 @@ describe('#mongoose/models/workspace', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.IWorkspace;
 
-      const workspaceId = new mongoose.Types.ObjectId();
+      const workspaceId = mocks.MOCK_WORKSPACE._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -668,7 +668,7 @@ describe('#mongoose/models/workspace', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.IWorkspace;
 
-      const workspaceId = new mongoose.Types.ObjectId();
+      const workspaceId = mocks.MOCK_WORKSPACE._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
@@ -698,7 +698,7 @@ describe('#mongoose/models/workspace', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.IWorkspace;
 
-      const workspaceId = new mongoose.Types.ObjectId();
+      const workspaceId = mocks.MOCK_WORKSPACE._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -727,7 +727,7 @@ describe('#mongoose/models/workspace', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.IWorkspace;
 
-      const workspaceId = new mongoose.Types.ObjectId();
+      const workspaceId = mocks.MOCK_WORKSPACE._id;
 
       const updateStub = sandbox.stub();
       updateStub.rejects('something terrible has happened');
@@ -764,7 +764,7 @@ describe('#mongoose/models/workspace', () => {
       deleteStub.resolves({deletedCount: 1});
       sandbox.replace(WorkspaceModel, 'deleteOne', deleteStub);
 
-      const workspaceId = new mongoose.Types.ObjectId();
+      const workspaceId = mocks.MOCK_WORKSPACE._id;
 
       await WorkspaceModel.deleteWorkspaceById(workspaceId);
 
@@ -776,7 +776,7 @@ describe('#mongoose/models/workspace', () => {
       deleteStub.resolves({deletedCount: 0});
       sandbox.replace(WorkspaceModel, 'deleteOne', deleteStub);
 
-      const workspaceId = new mongoose.Types.ObjectId();
+      const workspaceId = mocks.MOCK_WORKSPACE._id;
 
       let errorred = false;
       try {
@@ -794,7 +794,7 @@ describe('#mongoose/models/workspace', () => {
       deleteStub.rejects('something bad has happened');
       sandbox.replace(WorkspaceModel, 'deleteOne', deleteStub);
 
-      const workspaceId = new mongoose.Types.ObjectId();
+      const workspaceId = mocks.MOCK_WORKSPACE._id;
 
       let errorred = false;
       try {

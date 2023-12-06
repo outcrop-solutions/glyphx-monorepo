@@ -10,4 +10,4 @@ export const MOCK_WEBHOOK = {
   name: 'name',
   url: 'url',
   user: {},
-} as unknown as IWebhookDocument;
+} as any;

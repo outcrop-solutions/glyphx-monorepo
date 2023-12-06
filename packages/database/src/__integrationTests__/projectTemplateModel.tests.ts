@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks';
+import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
@@ -15,8 +15,8 @@ describe('#ProjectTemplateModel', () => {
   context('test the crud functions of the projectTemplate model', () => {
     const mongoConnection = new MongoDbConnection();
     const projectTemplateModel = mongoConnection.models.ProjectTemplateModel;
-    let projectTemplateDocId: ObjectId;
-    let projectTemplateDocId2: ObjectId;
+    let projectTemplateDocId: string;
+    let projectTemplateDocId2: string;
 
     before(async () => {
       await mongoConnection.init();
@@ -30,17 +30,20 @@ describe('#ProjectTemplateModel', () => {
       if (projectTemplateDocId2) {
         await projectTemplateModel.findByIdAndDelete(projectTemplateDocId2);
       }
+
     });
 
     it('add a new projectTemplate ', async () => {
       const projectTemplateInput = JSON.parse(JSON.stringify(mocks.MOCK_PROJECTTEMPLATE));
+
 
       const projectTemplateDocument = await projectTemplateModel.createProjectTemplate(projectTemplateInput);
 
       assert.isOk(projectTemplateDocument);
       assert.strictEqual(Object.keys(projectTemplateDocument)[1], Object.keys(projectTemplateInput)[1]);
 
-      projectTemplateDocId = projectTemplateDocument._id as mongooseTypes.ObjectId;
+
+      projectTemplateDocId = projectTemplateDocument._id!.toString();
     });
 
     it('retreive a projectTemplate', async () => {
@@ -54,7 +57,10 @@ describe('#ProjectTemplateModel', () => {
     it('modify a projectTemplate', async () => {
       assert.isOk(projectTemplateDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await projectTemplateModel.updateProjectTemplateById(projectTemplateDocId, input);
+      const updatedDocument = await projectTemplateModel.updateProjectTemplateById(
+        projectTemplateDocId,
+        input
+      );
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -62,11 +68,13 @@ describe('#ProjectTemplateModel', () => {
       assert.isOk(projectTemplateDocId);
       const projectTemplateInput = JSON.parse(JSON.stringify(mocks.MOCK_PROJECTTEMPLATE));
 
+
+
       const projectTemplateDocument = await projectTemplateModel.createProjectTemplate(projectTemplateInput);
 
       assert.isOk(projectTemplateDocument);
 
-      projectTemplateDocId2 = projectTemplateDocument._id as mongooseTypes.ObjectId;
+      projectTemplateDocId2 = projectTemplateDocument._id!.toString();
 
       const projectTemplates = await projectTemplateModel.queryProjectTemplates();
       assert.isArray(projectTemplates.results);
@@ -97,7 +105,10 @@ describe('#ProjectTemplateModel', () => {
       const results2 = await projectTemplateModel.queryProjectTemplates({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a projectTemplate', async () => {
@@ -112,7 +123,7 @@ describe('#ProjectTemplateModel', () => {
       }
 
       assert.isTrue(errored);
-      projectTemplateDocId = null as unknown as ObjectId;
+      projectTemplateDocId = null as unknown as string;
     });
   });
 });

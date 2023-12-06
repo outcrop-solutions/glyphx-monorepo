@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks';
+import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
@@ -15,9 +15,9 @@ describe('#PresenceModel', () => {
   context('test the crud functions of the presence model', () => {
     const mongoConnection = new MongoDbConnection();
     const presenceModel = mongoConnection.models.PresenceModel;
-    let presenceDocId: ObjectId;
-    let presenceDocId2: ObjectId;
-    let configId: ObjectId;
+    let presenceDocId: string;
+    let presenceDocId2: string;
+    let configId: string;
     let configDocument: any;
 
     before(async () => {
@@ -26,8 +26,8 @@ describe('#PresenceModel', () => {
       const savedConfigDocument = await configModel.create([mocks.MOCK_MODELCONFIG], {
         validateBeforeSave: false,
       });
-      configId = savedConfigDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(configId);
+      configId =  savedConfigDocument[0]!._id.toString();
+      assert.isOk(configId)
     });
 
     after(async () => {
@@ -40,6 +40,7 @@ describe('#PresenceModel', () => {
       }
       const configModel = mongoConnection.models.ModelConfigModel;
       await configModel.findByIdAndDelete(configId);
+
     });
 
     it('add a new presence ', async () => {
@@ -52,7 +53,8 @@ describe('#PresenceModel', () => {
       assert.isOk(presenceDocument);
       assert.strictEqual(Object.keys(presenceDocument)[1], Object.keys(presenceInput)[1]);
 
-      presenceDocId = presenceDocument._id as mongooseTypes.ObjectId;
+
+      presenceDocId = presenceDocument._id!.toString();
     });
 
     it('retreive a presence', async () => {
@@ -66,7 +68,10 @@ describe('#PresenceModel', () => {
     it('modify a presence', async () => {
       assert.isOk(presenceDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await presenceModel.updatePresenceById(presenceDocId, input);
+      const updatedDocument = await presenceModel.updatePresenceById(
+        presenceDocId,
+        input
+      );
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -74,17 +79,21 @@ describe('#PresenceModel', () => {
       assert.isOk(presenceDocId);
       const presenceInput = JSON.parse(JSON.stringify(mocks.MOCK_PRESENCE));
 
+
+
       const presenceDocument = await presenceModel.createPresence(presenceInput);
 
       assert.isOk(presenceDocument);
 
-      presenceDocId2 = presenceDocument._id as mongooseTypes.ObjectId;
+      presenceDocId2 = presenceDocument._id!.toString();
 
       const presences = await presenceModel.queryPresences();
       assert.isArray(presences.results);
       assert.isAtLeast(presences.numberOfItems, 2);
       const expectedDocumentCount =
-        presences.numberOfItems <= presences.itemsPerPage ? presences.numberOfItems : presences.itemsPerPage;
+        presences.numberOfItems <= presences.itemsPerPage
+          ? presences.numberOfItems
+          : presences.itemsPerPage;
       assert.strictEqual(presences.results.length, expectedDocumentCount);
     });
 
@@ -107,7 +116,10 @@ describe('#PresenceModel', () => {
       const results2 = await presenceModel.queryPresences({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a presence', async () => {
@@ -122,7 +134,7 @@ describe('#PresenceModel', () => {
       }
 
       assert.isTrue(errored);
-      presenceDocId = null as unknown as ObjectId;
+      presenceDocId = null as unknown as string;
     });
   });
 });

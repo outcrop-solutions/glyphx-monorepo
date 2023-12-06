@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks';
+import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
@@ -15,15 +15,15 @@ describe('#ActivityLogModel', () => {
   context('test the crud functions of the activityLog model', () => {
     const mongoConnection = new MongoDbConnection();
     const activityLogModel = mongoConnection.models.ActivityLogModel;
-    let activityLogDocId: ObjectId;
-    let activityLogDocId2: ObjectId;
-    let actorId: ObjectId;
+    let activityLogDocId: string;
+    let activityLogDocId2: string;
+    let actorId: string;
     let actorDocument: any;
-    let workspaceId: ObjectId;
+    let workspaceId: string;
     let workspaceDocument: any;
-    let projectId: ObjectId;
+    let projectId: string;
     let projectDocument: any;
-    let userAgentId: ObjectId;
+    let userAgentId: string;
     let userAgentDocument: any;
 
     before(async () => {
@@ -32,26 +32,26 @@ describe('#ActivityLogModel', () => {
       const savedActorDocument = await actorModel.create([mocks.MOCK_USER], {
         validateBeforeSave: false,
       });
-      actorId = savedActorDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(actorId);
+      actorId =  savedActorDocument[0]!._id.toString();
+      assert.isOk(actorId)
       const workspaceModel = mongoConnection.models.WorkspaceModel;
       const savedWorkspaceDocument = await workspaceModel.create([mocks.MOCK_WORKSPACE], {
         validateBeforeSave: false,
       });
-      workspaceId = savedWorkspaceDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(workspaceId);
+      workspaceId =  savedWorkspaceDocument[0]!._id.toString();
+      assert.isOk(workspaceId)
       const projectModel = mongoConnection.models.ProjectModel;
       const savedProjectDocument = await projectModel.create([mocks.MOCK_PROJECT], {
         validateBeforeSave: false,
       });
-      projectId = savedProjectDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(projectId);
+      projectId =  savedProjectDocument[0]!._id.toString();
+      assert.isOk(projectId)
       const userAgentModel = mongoConnection.models.UserAgentModel;
       const savedUserAgentDocument = await userAgentModel.create([mocks.MOCK_USERAGENT], {
         validateBeforeSave: false,
       });
-      userAgentId = savedUserAgentDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(userAgentId);
+      userAgentId =  savedUserAgentDocument[0]!._id.toString();
+      assert.isOk(userAgentId)
     });
 
     after(async () => {
@@ -70,6 +70,7 @@ describe('#ActivityLogModel', () => {
       await projectModel.findByIdAndDelete(projectId);
       const userAgentModel = mongoConnection.models.UserAgentModel;
       await userAgentModel.findByIdAndDelete(userAgentId);
+
     });
 
     it('add a new activityLog ', async () => {
@@ -85,7 +86,8 @@ describe('#ActivityLogModel', () => {
       assert.isOk(activityLogDocument);
       assert.strictEqual(Object.keys(activityLogDocument)[1], Object.keys(activityLogInput)[1]);
 
-      activityLogDocId = activityLogDocument._id as mongooseTypes.ObjectId;
+
+      activityLogDocId = activityLogDocument._id!.toString();
     });
 
     it('retreive a activityLog', async () => {
@@ -99,7 +101,10 @@ describe('#ActivityLogModel', () => {
     it('modify a activityLog', async () => {
       assert.isOk(activityLogDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await activityLogModel.updateActivityLogById(activityLogDocId, input);
+      const updatedDocument = await activityLogModel.updateActivityLogById(
+        activityLogDocId,
+        input
+      );
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -107,11 +112,13 @@ describe('#ActivityLogModel', () => {
       assert.isOk(activityLogDocId);
       const activityLogInput = JSON.parse(JSON.stringify(mocks.MOCK_ACTIVITYLOG));
 
+
+
       const activityLogDocument = await activityLogModel.createActivityLog(activityLogInput);
 
       assert.isOk(activityLogDocument);
 
-      activityLogDocId2 = activityLogDocument._id as mongooseTypes.ObjectId;
+      activityLogDocId2 = activityLogDocument._id!.toString();
 
       const activityLogs = await activityLogModel.queryActivityLogs();
       assert.isArray(activityLogs.results);
@@ -142,7 +149,10 @@ describe('#ActivityLogModel', () => {
       const results2 = await activityLogModel.queryActivityLogs({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a activityLog', async () => {
@@ -157,7 +167,7 @@ describe('#ActivityLogModel', () => {
       }
 
       assert.isTrue(errored);
-      activityLogDocId = null as unknown as ObjectId;
+      activityLogDocId = null as unknown as string;
     });
   });
 });

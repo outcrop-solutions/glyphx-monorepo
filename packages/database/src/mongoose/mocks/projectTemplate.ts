@@ -13,4 +13,4 @@ export const MOCK_PROJECTTEMPLATE = {
   projects: [],
   tags: [],
   shape: {},
-} as unknown as IProjectTemplateDocument;
+} as any;

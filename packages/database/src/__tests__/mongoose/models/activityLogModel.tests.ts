@@ -1,12 +1,12 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {assert} from 'chai';
-import {ActivityLogModel} from '../../../mongoose/models/activityLog';
+import { ActivityLogModel} from '../../../mongoose/models/activityLog'
 import * as mocks from '../../../mongoose/mocks';
-import {UserModel} from '../../../mongoose/models/user';
-import {WorkspaceModel} from '../../../mongoose/models/workspace';
-import {ProjectModel} from '../../../mongoose/models/project';
-import {UserAgentModel} from '../../../mongoose/models/userAgent';
-import {IQueryResult, databaseTypes} from 'types';
+import { UserModel} from '../../../mongoose/models/user'
+import { WorkspaceModel} from '../../../mongoose/models/workspace'
+import { ProjectModel} from '../../../mongoose/models/project'
+import { UserAgentModel} from '../../../mongoose/models/userAgent'
+import {IQueryResult, databaseTypes} from 'types'
 import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
@@ -20,7 +20,7 @@ describe('#mongoose/models/activityLog', () => {
     });
 
     it('should return true if the activityLogId exists', async () => {
-      const activityLogId = new mongoose.Types.ObjectId();
+      const activityLogId = mocks.MOCK_ACTIVITYLOG._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves({_id: activityLogId});
       sandbox.replace(ActivityLogModel, 'findById', findByIdStub);
@@ -31,7 +31,7 @@ describe('#mongoose/models/activityLog', () => {
     });
 
     it('should return false if the activityLogId does not exist', async () => {
-      const activityLogId = new mongoose.Types.ObjectId();
+      const activityLogId = mocks.MOCK_ACTIVITYLOG._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
       sandbox.replace(ActivityLogModel, 'findById', findByIdStub);
@@ -42,7 +42,7 @@ describe('#mongoose/models/activityLog', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection errors', async () => {
-      const activityLogId = new mongoose.Types.ObjectId();
+      const activityLogId = mocks.MOCK_ACTIVITYLOG._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.rejects('something unexpected has happend');
       sandbox.replace(ActivityLogModel, 'findById', findByIdStub);
@@ -66,9 +66,12 @@ describe('#mongoose/models/activityLog', () => {
     });
 
     it('should return true when all the activityLog ids exist', async () => {
-      const activityLogIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const activityLogIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
-      const returnedActivityLogIds = activityLogIds.map((activityLogId) => {
+      const returnedActivityLogIds = activityLogIds.map(activityLogId => {
         return {
           _id: activityLogId,
         };
@@ -83,7 +86,10 @@ describe('#mongoose/models/activityLog', () => {
     });
 
     it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
-      const activityLogIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const activityLogIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
       const returnedActivityLogIds = [
         {
@@ -99,7 +105,10 @@ describe('#mongoose/models/activityLog', () => {
         await ActivityLogModel.allActivityLogIdsExist(activityLogIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
-        assert.strictEqual(err.data.value[0].toString(), activityLogIds[1].toString());
+        assert.strictEqual(
+          err.data.value[0].toString(),
+          activityLogIds[1].toString()
+        );
         errored = true;
       }
       assert.isTrue(errored);
@@ -107,7 +116,10 @@ describe('#mongoose/models/activityLog', () => {
     });
 
     it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
-      const activityLogIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const activityLogIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
       const findStub = sandbox.stub();
       findStub.rejects('something bad has happened');
@@ -134,23 +146,37 @@ describe('#mongoose/models/activityLog', () => {
     it('will not throw an error when no unsafe fields are present', async () => {
       const actorStub = sandbox.stub();
       actorStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', actorStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        actorStub
+      );
       const workspaceStub = sandbox.stub();
       workspaceStub.resolves(true);
-      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceStub);
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        workspaceStub
+      );
       const projectStub = sandbox.stub();
       projectStub.resolves(true);
-      sandbox.replace(ProjectModel, 'projectIdExists', projectStub);
+      sandbox.replace(
+        ProjectModel,
+        'projectIdExists',
+        projectStub
+      );
       const userAgentStub = sandbox.stub();
       userAgentStub.resolves(true);
-      sandbox.replace(UserAgentModel, 'userAgentIdExists', userAgentStub);
+      sandbox.replace(
+        UserAgentModel,
+        'userAgentIdExists',
+        userAgentStub
+      );
 
       let errored = false;
 
       try {
-        await ActivityLogModel.validateUpdateObject(
-          mocks.MOCK_ACTIVITYLOG as unknown as Omit<Partial<databaseTypes.IActivityLog>, '_id'>
-        );
+        await ActivityLogModel.validateUpdateObject(mocks.MOCK_ACTIVITYLOG as unknown as Omit<Partial<databaseTypes.IActivityLog>, '_id'>);
       } catch (err) {
         errored = true;
       }
@@ -160,23 +186,37 @@ describe('#mongoose/models/activityLog', () => {
     it('will not throw an error when the related fields exist in the database', async () => {
       const actorStub = sandbox.stub();
       actorStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', actorStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        actorStub
+      );
       const workspaceStub = sandbox.stub();
       workspaceStub.resolves(true);
-      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceStub);
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        workspaceStub
+      );
       const projectStub = sandbox.stub();
       projectStub.resolves(true);
-      sandbox.replace(ProjectModel, 'projectIdExists', projectStub);
+      sandbox.replace(
+        ProjectModel,
+        'projectIdExists',
+        projectStub
+      );
       const userAgentStub = sandbox.stub();
       userAgentStub.resolves(true);
-      sandbox.replace(UserAgentModel, 'userAgentIdExists', userAgentStub);
+      sandbox.replace(
+        UserAgentModel,
+        'userAgentIdExists',
+        userAgentStub
+      );
 
       let errored = false;
 
       try {
-        await ActivityLogModel.validateUpdateObject(
-          mocks.MOCK_ACTIVITYLOG as unknown as Omit<Partial<databaseTypes.IActivityLog>, '_id'>
-        );
+        await ActivityLogModel.validateUpdateObject(mocks.MOCK_ACTIVITYLOG as unknown as Omit<Partial<databaseTypes.IActivityLog>, '_id'>);
       } catch (err) {
         errored = true;
       }
@@ -188,25 +228,40 @@ describe('#mongoose/models/activityLog', () => {
     });
 
     it('will fail when the actor does not exist.', async () => {
+      
       const actorStub = sandbox.stub();
       actorStub.resolves(false);
-      sandbox.replace(UserModel, 'userIdExists', actorStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        actorStub
+      );
       const workspaceStub = sandbox.stub();
       workspaceStub.resolves(true);
-      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceStub);
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        workspaceStub
+      );
       const projectStub = sandbox.stub();
       projectStub.resolves(true);
-      sandbox.replace(ProjectModel, 'projectIdExists', projectStub);
+      sandbox.replace(
+        ProjectModel,
+        'projectIdExists',
+        projectStub
+      );
       const userAgentStub = sandbox.stub();
       userAgentStub.resolves(true);
-      sandbox.replace(UserAgentModel, 'userAgentIdExists', userAgentStub);
+      sandbox.replace(
+        UserAgentModel,
+        'userAgentIdExists',
+        userAgentStub
+      );
 
       let errored = false;
 
       try {
-        await ActivityLogModel.validateUpdateObject(
-          mocks.MOCK_ACTIVITYLOG as unknown as Omit<Partial<databaseTypes.IActivityLog>, '_id'>
-        );
+        await ActivityLogModel.validateUpdateObject(mocks.MOCK_ACTIVITYLOG as unknown as Omit<Partial<databaseTypes.IActivityLog>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -214,25 +269,40 @@ describe('#mongoose/models/activityLog', () => {
       assert.isTrue(errored);
     });
     it('will fail when the workspace does not exist.', async () => {
+      
       const actorStub = sandbox.stub();
       actorStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', actorStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        actorStub
+      );
       const workspaceStub = sandbox.stub();
       workspaceStub.resolves(false);
-      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceStub);
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        workspaceStub
+      );
       const projectStub = sandbox.stub();
       projectStub.resolves(true);
-      sandbox.replace(ProjectModel, 'projectIdExists', projectStub);
+      sandbox.replace(
+        ProjectModel,
+        'projectIdExists',
+        projectStub
+      );
       const userAgentStub = sandbox.stub();
       userAgentStub.resolves(true);
-      sandbox.replace(UserAgentModel, 'userAgentIdExists', userAgentStub);
+      sandbox.replace(
+        UserAgentModel,
+        'userAgentIdExists',
+        userAgentStub
+      );
 
       let errored = false;
 
       try {
-        await ActivityLogModel.validateUpdateObject(
-          mocks.MOCK_ACTIVITYLOG as unknown as Omit<Partial<databaseTypes.IActivityLog>, '_id'>
-        );
+        await ActivityLogModel.validateUpdateObject(mocks.MOCK_ACTIVITYLOG as unknown as Omit<Partial<databaseTypes.IActivityLog>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -240,25 +310,40 @@ describe('#mongoose/models/activityLog', () => {
       assert.isTrue(errored);
     });
     it('will fail when the project does not exist.', async () => {
+      
       const actorStub = sandbox.stub();
       actorStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', actorStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        actorStub
+      );
       const workspaceStub = sandbox.stub();
       workspaceStub.resolves(true);
-      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceStub);
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        workspaceStub
+      );
       const projectStub = sandbox.stub();
       projectStub.resolves(false);
-      sandbox.replace(ProjectModel, 'projectIdExists', projectStub);
+      sandbox.replace(
+        ProjectModel,
+        'projectIdExists',
+        projectStub
+      );
       const userAgentStub = sandbox.stub();
       userAgentStub.resolves(true);
-      sandbox.replace(UserAgentModel, 'userAgentIdExists', userAgentStub);
+      sandbox.replace(
+        UserAgentModel,
+        'userAgentIdExists',
+        userAgentStub
+      );
 
       let errored = false;
 
       try {
-        await ActivityLogModel.validateUpdateObject(
-          mocks.MOCK_ACTIVITYLOG as unknown as Omit<Partial<databaseTypes.IActivityLog>, '_id'>
-        );
+        await ActivityLogModel.validateUpdateObject(mocks.MOCK_ACTIVITYLOG as unknown as Omit<Partial<databaseTypes.IActivityLog>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -266,25 +351,40 @@ describe('#mongoose/models/activityLog', () => {
       assert.isTrue(errored);
     });
     it('will fail when the userAgent does not exist.', async () => {
+      
       const actorStub = sandbox.stub();
       actorStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', actorStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        actorStub
+      );
       const workspaceStub = sandbox.stub();
       workspaceStub.resolves(true);
-      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceStub);
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        workspaceStub
+      );
       const projectStub = sandbox.stub();
       projectStub.resolves(true);
-      sandbox.replace(ProjectModel, 'projectIdExists', projectStub);
+      sandbox.replace(
+        ProjectModel,
+        'projectIdExists',
+        projectStub
+      );
       const userAgentStub = sandbox.stub();
       userAgentStub.resolves(false);
-      sandbox.replace(UserAgentModel, 'userAgentIdExists', userAgentStub);
+      sandbox.replace(
+        UserAgentModel,
+        'userAgentIdExists',
+        userAgentStub
+      );
 
       let errored = false;
 
       try {
-        await ActivityLogModel.validateUpdateObject(
-          mocks.MOCK_ACTIVITYLOG as unknown as Omit<Partial<databaseTypes.IActivityLog>, '_id'>
-        );
+        await ActivityLogModel.validateUpdateObject(mocks.MOCK_ACTIVITYLOG as unknown as Omit<Partial<databaseTypes.IActivityLog>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -292,27 +392,41 @@ describe('#mongoose/models/activityLog', () => {
       assert.isTrue(errored);
     });
 
+
     it('will fail when trying to update the _id', async () => {
       const actorStub = sandbox.stub();
       actorStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', actorStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        actorStub
+      );
       const workspaceStub = sandbox.stub();
       workspaceStub.resolves(true);
-      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceStub);
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        workspaceStub
+      );
       const projectStub = sandbox.stub();
       projectStub.resolves(true);
-      sandbox.replace(ProjectModel, 'projectIdExists', projectStub);
+      sandbox.replace(
+        ProjectModel,
+        'projectIdExists',
+        projectStub
+      );
       const userAgentStub = sandbox.stub();
       userAgentStub.resolves(true);
-      sandbox.replace(UserAgentModel, 'userAgentIdExists', userAgentStub);
+      sandbox.replace(
+        UserAgentModel,
+        'userAgentIdExists',
+        userAgentStub
+      );
 
       let errored = false;
 
       try {
-        await ActivityLogModel.validateUpdateObject({
-          ...mocks.MOCK_ACTIVITYLOG,
-          _id: new mongoose.Types.ObjectId(),
-        } as unknown as Omit<Partial<databaseTypes.IActivityLog>, '_id'>);
+        await ActivityLogModel.validateUpdateObject({...mocks.MOCK_ACTIVITYLOG, _id: new mongoose.Types.ObjectId() } as unknown as Omit<Partial<databaseTypes.IActivityLog>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -323,24 +437,37 @@ describe('#mongoose/models/activityLog', () => {
     it('will fail when trying to update the createdAt', async () => {
       const actorStub = sandbox.stub();
       actorStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', actorStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        actorStub
+      );
       const workspaceStub = sandbox.stub();
       workspaceStub.resolves(true);
-      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceStub);
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        workspaceStub
+      );
       const projectStub = sandbox.stub();
       projectStub.resolves(true);
-      sandbox.replace(ProjectModel, 'projectIdExists', projectStub);
+      sandbox.replace(
+        ProjectModel,
+        'projectIdExists',
+        projectStub
+      );
       const userAgentStub = sandbox.stub();
       userAgentStub.resolves(true);
-      sandbox.replace(UserAgentModel, 'userAgentIdExists', userAgentStub);
+      sandbox.replace(
+        UserAgentModel,
+        'userAgentIdExists',
+        userAgentStub
+      );
 
       let errored = false;
 
       try {
-        await ActivityLogModel.validateUpdateObject({
-          ...mocks.MOCK_ACTIVITYLOG,
-          createdAt: new Date(),
-        } as unknown as Omit<Partial<databaseTypes.IActivityLog>, '_id'>);
+        await ActivityLogModel.validateUpdateObject({...mocks.MOCK_ACTIVITYLOG, createdAt: new Date() } as unknown as Omit<Partial<databaseTypes.IActivityLog>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -351,24 +478,37 @@ describe('#mongoose/models/activityLog', () => {
     it('will fail when trying to update the updatedAt', async () => {
       const actorStub = sandbox.stub();
       actorStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', actorStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        actorStub
+      );
       const workspaceStub = sandbox.stub();
       workspaceStub.resolves(true);
-      sandbox.replace(WorkspaceModel, 'workspaceIdExists', workspaceStub);
+      sandbox.replace(
+        WorkspaceModel,
+        'workspaceIdExists',
+        workspaceStub
+      );
       const projectStub = sandbox.stub();
       projectStub.resolves(true);
-      sandbox.replace(ProjectModel, 'projectIdExists', projectStub);
+      sandbox.replace(
+        ProjectModel,
+        'projectIdExists',
+        projectStub
+      );
       const userAgentStub = sandbox.stub();
       userAgentStub.resolves(true);
-      sandbox.replace(UserAgentModel, 'userAgentIdExists', userAgentStub);
+      sandbox.replace(
+        UserAgentModel,
+        'userAgentIdExists',
+        userAgentStub
+      );
 
       let errored = false;
 
       try {
-        await ActivityLogModel.validateUpdateObject({
-          ...mocks.MOCK_ACTIVITYLOG,
-          updatedAt: new Date(),
-        } as unknown as Omit<Partial<databaseTypes.IActivityLog>, '_id'>);
+        await ActivityLogModel.validateUpdateObject({...mocks.MOCK_ACTIVITYLOG, updatedAt: new Date() }  as unknown as Omit<Partial<databaseTypes.IActivityLog>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -385,16 +525,36 @@ describe('#mongoose/models/activityLog', () => {
     });
 
     it('will create a activityLog document', async () => {
-      sandbox.replace(ActivityLogModel, 'validateActor', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.actor));
-      sandbox.replace(ActivityLogModel, 'validateWorkspace', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.workspace));
-      sandbox.replace(ActivityLogModel, 'validateProject', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.project));
-      sandbox.replace(ActivityLogModel, 'validateUserAgent', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.userAgent));
+      sandbox.replace(
+        ActivityLogModel,
+        'validateActor',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.actor)
+      );
+      sandbox.replace(
+        ActivityLogModel,
+        'validateWorkspace',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.workspace)
+      );
+      sandbox.replace(
+        ActivityLogModel,
+        'validateProject',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.project)
+      );
+      sandbox.replace(
+        ActivityLogModel,
+        'validateUserAgent',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.userAgent)
+      );
 
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(ActivityLogModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(
+        ActivityLogModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
 
       sandbox.replace(ActivityLogModel, 'validate', sandbox.stub().resolves(true));
-
+      
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
 
@@ -406,139 +566,261 @@ describe('#mongoose/models/activityLog', () => {
       assert.isTrue(stub.calledOnce);
     });
 
+
+
     it('will rethrow a DataValidationError when the actor validator throws one', async () => {
+       sandbox.replace(
+        ActivityLogModel,
+        'validateActor',
+        sandbox
+          .stub()
+          .rejects(
+            new error.DataValidationError(
+              'The actor does not exist',
+              'actor ',
+              {}
+            )
+          )
+      );
+               sandbox.replace(
+        ActivityLogModel,
+        'validateWorkspace',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.workspace)
+        );
+                 sandbox.replace(
+        ActivityLogModel,
+        'validateProject',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.project)
+        );
+                 sandbox.replace(
+        ActivityLogModel,
+        'validateUserAgent',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.userAgent)
+        );
+        
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        ActivityLogModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace(ActivityLogModel, 'validate', sandbox.stub().resolves(true));
+      
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace(ActivityLogModel, 'getActivityLogById', stub);
+
+      let errored = false;
+
+      try {
+        await ActivityLogModel.createActivityLog(mocks.MOCK_ACTIVITYLOG);
+      } catch (err) {
+        assert.instanceOf(err, error.DataValidationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+
+    it('will rethrow a DataValidationError when the workspace validator throws one', async () => {
+         sandbox.replace(
+        ActivityLogModel,
+        'validateActor',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.actor)
+        );
+               sandbox.replace(
+        ActivityLogModel,
+        'validateWorkspace',
+        sandbox
+          .stub()
+          .rejects(
+            new error.DataValidationError(
+              'The workspace does not exist',
+              'workspace ',
+              {}
+            )
+          )
+      );
+               sandbox.replace(
+        ActivityLogModel,
+        'validateProject',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.project)
+        );
+                 sandbox.replace(
+        ActivityLogModel,
+        'validateUserAgent',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.userAgent)
+        );
+        
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        ActivityLogModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace(ActivityLogModel, 'validate', sandbox.stub().resolves(true));
+      
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace(ActivityLogModel, 'getActivityLogById', stub);
+
+      let errored = false;
+
+      try {
+        await ActivityLogModel.createActivityLog(mocks.MOCK_ACTIVITYLOG);
+      } catch (err) {
+        assert.instanceOf(err, error.DataValidationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+
+    it('will rethrow a DataValidationError when the project validator throws one', async () => {
+         sandbox.replace(
+        ActivityLogModel,
+        'validateActor',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.actor)
+        );
+                 sandbox.replace(
+        ActivityLogModel,
+        'validateWorkspace',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.workspace)
+        );
+               sandbox.replace(
+        ActivityLogModel,
+        'validateProject',
+        sandbox
+          .stub()
+          .rejects(
+            new error.DataValidationError(
+              'The project does not exist',
+              'project ',
+              {}
+            )
+          )
+      );
+               sandbox.replace(
+        ActivityLogModel,
+        'validateUserAgent',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.userAgent)
+        );
+        
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        ActivityLogModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace(ActivityLogModel, 'validate', sandbox.stub().resolves(true));
+      
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace(ActivityLogModel, 'getActivityLogById', stub);
+
+      let errored = false;
+
+      try {
+        await ActivityLogModel.createActivityLog(mocks.MOCK_ACTIVITYLOG);
+      } catch (err) {
+        assert.instanceOf(err, error.DataValidationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+
+    it('will rethrow a DataValidationError when the userAgent validator throws one', async () => {
+         sandbox.replace(
+        ActivityLogModel,
+        'validateActor',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.actor)
+        );
+                 sandbox.replace(
+        ActivityLogModel,
+        'validateWorkspace',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.workspace)
+        );
+                 sandbox.replace(
+        ActivityLogModel,
+        'validateProject',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.project)
+        );
+               sandbox.replace(
+        ActivityLogModel,
+        'validateUserAgent',
+        sandbox
+          .stub()
+          .rejects(
+            new error.DataValidationError(
+              'The userAgent does not exist',
+              'userAgent ',
+              {}
+            )
+          )
+      );
+      
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        ActivityLogModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
+
+      sandbox.replace(ActivityLogModel, 'validate', sandbox.stub().resolves(true));
+      
+      const stub = sandbox.stub();
+      stub.resolves({_id: objectId});
+
+      sandbox.replace(ActivityLogModel, 'getActivityLogById', stub);
+
+      let errored = false;
+
+      try {
+        await ActivityLogModel.createActivityLog(mocks.MOCK_ACTIVITYLOG);
+      } catch (err) {
+        assert.instanceOf(err, error.DataValidationError);
+        errored = true;
+      }
+      assert.isTrue(errored);
+    });
+
+
+    it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
       sandbox.replace(
         ActivityLogModel,
         'validateActor',
-        sandbox.stub().rejects(new error.DataValidationError('The actor does not exist', 'actor ', {}))
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.actor)
       );
-      sandbox.replace(ActivityLogModel, 'validateWorkspace', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.workspace));
-      sandbox.replace(ActivityLogModel, 'validateProject', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.project));
-      sandbox.replace(ActivityLogModel, 'validateUserAgent', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.userAgent));
-
-      const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(ActivityLogModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
-
-      sandbox.replace(ActivityLogModel, 'validate', sandbox.stub().resolves(true));
-
-      const stub = sandbox.stub();
-      stub.resolves({_id: objectId});
-
-      sandbox.replace(ActivityLogModel, 'getActivityLogById', stub);
-
-      let errored = false;
-
-      try {
-        await ActivityLogModel.createActivityLog(mocks.MOCK_ACTIVITYLOG);
-      } catch (err) {
-        assert.instanceOf(err, error.DataValidationError);
-        errored = true;
-      }
-      assert.isTrue(errored);
-    });
-
-    it('will rethrow a DataValidationError when the workspace validator throws one', async () => {
-      sandbox.replace(ActivityLogModel, 'validateActor', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.actor));
       sandbox.replace(
         ActivityLogModel,
         'validateWorkspace',
-        sandbox.stub().rejects(new error.DataValidationError('The workspace does not exist', 'workspace ', {}))
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.workspace)
       );
-      sandbox.replace(ActivityLogModel, 'validateProject', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.project));
-      sandbox.replace(ActivityLogModel, 'validateUserAgent', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.userAgent));
-
-      const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(ActivityLogModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
-
-      sandbox.replace(ActivityLogModel, 'validate', sandbox.stub().resolves(true));
-
-      const stub = sandbox.stub();
-      stub.resolves({_id: objectId});
-
-      sandbox.replace(ActivityLogModel, 'getActivityLogById', stub);
-
-      let errored = false;
-
-      try {
-        await ActivityLogModel.createActivityLog(mocks.MOCK_ACTIVITYLOG);
-      } catch (err) {
-        assert.instanceOf(err, error.DataValidationError);
-        errored = true;
-      }
-      assert.isTrue(errored);
-    });
-
-    it('will rethrow a DataValidationError when the project validator throws one', async () => {
-      sandbox.replace(ActivityLogModel, 'validateActor', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.actor));
-      sandbox.replace(ActivityLogModel, 'validateWorkspace', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.workspace));
       sandbox.replace(
         ActivityLogModel,
         'validateProject',
-        sandbox.stub().rejects(new error.DataValidationError('The project does not exist', 'project ', {}))
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.project)
       );
-      sandbox.replace(ActivityLogModel, 'validateUserAgent', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.userAgent));
-
-      const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(ActivityLogModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
-
-      sandbox.replace(ActivityLogModel, 'validate', sandbox.stub().resolves(true));
-
-      const stub = sandbox.stub();
-      stub.resolves({_id: objectId});
-
-      sandbox.replace(ActivityLogModel, 'getActivityLogById', stub);
-
-      let errored = false;
-
-      try {
-        await ActivityLogModel.createActivityLog(mocks.MOCK_ACTIVITYLOG);
-      } catch (err) {
-        assert.instanceOf(err, error.DataValidationError);
-        errored = true;
-      }
-      assert.isTrue(errored);
-    });
-
-    it('will rethrow a DataValidationError when the userAgent validator throws one', async () => {
-      sandbox.replace(ActivityLogModel, 'validateActor', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.actor));
-      sandbox.replace(ActivityLogModel, 'validateWorkspace', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.workspace));
-      sandbox.replace(ActivityLogModel, 'validateProject', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.project));
       sandbox.replace(
         ActivityLogModel,
         'validateUserAgent',
-        sandbox.stub().rejects(new error.DataValidationError('The userAgent does not exist', 'userAgent ', {}))
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.userAgent)
       );
 
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(ActivityLogModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
-
       sandbox.replace(ActivityLogModel, 'validate', sandbox.stub().resolves(true));
-
-      const stub = sandbox.stub();
-      stub.resolves({_id: objectId});
-
-      sandbox.replace(ActivityLogModel, 'getActivityLogById', stub);
-
-      let errored = false;
-
-      try {
-        await ActivityLogModel.createActivityLog(mocks.MOCK_ACTIVITYLOG);
-      } catch (err) {
-        assert.instanceOf(err, error.DataValidationError);
-        errored = true;
-      }
-      assert.isTrue(errored);
-    });
-
-    it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
-      sandbox.replace(ActivityLogModel, 'validateActor', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.actor));
-      sandbox.replace(ActivityLogModel, 'validateWorkspace', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.workspace));
-      sandbox.replace(ActivityLogModel, 'validateProject', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.project));
-      sandbox.replace(ActivityLogModel, 'validateUserAgent', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.userAgent));
-
-      const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(ActivityLogModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(ActivityLogModel, 'create', sandbox.stub().rejects('oops, something bad has happened'));
+      sandbox.replace(
+        ActivityLogModel,
+        'create',
+        sandbox.stub().rejects('oops, something bad has happened')
+      );
 
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
@@ -554,10 +836,26 @@ describe('#mongoose/models/activityLog', () => {
     });
 
     it('will throw an Unexpected Error when create does not return an object with an _id', async () => {
-      sandbox.replace(ActivityLogModel, 'validateActor', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.actor));
-      sandbox.replace(ActivityLogModel, 'validateWorkspace', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.workspace));
-      sandbox.replace(ActivityLogModel, 'validateProject', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.project));
-      sandbox.replace(ActivityLogModel, 'validateUserAgent', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.userAgent));
+      sandbox.replace(
+        ActivityLogModel,
+        'validateActor',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.actor)
+      );
+      sandbox.replace(
+        ActivityLogModel,
+        'validateWorkspace',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.workspace)
+      );
+      sandbox.replace(
+        ActivityLogModel,
+        'validateProject',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.project)
+      );
+      sandbox.replace(
+        ActivityLogModel,
+        'validateUserAgent',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.userAgent)
+      );
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(ActivityLogModel, 'validate', sandbox.stub().resolves(true));
@@ -578,14 +876,38 @@ describe('#mongoose/models/activityLog', () => {
     });
 
     it('will rethrow a DataValidationError when the validate method on the model errors', async () => {
-      sandbox.replace(ActivityLogModel, 'validateActor', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.actor));
-      sandbox.replace(ActivityLogModel, 'validateWorkspace', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.workspace));
-      sandbox.replace(ActivityLogModel, 'validateProject', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.project));
-      sandbox.replace(ActivityLogModel, 'validateUserAgent', sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.userAgent));
+      sandbox.replace(
+        ActivityLogModel,
+        'validateActor',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.actor)
+      );
+      sandbox.replace(
+        ActivityLogModel,
+        'validateWorkspace',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.workspace)
+      );
+      sandbox.replace(
+        ActivityLogModel,
+        'validateProject',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.project)
+      );
+      sandbox.replace(
+        ActivityLogModel,
+        'validateUserAgent',
+        sandbox.stub().resolves(mocks.MOCK_ACTIVITYLOG.userAgent)
+      );
 
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(ActivityLogModel, 'validate', sandbox.stub().rejects('oops an error has occurred'));
-      sandbox.replace(ActivityLogModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(
+        ActivityLogModel,
+        'validate',
+        sandbox.stub().rejects('oops an error has occurred')
+      );
+      sandbox.replace(
+        ActivityLogModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
       sandbox.replace(ActivityLogModel, 'getActivityLogById', stub);
@@ -630,7 +952,9 @@ describe('#mongoose/models/activityLog', () => {
       findByIdStub.returns(new MockMongooseQuery(mocks.MOCK_ACTIVITYLOG));
       sandbox.replace(ActivityLogModel, 'findById', findByIdStub);
 
-      const doc = await ActivityLogModel.getActivityLogById(mocks.MOCK_ACTIVITYLOG._id as mongoose.Types.ObjectId);
+      const doc = await ActivityLogModel.getActivityLogById(
+        mocks.MOCK_ACTIVITYLOG._id
+      );
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any)?.__v);
@@ -649,7 +973,9 @@ describe('#mongoose/models/activityLog', () => {
 
       let errored = false;
       try {
-        await ActivityLogModel.getActivityLogById(mocks.MOCK_ACTIVITYLOG._id as mongoose.Types.ObjectId);
+        await ActivityLogModel.getActivityLogById(
+          mocks.MOCK_ACTIVITYLOG._id
+        );
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -660,12 +986,16 @@ describe('#mongoose/models/activityLog', () => {
 
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new MockMongooseQuery('something bad happened', true));
+      findByIdStub.returns(
+        new MockMongooseQuery('something bad happened', true)
+      );
       sandbox.replace(ActivityLogModel, 'findById', findByIdStub);
 
       let errored = false;
       try {
-        await ActivityLogModel.getActivityLogById(mocks.MOCK_ACTIVITYLOG._id as mongoose.Types.ObjectId);
+        await ActivityLogModel.getActivityLogById(
+          mocks.MOCK_ACTIVITYLOG.id
+        );
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -697,7 +1027,7 @@ describe('#mongoose/models/activityLog', () => {
 
     const mockActivityLogs = [
       {
-        ...mocks.MOCK_ACTIVITYLOG,
+       ...mocks.MOCK_ACTIVITYLOG,
         _id: new mongoose.Types.ObjectId(),
         actor: {
           _id: new mongoose.Types.ObjectId(),
@@ -744,9 +1074,17 @@ describe('#mongoose/models/activityLog', () => {
     });
 
     it('will return the filtered activityLogs', async () => {
-      sandbox.replace(ActivityLogModel, 'count', sandbox.stub().resolves(mockActivityLogs.length));
+      sandbox.replace(
+        ActivityLogModel,
+        'count',
+        sandbox.stub().resolves(mockActivityLogs.length)
+      );
 
-      sandbox.replace(ActivityLogModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockActivityLogs)));
+      sandbox.replace(
+        ActivityLogModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockActivityLogs))
+      );
 
       const results = await ActivityLogModel.queryActivityLogs({});
 
@@ -766,7 +1104,11 @@ describe('#mongoose/models/activityLog', () => {
     it('will throw a DataNotFoundError when no values match the filter', async () => {
       sandbox.replace(ActivityLogModel, 'count', sandbox.stub().resolves(0));
 
-      sandbox.replace(ActivityLogModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockActivityLogs)));
+      sandbox.replace(
+        ActivityLogModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockActivityLogs))
+      );
 
       let errored = false;
       try {
@@ -780,9 +1122,17 @@ describe('#mongoose/models/activityLog', () => {
     });
 
     it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
-      sandbox.replace(ActivityLogModel, 'count', sandbox.stub().resolves(mockActivityLogs.length));
+      sandbox.replace(
+        ActivityLogModel,
+        'count',
+        sandbox.stub().resolves(mockActivityLogs.length)
+      );
 
-      sandbox.replace(ActivityLogModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockActivityLogs)));
+      sandbox.replace(
+        ActivityLogModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockActivityLogs))
+      );
 
       let errored = false;
       try {
@@ -796,12 +1146,18 @@ describe('#mongoose/models/activityLog', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
-      sandbox.replace(ActivityLogModel, 'count', sandbox.stub().resolves(mockActivityLogs.length));
+      sandbox.replace(
+        ActivityLogModel,
+        'count',
+        sandbox.stub().resolves(mockActivityLogs.length)
+      );
 
       sandbox.replace(
         ActivityLogModel,
         'find',
-        sandbox.stub().returns(new MockMongooseQuery('something bad has happened', true))
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
       );
 
       let errored = false;
@@ -845,7 +1201,7 @@ describe('#mongoose/models/activityLog', () => {
         } as unknown as databaseTypes.IUserAgent,
       } as unknown as databaseTypes.IActivityLog;
 
-      const activityLogId = new mongoose.Types.ObjectId();
+      const activityLogId = mocks.MOCK_ACTIVITYLOG._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -859,9 +1215,12 @@ describe('#mongoose/models/activityLog', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(ActivityLogModel, 'validateUpdateObject', validateStub);
 
-      const result = await ActivityLogModel.updateActivityLogById(activityLogId, updateActivityLog);
+      const result = await ActivityLogModel.updateActivityLogById(
+        activityLogId,
+        updateActivityLog
+      );
 
-      assert.strictEqual(result._id, activityLogId);
+      assert.strictEqual(result._id, mocks.MOCK_ACTIVITYLOG._id);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(getActivityLogStub.calledOnce);
       assert.isTrue(validateStub.calledOnce);
@@ -870,10 +1229,10 @@ describe('#mongoose/models/activityLog', () => {
     it('Should update a activityLog with references as ObjectIds', async () => {
       const updateActivityLog = {
         ...mocks.MOCK_ACTIVITYLOG,
-        deletedAt: new Date(),
+        deletedAt: new Date()
       } as unknown as databaseTypes.IActivityLog;
 
-      const activityLogId = new mongoose.Types.ObjectId();
+      const activityLogId = mocks.MOCK_ACTIVITYLOG._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -887,7 +1246,10 @@ describe('#mongoose/models/activityLog', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(ActivityLogModel, 'validateUpdateObject', validateStub);
 
-      const result = await ActivityLogModel.updateActivityLogById(activityLogId, updateActivityLog);
+      const result = await ActivityLogModel.updateActivityLogById(
+        activityLogId,
+        updateActivityLog
+      );
 
       assert.strictEqual(result._id, activityLogId);
       assert.isTrue(updateStub.calledOnce);
@@ -901,7 +1263,7 @@ describe('#mongoose/models/activityLog', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.IActivityLog;
 
-      const activityLogId = new mongoose.Types.ObjectId();
+      const activityLogId = mocks.MOCK_ACTIVITYLOG._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
@@ -927,11 +1289,11 @@ describe('#mongoose/models/activityLog', () => {
 
     it('Will fail when validateUpdateObject fails', async () => {
       const updateActivityLog = {
-        ...mocks.MOCK_ACTIVITYLOG,
+       ...mocks.MOCK_ACTIVITYLOG,
         deletedAt: new Date(),
       } as unknown as databaseTypes.IActivityLog;
 
-      const activityLogId = new mongoose.Types.ObjectId();
+      const activityLogId = mocks.MOCK_ACTIVITYLOG._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -942,7 +1304,9 @@ describe('#mongoose/models/activityLog', () => {
       sandbox.replace(ActivityLogModel, 'getActivityLogById', getActivityLogStub);
 
       const validateStub = sandbox.stub();
-      validateStub.rejects(new error.InvalidOperationError("You can't do this", {}));
+      validateStub.rejects(
+        new error.InvalidOperationError("You can't do this", {})
+      );
       sandbox.replace(ActivityLogModel, 'validateUpdateObject', validateStub);
       let errorred = false;
       try {
@@ -956,11 +1320,11 @@ describe('#mongoose/models/activityLog', () => {
 
     it('Will fail when a database error occurs', async () => {
       const updateActivityLog = {
-        ...mocks.MOCK_ACTIVITYLOG,
-        deletedAt: new Date(),
+       ...mocks.MOCK_ACTIVITYLOG,
+        deletedAt: new Date()
       } as unknown as databaseTypes.IActivityLog;
 
-      const activityLogId = new mongoose.Types.ObjectId();
+      const activityLogId = mocks.MOCK_ACTIVITYLOG._id;
 
       const updateStub = sandbox.stub();
       updateStub.rejects('something terrible has happened');
@@ -997,7 +1361,7 @@ describe('#mongoose/models/activityLog', () => {
       deleteStub.resolves({deletedCount: 1});
       sandbox.replace(ActivityLogModel, 'deleteOne', deleteStub);
 
-      const activityLogId = new mongoose.Types.ObjectId();
+      const activityLogId = mocks.MOCK_ACTIVITYLOG._id;
 
       await ActivityLogModel.deleteActivityLogById(activityLogId);
 
@@ -1009,7 +1373,7 @@ describe('#mongoose/models/activityLog', () => {
       deleteStub.resolves({deletedCount: 0});
       sandbox.replace(ActivityLogModel, 'deleteOne', deleteStub);
 
-      const activityLogId = new mongoose.Types.ObjectId();
+      const activityLogId = mocks.MOCK_ACTIVITYLOG._id;
 
       let errorred = false;
       try {
@@ -1027,7 +1391,7 @@ describe('#mongoose/models/activityLog', () => {
       deleteStub.rejects('something bad has happened');
       sandbox.replace(ActivityLogModel, 'deleteOne', deleteStub);
 
-      const activityLogId = new mongoose.Types.ObjectId();
+      const activityLogId = mocks.MOCK_ACTIVITYLOG._id;
 
       let errorred = false;
       try {
@@ -1040,4 +1404,5 @@ describe('#mongoose/models/activityLog', () => {
       assert.isTrue(errorred);
     });
   });
+
 });

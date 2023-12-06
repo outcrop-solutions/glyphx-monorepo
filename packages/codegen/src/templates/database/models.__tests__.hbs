@@ -28,7 +28,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
     });
 
     it('should return true if the {{camelcase this.name}}Id exists', async () => {
-      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+      const {{camelcase this.name}}Id = mocks.MOCK_{{uppercase (pascalcase this.name)}}._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves({_id: {{camelcase this.name}}Id});
       sandbox.replace({{singularize (pascalcase this.name)}}Model, 'findById', findByIdStub);
@@ -39,7 +39,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
     });
 
     it('should return false if the {{camelcase this.name}}Id does not exist', async () => {
-      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+      const {{camelcase this.name}}Id = mocks.MOCK_{{uppercase (pascalcase this.name)}}._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
       sandbox.replace({{singularize (pascalcase this.name)}}Model, 'findById', findByIdStub);
@@ -50,7 +50,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection errors', async () => {
-      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+      const {{camelcase this.name}}Id = mocks.MOCK_{{uppercase (pascalcase this.name)}}._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.rejects('something unexpected has happend');
       sandbox.replace({{singularize (pascalcase this.name)}}Model, 'findById', findByIdStub);
@@ -594,7 +594,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
       sandbox.replace({{singularize (pascalcase this.name)}}Model, 'findById', findByIdStub);
 
       const doc = await {{singularize (pascalcase this.name)}}Model.get{{pascalcase this.name}}ById(
-        mocks.MOCK_{{uppercase (pascalcase this.name)}}._id as mongoose.Types.ObjectId
+        mocks.MOCK_{{uppercase (pascalcase this.name)}}._id
       );
 
       assert.isTrue(findByIdStub.calledOnce);
@@ -603,7 +603,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
       {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
       assert.isUndefined((doc.{{camelcase this.name}} as any)?.__v);
       {{else if (and (isOneToMany this.relationType) (referenceTableExists this))}}
-      assert.isUndefined((doc.{{camelcase this.name}}[0] as any)?.__v);
+      assert.isUndefined((doc.{{camelcase this.name}}![0] as any)?.__v);
       {{/if}}
       {{/each}}
 
@@ -618,7 +618,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
       let errored = false;
       try {
         await {{singularize (pascalcase this.name)}}Model.get{{pascalcase this.name}}ById(
-          mocks.MOCK_{{uppercase (pascalcase this.name)}}._id as mongoose.Types.ObjectId
+          mocks.MOCK_{{uppercase (pascalcase this.name)}}._id
         );
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
@@ -638,7 +638,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
       let errored = false;
       try {
         await {{singularize (pascalcase this.name)}}Model.get{{pascalcase this.name}}ById(
-          mocks.MOCK_{{uppercase (pascalcase this.name)}}._id as mongoose.Types.ObjectId
+          mocks.MOCK_{{uppercase (pascalcase this.name)}}.id
         );
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
@@ -830,7 +830,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
         {{/each}}
       } as unknown as databaseTypes.I{{pascalcase this.name}};
 
-      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+      const {{camelcase this.name}}Id = mocks.MOCK_{{uppercase (pascalcase this.name)}}._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -849,7 +849,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
         update{{pascalcase this.name}}
       );
 
-      assert.strictEqual(result._id, {{camelcase this.name}}Id);
+      assert.strictEqual(result._id, mocks.MOCK_{{uppercase (pascalcase this.name)}}._id);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(get{{pascalcase this.name}}Stub.calledOnce);
       assert.isTrue(validateStub.calledOnce);
@@ -861,7 +861,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
         deletedAt: new Date()
       } as unknown as databaseTypes.I{{pascalcase this.name}};
 
-      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+      const {{camelcase this.name}}Id = mocks.MOCK_{{uppercase (pascalcase this.name)}}._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -892,7 +892,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.I{{pascalcase this.name}};
 
-      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+      const {{camelcase this.name}}Id = mocks.MOCK_{{uppercase (pascalcase this.name)}}._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
@@ -922,7 +922,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.I{{pascalcase this.name}};
 
-      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+      const {{camelcase this.name}}Id = mocks.MOCK_{{uppercase (pascalcase this.name)}}._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -953,7 +953,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
         deletedAt: new Date()
       } as unknown as databaseTypes.I{{pascalcase this.name}};
 
-      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+      const {{camelcase this.name}}Id = mocks.MOCK_{{uppercase (pascalcase this.name)}}._id;
 
       const updateStub = sandbox.stub();
       updateStub.rejects('something terrible has happened');
@@ -990,7 +990,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
       deleteStub.resolves({deletedCount: 1});
       sandbox.replace({{singularize (pascalcase this.name)}}Model, 'deleteOne', deleteStub);
 
-      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+      const {{camelcase this.name}}Id = mocks.MOCK_{{uppercase (pascalcase this.name)}}._id;
 
       await {{singularize (pascalcase this.name)}}Model.delete{{pascalcase this.name}}ById({{camelcase this.name}}Id);
 
@@ -1002,7 +1002,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
       deleteStub.resolves({deletedCount: 0});
       sandbox.replace({{singularize (pascalcase this.name)}}Model, 'deleteOne', deleteStub);
 
-      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+      const {{camelcase this.name}}Id = mocks.MOCK_{{uppercase (pascalcase this.name)}}._id;
 
       let errorred = false;
       try {
@@ -1020,7 +1020,7 @@ describe('#mongoose/models/{{camelcase this.name}}', () => {
       deleteStub.rejects('something bad has happened');
       sandbox.replace({{singularize (pascalcase this.name)}}Model, 'deleteOne', deleteStub);
 
-      const {{camelcase this.name}}Id = new mongoose.Types.ObjectId();
+      const {{camelcase this.name}}Id = mocks.MOCK_{{uppercase (pascalcase this.name)}}._id;
 
       let errorred = false;
       try {

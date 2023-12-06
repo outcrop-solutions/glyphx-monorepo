@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks';
+import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
@@ -15,11 +15,11 @@ describe('#ProjectModel', () => {
   context('test the crud functions of the project model', () => {
     const mongoConnection = new MongoDbConnection();
     const projectModel = mongoConnection.models.ProjectModel;
-    let projectDocId: ObjectId;
-    let projectDocId2: ObjectId;
-    let workspaceId: ObjectId;
+    let projectDocId: string;
+    let projectDocId2: string;
+    let workspaceId: string;
     let workspaceDocument: any;
-    let templateId: ObjectId;
+    let templateId: string;
     let templateDocument: any;
 
     before(async () => {
@@ -28,14 +28,14 @@ describe('#ProjectModel', () => {
       const savedWorkspaceDocument = await workspaceModel.create([mocks.MOCK_WORKSPACE], {
         validateBeforeSave: false,
       });
-      workspaceId = savedWorkspaceDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(workspaceId);
+      workspaceId =  savedWorkspaceDocument[0]!._id.toString();
+      assert.isOk(workspaceId)
       const templateModel = mongoConnection.models.ProjectTemplateModel;
       const savedTemplateDocument = await templateModel.create([mocks.MOCK_PROJECTTEMPLATE], {
         validateBeforeSave: false,
       });
-      templateId = savedTemplateDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(templateId);
+      templateId =  savedTemplateDocument[0]!._id.toString();
+      assert.isOk(templateId)
     });
 
     after(async () => {
@@ -50,6 +50,7 @@ describe('#ProjectModel', () => {
       await workspaceModel.findByIdAndDelete(workspaceId);
       const templateModel = mongoConnection.models.ProjectTemplateModel;
       await templateModel.findByIdAndDelete(templateId);
+
     });
 
     it('add a new project ', async () => {
@@ -63,7 +64,8 @@ describe('#ProjectModel', () => {
       assert.isOk(projectDocument);
       assert.strictEqual(Object.keys(projectDocument)[1], Object.keys(projectInput)[1]);
 
-      projectDocId = projectDocument._id as mongooseTypes.ObjectId;
+
+      projectDocId = projectDocument._id!.toString();
     });
 
     it('retreive a project', async () => {
@@ -77,7 +79,10 @@ describe('#ProjectModel', () => {
     it('modify a project', async () => {
       assert.isOk(projectDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await projectModel.updateProjectById(projectDocId, input);
+      const updatedDocument = await projectModel.updateProjectById(
+        projectDocId,
+        input
+      );
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -85,17 +90,21 @@ describe('#ProjectModel', () => {
       assert.isOk(projectDocId);
       const projectInput = JSON.parse(JSON.stringify(mocks.MOCK_PROJECT));
 
+
+
       const projectDocument = await projectModel.createProject(projectInput);
 
       assert.isOk(projectDocument);
 
-      projectDocId2 = projectDocument._id as mongooseTypes.ObjectId;
+      projectDocId2 = projectDocument._id!.toString();
 
       const projects = await projectModel.queryProjects();
       assert.isArray(projects.results);
       assert.isAtLeast(projects.numberOfItems, 2);
       const expectedDocumentCount =
-        projects.numberOfItems <= projects.itemsPerPage ? projects.numberOfItems : projects.itemsPerPage;
+        projects.numberOfItems <= projects.itemsPerPage
+          ? projects.numberOfItems
+          : projects.itemsPerPage;
       assert.strictEqual(projects.results.length, expectedDocumentCount);
     });
 
@@ -118,7 +127,10 @@ describe('#ProjectModel', () => {
       const results2 = await projectModel.queryProjects({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a project', async () => {
@@ -133,7 +145,7 @@ describe('#ProjectModel', () => {
       }
 
       assert.isTrue(errored);
-      projectDocId = null as unknown as ObjectId;
+      projectDocId = null as unknown as string;
     });
   });
 });

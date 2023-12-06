@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks';
+import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
@@ -15,9 +15,9 @@ describe('#CustomerPaymentModel', () => {
   context('test the crud functions of the customerPayment model', () => {
     const mongoConnection = new MongoDbConnection();
     const customerPaymentModel = mongoConnection.models.CustomerPaymentModel;
-    let customerPaymentDocId: ObjectId;
-    let customerPaymentDocId2: ObjectId;
-    let customerId: ObjectId;
+    let customerPaymentDocId: string;
+    let customerPaymentDocId2: string;
+    let customerId: string;
     let customerDocument: any;
 
     before(async () => {
@@ -26,8 +26,8 @@ describe('#CustomerPaymentModel', () => {
       const savedCustomerDocument = await customerModel.create([mocks.MOCK_USER], {
         validateBeforeSave: false,
       });
-      customerId = savedCustomerDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(customerId);
+      customerId =  savedCustomerDocument[0]!._id.toString();
+      assert.isOk(customerId)
     });
 
     after(async () => {
@@ -40,6 +40,7 @@ describe('#CustomerPaymentModel', () => {
       }
       const customerModel = mongoConnection.models.UserModel;
       await customerModel.findByIdAndDelete(customerId);
+
     });
 
     it('add a new customerPayment ', async () => {
@@ -52,7 +53,8 @@ describe('#CustomerPaymentModel', () => {
       assert.isOk(customerPaymentDocument);
       assert.strictEqual(Object.keys(customerPaymentDocument)[1], Object.keys(customerPaymentInput)[1]);
 
-      customerPaymentDocId = customerPaymentDocument._id as mongooseTypes.ObjectId;
+
+      customerPaymentDocId = customerPaymentDocument._id!.toString();
     });
 
     it('retreive a customerPayment', async () => {
@@ -66,7 +68,10 @@ describe('#CustomerPaymentModel', () => {
     it('modify a customerPayment', async () => {
       assert.isOk(customerPaymentDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await customerPaymentModel.updateCustomerPaymentById(customerPaymentDocId, input);
+      const updatedDocument = await customerPaymentModel.updateCustomerPaymentById(
+        customerPaymentDocId,
+        input
+      );
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -74,11 +79,13 @@ describe('#CustomerPaymentModel', () => {
       assert.isOk(customerPaymentDocId);
       const customerPaymentInput = JSON.parse(JSON.stringify(mocks.MOCK_CUSTOMERPAYMENT));
 
+
+
       const customerPaymentDocument = await customerPaymentModel.createCustomerPayment(customerPaymentInput);
 
       assert.isOk(customerPaymentDocument);
 
-      customerPaymentDocId2 = customerPaymentDocument._id as mongooseTypes.ObjectId;
+      customerPaymentDocId2 = customerPaymentDocument._id!.toString();
 
       const customerPayments = await customerPaymentModel.queryCustomerPayments();
       assert.isArray(customerPayments.results);
@@ -109,7 +116,10 @@ describe('#CustomerPaymentModel', () => {
       const results2 = await customerPaymentModel.queryCustomerPayments({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a customerPayment', async () => {
@@ -124,7 +134,7 @@ describe('#CustomerPaymentModel', () => {
       }
 
       assert.isTrue(errored);
-      customerPaymentDocId = null as unknown as ObjectId;
+      customerPaymentDocId = null as unknown as string;
     });
   });
 });

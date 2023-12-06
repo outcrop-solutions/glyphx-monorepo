@@ -11,6 +11,7 @@ import {ProjectTemplateModel} from './projectTemplate';
 import {MemberModel} from './member';
 import {TagModel} from './tag';
 import {StateModel} from './state';
+import {FileStatsModel} from './fileStats';
 
 const SCHEMA = new Schema<IProjectDocument, IProjectStaticMethods, IProjectMethods>({
   createdAt: {

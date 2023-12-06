@@ -15,11 +15,11 @@ describe('#{{pascalcase this.name}}Model', () => {
   context('test the crud functions of the {{camelcase this.name}} model', () => {
     const mongoConnection = new MongoDbConnection();
     const {{camelcase this.name}}Model = mongoConnection.models.{{singularize (pascalcase this.name)}}Model;
-    let {{camelcase this.name}}DocId: ObjectId;
-    let {{camelcase this.name}}DocId2: ObjectId;
+    let {{camelcase this.name}}DocId: string;
+    let {{camelcase this.name}}DocId2: string;
     {{#each properties}}
     {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
-    let {{camelcase this.name}}Id: ObjectId;
+    let {{camelcase this.name}}Id: string;
     let {{camelcase this.name}}Document: any;
     {{/if}}
     {{/each}}
@@ -33,7 +33,7 @@ describe('#{{pascalcase this.name}}Model', () => {
       const saved{{pascalcase this.name}}Document = await {{camelcase this.name}}Model.create([mocks.MOCK_{{uppercase (pascalcase this.referenceTable)}}], {
         validateBeforeSave: false,
       });
-      {{camelcase this.name}}Id =  saved{{pascalcase this.name}}Document[0]?._id as mongooseTypes.ObjectId;
+      {{camelcase this.name}}Id =  saved{{pascalcase this.name}}Document[0]!._id.toString();
       assert.isOk({{camelcase this.name}}Id)
       {{/if}}
       {{/each}}
@@ -73,13 +73,13 @@ describe('#{{pascalcase this.name}}Model', () => {
       {{#each properteis}}
       {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
       assert.strictEqual(
-        {{camelcase ../this.name}}Document.{{camelcase this.name}}._id?.toString(),
+        {{camelcase ../this.name}}Document.{{camelcase this.name}}._id!.toString(),
         {{camelcase this.name}}Id.toString()
       );
       {{/if}}
       {{/each}}
 
-      {{camelcase this.name}}DocId = {{camelcase this.name}}Document._id as mongooseTypes.ObjectId;
+      {{camelcase this.name}}DocId = {{camelcase this.name}}Document._id!.toString();
     });
 
     it('retreive a {{camelcase this.name}}', async () => {
@@ -115,7 +115,7 @@ describe('#{{pascalcase this.name}}Model', () => {
 
       assert.isOk({{camelcase this.name}}Document);
 
-      {{camelcase this.name}}DocId2 = {{camelcase this.name}}Document._id as mongooseTypes.ObjectId;
+      {{camelcase this.name}}DocId2 = {{camelcase this.name}}Document._id!.toString();
 
       const {{pluralize (camelcase this.name)}} = await {{camelcase this.name}}Model.query{{pluralize (pascalcase this.name)}}();
       assert.isArray({{pluralize (camelcase this.name)}}.results);
@@ -164,7 +164,7 @@ describe('#{{pascalcase this.name}}Model', () => {
       }
 
       assert.isTrue(errored);
-      {{camelcase this.name}}DocId = null as unknown as ObjectId;
+      {{camelcase this.name}}DocId = null as unknown as string;
     });
   });
 });

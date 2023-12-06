@@ -10,4 +10,4 @@ export const MOCK_VERIFICATIONTOKEN = {
   identifier: 'identifier',
   token: 'token',
   expires: 'expires',
-} as unknown as IVerificationTokenDocument;
+} as any;

@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks';
+import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
@@ -15,8 +15,8 @@ describe('#VerificationTokenModel', () => {
   context('test the crud functions of the verificationToken model', () => {
     const mongoConnection = new MongoDbConnection();
     const verificationTokenModel = mongoConnection.models.VerificationTokenModel;
-    let verificationTokenDocId: ObjectId;
-    let verificationTokenDocId2: ObjectId;
+    let verificationTokenDocId: string;
+    let verificationTokenDocId2: string;
 
     before(async () => {
       await mongoConnection.init();
@@ -30,17 +30,20 @@ describe('#VerificationTokenModel', () => {
       if (verificationTokenDocId2) {
         await verificationTokenModel.findByIdAndDelete(verificationTokenDocId2);
       }
+
     });
 
     it('add a new verificationToken ', async () => {
       const verificationTokenInput = JSON.parse(JSON.stringify(mocks.MOCK_VERIFICATIONTOKEN));
+
 
       const verificationTokenDocument = await verificationTokenModel.createVerificationToken(verificationTokenInput);
 
       assert.isOk(verificationTokenDocument);
       assert.strictEqual(Object.keys(verificationTokenDocument)[1], Object.keys(verificationTokenInput)[1]);
 
-      verificationTokenDocId = verificationTokenDocument._id as mongooseTypes.ObjectId;
+
+      verificationTokenDocId = verificationTokenDocument._id!.toString();
     });
 
     it('retreive a verificationToken', async () => {
@@ -54,7 +57,10 @@ describe('#VerificationTokenModel', () => {
     it('modify a verificationToken', async () => {
       assert.isOk(verificationTokenDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await verificationTokenModel.updateVerificationTokenById(verificationTokenDocId, input);
+      const updatedDocument = await verificationTokenModel.updateVerificationTokenById(
+        verificationTokenDocId,
+        input
+      );
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -62,11 +68,13 @@ describe('#VerificationTokenModel', () => {
       assert.isOk(verificationTokenDocId);
       const verificationTokenInput = JSON.parse(JSON.stringify(mocks.MOCK_VERIFICATIONTOKEN));
 
+
+
       const verificationTokenDocument = await verificationTokenModel.createVerificationToken(verificationTokenInput);
 
       assert.isOk(verificationTokenDocument);
 
-      verificationTokenDocId2 = verificationTokenDocument._id as mongooseTypes.ObjectId;
+      verificationTokenDocId2 = verificationTokenDocument._id!.toString();
 
       const verificationTokens = await verificationTokenModel.queryVerificationTokens();
       assert.isArray(verificationTokens.results);
@@ -97,7 +105,10 @@ describe('#VerificationTokenModel', () => {
       const results2 = await verificationTokenModel.queryVerificationTokens({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a verificationToken', async () => {
@@ -112,7 +123,7 @@ describe('#VerificationTokenModel', () => {
       }
 
       assert.isTrue(errored);
-      verificationTokenDocId = null as unknown as ObjectId;
+      verificationTokenDocId = null as unknown as string;
     });
   });
 });

@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks';
+import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
@@ -15,9 +15,9 @@ describe('#SessionModel', () => {
   context('test the crud functions of the session model', () => {
     const mongoConnection = new MongoDbConnection();
     const sessionModel = mongoConnection.models.SessionModel;
-    let sessionDocId: ObjectId;
-    let sessionDocId2: ObjectId;
-    let userId: ObjectId;
+    let sessionDocId: string;
+    let sessionDocId2: string;
+    let userId: string;
     let userDocument: any;
 
     before(async () => {
@@ -26,8 +26,8 @@ describe('#SessionModel', () => {
       const savedUserDocument = await userModel.create([mocks.MOCK_USER], {
         validateBeforeSave: false,
       });
-      userId = savedUserDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(userId);
+      userId =  savedUserDocument[0]!._id.toString();
+      assert.isOk(userId)
     });
 
     after(async () => {
@@ -40,6 +40,7 @@ describe('#SessionModel', () => {
       }
       const userModel = mongoConnection.models.UserModel;
       await userModel.findByIdAndDelete(userId);
+
     });
 
     it('add a new session ', async () => {
@@ -52,7 +53,8 @@ describe('#SessionModel', () => {
       assert.isOk(sessionDocument);
       assert.strictEqual(Object.keys(sessionDocument)[1], Object.keys(sessionInput)[1]);
 
-      sessionDocId = sessionDocument._id as mongooseTypes.ObjectId;
+
+      sessionDocId = sessionDocument._id!.toString();
     });
 
     it('retreive a session', async () => {
@@ -66,7 +68,10 @@ describe('#SessionModel', () => {
     it('modify a session', async () => {
       assert.isOk(sessionDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await sessionModel.updateSessionById(sessionDocId, input);
+      const updatedDocument = await sessionModel.updateSessionById(
+        sessionDocId,
+        input
+      );
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -74,17 +79,21 @@ describe('#SessionModel', () => {
       assert.isOk(sessionDocId);
       const sessionInput = JSON.parse(JSON.stringify(mocks.MOCK_SESSION));
 
+
+
       const sessionDocument = await sessionModel.createSession(sessionInput);
 
       assert.isOk(sessionDocument);
 
-      sessionDocId2 = sessionDocument._id as mongooseTypes.ObjectId;
+      sessionDocId2 = sessionDocument._id!.toString();
 
       const sessions = await sessionModel.querySessions();
       assert.isArray(sessions.results);
       assert.isAtLeast(sessions.numberOfItems, 2);
       const expectedDocumentCount =
-        sessions.numberOfItems <= sessions.itemsPerPage ? sessions.numberOfItems : sessions.itemsPerPage;
+        sessions.numberOfItems <= sessions.itemsPerPage
+          ? sessions.numberOfItems
+          : sessions.itemsPerPage;
       assert.strictEqual(sessions.results.length, expectedDocumentCount);
     });
 
@@ -107,7 +116,10 @@ describe('#SessionModel', () => {
       const results2 = await sessionModel.querySessions({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a session', async () => {
@@ -122,7 +134,7 @@ describe('#SessionModel', () => {
       }
 
       assert.isTrue(errored);
-      sessionDocId = null as unknown as ObjectId;
+      sessionDocId = null as unknown as string;
     });
   });
 });

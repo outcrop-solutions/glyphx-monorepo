@@ -14,4 +14,4 @@ export const MOCK_USERAGENT = {
   vendor: 'vendor',
   language: 'language',
   cookieEnabled: 'cookieEnabled',
-} as unknown as IUserAgentDocument;
+} as any;

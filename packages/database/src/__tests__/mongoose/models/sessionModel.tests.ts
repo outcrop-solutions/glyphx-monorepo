@@ -1,9 +1,9 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {assert} from 'chai';
-import {SessionModel} from '../../../mongoose/models/session';
+import { SessionModel} from '../../../mongoose/models/session'
 import * as mocks from '../../../mongoose/mocks';
-import {UserModel} from '../../../mongoose/models/user';
-import {IQueryResult, databaseTypes} from 'types';
+import { UserModel} from '../../../mongoose/models/user'
+import {IQueryResult, databaseTypes} from 'types'
 import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
@@ -17,7 +17,7 @@ describe('#mongoose/models/session', () => {
     });
 
     it('should return true if the sessionId exists', async () => {
-      const sessionId = new mongoose.Types.ObjectId();
+      const sessionId = mocks.MOCK_SESSION._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves({_id: sessionId});
       sandbox.replace(SessionModel, 'findById', findByIdStub);
@@ -28,7 +28,7 @@ describe('#mongoose/models/session', () => {
     });
 
     it('should return false if the sessionId does not exist', async () => {
-      const sessionId = new mongoose.Types.ObjectId();
+      const sessionId = mocks.MOCK_SESSION._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
       sandbox.replace(SessionModel, 'findById', findByIdStub);
@@ -39,7 +39,7 @@ describe('#mongoose/models/session', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection errors', async () => {
-      const sessionId = new mongoose.Types.ObjectId();
+      const sessionId = mocks.MOCK_SESSION._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.rejects('something unexpected has happend');
       sandbox.replace(SessionModel, 'findById', findByIdStub);
@@ -63,9 +63,12 @@ describe('#mongoose/models/session', () => {
     });
 
     it('should return true when all the session ids exist', async () => {
-      const sessionIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const sessionIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
-      const returnedSessionIds = sessionIds.map((sessionId) => {
+      const returnedSessionIds = sessionIds.map(sessionId => {
         return {
           _id: sessionId,
         };
@@ -80,7 +83,10 @@ describe('#mongoose/models/session', () => {
     });
 
     it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
-      const sessionIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const sessionIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
       const returnedSessionIds = [
         {
@@ -96,7 +102,10 @@ describe('#mongoose/models/session', () => {
         await SessionModel.allSessionIdsExist(sessionIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
-        assert.strictEqual(err.data.value[0].toString(), sessionIds[1].toString());
+        assert.strictEqual(
+          err.data.value[0].toString(),
+          sessionIds[1].toString()
+        );
         errored = true;
       }
       assert.isTrue(errored);
@@ -104,7 +113,10 @@ describe('#mongoose/models/session', () => {
     });
 
     it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
-      const sessionIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const sessionIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
       const findStub = sandbox.stub();
       findStub.rejects('something bad has happened');
@@ -131,14 +143,16 @@ describe('#mongoose/models/session', () => {
     it('will not throw an error when no unsafe fields are present', async () => {
       const userStub = sandbox.stub();
       userStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', userStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        userStub
+      );
 
       let errored = false;
 
       try {
-        await SessionModel.validateUpdateObject(
-          mocks.MOCK_SESSION as unknown as Omit<Partial<databaseTypes.ISession>, '_id'>
-        );
+        await SessionModel.validateUpdateObject(mocks.MOCK_SESSION as unknown as Omit<Partial<databaseTypes.ISession>, '_id'>);
       } catch (err) {
         errored = true;
       }
@@ -148,14 +162,16 @@ describe('#mongoose/models/session', () => {
     it('will not throw an error when the related fields exist in the database', async () => {
       const userStub = sandbox.stub();
       userStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', userStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        userStub
+      );
 
       let errored = false;
 
       try {
-        await SessionModel.validateUpdateObject(
-          mocks.MOCK_SESSION as unknown as Omit<Partial<databaseTypes.ISession>, '_id'>
-        );
+        await SessionModel.validateUpdateObject(mocks.MOCK_SESSION as unknown as Omit<Partial<databaseTypes.ISession>, '_id'>);
       } catch (err) {
         errored = true;
       }
@@ -164,16 +180,19 @@ describe('#mongoose/models/session', () => {
     });
 
     it('will fail when the user does not exist.', async () => {
+      
       const userStub = sandbox.stub();
       userStub.resolves(false);
-      sandbox.replace(UserModel, 'userIdExists', userStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        userStub
+      );
 
       let errored = false;
 
       try {
-        await SessionModel.validateUpdateObject(
-          mocks.MOCK_SESSION as unknown as Omit<Partial<databaseTypes.ISession>, '_id'>
-        );
+        await SessionModel.validateUpdateObject(mocks.MOCK_SESSION as unknown as Omit<Partial<databaseTypes.ISession>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -181,18 +200,20 @@ describe('#mongoose/models/session', () => {
       assert.isTrue(errored);
     });
 
+
     it('will fail when trying to update the _id', async () => {
       const userStub = sandbox.stub();
       userStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', userStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        userStub
+      );
 
       let errored = false;
 
       try {
-        await SessionModel.validateUpdateObject({
-          ...mocks.MOCK_SESSION,
-          _id: new mongoose.Types.ObjectId(),
-        } as unknown as Omit<Partial<databaseTypes.ISession>, '_id'>);
+        await SessionModel.validateUpdateObject({...mocks.MOCK_SESSION, _id: new mongoose.Types.ObjectId() } as unknown as Omit<Partial<databaseTypes.ISession>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -203,15 +224,16 @@ describe('#mongoose/models/session', () => {
     it('will fail when trying to update the createdAt', async () => {
       const userStub = sandbox.stub();
       userStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', userStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        userStub
+      );
 
       let errored = false;
 
       try {
-        await SessionModel.validateUpdateObject({...mocks.MOCK_SESSION, createdAt: new Date()} as unknown as Omit<
-          Partial<databaseTypes.ISession>,
-          '_id'
-        >);
+        await SessionModel.validateUpdateObject({...mocks.MOCK_SESSION, createdAt: new Date() } as unknown as Omit<Partial<databaseTypes.ISession>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -222,15 +244,16 @@ describe('#mongoose/models/session', () => {
     it('will fail when trying to update the updatedAt', async () => {
       const userStub = sandbox.stub();
       userStub.resolves(true);
-      sandbox.replace(UserModel, 'userIdExists', userStub);
+      sandbox.replace(
+        UserModel,
+        'userIdExists',
+        userStub
+      );
 
       let errored = false;
 
       try {
-        await SessionModel.validateUpdateObject({...mocks.MOCK_SESSION, updatedAt: new Date()} as unknown as Omit<
-          Partial<databaseTypes.ISession>,
-          '_id'
-        >);
+        await SessionModel.validateUpdateObject({...mocks.MOCK_SESSION, updatedAt: new Date() }  as unknown as Omit<Partial<databaseTypes.ISession>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -247,13 +270,21 @@ describe('#mongoose/models/session', () => {
     });
 
     it('will create a session document', async () => {
-      sandbox.replace(SessionModel, 'validateUser', sandbox.stub().resolves(mocks.MOCK_SESSION.user));
+      sandbox.replace(
+        SessionModel,
+        'validateUser',
+        sandbox.stub().resolves(mocks.MOCK_SESSION.user)
+      );
 
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(SessionModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(
+        SessionModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
 
       sandbox.replace(SessionModel, 'validate', sandbox.stub().resolves(true));
-
+      
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
 
@@ -265,18 +296,32 @@ describe('#mongoose/models/session', () => {
       assert.isTrue(stub.calledOnce);
     });
 
+
+
     it('will rethrow a DataValidationError when the user validator throws one', async () => {
-      sandbox.replace(
+       sandbox.replace(
         SessionModel,
         'validateUser',
-        sandbox.stub().rejects(new error.DataValidationError('The user does not exist', 'user ', {}))
+        sandbox
+          .stub()
+          .rejects(
+            new error.DataValidationError(
+              'The user does not exist',
+              'user ',
+              {}
+            )
+          )
+      );
+      
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        SessionModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
       );
 
-      const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(SessionModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
-
       sandbox.replace(SessionModel, 'validate', sandbox.stub().resolves(true));
-
+      
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
 
@@ -293,12 +338,21 @@ describe('#mongoose/models/session', () => {
       assert.isTrue(errored);
     });
 
+
     it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
-      sandbox.replace(SessionModel, 'validateUser', sandbox.stub().resolves(mocks.MOCK_SESSION.user));
+      sandbox.replace(
+        SessionModel,
+        'validateUser',
+        sandbox.stub().resolves(mocks.MOCK_SESSION.user)
+      );
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(SessionModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(SessionModel, 'create', sandbox.stub().rejects('oops, something bad has happened'));
+      sandbox.replace(
+        SessionModel,
+        'create',
+        sandbox.stub().rejects('oops, something bad has happened')
+      );
 
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
@@ -314,7 +368,11 @@ describe('#mongoose/models/session', () => {
     });
 
     it('will throw an Unexpected Error when create does not return an object with an _id', async () => {
-      sandbox.replace(SessionModel, 'validateUser', sandbox.stub().resolves(mocks.MOCK_SESSION.user));
+      sandbox.replace(
+        SessionModel,
+        'validateUser',
+        sandbox.stub().resolves(mocks.MOCK_SESSION.user)
+      );
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(SessionModel, 'validate', sandbox.stub().resolves(true));
@@ -335,11 +393,23 @@ describe('#mongoose/models/session', () => {
     });
 
     it('will rethrow a DataValidationError when the validate method on the model errors', async () => {
-      sandbox.replace(SessionModel, 'validateUser', sandbox.stub().resolves(mocks.MOCK_SESSION.user));
+      sandbox.replace(
+        SessionModel,
+        'validateUser',
+        sandbox.stub().resolves(mocks.MOCK_SESSION.user)
+      );
 
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(SessionModel, 'validate', sandbox.stub().rejects('oops an error has occurred'));
-      sandbox.replace(SessionModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(
+        SessionModel,
+        'validate',
+        sandbox.stub().rejects('oops an error has occurred')
+      );
+      sandbox.replace(
+        SessionModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
       sandbox.replace(SessionModel, 'getSessionById', stub);
@@ -384,7 +454,9 @@ describe('#mongoose/models/session', () => {
       findByIdStub.returns(new MockMongooseQuery(mocks.MOCK_SESSION));
       sandbox.replace(SessionModel, 'findById', findByIdStub);
 
-      const doc = await SessionModel.getSessionById(mocks.MOCK_SESSION._id as mongoose.Types.ObjectId);
+      const doc = await SessionModel.getSessionById(
+        mocks.MOCK_SESSION._id
+      );
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any)?.__v);
@@ -400,7 +472,9 @@ describe('#mongoose/models/session', () => {
 
       let errored = false;
       try {
-        await SessionModel.getSessionById(mocks.MOCK_SESSION._id as mongoose.Types.ObjectId);
+        await SessionModel.getSessionById(
+          mocks.MOCK_SESSION._id
+        );
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -411,12 +485,16 @@ describe('#mongoose/models/session', () => {
 
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new MockMongooseQuery('something bad happened', true));
+      findByIdStub.returns(
+        new MockMongooseQuery('something bad happened', true)
+      );
       sandbox.replace(SessionModel, 'findById', findByIdStub);
 
       let errored = false;
       try {
-        await SessionModel.getSessionById(mocks.MOCK_SESSION._id as mongoose.Types.ObjectId);
+        await SessionModel.getSessionById(
+          mocks.MOCK_SESSION.id
+        );
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -448,7 +526,7 @@ describe('#mongoose/models/session', () => {
 
     const mockSessions = [
       {
-        ...mocks.MOCK_SESSION,
+       ...mocks.MOCK_SESSION,
         _id: new mongoose.Types.ObjectId(),
         user: {
           _id: new mongoose.Types.ObjectId(),
@@ -471,9 +549,17 @@ describe('#mongoose/models/session', () => {
     });
 
     it('will return the filtered sessions', async () => {
-      sandbox.replace(SessionModel, 'count', sandbox.stub().resolves(mockSessions.length));
+      sandbox.replace(
+        SessionModel,
+        'count',
+        sandbox.stub().resolves(mockSessions.length)
+      );
 
-      sandbox.replace(SessionModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockSessions)));
+      sandbox.replace(
+        SessionModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockSessions))
+      );
 
       const results = await SessionModel.querySessions({});
 
@@ -490,7 +576,11 @@ describe('#mongoose/models/session', () => {
     it('will throw a DataNotFoundError when no values match the filter', async () => {
       sandbox.replace(SessionModel, 'count', sandbox.stub().resolves(0));
 
-      sandbox.replace(SessionModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockSessions)));
+      sandbox.replace(
+        SessionModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockSessions))
+      );
 
       let errored = false;
       try {
@@ -504,9 +594,17 @@ describe('#mongoose/models/session', () => {
     });
 
     it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
-      sandbox.replace(SessionModel, 'count', sandbox.stub().resolves(mockSessions.length));
+      sandbox.replace(
+        SessionModel,
+        'count',
+        sandbox.stub().resolves(mockSessions.length)
+      );
 
-      sandbox.replace(SessionModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockSessions)));
+      sandbox.replace(
+        SessionModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockSessions))
+      );
 
       let errored = false;
       try {
@@ -520,12 +618,18 @@ describe('#mongoose/models/session', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
-      sandbox.replace(SessionModel, 'count', sandbox.stub().resolves(mockSessions.length));
+      sandbox.replace(
+        SessionModel,
+        'count',
+        sandbox.stub().resolves(mockSessions.length)
+      );
 
       sandbox.replace(
         SessionModel,
         'find',
-        sandbox.stub().returns(new MockMongooseQuery('something bad has happened', true))
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
       );
 
       let errored = false;
@@ -557,7 +661,7 @@ describe('#mongoose/models/session', () => {
         } as unknown as databaseTypes.IUser,
       } as unknown as databaseTypes.ISession;
 
-      const sessionId = new mongoose.Types.ObjectId();
+      const sessionId = mocks.MOCK_SESSION._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -571,9 +675,12 @@ describe('#mongoose/models/session', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(SessionModel, 'validateUpdateObject', validateStub);
 
-      const result = await SessionModel.updateSessionById(sessionId, updateSession);
+      const result = await SessionModel.updateSessionById(
+        sessionId,
+        updateSession
+      );
 
-      assert.strictEqual(result._id, sessionId);
+      assert.strictEqual(result._id, mocks.MOCK_SESSION._id);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(getSessionStub.calledOnce);
       assert.isTrue(validateStub.calledOnce);
@@ -582,10 +689,10 @@ describe('#mongoose/models/session', () => {
     it('Should update a session with references as ObjectIds', async () => {
       const updateSession = {
         ...mocks.MOCK_SESSION,
-        deletedAt: new Date(),
+        deletedAt: new Date()
       } as unknown as databaseTypes.ISession;
 
-      const sessionId = new mongoose.Types.ObjectId();
+      const sessionId = mocks.MOCK_SESSION._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -599,7 +706,10 @@ describe('#mongoose/models/session', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(SessionModel, 'validateUpdateObject', validateStub);
 
-      const result = await SessionModel.updateSessionById(sessionId, updateSession);
+      const result = await SessionModel.updateSessionById(
+        sessionId,
+        updateSession
+      );
 
       assert.strictEqual(result._id, sessionId);
       assert.isTrue(updateStub.calledOnce);
@@ -613,7 +723,7 @@ describe('#mongoose/models/session', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.ISession;
 
-      const sessionId = new mongoose.Types.ObjectId();
+      const sessionId = mocks.MOCK_SESSION._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
@@ -639,11 +749,11 @@ describe('#mongoose/models/session', () => {
 
     it('Will fail when validateUpdateObject fails', async () => {
       const updateSession = {
-        ...mocks.MOCK_SESSION,
+       ...mocks.MOCK_SESSION,
         deletedAt: new Date(),
       } as unknown as databaseTypes.ISession;
 
-      const sessionId = new mongoose.Types.ObjectId();
+      const sessionId = mocks.MOCK_SESSION._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -654,7 +764,9 @@ describe('#mongoose/models/session', () => {
       sandbox.replace(SessionModel, 'getSessionById', getSessionStub);
 
       const validateStub = sandbox.stub();
-      validateStub.rejects(new error.InvalidOperationError("You can't do this", {}));
+      validateStub.rejects(
+        new error.InvalidOperationError("You can't do this", {})
+      );
       sandbox.replace(SessionModel, 'validateUpdateObject', validateStub);
       let errorred = false;
       try {
@@ -668,11 +780,11 @@ describe('#mongoose/models/session', () => {
 
     it('Will fail when a database error occurs', async () => {
       const updateSession = {
-        ...mocks.MOCK_SESSION,
-        deletedAt: new Date(),
+       ...mocks.MOCK_SESSION,
+        deletedAt: new Date()
       } as unknown as databaseTypes.ISession;
 
-      const sessionId = new mongoose.Types.ObjectId();
+      const sessionId = mocks.MOCK_SESSION._id;
 
       const updateStub = sandbox.stub();
       updateStub.rejects('something terrible has happened');
@@ -709,7 +821,7 @@ describe('#mongoose/models/session', () => {
       deleteStub.resolves({deletedCount: 1});
       sandbox.replace(SessionModel, 'deleteOne', deleteStub);
 
-      const sessionId = new mongoose.Types.ObjectId();
+      const sessionId = mocks.MOCK_SESSION._id;
 
       await SessionModel.deleteSessionById(sessionId);
 
@@ -721,7 +833,7 @@ describe('#mongoose/models/session', () => {
       deleteStub.resolves({deletedCount: 0});
       sandbox.replace(SessionModel, 'deleteOne', deleteStub);
 
-      const sessionId = new mongoose.Types.ObjectId();
+      const sessionId = mocks.MOCK_SESSION._id;
 
       let errorred = false;
       try {
@@ -739,7 +851,7 @@ describe('#mongoose/models/session', () => {
       deleteStub.rejects('something bad has happened');
       sandbox.replace(SessionModel, 'deleteOne', deleteStub);
 
-      const sessionId = new mongoose.Types.ObjectId();
+      const sessionId = mocks.MOCK_SESSION._id;
 
       let errorred = false;
       try {
@@ -752,4 +864,5 @@ describe('#mongoose/models/session', () => {
       assert.isTrue(errorred);
     });
   });
+
 });

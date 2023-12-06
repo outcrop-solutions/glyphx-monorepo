@@ -1,8 +1,8 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {assert} from 'chai';
-import {ProcessTrackingModel} from '../../../mongoose/models/processTracking';
+import { ProcessTrackingModel} from '../../../mongoose/models/processTracking'
 import * as mocks from '../../../mongoose/mocks';
-import {IQueryResult, databaseTypes} from 'types';
+import {IQueryResult, databaseTypes} from 'types'
 import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
@@ -62,9 +62,12 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('should return true when all the processTracking ids exist', async () => {
-      const processTrackingIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const processTrackingIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
-      const returnedProcessTrackingIds = processTrackingIds.map((processTrackingId) => {
+      const returnedProcessTrackingIds = processTrackingIds.map(processTrackingId => {
         return {
           _id: processTrackingId,
         };
@@ -79,7 +82,10 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
-      const processTrackingIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const processTrackingIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
       const returnedProcessTrackingIds = [
         {
@@ -95,7 +101,10 @@ describe('#mongoose/models/processTracking', () => {
         await ProcessTrackingModel.allProcessTrackingIdsExist(processTrackingIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
-        assert.strictEqual(err.data.value[0].toString(), processTrackingIds[1].toString());
+        assert.strictEqual(
+          err.data.value[0].toString(),
+          processTrackingIds[1].toString()
+        );
         errored = true;
       }
       assert.isTrue(errored);
@@ -103,7 +112,10 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
-      const processTrackingIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const processTrackingIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
       const findStub = sandbox.stub();
       findStub.rejects('something bad has happened');
@@ -128,12 +140,11 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('will not throw an error when no unsafe fields are present', async () => {
+
       let errored = false;
 
       try {
-        await ProcessTrackingModel.validateUpdateObject(
-          mocks.MOCK_PROCESSTRACKING as unknown as Omit<Partial<databaseTypes.IProcessTracking>, '_id'>
-        );
+        await ProcessTrackingModel.validateUpdateObject(mocks.MOCK_PROCESSTRACKING as unknown as Omit<Partial<databaseTypes.IProcessTracking>, '_id'>);
       } catch (err) {
         errored = true;
       }
@@ -141,26 +152,25 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('will not throw an error when the related fields exist in the database', async () => {
+
       let errored = false;
 
       try {
-        await ProcessTrackingModel.validateUpdateObject(
-          mocks.MOCK_PROCESSTRACKING as unknown as Omit<Partial<databaseTypes.IProcessTracking>, '_id'>
-        );
+        await ProcessTrackingModel.validateUpdateObject(mocks.MOCK_PROCESSTRACKING as unknown as Omit<Partial<databaseTypes.IProcessTracking>, '_id'>);
       } catch (err) {
         errored = true;
       }
       assert.isFalse(errored);
     });
 
+
+
     it('will fail when trying to update the _id', async () => {
+
       let errored = false;
 
       try {
-        await ProcessTrackingModel.validateUpdateObject({
-          ...mocks.MOCK_PROCESSTRACKING,
-          _id: new mongoose.Types.ObjectId(),
-        } as unknown as Omit<Partial<databaseTypes.IProcessTracking>, '_id'>);
+        await ProcessTrackingModel.validateUpdateObject({...mocks.MOCK_PROCESSTRACKING, _id: new mongoose.Types.ObjectId() } as unknown as Omit<Partial<databaseTypes.IProcessTracking>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -169,13 +179,11 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('will fail when trying to update the createdAt', async () => {
+
       let errored = false;
 
       try {
-        await ProcessTrackingModel.validateUpdateObject({
-          ...mocks.MOCK_PROCESSTRACKING,
-          createdAt: new Date(),
-        } as unknown as Omit<Partial<databaseTypes.IProcessTracking>, '_id'>);
+        await ProcessTrackingModel.validateUpdateObject({...mocks.MOCK_PROCESSTRACKING, createdAt: new Date() } as unknown as Omit<Partial<databaseTypes.IProcessTracking>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -184,13 +192,11 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('will fail when trying to update the updatedAt', async () => {
+
       let errored = false;
 
       try {
-        await ProcessTrackingModel.validateUpdateObject({
-          ...mocks.MOCK_PROCESSTRACKING,
-          updatedAt: new Date(),
-        } as unknown as Omit<Partial<databaseTypes.IProcessTracking>, '_id'>);
+        await ProcessTrackingModel.validateUpdateObject({...mocks.MOCK_PROCESSTRACKING, updatedAt: new Date() }  as unknown as Omit<Partial<databaseTypes.IProcessTracking>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -207,11 +213,16 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('will create a processTracking document', async () => {
+
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(ProcessTrackingModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(
+        ProcessTrackingModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
 
       sandbox.replace(ProcessTrackingModel, 'validate', sandbox.stub().resolves(true));
-
+      
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
 
@@ -223,10 +234,17 @@ describe('#mongoose/models/processTracking', () => {
       assert.isTrue(stub.calledOnce);
     });
 
+
+
     it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
+
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(ProcessTrackingModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(ProcessTrackingModel, 'create', sandbox.stub().rejects('oops, something bad has happened'));
+      sandbox.replace(
+        ProcessTrackingModel,
+        'create',
+        sandbox.stub().rejects('oops, something bad has happened')
+      );
 
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
@@ -242,6 +260,7 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('will throw an Unexpected Error when create does not return an object with an _id', async () => {
+
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(ProcessTrackingModel, 'validate', sandbox.stub().resolves(true));
       sandbox.replace(ProcessTrackingModel, 'create', sandbox.stub().resolves([{}]));
@@ -261,9 +280,18 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('will rethrow a DataValidationError when the validate method on the model errors', async () => {
+
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(ProcessTrackingModel, 'validate', sandbox.stub().rejects('oops an error has occurred'));
-      sandbox.replace(ProcessTrackingModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(
+        ProcessTrackingModel,
+        'validate',
+        sandbox.stub().rejects('oops an error has occurred')
+      );
+      sandbox.replace(
+        ProcessTrackingModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
       sandbox.replace(ProcessTrackingModel, 'getProcessTrackingById', stub);
@@ -325,7 +353,9 @@ describe('#mongoose/models/processTracking', () => {
 
       let errored = false;
       try {
-        await ProcessTrackingModel.getProcessTrackingById(mocks.MOCK_PROCESSTRACKING._id as mongoose.Types.ObjectId);
+        await ProcessTrackingModel.getProcessTrackingById(
+          mocks.MOCK_PROCESSTRACKING._id as mongoose.Types.ObjectId
+        );
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -336,12 +366,16 @@ describe('#mongoose/models/processTracking', () => {
 
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new MockMongooseQuery('something bad happened', true));
+      findByIdStub.returns(
+        new MockMongooseQuery('something bad happened', true)
+      );
       sandbox.replace(ProcessTrackingModel, 'findById', findByIdStub);
 
       let errored = false;
       try {
-        await ProcessTrackingModel.getProcessTrackingById(mocks.MOCK_PROCESSTRACKING._id as mongoose.Types.ObjectId);
+        await ProcessTrackingModel.getProcessTrackingById(
+          mocks.MOCK_PROCESSTRACKING._id as mongoose.Types.ObjectId
+        );
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -373,7 +407,7 @@ describe('#mongoose/models/processTracking', () => {
 
     const mockProcessTrackings = [
       {
-        ...mocks.MOCK_PROCESSTRACKING,
+       ...mocks.MOCK_PROCESSTRACKING,
         _id: new mongoose.Types.ObjectId(),
       } as databaseTypes.IProcessTracking,
       {
@@ -388,7 +422,11 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('will return the filtered processTrackings', async () => {
-      sandbox.replace(ProcessTrackingModel, 'count', sandbox.stub().resolves(mockProcessTrackings.length));
+      sandbox.replace(
+        ProcessTrackingModel,
+        'count',
+        sandbox.stub().resolves(mockProcessTrackings.length)
+      );
 
       sandbox.replace(
         ProcessTrackingModel,
@@ -428,7 +466,11 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
-      sandbox.replace(ProcessTrackingModel, 'count', sandbox.stub().resolves(mockProcessTrackings.length));
+      sandbox.replace(
+        ProcessTrackingModel,
+        'count',
+        sandbox.stub().resolves(mockProcessTrackings.length)
+      );
 
       sandbox.replace(
         ProcessTrackingModel,
@@ -448,12 +490,18 @@ describe('#mongoose/models/processTracking', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
-      sandbox.replace(ProcessTrackingModel, 'count', sandbox.stub().resolves(mockProcessTrackings.length));
+      sandbox.replace(
+        ProcessTrackingModel,
+        'count',
+        sandbox.stub().resolves(mockProcessTrackings.length)
+      );
 
       sandbox.replace(
         ProcessTrackingModel,
         'find',
-        sandbox.stub().returns(new MockMongooseQuery('something bad has happened', true))
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
       );
 
       let errored = false;
@@ -495,7 +543,10 @@ describe('#mongoose/models/processTracking', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(ProcessTrackingModel, 'validateUpdateObject', validateStub);
 
-      const result = await ProcessTrackingModel.updateProcessTrackingById(processTrackingId, updateProcessTracking);
+      const result = await ProcessTrackingModel.updateProcessTrackingById(
+        processTrackingId,
+        updateProcessTracking
+      );
 
       assert.strictEqual(result._id, processTrackingId);
       assert.isTrue(updateStub.calledOnce);
@@ -506,7 +557,7 @@ describe('#mongoose/models/processTracking', () => {
     it('Should update a processTracking with references as ObjectIds', async () => {
       const updateProcessTracking = {
         ...mocks.MOCK_PROCESSTRACKING,
-        deletedAt: new Date(),
+        deletedAt: new Date()
       } as unknown as databaseTypes.IProcessTracking;
 
       const processTrackingId = new mongoose.Types.ObjectId();
@@ -523,7 +574,10 @@ describe('#mongoose/models/processTracking', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(ProcessTrackingModel, 'validateUpdateObject', validateStub);
 
-      const result = await ProcessTrackingModel.updateProcessTrackingById(processTrackingId, updateProcessTracking);
+      const result = await ProcessTrackingModel.updateProcessTrackingById(
+        processTrackingId,
+        updateProcessTracking
+      );
 
       assert.strictEqual(result._id, processTrackingId);
       assert.isTrue(updateStub.calledOnce);
@@ -563,7 +617,7 @@ describe('#mongoose/models/processTracking', () => {
 
     it('Will fail when validateUpdateObject fails', async () => {
       const updateProcessTracking = {
-        ...mocks.MOCK_PROCESSTRACKING,
+       ...mocks.MOCK_PROCESSTRACKING,
         deletedAt: new Date(),
       } as unknown as databaseTypes.IProcessTracking;
 
@@ -578,7 +632,9 @@ describe('#mongoose/models/processTracking', () => {
       sandbox.replace(ProcessTrackingModel, 'getProcessTrackingById', getProcessTrackingStub);
 
       const validateStub = sandbox.stub();
-      validateStub.rejects(new error.InvalidOperationError("You can't do this", {}));
+      validateStub.rejects(
+        new error.InvalidOperationError("You can't do this", {})
+      );
       sandbox.replace(ProcessTrackingModel, 'validateUpdateObject', validateStub);
       let errorred = false;
       try {
@@ -592,8 +648,8 @@ describe('#mongoose/models/processTracking', () => {
 
     it('Will fail when a database error occurs', async () => {
       const updateProcessTracking = {
-        ...mocks.MOCK_PROCESSTRACKING,
-        deletedAt: new Date(),
+       ...mocks.MOCK_PROCESSTRACKING,
+        deletedAt: new Date()
       } as unknown as databaseTypes.IProcessTracking;
 
       const processTrackingId = new mongoose.Types.ObjectId();
@@ -676,4 +732,5 @@ describe('#mongoose/models/processTracking', () => {
       assert.isTrue(errorred);
     });
   });
+
 });

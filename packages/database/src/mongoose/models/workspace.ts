@@ -8,7 +8,7 @@ import {TagModel} from './tag';
 import {UserModel} from './user';
 import {MemberModel} from './member';
 import {ProjectModel} from './project';
-import {FileStatModel} from './fileStat';
+import {FileStatsModel} from './fileStats';
 import {StateModel} from './state';
 
 const SCHEMA = new Schema<IWorkspaceDocument, IWorkspaceStaticMethods, IWorkspaceMethods>({

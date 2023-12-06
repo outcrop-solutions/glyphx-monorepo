@@ -1,8 +1,8 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {assert} from 'chai';
-import {ThresholdModel} from '../../../mongoose/models/threshold';
+import { ThresholdModel} from '../../../mongoose/models/threshold'
 import * as mocks from '../../../mongoose/mocks';
-import {IQueryResult, databaseTypes} from 'types';
+import {IQueryResult, databaseTypes} from 'types'
 import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
@@ -16,7 +16,7 @@ describe('#mongoose/models/threshold', () => {
     });
 
     it('should return true if the thresholdId exists', async () => {
-      const thresholdId = new mongoose.Types.ObjectId();
+      const thresholdId = mocks.MOCK_THRESHOLD._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves({_id: thresholdId});
       sandbox.replace(ThresholdModel, 'findById', findByIdStub);
@@ -27,7 +27,7 @@ describe('#mongoose/models/threshold', () => {
     });
 
     it('should return false if the thresholdId does not exist', async () => {
-      const thresholdId = new mongoose.Types.ObjectId();
+      const thresholdId = mocks.MOCK_THRESHOLD._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
       sandbox.replace(ThresholdModel, 'findById', findByIdStub);
@@ -38,7 +38,7 @@ describe('#mongoose/models/threshold', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection errors', async () => {
-      const thresholdId = new mongoose.Types.ObjectId();
+      const thresholdId = mocks.MOCK_THRESHOLD._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.rejects('something unexpected has happend');
       sandbox.replace(ThresholdModel, 'findById', findByIdStub);
@@ -62,9 +62,12 @@ describe('#mongoose/models/threshold', () => {
     });
 
     it('should return true when all the threshold ids exist', async () => {
-      const thresholdIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const thresholdIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
-      const returnedThresholdIds = thresholdIds.map((thresholdId) => {
+      const returnedThresholdIds = thresholdIds.map(thresholdId => {
         return {
           _id: thresholdId,
         };
@@ -79,7 +82,10 @@ describe('#mongoose/models/threshold', () => {
     });
 
     it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
-      const thresholdIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const thresholdIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
       const returnedThresholdIds = [
         {
@@ -95,7 +101,10 @@ describe('#mongoose/models/threshold', () => {
         await ThresholdModel.allThresholdIdsExist(thresholdIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
-        assert.strictEqual(err.data.value[0].toString(), thresholdIds[1].toString());
+        assert.strictEqual(
+          err.data.value[0].toString(),
+          thresholdIds[1].toString()
+        );
         errored = true;
       }
       assert.isTrue(errored);
@@ -103,7 +112,10 @@ describe('#mongoose/models/threshold', () => {
     });
 
     it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
-      const thresholdIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const thresholdIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
       const findStub = sandbox.stub();
       findStub.rejects('something bad has happened');
@@ -128,12 +140,11 @@ describe('#mongoose/models/threshold', () => {
     });
 
     it('will not throw an error when no unsafe fields are present', async () => {
+
       let errored = false;
 
       try {
-        await ThresholdModel.validateUpdateObject(
-          mocks.MOCK_THRESHOLD as unknown as Omit<Partial<databaseTypes.IThreshold>, '_id'>
-        );
+        await ThresholdModel.validateUpdateObject(mocks.MOCK_THRESHOLD as unknown as Omit<Partial<databaseTypes.IThreshold>, '_id'>);
       } catch (err) {
         errored = true;
       }
@@ -141,26 +152,25 @@ describe('#mongoose/models/threshold', () => {
     });
 
     it('will not throw an error when the related fields exist in the database', async () => {
+
       let errored = false;
 
       try {
-        await ThresholdModel.validateUpdateObject(
-          mocks.MOCK_THRESHOLD as unknown as Omit<Partial<databaseTypes.IThreshold>, '_id'>
-        );
+        await ThresholdModel.validateUpdateObject(mocks.MOCK_THRESHOLD as unknown as Omit<Partial<databaseTypes.IThreshold>, '_id'>);
       } catch (err) {
         errored = true;
       }
       assert.isFalse(errored);
     });
 
+
+
     it('will fail when trying to update the _id', async () => {
+
       let errored = false;
 
       try {
-        await ThresholdModel.validateUpdateObject({
-          ...mocks.MOCK_THRESHOLD,
-          _id: new mongoose.Types.ObjectId(),
-        } as unknown as Omit<Partial<databaseTypes.IThreshold>, '_id'>);
+        await ThresholdModel.validateUpdateObject({...mocks.MOCK_THRESHOLD, _id: new mongoose.Types.ObjectId() } as unknown as Omit<Partial<databaseTypes.IThreshold>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -169,13 +179,11 @@ describe('#mongoose/models/threshold', () => {
     });
 
     it('will fail when trying to update the createdAt', async () => {
+
       let errored = false;
 
       try {
-        await ThresholdModel.validateUpdateObject({...mocks.MOCK_THRESHOLD, createdAt: new Date()} as unknown as Omit<
-          Partial<databaseTypes.IThreshold>,
-          '_id'
-        >);
+        await ThresholdModel.validateUpdateObject({...mocks.MOCK_THRESHOLD, createdAt: new Date() } as unknown as Omit<Partial<databaseTypes.IThreshold>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -184,13 +192,11 @@ describe('#mongoose/models/threshold', () => {
     });
 
     it('will fail when trying to update the updatedAt', async () => {
+
       let errored = false;
 
       try {
-        await ThresholdModel.validateUpdateObject({...mocks.MOCK_THRESHOLD, updatedAt: new Date()} as unknown as Omit<
-          Partial<databaseTypes.IThreshold>,
-          '_id'
-        >);
+        await ThresholdModel.validateUpdateObject({...mocks.MOCK_THRESHOLD, updatedAt: new Date() }  as unknown as Omit<Partial<databaseTypes.IThreshold>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -207,11 +213,16 @@ describe('#mongoose/models/threshold', () => {
     });
 
     it('will create a threshold document', async () => {
+
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(ThresholdModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(
+        ThresholdModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
 
       sandbox.replace(ThresholdModel, 'validate', sandbox.stub().resolves(true));
-
+      
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
 
@@ -223,10 +234,17 @@ describe('#mongoose/models/threshold', () => {
       assert.isTrue(stub.calledOnce);
     });
 
+
+
     it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
+
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(ThresholdModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(ThresholdModel, 'create', sandbox.stub().rejects('oops, something bad has happened'));
+      sandbox.replace(
+        ThresholdModel,
+        'create',
+        sandbox.stub().rejects('oops, something bad has happened')
+      );
 
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
@@ -242,6 +260,7 @@ describe('#mongoose/models/threshold', () => {
     });
 
     it('will throw an Unexpected Error when create does not return an object with an _id', async () => {
+
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(ThresholdModel, 'validate', sandbox.stub().resolves(true));
       sandbox.replace(ThresholdModel, 'create', sandbox.stub().resolves([{}]));
@@ -261,9 +280,18 @@ describe('#mongoose/models/threshold', () => {
     });
 
     it('will rethrow a DataValidationError when the validate method on the model errors', async () => {
+
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(ThresholdModel, 'validate', sandbox.stub().rejects('oops an error has occurred'));
-      sandbox.replace(ThresholdModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(
+        ThresholdModel,
+        'validate',
+        sandbox.stub().rejects('oops an error has occurred')
+      );
+      sandbox.replace(
+        ThresholdModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
       sandbox.replace(ThresholdModel, 'getThresholdById', stub);
@@ -308,7 +336,9 @@ describe('#mongoose/models/threshold', () => {
       findByIdStub.returns(new MockMongooseQuery(mocks.MOCK_THRESHOLD));
       sandbox.replace(ThresholdModel, 'findById', findByIdStub);
 
-      const doc = await ThresholdModel.getThresholdById(mocks.MOCK_THRESHOLD._id as mongoose.Types.ObjectId);
+      const doc = await ThresholdModel.getThresholdById(
+        mocks.MOCK_THRESHOLD._id
+      );
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any)?.__v);
@@ -323,7 +353,9 @@ describe('#mongoose/models/threshold', () => {
 
       let errored = false;
       try {
-        await ThresholdModel.getThresholdById(mocks.MOCK_THRESHOLD._id as mongoose.Types.ObjectId);
+        await ThresholdModel.getThresholdById(
+          mocks.MOCK_THRESHOLD._id
+        );
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -334,12 +366,16 @@ describe('#mongoose/models/threshold', () => {
 
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new MockMongooseQuery('something bad happened', true));
+      findByIdStub.returns(
+        new MockMongooseQuery('something bad happened', true)
+      );
       sandbox.replace(ThresholdModel, 'findById', findByIdStub);
 
       let errored = false;
       try {
-        await ThresholdModel.getThresholdById(mocks.MOCK_THRESHOLD._id as mongoose.Types.ObjectId);
+        await ThresholdModel.getThresholdById(
+          mocks.MOCK_THRESHOLD.id
+        );
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -371,7 +407,7 @@ describe('#mongoose/models/threshold', () => {
 
     const mockThresholds = [
       {
-        ...mocks.MOCK_THRESHOLD,
+       ...mocks.MOCK_THRESHOLD,
         _id: new mongoose.Types.ObjectId(),
       } as databaseTypes.IThreshold,
       {
@@ -386,9 +422,17 @@ describe('#mongoose/models/threshold', () => {
     });
 
     it('will return the filtered thresholds', async () => {
-      sandbox.replace(ThresholdModel, 'count', sandbox.stub().resolves(mockThresholds.length));
+      sandbox.replace(
+        ThresholdModel,
+        'count',
+        sandbox.stub().resolves(mockThresholds.length)
+      );
 
-      sandbox.replace(ThresholdModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockThresholds)));
+      sandbox.replace(
+        ThresholdModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockThresholds))
+      );
 
       const results = await ThresholdModel.queryThresholds({});
 
@@ -404,7 +448,11 @@ describe('#mongoose/models/threshold', () => {
     it('will throw a DataNotFoundError when no values match the filter', async () => {
       sandbox.replace(ThresholdModel, 'count', sandbox.stub().resolves(0));
 
-      sandbox.replace(ThresholdModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockThresholds)));
+      sandbox.replace(
+        ThresholdModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockThresholds))
+      );
 
       let errored = false;
       try {
@@ -418,9 +466,17 @@ describe('#mongoose/models/threshold', () => {
     });
 
     it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
-      sandbox.replace(ThresholdModel, 'count', sandbox.stub().resolves(mockThresholds.length));
+      sandbox.replace(
+        ThresholdModel,
+        'count',
+        sandbox.stub().resolves(mockThresholds.length)
+      );
 
-      sandbox.replace(ThresholdModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockThresholds)));
+      sandbox.replace(
+        ThresholdModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockThresholds))
+      );
 
       let errored = false;
       try {
@@ -434,12 +490,18 @@ describe('#mongoose/models/threshold', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
-      sandbox.replace(ThresholdModel, 'count', sandbox.stub().resolves(mockThresholds.length));
+      sandbox.replace(
+        ThresholdModel,
+        'count',
+        sandbox.stub().resolves(mockThresholds.length)
+      );
 
       sandbox.replace(
         ThresholdModel,
         'find',
-        sandbox.stub().returns(new MockMongooseQuery('something bad has happened', true))
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
       );
 
       let errored = false;
@@ -467,7 +529,7 @@ describe('#mongoose/models/threshold', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.IThreshold;
 
-      const thresholdId = new mongoose.Types.ObjectId();
+      const thresholdId = mocks.MOCK_THRESHOLD._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -481,9 +543,12 @@ describe('#mongoose/models/threshold', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(ThresholdModel, 'validateUpdateObject', validateStub);
 
-      const result = await ThresholdModel.updateThresholdById(thresholdId, updateThreshold);
+      const result = await ThresholdModel.updateThresholdById(
+        thresholdId,
+        updateThreshold
+      );
 
-      assert.strictEqual(result._id, thresholdId);
+      assert.strictEqual(result._id, mocks.MOCK_THRESHOLD._id);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(getThresholdStub.calledOnce);
       assert.isTrue(validateStub.calledOnce);
@@ -492,10 +557,10 @@ describe('#mongoose/models/threshold', () => {
     it('Should update a threshold with references as ObjectIds', async () => {
       const updateThreshold = {
         ...mocks.MOCK_THRESHOLD,
-        deletedAt: new Date(),
+        deletedAt: new Date()
       } as unknown as databaseTypes.IThreshold;
 
-      const thresholdId = new mongoose.Types.ObjectId();
+      const thresholdId = mocks.MOCK_THRESHOLD._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -509,7 +574,10 @@ describe('#mongoose/models/threshold', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(ThresholdModel, 'validateUpdateObject', validateStub);
 
-      const result = await ThresholdModel.updateThresholdById(thresholdId, updateThreshold);
+      const result = await ThresholdModel.updateThresholdById(
+        thresholdId,
+        updateThreshold
+      );
 
       assert.strictEqual(result._id, thresholdId);
       assert.isTrue(updateStub.calledOnce);
@@ -523,7 +591,7 @@ describe('#mongoose/models/threshold', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.IThreshold;
 
-      const thresholdId = new mongoose.Types.ObjectId();
+      const thresholdId = mocks.MOCK_THRESHOLD._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
@@ -549,11 +617,11 @@ describe('#mongoose/models/threshold', () => {
 
     it('Will fail when validateUpdateObject fails', async () => {
       const updateThreshold = {
-        ...mocks.MOCK_THRESHOLD,
+       ...mocks.MOCK_THRESHOLD,
         deletedAt: new Date(),
       } as unknown as databaseTypes.IThreshold;
 
-      const thresholdId = new mongoose.Types.ObjectId();
+      const thresholdId = mocks.MOCK_THRESHOLD._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -564,7 +632,9 @@ describe('#mongoose/models/threshold', () => {
       sandbox.replace(ThresholdModel, 'getThresholdById', getThresholdStub);
 
       const validateStub = sandbox.stub();
-      validateStub.rejects(new error.InvalidOperationError("You can't do this", {}));
+      validateStub.rejects(
+        new error.InvalidOperationError("You can't do this", {})
+      );
       sandbox.replace(ThresholdModel, 'validateUpdateObject', validateStub);
       let errorred = false;
       try {
@@ -578,11 +648,11 @@ describe('#mongoose/models/threshold', () => {
 
     it('Will fail when a database error occurs', async () => {
       const updateThreshold = {
-        ...mocks.MOCK_THRESHOLD,
-        deletedAt: new Date(),
+       ...mocks.MOCK_THRESHOLD,
+        deletedAt: new Date()
       } as unknown as databaseTypes.IThreshold;
 
-      const thresholdId = new mongoose.Types.ObjectId();
+      const thresholdId = mocks.MOCK_THRESHOLD._id;
 
       const updateStub = sandbox.stub();
       updateStub.rejects('something terrible has happened');
@@ -619,7 +689,7 @@ describe('#mongoose/models/threshold', () => {
       deleteStub.resolves({deletedCount: 1});
       sandbox.replace(ThresholdModel, 'deleteOne', deleteStub);
 
-      const thresholdId = new mongoose.Types.ObjectId();
+      const thresholdId = mocks.MOCK_THRESHOLD._id;
 
       await ThresholdModel.deleteThresholdById(thresholdId);
 
@@ -631,7 +701,7 @@ describe('#mongoose/models/threshold', () => {
       deleteStub.resolves({deletedCount: 0});
       sandbox.replace(ThresholdModel, 'deleteOne', deleteStub);
 
-      const thresholdId = new mongoose.Types.ObjectId();
+      const thresholdId = mocks.MOCK_THRESHOLD._id;
 
       let errorred = false;
       try {
@@ -649,7 +719,7 @@ describe('#mongoose/models/threshold', () => {
       deleteStub.rejects('something bad has happened');
       sandbox.replace(ThresholdModel, 'deleteOne', deleteStub);
 
-      const thresholdId = new mongoose.Types.ObjectId();
+      const thresholdId = mocks.MOCK_THRESHOLD._id;
 
       let errorred = false;
       try {
@@ -662,4 +732,5 @@ describe('#mongoose/models/threshold', () => {
       assert.isTrue(errorred);
     });
   });
+
 });

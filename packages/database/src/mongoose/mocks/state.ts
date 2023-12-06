@@ -22,4 +22,4 @@ export const MOCK_STATE = {
   workspace: {},
   fileSystem: {},
   document: {},
-} as unknown as IStateDocument;
+} as any;

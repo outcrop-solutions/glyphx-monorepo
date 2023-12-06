@@ -16,4 +16,4 @@ export const MOCK_PROCESSTRACKING = {
   processError: [],
   processResult: {},
   processHeartbeat: 'processHeartbeat',
-} as unknown as IProcessTrackingDocument;
+} as any;

@@ -18,4 +18,4 @@ export const MOCK_WORKSPACE = {
   projects: [],
   filesystem: [],
   states: [],
-} as unknown as IWorkspaceDocument;
+} as any;

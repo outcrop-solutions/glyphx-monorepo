@@ -1,13 +1,13 @@
-// THIS CODE WAS AUTOMATICALLY GENERATED
+// THIS CODE WAS AUTOMATICALLY GENERATED 
 import {v4} from 'uuid';
 import {databaseTypes} from 'types';
-import {IAnnotationDocument} from '../interfaces';
-const UNIQUE_KEY = v4().replaceAll('-', '');
-const RANDOM_NUMBER = Math.random();
+import { IAnnotationDocument } from '../interfaces';
+const UNIQUE_KEY = v4().replaceAll('-', ''); 
+const RANDOM_NUMBER = Math.random(); 
 
 export const MOCK_ANNOTATION = {
-  id: 'id',
-  content: 'content',
-  author: {},
-  state: {},
-} as unknown as IAnnotationDocument;
+      id: 'id',
+          content: 'content',
+          author: {},
+      state: {},
+} as any;

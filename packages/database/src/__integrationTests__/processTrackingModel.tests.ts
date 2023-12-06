@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks';
+import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
@@ -30,15 +30,18 @@ describe('#ProcessTrackingModel', () => {
       if (processTrackingDocId2) {
         await processTrackingModel.findByIdAndDelete(processTrackingDocId2);
       }
+
     });
 
     it('add a new processTracking ', async () => {
       const processTrackingInput = JSON.parse(JSON.stringify(mocks.MOCK_PROCESSTRACKING));
 
+
       const processTrackingDocument = await processTrackingModel.createProcessTracking(processTrackingInput);
 
       assert.isOk(processTrackingDocument);
       assert.strictEqual(Object.keys(processTrackingDocument)[1], Object.keys(processTrackingInput)[1]);
+
 
       processTrackingDocId = processTrackingDocument._id as mongooseTypes.ObjectId;
     });
@@ -54,13 +57,18 @@ describe('#ProcessTrackingModel', () => {
     it('modify a processTracking', async () => {
       assert.isOk(processTrackingDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await processTrackingModel.updateProcessTrackingById(processTrackingDocId, input);
+      const updatedDocument = await processTrackingModel.updateProcessTrackingById(
+        processTrackingDocId,
+        input
+      );
       assert.isOk(updatedDocument.deletedAt);
     });
 
     it('Get multiple processTrackings without a filter', async () => {
       assert.isOk(processTrackingDocId);
       const processTrackingInput = JSON.parse(JSON.stringify(mocks.MOCK_PROCESSTRACKING));
+
+
 
       const processTrackingDocument = await processTrackingModel.createProcessTracking(processTrackingInput);
 
@@ -97,7 +105,10 @@ describe('#ProcessTrackingModel', () => {
       const results2 = await processTrackingModel.queryProcessTrackings({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a processTracking', async () => {

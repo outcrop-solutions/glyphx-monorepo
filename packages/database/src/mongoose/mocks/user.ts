@@ -24,4 +24,4 @@ export const MOCK_USER = {
   customerPayment: {},
   webhooks: [],
   apiKey: 'apiKey',
-} as unknown as IUserDocument;
+} as any;

@@ -24,4 +24,4 @@ export const MOCK_PROJECT = {
   files: {},
   filesystem: [],
   viewName: 'viewName',
-} as unknown as IProjectDocument;
+} as any;

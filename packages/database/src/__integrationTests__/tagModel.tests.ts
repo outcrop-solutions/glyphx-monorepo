@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks';
+import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
@@ -15,8 +15,8 @@ describe('#TagModel', () => {
   context('test the crud functions of the tag model', () => {
     const mongoConnection = new MongoDbConnection();
     const tagModel = mongoConnection.models.TagModel;
-    let tagDocId: ObjectId;
-    let tagDocId2: ObjectId;
+    let tagDocId: string;
+    let tagDocId2: string;
 
     before(async () => {
       await mongoConnection.init();
@@ -30,17 +30,20 @@ describe('#TagModel', () => {
       if (tagDocId2) {
         await tagModel.findByIdAndDelete(tagDocId2);
       }
+
     });
 
     it('add a new tag ', async () => {
       const tagInput = JSON.parse(JSON.stringify(mocks.MOCK_TAG));
+
 
       const tagDocument = await tagModel.createTag(tagInput);
 
       assert.isOk(tagDocument);
       assert.strictEqual(Object.keys(tagDocument)[1], Object.keys(tagInput)[1]);
 
-      tagDocId = tagDocument._id as mongooseTypes.ObjectId;
+
+      tagDocId = tagDocument._id!.toString();
     });
 
     it('retreive a tag', async () => {
@@ -54,7 +57,10 @@ describe('#TagModel', () => {
     it('modify a tag', async () => {
       assert.isOk(tagDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await tagModel.updateTagById(tagDocId, input);
+      const updatedDocument = await tagModel.updateTagById(
+        tagDocId,
+        input
+      );
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -62,16 +68,21 @@ describe('#TagModel', () => {
       assert.isOk(tagDocId);
       const tagInput = JSON.parse(JSON.stringify(mocks.MOCK_TAG));
 
+
+
       const tagDocument = await tagModel.createTag(tagInput);
 
       assert.isOk(tagDocument);
 
-      tagDocId2 = tagDocument._id as mongooseTypes.ObjectId;
+      tagDocId2 = tagDocument._id!.toString();
 
       const tags = await tagModel.queryTags();
       assert.isArray(tags.results);
       assert.isAtLeast(tags.numberOfItems, 2);
-      const expectedDocumentCount = tags.numberOfItems <= tags.itemsPerPage ? tags.numberOfItems : tags.itemsPerPage;
+      const expectedDocumentCount =
+        tags.numberOfItems <= tags.itemsPerPage
+          ? tags.numberOfItems
+          : tags.itemsPerPage;
       assert.strictEqual(tags.results.length, expectedDocumentCount);
     });
 
@@ -94,7 +105,10 @@ describe('#TagModel', () => {
       const results2 = await tagModel.queryTags({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a tag', async () => {
@@ -109,7 +123,7 @@ describe('#TagModel', () => {
       }
 
       assert.isTrue(errored);
-      tagDocId = null as unknown as ObjectId;
+      tagDocId = null as unknown as string;
     });
   });
 });

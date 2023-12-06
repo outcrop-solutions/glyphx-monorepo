@@ -11,4 +11,4 @@ export const MOCK_SESSION = {
   sessionToken: 'sessionToken',
   expires: 'expires',
   user: {},
-} as unknown as ISessionDocument;
+} as any;

@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks';
+import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
@@ -15,9 +15,9 @@ describe('#AccountModel', () => {
   context('test the crud functions of the account model', () => {
     const mongoConnection = new MongoDbConnection();
     const accountModel = mongoConnection.models.AccountModel;
-    let accountDocId: ObjectId;
-    let accountDocId2: ObjectId;
-    let userId: ObjectId;
+    let accountDocId: string;
+    let accountDocId2: string;
+    let userId: string;
     let userDocument: any;
 
     before(async () => {
@@ -26,8 +26,8 @@ describe('#AccountModel', () => {
       const savedUserDocument = await userModel.create([mocks.MOCK_USER], {
         validateBeforeSave: false,
       });
-      userId = savedUserDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(userId);
+      userId =  savedUserDocument[0]!._id.toString();
+      assert.isOk(userId)
     });
 
     after(async () => {
@@ -40,6 +40,7 @@ describe('#AccountModel', () => {
       }
       const userModel = mongoConnection.models.UserModel;
       await userModel.findByIdAndDelete(userId);
+
     });
 
     it('add a new account ', async () => {
@@ -52,7 +53,8 @@ describe('#AccountModel', () => {
       assert.isOk(accountDocument);
       assert.strictEqual(Object.keys(accountDocument)[1], Object.keys(accountInput)[1]);
 
-      accountDocId = accountDocument._id as mongooseTypes.ObjectId;
+
+      accountDocId = accountDocument._id!.toString();
     });
 
     it('retreive a account', async () => {
@@ -66,7 +68,10 @@ describe('#AccountModel', () => {
     it('modify a account', async () => {
       assert.isOk(accountDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await accountModel.updateAccountById(accountDocId, input);
+      const updatedDocument = await accountModel.updateAccountById(
+        accountDocId,
+        input
+      );
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -74,17 +79,21 @@ describe('#AccountModel', () => {
       assert.isOk(accountDocId);
       const accountInput = JSON.parse(JSON.stringify(mocks.MOCK_ACCOUNT));
 
+
+
       const accountDocument = await accountModel.createAccount(accountInput);
 
       assert.isOk(accountDocument);
 
-      accountDocId2 = accountDocument._id as mongooseTypes.ObjectId;
+      accountDocId2 = accountDocument._id!.toString();
 
       const accounts = await accountModel.queryAccounts();
       assert.isArray(accounts.results);
       assert.isAtLeast(accounts.numberOfItems, 2);
       const expectedDocumentCount =
-        accounts.numberOfItems <= accounts.itemsPerPage ? accounts.numberOfItems : accounts.itemsPerPage;
+        accounts.numberOfItems <= accounts.itemsPerPage
+          ? accounts.numberOfItems
+          : accounts.itemsPerPage;
       assert.strictEqual(accounts.results.length, expectedDocumentCount);
     });
 
@@ -107,7 +116,10 @@ describe('#AccountModel', () => {
       const results2 = await accountModel.queryAccounts({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a account', async () => {
@@ -122,7 +134,7 @@ describe('#AccountModel', () => {
       }
 
       assert.isTrue(errored);
-      accountDocId = null as unknown as ObjectId;
+      accountDocId = null as unknown as string;
     });
   });
 });

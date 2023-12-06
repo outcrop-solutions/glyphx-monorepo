@@ -24,6 +24,8 @@ import type {Options} from 'prettier';
  * - dslTypes
  * -
  */
+
+// FIXME: schema and interface files not including fileStats. DataGrid also
 export class CodeGenerator {
   // configurable defaults
   private config: databaseTypes.meta.ICodeGenConfig;

@@ -22,4 +22,4 @@ export const MOCK_ACCOUNT = {
   oauthTokenSecret: 'oauthTokenSecret',
   oauthToken: 'oauthToken',
   user: {},
-} as unknown as IAccountDocument;
+} as any;

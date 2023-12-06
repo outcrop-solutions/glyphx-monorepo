@@ -1,13 +1,13 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {assert} from 'chai';
-import {PresenceModel} from '../../../mongoose/models/presence';
+import { PresenceModel} from '../../../mongoose/models/presence'
 import * as mocks from '../../../mongoose/mocks';
 // eslint-disable-next-line import/no-duplicates
-import {cursorSchema} from '../../../mongoose/schemas';
+import { cursorSchema } from '../../../mongoose/schemas'
 // eslint-disable-next-line import/no-duplicates
-import {cameraSchema} from '../../../mongoose/schemas';
-import {ModelConfigModel} from '../../../mongoose/models/modelConfig';
-import {IQueryResult, databaseTypes} from 'types';
+import { cameraSchema } from '../../../mongoose/schemas'
+import { ModelConfigModel} from '../../../mongoose/models/modelConfig'
+import {IQueryResult, databaseTypes} from 'types'
 import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
@@ -21,7 +21,7 @@ describe('#mongoose/models/presence', () => {
     });
 
     it('should return true if the presenceId exists', async () => {
-      const presenceId = new mongoose.Types.ObjectId();
+      const presenceId = mocks.MOCK_PRESENCE._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves({_id: presenceId});
       sandbox.replace(PresenceModel, 'findById', findByIdStub);
@@ -32,7 +32,7 @@ describe('#mongoose/models/presence', () => {
     });
 
     it('should return false if the presenceId does not exist', async () => {
-      const presenceId = new mongoose.Types.ObjectId();
+      const presenceId = mocks.MOCK_PRESENCE._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
       sandbox.replace(PresenceModel, 'findById', findByIdStub);
@@ -43,7 +43,7 @@ describe('#mongoose/models/presence', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection errors', async () => {
-      const presenceId = new mongoose.Types.ObjectId();
+      const presenceId = mocks.MOCK_PRESENCE._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.rejects('something unexpected has happend');
       sandbox.replace(PresenceModel, 'findById', findByIdStub);
@@ -67,9 +67,12 @@ describe('#mongoose/models/presence', () => {
     });
 
     it('should return true when all the presence ids exist', async () => {
-      const presenceIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const presenceIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
-      const returnedPresenceIds = presenceIds.map((presenceId) => {
+      const returnedPresenceIds = presenceIds.map(presenceId => {
         return {
           _id: presenceId,
         };
@@ -84,7 +87,10 @@ describe('#mongoose/models/presence', () => {
     });
 
     it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
-      const presenceIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const presenceIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
       const returnedPresenceIds = [
         {
@@ -100,7 +106,10 @@ describe('#mongoose/models/presence', () => {
         await PresenceModel.allPresenceIdsExist(presenceIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
-        assert.strictEqual(err.data.value[0].toString(), presenceIds[1].toString());
+        assert.strictEqual(
+          err.data.value[0].toString(),
+          presenceIds[1].toString()
+        );
         errored = true;
       }
       assert.isTrue(errored);
@@ -108,7 +117,10 @@ describe('#mongoose/models/presence', () => {
     });
 
     it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
-      const presenceIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const presenceIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
       const findStub = sandbox.stub();
       findStub.rejects('something bad has happened');
@@ -135,14 +147,16 @@ describe('#mongoose/models/presence', () => {
     it('will not throw an error when no unsafe fields are present', async () => {
       const configStub = sandbox.stub();
       configStub.resolves(true);
-      sandbox.replace(ModelConfigModel, 'modelConfigIdExists', configStub);
+      sandbox.replace(
+        ModelConfigModel,
+        'modelConfigIdExists',
+        configStub
+      );
 
       let errored = false;
 
       try {
-        await PresenceModel.validateUpdateObject(
-          mocks.MOCK_PRESENCE as unknown as Omit<Partial<databaseTypes.IPresence>, '_id'>
-        );
+        await PresenceModel.validateUpdateObject(mocks.MOCK_PRESENCE as unknown as Omit<Partial<databaseTypes.IPresence>, '_id'>);
       } catch (err) {
         errored = true;
       }
@@ -152,14 +166,16 @@ describe('#mongoose/models/presence', () => {
     it('will not throw an error when the related fields exist in the database', async () => {
       const configStub = sandbox.stub();
       configStub.resolves(true);
-      sandbox.replace(ModelConfigModel, 'modelConfigIdExists', configStub);
+      sandbox.replace(
+        ModelConfigModel,
+        'modelConfigIdExists',
+        configStub
+      );
 
       let errored = false;
 
       try {
-        await PresenceModel.validateUpdateObject(
-          mocks.MOCK_PRESENCE as unknown as Omit<Partial<databaseTypes.IPresence>, '_id'>
-        );
+        await PresenceModel.validateUpdateObject(mocks.MOCK_PRESENCE as unknown as Omit<Partial<databaseTypes.IPresence>, '_id'>);
       } catch (err) {
         errored = true;
       }
@@ -168,16 +184,19 @@ describe('#mongoose/models/presence', () => {
     });
 
     it('will fail when the config does not exist.', async () => {
+      
       const configStub = sandbox.stub();
       configStub.resolves(false);
-      sandbox.replace(ModelConfigModel, 'modelConfigIdExists', configStub);
+      sandbox.replace(
+        ModelConfigModel,
+        'modelConfigIdExists',
+        configStub
+      );
 
       let errored = false;
 
       try {
-        await PresenceModel.validateUpdateObject(
-          mocks.MOCK_PRESENCE as unknown as Omit<Partial<databaseTypes.IPresence>, '_id'>
-        );
+        await PresenceModel.validateUpdateObject(mocks.MOCK_PRESENCE as unknown as Omit<Partial<databaseTypes.IPresence>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -185,18 +204,20 @@ describe('#mongoose/models/presence', () => {
       assert.isTrue(errored);
     });
 
+
     it('will fail when trying to update the _id', async () => {
       const configStub = sandbox.stub();
       configStub.resolves(true);
-      sandbox.replace(ModelConfigModel, 'modelConfigIdExists', configStub);
+      sandbox.replace(
+        ModelConfigModel,
+        'modelConfigIdExists',
+        configStub
+      );
 
       let errored = false;
 
       try {
-        await PresenceModel.validateUpdateObject({
-          ...mocks.MOCK_PRESENCE,
-          _id: new mongoose.Types.ObjectId(),
-        } as unknown as Omit<Partial<databaseTypes.IPresence>, '_id'>);
+        await PresenceModel.validateUpdateObject({...mocks.MOCK_PRESENCE, _id: new mongoose.Types.ObjectId() } as unknown as Omit<Partial<databaseTypes.IPresence>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -207,15 +228,16 @@ describe('#mongoose/models/presence', () => {
     it('will fail when trying to update the createdAt', async () => {
       const configStub = sandbox.stub();
       configStub.resolves(true);
-      sandbox.replace(ModelConfigModel, 'modelConfigIdExists', configStub);
+      sandbox.replace(
+        ModelConfigModel,
+        'modelConfigIdExists',
+        configStub
+      );
 
       let errored = false;
 
       try {
-        await PresenceModel.validateUpdateObject({...mocks.MOCK_PRESENCE, createdAt: new Date()} as unknown as Omit<
-          Partial<databaseTypes.IPresence>,
-          '_id'
-        >);
+        await PresenceModel.validateUpdateObject({...mocks.MOCK_PRESENCE, createdAt: new Date() } as unknown as Omit<Partial<databaseTypes.IPresence>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -226,15 +248,16 @@ describe('#mongoose/models/presence', () => {
     it('will fail when trying to update the updatedAt', async () => {
       const configStub = sandbox.stub();
       configStub.resolves(true);
-      sandbox.replace(ModelConfigModel, 'modelConfigIdExists', configStub);
+      sandbox.replace(
+        ModelConfigModel,
+        'modelConfigIdExists',
+        configStub
+      );
 
       let errored = false;
 
       try {
-        await PresenceModel.validateUpdateObject({...mocks.MOCK_PRESENCE, updatedAt: new Date()} as unknown as Omit<
-          Partial<databaseTypes.IPresence>,
-          '_id'
-        >);
+        await PresenceModel.validateUpdateObject({...mocks.MOCK_PRESENCE, updatedAt: new Date() }  as unknown as Omit<Partial<databaseTypes.IPresence>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -251,13 +274,21 @@ describe('#mongoose/models/presence', () => {
     });
 
     it('will create a presence document', async () => {
-      sandbox.replace(PresenceModel, 'validateConfig', sandbox.stub().resolves(mocks.MOCK_PRESENCE.config));
+      sandbox.replace(
+        PresenceModel,
+        'validateConfig',
+        sandbox.stub().resolves(mocks.MOCK_PRESENCE.config)
+      );
 
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(PresenceModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(
+        PresenceModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
 
       sandbox.replace(PresenceModel, 'validate', sandbox.stub().resolves(true));
-
+      
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
 
@@ -269,18 +300,32 @@ describe('#mongoose/models/presence', () => {
       assert.isTrue(stub.calledOnce);
     });
 
+
+
     it('will rethrow a DataValidationError when the config validator throws one', async () => {
-      sandbox.replace(
+       sandbox.replace(
         PresenceModel,
         'validateConfig',
-        sandbox.stub().rejects(new error.DataValidationError('The config does not exist', 'config ', {}))
+        sandbox
+          .stub()
+          .rejects(
+            new error.DataValidationError(
+              'The config does not exist',
+              'config ',
+              {}
+            )
+          )
+      );
+      
+      const objectId = new mongoose.Types.ObjectId();
+      sandbox.replace(
+        PresenceModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
       );
 
-      const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(PresenceModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
-
       sandbox.replace(PresenceModel, 'validate', sandbox.stub().resolves(true));
-
+      
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
 
@@ -297,12 +342,21 @@ describe('#mongoose/models/presence', () => {
       assert.isTrue(errored);
     });
 
+
     it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
-      sandbox.replace(PresenceModel, 'validateConfig', sandbox.stub().resolves(mocks.MOCK_PRESENCE.config));
+      sandbox.replace(
+        PresenceModel,
+        'validateConfig',
+        sandbox.stub().resolves(mocks.MOCK_PRESENCE.config)
+      );
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(PresenceModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(PresenceModel, 'create', sandbox.stub().rejects('oops, something bad has happened'));
+      sandbox.replace(
+        PresenceModel,
+        'create',
+        sandbox.stub().rejects('oops, something bad has happened')
+      );
 
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
@@ -318,7 +372,11 @@ describe('#mongoose/models/presence', () => {
     });
 
     it('will throw an Unexpected Error when create does not return an object with an _id', async () => {
-      sandbox.replace(PresenceModel, 'validateConfig', sandbox.stub().resolves(mocks.MOCK_PRESENCE.config));
+      sandbox.replace(
+        PresenceModel,
+        'validateConfig',
+        sandbox.stub().resolves(mocks.MOCK_PRESENCE.config)
+      );
 
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(PresenceModel, 'validate', sandbox.stub().resolves(true));
@@ -339,11 +397,23 @@ describe('#mongoose/models/presence', () => {
     });
 
     it('will rethrow a DataValidationError when the validate method on the model errors', async () => {
-      sandbox.replace(PresenceModel, 'validateConfig', sandbox.stub().resolves(mocks.MOCK_PRESENCE.config));
+      sandbox.replace(
+        PresenceModel,
+        'validateConfig',
+        sandbox.stub().resolves(mocks.MOCK_PRESENCE.config)
+      );
 
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(PresenceModel, 'validate', sandbox.stub().rejects('oops an error has occurred'));
-      sandbox.replace(PresenceModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(
+        PresenceModel,
+        'validate',
+        sandbox.stub().rejects('oops an error has occurred')
+      );
+      sandbox.replace(
+        PresenceModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
       sandbox.replace(PresenceModel, 'getPresenceById', stub);
@@ -388,7 +458,9 @@ describe('#mongoose/models/presence', () => {
       findByIdStub.returns(new MockMongooseQuery(mocks.MOCK_PRESENCE));
       sandbox.replace(PresenceModel, 'findById', findByIdStub);
 
-      const doc = await PresenceModel.getPresenceById(mocks.MOCK_PRESENCE._id as mongoose.Types.ObjectId);
+      const doc = await PresenceModel.getPresenceById(
+        mocks.MOCK_PRESENCE._id
+      );
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any)?.__v);
@@ -404,7 +476,9 @@ describe('#mongoose/models/presence', () => {
 
       let errored = false;
       try {
-        await PresenceModel.getPresenceById(mocks.MOCK_PRESENCE._id as mongoose.Types.ObjectId);
+        await PresenceModel.getPresenceById(
+          mocks.MOCK_PRESENCE._id
+        );
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -415,12 +489,16 @@ describe('#mongoose/models/presence', () => {
 
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new MockMongooseQuery('something bad happened', true));
+      findByIdStub.returns(
+        new MockMongooseQuery('something bad happened', true)
+      );
       sandbox.replace(PresenceModel, 'findById', findByIdStub);
 
       let errored = false;
       try {
-        await PresenceModel.getPresenceById(mocks.MOCK_PRESENCE._id as mongoose.Types.ObjectId);
+        await PresenceModel.getPresenceById(
+          mocks.MOCK_PRESENCE.id
+        );
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -452,7 +530,7 @@ describe('#mongoose/models/presence', () => {
 
     const mockPresences = [
       {
-        ...mocks.MOCK_PRESENCE,
+       ...mocks.MOCK_PRESENCE,
         _id: new mongoose.Types.ObjectId(),
         config: {
           _id: new mongoose.Types.ObjectId(),
@@ -475,9 +553,17 @@ describe('#mongoose/models/presence', () => {
     });
 
     it('will return the filtered presences', async () => {
-      sandbox.replace(PresenceModel, 'count', sandbox.stub().resolves(mockPresences.length));
+      sandbox.replace(
+        PresenceModel,
+        'count',
+        sandbox.stub().resolves(mockPresences.length)
+      );
 
-      sandbox.replace(PresenceModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockPresences)));
+      sandbox.replace(
+        PresenceModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockPresences))
+      );
 
       const results = await PresenceModel.queryPresences({});
 
@@ -494,7 +580,11 @@ describe('#mongoose/models/presence', () => {
     it('will throw a DataNotFoundError when no values match the filter', async () => {
       sandbox.replace(PresenceModel, 'count', sandbox.stub().resolves(0));
 
-      sandbox.replace(PresenceModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockPresences)));
+      sandbox.replace(
+        PresenceModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockPresences))
+      );
 
       let errored = false;
       try {
@@ -508,9 +598,17 @@ describe('#mongoose/models/presence', () => {
     });
 
     it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
-      sandbox.replace(PresenceModel, 'count', sandbox.stub().resolves(mockPresences.length));
+      sandbox.replace(
+        PresenceModel,
+        'count',
+        sandbox.stub().resolves(mockPresences.length)
+      );
 
-      sandbox.replace(PresenceModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockPresences)));
+      sandbox.replace(
+        PresenceModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockPresences))
+      );
 
       let errored = false;
       try {
@@ -524,12 +622,18 @@ describe('#mongoose/models/presence', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
-      sandbox.replace(PresenceModel, 'count', sandbox.stub().resolves(mockPresences.length));
+      sandbox.replace(
+        PresenceModel,
+        'count',
+        sandbox.stub().resolves(mockPresences.length)
+      );
 
       sandbox.replace(
         PresenceModel,
         'find',
-        sandbox.stub().returns(new MockMongooseQuery('something bad has happened', true))
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
       );
 
       let errored = false;
@@ -561,7 +665,7 @@ describe('#mongoose/models/presence', () => {
         } as unknown as databaseTypes.IModelConfig,
       } as unknown as databaseTypes.IPresence;
 
-      const presenceId = new mongoose.Types.ObjectId();
+      const presenceId = mocks.MOCK_PRESENCE._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -575,9 +679,12 @@ describe('#mongoose/models/presence', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(PresenceModel, 'validateUpdateObject', validateStub);
 
-      const result = await PresenceModel.updatePresenceById(presenceId, updatePresence);
+      const result = await PresenceModel.updatePresenceById(
+        presenceId,
+        updatePresence
+      );
 
-      assert.strictEqual(result._id, presenceId);
+      assert.strictEqual(result._id, mocks.MOCK_PRESENCE._id);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(getPresenceStub.calledOnce);
       assert.isTrue(validateStub.calledOnce);
@@ -586,10 +693,10 @@ describe('#mongoose/models/presence', () => {
     it('Should update a presence with references as ObjectIds', async () => {
       const updatePresence = {
         ...mocks.MOCK_PRESENCE,
-        deletedAt: new Date(),
+        deletedAt: new Date()
       } as unknown as databaseTypes.IPresence;
 
-      const presenceId = new mongoose.Types.ObjectId();
+      const presenceId = mocks.MOCK_PRESENCE._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -603,7 +710,10 @@ describe('#mongoose/models/presence', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(PresenceModel, 'validateUpdateObject', validateStub);
 
-      const result = await PresenceModel.updatePresenceById(presenceId, updatePresence);
+      const result = await PresenceModel.updatePresenceById(
+        presenceId,
+        updatePresence
+      );
 
       assert.strictEqual(result._id, presenceId);
       assert.isTrue(updateStub.calledOnce);
@@ -617,7 +727,7 @@ describe('#mongoose/models/presence', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.IPresence;
 
-      const presenceId = new mongoose.Types.ObjectId();
+      const presenceId = mocks.MOCK_PRESENCE._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
@@ -643,11 +753,11 @@ describe('#mongoose/models/presence', () => {
 
     it('Will fail when validateUpdateObject fails', async () => {
       const updatePresence = {
-        ...mocks.MOCK_PRESENCE,
+       ...mocks.MOCK_PRESENCE,
         deletedAt: new Date(),
       } as unknown as databaseTypes.IPresence;
 
-      const presenceId = new mongoose.Types.ObjectId();
+      const presenceId = mocks.MOCK_PRESENCE._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -658,7 +768,9 @@ describe('#mongoose/models/presence', () => {
       sandbox.replace(PresenceModel, 'getPresenceById', getPresenceStub);
 
       const validateStub = sandbox.stub();
-      validateStub.rejects(new error.InvalidOperationError("You can't do this", {}));
+      validateStub.rejects(
+        new error.InvalidOperationError("You can't do this", {})
+      );
       sandbox.replace(PresenceModel, 'validateUpdateObject', validateStub);
       let errorred = false;
       try {
@@ -672,11 +784,11 @@ describe('#mongoose/models/presence', () => {
 
     it('Will fail when a database error occurs', async () => {
       const updatePresence = {
-        ...mocks.MOCK_PRESENCE,
-        deletedAt: new Date(),
+       ...mocks.MOCK_PRESENCE,
+        deletedAt: new Date()
       } as unknown as databaseTypes.IPresence;
 
-      const presenceId = new mongoose.Types.ObjectId();
+      const presenceId = mocks.MOCK_PRESENCE._id;
 
       const updateStub = sandbox.stub();
       updateStub.rejects('something terrible has happened');
@@ -713,7 +825,7 @@ describe('#mongoose/models/presence', () => {
       deleteStub.resolves({deletedCount: 1});
       sandbox.replace(PresenceModel, 'deleteOne', deleteStub);
 
-      const presenceId = new mongoose.Types.ObjectId();
+      const presenceId = mocks.MOCK_PRESENCE._id;
 
       await PresenceModel.deletePresenceById(presenceId);
 
@@ -725,7 +837,7 @@ describe('#mongoose/models/presence', () => {
       deleteStub.resolves({deletedCount: 0});
       sandbox.replace(PresenceModel, 'deleteOne', deleteStub);
 
-      const presenceId = new mongoose.Types.ObjectId();
+      const presenceId = mocks.MOCK_PRESENCE._id;
 
       let errorred = false;
       try {
@@ -743,7 +855,7 @@ describe('#mongoose/models/presence', () => {
       deleteStub.rejects('something bad has happened');
       sandbox.replace(PresenceModel, 'deleteOne', deleteStub);
 
-      const presenceId = new mongoose.Types.ObjectId();
+      const presenceId = mocks.MOCK_PRESENCE._id;
 
       let errorred = false;
       try {
@@ -756,4 +868,5 @@ describe('#mongoose/models/presence', () => {
       assert.isTrue(errorred);
     });
   });
+
 });

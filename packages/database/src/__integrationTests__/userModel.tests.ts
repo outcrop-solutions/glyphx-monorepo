@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks';
+import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
@@ -15,9 +15,9 @@ describe('#UserModel', () => {
   context('test the crud functions of the user model', () => {
     const mongoConnection = new MongoDbConnection();
     const userModel = mongoConnection.models.UserModel;
-    let userDocId: ObjectId;
-    let userDocId2: ObjectId;
-    let customerPaymentId: ObjectId;
+    let userDocId: string;
+    let userDocId2: string;
+    let customerPaymentId: string;
     let customerPaymentDocument: any;
 
     before(async () => {
@@ -26,8 +26,8 @@ describe('#UserModel', () => {
       const savedCustomerPaymentDocument = await customerPaymentModel.create([mocks.MOCK_CUSTOMERPAYMENT], {
         validateBeforeSave: false,
       });
-      customerPaymentId = savedCustomerPaymentDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(customerPaymentId);
+      customerPaymentId =  savedCustomerPaymentDocument[0]!._id.toString();
+      assert.isOk(customerPaymentId)
     });
 
     after(async () => {
@@ -40,6 +40,7 @@ describe('#UserModel', () => {
       }
       const customerPaymentModel = mongoConnection.models.CustomerPaymentModel;
       await customerPaymentModel.findByIdAndDelete(customerPaymentId);
+
     });
 
     it('add a new user ', async () => {
@@ -52,7 +53,8 @@ describe('#UserModel', () => {
       assert.isOk(userDocument);
       assert.strictEqual(Object.keys(userDocument)[1], Object.keys(userInput)[1]);
 
-      userDocId = userDocument._id as mongooseTypes.ObjectId;
+
+      userDocId = userDocument._id!.toString();
     });
 
     it('retreive a user', async () => {
@@ -66,7 +68,10 @@ describe('#UserModel', () => {
     it('modify a user', async () => {
       assert.isOk(userDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await userModel.updateUserById(userDocId, input);
+      const updatedDocument = await userModel.updateUserById(
+        userDocId,
+        input
+      );
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -74,17 +79,21 @@ describe('#UserModel', () => {
       assert.isOk(userDocId);
       const userInput = JSON.parse(JSON.stringify(mocks.MOCK_USER));
 
+
+
       const userDocument = await userModel.createUser(userInput);
 
       assert.isOk(userDocument);
 
-      userDocId2 = userDocument._id as mongooseTypes.ObjectId;
+      userDocId2 = userDocument._id!.toString();
 
       const users = await userModel.queryUsers();
       assert.isArray(users.results);
       assert.isAtLeast(users.numberOfItems, 2);
       const expectedDocumentCount =
-        users.numberOfItems <= users.itemsPerPage ? users.numberOfItems : users.itemsPerPage;
+        users.numberOfItems <= users.itemsPerPage
+          ? users.numberOfItems
+          : users.itemsPerPage;
       assert.strictEqual(users.results.length, expectedDocumentCount);
     });
 
@@ -107,7 +116,10 @@ describe('#UserModel', () => {
       const results2 = await userModel.queryUsers({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a user', async () => {
@@ -122,7 +134,7 @@ describe('#UserModel', () => {
       }
 
       assert.isTrue(errored);
-      userDocId = null as unknown as ObjectId;
+      userDocId = null as unknown as string;
     });
   });
 });

@@ -1,12 +1,12 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {assert} from 'chai';
-import {DocumentModel} from '../../../mongoose/models/document';
+import { DocumentModel} from '../../../mongoose/models/document'
 import * as mocks from '../../../mongoose/mocks';
-import {PresenceModel} from '../../../mongoose/models/presence';
-import {AnnotationModel} from '../../../mongoose/models/annotation';
-import {ThresholdModel} from '../../../mongoose/models/threshold';
-import {ModelConfigModel} from '../../../mongoose/models/modelConfig';
-import {IQueryResult, databaseTypes} from 'types';
+import { PresenceModel} from '../../../mongoose/models/presence'
+import { AnnotationModel} from '../../../mongoose/models/annotation'
+import { ThresholdModel} from '../../../mongoose/models/threshold'
+import { ModelConfigModel} from '../../../mongoose/models/modelConfig'
+import {IQueryResult, databaseTypes} from 'types'
 import {error} from 'core';
 import mongoose from 'mongoose';
 import {createSandbox} from 'sinon';
@@ -20,7 +20,7 @@ describe('#mongoose/models/document', () => {
     });
 
     it('should return true if the documentId exists', async () => {
-      const documentId = new mongoose.Types.ObjectId();
+      const documentId = mocks.MOCK_DOCUMENT._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves({_id: documentId});
       sandbox.replace(DocumentModel, 'findById', findByIdStub);
@@ -31,7 +31,7 @@ describe('#mongoose/models/document', () => {
     });
 
     it('should return false if the documentId does not exist', async () => {
-      const documentId = new mongoose.Types.ObjectId();
+      const documentId = mocks.MOCK_DOCUMENT._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
       sandbox.replace(DocumentModel, 'findById', findByIdStub);
@@ -42,7 +42,7 @@ describe('#mongoose/models/document', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection errors', async () => {
-      const documentId = new mongoose.Types.ObjectId();
+      const documentId = mocks.MOCK_DOCUMENT._id;
       const findByIdStub = sandbox.stub();
       findByIdStub.rejects('something unexpected has happend');
       sandbox.replace(DocumentModel, 'findById', findByIdStub);
@@ -66,9 +66,12 @@ describe('#mongoose/models/document', () => {
     });
 
     it('should return true when all the document ids exist', async () => {
-      const documentIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const documentIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
-      const returnedDocumentIds = documentIds.map((documentId) => {
+      const returnedDocumentIds = documentIds.map(documentId => {
         return {
           _id: documentId,
         };
@@ -83,7 +86,10 @@ describe('#mongoose/models/document', () => {
     });
 
     it('should throw a DataNotFoundError when one of the ids does not exist', async () => {
-      const documentIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const documentIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
       const returnedDocumentIds = [
         {
@@ -99,7 +105,10 @@ describe('#mongoose/models/document', () => {
         await DocumentModel.allDocumentIdsExist(documentIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
-        assert.strictEqual(err.data.value[0].toString(), documentIds[1].toString());
+        assert.strictEqual(
+          err.data.value[0].toString(),
+          documentIds[1].toString()
+        );
         errored = true;
       }
       assert.isTrue(errored);
@@ -107,7 +116,10 @@ describe('#mongoose/models/document', () => {
     });
 
     it('should throw a DatabaseOperationError when the undelying connection errors', async () => {
-      const documentIds = [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()];
+      const documentIds = [
+        new mongoose.Types.ObjectId(),
+        new mongoose.Types.ObjectId(),
+      ];
 
       const findStub = sandbox.stub();
       findStub.rejects('something bad has happened');
@@ -132,12 +144,11 @@ describe('#mongoose/models/document', () => {
     });
 
     it('will not throw an error when no unsafe fields are present', async () => {
+
       let errored = false;
 
       try {
-        await DocumentModel.validateUpdateObject(
-          mocks.MOCK_DOCUMENT as unknown as Omit<Partial<databaseTypes.IDocument>, '_id'>
-        );
+        await DocumentModel.validateUpdateObject(mocks.MOCK_DOCUMENT as unknown as Omit<Partial<databaseTypes.IDocument>, '_id'>);
       } catch (err) {
         errored = true;
       }
@@ -145,26 +156,25 @@ describe('#mongoose/models/document', () => {
     });
 
     it('will not throw an error when the related fields exist in the database', async () => {
+
       let errored = false;
 
       try {
-        await DocumentModel.validateUpdateObject(
-          mocks.MOCK_DOCUMENT as unknown as Omit<Partial<databaseTypes.IDocument>, '_id'>
-        );
+        await DocumentModel.validateUpdateObject(mocks.MOCK_DOCUMENT as unknown as Omit<Partial<databaseTypes.IDocument>, '_id'>);
       } catch (err) {
         errored = true;
       }
       assert.isFalse(errored);
     });
 
+
+
     it('will fail when trying to update the _id', async () => {
+
       let errored = false;
 
       try {
-        await DocumentModel.validateUpdateObject({
-          ...mocks.MOCK_DOCUMENT,
-          _id: new mongoose.Types.ObjectId(),
-        } as unknown as Omit<Partial<databaseTypes.IDocument>, '_id'>);
+        await DocumentModel.validateUpdateObject({...mocks.MOCK_DOCUMENT, _id: new mongoose.Types.ObjectId() } as unknown as Omit<Partial<databaseTypes.IDocument>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -173,13 +183,11 @@ describe('#mongoose/models/document', () => {
     });
 
     it('will fail when trying to update the createdAt', async () => {
+
       let errored = false;
 
       try {
-        await DocumentModel.validateUpdateObject({...mocks.MOCK_DOCUMENT, createdAt: new Date()} as unknown as Omit<
-          Partial<databaseTypes.IDocument>,
-          '_id'
-        >);
+        await DocumentModel.validateUpdateObject({...mocks.MOCK_DOCUMENT, createdAt: new Date() } as unknown as Omit<Partial<databaseTypes.IDocument>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -188,13 +196,11 @@ describe('#mongoose/models/document', () => {
     });
 
     it('will fail when trying to update the updatedAt', async () => {
+
       let errored = false;
 
       try {
-        await DocumentModel.validateUpdateObject({...mocks.MOCK_DOCUMENT, updatedAt: new Date()} as unknown as Omit<
-          Partial<databaseTypes.IDocument>,
-          '_id'
-        >);
+        await DocumentModel.validateUpdateObject({...mocks.MOCK_DOCUMENT, updatedAt: new Date() }  as unknown as Omit<Partial<databaseTypes.IDocument>, '_id'>);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errored = true;
@@ -211,16 +217,36 @@ describe('#mongoose/models/document', () => {
     });
 
     it('will create a document document', async () => {
-      sandbox.replace(DocumentModel, 'validatePresences', sandbox.stub().resolves(mocks.MOCK_DOCUMENT.presence));
-      sandbox.replace(DocumentModel, 'validateAnnotations', sandbox.stub().resolves(mocks.MOCK_DOCUMENT.annotations));
-      sandbox.replace(DocumentModel, 'validateThresholds', sandbox.stub().resolves(mocks.MOCK_DOCUMENT.thresholds));
-      sandbox.replace(DocumentModel, 'validateConfigs', sandbox.stub().resolves(mocks.MOCK_DOCUMENT.configs));
-
+      sandbox.replace(
+        DocumentModel,
+        'validatePresences',
+        sandbox.stub().resolves(mocks.MOCK_DOCUMENT.presence)
+      );
+            sandbox.replace(
+        DocumentModel,
+        'validateAnnotations',
+        sandbox.stub().resolves(mocks.MOCK_DOCUMENT.annotations)
+      );
+            sandbox.replace(
+        DocumentModel,
+        'validateThresholds',
+        sandbox.stub().resolves(mocks.MOCK_DOCUMENT.thresholds)
+      );
+            sandbox.replace(
+        DocumentModel,
+        'validateConfigs',
+        sandbox.stub().resolves(mocks.MOCK_DOCUMENT.configs)
+      );
+      
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(DocumentModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(
+        DocumentModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
 
       sandbox.replace(DocumentModel, 'validate', sandbox.stub().resolves(true));
-
+      
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
 
@@ -232,15 +258,37 @@ describe('#mongoose/models/document', () => {
       assert.isTrue(stub.calledOnce);
     });
 
-    it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
-      sandbox.replace(DocumentModel, 'validatePresences', sandbox.stub().resolves(mocks.MOCK_DOCUMENT.presence));
-      sandbox.replace(DocumentModel, 'validateAnnotations', sandbox.stub().resolves(mocks.MOCK_DOCUMENT.annotations));
-      sandbox.replace(DocumentModel, 'validateThresholds', sandbox.stub().resolves(mocks.MOCK_DOCUMENT.thresholds));
-      sandbox.replace(DocumentModel, 'validateConfigs', sandbox.stub().resolves(mocks.MOCK_DOCUMENT.configs));
 
+
+    it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
+      sandbox.replace(
+        DocumentModel,
+        'validatePresences',
+        sandbox.stub().resolves(mocks.MOCK_DOCUMENT.presence)
+      );
+            sandbox.replace(
+        DocumentModel,
+        'validateAnnotations',
+        sandbox.stub().resolves(mocks.MOCK_DOCUMENT.annotations)
+      );
+            sandbox.replace(
+        DocumentModel,
+        'validateThresholds',
+        sandbox.stub().resolves(mocks.MOCK_DOCUMENT.thresholds)
+      );
+            sandbox.replace(
+        DocumentModel,
+        'validateConfigs',
+        sandbox.stub().resolves(mocks.MOCK_DOCUMENT.configs)
+      );
+      
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(DocumentModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(DocumentModel, 'create', sandbox.stub().rejects('oops, something bad has happened'));
+      sandbox.replace(
+        DocumentModel,
+        'create',
+        sandbox.stub().rejects('oops, something bad has happened')
+      );
 
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
@@ -256,11 +304,27 @@ describe('#mongoose/models/document', () => {
     });
 
     it('will throw an Unexpected Error when create does not return an object with an _id', async () => {
-      sandbox.replace(DocumentModel, 'validatePresences', sandbox.stub().resolves(mocks.MOCK_DOCUMENT.presence));
-      sandbox.replace(DocumentModel, 'validateAnnotations', sandbox.stub().resolves(mocks.MOCK_DOCUMENT.annotations));
-      sandbox.replace(DocumentModel, 'validateThresholds', sandbox.stub().resolves(mocks.MOCK_DOCUMENT.thresholds));
-      sandbox.replace(DocumentModel, 'validateConfigs', sandbox.stub().resolves(mocks.MOCK_DOCUMENT.configs));
-
+      sandbox.replace(
+        DocumentModel,
+        'validatePresences',
+        sandbox.stub().resolves(mocks.MOCK_DOCUMENT.presence)
+      );
+            sandbox.replace(
+        DocumentModel,
+        'validateAnnotations',
+        sandbox.stub().resolves(mocks.MOCK_DOCUMENT.annotations)
+      );
+            sandbox.replace(
+        DocumentModel,
+        'validateThresholds',
+        sandbox.stub().resolves(mocks.MOCK_DOCUMENT.thresholds)
+      );
+            sandbox.replace(
+        DocumentModel,
+        'validateConfigs',
+        sandbox.stub().resolves(mocks.MOCK_DOCUMENT.configs)
+      );
+      
       const objectId = new mongoose.Types.ObjectId();
       sandbox.replace(DocumentModel, 'validate', sandbox.stub().resolves(true));
       sandbox.replace(DocumentModel, 'create', sandbox.stub().resolves([{}]));
@@ -280,14 +344,38 @@ describe('#mongoose/models/document', () => {
     });
 
     it('will rethrow a DataValidationError when the validate method on the model errors', async () => {
-      sandbox.replace(DocumentModel, 'validatePresences', sandbox.stub().resolves(mocks.MOCK_DOCUMENT.presence));
-      sandbox.replace(DocumentModel, 'validateAnnotations', sandbox.stub().resolves(mocks.MOCK_DOCUMENT.annotations));
-      sandbox.replace(DocumentModel, 'validateThresholds', sandbox.stub().resolves(mocks.MOCK_DOCUMENT.thresholds));
-      sandbox.replace(DocumentModel, 'validateConfigs', sandbox.stub().resolves(mocks.MOCK_DOCUMENT.configs));
-
+      sandbox.replace(
+        DocumentModel,
+        'validatePresences',
+        sandbox.stub().resolves(mocks.MOCK_DOCUMENT.presence)
+      );
+            sandbox.replace(
+        DocumentModel,
+        'validateAnnotations',
+        sandbox.stub().resolves(mocks.MOCK_DOCUMENT.annotations)
+      );
+            sandbox.replace(
+        DocumentModel,
+        'validateThresholds',
+        sandbox.stub().resolves(mocks.MOCK_DOCUMENT.thresholds)
+      );
+            sandbox.replace(
+        DocumentModel,
+        'validateConfigs',
+        sandbox.stub().resolves(mocks.MOCK_DOCUMENT.configs)
+      );
+      
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(DocumentModel, 'validate', sandbox.stub().rejects('oops an error has occurred'));
-      sandbox.replace(DocumentModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(
+        DocumentModel,
+        'validate',
+        sandbox.stub().rejects('oops an error has occurred')
+      );
+      sandbox.replace(
+        DocumentModel,
+        'create',
+        sandbox.stub().resolves([{_id: objectId}])
+      );
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
       sandbox.replace(DocumentModel, 'getDocumentById', stub);
@@ -332,15 +420,17 @@ describe('#mongoose/models/document', () => {
       findByIdStub.returns(new MockMongooseQuery(mocks.MOCK_DOCUMENT));
       sandbox.replace(DocumentModel, 'findById', findByIdStub);
 
-      const doc = await DocumentModel.getDocumentById(mocks.MOCK_DOCUMENT._id as mongoose.Types.ObjectId);
+      const doc = await DocumentModel.getDocumentById(
+        mocks.MOCK_DOCUMENT._id
+      );
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any)?.__v);
-      assert.isUndefined((doc.presence[0] as any)?.__v);
-      assert.isUndefined((doc.annotations[0] as any)?.__v);
-      assert.isUndefined((doc.thresholds[0] as any)?.__v);
-      assert.isUndefined((doc.configs[0] as any)?.__v);
-
+      assert.isUndefined((doc.presence![0] as any)?.__v);
+            assert.isUndefined((doc.annotations![0] as any)?.__v);
+            assert.isUndefined((doc.thresholds![0] as any)?.__v);
+            assert.isUndefined((doc.configs![0] as any)?.__v);
+      
       assert.strictEqual(doc._id, mocks.MOCK_DOCUMENT._id);
     });
 
@@ -351,7 +441,9 @@ describe('#mongoose/models/document', () => {
 
       let errored = false;
       try {
-        await DocumentModel.getDocumentById(mocks.MOCK_DOCUMENT._id as mongoose.Types.ObjectId);
+        await DocumentModel.getDocumentById(
+          mocks.MOCK_DOCUMENT._id
+        );
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -362,12 +454,16 @@ describe('#mongoose/models/document', () => {
 
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
-      findByIdStub.returns(new MockMongooseQuery('something bad happened', true));
+      findByIdStub.returns(
+        new MockMongooseQuery('something bad happened', true)
+      );
       sandbox.replace(DocumentModel, 'findById', findByIdStub);
 
       let errored = false;
       try {
-        await DocumentModel.getDocumentById(mocks.MOCK_DOCUMENT._id as mongoose.Types.ObjectId);
+        await DocumentModel.getDocumentById(
+          mocks.MOCK_DOCUMENT.id
+        );
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -399,21 +495,21 @@ describe('#mongoose/models/document', () => {
 
     const mockDocuments = [
       {
-        ...mocks.MOCK_DOCUMENT,
+       ...mocks.MOCK_DOCUMENT,
         _id: new mongoose.Types.ObjectId(),
         presence: [],
-        annotations: [],
-        thresholds: [],
-        configs: [],
-      } as databaseTypes.IDocument,
+                annotations: [],
+                thresholds: [],
+                configs: [],
+              } as databaseTypes.IDocument,
       {
         ...mocks.MOCK_DOCUMENT,
         _id: new mongoose.Types.ObjectId(),
         presence: [],
-        annotations: [],
-        thresholds: [],
-        configs: [],
-      } as databaseTypes.IDocument,
+                annotations: [],
+                thresholds: [],
+                configs: [],
+              } as databaseTypes.IDocument,
     ];
     const sandbox = createSandbox();
 
@@ -422,9 +518,17 @@ describe('#mongoose/models/document', () => {
     });
 
     it('will return the filtered documents', async () => {
-      sandbox.replace(DocumentModel, 'count', sandbox.stub().resolves(mockDocuments.length));
+      sandbox.replace(
+        DocumentModel,
+        'count',
+        sandbox.stub().resolves(mockDocuments.length)
+      );
 
-      sandbox.replace(DocumentModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockDocuments)));
+      sandbox.replace(
+        DocumentModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockDocuments))
+      );
 
       const results = await DocumentModel.queryDocuments({});
 
@@ -435,16 +539,20 @@ describe('#mongoose/models/document', () => {
       results.results.forEach((doc: any) => {
         assert.isUndefined((doc as any)?.__v);
         assert.isUndefined((doc.presence[0] as any)?.__v);
-        assert.isUndefined((doc.annotations[0] as any)?.__v);
-        assert.isUndefined((doc.thresholds[0] as any)?.__v);
-        assert.isUndefined((doc.configs[0] as any)?.__v);
-      });
+                assert.isUndefined((doc.annotations[0] as any)?.__v);
+                assert.isUndefined((doc.thresholds[0] as any)?.__v);
+                assert.isUndefined((doc.configs[0] as any)?.__v);
+              });
     });
 
     it('will throw a DataNotFoundError when no values match the filter', async () => {
       sandbox.replace(DocumentModel, 'count', sandbox.stub().resolves(0));
 
-      sandbox.replace(DocumentModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockDocuments)));
+      sandbox.replace(
+        DocumentModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockDocuments))
+      );
 
       let errored = false;
       try {
@@ -458,9 +566,17 @@ describe('#mongoose/models/document', () => {
     });
 
     it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
-      sandbox.replace(DocumentModel, 'count', sandbox.stub().resolves(mockDocuments.length));
+      sandbox.replace(
+        DocumentModel,
+        'count',
+        sandbox.stub().resolves(mockDocuments.length)
+      );
 
-      sandbox.replace(DocumentModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockDocuments)));
+      sandbox.replace(
+        DocumentModel,
+        'find',
+        sandbox.stub().returns(new MockMongooseQuery(mockDocuments))
+      );
 
       let errored = false;
       try {
@@ -474,12 +590,18 @@ describe('#mongoose/models/document', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
-      sandbox.replace(DocumentModel, 'count', sandbox.stub().resolves(mockDocuments.length));
+      sandbox.replace(
+        DocumentModel,
+        'count',
+        sandbox.stub().resolves(mockDocuments.length)
+      );
 
       sandbox.replace(
         DocumentModel,
         'find',
-        sandbox.stub().returns(new MockMongooseQuery('something bad has happened', true))
+        sandbox
+          .stub()
+          .returns(new MockMongooseQuery('something bad has happened', true))
       );
 
       let errored = false;
@@ -506,12 +628,12 @@ describe('#mongoose/models/document', () => {
         ...mocks.MOCK_DOCUMENT,
         deletedAt: new Date(),
         presence: [],
-        annotations: [],
-        thresholds: [],
-        configs: [],
-      } as unknown as databaseTypes.IDocument;
+                annotations: [],
+                thresholds: [],
+                configs: [],
+              } as unknown as databaseTypes.IDocument;
 
-      const documentId = new mongoose.Types.ObjectId();
+      const documentId = mocks.MOCK_DOCUMENT._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -525,9 +647,12 @@ describe('#mongoose/models/document', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(DocumentModel, 'validateUpdateObject', validateStub);
 
-      const result = await DocumentModel.updateDocumentById(documentId, updateDocument);
+      const result = await DocumentModel.updateDocumentById(
+        documentId,
+        updateDocument
+      );
 
-      assert.strictEqual(result._id, documentId);
+      assert.strictEqual(result._id, mocks.MOCK_DOCUMENT._id);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(getDocumentStub.calledOnce);
       assert.isTrue(validateStub.calledOnce);
@@ -536,10 +661,10 @@ describe('#mongoose/models/document', () => {
     it('Should update a document with references as ObjectIds', async () => {
       const updateDocument = {
         ...mocks.MOCK_DOCUMENT,
-        deletedAt: new Date(),
+        deletedAt: new Date()
       } as unknown as databaseTypes.IDocument;
 
-      const documentId = new mongoose.Types.ObjectId();
+      const documentId = mocks.MOCK_DOCUMENT._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -553,7 +678,10 @@ describe('#mongoose/models/document', () => {
       validateStub.resolves(undefined as void);
       sandbox.replace(DocumentModel, 'validateUpdateObject', validateStub);
 
-      const result = await DocumentModel.updateDocumentById(documentId, updateDocument);
+      const result = await DocumentModel.updateDocumentById(
+        documentId,
+        updateDocument
+      );
 
       assert.strictEqual(result._id, documentId);
       assert.isTrue(updateStub.calledOnce);
@@ -567,7 +695,7 @@ describe('#mongoose/models/document', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.IDocument;
 
-      const documentId = new mongoose.Types.ObjectId();
+      const documentId = mocks.MOCK_DOCUMENT._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
@@ -593,11 +721,11 @@ describe('#mongoose/models/document', () => {
 
     it('Will fail when validateUpdateObject fails', async () => {
       const updateDocument = {
-        ...mocks.MOCK_DOCUMENT,
+       ...mocks.MOCK_DOCUMENT,
         deletedAt: new Date(),
       } as unknown as databaseTypes.IDocument;
 
-      const documentId = new mongoose.Types.ObjectId();
+      const documentId = mocks.MOCK_DOCUMENT._id;
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -608,7 +736,9 @@ describe('#mongoose/models/document', () => {
       sandbox.replace(DocumentModel, 'getDocumentById', getDocumentStub);
 
       const validateStub = sandbox.stub();
-      validateStub.rejects(new error.InvalidOperationError("You can't do this", {}));
+      validateStub.rejects(
+        new error.InvalidOperationError("You can't do this", {})
+      );
       sandbox.replace(DocumentModel, 'validateUpdateObject', validateStub);
       let errorred = false;
       try {
@@ -622,11 +752,11 @@ describe('#mongoose/models/document', () => {
 
     it('Will fail when a database error occurs', async () => {
       const updateDocument = {
-        ...mocks.MOCK_DOCUMENT,
-        deletedAt: new Date(),
+       ...mocks.MOCK_DOCUMENT,
+        deletedAt: new Date()
       } as unknown as databaseTypes.IDocument;
 
-      const documentId = new mongoose.Types.ObjectId();
+      const documentId = mocks.MOCK_DOCUMENT._id;
 
       const updateStub = sandbox.stub();
       updateStub.rejects('something terrible has happened');
@@ -663,7 +793,7 @@ describe('#mongoose/models/document', () => {
       deleteStub.resolves({deletedCount: 1});
       sandbox.replace(DocumentModel, 'deleteOne', deleteStub);
 
-      const documentId = new mongoose.Types.ObjectId();
+      const documentId = mocks.MOCK_DOCUMENT._id;
 
       await DocumentModel.deleteDocumentById(documentId);
 
@@ -675,7 +805,7 @@ describe('#mongoose/models/document', () => {
       deleteStub.resolves({deletedCount: 0});
       sandbox.replace(DocumentModel, 'deleteOne', deleteStub);
 
-      const documentId = new mongoose.Types.ObjectId();
+      const documentId = mocks.MOCK_DOCUMENT._id;
 
       let errorred = false;
       try {
@@ -693,7 +823,7 @@ describe('#mongoose/models/document', () => {
       deleteStub.rejects('something bad has happened');
       sandbox.replace(DocumentModel, 'deleteOne', deleteStub);
 
-      const documentId = new mongoose.Types.ObjectId();
+      const documentId = mocks.MOCK_DOCUMENT._id;
 
       let errorred = false;
       try {
@@ -706,4 +836,5 @@ describe('#mongoose/models/document', () => {
       assert.isTrue(errorred);
     });
   });
+
 });

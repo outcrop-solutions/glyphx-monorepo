@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks';
+import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
@@ -15,11 +15,11 @@ describe('#AnnotationModel', () => {
   context('test the crud functions of the annotation model', () => {
     const mongoConnection = new MongoDbConnection();
     const annotationModel = mongoConnection.models.AnnotationModel;
-    let annotationDocId: ObjectId;
-    let annotationDocId2: ObjectId;
-    let authorId: ObjectId;
+    let annotationDocId: string;
+    let annotationDocId2: string;
+    let authorId: string;
     let authorDocument: any;
-    let stateId: ObjectId;
+    let stateId: string;
     let stateDocument: any;
 
     before(async () => {
@@ -28,14 +28,14 @@ describe('#AnnotationModel', () => {
       const savedAuthorDocument = await authorModel.create([mocks.MOCK_USER], {
         validateBeforeSave: false,
       });
-      authorId = savedAuthorDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(authorId);
+      authorId =  savedAuthorDocument[0]!._id.toString();
+      assert.isOk(authorId)
       const stateModel = mongoConnection.models.StateModel;
       const savedStateDocument = await stateModel.create([mocks.MOCK_STATE], {
         validateBeforeSave: false,
       });
-      stateId = savedStateDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(stateId);
+      stateId =  savedStateDocument[0]!._id.toString();
+      assert.isOk(stateId)
     });
 
     after(async () => {
@@ -50,6 +50,7 @@ describe('#AnnotationModel', () => {
       await authorModel.findByIdAndDelete(authorId);
       const stateModel = mongoConnection.models.StateModel;
       await stateModel.findByIdAndDelete(stateId);
+
     });
 
     it('add a new annotation ', async () => {
@@ -63,7 +64,8 @@ describe('#AnnotationModel', () => {
       assert.isOk(annotationDocument);
       assert.strictEqual(Object.keys(annotationDocument)[1], Object.keys(annotationInput)[1]);
 
-      annotationDocId = annotationDocument._id as mongooseTypes.ObjectId;
+
+      annotationDocId = annotationDocument._id!.toString();
     });
 
     it('retreive a annotation', async () => {
@@ -77,7 +79,10 @@ describe('#AnnotationModel', () => {
     it('modify a annotation', async () => {
       assert.isOk(annotationDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await annotationModel.updateAnnotationById(annotationDocId, input);
+      const updatedDocument = await annotationModel.updateAnnotationById(
+        annotationDocId,
+        input
+      );
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -85,17 +90,21 @@ describe('#AnnotationModel', () => {
       assert.isOk(annotationDocId);
       const annotationInput = JSON.parse(JSON.stringify(mocks.MOCK_ANNOTATION));
 
+
+
       const annotationDocument = await annotationModel.createAnnotation(annotationInput);
 
       assert.isOk(annotationDocument);
 
-      annotationDocId2 = annotationDocument._id as mongooseTypes.ObjectId;
+      annotationDocId2 = annotationDocument._id!.toString();
 
       const annotations = await annotationModel.queryAnnotations();
       assert.isArray(annotations.results);
       assert.isAtLeast(annotations.numberOfItems, 2);
       const expectedDocumentCount =
-        annotations.numberOfItems <= annotations.itemsPerPage ? annotations.numberOfItems : annotations.itemsPerPage;
+        annotations.numberOfItems <= annotations.itemsPerPage
+          ? annotations.numberOfItems
+          : annotations.itemsPerPage;
       assert.strictEqual(annotations.results.length, expectedDocumentCount);
     });
 
@@ -118,7 +127,10 @@ describe('#AnnotationModel', () => {
       const results2 = await annotationModel.queryAnnotations({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a annotation', async () => {
@@ -133,7 +145,7 @@ describe('#AnnotationModel', () => {
       }
 
       assert.isTrue(errored);
-      annotationDocId = null as unknown as ObjectId;
+      annotationDocId = null as unknown as string;
     });
   });
 });

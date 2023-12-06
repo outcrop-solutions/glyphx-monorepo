@@ -10,7 +10,14 @@ import {
   IModelConfigMethods,
 } from '../interfaces';
 // eslint-disable-next-line import/no-duplicates
-import {minColorSchema} from '../schemas';
+import {
+  minColorSchema,
+  maxColorSchema,
+  backgroundColorSchema,
+  xAxisColorSchema,
+  yAxisColorSchema,
+  zAxisColorSchema,
+} from '../schemas';
 
 const SCHEMA = new Schema<IModelConfigDocument, IModelConfigStaticMethods, IModelConfigMethods>({
   createdAt: {

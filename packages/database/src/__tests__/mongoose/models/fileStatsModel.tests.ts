@@ -1,9 +1,8 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {assert} from 'chai';
-import {FileStatModel} from '../../../mongoose/models/fileStat';
+import {FileStatsModel} from '../../../mongoose/models/fileStats';
 import * as mocks from '../../../mongoose/mocks';
 // eslint-disable-next-line import/no-duplicates
-import {dataGridSchema} from '../../../mongoose/schemas';
 import {IQueryResult, databaseTypes} from 'types';
 import {error} from 'core';
 import mongoose from 'mongoose';
@@ -21,9 +20,9 @@ describe('#mongoose/models/fileStats', () => {
       const fileStatsId = new mongoose.Types.ObjectId();
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves({_id: fileStatsId});
-      sandbox.replace(FileStatModel, 'findById', findByIdStub);
+      sandbox.replace(FileStatsModel, 'findById', findByIdStub);
 
-      const result = await FileStatModel.fileStatsIdExists(fileStatsId);
+      const result = await FileStatsModel.fileStatsIdExists(fileStatsId);
 
       assert.isTrue(result);
     });
@@ -32,9 +31,9 @@ describe('#mongoose/models/fileStats', () => {
       const fileStatsId = new mongoose.Types.ObjectId();
       const findByIdStub = sandbox.stub();
       findByIdStub.resolves(null);
-      sandbox.replace(FileStatModel, 'findById', findByIdStub);
+      sandbox.replace(FileStatsModel, 'findById', findByIdStub);
 
-      const result = await FileStatModel.fileStatsIdExists(fileStatsId);
+      const result = await FileStatsModel.fileStatsIdExists(fileStatsId);
 
       assert.isFalse(result);
     });
@@ -43,11 +42,11 @@ describe('#mongoose/models/fileStats', () => {
       const fileStatsId = new mongoose.Types.ObjectId();
       const findByIdStub = sandbox.stub();
       findByIdStub.rejects('something unexpected has happend');
-      sandbox.replace(FileStatModel, 'findById', findByIdStub);
+      sandbox.replace(FileStatsModel, 'findById', findByIdStub);
 
       let errorred = false;
       try {
-        await FileStatModel.fileStatsIdExists(fileStatsId);
+        await FileStatsModel.fileStatsIdExists(fileStatsId);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -74,9 +73,9 @@ describe('#mongoose/models/fileStats', () => {
 
       const findStub = sandbox.stub();
       findStub.resolves(returnedFileStatsIds);
-      sandbox.replace(FileStatModel, 'find', findStub);
+      sandbox.replace(FileStatsModel, 'find', findStub);
 
-      assert.isTrue(await FileStatModel.allFileStatsIdsExist(fileStatsIds));
+      assert.isTrue(await FileStatsModel.allFileStatsIdsExist(fileStatsIds));
       assert.isTrue(findStub.calledOnce);
     });
 
@@ -91,10 +90,10 @@ describe('#mongoose/models/fileStats', () => {
 
       const findStub = sandbox.stub();
       findStub.resolves(returnedFileStatsIds);
-      sandbox.replace(FileStatModel, 'find', findStub);
+      sandbox.replace(FileStatsModel, 'find', findStub);
       let errored = false;
       try {
-        await FileStatModel.allFileStatsIdsExist(fileStatsIds);
+        await FileStatsModel.allFileStatsIdsExist(fileStatsIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
         assert.strictEqual(err.data.value[0].toString(), fileStatsIds[1].toString());
@@ -109,10 +108,10 @@ describe('#mongoose/models/fileStats', () => {
 
       const findStub = sandbox.stub();
       findStub.rejects('something bad has happened');
-      sandbox.replace(FileStatModel, 'find', findStub);
+      sandbox.replace(FileStatsModel, 'find', findStub);
       let errored = false;
       try {
-        await FileStatModel.allFileStatsIdsExist(fileStatsIds);
+        await FileStatsModel.allFileStatsIdsExist(fileStatsIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -133,7 +132,7 @@ describe('#mongoose/models/fileStats', () => {
       let errored = false;
 
       try {
-        await FileStatModel.validateUpdateObject(
+        await FileStatsModel.validateUpdateObject(
           mocks.MOCK_FILESTATS as unknown as Omit<Partial<databaseTypes.IFileStats>, '_id'>
         );
       } catch (err) {
@@ -146,7 +145,7 @@ describe('#mongoose/models/fileStats', () => {
       let errored = false;
 
       try {
-        await FileStatModel.validateUpdateObject(
+        await FileStatsModel.validateUpdateObject(
           mocks.MOCK_FILESTATS as unknown as Omit<Partial<databaseTypes.IFileStats>, '_id'>
         );
       } catch (err) {
@@ -159,7 +158,7 @@ describe('#mongoose/models/fileStats', () => {
       let errored = false;
 
       try {
-        await FileStatModel.validateUpdateObject({
+        await FileStatsModel.validateUpdateObject({
           ...mocks.MOCK_FILESTATS,
           _id: new mongoose.Types.ObjectId(),
         } as unknown as Omit<Partial<databaseTypes.IFileStats>, '_id'>);
@@ -174,7 +173,7 @@ describe('#mongoose/models/fileStats', () => {
       let errored = false;
 
       try {
-        await FileStatModel.validateUpdateObject({...mocks.MOCK_FILESTATS, createdAt: new Date()} as unknown as Omit<
+        await FileStatsModel.validateUpdateObject({...mocks.MOCK_FILESTATS, createdAt: new Date()} as unknown as Omit<
           Partial<databaseTypes.IFileStats>,
           '_id'
         >);
@@ -189,7 +188,7 @@ describe('#mongoose/models/fileStats', () => {
       let errored = false;
 
       try {
-        await FileStatModel.validateUpdateObject({...mocks.MOCK_FILESTATS, updatedAt: new Date()} as unknown as Omit<
+        await FileStatsModel.validateUpdateObject({...mocks.MOCK_FILESTATS, updatedAt: new Date()} as unknown as Omit<
           Partial<databaseTypes.IFileStats>,
           '_id'
         >);
@@ -210,16 +209,16 @@ describe('#mongoose/models/fileStats', () => {
 
     it('will create a fileStats document', async () => {
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(FileStatModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(FileStatsModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
 
-      sandbox.replace(FileStatModel, 'validate', sandbox.stub().resolves(true));
+      sandbox.replace(FileStatsModel, 'validate', sandbox.stub().resolves(true));
 
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
 
-      sandbox.replace(FileStatModel, 'getFileStatsById', stub);
+      sandbox.replace(FileStatsModel, 'getFileStatsById', stub);
 
-      const fileStatsDocument = await FileStatModel.createFileStats(mocks.MOCK_FILESTATS);
+      const fileStatsDocument = await FileStatsModel.createFileStats(mocks.MOCK_FILESTATS);
 
       assert.strictEqual(fileStatsDocument._id, objectId);
       assert.isTrue(stub.calledOnce);
@@ -227,15 +226,15 @@ describe('#mongoose/models/fileStats', () => {
 
     it('will throw a DatabaseOperationError when an underlying model function errors', async () => {
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(FileStatModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(FileStatModel, 'create', sandbox.stub().rejects('oops, something bad has happened'));
+      sandbox.replace(FileStatsModel, 'validate', sandbox.stub().resolves(true));
+      sandbox.replace(FileStatsModel, 'create', sandbox.stub().rejects('oops, something bad has happened'));
 
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
-      sandbox.replace(FileStatModel, 'getFileStatsById', stub);
+      sandbox.replace(FileStatsModel, 'getFileStatsById', stub);
       let hasError = false;
       try {
-        await FileStatModel.createFileStats(mocks.MOCK_FILESTATS);
+        await FileStatsModel.createFileStats(mocks.MOCK_FILESTATS);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         hasError = true;
@@ -245,16 +244,16 @@ describe('#mongoose/models/fileStats', () => {
 
     it('will throw an Unexpected Error when create does not return an object with an _id', async () => {
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(FileStatModel, 'validate', sandbox.stub().resolves(true));
-      sandbox.replace(FileStatModel, 'create', sandbox.stub().resolves([{}]));
+      sandbox.replace(FileStatsModel, 'validate', sandbox.stub().resolves(true));
+      sandbox.replace(FileStatsModel, 'create', sandbox.stub().resolves([{}]));
 
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
-      sandbox.replace(FileStatModel, 'getFileStatsById', stub);
+      sandbox.replace(FileStatsModel, 'getFileStatsById', stub);
 
       let hasError = false;
       try {
-        await FileStatModel.createFileStats(mocks.MOCK_FILESTATS);
+        await FileStatsModel.createFileStats(mocks.MOCK_FILESTATS);
       } catch (err) {
         assert.instanceOf(err, error.UnexpectedError);
         hasError = true;
@@ -264,14 +263,14 @@ describe('#mongoose/models/fileStats', () => {
 
     it('will rethrow a DataValidationError when the validate method on the model errors', async () => {
       const objectId = new mongoose.Types.ObjectId();
-      sandbox.replace(FileStatModel, 'validate', sandbox.stub().rejects('oops an error has occurred'));
-      sandbox.replace(FileStatModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
+      sandbox.replace(FileStatsModel, 'validate', sandbox.stub().rejects('oops an error has occurred'));
+      sandbox.replace(FileStatsModel, 'create', sandbox.stub().resolves([{_id: objectId}]));
       const stub = sandbox.stub();
       stub.resolves({_id: objectId});
-      sandbox.replace(FileStatModel, 'getFileStatsById', stub);
+      sandbox.replace(FileStatsModel, 'getFileStatsById', stub);
       let hasError = false;
       try {
-        await FileStatModel.createFileStats(mocks.MOCK_FILESTATS);
+        await FileStatsModel.createFileStats(mocks.MOCK_FILESTATS);
       } catch (err) {
         assert.instanceOf(err, error.DataValidationError);
         hasError = true;
@@ -308,9 +307,9 @@ describe('#mongoose/models/fileStats', () => {
     it('will retreive a fileStats document with the related fields populated', async () => {
       const findByIdStub = sandbox.stub();
       findByIdStub.returns(new MockMongooseQuery(mocks.MOCK_FILESTATS));
-      sandbox.replace(FileStatModel, 'findById', findByIdStub);
+      sandbox.replace(FileStatsModel, 'findById', findByIdStub);
 
-      const doc = await FileStatModel.getFileStatsById(mocks.MOCK_FILESTATS._id as mongoose.Types.ObjectId);
+      const doc = await FileStatsModel.getFileStatsById(mocks.MOCK_FILESTATS._id as mongoose.Types.ObjectId);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any)?.__v);
@@ -321,11 +320,11 @@ describe('#mongoose/models/fileStats', () => {
     it('will throw a DataNotFoundError when the fileStats does not exist', async () => {
       const findByIdStub = sandbox.stub();
       findByIdStub.returns(new MockMongooseQuery(null));
-      sandbox.replace(FileStatModel, 'findById', findByIdStub);
+      sandbox.replace(FileStatsModel, 'findById', findByIdStub);
 
       let errored = false;
       try {
-        await FileStatModel.getFileStatsById(mocks.MOCK_FILESTATS._id as mongoose.Types.ObjectId);
+        await FileStatsModel.getFileStatsById(mocks.MOCK_FILESTATS._id as mongoose.Types.ObjectId);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -337,11 +336,11 @@ describe('#mongoose/models/fileStats', () => {
     it('will throw a DatabaseOperationError when an underlying database connection throws an error', async () => {
       const findByIdStub = sandbox.stub();
       findByIdStub.returns(new MockMongooseQuery('something bad happened', true));
-      sandbox.replace(FileStatModel, 'findById', findByIdStub);
+      sandbox.replace(FileStatsModel, 'findById', findByIdStub);
 
       let errored = false;
       try {
-        await FileStatModel.getFileStatsById(mocks.MOCK_FILESTATS._id as mongoose.Types.ObjectId);
+        await FileStatsModel.getFileStatsById(mocks.MOCK_FILESTATS._id as mongoose.Types.ObjectId);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -388,11 +387,11 @@ describe('#mongoose/models/fileStats', () => {
     });
 
     it('will return the filtered fileStats', async () => {
-      sandbox.replace(FileStatModel, 'count', sandbox.stub().resolves(mockFileStats.length));
+      sandbox.replace(FileStatsModel, 'count', sandbox.stub().resolves(mockFileStats.length));
 
-      sandbox.replace(FileStatModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockFileStats)));
+      sandbox.replace(FileStatsModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockFileStats)));
 
-      const results = await FileStatModel.queryFileStats({});
+      const results = await FileStatsModel.queryFileStats({});
 
       assert.strictEqual(results.numberOfItems, mockFileStats.length);
       assert.strictEqual(results.page, 0);
@@ -404,13 +403,13 @@ describe('#mongoose/models/fileStats', () => {
     });
 
     it('will throw a DataNotFoundError when no values match the filter', async () => {
-      sandbox.replace(FileStatModel, 'count', sandbox.stub().resolves(0));
+      sandbox.replace(FileStatsModel, 'count', sandbox.stub().resolves(0));
 
-      sandbox.replace(FileStatModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockFileStats)));
+      sandbox.replace(FileStatsModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockFileStats)));
 
       let errored = false;
       try {
-        await FileStatModel.queryFileStats();
+        await FileStatsModel.queryFileStats();
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -420,13 +419,13 @@ describe('#mongoose/models/fileStats', () => {
     });
 
     it('will throw an InvalidArgumentError when the page number exceeds the number of available pages', async () => {
-      sandbox.replace(FileStatModel, 'count', sandbox.stub().resolves(mockFileStats.length));
+      sandbox.replace(FileStatsModel, 'count', sandbox.stub().resolves(mockFileStats.length));
 
-      sandbox.replace(FileStatModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockFileStats)));
+      sandbox.replace(FileStatsModel, 'find', sandbox.stub().returns(new MockMongooseQuery(mockFileStats)));
 
       let errored = false;
       try {
-        await FileStatModel.queryFileStats({}, 1, 10);
+        await FileStatsModel.queryFileStats({}, 1, 10);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errored = true;
@@ -436,17 +435,17 @@ describe('#mongoose/models/fileStats', () => {
     });
 
     it('will throw a DatabaseOperationError when the underlying database connection fails', async () => {
-      sandbox.replace(FileStatModel, 'count', sandbox.stub().resolves(mockFileStats.length));
+      sandbox.replace(FileStatsModel, 'count', sandbox.stub().resolves(mockFileStats.length));
 
       sandbox.replace(
-        FileStatModel,
+        FileStatsModel,
         'find',
         sandbox.stub().returns(new MockMongooseQuery('something bad has happened', true))
       );
 
       let errored = false;
       try {
-        await FileStatModel.queryFileStats({});
+        await FileStatsModel.queryFileStats({});
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -473,17 +472,17 @@ describe('#mongoose/models/fileStats', () => {
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
-      sandbox.replace(FileStatModel, 'updateOne', updateStub);
+      sandbox.replace(FileStatsModel, 'updateOne', updateStub);
 
       const getFileStatsStub = sandbox.stub();
       getFileStatsStub.resolves({_id: fileStatsId});
-      sandbox.replace(FileStatModel, 'getFileStatsById', getFileStatsStub);
+      sandbox.replace(FileStatsModel, 'getFileStatsById', getFileStatsStub);
 
       const validateStub = sandbox.stub();
       validateStub.resolves(undefined as void);
-      sandbox.replace(FileStatModel, 'validateUpdateObject', validateStub);
+      sandbox.replace(FileStatsModel, 'validateUpdateObject', validateStub);
 
-      const result = await FileStatModel.updateFileStatsById(fileStatsId, updateFileStats);
+      const result = await FileStatsModel.updateFileStatsById(fileStatsId, updateFileStats);
 
       assert.strictEqual(result._id, fileStatsId);
       assert.isTrue(updateStub.calledOnce);
@@ -501,17 +500,17 @@ describe('#mongoose/models/fileStats', () => {
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
-      sandbox.replace(FileStatModel, 'updateOne', updateStub);
+      sandbox.replace(FileStatsModel, 'updateOne', updateStub);
 
       const getFileStatsStub = sandbox.stub();
       getFileStatsStub.resolves({_id: fileStatsId});
-      sandbox.replace(FileStatModel, 'getFileStatsById', getFileStatsStub);
+      sandbox.replace(FileStatsModel, 'getFileStatsById', getFileStatsStub);
 
       const validateStub = sandbox.stub();
       validateStub.resolves(undefined as void);
-      sandbox.replace(FileStatModel, 'validateUpdateObject', validateStub);
+      sandbox.replace(FileStatsModel, 'validateUpdateObject', validateStub);
 
-      const result = await FileStatModel.updateFileStatsById(fileStatsId, updateFileStats);
+      const result = await FileStatsModel.updateFileStatsById(fileStatsId, updateFileStats);
 
       assert.strictEqual(result._id, fileStatsId);
       assert.isTrue(updateStub.calledOnce);
@@ -529,19 +528,19 @@ describe('#mongoose/models/fileStats', () => {
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
-      sandbox.replace(FileStatModel, 'updateOne', updateStub);
+      sandbox.replace(FileStatsModel, 'updateOne', updateStub);
 
       const validateStub = sandbox.stub();
       validateStub.resolves(true);
-      sandbox.replace(FileStatModel, 'validateUpdateObject', validateStub);
+      sandbox.replace(FileStatsModel, 'validateUpdateObject', validateStub);
 
       const getFileStatsStub = sandbox.stub();
       getFileStatsStub.resolves({_id: fileStatsId});
-      sandbox.replace(FileStatModel, 'getFileStatsById', getFileStatsStub);
+      sandbox.replace(FileStatsModel, 'getFileStatsById', getFileStatsStub);
 
       let errorred = false;
       try {
-        await FileStatModel.updateFileStatsById(fileStatsId, updateFileStats);
+        await FileStatsModel.updateFileStatsById(fileStatsId, updateFileStats);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -559,18 +558,18 @@ describe('#mongoose/models/fileStats', () => {
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
-      sandbox.replace(FileStatModel, 'updateOne', updateStub);
+      sandbox.replace(FileStatsModel, 'updateOne', updateStub);
 
       const getFileStatsStub = sandbox.stub();
       getFileStatsStub.resolves({_id: fileStatsId});
-      sandbox.replace(FileStatModel, 'getFileStatsById', getFileStatsStub);
+      sandbox.replace(FileStatsModel, 'getFileStatsById', getFileStatsStub);
 
       const validateStub = sandbox.stub();
       validateStub.rejects(new error.InvalidOperationError("You can't do this", {}));
-      sandbox.replace(FileStatModel, 'validateUpdateObject', validateStub);
+      sandbox.replace(FileStatsModel, 'validateUpdateObject', validateStub);
       let errorred = false;
       try {
-        await FileStatModel.updateFileStatsById(fileStatsId, updateFileStats);
+        await FileStatsModel.updateFileStatsById(fileStatsId, updateFileStats);
       } catch (err) {
         assert.instanceOf(err, error.InvalidOperationError);
         errorred = true;
@@ -588,19 +587,19 @@ describe('#mongoose/models/fileStats', () => {
 
       const updateStub = sandbox.stub();
       updateStub.rejects('something terrible has happened');
-      sandbox.replace(FileStatModel, 'updateOne', updateStub);
+      sandbox.replace(FileStatsModel, 'updateOne', updateStub);
 
       const getFileStatsStub = sandbox.stub();
       getFileStatsStub.resolves({_id: fileStatsId});
-      sandbox.replace(FileStatModel, 'getFileStatsById', getFileStatsStub);
+      sandbox.replace(FileStatsModel, 'getFileStatsById', getFileStatsStub);
 
       const validateStub = sandbox.stub();
       validateStub.resolves(undefined as void);
-      sandbox.replace(FileStatModel, 'validateUpdateObject', validateStub);
+      sandbox.replace(FileStatsModel, 'validateUpdateObject', validateStub);
 
       let errorred = false;
       try {
-        await FileStatModel.updateFileStatsById(fileStatsId, updateFileStats);
+        await FileStatsModel.updateFileStatsById(fileStatsId, updateFileStats);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;
@@ -619,11 +618,11 @@ describe('#mongoose/models/fileStats', () => {
     it('should remove a fileStats', async () => {
       const deleteStub = sandbox.stub();
       deleteStub.resolves({deletedCount: 1});
-      sandbox.replace(FileStatModel, 'deleteOne', deleteStub);
+      sandbox.replace(FileStatsModel, 'deleteOne', deleteStub);
 
       const fileStatsId = new mongoose.Types.ObjectId();
 
-      await FileStatModel.deleteFileStatsById(fileStatsId);
+      await FileStatsModel.deleteFileStatsById(fileStatsId);
 
       assert.isTrue(deleteStub.calledOnce);
     });
@@ -631,13 +630,13 @@ describe('#mongoose/models/fileStats', () => {
     it('should fail with an InvalidArgumentError when the fileStats does not exist', async () => {
       const deleteStub = sandbox.stub();
       deleteStub.resolves({deletedCount: 0});
-      sandbox.replace(FileStatModel, 'deleteOne', deleteStub);
+      sandbox.replace(FileStatsModel, 'deleteOne', deleteStub);
 
       const fileStatsId = new mongoose.Types.ObjectId();
 
       let errorred = false;
       try {
-        await FileStatModel.deleteFileStatsById(fileStatsId);
+        await FileStatsModel.deleteFileStatsById(fileStatsId);
       } catch (err) {
         assert.instanceOf(err, error.InvalidArgumentError);
         errorred = true;
@@ -649,13 +648,13 @@ describe('#mongoose/models/fileStats', () => {
     it('should fail with an DatabaseOperationError when the underlying database connection throws an error', async () => {
       const deleteStub = sandbox.stub();
       deleteStub.rejects('something bad has happened');
-      sandbox.replace(FileStatModel, 'deleteOne', deleteStub);
+      sandbox.replace(FileStatsModel, 'deleteOne', deleteStub);
 
       const fileStatsId = new mongoose.Types.ObjectId();
 
       let errorred = false;
       try {
-        await FileStatModel.deleteFileStatsById(fileStatsId);
+        await FileStatsModel.deleteFileStatsById(fileStatsId);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errorred = true;

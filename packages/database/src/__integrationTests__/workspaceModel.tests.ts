@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks';
+import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
@@ -15,9 +15,9 @@ describe('#WorkspaceModel', () => {
   context('test the crud functions of the workspace model', () => {
     const mongoConnection = new MongoDbConnection();
     const workspaceModel = mongoConnection.models.WorkspaceModel;
-    let workspaceDocId: ObjectId;
-    let workspaceDocId2: ObjectId;
-    let creatorId: ObjectId;
+    let workspaceDocId: string;
+    let workspaceDocId2: string;
+    let creatorId: string;
     let creatorDocument: any;
 
     before(async () => {
@@ -26,8 +26,8 @@ describe('#WorkspaceModel', () => {
       const savedCreatorDocument = await creatorModel.create([mocks.MOCK_USER], {
         validateBeforeSave: false,
       });
-      creatorId = savedCreatorDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(creatorId);
+      creatorId =  savedCreatorDocument[0]!._id.toString();
+      assert.isOk(creatorId)
     });
 
     after(async () => {
@@ -40,6 +40,7 @@ describe('#WorkspaceModel', () => {
       }
       const creatorModel = mongoConnection.models.UserModel;
       await creatorModel.findByIdAndDelete(creatorId);
+
     });
 
     it('add a new workspace ', async () => {
@@ -52,7 +53,8 @@ describe('#WorkspaceModel', () => {
       assert.isOk(workspaceDocument);
       assert.strictEqual(Object.keys(workspaceDocument)[1], Object.keys(workspaceInput)[1]);
 
-      workspaceDocId = workspaceDocument._id as mongooseTypes.ObjectId;
+
+      workspaceDocId = workspaceDocument._id!.toString();
     });
 
     it('retreive a workspace', async () => {
@@ -66,7 +68,10 @@ describe('#WorkspaceModel', () => {
     it('modify a workspace', async () => {
       assert.isOk(workspaceDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await workspaceModel.updateWorkspaceById(workspaceDocId, input);
+      const updatedDocument = await workspaceModel.updateWorkspaceById(
+        workspaceDocId,
+        input
+      );
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -74,17 +79,21 @@ describe('#WorkspaceModel', () => {
       assert.isOk(workspaceDocId);
       const workspaceInput = JSON.parse(JSON.stringify(mocks.MOCK_WORKSPACE));
 
+
+
       const workspaceDocument = await workspaceModel.createWorkspace(workspaceInput);
 
       assert.isOk(workspaceDocument);
 
-      workspaceDocId2 = workspaceDocument._id as mongooseTypes.ObjectId;
+      workspaceDocId2 = workspaceDocument._id!.toString();
 
       const workspaces = await workspaceModel.queryWorkspaces();
       assert.isArray(workspaces.results);
       assert.isAtLeast(workspaces.numberOfItems, 2);
       const expectedDocumentCount =
-        workspaces.numberOfItems <= workspaces.itemsPerPage ? workspaces.numberOfItems : workspaces.itemsPerPage;
+        workspaces.numberOfItems <= workspaces.itemsPerPage
+          ? workspaces.numberOfItems
+          : workspaces.itemsPerPage;
       assert.strictEqual(workspaces.results.length, expectedDocumentCount);
     });
 
@@ -107,7 +116,10 @@ describe('#WorkspaceModel', () => {
       const results2 = await workspaceModel.queryWorkspaces({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a workspace', async () => {
@@ -122,7 +134,7 @@ describe('#WorkspaceModel', () => {
       }
 
       assert.isTrue(errored);
-      workspaceDocId = null as unknown as ObjectId;
+      workspaceDocId = null as unknown as string;
     });
   });
 });

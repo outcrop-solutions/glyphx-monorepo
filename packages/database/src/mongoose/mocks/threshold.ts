@@ -12,4 +12,4 @@ export const MOCK_THRESHOLD = {
   actionPayload: {},
   value: 'value',
   operator: databaseTypes.THRESHOLD_OPERATOR.GT,
-} as unknown as IThresholdDocument;
+} as any;

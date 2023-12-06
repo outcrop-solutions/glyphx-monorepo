@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks';
+import * as mocks from '../mongoose/mocks'
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
@@ -15,9 +15,9 @@ describe('#WebhookModel', () => {
   context('test the crud functions of the webhook model', () => {
     const mongoConnection = new MongoDbConnection();
     const webhookModel = mongoConnection.models.WebhookModel;
-    let webhookDocId: ObjectId;
-    let webhookDocId2: ObjectId;
-    let userId: ObjectId;
+    let webhookDocId: string;
+    let webhookDocId2: string;
+    let userId: string;
     let userDocument: any;
 
     before(async () => {
@@ -26,8 +26,8 @@ describe('#WebhookModel', () => {
       const savedUserDocument = await userModel.create([mocks.MOCK_USER], {
         validateBeforeSave: false,
       });
-      userId = savedUserDocument[0]?._id as mongooseTypes.ObjectId;
-      assert.isOk(userId);
+      userId =  savedUserDocument[0]!._id.toString();
+      assert.isOk(userId)
     });
 
     after(async () => {
@@ -40,6 +40,7 @@ describe('#WebhookModel', () => {
       }
       const userModel = mongoConnection.models.UserModel;
       await userModel.findByIdAndDelete(userId);
+
     });
 
     it('add a new webhook ', async () => {
@@ -52,7 +53,8 @@ describe('#WebhookModel', () => {
       assert.isOk(webhookDocument);
       assert.strictEqual(Object.keys(webhookDocument)[1], Object.keys(webhookInput)[1]);
 
-      webhookDocId = webhookDocument._id as mongooseTypes.ObjectId;
+
+      webhookDocId = webhookDocument._id!.toString();
     });
 
     it('retreive a webhook', async () => {
@@ -66,7 +68,10 @@ describe('#WebhookModel', () => {
     it('modify a webhook', async () => {
       assert.isOk(webhookDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await webhookModel.updateWebhookById(webhookDocId, input);
+      const updatedDocument = await webhookModel.updateWebhookById(
+        webhookDocId,
+        input
+      );
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -74,17 +79,21 @@ describe('#WebhookModel', () => {
       assert.isOk(webhookDocId);
       const webhookInput = JSON.parse(JSON.stringify(mocks.MOCK_WEBHOOK));
 
+
+
       const webhookDocument = await webhookModel.createWebhook(webhookInput);
 
       assert.isOk(webhookDocument);
 
-      webhookDocId2 = webhookDocument._id as mongooseTypes.ObjectId;
+      webhookDocId2 = webhookDocument._id!.toString();
 
       const webhooks = await webhookModel.queryWebhooks();
       assert.isArray(webhooks.results);
       assert.isAtLeast(webhooks.numberOfItems, 2);
       const expectedDocumentCount =
-        webhooks.numberOfItems <= webhooks.itemsPerPage ? webhooks.numberOfItems : webhooks.itemsPerPage;
+        webhooks.numberOfItems <= webhooks.itemsPerPage
+          ? webhooks.numberOfItems
+          : webhooks.itemsPerPage;
       assert.strictEqual(webhooks.results.length, expectedDocumentCount);
     });
 
@@ -107,7 +116,10 @@ describe('#WebhookModel', () => {
       const results2 = await webhookModel.queryWebhooks({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
+      assert.notStrictEqual(
+        results2.results[0]?._id?.toString(),
+        lastId?.toString()
+      );
     });
 
     it('remove a webhook', async () => {
@@ -122,7 +134,7 @@ describe('#WebhookModel', () => {
       }
 
       assert.isTrue(errored);
-      webhookDocId = null as unknown as ObjectId;
+      webhookDocId = null as unknown as string;
     });
   });
 });

@@ -11,4 +11,4 @@ export const MOCK_TAG = {
   templates: [],
   projects: [],
   value: 'value',
-} as unknown as ITagDocument;
+} as any;
