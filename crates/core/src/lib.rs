@@ -20,3 +20,4 @@ pub use serde_json::json;
 pub use log::{debug, error, info, trace, warn}; 
 
 pub use types::error::GlyphxErrorData;
+pub use types::common::SecretBoundError;

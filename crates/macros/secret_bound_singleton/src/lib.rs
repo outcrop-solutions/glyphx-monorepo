@@ -18,11 +18,11 @@ struct FieldDefinition {
 #[proc_macro_derive(SecretBoundSingleton, attributes(secret_binder, bind_field))]
 pub fn derive(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);
-    let (secret_name, initializer, fake_secret) = parse_secret_binder(&ast);
+    let (secret_name, initializer,initializer_error, fake_secret) = parse_secret_binder(&ast);
+    let error_ident: syn::Ident = syn::parse_str(&initializer_error).unwrap();
     let fields = process_fields(&ast);
-    let name = format_ident!("{}", &ast.ident);
     let output =
-        build_secret_bound_impl(&ast.ident, &secret_name, &initializer, fake_secret, &fields);
+        build_secret_bound_impl(&ast.ident, &error_ident, &secret_name, &initializer, fake_secret, &fields);
     output.into()
 }
 
@@ -135,6 +135,7 @@ fn build_initializer_call(
 
 fn build_secret_bound_impl(
     ident: &syn::Ident,
+    error_ident: &syn::Ident,
     secret_name: &str,
     initializer_name: &str,
     fake_secret: Option<Value>,
@@ -149,8 +150,8 @@ fn build_secret_bound_impl(
     //that we have make sure that they have the dependencies configured in their Cargo.toml
 
     let secret_bound_trait =
-        build_secret_bound_trait(ident, &secret_source, fields, initializer_name);
-    let singleton_trait = build_singleton_trait(ident);
+        build_secret_bound_trait(ident,error_ident, &secret_source, fields, initializer_name);
+    let singleton_trait = build_singleton_trait(ident, error_ident);
 
     let output = quote!(
     use glyphx_core::traits::*;
@@ -161,36 +162,40 @@ fn build_secret_bound_impl(
     output.into()
 }
 
-fn build_singleton_trait(ident: &proc_macro2::Ident) -> proc_macro2::TokenStream {
+fn build_singleton_trait(ident: &proc_macro2::Ident, error_ident: &proc_macro2::Ident) -> proc_macro2::TokenStream {
     let output = quote!(
         static mut INSTANCE: Option<#ident> = None; 
  
     #[glyphx_core::async_trait]
-    impl glyphx_core::traits::Singleton<#ident> for #ident  {
+    impl glyphx_core::traits::Singleton<#ident, #error_ident> for #ident  {
         fn get_instance() -> &'static #ident {
             unsafe { &INSTANCE.as_ref().unwrap() }
         }
-        async fn build_singleton() -> &'static #ident {
+        async fn build_singleton() -> Result<&'static #ident, #error_ident> {
            let secret_bound_object = #ident::bind_secrets().await;
+           if secret_bound_object.is_err() {
+               return Err(secret_bound_object.err().unwrap());
+           }
            unsafe {
-             INSTANCE = Some(secret_bound_object);
-             &INSTANCE.as_ref().unwrap()
+             INSTANCE = Some(secret_bound_object.ok().unwrap());
+             Ok(&INSTANCE.as_ref().unwrap())
            }
         }
     }
 
-    impl glyphx_core::traits::SecretBoundSingleton<#ident> for #ident {}
+    impl glyphx_core::traits::SecretBoundSingleton<#ident, #error_ident> for #ident {}
     );
     output
 }
 fn build_secret_bound_trait(
     ident: &proc_macro2::Ident,
+    error_ident: &proc_macro2::Ident,
     secret_source: &SecretSource,
     fields: &Vec<FieldDefinition>,
     initializer_name: &str,
 ) -> proc_macro2::TokenStream {
     let field_quote = build_field_quote(fields);
-    let initializer_call = build_initializer_call(initializer_name, fields);
+    let initializer_call = build_initializer_call( initializer_name, fields);
     let secret_value = match secret_source {
         SecretSource::FakeSecret(fake_secret) => {
             let json_string = fake_secret.to_string();
@@ -201,7 +206,8 @@ fn build_secret_bound_trait(
             let secret_manager = glyphx_core::aws::SecretManager::new(#secret_name).await;
             let secret_value = secret_manager.get_secret_value().await;
             if secret_value.is_err() {
-                panic!("Failed to get secret value");
+                let err = secret_value.err().unwrap();
+                return Err(#error_ident::from(err));
             }
             let secret_value = secret_value.unwrap();
             )
@@ -209,8 +215,8 @@ fn build_secret_bound_trait(
     };
     let output = quote!(
     #[glyphx_core::async_trait]
-    impl glyphx_core::traits::SecretBound<#ident> for #ident {
-        async fn bind_secrets() -> #ident {
+    impl glyphx_core::traits::SecretBound<#ident, #error_ident> for #ident {
+        async fn bind_secrets() -> Result<#ident, #error_ident> {
             #secret_value
             #field_quote
             #initializer_call
@@ -359,9 +365,11 @@ fn get_arg_value_from_attribute(input: &syn::Attribute, arg_name: &str) -> Optio
         _ => Some(value.to_string()),
     }
 }
-fn parse_secret_binder(input: &DeriveInput) -> (String, String, Option<Value>) {
+fn parse_secret_binder(input: &DeriveInput) -> (String, String,String, Option<Value>) {
     let secret_name;
     let initializer;
+    let initializer_error;
+
     let attr = get_secret_binder_attr(input);
     if attr.is_none() {
         panic!("secret_binder attribute is required");
@@ -379,6 +387,12 @@ fn parse_secret_binder(input: &DeriveInput) -> (String, String, Option<Value>) {
     }
     initializer = looked_up_initializer.unwrap();
 
+    let looked_up_initializer_error = get_arg_value_from_attribute(attr, "initializer_error");
+    if looked_up_initializer_error.is_none() {
+        panic!("initializer_error argument is required");
+    }
+    initializer_error = looked_up_initializer_error.unwrap();
+
     let looked_up_fake_secret = get_arg_value_from_attribute(attr, "fake_secret");
     let mut fake_secret: Option<Value> = None;
     if looked_up_fake_secret.is_some() {
@@ -392,7 +406,7 @@ fn parse_secret_binder(input: &DeriveInput) -> (String, String, Option<Value>) {
         fake_secret = Some(parsed_fake_secret);
     }
 
-    (secret_name, initializer, fake_secret)
+    (secret_name, initializer, initializer_error, fake_secret)
 }
 
 #[cfg(test)]
@@ -402,16 +416,17 @@ mod secret_binder_attribute {
     #[test]
     fn is_ok() {
         let token_stream = quote!(
-            #[secret_binder({"secret_name": "foo", "initializer": "init", "fake_secret": {"foo":"bar", "baz": 1}})]
+            #[secret_binder({"secret_name": "foo", "initializer": "init", "initializer_error" : "SomeError", "fake_secret": {"foo":"bar", "baz": 1}})]
             struct Bar {
                 field_a: u32,
                 field_b: u32,
             }
         ).to_string();
         let ast = syn::parse_str::<syn::DeriveInput>(&token_stream).unwrap();
-        let (secret_name, initializer, fake_secret) = parse_secret_binder(&ast);
+        let (secret_name, initializer, initializer_error, fake_secret) = parse_secret_binder(&ast);
         assert_eq!(secret_name, "foo");
         assert_eq!(initializer, "init");
+        assert_eq!(initializer_error, "SomeError");
         assert!(fake_secret.is_some());
         let fake_secret = fake_secret.unwrap();
         assert_eq!(fake_secret["foo"], "bar");
@@ -451,7 +466,7 @@ mod secret_binder_attribute {
     #[should_panic(expected = "secret_name argument is required")]
     fn missing_secret_name() {
         let token_stream = quote!(
-            #[secret_binder({"initializer": "init", "fake_secret": {"foo":"bar", "baz": 1}})]
+            #[secret_binder({"initializer": "init", "initializer_error" : "SomeError", "fake_secret": {"foo":"bar", "baz": 1}})]
             #[secret_binder(initializer = "init")]
             struct Bar {
                 field_a: u32,
@@ -467,7 +482,7 @@ mod secret_binder_attribute {
     #[should_panic(expected = "initializer argument is required")]
     fn missing_initializer() {
         let token_stream = quote!(
-            #[secret_binder({"secret_name": "foo", "fake_secret": {"foo":"bar", "baz": 1}})]
+            #[secret_binder({"secret_name": "foo", "initializer_error" : "SomeError", "fake_secret": {"foo":"bar", "baz": 1}})]
             struct Bar {
                 field_a: u32,
                 field_b: u32,
@@ -479,10 +494,24 @@ mod secret_binder_attribute {
     }
 
     #[test]
+    #[should_panic(expected = "initializer_error argument is required")]
+    fn missing_initializer_error() {
+        let token_stream = quote!(
+            #[secret_binder({"secret_name": "foo", "initializer" : "init", "fake_secret": {"foo":"bar", "baz": 1}})]
+            struct Bar {
+                field_a: u32,
+                field_b: u32,
+            }
+        )
+        .to_string();
+        let ast = syn::parse_str::<syn::DeriveInput>(&token_stream).unwrap();
+        parse_secret_binder(&ast);
+    }
+    #[test]
     #[should_panic(expected = "fake_secret is not a valid json value")]
     fn fake_secret_is_invalid() {
         let token_stream = quote!(
-            #[secret_binder({"secret_name": "foo", "initializer": "init", "fake_secret":63 })]
+            #[secret_binder({"secret_name": "foo", "initializer": "init", "initializer_error" : "SomeError", "fake_secret":63 })]
             struct Bar {
                 field_a: u32,
                 field_b: u32,

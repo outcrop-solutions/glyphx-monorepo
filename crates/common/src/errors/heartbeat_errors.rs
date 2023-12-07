@@ -2,11 +2,12 @@ use glyphx_core::GlyphxError;
 use glyphx_core::GlyphxErrorData;
 use glyphx_database::errors::InsertDocumentError;
 use serde_json::{Value, to_value };
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, GlyphxError)]
+#[derive(Debug, Clone, GlyphxError, Serialize, Deserialize)]
 #[error_definition("Heartbeat")]
 pub enum HeartbeatError {
-    CreateProcessTracingError(GlyphxErrorData),
+    CreateProcessTrackingError(GlyphxErrorData),
 }
 
 
@@ -15,7 +16,7 @@ impl From<InsertDocumentError> for HeartbeatError {
         let inner_error = to_value(error).unwrap(); 
         let message = "An error occurred while creating a process tracking record.  See the inner error for additional details.";
         let glyphx_error_data = GlyphxErrorData::new(message.to_string(), None, Some(inner_error));
-        HeartbeatError::CreateProcessTracingError(glyphx_error_data)
+        HeartbeatError::CreateProcessTrackingError(glyphx_error_data)
     }
 }
 
@@ -31,7 +32,7 @@ mod from_insert_document_error {
         let inner_error = InsertDocumentError::AuthenticationError(inner_glyphx_data);
         let heartbeat_error = HeartbeatError::from(inner_error);
         match heartbeat_error {
-            HeartbeatError::CreateProcessTracingError(glyphx_error_data) => {
+            HeartbeatError::CreateProcessTrackingError(glyphx_error_data) => {
                 assert_eq!(glyphx_error_data.message, "An error occurred while creating a process tracking record.  See the inner error for additional details.");
                 assert_eq!(glyphx_error_data.data, None);
                 let inner_error = glyphx_error_data.inner_error.unwrap();

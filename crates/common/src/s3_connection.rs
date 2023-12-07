@@ -5,6 +5,7 @@ use glyphx_core::aws::s3_manager::ConstructorError as S3ManagerConstructorError;
 use crate::types::s3_connection_errors::ConstructorError;
 use log::error;
 use mockall::automock;
+use glyphx_core::SecretBoundError;
 
 #[automock]
 #[async_trait]
@@ -16,7 +17,7 @@ trait S3ConnectionOps {
 }
 
 #[derive(SecretBoundSingleton, Debug, Clone)]
-#[secret_binder({"secret_name" : "file/s3", "initializer": "new"})]
+#[secret_binder({"secret_name" : "file/s3", "initializer": "new", "initializer_error": "S3ManagerConstructorError"})]
 pub struct S3Connection {
     #[bind_field({"secret_name": "bucketName" })]
     bucket_name: String,
@@ -45,23 +46,30 @@ impl S3Connection {
         &self.bucket_name
     }
 
-    ///Panics if we cannot create the S3Manager
-    pub async fn new(bucket_name: String) -> Self {
+    //Will return Err(AthenaManagerConstructorError) if something fails.  The T is 
+    //required to make the compiler happy, but it will always be S3ManagerConstructorError 
+    //which is defined in the attribute on the struct.
+    pub async fn new<T>(bucket_name: String) -> Result<Self, T> 
+    where T : SecretBoundError {
         Self::new_impl(bucket_name, &S3ConnectionOpsImpl).await
     }
 
-    async fn new_impl<T: S3ConnectionOps>(bucket_name: String, ops: &T) -> Self {
+    async fn new_impl<T, T2>(bucket_name: String, ops: &T) -> Result<Self, T2> 
+    where T: S3ConnectionOps, T2 : SecretBoundError {
         let s3_manager = ops.build_s3_manager(bucket_name.clone()).await;
         if s3_manager.is_err() {
-            let err =
-                ConstructorError::from_s3_manager_constructor_error(s3_manager.err().unwrap());
-            error!("Failed to create S3Manager: {:?}", &err);
-            panic!("Failed to create S3Manager: {:?}", &err);
+            let err = s3_manager.err().unwrap();
+            let variant = err.parse_error_type();
+            let error_data = err.get_glyphx_error_data();
+            let err = T2::from_str(&variant, error_data.clone());
+
+            err.error();
+            return Err(err);
         }
-        Self {
+        Ok(Self {
             bucket_name,
             s3_manager: s3_manager.unwrap(),
-        }
+        })
     }
 }
 
@@ -81,7 +89,9 @@ mod contructor {
             .times(1)
             .returning(|_| Ok(S3Manager::default()));
 
-        let s3_connection = S3Connection::new_impl(bucket_name.clone(), &mock_ops).await;
+        let s3_connection: Result<S3Connection, S3ManagerConstructorError> = S3Connection::new_impl(bucket_name.clone(), &mock_ops).await;
+        assert!(s3_connection.is_ok());
+        let s3_connection = s3_connection.unwrap();
         assert_eq!(&s3_connection.bucket_name, &bucket_name);
 
         let struct_bucket_name = s3_connection.get_bucket_name();
@@ -92,7 +102,6 @@ mod contructor {
     }
 
     #[tokio::test]
-    #[should_panic]
     async fn is_error() {
         let bucket_name = "test_bucket".to_string();
         let clone_bucket_name = bucket_name.clone();
@@ -108,6 +117,12 @@ mod contructor {
                 ))
             });
 
-        S3Connection::new_impl(bucket_name.clone(), &mock_ops).await;
+        let s3_connection: Result<S3Connection, S3ManagerConstructorError> = S3Connection::new_impl(bucket_name.clone(), &mock_ops).await;
+        assert!(s3_connection.is_err());
+        let s3_connection = s3_connection.err().unwrap();
+        match s3_connection {
+            S3ManagerConstructorError::BucketDoesNotExist(_) => assert!(true), 
+            _ => assert!(false),
+        }
     }
 }

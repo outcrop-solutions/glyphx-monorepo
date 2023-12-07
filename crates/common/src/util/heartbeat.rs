@@ -196,7 +196,7 @@ mod start {
         assert!(result.is_err());
         let result = result.err().unwrap();
         match result {
-            HeartbeatError::CreateProcessTracingError(_) => assert!(true),
+            HeartbeatError::CreateProcessTrackingError(_) => assert!(true),
             _ => panic!("Expected HeartbeatError::CreateProcessTracingError"),
         }
     }

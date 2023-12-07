@@ -1470,8 +1470,11 @@ dependencies = [
 name = "glyph_engine"
 version = "0.1.0"
 dependencies = [
+ "glyphx_common",
  "glyphx_core",
+ "glyphx_database",
  "lazy_static",
+ "serde",
  "serde_json",
 ]
 
@@ -1494,6 +1497,7 @@ dependencies = [
  "glyphx_database",
  "log",
  "mockall",
+ "serde",
  "serde_json",
  "tokio",
 ]
