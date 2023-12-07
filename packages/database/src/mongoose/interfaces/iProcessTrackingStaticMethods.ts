@@ -9,7 +9,7 @@ export interface IProcessTrackingStaticMethods
   processTrackingIdExists(processTrackingId: mongooseTypes.ObjectId): Promise<boolean>;
   allProcessTrackingIdsExist(processTrackingIds: mongooseTypes.ObjectId[]): Promise<boolean>;
   createProcessTracking(input: IProcessTrackingCreateInput): Promise<databaseTypes.IProcessTracking>;
-  getProcessTrackingById(processTrackingId: mongooseTypes.ObjectId): Promise<databaseTypes.IProcessTracking>;
+  getProcessTrackingById(processTrackingId: string): Promise<databaseTypes.IProcessTracking>;
   queryProcessTrackings(
     filter?: Record<string, unknown>,
     page?: number,
@@ -20,31 +20,21 @@ export interface IProcessTrackingStaticMethods
     processTracking: Omit<Partial<databaseTypes.IProcessTracking>, '_id'>
   ): Promise<databaseTypes.IProcessTracking>;
   updateProcessTrackingById(
-    processTrackingId: mongooseTypes.ObjectId,
+    processTrackingId: string,
     processTracking: Omit<Partial<databaseTypes.IProcessTracking>, '_id'>
   ): Promise<databaseTypes.IProcessTracking>;
-  deleteProcessTrackingById(processTrackingId: mongooseTypes.ObjectId): Promise<void>;
+  deleteProcessTrackingById(processTrackingId: string): Promise<void>;
   validateUpdateObject(processTracking: Omit<Partial<databaseTypes.IProcessTracking>, '_id'>): Promise<void>;
-  addProcessMessages(
-    processTrackingId: mongooseTypes.ObjectId,
-    processMessages: (databaseTypes.IProcessMessages | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IProcessTracking>;
-  removeProcessMessages(
-    processTrackingId: mongooseTypes.ObjectId,
-    processMessages: (databaseTypes.IProcessMessages | mongooseTypes.ObjectId)[]
-  ): Promise<databaseTypes.IProcessTracking>;
-  validateProcessMessages(
-    processMessages: (databaseTypes.IProcessMessages | mongooseTypes.ObjectId)[]
-  ): Promise<mongooseTypes.ObjectId[]>;
+  addProcessMessages(processTrackingId: string, processMessages: string[]): Promise<databaseTypes.IProcessTracking>;
+  removeProcessMessages(processTrackingId: string, processMessages: string[]): Promise<databaseTypes.IProcessTracking>;
+  validateProcessMessages(processMessages: string[]): Promise<mongooseTypes.ObjectId[]>;
   addProcessErrors(
     processTrackingId: mongooseTypes.ObjectId,
-    processErrors: (databaseTypes.IProcessError | mongooseTypes.ObjectId)[]
+    processErrors: Record<string, unknown>[]
   ): Promise<databaseTypes.IProcessTracking>;
   removeProcessErrors(
     processTrackingId: mongooseTypes.ObjectId,
-    processErrors: (databaseTypes.IProcessError | mongooseTypes.ObjectId)[]
+    processErrors: Record<string, unknown>[][]
   ): Promise<databaseTypes.IProcessTracking>;
-  validateProcessErrors(
-    processErrors: (databaseTypes.IProcessError | mongooseTypes.ObjectId)[]
-  ): Promise<mongooseTypes.ObjectId[]>;
+  validateProcessErrors(processErrors: Record<string, unknown>[][]): Promise<mongooseTypes.ObjectId[]>;
 }

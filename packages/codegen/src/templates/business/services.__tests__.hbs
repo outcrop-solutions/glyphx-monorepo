@@ -6,7 +6,7 @@ import {databaseTypes} from 'types';
 import {Types as mongooseTypes} from 'mongoose';
 import {MongoDbConnection} from 'database';
 import {error} from 'core';
-import { {{ camelcase this.name }}Service} from '../services';
+import { {{ camelcase this.name }}Service} from '../../services';
 import * as mocks from 'database/src/mongoose/mocks'
 
 describe('#services/{{ camelcase this.name }}', () => {
@@ -81,7 +81,7 @@ describe('#services/{{ camelcase this.name }}', () => {
 
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
         //@ts-ignore
@@ -114,8 +114,14 @@ describe('#services/{{ camelcase this.name }}', () => {
       const create{{ pascalcase this.name }}FromModelStub = sandbox.stub();
       create{{ pascalcase this.name }}FromModelStub.rejects(err);
 
+      sandbox.replace(
+        dbConnection.models.{{ pascalcase this.name }}Model,
+        'create{{ pascalcase this.name }}',
+        create{{ pascalcase this.name }}FromModelStub
+      );
+      
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        
         //@ts-ignore
         assert.instanceOf(this, error.InvalidOperationError);
         //@ts-ignore
@@ -154,7 +160,7 @@ describe('#services/{{ camelcase this.name }}', () => {
       );
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        
         //@ts-ignore
         assert.instanceOf(this, error.DataValidationError);
         //@ts-ignore
@@ -197,7 +203,7 @@ describe('#services/{{ camelcase this.name }}', () => {
       );
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -239,7 +245,7 @@ describe('#services/{{ camelcase this.name }}', () => {
       );
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        
         //@ts-ignore
         assert.instanceOf(this, error.UnexpectedError);
         //@ts-ignore
@@ -267,7 +273,7 @@ describe('#services/{{ camelcase this.name }}', () => {
   });
   context('get{{ pascalcase this.name }}', () => {
     it('should get a {{ camelcase this.name }} by id', async () => {
-      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId();
+      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId().toString();
 
       const get{{ pascalcase this.name }}FromModelStub = sandbox.stub();
       get{{ pascalcase this.name }}FromModelStub.resolves({
@@ -305,7 +311,7 @@ describe('#services/{{ camelcase this.name }}', () => {
       assert.isTrue(get{{ pascalcase this.name }}FromModelStub.calledOnce);
     });
     it('will log the failure and return null if the {{ camelcase this.name }} cannot be found', async () => {
-      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId();
+      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId().toString();
       const errMessage = 'Cannot find the psoject';
       const err = new error.DataNotFoundError(
         errMessage,
@@ -320,10 +326,10 @@ describe('#services/{{ camelcase this.name }}', () => {
         get{{ pascalcase this.name }}FromModelStub
       );
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        
         //@ts-ignore
         assert.instanceOf(this, error.DataNotFoundError);
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        
         //@ts-ignore
         assert.strictEqual(this.message, errMessage);
       }
@@ -341,7 +347,7 @@ describe('#services/{{ camelcase this.name }}', () => {
     });
 
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId();
+      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId().toString();
       const errMessage = 'Something Bad has happened';
       const err = new error.DatabaseOperationError(
         errMessage,
@@ -356,7 +362,7 @@ describe('#services/{{ camelcase this.name }}', () => {
         get{{ pascalcase this.name }}FromModelStub
       );
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -448,10 +454,10 @@ describe('#services/{{ camelcase this.name }}', () => {
         get{{ pascalcase this.name }}FromModelStub
       );
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        
         //@ts-ignore
         assert.instanceOf(this, error.DataNotFoundError);
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        
         //@ts-ignore
         assert.strictEqual(this.message, errMessage);
       }
@@ -484,7 +490,7 @@ describe('#services/{{ camelcase this.name }}', () => {
         get{{ pascalcase this.name }}FromModelStub
       );
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore
@@ -510,11 +516,12 @@ describe('#services/{{ camelcase this.name }}', () => {
   });
   context('update{{ pascalcase this.name }}', () => {
     it('will update a {{ camelcase this.name }}', async () => {
-      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId();
+      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId().toString();
       const update{{ pascalcase this.name }}FromModelStub = sandbox.stub();
       update{{ pascalcase this.name }}FromModelStub.resolves({
          ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
         _id: new mongooseTypes.ObjectId(),
+        deletedAt: new Date(),
         {{#each properties}}
         {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
         {{camelcase this.name}}: {
@@ -536,7 +543,7 @@ describe('#services/{{ camelcase this.name }}', () => {
         deletedAt: new Date(),
       });
       assert.isOk({{ camelcase this.name }});
-      assert.strictEqual({{ camelcase this.name }}._id, {{ camelcase this.name }}Id);
+      assert.strictEqual({{ camelcase this.name }}.id, 'id');
       assert.isOk({{ camelcase this.name }}.deletedAt);
       assert.isTrue(update{{ pascalcase this.name }}FromModelStub.calledOnce);
     });
@@ -546,6 +553,7 @@ describe('#services/{{ camelcase this.name }}', () => {
       update{{ pascalcase this.name }}FromModelStub.resolves({
          ...mocks.MOCK_{{uppercase (pascalcase this.name)}},
         _id: new mongooseTypes.ObjectId(),
+        deletedAt: new Date(),
         {{#each properties}}
         {{#if (and (isOneToOne this.relationType) (referenceTableExists this))}}
         {{camelcase this.name}}: {
@@ -567,12 +575,12 @@ describe('#services/{{ camelcase this.name }}', () => {
         deletedAt: new Date(),
       });
       assert.isOk({{ camelcase this.name }});
-      assert.strictEqual({{ camelcase this.name }}._id, {{ camelcase this.name }}Id);
+      assert.strictEqual({{ camelcase this.name }}.id, 'id');
       assert.isOk({{ camelcase this.name }}.deletedAt);
       assert.isTrue(update{{ pascalcase this.name }}FromModelStub.calledOnce);
     });
-    it('will publish and rethrow an InvalidArgumentError when {{ camelcase this.name }} model throws it ', async () => {
-      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId();
+    it('will publish and rethrow an InvalidArgumentError when {{ camelcase this.name }} model throws it', async () => {
+      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId().toString();
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'args', []);
       const update{{ pascalcase this.name }}FromModelStub = sandbox.stub();
@@ -584,7 +592,7 @@ describe('#services/{{ camelcase this.name }}', () => {
       );
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
         //@ts-ignore
@@ -609,7 +617,7 @@ describe('#services/{{ camelcase this.name }}', () => {
     });
 
     it('will publish and rethrow an InvalidOperationError when {{ camelcase this.name }} model throws it ', async () => {
-      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId();
+      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId().toString();
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
       const update{{ pascalcase this.name }}FromModelStub = sandbox.stub();
@@ -621,7 +629,7 @@ describe('#services/{{ camelcase this.name }}', () => {
       );
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        
         //@ts-ignore
         assert.instanceOf(this, error.InvalidOperationError);
         //@ts-ignore
@@ -645,7 +653,7 @@ describe('#services/{{ camelcase this.name }}', () => {
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will publish and throw an DataServiceError when {{ camelcase this.name }} model throws a DataOperationError ', async () => {
-      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId();
+      const {{ camelcase this.name }}Id = new mongooseTypes.ObjectId().toString();
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
         errMessage,
@@ -661,7 +669,7 @@ describe('#services/{{ camelcase this.name }}', () => {
       );
 
       function fakePublish() {
-        /*eslint-disable  @typescript-eslint/ban-ts-comment */
+        
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);
         //@ts-ignore

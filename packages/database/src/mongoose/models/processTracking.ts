@@ -227,7 +227,7 @@ SCHEMA.static(
         );
       }
     }
-    if (id) return await PROCESSTRACKING_MODEL.getProcessTrackingById(id);
+    if (id) return await PROCESSTRACKING_MODEL.getProcessTrackingById(id.toString());
     else
       throw new error.UnexpectedError(
         'An unexpected error has occurred and the processTracking may not have been created.  I have no other information to provide.'
@@ -359,7 +359,7 @@ SCHEMA.static(
 SCHEMA.static(
   'updateProcessTrackingById',
   async (
-    processTrackingId: mongooseTypes.ObjectId,
+    processTrackingId: string,
     processTracking: Omit<Partial<databaseTypes.IProcessTracking>, '_id'>
   ): Promise<databaseTypes.IProcessTracking> => {
     await PROCESSTRACKING_MODEL.updateProcessTrackingWithFilter({_id: processTrackingId}, processTracking);

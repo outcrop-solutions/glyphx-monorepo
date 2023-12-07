@@ -6,56 +6,67 @@ import {databaseTypes} from 'types';
 import {Types as mongooseTypes} from 'mongoose';
 import {MongoDbConnection} from 'database';
 import {error} from 'core';
-import { modelConfigService} from '../../services';
+import { documentService} from '../../services';
 import * as mocks from 'database/src/mongoose/mocks'
 
-describe('#services/modelConfig', () => {
+describe('#services/document', () => {
   const sandbox = createSandbox();
   const dbConnection = new MongoDbConnection();
   afterEach(() => {
     sandbox.restore();
   });
-  context('createModelConfig', () => {
-    it('will create a ModelConfig', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
+  context('createDocument', () => {
+    it('will create a Document', async () => {
+      const documentId = new mongooseTypes.ObjectId();
       const idId = new mongooseTypes.ObjectId();
-      const minColorId = new mongooseTypes.ObjectId();
+      const presenceId = new mongooseTypes.ObjectId();
+      const annotationsId = new mongooseTypes.ObjectId();
+      const thresholdsId = new mongooseTypes.ObjectId();
+      const configsId = new mongooseTypes.ObjectId();
 
-      // createModelConfig
-      const createModelConfigFromModelStub = sandbox.stub();
-      createModelConfigFromModelStub.resolves({
-         ...mocks.MOCK_MODELCONFIG,
+      // createDocument
+      const createDocumentFromModelStub = sandbox.stub();
+      createDocumentFromModelStub.resolves({
+         ...mocks.MOCK_DOCUMENT,
         _id: new mongooseTypes.ObjectId(),
-      } as unknown as databaseTypes.IModelConfig);
+        presence: [],
+                annotations: [],
+                thresholds: [],
+                configs: [],
+              } as unknown as databaseTypes.IDocument);
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'createModelConfig',
-        createModelConfigFromModelStub
+        dbConnection.models.DocumentModel,
+        'createDocument',
+        createDocumentFromModelStub
       );
 
-      const doc = await modelConfigService.createModelConfig(
+      const doc = await documentService.createDocument(
        {
-         ...mocks.MOCK_MODELCONFIG,
+         ...mocks.MOCK_DOCUMENT,
         _id: new mongooseTypes.ObjectId(),
-      } as unknown as databaseTypes.IModelConfig
+        presence: [],
+                annotations: [],
+                thresholds: [],
+                configs: [],
+              } as unknown as databaseTypes.IDocument
       );
 
-      assert.isTrue(createModelConfigFromModelStub.calledOnce);
+      assert.isTrue(createDocumentFromModelStub.calledOnce);
     });
-    // modelConfig model fails
-    it('will publish and rethrow an InvalidArgumentError when modelConfig model throws it', async () => {
+    // document model fails
+    it('will publish and rethrow an InvalidArgumentError when document model throws it', async () => {
       const errMessage = 'You have an invalid argument error';
       const err = new error.InvalidArgumentError(errMessage, '', '');
 
-      // createModelConfig
-      const createModelConfigFromModelStub = sandbox.stub();
-      createModelConfigFromModelStub.rejects(err)
+      // createDocument
+      const createDocumentFromModelStub = sandbox.stub();
+      createDocumentFromModelStub.rejects(err)
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'createModelConfig',
-        createModelConfigFromModelStub
+        dbConnection.models.DocumentModel,
+        'createDocument',
+        createDocumentFromModelStub
       );
 
 
@@ -74,7 +85,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig(
+        await documentService.createDocument(
           {}
         );
       } catch (e) {
@@ -82,21 +93,21 @@ describe('#services/modelConfig', () => {
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(createModelConfigFromModelStub.calledOnce);
+      assert.isTrue(createDocumentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and rethrow an InvalidOperationError when modelConfig model throws it', async () => {
+    it('will publish and rethrow an InvalidOperationError when document model throws it', async () => {
       const errMessage = 'You have an invalid argument error';
       const err = new error.InvalidOperationError(errMessage, {}, '');
 
-      // createModelConfig
-      const createModelConfigFromModelStub = sandbox.stub();
-      createModelConfigFromModelStub.rejects(err);
+      // createDocument
+      const createDocumentFromModelStub = sandbox.stub();
+      createDocumentFromModelStub.rejects(err);
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'createModelConfig',
-        createModelConfigFromModelStub
+        dbConnection.models.DocumentModel,
+        'createDocument',
+        createDocumentFromModelStub
       );
       
       function fakePublish() {
@@ -114,7 +125,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig(
+        await documentService.createDocument(
           {}
         );
       } catch (e) {
@@ -122,20 +133,20 @@ describe('#services/modelConfig', () => {
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(createModelConfigFromModelStub.calledOnce);
+      assert.isTrue(createDocumentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and rethrow an DataValidationError when modelConfig model throws it', async () => {
-      const createModelConfigFromModelStub = sandbox.stub();
+    it('will publish and rethrow an DataValidationError when document model throws it', async () => {
+      const createDocumentFromModelStub = sandbox.stub();
       const errMessage = 'Data validation error';
       const err = new error.DataValidationError(errMessage, '', '');
 
-      createModelConfigFromModelStub.rejects(err);
+      createDocumentFromModelStub.rejects(err);
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'createModelConfig',
-        createModelConfigFromModelStub
+        dbConnection.models.DocumentModel,
+        'createDocument',
+        createDocumentFromModelStub
       );
 
       function fakePublish() {
@@ -153,7 +164,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig(
+        await documentService.createDocument(
           {}
         );
       } catch (e) {
@@ -161,11 +172,11 @@ describe('#services/modelConfig', () => {
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(createModelConfigFromModelStub.calledOnce);
+      assert.isTrue(createDocumentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and throw an DataServiceError when modelConfig model throws a DataOperationError', async () => {
-      const createModelConfigFromModelStub = sandbox.stub();
+    it('will publish and throw an DataServiceError when document model throws a DataOperationError', async () => {
+      const createDocumentFromModelStub = sandbox.stub();
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
         errMessage,
@@ -173,12 +184,12 @@ describe('#services/modelConfig', () => {
         'updateCustomerPaymentById'
       );
 
-      createModelConfigFromModelStub.rejects(err);
+      createDocumentFromModelStub.rejects(err);
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'createModelConfig',
-        createModelConfigFromModelStub
+        dbConnection.models.DocumentModel,
+        'createDocument',
+        createDocumentFromModelStub
       );
 
       function fakePublish() {
@@ -196,7 +207,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig(
+        await documentService.createDocument(
          {}
         );
       } catch (e) {
@@ -204,23 +215,23 @@ describe('#services/modelConfig', () => {
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(createModelConfigFromModelStub.calledOnce);
+      assert.isTrue(createDocumentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and throw an DataServiceError when modelConfig model throws a UnexpectedError', async () => {
-      const createModelConfigFromModelStub = sandbox.stub();
+    it('will publish and throw an DataServiceError when document model throws a UnexpectedError', async () => {
+      const createDocumentFromModelStub = sandbox.stub();
       const errMessage = 'An UnexpectedError has occurred';
       const err = new error.UnexpectedError(
         errMessage,
         'mongodDb',
       );
 
-      createModelConfigFromModelStub.rejects(err);
+      createDocumentFromModelStub.rejects(err);
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'createModelConfig',
-        createModelConfigFromModelStub
+        dbConnection.models.DocumentModel,
+        'createDocument',
+        createDocumentFromModelStub
       );
 
       function fakePublish() {
@@ -238,7 +249,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig(
+        await documentService.createDocument(
           {}
         );
       } catch (e) {
@@ -246,63 +257,63 @@ describe('#services/modelConfig', () => {
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(createModelConfigFromModelStub.calledOnce);
+      assert.isTrue(createDocumentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context('getModelConfig', () => {
-    it('should get a modelConfig by id', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
+  context('getDocument', () => {
+    it('should get a document by id', async () => {
+      const documentId = new mongooseTypes.ObjectId().toString();
 
-      const getModelConfigFromModelStub = sandbox.stub();
-      getModelConfigFromModelStub.resolves({
-        _id: modelConfigId,
-      } as unknown as databaseTypes.IModelConfig);
+      const getDocumentFromModelStub = sandbox.stub();
+      getDocumentFromModelStub.resolves({
+        _id: documentId,
+      } as unknown as databaseTypes.IDocument);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'getModelConfigById',
-        getModelConfigFromModelStub
+        dbConnection.models.DocumentModel,
+        'getDocumentById',
+        getDocumentFromModelStub
       );
 
-      const modelConfig = await modelConfigService.getModelConfig(modelConfigId);
-      assert.isOk(modelConfig);
-      assert.strictEqual(modelConfig?._id?.toString(), modelConfigId.toString());
+      const document = await documentService.getDocument(documentId);
+      assert.isOk(document);
+      assert.strictEqual(document?._id?.toString(), documentId.toString());
 
-      assert.isTrue(getModelConfigFromModelStub.calledOnce);
+      assert.isTrue(getDocumentFromModelStub.calledOnce);
     });
-    it('should get a modelConfig by id when id is a string', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
+    it('should get a document by id when id is a string', async () => {
+      const documentId = new mongooseTypes.ObjectId();
 
-      const getModelConfigFromModelStub = sandbox.stub();
-      getModelConfigFromModelStub.resolves({
-        _id: modelConfigId,
-      } as unknown as databaseTypes.IModelConfig);
+      const getDocumentFromModelStub = sandbox.stub();
+      getDocumentFromModelStub.resolves({
+        _id: documentId,
+      } as unknown as databaseTypes.IDocument);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'getModelConfigById',
-        getModelConfigFromModelStub
+        dbConnection.models.DocumentModel,
+        'getDocumentById',
+        getDocumentFromModelStub
       );
 
-      const modelConfig = await modelConfigService.getModelConfig(modelConfigId.toString());
-      assert.isOk(modelConfig);
-      assert.strictEqual(modelConfig?._id?.toString(), modelConfigId.toString());
+      const document = await documentService.getDocument(documentId.toString());
+      assert.isOk(document);
+      assert.strictEqual(document?._id?.toString(), documentId.toString());
 
-      assert.isTrue(getModelConfigFromModelStub.calledOnce);
+      assert.isTrue(getDocumentFromModelStub.calledOnce);
     });
-    it('will log the failure and return null if the modelConfig cannot be found', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
+    it('will log the failure and return null if the document cannot be found', async () => {
+      const documentId = new mongooseTypes.ObjectId().toString();
       const errMessage = 'Cannot find the psoject';
       const err = new error.DataNotFoundError(
         errMessage,
-        'modelConfigId',
-        modelConfigId
+        'documentId',
+        documentId
       );
-      const getModelConfigFromModelStub = sandbox.stub();
-      getModelConfigFromModelStub.rejects(err);
+      const getDocumentFromModelStub = sandbox.stub();
+      getDocumentFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'getModelConfigById',
-        getModelConfigFromModelStub
+        dbConnection.models.DocumentModel,
+        'getDocumentById',
+        getDocumentFromModelStub
       );
       function fakePublish() {
         
@@ -318,27 +329,27 @@ describe('#services/modelConfig', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const modelConfig = await modelConfigService.getModelConfig(modelConfigId);
-      assert.notOk(modelConfig);
+      const document = await documentService.getDocument(documentId);
+      assert.notOk(document);
 
-      assert.isTrue(getModelConfigFromModelStub.calledOnce);
+      assert.isTrue(getDocumentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
 
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
+      const documentId = new mongooseTypes.ObjectId().toString();
       const errMessage = 'Something Bad has happened';
       const err = new error.DatabaseOperationError(
         errMessage,
         'mongoDb',
-        'getModelConfigById'
+        'getDocumentById'
       );
-      const getModelConfigFromModelStub = sandbox.stub();
-      getModelConfigFromModelStub.rejects(err);
+      const getDocumentFromModelStub = sandbox.stub();
+      getDocumentFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'getModelConfigById',
-        getModelConfigFromModelStub
+        dbConnection.models.DocumentModel,
+        'getDocumentById',
+        getDocumentFromModelStub
       );
       function fakePublish() {
         
@@ -355,62 +366,70 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.getModelConfig(modelConfigId);
+        await documentService.getDocument(documentId);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(getModelConfigFromModelStub.calledOnce);
+      assert.isTrue(getDocumentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context('getModelConfigs', () => {
-    it('should get modelConfigs by filter', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
-      const modelConfigId2 = new mongooseTypes.ObjectId();
-      const modelConfigFilter = {_id: modelConfigId};
+  context('getDocuments', () => {
+    it('should get documents by filter', async () => {
+      const documentId = new mongooseTypes.ObjectId();
+      const documentId2 = new mongooseTypes.ObjectId();
+      const documentFilter = {_id: documentId};
 
-      const queryModelConfigsFromModelStub = sandbox.stub();
-      queryModelConfigsFromModelStub.resolves({
+      const queryDocumentsFromModelStub = sandbox.stub();
+      queryDocumentsFromModelStub.resolves({
         results: [
           {
-         ...mocks.MOCK_MODELCONFIG,
-        _id: modelConfigId,
-        } as unknown as databaseTypes.IModelConfig,
+         ...mocks.MOCK_DOCUMENT,
+        _id: documentId,
+        presence: [],
+                annotations: [],
+                thresholds: [],
+                configs: [],
+                } as unknown as databaseTypes.IDocument,
         {
-         ...mocks.MOCK_MODELCONFIG,
-        _id: modelConfigId2,
-        } as unknown as databaseTypes.IModelConfig
+         ...mocks.MOCK_DOCUMENT,
+        _id: documentId2,
+        presence: [],
+                annotations: [],
+                thresholds: [],
+                configs: [],
+                } as unknown as databaseTypes.IDocument
         ],
-      } as unknown as databaseTypes.IModelConfig[]);
+      } as unknown as databaseTypes.IDocument[]);
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'queryModelConfigs',
-        queryModelConfigsFromModelStub
+        dbConnection.models.DocumentModel,
+        'queryDocuments',
+        queryDocumentsFromModelStub
       );
 
-      const modelConfigs = await modelConfigService.getModelConfigs(modelConfigFilter);
-      assert.isOk(modelConfigs![0]);
-      assert.strictEqual(modelConfigs![0]._id?.toString(), modelConfigId.toString());
-      assert.isTrue(queryModelConfigsFromModelStub.calledOnce);
+      const documents = await documentService.getDocuments(documentFilter);
+      assert.isOk(documents![0]);
+      assert.strictEqual(documents![0]._id?.toString(), documentId.toString());
+      assert.isTrue(queryDocumentsFromModelStub.calledOnce);
     });
-    it('will log the failure and return null if the modelConfigs cannot be found', async () => {
-      const modelConfigName = 'modelConfigName1';
-      const modelConfigFilter = {name: modelConfigName};
-      const errMessage = 'Cannot find the modelConfig';
+    it('will log the failure and return null if the documents cannot be found', async () => {
+      const documentName = 'documentName1';
+      const documentFilter = {name: documentName};
+      const errMessage = 'Cannot find the document';
       const err = new error.DataNotFoundError(
         errMessage,
         'name',
-        modelConfigFilter
+        documentFilter
       );
-      const getModelConfigFromModelStub = sandbox.stub();
-      getModelConfigFromModelStub.rejects(err);
+      const getDocumentFromModelStub = sandbox.stub();
+      getDocumentFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'queryModelConfigs',
-        getModelConfigFromModelStub
+        dbConnection.models.DocumentModel,
+        'queryDocuments',
+        getDocumentFromModelStub
       );
       function fakePublish() {
         
@@ -426,27 +445,27 @@ describe('#services/modelConfig', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const modelConfig = await modelConfigService.getModelConfigs(modelConfigFilter);
-      assert.notOk(modelConfig);
+      const document = await documentService.getDocuments(documentFilter);
+      assert.notOk(document);
 
-      assert.isTrue(getModelConfigFromModelStub.calledOnce);
+      assert.isTrue(getDocumentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const modelConfigName = 'modelConfigName1';
-      const modelConfigFilter = {name: modelConfigName};
+      const documentName = 'documentName1';
+      const documentFilter = {name: documentName};
       const errMessage = 'Something Bad has happened';
       const err = new error.DatabaseOperationError(
         errMessage,
         'mongoDb',
-        'getModelConfigByEmail'
+        'getDocumentByEmail'
       );
-      const getModelConfigFromModelStub = sandbox.stub();
-      getModelConfigFromModelStub.rejects(err);
+      const getDocumentFromModelStub = sandbox.stub();
+      getDocumentFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'queryModelConfigs',
-        getModelConfigFromModelStub
+        dbConnection.models.DocumentModel,
+        'queryDocuments',
+        getDocumentFromModelStub
       );
       function fakePublish() {
         
@@ -463,71 +482,79 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.getModelConfigs(modelConfigFilter);
+        await documentService.getDocuments(documentFilter);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(getModelConfigFromModelStub.calledOnce);
+      assert.isTrue(getDocumentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context('updateModelConfig', () => {
-    it('will update a modelConfig', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
-      const updateModelConfigFromModelStub = sandbox.stub();
-      updateModelConfigFromModelStub.resolves({
-         ...mocks.MOCK_MODELCONFIG,
+  context('updateDocument', () => {
+    it('will update a document', async () => {
+      const documentId = new mongooseTypes.ObjectId().toString();
+      const updateDocumentFromModelStub = sandbox.stub();
+      updateDocumentFromModelStub.resolves({
+         ...mocks.MOCK_DOCUMENT,
         _id: new mongooseTypes.ObjectId(),
         deletedAt: new Date(),
-      } as unknown as databaseTypes.IModelConfig);
+        presence: [],
+                annotations: [],
+                thresholds: [],
+                configs: [],
+              } as unknown as databaseTypes.IDocument);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'updateModelConfigById',
-        updateModelConfigFromModelStub
+        dbConnection.models.DocumentModel,
+        'updateDocumentById',
+        updateDocumentFromModelStub
       );
 
-      const modelConfig = await modelConfigService.updateModelConfig(modelConfigId, {
+      const document = await documentService.updateDocument(documentId, {
         deletedAt: new Date(),
       });
-      assert.isOk(modelConfig);
-      assert.strictEqual(modelConfig.id, 'id');
-      assert.isOk(modelConfig.deletedAt);
-      assert.isTrue(updateModelConfigFromModelStub.calledOnce);
+      assert.isOk(document);
+      assert.strictEqual(document.id, 'id');
+      assert.isOk(document.deletedAt);
+      assert.isTrue(updateDocumentFromModelStub.calledOnce);
     });
-    it('will update a modelConfig when the id is a string', async () => {
-     const modelConfigId = new mongooseTypes.ObjectId();
-      const updateModelConfigFromModelStub = sandbox.stub();
-      updateModelConfigFromModelStub.resolves({
-         ...mocks.MOCK_MODELCONFIG,
+    it('will update a document when the id is a string', async () => {
+     const documentId = new mongooseTypes.ObjectId();
+      const updateDocumentFromModelStub = sandbox.stub();
+      updateDocumentFromModelStub.resolves({
+         ...mocks.MOCK_DOCUMENT,
         _id: new mongooseTypes.ObjectId(),
         deletedAt: new Date(),
-      } as unknown as databaseTypes.IModelConfig);
+        presence: [],
+                annotations: [],
+                thresholds: [],
+                configs: [],
+              } as unknown as databaseTypes.IDocument);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'updateModelConfigById',
-        updateModelConfigFromModelStub
+        dbConnection.models.DocumentModel,
+        'updateDocumentById',
+        updateDocumentFromModelStub
       );
 
-      const modelConfig = await modelConfigService.updateModelConfig(modelConfigId.toString(), {
+      const document = await documentService.updateDocument(documentId.toString(), {
         deletedAt: new Date(),
       });
-      assert.isOk(modelConfig);
-      assert.strictEqual(modelConfig.id, 'id');
-      assert.isOk(modelConfig.deletedAt);
-      assert.isTrue(updateModelConfigFromModelStub.calledOnce);
+      assert.isOk(document);
+      assert.strictEqual(document.id, 'id');
+      assert.isOk(document.deletedAt);
+      assert.isTrue(updateDocumentFromModelStub.calledOnce);
     });
-    it('will publish and rethrow an InvalidArgumentError when modelConfig model throws it', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
+    it('will publish and rethrow an InvalidArgumentError when document model throws it', async () => {
+      const documentId = new mongooseTypes.ObjectId().toString();
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'args', []);
-      const updateModelConfigFromModelStub = sandbox.stub();
-      updateModelConfigFromModelStub.rejects(err);
+      const updateDocumentFromModelStub = sandbox.stub();
+      updateDocumentFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'updateModelConfigById',
-        updateModelConfigFromModelStub
+        dbConnection.models.DocumentModel,
+        'updateDocumentById',
+        updateDocumentFromModelStub
       );
 
       function fakePublish() {
@@ -545,26 +572,26 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.updateModelConfig(modelConfigId, {deletedAt: new Date()});
+        await documentService.updateDocument(documentId, {deletedAt: new Date()});
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(updateModelConfigFromModelStub.calledOnce);
+      assert.isTrue(updateDocumentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
 
-    it('will publish and rethrow an InvalidOperationError when modelConfig model throws it ', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
+    it('will publish and rethrow an InvalidOperationError when document model throws it ', async () => {
+      const documentId = new mongooseTypes.ObjectId().toString();
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
-      const updateModelConfigFromModelStub = sandbox.stub();
-      updateModelConfigFromModelStub.rejects(err);
+      const updateDocumentFromModelStub = sandbox.stub();
+      updateDocumentFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'updateModelConfigById',
-        updateModelConfigFromModelStub
+        dbConnection.models.DocumentModel,
+        'updateDocumentById',
+        updateDocumentFromModelStub
       );
 
       function fakePublish() {
@@ -582,29 +609,29 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.updateModelConfig(modelConfigId, {deletedAt: new Date()});
+        await documentService.updateDocument(documentId, {deletedAt: new Date()});
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(updateModelConfigFromModelStub.calledOnce);
+      assert.isTrue(updateDocumentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and throw an DataServiceError when modelConfig model throws a DataOperationError ', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
+    it('will publish and throw an DataServiceError when document model throws a DataOperationError ', async () => {
+      const documentId = new mongooseTypes.ObjectId().toString();
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
         errMessage,
         'mongodDb',
-        'updateModelConfigById'
+        'updateDocumentById'
       );
-      const updateModelConfigFromModelStub = sandbox.stub();
-      updateModelConfigFromModelStub.rejects(err);
+      const updateDocumentFromModelStub = sandbox.stub();
+      updateDocumentFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'updateModelConfigById',
-        updateModelConfigFromModelStub
+        dbConnection.models.DocumentModel,
+        'updateDocumentById',
+        updateDocumentFromModelStub
       );
 
       function fakePublish() {
@@ -622,14 +649,14 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.updateModelConfig(modelConfigId, {deletedAt: new Date()});
+        await documentService.updateDocument(documentId, {deletedAt: new Date()});
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
       }
       assert.isTrue(errored);
 
-      assert.isTrue(updateModelConfigFromModelStub.calledOnce);
+      assert.isTrue(updateDocumentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });

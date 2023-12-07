@@ -1,13 +1,11 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks'
+import * as mocks from '../mongoose/mocks';
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {error} from 'core';
-
-type ObjectId = mongooseTypes.ObjectId;
 
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
@@ -30,18 +28,15 @@ describe('#DocumentModel', () => {
       if (documentDocId2) {
         await documentModel.findByIdAndDelete(documentDocId2);
       }
-
     });
 
     it('add a new document ', async () => {
       const documentInput = JSON.parse(JSON.stringify(mocks.MOCK_DOCUMENT));
 
-
       const documentDocument = await documentModel.createDocument(documentInput);
 
       assert.isOk(documentDocument);
       assert.strictEqual(Object.keys(documentDocument)[1], Object.keys(documentInput)[1]);
-
 
       documentDocId = documentDocument._id!.toString();
     });
@@ -57,18 +52,13 @@ describe('#DocumentModel', () => {
     it('modify a document', async () => {
       assert.isOk(documentDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await documentModel.updateDocumentById(
-        documentDocId,
-        input
-      );
+      const updatedDocument = await documentModel.updateDocumentById(documentDocId, input);
       assert.isOk(updatedDocument.deletedAt);
     });
 
     it('Get multiple documents without a filter', async () => {
       assert.isOk(documentDocId);
       const documentInput = JSON.parse(JSON.stringify(mocks.MOCK_DOCUMENT));
-
-
 
       const documentDocument = await documentModel.createDocument(documentInput);
 
@@ -80,9 +70,7 @@ describe('#DocumentModel', () => {
       assert.isArray(documents.results);
       assert.isAtLeast(documents.numberOfItems, 2);
       const expectedDocumentCount =
-        documents.numberOfItems <= documents.itemsPerPage
-          ? documents.numberOfItems
-          : documents.itemsPerPage;
+        documents.numberOfItems <= documents.itemsPerPage ? documents.numberOfItems : documents.itemsPerPage;
       assert.strictEqual(documents.results.length, expectedDocumentCount);
     });
 
@@ -105,10 +93,7 @@ describe('#DocumentModel', () => {
       const results2 = await documentModel.queryDocuments({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(
-        results2.results[0]?._id?.toString(),
-        lastId?.toString()
-      );
+      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
     });
 
     it('remove a document', async () => {

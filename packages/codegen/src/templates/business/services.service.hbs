@@ -1,20 +1,17 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
-import { databaseTypes } from '../../../../database';
+import {databaseTypes} from 'types';
 import {error, constants} from 'core';
 import {Types as mongooseTypes} from 'mongoose';
 import mongoDbConnection from 'lib/databaseConnection';
+import {I{{pascalcase this.name}}CreateInput} from 'database/src/mongoose/interfaces';
 
 export class {{pascalcase this.name}}Service {
   public static async get{{pascalcase this.name}}(
-    {{camelcase this.name}}Id: mongooseTypes.ObjectId | string
+    {{camelcase this.name}}Id: string
   ): Promise<databaseTypes.I{{pascalcase this.name}} | null> {
     try {
-      const id =
-        {{camelcase this.name}}Id instanceof mongooseTypes.ObjectId
-          ? {{camelcase this.name}}Id
-          : new mongooseTypes.ObjectId({{camelcase this.name}}Id);
       const {{camelcase this.name}} =
-        await mongoDbConnection.models.{{pascalcase this.name}}Model.get{{pascalcase this.name}}ById(id);
+        await mongoDbConnection.models.{{pascalcase this.name}}Model.get{{pascalcase this.name}}ById({{camelcase this.name}}Id);
       return {{camelcase this.name}};
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
@@ -65,7 +62,7 @@ export class {{pascalcase this.name}}Service {
     try {
       // create {{camelcase this.name}}
       const {{camelcase this.name}} = await mongoDbConnection.models.{{pascalcase this.name}}Model.create{{pascalcase this.name}}(
-        data
+        data as I{{pascalcase this.name}}CreateInput
       );
 
       return {{camelcase this.name}};
@@ -92,7 +89,7 @@ export class {{pascalcase this.name}}Service {
   }
 
   public static async update{{pascalcase this.name}}(
-    {{camelcase this.name}}Id: mongooseTypes.ObjectId | string,
+    {{camelcase this.name}}Id: string,
     data: Partial<Omit<
       databaseTypes.I{{pascalcase this.name}},
       | '_id'
@@ -101,12 +98,8 @@ export class {{pascalcase this.name}}Service {
     >>
   ): Promise<databaseTypes.I{{pascalcase this.name}}> {
     try {
-      const id =
-        {{camelcase this.name}}Id instanceof mongooseTypes.ObjectId
-          ? {{camelcase this.name}}Id
-          : new mongooseTypes.ObjectId({{camelcase this.name}}Id);
       const {{camelcase this.name}} =
-        await mongoDbConnection.models.{{pascalcase this.name}}Model.update{{pascalcase this.name}}ById(id, {
+        await mongoDbConnection.models.{{pascalcase this.name}}Model.update{{pascalcase this.name}}ById({{camelcase this.name}}Id, {
           ...data
         });
       return {{camelcase this.name}};
@@ -132,15 +125,11 @@ export class {{pascalcase this.name}}Service {
   }
 
   public static async delete{{pascalcase this.name}}(
-    {{camelcase this.name}}Id: mongooseTypes.ObjectId | string
+    {{camelcase this.name}}Id: string
   ): Promise<databaseTypes.I{{pascalcase this.name}}> {
     try {
-      const id =
-        {{camelcase this.name}}Id instanceof mongooseTypes.ObjectId
-          ? {{camelcase this.name}}Id
-          : new mongooseTypes.ObjectId({{camelcase this.name}}Id);
       const {{camelcase this.name}} =
-        await mongoDbConnection.models.{{pascalcase this.name}}Model.update{{pascalcase this.name}}ById(id, {
+        await mongoDbConnection.models.{{pascalcase this.name}}Model.update{{pascalcase this.name}}ById({{camelcase this.name}}Id, {
           deletedAt: new Date(),
         });
       return {{camelcase this.name}};
@@ -169,16 +158,12 @@ export class {{pascalcase this.name}}Service {
 {{#if (isOneToMany this.relationType)}}
 
   public static async add{{pluralize (pascalcase this.name)}}(
-    {{camelcase ../this.name}}Id: mongooseTypes.ObjectId | string,
-    {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId)[]
+    {{camelcase ../this.name}}Id: string,
+    {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | string)[]
   ): Promise<databaseTypes.I{{pascalcase ../this.name}}> {
     try {
-      const id =
-        {{camelcase ../this.name}}Id instanceof mongooseTypes.ObjectId
-          ? {{camelcase ../this.name}}Id
-          : new mongooseTypes.ObjectId({{camelcase ../this.name}}Id);
       const updated{{pascalcase ../this.name}} =
-        await mongoDbConnection.models.{{pascalcase ../this.name}}Model.add{{pluralize (pascalcase this.name)}}(id, {{pluralize (camelcase this.referenceTable)}});
+        await mongoDbConnection.models.{{pascalcase ../this.name}}Model.add{{pluralize (pascalcase this.name)}}({{camelcase ../this.name}}Id, {{pluralize (camelcase this.referenceTable)}});
 
       return updated{{pascalcase ../this.name}};
     } catch (err: any) {
@@ -203,16 +188,12 @@ export class {{pascalcase this.name}}Service {
   }
 
   public static async remove{{pluralize (pascalcase this.name)}}(
-    {{camelcase ../this.name}}Id: mongooseTypes.ObjectId | string,
-    {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId)[]
+    {{camelcase ../this.name}}Id: string,
+    {{pluralize (camelcase this.referenceTable)}}: (databaseTypes.I{{pascalcase this.referenceTable}} | string)[]
   ): Promise<databaseTypes.I{{pascalcase ../this.name}}> {
     try {
-      const id =
-         {{camelcase ../this.name}}Id instanceof mongooseTypes.ObjectId
-          ?  {{camelcase ../this.name}}Id
-          : new mongooseTypes.ObjectId( {{camelcase ../this.name}}Id);
       const updated{{pascalcase ../this.name}} =
-        await mongoDbConnection.models.{{pascalcase this.name}}Model.remove{{pluralize (pascalcase this.name)}}(id, {{pluralize (camelcase this.referenceTable)}});
+        await mongoDbConnection.models.{{pascalcase this.name}}Model.remove{{pluralize (pascalcase this.name)}}({{camelcase ../this.name}}Id, {{pluralize (camelcase this.referenceTable)}});
 
       return updated{{pascalcase ../this.name}};
     } catch (err: any) {
@@ -238,16 +219,12 @@ export class {{pascalcase this.name}}Service {
 {{else if (isOneToOne this.relationType)}}
 
 public static async add{{pascalcase this.name}}(
-    {{camelcase ../this.name}}Id: mongooseTypes.ObjectId | string,
-    {{camelcase this.referenceTable}}: (databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId)[]
+    {{camelcase ../this.name}}Id: string,
+    {{camelcase this.referenceTable}}: databaseTypes.I{{pascalcase this.referenceTable}} | string
   ): Promise<databaseTypes.I{{pascalcase ../this.name}}> {
     try {
-      const id =
-        {{camelcase ../this.name}}Id instanceof mongooseTypes.ObjectId
-          ? {{camelcase ../this.name}}Id
-          : new mongooseTypes.ObjectId({{camelcase ../this.name}}Id);
       const updated{{pascalcase ../this.name}} =
-        await mongoDbConnection.models.{{pascalcase ../this.name}}Model.add{{pascalcase this.name}}(id, {{camelcase this.referenceTable}});
+        await mongoDbConnection.models.{{pascalcase ../this.name}}Model.add{{pascalcase this.name}}({{camelcase ../this.name}}Id, {{camelcase this.referenceTable}});
 
       return updated{{pascalcase ../this.name}};
     } catch (err: any) {
@@ -272,16 +249,12 @@ public static async add{{pascalcase this.name}}(
   }
 
   public static async remove{{pascalcase this.name}}(
-    {{camelcase ../this.name}}Id: mongooseTypes.ObjectId | string,
-    {{camelcase this.referenceTable}}: (databaseTypes.I{{pascalcase this.referenceTable}} | mongooseTypes.ObjectId)[]
+    {{camelcase ../this.name}}Id: string,
+    {{camelcase this.referenceTable}}: databaseTypes.I{{pascalcase this.referenceTable}} | string
   ): Promise<databaseTypes.I{{pascalcase ../this.name}}> {
     try {
-      const id =
-         {{camelcase ../this.name}}Id instanceof mongooseTypes.ObjectId
-          ?  {{camelcase ../this.name}}Id
-          : new mongooseTypes.ObjectId( {{camelcase ../this.name}}Id);
       const updated{{pascalcase ../this.name}} =
-        await mongoDbConnection.models.{{pascalcase this.name}}Model.remove{{pascalcase this.name}}(id, {{camelcase this.referenceTable}});
+        await mongoDbConnection.models.{{pascalcase ../this.name}}Model.remove{{pascalcase this.name}}({{camelcase ../this.name}}Id, {{camelcase this.referenceTable}});
 
       return updated{{pascalcase ../this.name}};
     } catch (err: any) {

@@ -1,15 +1,11 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks'
+import * as mocks from '../mongoose/mocks';
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {error} from 'core';
-
-type ObjectId = mongooseTypes.ObjectId;
-
-const UNIQUE_KEY = v4().replaceAll('-', '');
 
 describe('#MemberModel', () => {
   context('test the crud functions of the member model', () => {
@@ -18,7 +14,7 @@ describe('#MemberModel', () => {
     let memberDocId: string;
     let memberDocId2: string;
     let memberId: string;
-    let memberDocument: any;
+    let userDocument: any;
     let invitedById: string;
     let invitedByDocument: any;
     let workspaceId: string;
@@ -28,24 +24,24 @@ describe('#MemberModel', () => {
 
     before(async () => {
       await mongoConnection.init();
-      const memberModel = mongoConnection.models.UserModel;
-      const savedMemberDocument = await memberModel.create([mocks.MOCK_USER], {
+      const userModel = mongoConnection.models.UserModel;
+      const savedMemberDocument = await userModel.create([mocks.MOCK_USER], {
         validateBeforeSave: false,
       });
-      memberId =  savedMemberDocument[0]!._id.toString();
-      assert.isOk(memberId)
+      memberId = savedMemberDocument[0]!._id.toString();
+      assert.isOk(memberId);
       const workspaceModel = mongoConnection.models.WorkspaceModel;
       const savedWorkspaceDocument = await workspaceModel.create([mocks.MOCK_WORKSPACE], {
         validateBeforeSave: false,
       });
-      workspaceId =  savedWorkspaceDocument[0]!._id.toString();
-      assert.isOk(workspaceId)
+      workspaceId = savedWorkspaceDocument[0]!._id.toString();
+      assert.isOk(workspaceId);
       const projectModel = mongoConnection.models.ProjectModel;
       const savedProjectDocument = await projectModel.create([mocks.MOCK_PROJECT], {
         validateBeforeSave: false,
       });
-      projectId =  savedProjectDocument[0]!._id.toString();
-      assert.isOk(projectId)
+      projectId = savedProjectDocument[0]!._id.toString();
+      assert.isOk(projectId);
     });
 
     after(async () => {
@@ -56,21 +52,20 @@ describe('#MemberModel', () => {
       if (memberDocId2) {
         await memberModel.findByIdAndDelete(memberDocId2);
       }
-      const memberModel = mongoConnection.models.UserModel;
-      await memberModel.findByIdAndDelete(memberId);
+      const userModel = mongoConnection.models.UserModel;
+      await userModel.findByIdAndDelete(memberId);
       const invitedByModel = mongoConnection.models.UserModel;
       await invitedByModel.findByIdAndDelete(invitedById);
       const workspaceModel = mongoConnection.models.WorkspaceModel;
       await workspaceModel.findByIdAndDelete(workspaceId);
       const projectModel = mongoConnection.models.ProjectModel;
       await projectModel.findByIdAndDelete(projectId);
-
     });
 
     it('add a new member ', async () => {
       const memberInput = JSON.parse(JSON.stringify(mocks.MOCK_MEMBER));
 
-      memberInput.member = memberDocument;
+      memberInput.member = userDocument;
       memberInput.invitedBy = invitedByDocument;
       memberInput.workspace = workspaceDocument;
       memberInput.project = projectDocument;
@@ -79,7 +74,6 @@ describe('#MemberModel', () => {
 
       assert.isOk(memberDocument);
       assert.strictEqual(Object.keys(memberDocument)[1], Object.keys(memberInput)[1]);
-
 
       memberDocId = memberDocument._id!.toString();
     });
@@ -95,18 +89,13 @@ describe('#MemberModel', () => {
     it('modify a member', async () => {
       assert.isOk(memberDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await memberModel.updateMemberById(
-        memberDocId,
-        input
-      );
+      const updatedDocument = await memberModel.updateMemberById(memberDocId, input);
       assert.isOk(updatedDocument.deletedAt);
     });
 
     it('Get multiple members without a filter', async () => {
       assert.isOk(memberDocId);
       const memberInput = JSON.parse(JSON.stringify(mocks.MOCK_MEMBER));
-
-
 
       const memberDocument = await memberModel.createMember(memberInput);
 
@@ -118,9 +107,7 @@ describe('#MemberModel', () => {
       assert.isArray(members.results);
       assert.isAtLeast(members.numberOfItems, 2);
       const expectedDocumentCount =
-        members.numberOfItems <= members.itemsPerPage
-          ? members.numberOfItems
-          : members.itemsPerPage;
+        members.numberOfItems <= members.itemsPerPage ? members.numberOfItems : members.itemsPerPage;
       assert.strictEqual(members.results.length, expectedDocumentCount);
     });
 
@@ -143,10 +130,7 @@ describe('#MemberModel', () => {
       const results2 = await memberModel.queryMembers({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(
-        results2.results[0]?._id?.toString(),
-        lastId?.toString()
-      );
+      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
     });
 
     it('remove a member', async () => {

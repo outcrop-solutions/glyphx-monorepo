@@ -1,24 +1,25 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import {databaseTypes} from 'types';
 import {error, constants} from 'core';
+import {Types as mongooseTypes} from 'mongoose';
+import mongoDbConnection from 'lib/databaseConnection';
+import {IUserAgentCreateInput} from 'database/src/mongoose/interfaces';
 
-import mongoDbConnection from '../lib/databaseConnection';
-
-export class ModelConfigService {
-  public static async getModelConfig(modelConfigId: string): Promise<databaseTypes.IModelConfig | null> {
+export class UserAgentService {
+  public static async getUserAgent(userAgentId: string): Promise<databaseTypes.IUserAgent | null> {
     try {
-      const modelConfig = await mongoDbConnection.models.ModelConfigModel.getModelConfigById(modelConfigId);
-      return modelConfig;
+      const userAgent = await mongoDbConnection.models.UserAgentModel.getUserAgentById(userAgentId);
+      return userAgent;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
       } else {
         const e = new error.DataServiceError(
-          'An unexpected error occurred while getting the modelConfig. See the inner error for additional details',
-          'modelConfig',
-          'getModelConfig',
-          {id: modelConfigId},
+          'An unexpected error occurred while getting the userAgent. See the inner error for additional details',
+          'userAgent',
+          'getUserAgent',
+          {id: userAgentId},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);
@@ -27,19 +28,19 @@ export class ModelConfigService {
     }
   }
 
-  public static async getModelConfigs(filter?: Record<string, unknown>): Promise<databaseTypes.IModelConfig[] | null> {
+  public static async getUserAgents(filter?: Record<string, unknown>): Promise<databaseTypes.IUserAgent[] | null> {
     try {
-      const modelConfigs = await mongoDbConnection.models.ModelConfigModel.queryModelConfigs(filter);
-      return modelConfigs?.results;
+      const userAgents = await mongoDbConnection.models.UserAgentModel.queryUserAgents(filter);
+      return userAgents?.results;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
         return null;
       } else {
         const e = new error.DataServiceError(
-          'An unexpected error occurred while getting modelConfigs. See the inner error for additional details',
-          'modelConfigs',
-          'getModelConfigs',
+          'An unexpected error occurred while getting userAgents. See the inner error for additional details',
+          'userAgents',
+          'getUserAgents',
           {filter},
           err
         );
@@ -49,12 +50,12 @@ export class ModelConfigService {
     }
   }
 
-  public static async createModelConfig(data: databaseTypes.IModelConfig): Promise<databaseTypes.IModelConfig> {
+  public static async createUserAgent(data: Partial<databaseTypes.IUserAgent>): Promise<databaseTypes.IUserAgent> {
     try {
-      // create modelConfig
-      const modelConfig = await mongoDbConnection.models.ModelConfigModel.createModelConfig(data);
+      // create userAgent
+      const userAgent = await mongoDbConnection.models.UserAgentModel.createUserAgent(data as IUserAgentCreateInput);
 
-      return modelConfig;
+      return userAgent;
     } catch (err: any) {
       if (
         err instanceof error.InvalidOperationError ||
@@ -65,9 +66,9 @@ export class ModelConfigService {
         throw err;
       } else {
         const e = new error.DataServiceError(
-          'An unexpected error occurred while creating the modelConfig. See the inner error for additional details',
-          'modelConfig',
-          'createModelConfig',
+          'An unexpected error occurred while creating the userAgent. See the inner error for additional details',
+          'userAgent',
+          'createUserAgent',
           {data},
           err
         );
@@ -77,15 +78,15 @@ export class ModelConfigService {
     }
   }
 
-  public static async updateModelConfig(
-    modelConfigId: string,
-    data: Partial<Omit<databaseTypes.IModelConfig, '_id' | 'createdAt' | 'updatedAt'>>
-  ): Promise<databaseTypes.IModelConfig> {
+  public static async updateUserAgent(
+    userAgentId: string,
+    data: Partial<Omit<databaseTypes.IUserAgent, '_id' | 'createdAt' | 'updatedAt'>>
+  ): Promise<databaseTypes.IUserAgent> {
     try {
-      const modelConfig = await mongoDbConnection.models.ModelConfigModel.updateModelConfigById(modelConfigId, {
+      const userAgent = await mongoDbConnection.models.UserAgentModel.updateUserAgentById(userAgentId, {
         ...data,
       });
-      return modelConfig;
+      return userAgent;
     } catch (err: any) {
       if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
@@ -94,8 +95,8 @@ export class ModelConfigService {
         const e = new error.DataServiceError(
           'An unexpected error occurred while updating the User. See the inner error for additional details',
           'user',
-          'updateModelConfig',
-          {modelConfigId},
+          'updateUserAgent',
+          {userAgentId},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);
@@ -104,12 +105,12 @@ export class ModelConfigService {
     }
   }
 
-  public static async deleteModelConfig(modelConfigId: string): Promise<databaseTypes.IModelConfig> {
+  public static async deleteUserAgent(userAgentId: string): Promise<databaseTypes.IUserAgent> {
     try {
-      const modelConfig = await mongoDbConnection.models.ModelConfigModel.updateModelConfigById(modelConfigId, {
+      const userAgent = await mongoDbConnection.models.UserAgentModel.updateUserAgentById(userAgentId, {
         deletedAt: new Date(),
       });
-      return modelConfig;
+      return userAgent;
     } catch (err: any) {
       if (err instanceof error.InvalidArgumentError || err instanceof error.InvalidOperationError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
@@ -118,8 +119,8 @@ export class ModelConfigService {
         const e = new error.DataServiceError(
           'An unexpected error occurred while updating the User. See the inner error for additional details',
           'user',
-          'updateModelConfig',
-          {modelConfigId},
+          'updateUserAgent',
+          {userAgentId},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);

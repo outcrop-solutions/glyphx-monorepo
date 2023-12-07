@@ -1,6 +1,6 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks'
+import * as mocks from '../mongoose/mocks';
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
@@ -15,8 +15,8 @@ describe('#ProcessTrackingModel', () => {
   context('test the crud functions of the processTracking model', () => {
     const mongoConnection = new MongoDbConnection();
     const processTrackingModel = mongoConnection.models.ProcessTrackingModel;
-    let processTrackingDocId: ObjectId;
-    let processTrackingDocId2: ObjectId;
+    let processTrackingDocId: string;
+    let processTrackingDocId2: string;
 
     before(async () => {
       await mongoConnection.init();
@@ -30,20 +30,17 @@ describe('#ProcessTrackingModel', () => {
       if (processTrackingDocId2) {
         await processTrackingModel.findByIdAndDelete(processTrackingDocId2);
       }
-
     });
 
     it('add a new processTracking ', async () => {
       const processTrackingInput = JSON.parse(JSON.stringify(mocks.MOCK_PROCESSTRACKING));
-
 
       const processTrackingDocument = await processTrackingModel.createProcessTracking(processTrackingInput);
 
       assert.isOk(processTrackingDocument);
       assert.strictEqual(Object.keys(processTrackingDocument)[1], Object.keys(processTrackingInput)[1]);
 
-
-      processTrackingDocId = processTrackingDocument._id as mongooseTypes.ObjectId;
+      processTrackingDocId = processTrackingDocument._id!.toString();
     });
 
     it('retreive a processTracking', async () => {
@@ -57,10 +54,7 @@ describe('#ProcessTrackingModel', () => {
     it('modify a processTracking', async () => {
       assert.isOk(processTrackingDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await processTrackingModel.updateProcessTrackingById(
-        processTrackingDocId,
-        input
-      );
+      const updatedDocument = await processTrackingModel.updateProcessTrackingById(processTrackingDocId, input);
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -68,13 +62,11 @@ describe('#ProcessTrackingModel', () => {
       assert.isOk(processTrackingDocId);
       const processTrackingInput = JSON.parse(JSON.stringify(mocks.MOCK_PROCESSTRACKING));
 
-
-
       const processTrackingDocument = await processTrackingModel.createProcessTracking(processTrackingInput);
 
       assert.isOk(processTrackingDocument);
 
-      processTrackingDocId2 = processTrackingDocument._id as mongooseTypes.ObjectId;
+      processTrackingDocId2 = processTrackingDocument._id!.toString();
 
       const processTrackings = await processTrackingModel.queryProcessTrackings();
       assert.isArray(processTrackings.results);
@@ -105,10 +97,7 @@ describe('#ProcessTrackingModel', () => {
       const results2 = await processTrackingModel.queryProcessTrackings({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(
-        results2.results[0]?._id?.toString(),
-        lastId?.toString()
-      );
+      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
     });
 
     it('remove a processTracking', async () => {
@@ -123,7 +112,7 @@ describe('#ProcessTrackingModel', () => {
       }
 
       assert.isTrue(errored);
-      processTrackingDocId = null as unknown as ObjectId;
+      processTrackingDocId = null as unknown as string;
     });
   });
 });

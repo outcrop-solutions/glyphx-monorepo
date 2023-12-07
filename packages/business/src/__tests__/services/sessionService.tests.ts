@@ -6,56 +6,64 @@ import {databaseTypes} from 'types';
 import {Types as mongooseTypes} from 'mongoose';
 import {MongoDbConnection} from 'database';
 import {error} from 'core';
-import { modelConfigService} from '../../services';
+import { sessionService} from '../../services';
 import * as mocks from 'database/src/mongoose/mocks'
 
-describe('#services/modelConfig', () => {
+describe('#services/session', () => {
   const sandbox = createSandbox();
   const dbConnection = new MongoDbConnection();
   afterEach(() => {
     sandbox.restore();
   });
-  context('createModelConfig', () => {
-    it('will create a ModelConfig', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
+  context('createSession', () => {
+    it('will create a Session', async () => {
+      const sessionId = new mongooseTypes.ObjectId();
       const idId = new mongooseTypes.ObjectId();
-      const minColorId = new mongooseTypes.ObjectId();
+      const userId = new mongooseTypes.ObjectId();
 
-      // createModelConfig
-      const createModelConfigFromModelStub = sandbox.stub();
-      createModelConfigFromModelStub.resolves({
-         ...mocks.MOCK_MODELCONFIG,
+      // createSession
+      const createSessionFromModelStub = sandbox.stub();
+      createSessionFromModelStub.resolves({
+         ...mocks.MOCK_SESSION,
         _id: new mongooseTypes.ObjectId(),
-      } as unknown as databaseTypes.IModelConfig);
+        user: {
+          _id: new mongooseTypes.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+      } as unknown as databaseTypes.ISession);
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'createModelConfig',
-        createModelConfigFromModelStub
+        dbConnection.models.SessionModel,
+        'createSession',
+        createSessionFromModelStub
       );
 
-      const doc = await modelConfigService.createModelConfig(
+      const doc = await sessionService.createSession(
        {
-         ...mocks.MOCK_MODELCONFIG,
+         ...mocks.MOCK_SESSION,
         _id: new mongooseTypes.ObjectId(),
-      } as unknown as databaseTypes.IModelConfig
+        user: {
+          _id: new mongooseTypes.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+      } as unknown as databaseTypes.ISession
       );
 
-      assert.isTrue(createModelConfigFromModelStub.calledOnce);
+      assert.isTrue(createSessionFromModelStub.calledOnce);
     });
-    // modelConfig model fails
-    it('will publish and rethrow an InvalidArgumentError when modelConfig model throws it', async () => {
+    // session model fails
+    it('will publish and rethrow an InvalidArgumentError when session model throws it', async () => {
       const errMessage = 'You have an invalid argument error';
       const err = new error.InvalidArgumentError(errMessage, '', '');
 
-      // createModelConfig
-      const createModelConfigFromModelStub = sandbox.stub();
-      createModelConfigFromModelStub.rejects(err)
+      // createSession
+      const createSessionFromModelStub = sandbox.stub();
+      createSessionFromModelStub.rejects(err)
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'createModelConfig',
-        createModelConfigFromModelStub
+        dbConnection.models.SessionModel,
+        'createSession',
+        createSessionFromModelStub
       );
 
 
@@ -74,7 +82,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig(
+        await sessionService.createSession(
           {}
         );
       } catch (e) {
@@ -82,21 +90,21 @@ describe('#services/modelConfig', () => {
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(createModelConfigFromModelStub.calledOnce);
+      assert.isTrue(createSessionFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and rethrow an InvalidOperationError when modelConfig model throws it', async () => {
+    it('will publish and rethrow an InvalidOperationError when session model throws it', async () => {
       const errMessage = 'You have an invalid argument error';
       const err = new error.InvalidOperationError(errMessage, {}, '');
 
-      // createModelConfig
-      const createModelConfigFromModelStub = sandbox.stub();
-      createModelConfigFromModelStub.rejects(err);
+      // createSession
+      const createSessionFromModelStub = sandbox.stub();
+      createSessionFromModelStub.rejects(err);
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'createModelConfig',
-        createModelConfigFromModelStub
+        dbConnection.models.SessionModel,
+        'createSession',
+        createSessionFromModelStub
       );
       
       function fakePublish() {
@@ -114,7 +122,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig(
+        await sessionService.createSession(
           {}
         );
       } catch (e) {
@@ -122,20 +130,20 @@ describe('#services/modelConfig', () => {
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(createModelConfigFromModelStub.calledOnce);
+      assert.isTrue(createSessionFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and rethrow an DataValidationError when modelConfig model throws it', async () => {
-      const createModelConfigFromModelStub = sandbox.stub();
+    it('will publish and rethrow an DataValidationError when session model throws it', async () => {
+      const createSessionFromModelStub = sandbox.stub();
       const errMessage = 'Data validation error';
       const err = new error.DataValidationError(errMessage, '', '');
 
-      createModelConfigFromModelStub.rejects(err);
+      createSessionFromModelStub.rejects(err);
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'createModelConfig',
-        createModelConfigFromModelStub
+        dbConnection.models.SessionModel,
+        'createSession',
+        createSessionFromModelStub
       );
 
       function fakePublish() {
@@ -153,7 +161,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig(
+        await sessionService.createSession(
           {}
         );
       } catch (e) {
@@ -161,11 +169,11 @@ describe('#services/modelConfig', () => {
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(createModelConfigFromModelStub.calledOnce);
+      assert.isTrue(createSessionFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and throw an DataServiceError when modelConfig model throws a DataOperationError', async () => {
-      const createModelConfigFromModelStub = sandbox.stub();
+    it('will publish and throw an DataServiceError when session model throws a DataOperationError', async () => {
+      const createSessionFromModelStub = sandbox.stub();
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
         errMessage,
@@ -173,12 +181,12 @@ describe('#services/modelConfig', () => {
         'updateCustomerPaymentById'
       );
 
-      createModelConfigFromModelStub.rejects(err);
+      createSessionFromModelStub.rejects(err);
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'createModelConfig',
-        createModelConfigFromModelStub
+        dbConnection.models.SessionModel,
+        'createSession',
+        createSessionFromModelStub
       );
 
       function fakePublish() {
@@ -196,7 +204,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig(
+        await sessionService.createSession(
          {}
         );
       } catch (e) {
@@ -204,23 +212,23 @@ describe('#services/modelConfig', () => {
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(createModelConfigFromModelStub.calledOnce);
+      assert.isTrue(createSessionFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and throw an DataServiceError when modelConfig model throws a UnexpectedError', async () => {
-      const createModelConfigFromModelStub = sandbox.stub();
+    it('will publish and throw an DataServiceError when session model throws a UnexpectedError', async () => {
+      const createSessionFromModelStub = sandbox.stub();
       const errMessage = 'An UnexpectedError has occurred';
       const err = new error.UnexpectedError(
         errMessage,
         'mongodDb',
       );
 
-      createModelConfigFromModelStub.rejects(err);
+      createSessionFromModelStub.rejects(err);
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'createModelConfig',
-        createModelConfigFromModelStub
+        dbConnection.models.SessionModel,
+        'createSession',
+        createSessionFromModelStub
       );
 
       function fakePublish() {
@@ -238,7 +246,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig(
+        await sessionService.createSession(
           {}
         );
       } catch (e) {
@@ -246,63 +254,63 @@ describe('#services/modelConfig', () => {
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(createModelConfigFromModelStub.calledOnce);
+      assert.isTrue(createSessionFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context('getModelConfig', () => {
-    it('should get a modelConfig by id', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
+  context('getSession', () => {
+    it('should get a session by id', async () => {
+      const sessionId = new mongooseTypes.ObjectId().toString();
 
-      const getModelConfigFromModelStub = sandbox.stub();
-      getModelConfigFromModelStub.resolves({
-        _id: modelConfigId,
-      } as unknown as databaseTypes.IModelConfig);
+      const getSessionFromModelStub = sandbox.stub();
+      getSessionFromModelStub.resolves({
+        _id: sessionId,
+      } as unknown as databaseTypes.ISession);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'getModelConfigById',
-        getModelConfigFromModelStub
+        dbConnection.models.SessionModel,
+        'getSessionById',
+        getSessionFromModelStub
       );
 
-      const modelConfig = await modelConfigService.getModelConfig(modelConfigId);
-      assert.isOk(modelConfig);
-      assert.strictEqual(modelConfig?._id?.toString(), modelConfigId.toString());
+      const session = await sessionService.getSession(sessionId);
+      assert.isOk(session);
+      assert.strictEqual(session?._id?.toString(), sessionId.toString());
 
-      assert.isTrue(getModelConfigFromModelStub.calledOnce);
+      assert.isTrue(getSessionFromModelStub.calledOnce);
     });
-    it('should get a modelConfig by id when id is a string', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
+    it('should get a session by id when id is a string', async () => {
+      const sessionId = new mongooseTypes.ObjectId();
 
-      const getModelConfigFromModelStub = sandbox.stub();
-      getModelConfigFromModelStub.resolves({
-        _id: modelConfigId,
-      } as unknown as databaseTypes.IModelConfig);
+      const getSessionFromModelStub = sandbox.stub();
+      getSessionFromModelStub.resolves({
+        _id: sessionId,
+      } as unknown as databaseTypes.ISession);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'getModelConfigById',
-        getModelConfigFromModelStub
+        dbConnection.models.SessionModel,
+        'getSessionById',
+        getSessionFromModelStub
       );
 
-      const modelConfig = await modelConfigService.getModelConfig(modelConfigId.toString());
-      assert.isOk(modelConfig);
-      assert.strictEqual(modelConfig?._id?.toString(), modelConfigId.toString());
+      const session = await sessionService.getSession(sessionId.toString());
+      assert.isOk(session);
+      assert.strictEqual(session?._id?.toString(), sessionId.toString());
 
-      assert.isTrue(getModelConfigFromModelStub.calledOnce);
+      assert.isTrue(getSessionFromModelStub.calledOnce);
     });
-    it('will log the failure and return null if the modelConfig cannot be found', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
+    it('will log the failure and return null if the session cannot be found', async () => {
+      const sessionId = new mongooseTypes.ObjectId().toString();
       const errMessage = 'Cannot find the psoject';
       const err = new error.DataNotFoundError(
         errMessage,
-        'modelConfigId',
-        modelConfigId
+        'sessionId',
+        sessionId
       );
-      const getModelConfigFromModelStub = sandbox.stub();
-      getModelConfigFromModelStub.rejects(err);
+      const getSessionFromModelStub = sandbox.stub();
+      getSessionFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'getModelConfigById',
-        getModelConfigFromModelStub
+        dbConnection.models.SessionModel,
+        'getSessionById',
+        getSessionFromModelStub
       );
       function fakePublish() {
         
@@ -318,27 +326,27 @@ describe('#services/modelConfig', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const modelConfig = await modelConfigService.getModelConfig(modelConfigId);
-      assert.notOk(modelConfig);
+      const session = await sessionService.getSession(sessionId);
+      assert.notOk(session);
 
-      assert.isTrue(getModelConfigFromModelStub.calledOnce);
+      assert.isTrue(getSessionFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
 
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
+      const sessionId = new mongooseTypes.ObjectId().toString();
       const errMessage = 'Something Bad has happened';
       const err = new error.DatabaseOperationError(
         errMessage,
         'mongoDb',
-        'getModelConfigById'
+        'getSessionById'
       );
-      const getModelConfigFromModelStub = sandbox.stub();
-      getModelConfigFromModelStub.rejects(err);
+      const getSessionFromModelStub = sandbox.stub();
+      getSessionFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'getModelConfigById',
-        getModelConfigFromModelStub
+        dbConnection.models.SessionModel,
+        'getSessionById',
+        getSessionFromModelStub
       );
       function fakePublish() {
         
@@ -355,62 +363,70 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.getModelConfig(modelConfigId);
+        await sessionService.getSession(sessionId);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(getModelConfigFromModelStub.calledOnce);
+      assert.isTrue(getSessionFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context('getModelConfigs', () => {
-    it('should get modelConfigs by filter', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
-      const modelConfigId2 = new mongooseTypes.ObjectId();
-      const modelConfigFilter = {_id: modelConfigId};
+  context('getSessions', () => {
+    it('should get sessions by filter', async () => {
+      const sessionId = new mongooseTypes.ObjectId();
+      const sessionId2 = new mongooseTypes.ObjectId();
+      const sessionFilter = {_id: sessionId};
 
-      const queryModelConfigsFromModelStub = sandbox.stub();
-      queryModelConfigsFromModelStub.resolves({
+      const querySessionsFromModelStub = sandbox.stub();
+      querySessionsFromModelStub.resolves({
         results: [
           {
-         ...mocks.MOCK_MODELCONFIG,
-        _id: modelConfigId,
-        } as unknown as databaseTypes.IModelConfig,
+         ...mocks.MOCK_SESSION,
+        _id: sessionId,
+        user: {
+          _id: new mongooseTypes.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+        } as unknown as databaseTypes.ISession,
         {
-         ...mocks.MOCK_MODELCONFIG,
-        _id: modelConfigId2,
-        } as unknown as databaseTypes.IModelConfig
+         ...mocks.MOCK_SESSION,
+        _id: sessionId2,
+        user: {
+          _id: new mongooseTypes.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+        } as unknown as databaseTypes.ISession
         ],
-      } as unknown as databaseTypes.IModelConfig[]);
+      } as unknown as databaseTypes.ISession[]);
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'queryModelConfigs',
-        queryModelConfigsFromModelStub
+        dbConnection.models.SessionModel,
+        'querySessions',
+        querySessionsFromModelStub
       );
 
-      const modelConfigs = await modelConfigService.getModelConfigs(modelConfigFilter);
-      assert.isOk(modelConfigs![0]);
-      assert.strictEqual(modelConfigs![0]._id?.toString(), modelConfigId.toString());
-      assert.isTrue(queryModelConfigsFromModelStub.calledOnce);
+      const sessions = await sessionService.getSessions(sessionFilter);
+      assert.isOk(sessions![0]);
+      assert.strictEqual(sessions![0]._id?.toString(), sessionId.toString());
+      assert.isTrue(querySessionsFromModelStub.calledOnce);
     });
-    it('will log the failure and return null if the modelConfigs cannot be found', async () => {
-      const modelConfigName = 'modelConfigName1';
-      const modelConfigFilter = {name: modelConfigName};
-      const errMessage = 'Cannot find the modelConfig';
+    it('will log the failure and return null if the sessions cannot be found', async () => {
+      const sessionName = 'sessionName1';
+      const sessionFilter = {name: sessionName};
+      const errMessage = 'Cannot find the session';
       const err = new error.DataNotFoundError(
         errMessage,
         'name',
-        modelConfigFilter
+        sessionFilter
       );
-      const getModelConfigFromModelStub = sandbox.stub();
-      getModelConfigFromModelStub.rejects(err);
+      const getSessionFromModelStub = sandbox.stub();
+      getSessionFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'queryModelConfigs',
-        getModelConfigFromModelStub
+        dbConnection.models.SessionModel,
+        'querySessions',
+        getSessionFromModelStub
       );
       function fakePublish() {
         
@@ -426,27 +442,27 @@ describe('#services/modelConfig', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const modelConfig = await modelConfigService.getModelConfigs(modelConfigFilter);
-      assert.notOk(modelConfig);
+      const session = await sessionService.getSessions(sessionFilter);
+      assert.notOk(session);
 
-      assert.isTrue(getModelConfigFromModelStub.calledOnce);
+      assert.isTrue(getSessionFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const modelConfigName = 'modelConfigName1';
-      const modelConfigFilter = {name: modelConfigName};
+      const sessionName = 'sessionName1';
+      const sessionFilter = {name: sessionName};
       const errMessage = 'Something Bad has happened';
       const err = new error.DatabaseOperationError(
         errMessage,
         'mongoDb',
-        'getModelConfigByEmail'
+        'getSessionByEmail'
       );
-      const getModelConfigFromModelStub = sandbox.stub();
-      getModelConfigFromModelStub.rejects(err);
+      const getSessionFromModelStub = sandbox.stub();
+      getSessionFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'queryModelConfigs',
-        getModelConfigFromModelStub
+        dbConnection.models.SessionModel,
+        'querySessions',
+        getSessionFromModelStub
       );
       function fakePublish() {
         
@@ -463,71 +479,79 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.getModelConfigs(modelConfigFilter);
+        await sessionService.getSessions(sessionFilter);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(getModelConfigFromModelStub.calledOnce);
+      assert.isTrue(getSessionFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context('updateModelConfig', () => {
-    it('will update a modelConfig', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
-      const updateModelConfigFromModelStub = sandbox.stub();
-      updateModelConfigFromModelStub.resolves({
-         ...mocks.MOCK_MODELCONFIG,
+  context('updateSession', () => {
+    it('will update a session', async () => {
+      const sessionId = new mongooseTypes.ObjectId().toString();
+      const updateSessionFromModelStub = sandbox.stub();
+      updateSessionFromModelStub.resolves({
+         ...mocks.MOCK_SESSION,
         _id: new mongooseTypes.ObjectId(),
         deletedAt: new Date(),
-      } as unknown as databaseTypes.IModelConfig);
+        user: {
+          _id: new mongooseTypes.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+      } as unknown as databaseTypes.ISession);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'updateModelConfigById',
-        updateModelConfigFromModelStub
+        dbConnection.models.SessionModel,
+        'updateSessionById',
+        updateSessionFromModelStub
       );
 
-      const modelConfig = await modelConfigService.updateModelConfig(modelConfigId, {
+      const session = await sessionService.updateSession(sessionId, {
         deletedAt: new Date(),
       });
-      assert.isOk(modelConfig);
-      assert.strictEqual(modelConfig.id, 'id');
-      assert.isOk(modelConfig.deletedAt);
-      assert.isTrue(updateModelConfigFromModelStub.calledOnce);
+      assert.isOk(session);
+      assert.strictEqual(session.id, 'id');
+      assert.isOk(session.deletedAt);
+      assert.isTrue(updateSessionFromModelStub.calledOnce);
     });
-    it('will update a modelConfig when the id is a string', async () => {
-     const modelConfigId = new mongooseTypes.ObjectId();
-      const updateModelConfigFromModelStub = sandbox.stub();
-      updateModelConfigFromModelStub.resolves({
-         ...mocks.MOCK_MODELCONFIG,
+    it('will update a session when the id is a string', async () => {
+     const sessionId = new mongooseTypes.ObjectId();
+      const updateSessionFromModelStub = sandbox.stub();
+      updateSessionFromModelStub.resolves({
+         ...mocks.MOCK_SESSION,
         _id: new mongooseTypes.ObjectId(),
         deletedAt: new Date(),
-      } as unknown as databaseTypes.IModelConfig);
+        user: {
+          _id: new mongooseTypes.ObjectId(),
+          __v: 1,
+        } as unknown as databaseTypes.IUser,
+      } as unknown as databaseTypes.ISession);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'updateModelConfigById',
-        updateModelConfigFromModelStub
+        dbConnection.models.SessionModel,
+        'updateSessionById',
+        updateSessionFromModelStub
       );
 
-      const modelConfig = await modelConfigService.updateModelConfig(modelConfigId.toString(), {
+      const session = await sessionService.updateSession(sessionId.toString(), {
         deletedAt: new Date(),
       });
-      assert.isOk(modelConfig);
-      assert.strictEqual(modelConfig.id, 'id');
-      assert.isOk(modelConfig.deletedAt);
-      assert.isTrue(updateModelConfigFromModelStub.calledOnce);
+      assert.isOk(session);
+      assert.strictEqual(session.id, 'id');
+      assert.isOk(session.deletedAt);
+      assert.isTrue(updateSessionFromModelStub.calledOnce);
     });
-    it('will publish and rethrow an InvalidArgumentError when modelConfig model throws it', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
+    it('will publish and rethrow an InvalidArgumentError when session model throws it', async () => {
+      const sessionId = new mongooseTypes.ObjectId().toString();
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'args', []);
-      const updateModelConfigFromModelStub = sandbox.stub();
-      updateModelConfigFromModelStub.rejects(err);
+      const updateSessionFromModelStub = sandbox.stub();
+      updateSessionFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'updateModelConfigById',
-        updateModelConfigFromModelStub
+        dbConnection.models.SessionModel,
+        'updateSessionById',
+        updateSessionFromModelStub
       );
 
       function fakePublish() {
@@ -545,26 +569,26 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.updateModelConfig(modelConfigId, {deletedAt: new Date()});
+        await sessionService.updateSession(sessionId, {deletedAt: new Date()});
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(updateModelConfigFromModelStub.calledOnce);
+      assert.isTrue(updateSessionFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
 
-    it('will publish and rethrow an InvalidOperationError when modelConfig model throws it ', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
+    it('will publish and rethrow an InvalidOperationError when session model throws it ', async () => {
+      const sessionId = new mongooseTypes.ObjectId().toString();
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
-      const updateModelConfigFromModelStub = sandbox.stub();
-      updateModelConfigFromModelStub.rejects(err);
+      const updateSessionFromModelStub = sandbox.stub();
+      updateSessionFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'updateModelConfigById',
-        updateModelConfigFromModelStub
+        dbConnection.models.SessionModel,
+        'updateSessionById',
+        updateSessionFromModelStub
       );
 
       function fakePublish() {
@@ -582,29 +606,29 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.updateModelConfig(modelConfigId, {deletedAt: new Date()});
+        await sessionService.updateSession(sessionId, {deletedAt: new Date()});
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(updateModelConfigFromModelStub.calledOnce);
+      assert.isTrue(updateSessionFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and throw an DataServiceError when modelConfig model throws a DataOperationError ', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
+    it('will publish and throw an DataServiceError when session model throws a DataOperationError ', async () => {
+      const sessionId = new mongooseTypes.ObjectId().toString();
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
         errMessage,
         'mongodDb',
-        'updateModelConfigById'
+        'updateSessionById'
       );
-      const updateModelConfigFromModelStub = sandbox.stub();
-      updateModelConfigFromModelStub.rejects(err);
+      const updateSessionFromModelStub = sandbox.stub();
+      updateSessionFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'updateModelConfigById',
-        updateModelConfigFromModelStub
+        dbConnection.models.SessionModel,
+        'updateSessionById',
+        updateSessionFromModelStub
       );
 
       function fakePublish() {
@@ -622,14 +646,14 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.updateModelConfig(modelConfigId, {deletedAt: new Date()});
+        await sessionService.updateSession(sessionId, {deletedAt: new Date()});
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
       }
       assert.isTrue(errored);
 
-      assert.isTrue(updateModelConfigFromModelStub.calledOnce);
+      assert.isTrue(updateSessionFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });

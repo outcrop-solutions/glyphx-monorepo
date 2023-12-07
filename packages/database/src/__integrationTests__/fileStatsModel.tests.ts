@@ -1,22 +1,20 @@
 // THIS CODE WAS AUTOMATICALLY GENERATED
 import 'mocha';
-import * as mocks from '../mongoose/mocks'
+import * as mocks from '../mongoose/mocks';
 import {assert} from 'chai';
 import {MongoDbConnection} from '../mongoose';
 import {Types as mongooseTypes} from 'mongoose';
 import {v4} from 'uuid';
 import {error} from 'core';
 
-type ObjectId = mongooseTypes.ObjectId;
-
 const UNIQUE_KEY = v4().replaceAll('-', '');
 
 describe('#FileStatsModel', () => {
   context('test the crud functions of the fileStats model', () => {
     const mongoConnection = new MongoDbConnection();
-    const fileStatsModel = mongoConnection.models.FileStatModel;
-    let fileStatsDocId: ObjectId;
-    let fileStatsDocId2: ObjectId;
+    const fileStatsModel = mongoConnection.models.FileStatsModel;
+    let fileStatsDocId: string;
+    let fileStatsDocId2: string;
 
     before(async () => {
       await mongoConnection.init();
@@ -30,20 +28,17 @@ describe('#FileStatsModel', () => {
       if (fileStatsDocId2) {
         await fileStatsModel.findByIdAndDelete(fileStatsDocId2);
       }
-
     });
 
     it('add a new fileStats ', async () => {
       const fileStatsInput = JSON.parse(JSON.stringify(mocks.MOCK_FILESTATS));
-
 
       const fileStatsDocument = await fileStatsModel.createFileStats(fileStatsInput);
 
       assert.isOk(fileStatsDocument);
       assert.strictEqual(Object.keys(fileStatsDocument)[1], Object.keys(fileStatsInput)[1]);
 
-
-      fileStatsDocId = fileStatsDocument._id as mongooseTypes.ObjectId;
+      fileStatsDocId = fileStatsDocument._id!.toString();
     });
 
     it('retreive a fileStats', async () => {
@@ -57,10 +52,7 @@ describe('#FileStatsModel', () => {
     it('modify a fileStats', async () => {
       assert.isOk(fileStatsDocId);
       const input = {deletedAt: new Date()};
-      const updatedDocument = await fileStatsModel.updateFileStatsById(
-        fileStatsDocId,
-        input
-      );
+      const updatedDocument = await fileStatsModel.updateFileStatsById(fileStatsDocId, input);
       assert.isOk(updatedDocument.deletedAt);
     });
 
@@ -68,21 +60,17 @@ describe('#FileStatsModel', () => {
       assert.isOk(fileStatsDocId);
       const fileStatsInput = JSON.parse(JSON.stringify(mocks.MOCK_FILESTATS));
 
-
-
       const fileStatsDocument = await fileStatsModel.createFileStats(fileStatsInput);
 
       assert.isOk(fileStatsDocument);
 
-      fileStatsDocId2 = fileStatsDocument._id as mongooseTypes.ObjectId;
+      fileStatsDocId2 = fileStatsDocument._id!.toString();
 
       const fileStats = await fileStatsModel.queryFileStats();
       assert.isArray(fileStats.results);
       assert.isAtLeast(fileStats.numberOfItems, 2);
       const expectedDocumentCount =
-        fileStats.numberOfItems <= fileStats.itemsPerPage
-          ? fileStats.numberOfItems
-          : fileStats.itemsPerPage;
+        fileStats.numberOfItems <= fileStats.itemsPerPage ? fileStats.numberOfItems : fileStats.itemsPerPage;
       assert.strictEqual(fileStats.results.length, expectedDocumentCount);
     });
 
@@ -105,10 +93,7 @@ describe('#FileStatsModel', () => {
       const results2 = await fileStatsModel.queryFileStats({}, 1, 1);
       assert.strictEqual(results2.results.length, 1);
 
-      assert.notStrictEqual(
-        results2.results[0]?._id?.toString(),
-        lastId?.toString()
-      );
+      assert.notStrictEqual(results2.results[0]?._id?.toString(), lastId?.toString());
     });
 
     it('remove a fileStats', async () => {
@@ -123,7 +108,7 @@ describe('#FileStatsModel', () => {
       }
 
       assert.isTrue(errored);
-      fileStatsDocId = null as unknown as ObjectId;
+      fileStatsDocId = null as unknown as string;
     });
   });
 });

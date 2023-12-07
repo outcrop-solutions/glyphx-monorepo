@@ -30,18 +30,30 @@ export {
 export {Heartbeat} from './util/heartbeat';
 export {hashFileSystem} from './util/hashFileSystem';
 
-// services
-export {ProjectService as projectService} from './services/project';
+// Services
+// Generated Services
+export {AccountService as accountService} from './services/generated/account';
+export {ActivityLogService as activityLogService} from './services/generated/activityLog';
+export {AnnotationService as annotationService} from './services/generated/annotation';
+export {CustomerPaymentService as customerPaymentService} from './services/generated/customerPayment';
+export {DocumentService as documentService} from './services/generated/document';
+export {FileStatsService as fileStatsService} from './services/generated/fileStats';
+export {MemberService as memberService} from './services/generated/member';
+export {ModelConfigService as modelConfigService} from './services/generated/modelConfig';
+export {PresenceService as presenceService} from './services/generated/presence';
+export {ProcessTrackingService as processTrackingService} from './services/generated/processTracking';
+export {ProjectService as projectService} from './services/generated/project';
+export {ProjectTemplateService as projectTemplateService} from './services/generated/projectTemplate';
+export {SessionService as sessionService} from './services/generated/session';
+export {StateService as stateService} from './services/generated/state';
+export {TagService as tagService} from './services/generated/tag';
+export {ThresholdService as thresholdService} from './services/generated/threshold';
+export {UserService as userService} from './services/generated/user';
+export {UserAgentService as userAgentService} from './services/generated/userAgent';
+export {VerificationTokenService as verificationTokenService} from './services/generated/verificationToken';
+export {WebhookService as webhookService} from './services/generated/webhook';
+
+// Custom Services
 export {TableService as tableService} from './services/table';
-export {UserService as userService} from './services/user';
-export {WorkspaceService as workspaceService} from './services/workspace';
-export {MembershipService as membershipService} from './services/membership';
-export {CustomerPaymentService as customerPaymentService} from './services/customer';
-export {ProcessTrackingService as processTrackingService} from './services/processTracking';
 export {DataService as dataService} from './services/data';
-export {StateService as stateService} from './services/state';
-export {ActivityLogService as activityLogService} from './services/activityLog';
-export {AnnotationService as annotationService} from './services/annotation';
-export {ProjectTemplateService as projectTemplateService} from './services/projectTemplate';
-export {TagService as tagService} from './services/tag';
-export {ModelConfigService as modelConfigService} from './services/modelConfig';
+export {WorkspaceService as workspaceService} from './services/workspace';

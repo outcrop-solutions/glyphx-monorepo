@@ -205,7 +205,7 @@ SCHEMA.static('createFileStats', async (input: IFileStatsCreateInput): Promise<d
       );
     }
   }
-  if (id) return await FILESTATS_MODEL.getFileStatsById(id);
+  if (id) return await FILESTATS_MODEL.getFileStatsById(id.toString());
   else
     throw new error.UnexpectedError(
       'An unexpected error has occurred and the fileStats may not have been created.  I have no other information to provide.'
@@ -329,7 +329,7 @@ SCHEMA.static(
 SCHEMA.static(
   'updateFileStatsById',
   async (
-    fileStatsId: mongooseTypes.ObjectId,
+    fileStatsId: string,
     fileStats: Omit<Partial<databaseTypes.IFileStats>, '_id'>
   ): Promise<databaseTypes.IFileStats> => {
     await FILESTATS_MODEL.updateFileStatsWithFilter({_id: fileStatsId}, fileStats);

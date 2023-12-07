@@ -6,56 +6,55 @@ import {databaseTypes} from 'types';
 import {Types as mongooseTypes} from 'mongoose';
 import {MongoDbConnection} from 'database';
 import {error} from 'core';
-import { modelConfigService} from '../../services';
+import { userAgentService} from '../../services';
 import * as mocks from 'database/src/mongoose/mocks'
 
-describe('#services/modelConfig', () => {
+describe('#services/userAgent', () => {
   const sandbox = createSandbox();
   const dbConnection = new MongoDbConnection();
   afterEach(() => {
     sandbox.restore();
   });
-  context('createModelConfig', () => {
-    it('will create a ModelConfig', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
+  context('createUserAgent', () => {
+    it('will create a UserAgent', async () => {
+      const userAgentId = new mongooseTypes.ObjectId();
       const idId = new mongooseTypes.ObjectId();
-      const minColorId = new mongooseTypes.ObjectId();
 
-      // createModelConfig
-      const createModelConfigFromModelStub = sandbox.stub();
-      createModelConfigFromModelStub.resolves({
-         ...mocks.MOCK_MODELCONFIG,
+      // createUserAgent
+      const createUserAgentFromModelStub = sandbox.stub();
+      createUserAgentFromModelStub.resolves({
+         ...mocks.MOCK_USERAGENT,
         _id: new mongooseTypes.ObjectId(),
-      } as unknown as databaseTypes.IModelConfig);
+      } as unknown as databaseTypes.IUserAgent);
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'createModelConfig',
-        createModelConfigFromModelStub
+        dbConnection.models.UserAgentModel,
+        'createUserAgent',
+        createUserAgentFromModelStub
       );
 
-      const doc = await modelConfigService.createModelConfig(
+      const doc = await userAgentService.createUserAgent(
        {
-         ...mocks.MOCK_MODELCONFIG,
+         ...mocks.MOCK_USERAGENT,
         _id: new mongooseTypes.ObjectId(),
-      } as unknown as databaseTypes.IModelConfig
+      } as unknown as databaseTypes.IUserAgent
       );
 
-      assert.isTrue(createModelConfigFromModelStub.calledOnce);
+      assert.isTrue(createUserAgentFromModelStub.calledOnce);
     });
-    // modelConfig model fails
-    it('will publish and rethrow an InvalidArgumentError when modelConfig model throws it', async () => {
+    // userAgent model fails
+    it('will publish and rethrow an InvalidArgumentError when userAgent model throws it', async () => {
       const errMessage = 'You have an invalid argument error';
       const err = new error.InvalidArgumentError(errMessage, '', '');
 
-      // createModelConfig
-      const createModelConfigFromModelStub = sandbox.stub();
-      createModelConfigFromModelStub.rejects(err)
+      // createUserAgent
+      const createUserAgentFromModelStub = sandbox.stub();
+      createUserAgentFromModelStub.rejects(err)
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'createModelConfig',
-        createModelConfigFromModelStub
+        dbConnection.models.UserAgentModel,
+        'createUserAgent',
+        createUserAgentFromModelStub
       );
 
 
@@ -74,7 +73,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig(
+        await userAgentService.createUserAgent(
           {}
         );
       } catch (e) {
@@ -82,21 +81,21 @@ describe('#services/modelConfig', () => {
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(createModelConfigFromModelStub.calledOnce);
+      assert.isTrue(createUserAgentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and rethrow an InvalidOperationError when modelConfig model throws it', async () => {
+    it('will publish and rethrow an InvalidOperationError when userAgent model throws it', async () => {
       const errMessage = 'You have an invalid argument error';
       const err = new error.InvalidOperationError(errMessage, {}, '');
 
-      // createModelConfig
-      const createModelConfigFromModelStub = sandbox.stub();
-      createModelConfigFromModelStub.rejects(err);
+      // createUserAgent
+      const createUserAgentFromModelStub = sandbox.stub();
+      createUserAgentFromModelStub.rejects(err);
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'createModelConfig',
-        createModelConfigFromModelStub
+        dbConnection.models.UserAgentModel,
+        'createUserAgent',
+        createUserAgentFromModelStub
       );
       
       function fakePublish() {
@@ -114,7 +113,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig(
+        await userAgentService.createUserAgent(
           {}
         );
       } catch (e) {
@@ -122,20 +121,20 @@ describe('#services/modelConfig', () => {
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(createModelConfigFromModelStub.calledOnce);
+      assert.isTrue(createUserAgentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and rethrow an DataValidationError when modelConfig model throws it', async () => {
-      const createModelConfigFromModelStub = sandbox.stub();
+    it('will publish and rethrow an DataValidationError when userAgent model throws it', async () => {
+      const createUserAgentFromModelStub = sandbox.stub();
       const errMessage = 'Data validation error';
       const err = new error.DataValidationError(errMessage, '', '');
 
-      createModelConfigFromModelStub.rejects(err);
+      createUserAgentFromModelStub.rejects(err);
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'createModelConfig',
-        createModelConfigFromModelStub
+        dbConnection.models.UserAgentModel,
+        'createUserAgent',
+        createUserAgentFromModelStub
       );
 
       function fakePublish() {
@@ -153,7 +152,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig(
+        await userAgentService.createUserAgent(
           {}
         );
       } catch (e) {
@@ -161,11 +160,11 @@ describe('#services/modelConfig', () => {
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(createModelConfigFromModelStub.calledOnce);
+      assert.isTrue(createUserAgentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and throw an DataServiceError when modelConfig model throws a DataOperationError', async () => {
-      const createModelConfigFromModelStub = sandbox.stub();
+    it('will publish and throw an DataServiceError when userAgent model throws a DataOperationError', async () => {
+      const createUserAgentFromModelStub = sandbox.stub();
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
         errMessage,
@@ -173,12 +172,12 @@ describe('#services/modelConfig', () => {
         'updateCustomerPaymentById'
       );
 
-      createModelConfigFromModelStub.rejects(err);
+      createUserAgentFromModelStub.rejects(err);
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'createModelConfig',
-        createModelConfigFromModelStub
+        dbConnection.models.UserAgentModel,
+        'createUserAgent',
+        createUserAgentFromModelStub
       );
 
       function fakePublish() {
@@ -196,7 +195,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig(
+        await userAgentService.createUserAgent(
          {}
         );
       } catch (e) {
@@ -204,23 +203,23 @@ describe('#services/modelConfig', () => {
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(createModelConfigFromModelStub.calledOnce);
+      assert.isTrue(createUserAgentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and throw an DataServiceError when modelConfig model throws a UnexpectedError', async () => {
-      const createModelConfigFromModelStub = sandbox.stub();
+    it('will publish and throw an DataServiceError when userAgent model throws a UnexpectedError', async () => {
+      const createUserAgentFromModelStub = sandbox.stub();
       const errMessage = 'An UnexpectedError has occurred';
       const err = new error.UnexpectedError(
         errMessage,
         'mongodDb',
       );
 
-      createModelConfigFromModelStub.rejects(err);
+      createUserAgentFromModelStub.rejects(err);
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'createModelConfig',
-        createModelConfigFromModelStub
+        dbConnection.models.UserAgentModel,
+        'createUserAgent',
+        createUserAgentFromModelStub
       );
 
       function fakePublish() {
@@ -238,7 +237,7 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.createModelConfig(
+        await userAgentService.createUserAgent(
           {}
         );
       } catch (e) {
@@ -246,63 +245,63 @@ describe('#services/modelConfig', () => {
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(createModelConfigFromModelStub.calledOnce);
+      assert.isTrue(createUserAgentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context('getModelConfig', () => {
-    it('should get a modelConfig by id', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
+  context('getUserAgent', () => {
+    it('should get a userAgent by id', async () => {
+      const userAgentId = new mongooseTypes.ObjectId().toString();
 
-      const getModelConfigFromModelStub = sandbox.stub();
-      getModelConfigFromModelStub.resolves({
-        _id: modelConfigId,
-      } as unknown as databaseTypes.IModelConfig);
+      const getUserAgentFromModelStub = sandbox.stub();
+      getUserAgentFromModelStub.resolves({
+        _id: userAgentId,
+      } as unknown as databaseTypes.IUserAgent);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'getModelConfigById',
-        getModelConfigFromModelStub
+        dbConnection.models.UserAgentModel,
+        'getUserAgentById',
+        getUserAgentFromModelStub
       );
 
-      const modelConfig = await modelConfigService.getModelConfig(modelConfigId);
-      assert.isOk(modelConfig);
-      assert.strictEqual(modelConfig?._id?.toString(), modelConfigId.toString());
+      const userAgent = await userAgentService.getUserAgent(userAgentId);
+      assert.isOk(userAgent);
+      assert.strictEqual(userAgent?._id?.toString(), userAgentId.toString());
 
-      assert.isTrue(getModelConfigFromModelStub.calledOnce);
+      assert.isTrue(getUserAgentFromModelStub.calledOnce);
     });
-    it('should get a modelConfig by id when id is a string', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
+    it('should get a userAgent by id when id is a string', async () => {
+      const userAgentId = new mongooseTypes.ObjectId();
 
-      const getModelConfigFromModelStub = sandbox.stub();
-      getModelConfigFromModelStub.resolves({
-        _id: modelConfigId,
-      } as unknown as databaseTypes.IModelConfig);
+      const getUserAgentFromModelStub = sandbox.stub();
+      getUserAgentFromModelStub.resolves({
+        _id: userAgentId,
+      } as unknown as databaseTypes.IUserAgent);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'getModelConfigById',
-        getModelConfigFromModelStub
+        dbConnection.models.UserAgentModel,
+        'getUserAgentById',
+        getUserAgentFromModelStub
       );
 
-      const modelConfig = await modelConfigService.getModelConfig(modelConfigId.toString());
-      assert.isOk(modelConfig);
-      assert.strictEqual(modelConfig?._id?.toString(), modelConfigId.toString());
+      const userAgent = await userAgentService.getUserAgent(userAgentId.toString());
+      assert.isOk(userAgent);
+      assert.strictEqual(userAgent?._id?.toString(), userAgentId.toString());
 
-      assert.isTrue(getModelConfigFromModelStub.calledOnce);
+      assert.isTrue(getUserAgentFromModelStub.calledOnce);
     });
-    it('will log the failure and return null if the modelConfig cannot be found', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
+    it('will log the failure and return null if the userAgent cannot be found', async () => {
+      const userAgentId = new mongooseTypes.ObjectId().toString();
       const errMessage = 'Cannot find the psoject';
       const err = new error.DataNotFoundError(
         errMessage,
-        'modelConfigId',
-        modelConfigId
+        'userAgentId',
+        userAgentId
       );
-      const getModelConfigFromModelStub = sandbox.stub();
-      getModelConfigFromModelStub.rejects(err);
+      const getUserAgentFromModelStub = sandbox.stub();
+      getUserAgentFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'getModelConfigById',
-        getModelConfigFromModelStub
+        dbConnection.models.UserAgentModel,
+        'getUserAgentById',
+        getUserAgentFromModelStub
       );
       function fakePublish() {
         
@@ -318,27 +317,27 @@ describe('#services/modelConfig', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const modelConfig = await modelConfigService.getModelConfig(modelConfigId);
-      assert.notOk(modelConfig);
+      const userAgent = await userAgentService.getUserAgent(userAgentId);
+      assert.notOk(userAgent);
 
-      assert.isTrue(getModelConfigFromModelStub.calledOnce);
+      assert.isTrue(getUserAgentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
 
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
+      const userAgentId = new mongooseTypes.ObjectId().toString();
       const errMessage = 'Something Bad has happened';
       const err = new error.DatabaseOperationError(
         errMessage,
         'mongoDb',
-        'getModelConfigById'
+        'getUserAgentById'
       );
-      const getModelConfigFromModelStub = sandbox.stub();
-      getModelConfigFromModelStub.rejects(err);
+      const getUserAgentFromModelStub = sandbox.stub();
+      getUserAgentFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'getModelConfigById',
-        getModelConfigFromModelStub
+        dbConnection.models.UserAgentModel,
+        'getUserAgentById',
+        getUserAgentFromModelStub
       );
       function fakePublish() {
         
@@ -355,62 +354,62 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.getModelConfig(modelConfigId);
+        await userAgentService.getUserAgent(userAgentId);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(getModelConfigFromModelStub.calledOnce);
+      assert.isTrue(getUserAgentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context('getModelConfigs', () => {
-    it('should get modelConfigs by filter', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId();
-      const modelConfigId2 = new mongooseTypes.ObjectId();
-      const modelConfigFilter = {_id: modelConfigId};
+  context('getUserAgents', () => {
+    it('should get userAgents by filter', async () => {
+      const userAgentId = new mongooseTypes.ObjectId();
+      const userAgentId2 = new mongooseTypes.ObjectId();
+      const userAgentFilter = {_id: userAgentId};
 
-      const queryModelConfigsFromModelStub = sandbox.stub();
-      queryModelConfigsFromModelStub.resolves({
+      const queryUserAgentsFromModelStub = sandbox.stub();
+      queryUserAgentsFromModelStub.resolves({
         results: [
           {
-         ...mocks.MOCK_MODELCONFIG,
-        _id: modelConfigId,
-        } as unknown as databaseTypes.IModelConfig,
+         ...mocks.MOCK_USERAGENT,
+        _id: userAgentId,
+        } as unknown as databaseTypes.IUserAgent,
         {
-         ...mocks.MOCK_MODELCONFIG,
-        _id: modelConfigId2,
-        } as unknown as databaseTypes.IModelConfig
+         ...mocks.MOCK_USERAGENT,
+        _id: userAgentId2,
+        } as unknown as databaseTypes.IUserAgent
         ],
-      } as unknown as databaseTypes.IModelConfig[]);
+      } as unknown as databaseTypes.IUserAgent[]);
 
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'queryModelConfigs',
-        queryModelConfigsFromModelStub
+        dbConnection.models.UserAgentModel,
+        'queryUserAgents',
+        queryUserAgentsFromModelStub
       );
 
-      const modelConfigs = await modelConfigService.getModelConfigs(modelConfigFilter);
-      assert.isOk(modelConfigs![0]);
-      assert.strictEqual(modelConfigs![0]._id?.toString(), modelConfigId.toString());
-      assert.isTrue(queryModelConfigsFromModelStub.calledOnce);
+      const userAgents = await userAgentService.getUserAgents(userAgentFilter);
+      assert.isOk(userAgents![0]);
+      assert.strictEqual(userAgents![0]._id?.toString(), userAgentId.toString());
+      assert.isTrue(queryUserAgentsFromModelStub.calledOnce);
     });
-    it('will log the failure and return null if the modelConfigs cannot be found', async () => {
-      const modelConfigName = 'modelConfigName1';
-      const modelConfigFilter = {name: modelConfigName};
-      const errMessage = 'Cannot find the modelConfig';
+    it('will log the failure and return null if the userAgents cannot be found', async () => {
+      const userAgentName = 'userAgentName1';
+      const userAgentFilter = {name: userAgentName};
+      const errMessage = 'Cannot find the userAgent';
       const err = new error.DataNotFoundError(
         errMessage,
         'name',
-        modelConfigFilter
+        userAgentFilter
       );
-      const getModelConfigFromModelStub = sandbox.stub();
-      getModelConfigFromModelStub.rejects(err);
+      const getUserAgentFromModelStub = sandbox.stub();
+      getUserAgentFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'queryModelConfigs',
-        getModelConfigFromModelStub
+        dbConnection.models.UserAgentModel,
+        'queryUserAgents',
+        getUserAgentFromModelStub
       );
       function fakePublish() {
         
@@ -426,27 +425,27 @@ describe('#services/modelConfig', () => {
       publishOverride.callsFake(boundPublish);
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
 
-      const modelConfig = await modelConfigService.getModelConfigs(modelConfigFilter);
-      assert.notOk(modelConfig);
+      const userAgent = await userAgentService.getUserAgents(userAgentFilter);
+      assert.notOk(userAgent);
 
-      assert.isTrue(getModelConfigFromModelStub.calledOnce);
+      assert.isTrue(getUserAgentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
-      const modelConfigName = 'modelConfigName1';
-      const modelConfigFilter = {name: modelConfigName};
+      const userAgentName = 'userAgentName1';
+      const userAgentFilter = {name: userAgentName};
       const errMessage = 'Something Bad has happened';
       const err = new error.DatabaseOperationError(
         errMessage,
         'mongoDb',
-        'getModelConfigByEmail'
+        'getUserAgentByEmail'
       );
-      const getModelConfigFromModelStub = sandbox.stub();
-      getModelConfigFromModelStub.rejects(err);
+      const getUserAgentFromModelStub = sandbox.stub();
+      getUserAgentFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'queryModelConfigs',
-        getModelConfigFromModelStub
+        dbConnection.models.UserAgentModel,
+        'queryUserAgents',
+        getUserAgentFromModelStub
       );
       function fakePublish() {
         
@@ -463,71 +462,71 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.getModelConfigs(modelConfigFilter);
+        await userAgentService.getUserAgents(userAgentFilter);
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(getModelConfigFromModelStub.calledOnce);
+      assert.isTrue(getUserAgentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });
-  context('updateModelConfig', () => {
-    it('will update a modelConfig', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
-      const updateModelConfigFromModelStub = sandbox.stub();
-      updateModelConfigFromModelStub.resolves({
-         ...mocks.MOCK_MODELCONFIG,
+  context('updateUserAgent', () => {
+    it('will update a userAgent', async () => {
+      const userAgentId = new mongooseTypes.ObjectId().toString();
+      const updateUserAgentFromModelStub = sandbox.stub();
+      updateUserAgentFromModelStub.resolves({
+         ...mocks.MOCK_USERAGENT,
         _id: new mongooseTypes.ObjectId(),
         deletedAt: new Date(),
-      } as unknown as databaseTypes.IModelConfig);
+      } as unknown as databaseTypes.IUserAgent);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'updateModelConfigById',
-        updateModelConfigFromModelStub
+        dbConnection.models.UserAgentModel,
+        'updateUserAgentById',
+        updateUserAgentFromModelStub
       );
 
-      const modelConfig = await modelConfigService.updateModelConfig(modelConfigId, {
+      const userAgent = await userAgentService.updateUserAgent(userAgentId, {
         deletedAt: new Date(),
       });
-      assert.isOk(modelConfig);
-      assert.strictEqual(modelConfig.id, 'id');
-      assert.isOk(modelConfig.deletedAt);
-      assert.isTrue(updateModelConfigFromModelStub.calledOnce);
+      assert.isOk(userAgent);
+      assert.strictEqual(userAgent.id, 'id');
+      assert.isOk(userAgent.deletedAt);
+      assert.isTrue(updateUserAgentFromModelStub.calledOnce);
     });
-    it('will update a modelConfig when the id is a string', async () => {
-     const modelConfigId = new mongooseTypes.ObjectId();
-      const updateModelConfigFromModelStub = sandbox.stub();
-      updateModelConfigFromModelStub.resolves({
-         ...mocks.MOCK_MODELCONFIG,
+    it('will update a userAgent when the id is a string', async () => {
+     const userAgentId = new mongooseTypes.ObjectId();
+      const updateUserAgentFromModelStub = sandbox.stub();
+      updateUserAgentFromModelStub.resolves({
+         ...mocks.MOCK_USERAGENT,
         _id: new mongooseTypes.ObjectId(),
         deletedAt: new Date(),
-      } as unknown as databaseTypes.IModelConfig);
+      } as unknown as databaseTypes.IUserAgent);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'updateModelConfigById',
-        updateModelConfigFromModelStub
+        dbConnection.models.UserAgentModel,
+        'updateUserAgentById',
+        updateUserAgentFromModelStub
       );
 
-      const modelConfig = await modelConfigService.updateModelConfig(modelConfigId.toString(), {
+      const userAgent = await userAgentService.updateUserAgent(userAgentId.toString(), {
         deletedAt: new Date(),
       });
-      assert.isOk(modelConfig);
-      assert.strictEqual(modelConfig.id, 'id');
-      assert.isOk(modelConfig.deletedAt);
-      assert.isTrue(updateModelConfigFromModelStub.calledOnce);
+      assert.isOk(userAgent);
+      assert.strictEqual(userAgent.id, 'id');
+      assert.isOk(userAgent.deletedAt);
+      assert.isTrue(updateUserAgentFromModelStub.calledOnce);
     });
-    it('will publish and rethrow an InvalidArgumentError when modelConfig model throws it', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
+    it('will publish and rethrow an InvalidArgumentError when userAgent model throws it', async () => {
+      const userAgentId = new mongooseTypes.ObjectId().toString();
       const errMessage = 'You have an invalid argument';
       const err = new error.InvalidArgumentError(errMessage, 'args', []);
-      const updateModelConfigFromModelStub = sandbox.stub();
-      updateModelConfigFromModelStub.rejects(err);
+      const updateUserAgentFromModelStub = sandbox.stub();
+      updateUserAgentFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'updateModelConfigById',
-        updateModelConfigFromModelStub
+        dbConnection.models.UserAgentModel,
+        'updateUserAgentById',
+        updateUserAgentFromModelStub
       );
 
       function fakePublish() {
@@ -545,26 +544,26 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.updateModelConfig(modelConfigId, {deletedAt: new Date()});
+        await userAgentService.updateUserAgent(userAgentId, {deletedAt: new Date()});
       } catch (e) {
         assert.instanceOf(e, error.InvalidArgumentError);
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(updateModelConfigFromModelStub.calledOnce);
+      assert.isTrue(updateUserAgentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
 
-    it('will publish and rethrow an InvalidOperationError when modelConfig model throws it ', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
+    it('will publish and rethrow an InvalidOperationError when userAgent model throws it ', async () => {
+      const userAgentId = new mongooseTypes.ObjectId().toString();
       const errMessage = 'You tried to perform an invalid operation';
       const err = new error.InvalidOperationError(errMessage, {});
-      const updateModelConfigFromModelStub = sandbox.stub();
-      updateModelConfigFromModelStub.rejects(err);
+      const updateUserAgentFromModelStub = sandbox.stub();
+      updateUserAgentFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'updateModelConfigById',
-        updateModelConfigFromModelStub
+        dbConnection.models.UserAgentModel,
+        'updateUserAgentById',
+        updateUserAgentFromModelStub
       );
 
       function fakePublish() {
@@ -582,29 +581,29 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.updateModelConfig(modelConfigId, {deletedAt: new Date()});
+        await userAgentService.updateUserAgent(userAgentId, {deletedAt: new Date()});
       } catch (e) {
         assert.instanceOf(e, error.InvalidOperationError);
         errored = true;
       }
       assert.isTrue(errored);
-      assert.isTrue(updateModelConfigFromModelStub.calledOnce);
+      assert.isTrue(updateUserAgentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
-    it('will publish and throw an DataServiceError when modelConfig model throws a DataOperationError ', async () => {
-      const modelConfigId = new mongooseTypes.ObjectId().toString();
+    it('will publish and throw an DataServiceError when userAgent model throws a DataOperationError ', async () => {
+      const userAgentId = new mongooseTypes.ObjectId().toString();
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(
         errMessage,
         'mongodDb',
-        'updateModelConfigById'
+        'updateUserAgentById'
       );
-      const updateModelConfigFromModelStub = sandbox.stub();
-      updateModelConfigFromModelStub.rejects(err);
+      const updateUserAgentFromModelStub = sandbox.stub();
+      updateUserAgentFromModelStub.rejects(err);
       sandbox.replace(
-        dbConnection.models.ModelConfigModel,
-        'updateModelConfigById',
-        updateModelConfigFromModelStub
+        dbConnection.models.UserAgentModel,
+        'updateUserAgentById',
+        updateUserAgentFromModelStub
       );
 
       function fakePublish() {
@@ -622,14 +621,14 @@ describe('#services/modelConfig', () => {
 
       let errored = false;
       try {
-        await modelConfigService.updateModelConfig(modelConfigId, {deletedAt: new Date()});
+        await userAgentService.updateUserAgent(userAgentId, {deletedAt: new Date()});
       } catch (e) {
         assert.instanceOf(e, error.DataServiceError);
         errored = true;
       }
       assert.isTrue(errored);
 
-      assert.isTrue(updateModelConfigFromModelStub.calledOnce);
+      assert.isTrue(updateUserAgentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
   });

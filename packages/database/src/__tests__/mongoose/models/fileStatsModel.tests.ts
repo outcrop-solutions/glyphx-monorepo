@@ -309,7 +309,7 @@ describe('#mongoose/models/fileStats', () => {
       findByIdStub.returns(new MockMongooseQuery(mocks.MOCK_FILESTATS));
       sandbox.replace(FileStatsModel, 'findById', findByIdStub);
 
-      const doc = await FileStatsModel.getFileStatsById(mocks.MOCK_FILESTATS._id as mongoose.Types.ObjectId);
+      const doc = await FileStatsModel.getFileStatsById(mocks.MOCK_FILESTATS.id as string);
 
       assert.isTrue(findByIdStub.calledOnce);
       assert.isUndefined((doc as any)?.__v);
@@ -324,7 +324,7 @@ describe('#mongoose/models/fileStats', () => {
 
       let errored = false;
       try {
-        await FileStatsModel.getFileStatsById(mocks.MOCK_FILESTATS._id as mongoose.Types.ObjectId);
+        await FileStatsModel.getFileStatsById(mocks.MOCK_FILESTATS.id as string);
       } catch (err) {
         assert.instanceOf(err, error.DataNotFoundError);
         errored = true;
@@ -340,7 +340,7 @@ describe('#mongoose/models/fileStats', () => {
 
       let errored = false;
       try {
-        await FileStatsModel.getFileStatsById(mocks.MOCK_FILESTATS._id as mongoose.Types.ObjectId);
+        await FileStatsModel.getFileStatsById(mocks.MOCK_FILESTATS.id as string);
       } catch (err) {
         assert.instanceOf(err, error.DatabaseOperationError);
         errored = true;
@@ -468,14 +468,14 @@ describe('#mongoose/models/fileStats', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.IFileStats;
 
-      const fileStatsId = new mongoose.Types.ObjectId();
+      const fileStatsId = new mongoose.Types.ObjectId().toString();
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
       sandbox.replace(FileStatsModel, 'updateOne', updateStub);
 
       const getFileStatsStub = sandbox.stub();
-      getFileStatsStub.resolves({_id: fileStatsId});
+      getFileStatsStub.resolves({id: fileStatsId});
       sandbox.replace(FileStatsModel, 'getFileStatsById', getFileStatsStub);
 
       const validateStub = sandbox.stub();
@@ -484,7 +484,7 @@ describe('#mongoose/models/fileStats', () => {
 
       const result = await FileStatsModel.updateFileStatsById(fileStatsId, updateFileStats);
 
-      assert.strictEqual(result._id, fileStatsId);
+      assert.strictEqual(result.id, fileStatsId);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(getFileStatsStub.calledOnce);
       assert.isTrue(validateStub.calledOnce);
@@ -496,14 +496,14 @@ describe('#mongoose/models/fileStats', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.IFileStats;
 
-      const fileStatsId = new mongoose.Types.ObjectId();
+      const fileStatsId = new mongoose.Types.ObjectId().toString();
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
       sandbox.replace(FileStatsModel, 'updateOne', updateStub);
 
       const getFileStatsStub = sandbox.stub();
-      getFileStatsStub.resolves({_id: fileStatsId});
+      getFileStatsStub.resolves({id: fileStatsId});
       sandbox.replace(FileStatsModel, 'getFileStatsById', getFileStatsStub);
 
       const validateStub = sandbox.stub();
@@ -512,7 +512,7 @@ describe('#mongoose/models/fileStats', () => {
 
       const result = await FileStatsModel.updateFileStatsById(fileStatsId, updateFileStats);
 
-      assert.strictEqual(result._id, fileStatsId);
+      assert.strictEqual(result.id, fileStatsId);
       assert.isTrue(updateStub.calledOnce);
       assert.isTrue(getFileStatsStub.calledOnce);
       assert.isTrue(validateStub.calledOnce);
@@ -524,7 +524,7 @@ describe('#mongoose/models/fileStats', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.IFileStats;
 
-      const fileStatsId = new mongoose.Types.ObjectId();
+      const fileStatsId = new mongoose.Types.ObjectId().toString();
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 0});
@@ -554,7 +554,7 @@ describe('#mongoose/models/fileStats', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.IFileStats;
 
-      const fileStatsId = new mongoose.Types.ObjectId();
+      const fileStatsId = new mongoose.Types.ObjectId().toString();
 
       const updateStub = sandbox.stub();
       updateStub.resolves({modifiedCount: 1});
@@ -583,7 +583,7 @@ describe('#mongoose/models/fileStats', () => {
         deletedAt: new Date(),
       } as unknown as databaseTypes.IFileStats;
 
-      const fileStatsId = new mongoose.Types.ObjectId();
+      const fileStatsId = new mongoose.Types.ObjectId().toString();
 
       const updateStub = sandbox.stub();
       updateStub.rejects('something terrible has happened');
@@ -620,7 +620,7 @@ describe('#mongoose/models/fileStats', () => {
       deleteStub.resolves({deletedCount: 1});
       sandbox.replace(FileStatsModel, 'deleteOne', deleteStub);
 
-      const fileStatsId = new mongoose.Types.ObjectId();
+      const fileStatsId = new mongoose.Types.ObjectId().toString();
 
       await FileStatsModel.deleteFileStatsById(fileStatsId);
 
@@ -632,7 +632,7 @@ describe('#mongoose/models/fileStats', () => {
       deleteStub.resolves({deletedCount: 0});
       sandbox.replace(FileStatsModel, 'deleteOne', deleteStub);
 
-      const fileStatsId = new mongoose.Types.ObjectId();
+      const fileStatsId = new mongoose.Types.ObjectId().toString();
 
       let errorred = false;
       try {
@@ -650,7 +650,7 @@ describe('#mongoose/models/fileStats', () => {
       deleteStub.rejects('something bad has happened');
       sandbox.replace(FileStatsModel, 'deleteOne', deleteStub);
 
-      const fileStatsId = new mongoose.Types.ObjectId();
+      const fileStatsId = new mongoose.Types.ObjectId().toString();
 
       let errorred = false;
       try {
