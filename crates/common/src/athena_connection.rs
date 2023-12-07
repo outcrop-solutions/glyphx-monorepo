@@ -1,14 +1,13 @@
 use async_trait::async_trait;
 use glyphx_core::aws::athena_manager::AthenaManager;
-use glyphx_core::SecretBoundSingleton;
 use glyphx_core::aws::athena_manager::ConstructorError as AthenaManagerConstructorError;
-use crate::types::athena_connection_errors::ConstructorError;
-use log::error;
+use glyphx_core::SecretBoundError;
+use glyphx_core::SecretBoundSingleton;
 use mockall::automock;
-
+use crate::types::athena_connection_errors::ConstructorError;
 #[automock]
 #[async_trait]
-trait AthenaConnectionOps {
+trait AthenaConnectionOps: Sized {
     async fn build_athena_manager(
         &self,
         catalog_name: String,
@@ -17,7 +16,7 @@ trait AthenaConnectionOps {
 }
 
 #[derive(SecretBoundSingleton, Debug, Clone)]
-#[secret_binder({"secret_name" : "db/athena", "initializer": "new"})]
+#[secret_binder({"secret_name" : "db/athena", "initializer": "new", "initializer_error": "ConstructorError"})]
 pub struct AthenaConnection {
     #[bind_field({"secret_name" : "catalogName" })]
     catalog_name: String,
@@ -27,7 +26,7 @@ pub struct AthenaConnection {
     athena_manager: AthenaManager,
 }
 
-struct AthenaConnectionOpsImpl;
+struct AthenaConnectionOpsImpl {}
 
 #[async_trait]
 impl AthenaConnectionOps for AthenaConnectionOpsImpl {
@@ -53,30 +52,49 @@ impl AthenaConnection {
         &self.catalog_name
     }
 
-    ///Panics if we cannot create the S3Manager
-    pub async fn new(catalog_name: String, bucket_name: String) -> Self {
-        Self::new_impl(catalog_name, bucket_name, &AthenaConnectionOpsImpl).await
+    //Will return Err(AthenaManagerConstructorError) if something fails.  The T is
+    //required to make the compiler happy, but it will always be AthenaManagerConstructorError
+    //which is defined in the attribute on the struct.
+    pub async fn new<T>(catalog_name: String, bucket_name: String) -> Result<Self, T>
+    where
+        T: SecretBoundError,
+    {
+        Self::new_impl(catalog_name, bucket_name, &AthenaConnectionOpsImpl {}).await
     }
 
-    async fn new_impl<T: AthenaConnectionOps>(catalog_name: String, database_name: String, ops: &T) -> Self {
-        let athena_manager = ops.build_athena_manager(catalog_name.clone(), database_name.clone()).await;
+    async fn new_impl<T, T2>(
+        catalog_name: String,
+        database_name: String,
+        ops: &T,
+    ) -> Result<Self, T2>
+    where
+        T: AthenaConnectionOps,
+        T2: SecretBoundError,
+    {
+        let athena_manager = ops
+            .build_athena_manager(catalog_name.clone(), database_name.clone())
+            .await;
         if athena_manager.is_err() {
-            let err =
-                ConstructorError::from_athena_manager_constructor_error(athena_manager.err().unwrap());
-            error!("Failed to create AthenaManager: {:?}", &err);
-            panic!("Failed to create AthenaManager: {:?}", &err);
+            let err = athena_manager.err().unwrap();
+            let variant = err.parse_error_type();
+            let error_data = err.get_glyphx_error_data();
+            let err = T2::from_str(&variant, error_data.clone());
+
+            err.error();
+            return Err(err);
         }
-        Self {
+        Ok(Self {
             catalog_name,
             database_name,
             athena_manager: athena_manager.unwrap(),
-        }
+        })
     }
 }
 
 #[cfg(test)]
 mod contructor {
     use super::*;
+    use glyphx_core::aws::athena_manager::ConstructorError as AthenaManagerConstructorError;
     use glyphx_core::GlyphxErrorData;
     #[tokio::test]
     async fn is_ok() {
@@ -92,7 +110,11 @@ mod contructor {
             .times(1)
             .returning(|_, _| Ok(AthenaManager::default()));
 
-        let athena_connection = AthenaConnection::new_impl(catalog_name.clone(), database_name.clone(), &mock_ops).await;
+        let athena_connection: Result<AthenaConnection, AthenaManagerConstructorError> =
+            AthenaConnection::new_impl(catalog_name.clone(), database_name.clone(), &mock_ops)
+                .await;
+        assert!(athena_connection.is_ok());
+        let athena_connection = athena_connection.unwrap();
         assert_eq!(&athena_connection.database_name, &database_name);
         assert_eq!(&athena_connection.catalog_name, &catalog_name);
 
@@ -105,7 +127,6 @@ mod contructor {
     }
 
     #[tokio::test]
-    #[should_panic]
     async fn is_error() {
         let catalog_name = "test_catalog".to_string();
         let database_name = "test_database".to_string();
@@ -123,6 +144,14 @@ mod contructor {
                 ))
             });
 
-        AthenaConnection::new_impl(catalog_name.clone(), database_name.clone(), &mock_ops).await;
+        let athena_connection: Result<AthenaConnection, AthenaManagerConstructorError> =
+            AthenaConnection::new_impl(catalog_name.clone(), database_name.clone(), &mock_ops)
+                .await;
+        assert!(athena_connection.is_err());
+        let athena_connection = athena_connection.err().unwrap();
+        match athena_connection {
+            AthenaManagerConstructorError::DatabaseDoesNotExist(_) => assert!(true),
+            _ => assert!(false),
+        }
     }
 }

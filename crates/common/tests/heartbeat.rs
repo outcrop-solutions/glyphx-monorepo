@@ -7,7 +7,8 @@ use bson::oid::ObjectId;
 async fn test() {
     let oid = ObjectId::new();
     let process_name = format!("heartbeat_test_{}", oid);
-    MongoDbConnection::build_singleton().await;
+    let result = MongoDbConnection::build_singleton().await;
+    assert!(result.is_ok());
     let mut heartbeat = Heartbeat::new(process_name.clone(), 1);
     let result = heartbeat.start().await;
     assert!(result.is_ok());

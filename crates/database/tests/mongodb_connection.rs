@@ -104,7 +104,6 @@ async fn invalid_database_name() {
 }
 
 #[tokio::test]
-#[should_panic]
 async fn new_panics_on_error() {
     let secret_manager = SecretManager::new("db/mongodb").await;
     let secret = secret_manager.get_secret_value().await;
@@ -114,10 +113,21 @@ async fn new_panics_on_error() {
     let username = secret["user"].as_str().unwrap().to_string();
     let password = secret["password"].as_str().unwrap().to_string();
 
-    MongoDbConnection::new(
+    let result = MongoDbConnection::new::<MongoDbConnectionConstructionError>(
             endpoint,
             "foo".to_string(),
             username,
             password,
         ).await;
+    assert!(result.is_err());
+    let err = result.err().unwrap();
+    match err {
+        MongoDbConnectionConstructionError::ServerSelectionError(_) => {
+            assert!(true);
+        },
+        _ => {
+            panic!("Unexpected Error Type");
+        }
+    }
+
 }

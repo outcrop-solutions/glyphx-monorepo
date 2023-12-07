@@ -3,6 +3,8 @@ use mockall::automock;
 use async_trait::async_trait;
 use mongodb::sync::{Client, Database};
 use crate::errors::MongoDbConnectionConstructionError;
+use glyphx_core::SecretBoundError;
+use mongodb::error::ErrorKind;
 
 #[automock]
 #[async_trait]
@@ -19,7 +21,7 @@ trait SyncMongoDbConnectionOps {
 
 
 #[derive(SecretBoundSingleton, Debug, Clone)]
-#[secret_binder({"secret_name" : "db/mongodb", "initializer": "new"})]
+#[secret_binder({"secret_name" : "db/mongodb", "initializer": "new", "initializer_error": "MongoDbConnectionConstructionError"})]
 pub struct SyncMongoDbConnection {
     endpoint: String,
     #[bind_field({"secret_name" : "schema" })]
@@ -34,30 +36,33 @@ pub struct SyncMongoDbConnection {
 }
 
 impl SyncMongoDbConnection {
-    pub async fn new(
+    pub async fn new<T>(
         endpoint: String,
         database_name: String,
         username: String,
         password: String,
-    ) -> Self {
+    ) -> Result<Self, T> 
+     where T : SecretBoundError + From<ErrorKind> {
         let client = Self::new_impl(endpoint, database_name, username, password).await;
         if client.is_err() {
-            let err = client.as_ref().err().unwrap();
-            err.fatal();
+            let err : T = client.err().unwrap();
+            err.error();
+            return Err(err);
         }
-        client.unwrap()
+        Ok(client.unwrap())
     }
     //Mongo has made it difficult to test this, so we are going to have an impl function that will
     //return a Result<Self, MongoDbConnectionConstructionError>.  This way we can test the error
     //mapping in our integration tests.  Then the actual new call will panic.  We know that
     //error.fatal() will panic, calling to_string() on the error so all we will really need to
     //test is that new panics. 
-    pub async fn new_impl(
+    pub async fn new_impl<T>(
         endpoint: String,
         database_name: String,
         username: String,
         password: String,
-    ) -> Result<Self, MongoDbConnectionConstructionError> {
+    ) -> Result<Self, T> 
+     where T : SecretBoundError + From<ErrorKind> {
         let uri = format!(
             "mongodb+srv://{}:{}@{}?retryWrites=true&w=majority",
             username, password, endpoint
@@ -65,8 +70,8 @@ impl SyncMongoDbConnection {
         let client = Client::with_uri_str(uri);
         if client.is_err() {
             let err = client.err().unwrap();
-            let err = &err.kind;
-            let err = MongoDbConnectionConstructionError::from(err);
+            let err = *err.kind.clone();
+            let err = T::from(err);
             return Err(err);
         }
         let client = client.unwrap();
@@ -78,12 +83,13 @@ impl SyncMongoDbConnection {
         let check_results = database.list_collection_names(None);
         if check_results.is_err() {
             let err = check_results.err().unwrap();
-            let err = MongoDbConnectionConstructionError::from(&err.kind);
+            let err = *err.kind;
+            let err = T::from(err);
             return Err(err)
         }
         let check_results = check_results.unwrap();
         if check_results.len() == 0 {
-            let err = MongoDbConnectionConstructionError::ServerSelectionError(glyphx_core::GlyphxErrorData::new(
+            let err = T::from_str("ServerSelectionError", glyphx_core::GlyphxErrorData::new(
                 "The database does not contain any collections.  This is likely due to an incorrect database name.".to_string(),
                 None,
                 None,

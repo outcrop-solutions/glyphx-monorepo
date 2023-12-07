@@ -15,7 +15,7 @@ pub use vectorizer_parameters_error::{
     FromJsonStringError, FromJsonValueError, GetFieldDefinitionError,GetFieldDefinitionsError, GetFieldDefinitionTypeError
 };
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct VectorizerParameters {
     pub workspace_id: String,
     pub project_id: String,

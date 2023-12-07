@@ -6,8 +6,8 @@ use crate::GlyphxError;
 //however, breaks errors defined in the core crate.  To get past this, I am aliasing crate to
 //glyphx_core.
 use crate as glyphx_core;
-
-#[derive(Debug, Clone, GlyphxError)]
+use serde::{Deserialize, Serialize};
+#[derive(Debug, Clone, GlyphxError, Serialize, Deserialize)]
 #[error_definition("SecretManager")]
 pub enum GetSecretsValueError {
     SecretNotDefined(GlyphxErrorData),

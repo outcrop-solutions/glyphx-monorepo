@@ -11,7 +11,6 @@ pub fn derive(input: TokenStream) -> TokenStream {
     let q = quote!(
     use glyphx_core::traits::ErrorTypeParser;
     #error_type_parser_trait
-
     impl std::fmt::Display for #error_ident {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             let json = glyphx_core::json!({
@@ -27,6 +26,25 @@ pub fn derive(input: TokenStream) -> TokenStream {
     q.into()
 }
 
+fn generate_from_str(idents: &Vec<Ident>) -> proc_macro2::TokenStream {
+    let mut from_str_match_arms = quote!();
+    for ident in idents {
+        from_str_match_arms = quote!(
+            #from_str_match_arms
+            stringify!(#ident) => Self::#ident(error_data),
+        );
+    }
+
+    quote!(
+    fn from_str(variant_name: &str, error_data: glyphx_core::GlyphxErrorData) -> Self {
+    let error_variant = match variant_name {
+        #from_str_match_arms
+        _ => panic!("unknown error type"),
+    };
+    error_variant
+    }
+    )
+}
 fn generate_parse_error_type(idents: &Vec<Ident>) -> proc_macro2::TokenStream {
     let mut parse_error_match_arms = quote!();
     for ident in idents {
@@ -97,12 +115,14 @@ fn generate_error_type_parser_trait(
 ) -> proc_macro2::TokenStream {
     let variant_idents = get_variant_idents(enum_data);
     let parse_errors = generate_parse_error_type(&variant_idents);
+    let from_str = generate_from_str(&variant_idents);
     let get_data = generate_get_glyphx_error_data(&variant_idents);
     let logging_functions = generate_logging_functions();
     quote!(
         impl ErrorTypeParser for #struct_ident {
             #parse_errors
             #get_data
+            #from_str
             #logging_functions
     }
     )
@@ -184,7 +204,6 @@ mod get_enum_data {
         .to_string();
 
         let ast = syn::parse_str::<syn::DeriveInput>(&token_stream);
-        eprintln!("ast: {:?}", &ast);
         let ast = ast.unwrap();
         get_enum_data(&ast);
     }
@@ -307,6 +326,5 @@ mod generate_error_type_parser_trait {
             _ => panic!("not an enum"),
         };
         let result = generate_error_type_parser_trait(&ast.ident, &enum_data);
-        eprintln!("result: {}", result);
     }
 }
