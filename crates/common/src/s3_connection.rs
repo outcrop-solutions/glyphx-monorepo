@@ -17,7 +17,7 @@ trait S3ConnectionOps {
 }
 
 #[derive(SecretBoundSingleton, Debug, Clone)]
-#[secret_binder({"secret_name" : "file/s3", "initializer": "new", "initializer_error": "S3ManagerConstructorError"})]
+#[secret_binder({"secret_name" : "file/s3", "initializer": "new", "initializer_error": "ConstructorError"})]
 pub struct S3Connection {
     #[bind_field({"secret_name": "bucketName" })]
     bucket_name: String,

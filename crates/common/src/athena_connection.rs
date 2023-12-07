@@ -1,12 +1,10 @@
-use crate::types::athena_connection_errors::ConstructorError;
 use async_trait::async_trait;
 use glyphx_core::aws::athena_manager::AthenaManager;
 use glyphx_core::aws::athena_manager::ConstructorError as AthenaManagerConstructorError;
 use glyphx_core::SecretBoundError;
 use glyphx_core::SecretBoundSingleton;
-use log::error;
 use mockall::automock;
-
+use crate::types::athena_connection_errors::ConstructorError;
 #[automock]
 #[async_trait]
 trait AthenaConnectionOps: Sized {
@@ -18,7 +16,7 @@ trait AthenaConnectionOps: Sized {
 }
 
 #[derive(SecretBoundSingleton, Debug, Clone)]
-#[secret_binder({"secret_name" : "db/athena", "initializer": "new", "initializer_error": "AthenaManagerConstructorError"})]
+#[secret_binder({"secret_name" : "db/athena", "initializer": "new", "initializer_error": "ConstructorError"})]
 pub struct AthenaConnection {
     #[bind_field({"secret_name" : "catalogName" })]
     catalog_name: String,
