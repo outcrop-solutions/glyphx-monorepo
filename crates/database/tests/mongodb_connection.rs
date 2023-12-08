@@ -11,7 +11,9 @@ async fn secret_bound_singleton() {
    //Runs through our new function
    MongoDbConnection::build_singleton().await;
    let instance = MongoDbConnection::get_instance();
-   let db = &instance.database;
+   let db = instance.get_database();
+   assert!(db.is_ok());
+   let db = db.unwrap();
    let results = db.list_collection_names(None).await;
    assert!(results.is_ok());
    let results = results.unwrap();

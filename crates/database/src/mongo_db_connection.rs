@@ -1,10 +1,9 @@
-use glyphx_core::SecretBoundSingleton;
-use mockall::automock;
+use crate::errors::{MongoDbConnectionConstructionError, MongoDbInitializationError};
 use async_trait::async_trait;
-use mongodb::error::ErrorKind;
-use crate::errors::MongoDbConnectionConstructionError;
-use glyphx_core::aws::secret_manager::GetSecretsValueError;
 use glyphx_core::SecretBoundError;
+use glyphx_core::{GlyphxErrorData, SecretBoundSingleton};
+use mockall::automock;
+use mongodb::error::ErrorKind;
 
 #[automock]
 #[async_trait]
@@ -18,8 +17,6 @@ trait MongoDbConnectionOps {
     ) -> MongoDbConnection;
 }
 
-
-
 #[derive(SecretBoundSingleton, Debug, Clone)]
 #[secret_binder({"secret_name" : "db/mongodb", "initializer": "new", "initializer_error": "MongoDbConnectionConstructionError"})]
 pub struct MongoDbConnection {
@@ -30,20 +27,45 @@ pub struct MongoDbConnection {
     username: String,
     password: String,
     #[bind_field({"is_bound": false})]
-    pub client: mongodb::Client,
+    client: Option<mongodb::Client>,
     #[bind_field({"is_bound": false})]
-    pub database: mongodb::Database,
+    database: Option<mongodb::Database>,
 }
 
 impl MongoDbConnection {
+    pub fn get_client(&self) -> Result<&mongodb::Client, MongoDbInitializationError> {
+        if self.client.is_none() {
+            let error_data = GlyphxErrorData::new(
+                "The client has not been initialized.".to_string(),
+                None,
+                None,
+            );
+            let err = MongoDbInitializationError::ClientNotInitialized(error_data);
+            return Err(err);
+        }
+        Ok(&self.client.as_ref().unwrap())
+    }
+    pub fn get_database(&self) -> Result<&mongodb::Database, MongoDbInitializationError> {
+        if self.database.is_none() {
+            let error_data = GlyphxErrorData::new(
+                "The database has not been initialized.".to_string(),
+                None,
+                None,
+            );
+            let err = MongoDbInitializationError::DatabaseNotInitialized(error_data);
+            return Err(err);
+        }
+        Ok(&self.database.as_ref().unwrap())
+    }
     pub async fn new<T>(
         endpoint: String,
         database_name: String,
         username: String,
         password: String,
     ) -> Result<Self, T>
-    
-    where T : SecretBoundError + From<ErrorKind> {
+    where
+        T: SecretBoundError + From<ErrorKind>,
+    {
         let client = Self::new_impl::<T>(endpoint, database_name, username, password).await;
         if client.is_err() {
             let err = client.err().unwrap();
@@ -56,14 +78,16 @@ impl MongoDbConnection {
     //return a Result<Self, MongoDbConnectionConstructionError>.  This way we can test the error
     //mapping in our integration tests.  Then the actual new call will panic.  We know that
     //error.fatal() will panic, calling to_string() on the error so all we will really need to
-    //test is that new panics. 
+    //test is that new panics.
     pub async fn new_impl<T>(
         endpoint: String,
         database_name: String,
         username: String,
         password: String,
-    ) -> Result<Self, T> 
-    where T : SecretBoundError + From<ErrorKind> {
+    ) -> Result<Self, T>
+    where
+        T: SecretBoundError + From<ErrorKind>,
+    {
         let uri = format!(
             "mongodb+srv://{}:{}@{}?retryWrites=true&w=majority",
             username, password, endpoint
@@ -86,7 +110,7 @@ impl MongoDbConnection {
             let err = check_results.err().unwrap();
             let err = *err.kind;
             let err = T::from(err);
-            return Err(err)
+            return Err(err);
         }
         let check_results = check_results.unwrap();
         if check_results.len() == 0 {
@@ -102,8 +126,21 @@ impl MongoDbConnection {
             database_name,
             username,
             password,
-            client,
-            database,
+            client: Some(client),
+            database: Some(database),
         })
+    }
+}
+
+impl Default for MongoDbConnection {
+    fn default() -> Self {
+        Self {
+            endpoint: "".to_string(),
+            database_name: "".to_string(),
+            username: "".to_string(),
+            password: "".to_string(),
+            client: None,
+            database: None,
+        }
     }
 }

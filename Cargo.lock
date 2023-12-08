@@ -1470,10 +1470,12 @@ dependencies = [
 name = "glyph_engine"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "glyphx_common",
  "glyphx_core",
  "glyphx_database",
  "lazy_static",
+ "mockall",
  "serde",
  "serde_json",
 ]
