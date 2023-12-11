@@ -1,6 +1,6 @@
 # Glyphx Monorepo
 
-The monorepo is using [Turborepo](https://turborepo.org/) and [pnpm workspaces](https://pnpm.io/workspaces) to link packages together.
+The Monorepo is using [Turborepo](https://turborepo.org/) and [pnpm workspaces](https://pnpm.io/workspaces) to link packages together.
 
 ### Clone and Deploy
 
