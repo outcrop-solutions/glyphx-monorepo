@@ -46,6 +46,9 @@ importers:
       '@babel/types':
         specifier: 7.22.17
         version: 7.22.17
+      '@growthbook/growthbook-react':
+        specifier: ^0.21.0
+        version: 0.21.0(react@18.2.0)
       '@headlessui/react':
         specifier: ^1.4.2
         version: 1.7.17(react-dom@18.2.0)(react@18.2.0)
@@ -6140,6 +6143,23 @@ packages:
     resolution: {integrity: sha512-OfX7E2oUDYxtBvsuS4e/jSn4Q9Qb6DzgeYtsAdkPZ47znpoNsMgZw0+tVijiv3uGNR6dgNlty6r9rzIzHjtd/A==}
     dev: false
 
+  /@growthbook/growthbook-react@0.21.0(react@18.2.0):
+    resolution: {integrity: sha512-LM4jG9xThSYCMfRQECeLtTr8sYyiAxC5NLmT4U3uxKyvVUCB+s0k/vdKrvHcv3YXNJ37mW3VtK9XkNSuW16mcw==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: 18.2.0
+    dependencies:
+      '@growthbook/growthbook': 0.31.0
+      react: 18.2.0
+    dev: false
+
+  /@growthbook/growthbook@0.31.0:
+    resolution: {integrity: sha512-VtI5IibZHhvtrlZhfopGYhVXZ++FewgY0BtQQyEqFSrhCYFvEEtq+GkuSm4GcC0JxNuHiYJr9/R3GpffJV/T4Q==}
+    engines: {node: '>=10'}
+    dependencies:
+      dom-mutator: 0.6.0
+    dev: false
+
   /@headlessui/react@1.7.17(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-4am+tzvkqDSSgiwrsEpGWqgGo9dz8qU5M3znCkC4PgkpY4HcCZzEDEvozltGGGHIKl9jbXbZPSH5TWn4sWJdow==}
     engines: {node: '>=10'}
@@ -10688,6 +10708,11 @@ packages:
     dependencies:
       '@babel/runtime': 7.23.2
       csstype: 3.1.2
+    dev: false
+
+  /dom-mutator@0.6.0:
+    resolution: {integrity: sha512-iCt9o0aYfXMUkz/43ZOAUFQYotjGB+GNbYJiJdz4TgXkyToXbbRy5S6FbTp72lRBtfpUMwEc1KmpFEU4CZeoNg==}
+    engines: {node: '>=10'}
     dev: false
 
   /dom-serializer@2.0.0:
