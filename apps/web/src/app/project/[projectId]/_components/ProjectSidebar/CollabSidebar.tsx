@@ -3,12 +3,10 @@ import {useRef, useEffect} from 'react';
 import {usePosition} from 'services/usePosition';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {leftCoordinatesAtom, windowSizeAtom} from 'state';
-import {Annotations} from './_components/annotations';
-import {States} from './_components/states';
 import {Chat} from 'app/chat/[id]/_components/chat';
 import {useParams} from 'next/navigation';
 
-export const CollabSidebar = () => {
+export const AIThreadsSidebar = () => {
   //utilities
   const sidebar = useRef(null);
   const params = useParams();

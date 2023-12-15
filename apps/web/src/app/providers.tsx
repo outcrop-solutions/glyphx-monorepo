@@ -20,8 +20,8 @@ import {Session} from 'next-auth';
 import {AuthProviders} from 'app/_components/AuthProviders';
 import {SocketProvider} from './socketProvider';
 import {ThemeProvider as NextThemesProvider} from 'next-themes';
-import {ThemeProviderProps} from 'next-themes/dist/types';
 import {TooltipProvider} from './chat/[id]/_components/ui/tooltip';
+import {GrowthbookWrapper} from './_components/GrowthbookWrapper';
 
 if (typeof window !== 'undefined') {
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY as string, {
@@ -64,18 +64,23 @@ export const Providers = ({children, session}: {children: React.ReactNode; sessi
           <PostHogProvider client={posthog}>
             <SocketProvider>
               <AuthProviders>
-                <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
-                  <TooltipProvider>
-                    {/* @ts-ignore */}
-                    <DndProvider backend={HTML5Backend}>
-                      <Toaster position="bottom-left" toastOptions={{duration: 2000}} />
-                      {progress && <TopBarProgress />}
-                      <Modals />
-                      <Loading />
-                      {children}
-                    </DndProvider>
-                  </TooltipProvider>
-                </NextThemesProvider>
+                {/*
+                 * Growthbook requires user info for attributes, must remain inside the AuthProvider
+                 */}
+                <GrowthbookWrapper>
+                  <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
+                    <TooltipProvider>
+                      {/* @ts-ignore */}
+                      <DndProvider backend={HTML5Backend}>
+                        <Toaster position="bottom-left" toastOptions={{duration: 2000}} />
+                        {progress && <TopBarProgress />}
+                        <Modals />
+                        <Loading />
+                        {children}
+                      </DndProvider>
+                    </TooltipProvider>
+                  </NextThemesProvider>
+                </GrowthbookWrapper>
               </AuthProviders>
             </SocketProvider>
           </PostHogProvider>
