@@ -1146,7 +1146,7 @@ describe('GlyphEngine', () => {
         'testDateColumn',
         glyphEngineTypes.constants.DATE_GROUPING.MONTH
       );
-      assert.equal(result, `month(from_unixtime("testDateColumn"/1000))`);
+      assert.strictEqual(result, `month(from_unixtime("testDateColumn"/1000))`);
     });
 
     it('should return the correct QUALIFIED_DAY_OF_MONTH function', () => {
