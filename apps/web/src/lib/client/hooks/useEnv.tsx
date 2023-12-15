@@ -9,9 +9,8 @@ const useEnv = () => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
   });
-  const isProd = data?.env === 'prod';
 
-  return {isProd, isLoading: !error && !data, isError: error};
+  return {env: data?.env, isLoading: !error && !data, isError: error};
 };
 
 export default useEnv;

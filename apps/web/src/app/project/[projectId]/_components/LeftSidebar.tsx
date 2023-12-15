@@ -8,14 +8,16 @@ import {ArrowLeftIcon, CubeIcon, EyeIcon, FolderIcon} from '@heroicons/react/out
 import {useParams} from 'next/navigation';
 import {useRecoilState, useSetRecoilState} from 'recoil';
 import {drawerOpenAtom, projectSegmentAtom} from 'state';
-import {useEnv} from 'lib/client/hooks';
+import {useFeatureIsOn} from '@growthbook/growthbook-react';
 
 const LeftSidebar = () => {
   const params = useParams();
   const projectId = params?.projectId;
   const [segment, setSegment] = useRecoilState(projectSegmentAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
-  const {isProd} = useEnv();
+  // check if feature is enabled from growthbook endpoint
+  const isAIEnabled = useFeatureIsOn('ai');
+  const isWebGPUEnabled = useFeatureIsOn('webgpu');
 
   return (
     <aside
@@ -49,11 +51,13 @@ const LeftSidebar = () => {
           <div onClick={() => setSegment('COLLAB')} className={`p-2 rounded ${segment === 'COLLAB' && 'bg-nav'}`}>
             <ThreadsIcon />
           </div>
-          {!isProd && (
+          {isAIEnabled && (
+            <div onClick={() => setSegment('AI')} className={`p-2 rounded ${segment === 'AI' && 'bg-nav'}`}>
+              <BrainIcon />
+            </div>
+          )}
+          {isWebGPUEnabled && (
             <>
-              <div onClick={() => setSegment('AI')} className={`p-2 rounded ${segment === 'AI' && 'bg-nav'}`}>
-                <BrainIcon />
-              </div>
               <div onClick={() => setSegment('CONFIG')} className={`p-2 rounded ${segment === 'CONFIG' && 'bg-nav'}`}>
                 <EyeIcon className="h-5 w-5" />
               </div>

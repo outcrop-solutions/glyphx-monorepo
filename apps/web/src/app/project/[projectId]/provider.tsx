@@ -13,7 +13,7 @@ import useTemplates from 'lib/client/hooks/useTemplates';
 import {LiveMap} from '@liveblocks/client';
 import {InitialDocumentProvider} from 'collab/lib/client';
 import {RoomProvider} from 'liveblocks.config';
-import {useEnv} from 'lib/client/hooks';
+import {useFeatureIsOn} from '@growthbook/growthbook-react';
 
 const openFirstFile = (projData) => {
   const newFiles = projData?.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
@@ -28,12 +28,14 @@ export const ProjectProvider = ({children, doc, project}: {children: React.React
 
   const projectViewRef = useRef(null);
 
+  // check if collab is enabled from growthbook endpoint
+  const enabled = useFeatureIsOn('collaboration');
+
   // resize setup
   useWindowSize();
   useSendPosition();
   useCloseViewerOnModalOpen();
   useCloseViewerOnLoading();
-
 
   const setWorkspace = useSetRecoilState(workspaceAtom);
   const setProject = useSetRecoilState(projectAtom);
@@ -64,7 +66,7 @@ export const ProjectProvider = ({children, doc, project}: {children: React.React
     project,
   ]);
 
-  return false ? (
+  return enabled ? (
     <RoomProvider id={project.docId as string} initialPresence={{cursor: null}} initialStorage={{notes: new LiveMap()}}>
       <InitialDocumentProvider initialDocument={doc}>
         <div ref={projectViewRef} className="flex w-full h-full">
