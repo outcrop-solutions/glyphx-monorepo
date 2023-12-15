@@ -45,7 +45,8 @@ export const Thresholds = () => {
           setCamera({});
           setImage({imageHash: false});
           setAddThreshold(false);
-          mutate(`/api/project/${project.id}`);
+          // TODO: revalidate project cache
+          // mutate(`/api/project/${project.id}`);
         },
       });
     }

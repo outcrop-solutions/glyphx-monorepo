@@ -2,7 +2,6 @@ import type {NextApiRequest, NextApiResponse} from 'next';
 import {generalPurposeFunctions} from 'core';
 
 import {GlyphEngine} from 'glyphengine';
-import {ATHENA_DB_NAME, S3_BUCKET_NAME} from 'config/constants';
 import {
   processTrackingService,
   activityLogService,
@@ -78,8 +77,10 @@ import {Session} from 'next-auth';
 
 export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const {project, isFilter, payloadHash} = req.body;
+  // console.log({props: project.state.properties});
 
   if (!isValidPayload(project.state.properties)) {
+    console.log('INVALID PAYLOAD');
     // fails silently
     res.status(404).json({errors: {error: {msg: 'Invalid Payload'}}});
   } else {
@@ -88,7 +89,7 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
     const payload = {
       model_id: project.id,
       payload_hash: payloadHash,
-      client_id: project.workspace.id,
+      client_id: project?.workspace.id,
       x_axis: properties[webTypes.constants.AXIS.X]['key'],
       x_date_grouping: properties[webTypes.constants.AXIS.X]['dateGrouping'],
       y_axis: properties[webTypes.constants.AXIS.Y]['key'],
@@ -172,6 +173,7 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
 
       res.status(200).json({data: {sdtFileName, sgnFileName, sgcFileName, updatedProject}});
     } catch (error) {
+      console.log({error});
       res.status(404).json({errors: {error: {msg: error.message}}});
     }
   }
