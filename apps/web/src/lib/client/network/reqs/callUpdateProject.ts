@@ -6,7 +6,7 @@ export const callUpdateProject = (project, mutate) => {
     ..._updateProjectState(project.id, project.state),
     onSuccess: () => {
       // TODO: revalidate project cache
-      mutate(`/api/project/${project.id}`);
+      // mutate(`/api/project/${project.id}`);
     },
   });
 };
