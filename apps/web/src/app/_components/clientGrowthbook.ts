@@ -1,9 +1,10 @@
 'use client';
 import {GrowthBook} from '@growthbook/growthbook-react';
+import {getGBKey} from './serverGrowthbook';
 
-export const clientGrowthbook = new GrowthBook({
+export const clientGrowthBook = new GrowthBook({
   apiHost: 'https://cdn.growthbook.io',
-  clientKey: process.env.NEXT_PUBLIC_GB_KEY,
+  clientKey: getGBKey(),
   enableDevMode: true,
   subscribeToChanges: true,
   trackingCallback: (experiment, result) => {

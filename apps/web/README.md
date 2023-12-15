@@ -22,6 +22,10 @@ const growthbook = new GrowthBook({
   },
 });
 
+Note: the package imported in react server components is from the node sdk at growthbook/growthbook, while for client components, it is imported from growthbook/growthbook-react.
+If you see the following error: "createContext only works in Client Components. Add the "use client" directive at the top of the file to use it. Read more: https://nextjs.org/docs/messages/context-in-server-component" there is a fair chance you have committed this import error
+
+
 export default async function Home() {
   await growthbook.loadFeatures();
 

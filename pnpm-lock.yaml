@@ -46,6 +46,9 @@ importers:
       '@babel/types':
         specifier: 7.22.17
         version: 7.22.17
+      '@growthbook/growthbook':
+        specifier: ^0.31.0
+        version: 0.31.0
       '@growthbook/growthbook-react':
         specifier: ^0.21.0
         version: 0.21.0(react@18.2.0)

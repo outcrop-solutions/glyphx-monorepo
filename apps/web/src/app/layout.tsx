@@ -3,7 +3,7 @@ import {getServerSession} from 'next-auth/next';
 import 'globals.css';
 import {Providers} from './providers';
 import {authOptions} from './api/auth/[...nextauth]/route';
-
+import {serverGrowthbook as growthbook} from './_components/serverGrowthbook';
 export const metadata: Metadata = {
   title: 'Home | Glyphx',
   description: 'Welcome to Glyphx',
@@ -17,6 +17,7 @@ declare global {
 
 export default async function RootLayout({children, params}: {children: React.ReactNode; params: any}) {
   const session = await getServerSession(authOptions);
+  await growthbook.loadFeatures();
 
   return (
     <html lang="en">
