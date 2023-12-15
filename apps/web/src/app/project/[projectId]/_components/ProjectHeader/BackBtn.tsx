@@ -12,7 +12,7 @@ export const BackBtn = () => {
   const setDrawer = useSetRecoilState(drawerOpenAtom);
 
   const backPressed = () => {
-    router.push(`/${project.workspace.id}` as Route);
+    router.push(`/${project?.workspace.id}` as Route);
     setDrawer(false);
     window?.core?.ToggleDrawer(false);
     setProject(null);

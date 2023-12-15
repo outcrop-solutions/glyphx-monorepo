@@ -5,12 +5,10 @@ export const isValidPayload = (properties) => {
   const axisArray = Object.values(webTypes.constants.AXIS);
   for (const axis of axisArray.slice(0, 3)) {
     const prop = properties[axis];
+    // properties
+    console.log({properties});
     // check if all props have values and Z is numeric
-    if (
-      prop?.key === '' ||
-      prop?.key.includes('Column ') ||
-      (axis === webTypes.constants.AXIS.Z && prop.dataType !== fileIngestionTypes.constants.FIELD_TYPE.NUMBER)
-    ) {
+    if (prop?.key === '' || prop?.key.includes('Column ')) {
       retval = false;
     }
   }

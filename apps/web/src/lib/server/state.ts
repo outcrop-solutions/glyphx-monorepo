@@ -78,7 +78,7 @@ export const updateState = async (req: NextApiRequest, res: NextApiResponse, ses
     await activityLogService.createLog({
       actorId: session?.user?.id,
       resourceId: state.id!,
-      workspaceId: state.project.workspace?.toString(),
+      workspaceId: state.project?.workspace?.toString(),
       projectId: state.project.id,
       location: location,
       userAgent: agentData,
@@ -111,7 +111,7 @@ export const deleteState = async (req: NextApiRequest, res: NextApiResponse, ses
     await activityLogService.createLog({
       actorId: session?.user?.id,
       resourceId: state.id!,
-      workspaceId: state.project.workspace?.toString(),
+      workspaceId: state.project?.workspace?.toString(),
       projectId: state.project.id,
       location: location,
       userAgent: agentData,
