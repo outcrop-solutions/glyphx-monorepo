@@ -31,7 +31,7 @@ export default async function ProjectLayout({children, params}) {
     <div className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
       <ProjectProvider project={project} doc={data}>
         <LeftSidebar />
-        <CursorProvider docId={project?.docId}>
+        <CursorProvider>
           <ProjectHeader />
           <div className="flex flex-row w-full h-full">
             <InnerSidebar />

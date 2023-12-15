@@ -130,7 +130,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     //get the updated project
     const project = await projectService.getProject(newPayload.modelId);
 
-    revalidatePath('/project/[projectId]', 'layout');
+    // revalidatePath('/');
 
     // return file information & processID
     res.status(200).json({
