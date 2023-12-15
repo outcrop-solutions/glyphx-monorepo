@@ -29,7 +29,7 @@ export const callCreateModel = async ({
     silentFail: true,
     onSuccess: (data) => {
       // TODO: revalidate project cache
-      mutate(`/api/project/${project.id}`);
+      // mutate(`/api/project/${project.id}`);
       console.log({data});
       setLoading(
         produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {

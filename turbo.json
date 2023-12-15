@@ -105,7 +105,8 @@
     "NEXT_PUBLIC_GB_CLIENT_DEV",
     "NEXT_PUBLIC_GB_CLIENT_DEMO",
     "NEXT_PUBLIC_GB_CLIENT_PROD",
-    "NEXT_PUBLIC_GB_KEY"
+    "NEXT_PUBLIC_GB_KEY",
+    "NEXT_PUBLIC_GB_ENV"
   ],
   "globalDependencies": ["tsconfig.json"]
 }
