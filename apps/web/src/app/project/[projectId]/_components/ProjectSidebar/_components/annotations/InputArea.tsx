@@ -18,6 +18,7 @@ export const InputArea = ({id, type}) => {
       ..._createAnnotation({id, type, value}),
       onSuccess: () => {
         setValue('');
+        // TODO: revalidate annotations
         mutate(`/api/annotations/project/${id}`);
         mutate(`/api/annotations/state/${id}`);
       },

@@ -67,7 +67,8 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
               draft.modals.splice(0, 1);
             })
           );
-          mutate(`/api/project/${modalContent.data.id}`);
+          // TODO: revalidate project cache
+          // mutate(`/api/project/${modalContent.data.id}`);
         },
       });
     }

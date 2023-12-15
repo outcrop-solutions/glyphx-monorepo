@@ -11,11 +11,11 @@ const Header = ({docId}) => {
     >
       <ProjectControls />
       <div className="flex items-center">
-        {docId && (
+        {/* {docId && (
           <div className="mr-4">
             <ClientSideSuspense fallback={null}>{() => <DocumentHeaderAvatars />}</ClientSideSuspense>
           </div>
-        )}
+        )} */}
         <Controls />
       </div>
     </div>

@@ -44,8 +44,9 @@ export const DeleteFileModal = ({modalContent}: webTypes.DeleteFileModalProps) =
             draft.modals.splice(0, 1);
           })
         );
+        // TODO: revalidate project cache
         // update project filesystem
-        mutate(`/api/project/${project.id}`);
+        // mutate(`/api/project/${project.id}`);
       },
     });
   }, [modalContent.data.fileName, project, setModals, mutate]);

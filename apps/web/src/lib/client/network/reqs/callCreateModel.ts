@@ -28,7 +28,8 @@ export const callCreateModel = async ({
     ..._createModel(project, isFilter, payloadHash),
     silentFail: true,
     onSuccess: (data) => {
-      mutate(`/api/project/${project.id}`);
+      // TODO: revalidate project cache
+      // mutate(`/api/project/${project.id}`);
       setLoading(
         produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
           draft.processName = 'Fetching Data...';
@@ -37,7 +38,8 @@ export const callCreateModel = async ({
       api({
         ..._getSignedDataUrls(project?.workspace.id, project?.id, payloadHash),
         onSuccess: (data) => {
-          mutate(`/api/project/${project.id}`);
+          // TODO: revalidate project cache
+          // mutate(`/api/project/${project.id}`);
           setLoading({});
           if (window?.core) {
             setResize(150);

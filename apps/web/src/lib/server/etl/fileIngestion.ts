@@ -7,6 +7,8 @@ import {databaseTypes} from 'types';
 import {processTrackingService, activityLogService, projectService, athenaConnection} from 'business';
 import {Session} from 'next-auth';
 import {s3Connection} from 'business';
+import {revalidatePath} from 'next/cache';
+
 /**
  * File Ingestion Key Notes
  *
@@ -127,6 +129,8 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     });
     //get the updated project
     const project = await projectService.getProject(newPayload.modelId);
+
+    revalidatePath('/project/[projectId]', 'layout');
 
     // return file information & processID
     res.status(200).json({

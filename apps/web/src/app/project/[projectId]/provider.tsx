@@ -13,8 +13,6 @@ import useTemplates from 'lib/client/hooks/useTemplates';
 import {LiveMap} from '@liveblocks/client';
 import {InitialDocumentProvider} from 'collab/lib/client';
 import {RoomProvider} from 'liveblocks.config';
-import {Cursors} from 'collab/components/Cursors';
-import {ClientSideSuspense} from '@liveblocks/react';
 import {useEnv} from 'lib/client/hooks';
 
 const openFirstFile = (projData) => {
@@ -36,7 +34,6 @@ export const ProjectProvider = ({children, doc, project}: {children: React.React
   useCloseViewerOnModalOpen();
   useCloseViewerOnLoading();
 
-  const {isProd} = useEnv();
 
   const setWorkspace = useSetRecoilState(workspaceAtom);
   const setProject = useSetRecoilState(projectAtom);
@@ -67,7 +64,7 @@ export const ProjectProvider = ({children, doc, project}: {children: React.React
     project,
   ]);
 
-  return project.docId && isProd ? (
+  return false ? (
     <RoomProvider id={project.docId as string} initialPresence={{cursor: null}} initialStorage={{notes: new LiveMap()}}>
       <InitialDocumentProvider initialDocument={doc}>
         <div ref={projectViewRef} className="flex w-full h-full">

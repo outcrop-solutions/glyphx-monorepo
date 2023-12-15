@@ -183,7 +183,7 @@ export const useFileSystem = () => {
                 draft.processEndTime = new Date();
               })
             );
-            mutate(`/api/project/${project.id}`);
+            // TODO: revalidate files
           },
           onError: () => {
             setLoading(

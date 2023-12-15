@@ -45,7 +45,8 @@ export const States = () => {
           setCamera({});
           setImage({imageHash: false});
           setAddState(false);
-          mutate(`/api/project/${project.id}`);
+          // TODO: revalidate project cache
+          // mutate(`/api/project/${project.id}`);
         },
       });
     }
