@@ -456,7 +456,12 @@ SCHEMA.static('getWorkspaceById', async (workspaceId: string): Promise<databaseT
     const workspaceDocument = (await WORKSPACE_MODEL.findById(workspaceId)
       .populate('creator')
       .populate('members')
-      .populate('projects')
+      .populate({
+        path: 'projects',
+        populate: {
+          path: 'members',
+        },
+      })
       .lean()) as databaseTypes.IWorkspace;
     if (!workspaceDocument)
       throw new error.DataNotFoundError(
