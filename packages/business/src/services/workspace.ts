@@ -95,15 +95,15 @@ export class WorkspaceService {
   public static async deleteWorkspace(
     userId: string,
     email: string,
-    slug: string
+    id: string
   ): Promise<databaseTypes.IWorkspace | null> {
     try {
-      const workspace = await WorkspaceService.getOwnWorkspace(userId, email, slug);
+      const workspace = await WorkspaceService.getSiteWorkspace(id);
 
       if (workspace) {
         // delete workspace
         await mongoDbConnection.models.WorkspaceModel.updateWorkspaceByFilter(
-          {slug: slug},
+          {slug: workspace.slug},
           {
             deletedAt: new Date(),
           }
@@ -150,7 +150,7 @@ export class WorkspaceService {
           'An unexpected error occurred while updating the workspace. See the inner error for additional details',
           'workspace',
           'updateWorkspace',
-          {userId, email, slug},
+          {userId, email, id},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);

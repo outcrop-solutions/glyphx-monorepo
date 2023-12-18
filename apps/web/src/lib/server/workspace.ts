@@ -238,9 +238,9 @@ export const inviteUsers = async (req: NextApiRequest, res: NextApiResponse, ses
  */
 
 export const deleteWorkspace = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {workspaceSlug} = req.query;
+  const {workspaceId} = req.query;
 
-  if (Array.isArray(workspaceSlug)) {
+  if (Array.isArray(workspaceId)) {
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
 
@@ -248,14 +248,15 @@ export const deleteWorkspace = async (req: NextApiRequest, res: NextApiResponse,
     const workspace = await workspaceService.deleteWorkspace(
       session.user.id,
       session.user.email as string,
-      workspaceSlug as string
+      workspaceId as string
     );
+
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
-      actorId: session?.user?.id!,
-      resourceId: workspace?.id!,
-      workspaceId: workspace?.id,
+      actorId: session?.user?.id,
+      resourceId: workspaceId as string,
+      workspaceId: workspaceId,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,

@@ -2,17 +2,25 @@ import {useState, Fragment} from 'react';
 import {Menu, Transition} from '@headlessui/react';
 import {ChevronDownIcon, DotsVerticalIcon} from '@heroicons/react/outline';
 import {databaseTypes} from 'types';
+import {_createMember, _removeMember, _updateRole, api} from 'lib/client';
 
-export function PermissionsDropDown() {
+export function PermissionsDropDown({member}) {
   const [isSubmitting] = useState(false);
+
+  // mutations
+  const changeRole = (memberId, role) => {
+    api({..._updateRole(memberId, role)});
+  };
+  const removeMember = (memberId) => {
+    api({..._removeMember(memberId)});
+  };
 
   return (
     <Menu as="div" className="relative inline-block text-left">
-      <div>
-        <Menu.Button className="flex items-center justify-center p-3 space-x-3 rounded hover:bg-secondary-midnight">
-          <DotsVerticalIcon className="w-5 h-5" />
-        </Menu.Button>
-      </div>
+      <Menu.Button className="flex items-center justify-center p-3 space-x-3 rounded hover:bg-secondary-midnight">
+        <DotsVerticalIcon className="w-5 h-5" />
+      </Menu.Button>
+
       <Transition
         as={Fragment}
         enter="transition ease-out duration-100"
@@ -32,6 +40,14 @@ export function PermissionsDropDown() {
                     <select
                       className="w-full px-5 py-2 capitalize rounded appearance-none bg-transparent"
                       disabled={isSubmitting}
+                      onChange={(event) =>
+                        changeRole(
+                          member.id,
+                          event.target.value as unknown as
+                            | databaseTypes.constants.ROLE
+                            | databaseTypes.constants.PROJECT_ROLE
+                        )
+                      }
                     >
                       <option value={databaseTypes.constants.PROJECT_ROLE.READ_ONLY}>
                         {databaseTypes.constants.PROJECT_ROLE.READ_ONLY.toLowerCase()}
@@ -48,7 +64,10 @@ export function PermissionsDropDown() {
               </button>
             </Menu.Item>
             <Menu.Item>
-              <button className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-red-600 rounded hover:bg-red-600 hover:text-white">
+              <button
+                className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-red-600 rounded hover:bg-red-600 hover:text-white"
+                onClick={() => removeMember(member?.id)}
+              >
                 <span>Remove Team Member</span>
               </button>
             </Menu.Item>
