@@ -2,7 +2,6 @@ import React from 'react';
 import {PermissionsDropDown} from './PermissionsDropDown';
 
 export const MemberList = ({size, members}) => {
-  console.log({members});
   return (
     members && (
       <ul className="my-4 overflow-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray">

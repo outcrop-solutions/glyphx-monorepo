@@ -20,7 +20,6 @@ export const Share = () => {
   const [sidebarControl, setRightSidebarControl] = useRecoilState(rightSidebarControlAtom);
   const [showShareText, setShareText] = useState(false);
   const selectedProject = useRecoilValue(projectAtom);
-  console.log({sidebarControl});
 
   /**
    * Copies Model Link to clipboard
