@@ -1,3 +1,4 @@
+'use client';
 import React, {useState} from 'react';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import produce from 'immer';
@@ -19,6 +20,7 @@ export const Share = () => {
   const [sidebarControl, setRightSidebarControl] = useRecoilState(rightSidebarControlAtom);
   const [showShareText, setShareText] = useState(false);
   const selectedProject = useRecoilValue(projectAtom);
+  console.log({sidebarControl});
 
   /**
    * Copies Model Link to clipboard

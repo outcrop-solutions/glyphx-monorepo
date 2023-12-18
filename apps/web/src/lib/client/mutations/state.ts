@@ -11,7 +11,6 @@ export const _createAnnotation = ({
   type: databaseTypes.constants.ANNOTATION_TYPE;
   value: string;
 }) => {
-  console.log({id, type, value});
   return {
     url:
       type === databaseTypes.constants.ANNOTATION_TYPE.PROJECT
