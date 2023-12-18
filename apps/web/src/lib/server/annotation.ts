@@ -75,7 +75,7 @@ export const createStateAnnotation = async (req: NextApiRequest, res: NextApiRes
   }
   try {
     const annotation = await annotationService.createStateAnnotation({
-      authorId: session.user.id!,
+      author: session.user,
       stateId: stateId as string,
       value: value as string,
     });
