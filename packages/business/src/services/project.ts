@@ -58,7 +58,6 @@ export class ProjectService {
   ): Promise<databaseTypes.IProject> {
     try {
       let templateId;
-
       if (template) {
         templateId = typeof template === 'string' ? template : template.id;
       }

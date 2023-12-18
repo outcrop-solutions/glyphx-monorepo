@@ -93,17 +93,17 @@ export class AnnotationService {
     }
   }
   public static async createProjectAnnotation({
-    authorId,
+    author,
     projectId,
     value,
   }: {
-    authorId: string;
+    author: databaseTypes.IUser;
     projectId: string;
     value: string;
   }): Promise<databaseTypes.IAnnotation | null> {
     try {
       const input = {
-        author: authorId,
+        author: author,
         projectId: projectId,
         value: value,
       };
@@ -123,7 +123,7 @@ export class AnnotationService {
           'An unexpected error occurred while creating thea activity Annotation. See the inner error for additional details',
           'annotation',
           'createAnnotation',
-          {authorId, projectId},
+          {author, projectId},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);

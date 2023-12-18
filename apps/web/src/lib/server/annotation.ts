@@ -54,9 +54,10 @@ export const createProjectAnnotation = async (req: NextApiRequest, res: NextApiR
   if (Array.isArray(projectId)) {
     return res.status(400).end('Bad request. Parameter cannot be an array.');
   }
+
   try {
     const annotation = await annotationService.createProjectAnnotation({
-      authorId: session.user.id!,
+      author: session.user,
       projectId: projectId as string,
       value,
     });
