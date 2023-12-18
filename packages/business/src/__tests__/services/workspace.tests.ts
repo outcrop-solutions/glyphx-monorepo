@@ -444,7 +444,7 @@ describe('#services/workspace', () => {
         ],
       } as unknown as databaseTypes.IWorkspace);
 
-      sandbox.replace(workspaceService, 'getOwnWorkspace', getWorkspaceFromModelStub);
+      sandbox.replace(workspaceService, 'getSiteWorkspace', getWorkspaceFromModelStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.resolves();
@@ -510,7 +510,7 @@ describe('#services/workspace', () => {
         ],
       } as unknown as databaseTypes.IWorkspace);
 
-      sandbox.replace(workspaceService, 'getOwnWorkspace', getWorkspaceFromModelStub);
+      sandbox.replace(workspaceService, 'getSiteWorkspace', getWorkspaceFromModelStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.resolves();
@@ -566,7 +566,7 @@ describe('#services/workspace', () => {
 
       const getWorkspaceFromServiceStub = sandbox.stub();
       getWorkspaceFromServiceStub.rejects(err);
-      sandbox.replace(workspaceService, 'getOwnWorkspace', getWorkspaceFromServiceStub);
+      sandbox.replace(workspaceService, 'getSiteWorkspace', getWorkspaceFromServiceStub);
 
       function fakePublish() {
         //@ts-ignore
@@ -602,7 +602,7 @@ describe('#services/workspace', () => {
 
       const getWorkspaceFromServiceStub = sandbox.stub();
       getWorkspaceFromServiceStub.resolves(null);
-      sandbox.replace(workspaceService, 'getOwnWorkspace', getWorkspaceFromServiceStub);
+      sandbox.replace(workspaceService, 'getSiteWorkspace', getWorkspaceFromServiceStub);
 
       function fakePublish() {
         //@ts-ignore
@@ -638,7 +638,7 @@ describe('#services/workspace', () => {
 
       const getWorkspaceFromServiceStub = sandbox.stub();
       getWorkspaceFromServiceStub.rejects(err);
-      sandbox.replace(workspaceService, 'getOwnWorkspace', getWorkspaceFromServiceStub);
+      sandbox.replace(workspaceService, 'getSiteWorkspace', getWorkspaceFromServiceStub);
 
       function fakePublish() {
         //@ts-ignore
@@ -672,7 +672,7 @@ describe('#services/workspace', () => {
 
       const getWorkspaceFromServiceStub = sandbox.stub();
       getWorkspaceFromServiceStub.rejects(err);
-      sandbox.replace(workspaceService, 'getOwnWorkspace', getWorkspaceFromServiceStub);
+      sandbox.replace(workspaceService, 'getSiteWorkspace', getWorkspaceFromServiceStub);
 
       function fakePublish() {
         //@ts-ignore
@@ -731,7 +731,7 @@ describe('#services/workspace', () => {
         ],
       } as unknown as databaseTypes.IWorkspace);
 
-      sandbox.replace(workspaceService, 'getOwnWorkspace', getWorkspaceFromServiceStub);
+      sandbox.replace(workspaceService, 'getSiteWorkspace', getWorkspaceFromServiceStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.rejects(err);
@@ -788,7 +788,7 @@ describe('#services/workspace', () => {
         ],
       } as unknown as databaseTypes.IWorkspace);
 
-      sandbox.replace(workspaceService, 'getOwnWorkspace', getWorkspaceFromServiceStub);
+      sandbox.replace(workspaceService, 'getSiteWorkspace', getWorkspaceFromServiceStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.rejects(err);
@@ -845,7 +845,7 @@ describe('#services/workspace', () => {
         ],
       } as unknown as databaseTypes.IWorkspace);
 
-      sandbox.replace(workspaceService, 'getOwnWorkspace', getWorkspaceFromServiceStub);
+      sandbox.replace(workspaceService, 'getSiteWorkspace', getWorkspaceFromServiceStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.rejects(err);
