@@ -84,6 +84,7 @@ export class GlyphStream extends Transform {
 
     //make it a string so it is easier to pass
     retval = JSON.stringify(outObj);
+    console.log({retval});
     return retval;
   }
 
@@ -99,6 +100,7 @@ export class GlyphStream extends Transform {
           : new Date(chunkValue as number).toISOString();
     }
 
+    console.log({fieldName, value});
     return {fieldName: fieldName, value: value};
   }
 
@@ -130,7 +132,11 @@ export class GlyphStream extends Transform {
       value = inputField.text_to_num?.convert(value) as number;
     }
 
+<<<<<<< HEAD
     console.log({field, fieldName, value});
+=======
+    console.log({value});
+>>>>>>> bug/query-runner
     return value;
   }
 
