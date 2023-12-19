@@ -92,13 +92,17 @@ export class GlyphStream extends Transform {
     switch (field) {
       case 'x':
         fieldName = 'groupedXColumn';
+        break;
       case 'y':
         fieldName = 'groupedYColumn';
+        break;
       case 'z':
         fieldName = 'zValue';
+        break;
       default:
         break;
     }
+
     let value = '';
     const chunkValue = chunk[fieldName];
 
