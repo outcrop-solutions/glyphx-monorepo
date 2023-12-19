@@ -15,6 +15,7 @@ export const callCreateModel = async ({
   setResize,
   mutate,
 }) => {
+  console.log({isFilter, project, payloadHash, session, url, setLoading, setDrawer, setResize, mutate});
   // Generate model if doesn't already exist
   setLoading(
     produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
@@ -28,8 +29,7 @@ export const callCreateModel = async ({
     ..._createModel(project, isFilter, payloadHash),
     silentFail: true,
     onSuccess: (data) => {
-      // TODO: revalidate project cache
-      // mutate(`/api/project/${project.id}`);
+      mutate(`/api/project/${project.id}`);
       console.log({data});
       setLoading(
         produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
@@ -39,8 +39,7 @@ export const callCreateModel = async ({
       api({
         ..._getSignedDataUrls(project?.workspace.id, project?.id, payloadHash),
         onSuccess: (data) => {
-          // TODO: revalidate project cache
-          // mutate(`/api/project/${project.id}`);
+          mutate(`/api/project/${project.id}`);
           setLoading({});
           if (window?.core) {
             setResize(150);

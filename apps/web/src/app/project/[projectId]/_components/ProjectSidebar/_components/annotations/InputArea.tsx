@@ -19,11 +19,11 @@ export const InputArea = ({id, type}) => {
       onSuccess: () => {
         setValue('');
         // TODO: revalidate annotations
-        // mutate(`/api/annotations/project/${id}`);
-        // mutate(`/api/annotations/state/${id}`);
+        mutate(`/api/annotations/project/${id}`);
+        mutate(`/api/annotations/state/${id}`);
       },
     });
-  }, [id, type, value]);
+  }, [id, type, value, mutate]);
   return (
     <div className="min-w-0 flex-1 px-2 py-1">
       <div className="relative">

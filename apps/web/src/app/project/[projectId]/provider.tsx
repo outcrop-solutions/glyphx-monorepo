@@ -9,6 +9,7 @@ import {useSendPosition, useWindowSize} from 'services';
 import {useCloseViewerOnModalOpen} from 'services/useCloseViewerOnModalOpen';
 import {useCloseViewerOnLoading} from 'services/useCloseViewerOnLoading';
 import useTemplates from 'lib/client/hooks/useTemplates';
+import useProject from 'lib/client/hooks/useProject';
 // Live Page Structure
 import {LiveMap} from '@liveblocks/client';
 import {InitialDocumentProvider} from 'collab/lib/client';
@@ -23,8 +24,12 @@ const openFirstFile = (projData) => {
   };
 };
 
-export const ProjectProvider = ({children, doc, project}: {children: React.ReactNode; doc: any; project: any}) => {
+export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc: any}) => {
   const {data: templateData, isLoading: templateLoading} = useTemplates();
+
+  const {data, isLoading} = useProject();
+  const project = data?.project;
+  console.log({project});
 
   const projectViewRef = useRef(null);
 
@@ -45,7 +50,7 @@ export const ProjectProvider = ({children, doc, project}: {children: React.React
 
   // hydrate recoil state
   useEffect(() => {
-    if (!templateLoading) {
+    if (!templateLoading && !isLoading) {
       const projectData = openFirstFile(project);
       setProject(projectData);
       setTemplates(templateData);
@@ -64,6 +69,7 @@ export const ProjectProvider = ({children, doc, project}: {children: React.React
     setTemplates,
     templateData,
     project,
+    isLoading,
   ]);
 
   return enabled ? (

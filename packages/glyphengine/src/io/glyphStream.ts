@@ -59,6 +59,7 @@ export class GlyphStream extends Transform {
     //us from having to do some pointer work to get the values into strongly
     //typed structures.
     let retval = '';
+
     const inputFields = this.sdtParser.getInputFields();
     const {fieldName: xFieldName, value: xValue} = this.getField('x', chunk, inputFields);
     const {fieldName: yFieldName, value: yValue} = this.getField('y', chunk, inputFields);
@@ -87,15 +88,27 @@ export class GlyphStream extends Transform {
   }
 
   private getField(field: string, chunk: Record<string, unknown>, inputFields: IInputFields) {
-    const fieldName = this.sdtParser.getInputFields()[field].field;
+    let fieldName: string = '';
+    switch (field) {
+      case 'x':
+        fieldName = 'groupedXColumn';
+      case 'y':
+        fieldName = 'groupedYColumn';
+      case 'z':
+        fieldName = 'zValue';
+      default:
+        break;
+    }
     let value = '';
     const chunkValue = chunk[fieldName];
+
     if (chunkValue !== null && chunkValue !== undefined) {
       value =
         inputFields[field].type !== TYPE.DATE
           ? (chunkValue as any).toString()
           : new Date(chunkValue as number).toISOString();
     }
+
     return {fieldName: fieldName, value: value};
   }
 
@@ -115,6 +128,7 @@ export class GlyphStream extends Transform {
 
     return value;
   }
+
   private getColorInterpolatedValue(values: Record<string, unknown>): {
     r: number;
     g: number;

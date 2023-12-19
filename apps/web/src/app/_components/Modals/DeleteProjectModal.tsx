@@ -44,7 +44,7 @@ export const DeleteProjectModal = ({modalContent}: webTypes.DeleteProjectModalPr
           })
         );
         // TODO: revalidate workspace cache
-        // mutate(`/api/workspace/${workspaceId}`);
+        mutate(`/api/workspace/${workspaceId}`);
       },
     });
   };
