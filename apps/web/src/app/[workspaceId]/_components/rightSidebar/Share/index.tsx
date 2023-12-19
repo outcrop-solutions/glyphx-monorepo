@@ -1,6 +1,10 @@
 'use client';
 import React from 'react';
-import {useRecoilState, useRecoilValue} from 'recoil';
+<<<<<<< Updated upstream
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+=======
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+>>>>>>> Stashed changes
 import produce from 'immer';
 import toast from 'react-hot-toast';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
@@ -8,7 +12,7 @@ import {webTypes} from 'types';
 import {LinkDropDown} from './LinkDropDown';
 import {MemberList} from './MemberList';
 import Link from 'next/link';
-import {projectAtom, rightSidebarControlAtom} from 'state';
+import {drawerOpenAtom, projectAtom, rightSidebarControlAtom} from 'state';
 
 import CloseProjectInfoIcon from 'public/svg/close-project-info.svg';
 import CopyToClipboardIcon from 'public/svg/copy-to-clipboard.svg';
@@ -25,6 +29,7 @@ export const Share = () => {
   const project = useRecoilValue(projectAtom);
   const {data: ownership, isLoading: isOwnershipLoading} = useIsTeamOwner();
   const workspaceId = params?.workspaceId ?? project.workspace.id;
+  const setDrawer = useSetRecoilState(drawerOpenAtom);
 
   const handleClose = () => {
     setRightSidebarControl(
@@ -84,11 +89,13 @@ export const Share = () => {
               )}
             </p>
           </div>
-          <Link href={`/${workspaceId}/settings/team` as Route}>
-            <button className="text-secondary-space-blue font-roboto font-medium text-[14px] leading-[16px] rounded-xl border bg-primary-yellow hover:bg-primary-yellow-hover py-1 px-2">
-              Send Invite
-            </button>
-          </Link>
+          <div onClick={() => setDrawer(false)}>
+            <Link href={`/${workspaceId}/settings/team` as Route}>
+              <button className="text-secondary-space-blue font-roboto font-medium text-[14px] leading-[16px] rounded-xl border bg-primary-yellow hover:bg-primary-yellow-hover py-1 px-2">
+                Send Invite
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>
