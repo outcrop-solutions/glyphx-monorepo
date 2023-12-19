@@ -123,13 +123,28 @@ export class GlyphStream extends Transform {
     return tag;
   }
 
-  private getValue(inputField: IInputField, values: Record<string, unknown>): number {
-    let value = values[inputField.field] as number;
+  private getValue(field: 'X' | 'Y' | 'Z', inputField: IInputField, values: Record<string, unknown>): number {
+    let fieldName: string = '';
+    switch (field) {
+      case 'X':
+        fieldName = 'groupedXColumn';
+        break;
+      case 'Y':
+        fieldName = 'groupedYColumn';
+        break;
+      case 'Z':
+        fieldName = 'zValue';
+        break;
+      default:
+        break;
+    }
+    let value = values[fieldName] as number;
 
     if (typeof value === 'string') {
       value = inputField.text_to_num?.convert(value) as number;
     }
 
+    console.log({field, fieldName, value});
     return value;
   }
 
@@ -140,7 +155,7 @@ export class GlyphStream extends Transform {
     a: number;
   } {
     const inputField = this.sdtParser.getInputFields().z;
-    const value = this.getValue(inputField, values);
+    const value = this.getValue('Z', inputField, values);
     const propertyField = this.sdtParser.getGlyphProperty('Color', 'RGB') as IProperty;
 
     const rawMinColor = propertyField.minRgb;
@@ -173,7 +188,7 @@ export class GlyphStream extends Transform {
   ) {
     let retval = 0;
     const inputField = this.sdtParser.getInputFields()[field.toLowerCase()];
-    const value = this.getValue(inputField, values);
+    const value = this.getValue(field, inputField, values);
     const propertyField = this.sdtParser.getGlyphProperty(property, field) as IProperty;
 
     if (propertyField?.function === FUNCTION.LOGARITHMIC_INTERPOLATION) {
