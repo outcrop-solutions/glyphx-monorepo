@@ -88,21 +88,7 @@ export class GlyphStream extends Transform {
   }
 
   private getField(field: string, chunk: Record<string, unknown>, inputFields: IInputFields) {
-    let fieldName: string = '';
-    switch (field) {
-      case 'x':
-        fieldName = 'groupedXColumn';
-        break;
-      case 'y':
-        fieldName = 'groupedYColumn';
-        break;
-      case 'z':
-        fieldName = 'zValue';
-        break;
-      default:
-        break;
-    }
-
+    const fieldName = this.sdtParser.getInputFields()[field].field;
     let value = '';
     const chunkValue = chunk[fieldName];
 
@@ -187,6 +173,7 @@ export class GlyphStream extends Transform {
     values: Record<string, unknown>
   ) {
     let retval = 0;
+
     const inputField = this.sdtParser.getInputFields()[field.toLowerCase()];
     const value = this.getValue(field, inputField, values);
     const propertyField = this.sdtParser.getGlyphProperty(property, field) as IProperty;

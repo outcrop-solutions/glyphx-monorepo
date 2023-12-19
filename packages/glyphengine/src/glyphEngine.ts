@@ -193,6 +193,7 @@ export class GlyphEngine {
       await this.outputBucketField.putObject(sdtFileName, template);
 
       const {xCol, yCol, zCol, isXDate, isYDate, isZDate, zColName} = this.formatCols(data);
+
       const initialParser = new SdtParser(isXDate, isYDate, isZDate, xCol, yCol, zCol, zColName);
       const sdtParser = await initialParser.parseSdtString(template, viewName, data, this.athenaManager);
 
