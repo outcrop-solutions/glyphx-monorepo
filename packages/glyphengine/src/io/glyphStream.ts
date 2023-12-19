@@ -132,11 +132,6 @@ export class GlyphStream extends Transform {
       value = inputField.text_to_num?.convert(value) as number;
     }
 
-<<<<<<< HEAD
-    console.log({field, fieldName, value});
-=======
-    console.log({value});
->>>>>>> bug/query-runner
     return value;
   }
 
