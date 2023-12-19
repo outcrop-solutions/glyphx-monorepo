@@ -17,7 +17,9 @@ declare global {
 
 export default async function RootLayout({children, params}: {children: React.ReactNode; params: any}) {
   const session = await getServerSession(authOptions);
-  await growthbook.loadFeatures();
+  try {
+    await growthbook.loadFeatures();
+  } catch (error) {}
 
   return (
     <html lang="en">

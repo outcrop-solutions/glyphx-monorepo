@@ -11,13 +11,13 @@ export const getGBKey = (): string => {
   const env = process.env['NEXT_PUBLIC_GB_ENV'];
   switch (env) {
     case ENV.DEV:
-      return process.env['NEXT_PUBLIC_GB_CLIENT_DEV'] as string;
+      return process.env.NEXT_PUBLIC_GB_CLIENT_DEV as string;
     case ENV.DEMO:
-      return process.env['NEXT_PUBLIC_GB_CLIENT_DEMO'] as string;
+      return process.env.NEXT_PUBLIC_GB_CLIENT_DEMO as string;
     case ENV.PROD:
-      return process.env['NEXT_PUBLIC_GB_CLIENT_PROD'] as string;
+      return process.env.NEXT_PUBLIC_GB_CLIENT_PROD as string;
     default:
-      return process.env['NEXT_PUBLIC_GB_CLIENT_DEV'] as string;
+      return process.env.NEXT_PUBLIC_GB_CLIENT_DEV as string;
   }
 };
 
