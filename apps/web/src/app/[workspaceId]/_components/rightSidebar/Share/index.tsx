@@ -1,10 +1,6 @@
 'use client';
 import React from 'react';
-<<<<<<< Updated upstream
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-=======
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
->>>>>>> Stashed changes
 import produce from 'immer';
 import toast from 'react-hot-toast';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
