@@ -26,7 +26,6 @@ export const MemberList = ({size, members}) => {
                       {mem?.email}
                     </div>
                   </div>
-                  <PermissionsDropDown />
                 </div>
               </li>
             ))}

@@ -342,7 +342,7 @@ describe('#AnnotationService', () => {
     });
     it('will create an annotation on the state', async () => {
       const annotation = await annotationService.createStateAnnotation({
-        authorId: userDocument._id.toString(),
+        author: userDocument,
         stateId: stateDocument._id.toString(),
         value: UNIQUE_KEY,
       });
@@ -352,7 +352,7 @@ describe('#AnnotationService', () => {
     });
     it('will create an annotation on the project', async () => {
       const annotation = await annotationService.createProjectAnnotation({
-        authorId: userDocument._id.toString(),
+        author: userDocument,
         projectId: projectDocument._id.toString(),
         value: UNIQUE_KEY,
       });

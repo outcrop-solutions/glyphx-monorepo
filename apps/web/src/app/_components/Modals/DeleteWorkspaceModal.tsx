@@ -49,9 +49,7 @@ export const DeleteWorkspaceModal = ({modalContent}: webTypes.DeleteWorkspaceMod
             })
           );
 
-          // @ts-ignore
-          setWorkspace(null);
-          router.replace('/account' as Route);
+          router.replace('/login' as Route);
         },
       });
   };
