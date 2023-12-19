@@ -6,6 +6,7 @@ import {Filters} from './_components/filters';
 import {usePosition} from 'services/usePosition';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {leftCoordinatesAtom, windowSizeAtom} from 'state';
+import {States} from './_components/states';
 
 export const ModelSidebar = () => {
   //utilities
@@ -38,6 +39,7 @@ export const ModelSidebar = () => {
       >
         <Axes />
         <Filters />
+        <States />
       </div>
     </div>
   );
