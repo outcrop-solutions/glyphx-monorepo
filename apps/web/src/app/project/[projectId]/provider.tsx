@@ -29,7 +29,6 @@ export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc
 
   const {data, isLoading} = useProject();
   const project = data?.project;
-  console.log({project});
 
   const projectViewRef = useRef(null);
 

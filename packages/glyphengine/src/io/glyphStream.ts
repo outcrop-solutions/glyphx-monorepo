@@ -94,7 +94,6 @@ export class GlyphStream extends Transform {
 
     //make it a string so it is easier to pass
     retval = JSON.stringify(outObj);
-    console.log({retval});
     return retval;
   }
 
@@ -108,7 +107,6 @@ export class GlyphStream extends Transform {
         inputFields[field].type !== TYPE.DATE ? (chunkValue as any) : new Date(chunkValue as number).toISOString();
     }
 
-    console.log({fieldName, value});
     return {fieldName: fieldName, value: value};
   }
 
@@ -120,21 +118,7 @@ export class GlyphStream extends Transform {
   }
 
   private getValue(field: 'X' | 'Y' | 'Z', inputField: IInputField, values: Record<string, unknown>): number {
-    let fieldName: string = '';
-    switch (field) {
-      case 'X':
-        fieldName = 'groupedXColumn';
-        break;
-      case 'Y':
-        fieldName = 'groupedYColumn';
-        break;
-      case 'Z':
-        fieldName = 'zValue';
-        break;
-      default:
-        break;
-    }
-    let value = values[fieldName] as number;
+    let value = values[inputField.field] as number;
 
     if (typeof value === 'string') {
       value = inputField.text_to_num?.convert(value) as number;

@@ -15,7 +15,6 @@ export const callCreateModel = async ({
   setResize,
   mutate,
 }) => {
-  console.log({isFilter, project, payloadHash, session, url, setLoading, setDrawer, setResize, mutate});
   // Generate model if doesn't already exist
   setLoading(
     produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
