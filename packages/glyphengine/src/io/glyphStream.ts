@@ -88,21 +88,7 @@ export class GlyphStream extends Transform {
   }
 
   private getField(field: string, chunk: Record<string, unknown>, inputFields: IInputFields) {
-    let fieldName: string = '';
-    switch (field) {
-      case 'x':
-        fieldName = 'groupedXColumn';
-        break;
-      case 'y':
-        fieldName = 'groupedYColumn';
-        break;
-      case 'z':
-        fieldName = 'zValue';
-        break;
-      default:
-        break;
-    }
-
+    const fieldName = this.sdtParser.getInputFields()[field].field;
     let value = '';
     const chunkValue = chunk[fieldName];
 
@@ -123,28 +109,13 @@ export class GlyphStream extends Transform {
     return tag;
   }
 
-  private getValue(field: 'X' | 'Y' | 'Z', inputField: IInputField, values: Record<string, unknown>): number {
-    let fieldName: string = '';
-    switch (field) {
-      case 'X':
-        fieldName = 'groupedXColumn';
-        break;
-      case 'Y':
-        fieldName = 'groupedYColumn';
-        break;
-      case 'Z':
-        fieldName = 'zValue';
-        break;
-      default:
-        break;
-    }
-    let value = values[fieldName] as number;
+  private getValue(inputField: IInputField, values: Record<string, unknown>): number {
+    let value = values[inputField.field] as number;
 
     if (typeof value === 'string') {
       value = inputField.text_to_num?.convert(value) as number;
     }
 
-    console.log({field, fieldName, value});
     return value;
   }
 
@@ -155,7 +126,7 @@ export class GlyphStream extends Transform {
     a: number;
   } {
     const inputField = this.sdtParser.getInputFields().z;
-    const value = this.getValue('Z', inputField, values);
+    const value = this.getValue(inputField, values);
     const propertyField = this.sdtParser.getGlyphProperty('Color', 'RGB') as IProperty;
 
     const rawMinColor = propertyField.minRgb;
@@ -187,8 +158,9 @@ export class GlyphStream extends Transform {
     values: Record<string, unknown>
   ) {
     let retval = 0;
+
     const inputField = this.sdtParser.getInputFields()[field.toLowerCase()];
-    const value = this.getValue(field, inputField, values);
+    const value = this.getValue(inputField, values);
     const propertyField = this.sdtParser.getGlyphProperty(property, field) as IProperty;
 
     if (propertyField?.function === FUNCTION.LOGARITHMIC_INTERPOLATION) {

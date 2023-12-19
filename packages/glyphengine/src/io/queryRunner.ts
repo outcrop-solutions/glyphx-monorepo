@@ -85,13 +85,14 @@ export class QueryRunner {
         ${this.filter}
     )  
     SELECT array_join(array_agg(rowid), '|') as "rowids", 
-    groupedXColumn, 
-    groupedYColumn, 
-    ${this.zCol} as zValue  
+    groupedXColumn as ${this.xCol}, 
+    groupedYColumn as ${this.yCol}, 
+    ${this.zCol} as ${this.zColName}
     FROM temp 
     GROUP BY groupedXColumn, groupedYColumn;
 `;
 
+    console.log({query});
     //this is already wrapped in a GlyphxError so no need to wrap it again
     this.queryId = await this.athenaManager.startQuery(query);
 
