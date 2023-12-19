@@ -1,3 +1,4 @@
+'use client';
 import React, {useState} from 'react';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import produce from 'immer';
@@ -61,7 +62,7 @@ export const Share = () => {
             <span className="inline-block mr-2">
               <GroupIcon />
             </span>
-            Everyone within this workspace can access this file
+            Everyone within this workspace can access this project
           </p>
         </div>
         <div className="flex flex-row justify-between mb-3">
@@ -78,10 +79,7 @@ export const Share = () => {
       <div className="absolute bottom-0 mt-5 pl-3 pr-3">
         <hr className="text-gray mb-2" />
         <div className="flex flex-row justify-between items-center space-x-3 mb-3 mt-2">
-          <div
-            onClick={copyLinkToClipBoard}
-            className="rounded-xl border border-transparent py-1 px-2 hover:bg-secondary-midnight hover:border-white hover:cursor-pointer"
-          >
+          <div className="rounded-xl border border-transparent py-1 px-2 hover:bg-secondary-midnight hover:border-white hover:cursor-pointer">
             <p className="text-light-gray font-roboto font-medium leading-[16px] text-center text-[14px]">
               <span className="inline-block mr-2">
                 <CopyToClipboard
