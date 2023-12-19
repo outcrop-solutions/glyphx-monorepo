@@ -170,14 +170,14 @@ SCHEMA.static('createAnnotation', async (input: IAnnotationCreateInput): Promise
     input.author instanceof mongooseTypes.ObjectId
       ? input.author
       : // @ts-ignore
-        new mongooseTypes.ObjectId(input.author._id);
+        new mongooseTypes.ObjectId(input.author.id);
 
   const userExists = await UserModel.userIdExists(userId);
   if (!userExists)
     throw new error.InvalidArgumentError(
-      `A user with _id : ${userId} cannot be found`,
-      'user._id',
-      (input.author as databaseTypes.IUser)._id
+      `A user with id : ${userId} cannot be found`,
+      'user.id',
+      (input.author as databaseTypes.IUser).id
     );
 
   let projectId;
