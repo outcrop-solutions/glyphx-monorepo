@@ -76,9 +76,7 @@ const DateGroupingListbox = ({axis}) => {
 
   const changeDateGrouping = useCallback(
     (dateGrouping: glyphEngineTypes.constants.DATE_GROUPING) => {
-      const regex = `/\s/i`;
-      const grouping = dateGrouping.replace(regex, '_').toLowerCase();
-
+      const grouping = dateGrouping.replace(/ /g, '_').toLowerCase();
       const retval = handleDateGrouping(grouping as glyphEngineTypes.constants.DATE_GROUPING);
 
       console.log({grouping, retval});
