@@ -39,7 +39,6 @@ export const State = ({item, idx}) => {
       // return;
     }
 
-    console.log({loading: Object.keys(loading).length});
     // only apply state if not loading
     if (!(Object.keys(loading).length > 0)) {
       const filteredStates = project.stateHistory.filter((state) => !state.deletedAt);
@@ -47,17 +46,15 @@ export const State = ({item, idx}) => {
       const camera = filteredStates[idx].camera;
       const isNullCam = isNullCamera(camera);
 
-      console.log({payloadHash, camera, isNullCam});
-
-      // apply item to project state remote
-      setLoading(
-        produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-          draft.processName = 'Retreiving State Snapshot...';
-          draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
-          draft.processStartTime = new Date();
-        })
-      );
-      console.log('setLoading');
+      // // apply item to project state remote
+      // setLoading(
+      //   produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
+      //     draft.processName = 'Retreiving State Snapshot...';
+      //     draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+      //     draft.processStartTime = new Date();
+      //   })
+      // );
+      // console.log('setLoading');
 
       await api({
         ..._getSignedDataUrls(project?.workspace.id, project?.id, payloadHash),
@@ -71,7 +68,7 @@ export const State = ({item, idx}) => {
             window?.core?.OpenProject(
               _createOpenProject(data, project, session, url, false, isNullCam ? undefined : camera)
             );
-            setLoading({});
+            // setLoading({});
           }
         },
         onError: () => {
