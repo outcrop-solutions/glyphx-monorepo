@@ -116,10 +116,14 @@ export const _ingestFiles = (payload: webTypes.IClientSidePayload): webTypes.IFe
 // modal state should also include a payload hash in order to uniquely store the data, as subsequent create state calls with the same fileSystem will override privious states with the same file system
 
 export const _createModel = (
-  project: databaseTypes.IProject,
+  project: Partial<databaseTypes.IProject>,
   isFilter: boolean,
   payloadHash: string
 ): webTypes.IFetchConfig => {
+  if (project.stateHistory) {
+    delete project['stateHistory'];
+  }
+
   return {
     url: `/api/etl/glyphengine`,
     options: {
