@@ -66,7 +66,7 @@ export const GridContainer = () => {
               <MainDropzone />
             )}
           </div>
-          {project?.imageHash && (
+          {project?.imageHash && !window?.core && (
             <div className={`${orientation === 'vertical' ? 'w-full' : 'h-2/3 w-2/3'} object-scale-down p-20 mx-auto`}>
               <Image
                 src={
