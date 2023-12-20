@@ -41,6 +41,7 @@ const useDataGrid = () => {
 
   useEffect(() => {
     if (isLoadingRowIds || !rowIds) {
+      console.log('fetch data row with ids debounced');
       return;
     } else {
       fetchDataWithRowIds();
