@@ -8,6 +8,7 @@ import {debounce} from 'lodash';
 
 const useDataGrid = () => {
   const [data, setData] = useState(null);
+
   const rowIds = useRecoilValue(rowIdsAtom);
   const {workspaceId, projectId, tableName} = useRecoilValue(dataGridPayloadSelector);
   const [isLoadingRowIds, setIsLoadingRowIds] = useState(false);
@@ -37,7 +38,7 @@ const useDataGrid = () => {
     const data = await api(fetchRowIdsConfig);
     setData(data);
     setIsLoadingRowIds(false);
-  }, 5000);
+  }, 500);
 
   useEffect(() => {
     if (!tableName || isLoadingRowIds || !rowIds) {
@@ -50,9 +51,11 @@ const useDataGrid = () => {
   const fetchDataWithoutRowIds = debounce(async () => {
     setIsLoadingDataGrid(true);
     const data = await api(fetchDataGridConfig);
-    setData(data);
+    if (!rowIds) {
+      setData(data);
+    }
     setIsLoadingDataGrid(false);
-  }, 5000);
+  }, 500);
 
   useEffect(() => {
     if (!tableName || isLoadingDataGrid || rowIds) {
