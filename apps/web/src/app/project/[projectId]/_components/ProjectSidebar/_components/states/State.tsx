@@ -26,6 +26,9 @@ export const State = ({item, idx}) => {
   const setLoading = useSetRecoilState(showLoadingAtom);
 
   const applyState = useCallback(async () => {
+    if (activeState === idx) {
+      setActiveState(-1);
+    }
     setActiveState(idx);
     console.log('Apply state called');
 
@@ -82,7 +85,7 @@ export const State = ({item, idx}) => {
         },
       });
     }
-  }, [idx, loading, project, session, setActiveState, setDrawer, setLoading, setResize, url]);
+  }, [idx, loading, project, session, setActiveState, setDrawer, setLoading, setResize, url, activeState]);
 
   const deleteState = useCallback(() => {
     setModals(
