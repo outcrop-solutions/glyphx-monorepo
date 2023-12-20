@@ -37,8 +37,8 @@ export const ThreadsSidebar = () => {
         }}
         className={`overflow-y-auto w-full scrollbar-none`}
       >
-        <Annotations />
         <States />
+        <Annotations />
       </div>
     </div>
   );
