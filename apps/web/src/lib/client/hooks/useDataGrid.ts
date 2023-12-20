@@ -41,7 +41,7 @@ const useDataGrid = () => {
 
   useEffect(() => {
     if (isLoadingRowIds || !rowIds) {
-      console.log('fetch data row with ids debounced');
+      console.log('avoided calling selected glyphs');
       return;
     } else {
       fetchDataWithRowIds();
@@ -58,6 +58,7 @@ const useDataGrid = () => {
 
   useEffect(() => {
     if (isLoadingDataGrid || rowIds) {
+      console.log('avoided calling without selected glyphs');
       return;
     } else {
       fetchDataWithoutRowIds();
