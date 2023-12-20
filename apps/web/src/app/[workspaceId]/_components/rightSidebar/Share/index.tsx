@@ -85,7 +85,13 @@ export const Share = () => {
               )}
             </p>
           </div>
-          <div onClick={() => setDrawer(false)}>
+          <div
+            onClick={() => {
+              if (window?.core) {
+                window?.core?.ToggleDrawer(false);
+              }
+            }}
+          >
             <Link href={`/${workspaceId}/settings/team` as Route}>
               <button className="text-secondary-space-blue font-roboto font-medium text-[14px] leading-[16px] rounded-xl border bg-primary-yellow hover:bg-primary-yellow-hover py-1 px-2">
                 Send Invite
