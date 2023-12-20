@@ -19,7 +19,7 @@ export const States = () => {
   const [image, setImage] = useRecoilState(imageHashAtom);
   const setProject = useSetRecoilState(projectAtom);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [name, setName] = useState('New State');
+  const [name, setName] = useState('Initial State');
   const viewerPosition = useRecoilValue(viewerPositionSelector);
 
   useEffect(() => {

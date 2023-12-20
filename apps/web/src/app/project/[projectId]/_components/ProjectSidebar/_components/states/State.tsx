@@ -24,20 +24,26 @@ export const State = ({item, idx}) => {
   const loading = useRecoilValue(showLoadingAtom);
   const [activeState, setActiveState] = useRecoilState(activeStateAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
+
   const applyState = useCallback(async () => {
     setActiveState(idx);
+    console.log('Apply state called');
 
     if (window && !window?.core) {
       setResize(150);
       setDrawer(true);
-      return;
+      // return;
     }
+
+    console.log({loading: Object.keys(loading).length});
     // only apply state if not loading
     if (!(Object.keys(loading).length > 0)) {
       const filteredStates = project.stateHistory.filter((state) => !state.deletedAt);
       const payloadHash = filteredStates[idx].payloadHash;
       const camera = filteredStates[idx].camera;
       const isNullCam = isNullCamera(camera);
+
+      console.log({payloadHash, camera, isNullCam});
 
       // apply item to project state remote
       setLoading(
@@ -47,10 +53,13 @@ export const State = ({item, idx}) => {
           draft.processStartTime = new Date();
         })
       );
+      console.log('setLoading');
 
       await api({
         ..._getSignedDataUrls(project?.workspace.id, project?.id, payloadHash),
         onSuccess: (data) => {
+          console.log({data, project, session, url, camera: isNullCam ? undefined : camera});
+
           if (window?.core) {
             setResize(150);
             setDrawer(true);

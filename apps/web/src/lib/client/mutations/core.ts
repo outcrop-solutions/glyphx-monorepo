@@ -120,15 +120,16 @@ export const _createModel = (
   isFilter: boolean,
   payloadHash: string
 ): webTypes.IFetchConfig => {
-  if (project.stateHistory) {
-    delete project['stateHistory'];
-  }
+  const cleanProject = {
+    ...project,
+    stateHistory: [],
+  };
 
   return {
     url: `/api/etl/glyphengine`,
     options: {
       method: 'POST',
-      body: {project, isFilter, payloadHash},
+      body: {project: cleanProject, isFilter, payloadHash},
     },
     successMsg: 'Model successfully generated!',
   };

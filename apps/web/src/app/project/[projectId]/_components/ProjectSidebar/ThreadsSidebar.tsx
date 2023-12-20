@@ -5,6 +5,7 @@ import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {leftCoordinatesAtom, windowSizeAtom} from 'state';
 import {Annotations} from './_components/annotations';
 import {useParams} from 'next/navigation';
+import {States} from './_components/states';
 
 export const ThreadsSidebar = () => {
   //utilities
@@ -37,6 +38,7 @@ export const ThreadsSidebar = () => {
         className={`overflow-y-auto w-full scrollbar-none`}
       >
         <Annotations />
+        <States />
       </div>
     </div>
   );
