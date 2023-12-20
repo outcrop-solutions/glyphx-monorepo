@@ -61,19 +61,19 @@ const LeftSidebar = () => {
               <div onClick={() => setSegment('CONFIG')} className={`p-2 rounded ${segment === 'CONFIG' && 'bg-nav'}`}>
                 <EyeIcon className="h-5 w-5" />
               </div>
-              <div onClick={() => setSegment('DATA')} className={`p-2 rounded ${segment === 'DATA' && 'bg-nav'}`}>
+              {/* <div onClick={() => setSegment('DATA')} className={`p-2 rounded ${segment === 'DATA' && 'bg-nav'}`}>
                 <DownloadIcon />
-              </div>
+              </div> */}
             </>
           )}
         </div>
       </div>
-      <div
+      {/* <div
         onClick={() => setSegment('NONE')}
         className={`w-full flex items-center justify-center hover:bg-nav p-1 rounded ${segment === 'NONE' && 'bg-nav'}`}
       >
         <ArrowLeftIcon className="h-5 w-5" />
-      </div>
+      </div> */}
     </aside>
   );
 };
