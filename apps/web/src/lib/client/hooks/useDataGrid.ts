@@ -13,6 +13,7 @@ const useDataGrid = () => {
   const [isLoadingRowIds, setIsLoadingRowIds] = useState(false);
   const [isLoadingDataGrid, setIsLoadingDataGrid] = useState(false);
 
+  // fetch req configurations for selected case
   const fetchRowIdsConfig = useMemo(
     () => ({
       ..._getRowIds(workspaceId, projectId, tableName, rowIds as string[]),
@@ -21,6 +22,7 @@ const useDataGrid = () => {
     [workspaceId, projectId, tableName, rowIds]
   );
 
+  // fetch req configurations for unselected case
   const fetchDataGridConfig = useMemo(
     () => ({
       ..._getDataGrid(workspaceId, projectId, tableName),
@@ -30,6 +32,7 @@ const useDataGrid = () => {
   );
 
   const fetchDataWithRowIds = debounce(async () => {
+    console.log('fetch data row with ids debounced');
     setIsLoadingRowIds(true);
     const data = await api(fetchRowIdsConfig);
     setData(data);
@@ -37,11 +40,11 @@ const useDataGrid = () => {
   }, 5000);
 
   useEffect(() => {
-    if (!tableName || isLoadingRowIds || !rowIds) {
+    if (isLoadingRowIds || !rowIds) {
       return;
+    } else {
+      fetchDataWithRowIds();
     }
-
-    fetchDataWithRowIds();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rowIds, tableName, isLoadingRowIds, fetchRowIdsConfig]);
 
@@ -53,11 +56,11 @@ const useDataGrid = () => {
   }, 5000);
 
   useEffect(() => {
-    if (!tableName || isLoadingDataGrid || rowIds) {
+    if (isLoadingDataGrid || rowIds) {
       return;
+    } else {
+      fetchDataWithoutRowIds();
     }
-
-    fetchDataWithoutRowIds();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoadingDataGrid, tableName, fetchDataGridConfig, rowIds]);
 
