@@ -28,6 +28,7 @@ export const State = ({item, idx}) => {
   const applyState = useCallback(async () => {
     if (activeState === idx) {
       setActiveState(-1);
+      return;
     }
     setActiveState(idx);
     console.log('Apply state called');
@@ -134,9 +135,7 @@ export const State = ({item, idx}) => {
         onClick={applyState}
         className="block group-states-hover:text-white transition duration-150 truncate grow ml-2"
       >
-        <span
-          className={`w-full text-left text-light-gray text-sm ${activeState === idx ? 'text-white' : ''} font-medium`}
-        >
+        <span className={`w-full text-left text-gray text-sm ${activeState === idx ? 'text-white' : ''} font-medium`}>
           {item.name}
         </span>
       </div>
