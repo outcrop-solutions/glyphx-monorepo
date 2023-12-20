@@ -125,7 +125,7 @@ export const State = ({item, idx}) => {
         )}
       </div>
       <div className="flex items-center justify-center h-6 w-6">
-        {activeState === idx ? <StateIcon className="" /> : <ActiveStateIcon />}
+        {activeState === idx ? <ActiveStateIcon /> : <StateIcon className="" />}
       </div>
       <div
         onClick={applyState}
