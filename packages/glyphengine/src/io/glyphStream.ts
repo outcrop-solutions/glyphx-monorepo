@@ -104,7 +104,9 @@ export class GlyphStream extends Transform {
 
     if (chunkValue !== null && chunkValue !== undefined) {
       value =
-        inputFields[field].type !== TYPE.DATE ? (chunkValue as any) : new Date(chunkValue as number).toISOString();
+        inputFields[field].type !== TYPE.DATE
+          ? (chunkValue as any).toString()
+          : new Date(chunkValue as number).toISOString();
     }
 
     return {fieldName: fieldName, value: value};

@@ -99,7 +99,7 @@ const DateGroupingListbox = ({axis}) => {
     >
       <div className="relative -mt-1">
         <Listbox.Button className="relative w-full cursor-default bg-secondary-dark-blue rounded px-4 text-center shadow-md focus:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-300">
-          <span className="block truncate text-xs">{selected.replaceAll('_', ' ')}</span>
+          <span className="block truncate text-xs">{selected.replace(/_/g, ' ')}</span>
         </Listbox.Button>
         <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
           <Listbox.Options className="absolute mt-1 max-h-60 overflow-y-auto w-full rounded bg-secondary-dark-blue py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm z-60">
@@ -111,7 +111,7 @@ const DateGroupingListbox = ({axis}) => {
               .filter(
                 (key) => !key.includes('QUALIFIED') && key !== 'MONTH_DAY_OF_MONTH' && key !== 'YEAR_DAY_OF_MONTH'
               )
-              .map((key) => key.replaceAll('_', ' '))
+              .map((key) => key.replace(/_/g, ' '))
               .map((accumulator, idx) => (
                 <Listbox.Option
                   key={idx}
