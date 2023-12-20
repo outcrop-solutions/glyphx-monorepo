@@ -33,6 +33,18 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
 
   useEffect(() => {
     if (Object.keys(camera).length > 0 && image.imageHash) {
+      const retval = _createState(
+        name,
+        modalContent.data.id as unknown as string,
+        camera as unknown as webTypes.Camera,
+        {
+          width: (viewerPosition as webTypes.IViewerPosition).w,
+          height: (viewerPosition as webTypes.IViewerPosition).h,
+        } as unknown as webTypes.Aspect,
+        image.imageHash
+      );
+      console.log({retval});
+
       api({
         ..._createState(
           name,

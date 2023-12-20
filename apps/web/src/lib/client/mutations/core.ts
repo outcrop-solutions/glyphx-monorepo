@@ -212,9 +212,11 @@ export const _createOpenProject = (
   }
 ) => {
   const cam = camera || {};
+  console.log({camera});
+  console.log('createOpenProject');
 
   return JSON.stringify({
-    ...cam,
+    camera: {...cam},
     projectId: project?.id,
     workspaceId: project?.workspace.id,
     sdtUrl: data.sdtUrl,

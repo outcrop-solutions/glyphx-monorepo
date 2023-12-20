@@ -40,12 +40,10 @@ const useDataGrid = () => {
   }, 5000);
 
   useEffect(() => {
-    if (isLoadingRowIds || !rowIds) {
-      console.log('avoided calling selected glyphs');
+    if (!tableName || isLoadingRowIds || !rowIds) {
       return;
-    } else {
-      fetchDataWithRowIds();
     }
+    fetchDataWithRowIds();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rowIds, tableName, isLoadingRowIds, fetchRowIdsConfig]);
 
@@ -57,12 +55,11 @@ const useDataGrid = () => {
   }, 5000);
 
   useEffect(() => {
-    if (isLoadingDataGrid || rowIds) {
-      console.log('avoided calling without selected glyphs');
+    if (!tableName || isLoadingDataGrid || rowIds) {
       return;
-    } else {
-      fetchDataWithoutRowIds();
     }
+
+    fetchDataWithoutRowIds();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoadingDataGrid, tableName, fetchDataGridConfig, rowIds]);
 

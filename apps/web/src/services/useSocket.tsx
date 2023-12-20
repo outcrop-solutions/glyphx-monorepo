@@ -94,7 +94,7 @@ export const useSocket = () => {
 
         ws.onmessage = (event) => {
           try {
-            // Handle the message if needed
+            //
           } catch (error) {
             console.error('Error parsing WebSocket message:', error);
           }

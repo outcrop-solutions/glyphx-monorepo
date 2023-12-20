@@ -29,7 +29,7 @@ export const State = ({item, idx}) => {
     setActiveState(idx);
     console.log('Apply state called');
 
-    if (window && !window?.core) {
+    if (window && window?.core) {
       setResize(150);
       setDrawer(true);
       // return;
@@ -58,7 +58,7 @@ export const State = ({item, idx}) => {
       await api({
         ..._getSignedDataUrls(project?.workspace.id, project?.id, payloadHash),
         onSuccess: (data) => {
-          console.log({data, project, session, url, camera: isNullCam ? undefined : camera});
+          console.log({data, project, idx, session, url, camera: isNullCam ? undefined : camera});
 
           if (window?.core) {
             setResize(150);
