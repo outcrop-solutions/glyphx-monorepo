@@ -6,6 +6,7 @@ import {cameraAtom, imageHashAtom, rowIdsAtom} from 'state';
 import {webTypes} from 'types';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
+import {debounce} from 'lodash';
 
 export const useSocket = () => {
   const [channel, setChannel] = useState(null);
@@ -15,6 +16,10 @@ export const useSocket = () => {
   const setCamera = useSetRecoilState(cameraAtom);
   const isMounted = useRef(false); // Ref to track component mount status
   const payload = useRef({isSent: false}); // Using useRef to persist payload across renders
+
+  const setRows = debounce((rowIds) => {
+    setRowIds(rowIds);
+  }, 250);
 
   useEffect(() => {
     try {
@@ -31,7 +36,8 @@ export const useSocket = () => {
               window.core = channel.objects.core; // making it global
               window.core.SendRowIds.connect((json: string) => {
                 const ids = JSON.parse(json)?.rowIds;
-                setRowIds(ids.length === 0 ? false : [...ids]);
+                const rowIds = ids.length === 0 ? false : [...ids];
+                setRows(rowIds);
               });
               window.core.SendCameraPosition.connect((json: string) => {
                 const jsonCamera = `{${json}}`;
