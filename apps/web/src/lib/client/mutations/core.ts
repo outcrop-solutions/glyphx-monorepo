@@ -198,6 +198,7 @@ export const _createOpenProject = (
   session: Omit<databaseTypes.ISession & {status}, 'jwt' | 'user' | 'expires' | 'sessionToken'>,
   url: string,
   isCreate: boolean,
+  rowIds: any[],
   camera?: {
     pos: {
       x: number;
@@ -209,11 +210,17 @@ export const _createOpenProject = (
       y: number;
       z: number;
     };
+    center?: {
+      x: number;
+      y: number;
+      z: number;
+    };
   }
 ) => {
   const cam = camera || {};
-  console.log({camera});
+  const rows = rowIds || [];
   console.log('createOpenProject');
+  console.log({rows, cam});
 
   return JSON.stringify({
     camera: {...cam},
@@ -224,6 +231,7 @@ export const _createOpenProject = (
     sgcUrl: data.sgcUrl,
     viewName: project?.viewName,
     isCreate,
+    rowIds: rows,
     apiLocation: `${url}/api`,
     sessionInformation:
       session.status === 'unauthenticated'

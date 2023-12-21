@@ -44,7 +44,7 @@ export const callCreateModel = async ({
             setResize(150);
             setDrawer(true);
             console.log('called Open Project from callCreateModel on useProject hook');
-            window?.core?.OpenProject(_createOpenProject(data, project, session, url, true));
+            window?.core?.OpenProject(_createOpenProject(data, project, session, url, true, []));
           }
         },
         onError: () => {

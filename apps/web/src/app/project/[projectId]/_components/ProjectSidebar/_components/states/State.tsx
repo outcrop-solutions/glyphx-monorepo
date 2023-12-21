@@ -66,7 +66,7 @@ export const State = ({item, idx}) => {
             setDrawer(true);
             console.log('open project called');
             window?.core?.OpenProject(
-              _createOpenProject(data, project, session, url, false, isNullCam ? undefined : camera)
+              _createOpenProject(data, project, session, url, false, [], isNullCam ? undefined : camera)
             );
             // setLoading({});
           }

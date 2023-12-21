@@ -53,11 +53,17 @@ export const useSocket = () => {
                     y: camera.direction[1],
                     z: camera.direction[2],
                   },
+                  center: {
+                    x: camera.center[0],
+                    y: camera.center[1],
+                    z: camera.center[2],
+                  },
                 };
                 setCamera(
                   produce((draft: WritableDraft<webTypes.Camera>) => {
                     draft.pos = {x: newCamera.pos.x, y: newCamera.pos.y, z: newCamera.pos.z};
                     draft.dir = {x: newCamera.dir.x, y: newCamera.dir.y, z: newCamera.dir.z};
+                    draft.center = {x: newCamera.center!.x, y: newCamera.center!.y, z: newCamera.center!.z};
                   })
                 );
               });

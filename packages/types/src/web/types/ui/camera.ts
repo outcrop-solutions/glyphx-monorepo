@@ -9,4 +9,9 @@ export type Camera = {
     y: number;
     z: number;
   };
+  center?: {
+    x: number;
+    y: number;
+    z: number;
+  };
 };
