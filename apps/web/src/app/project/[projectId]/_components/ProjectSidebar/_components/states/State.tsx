@@ -2,7 +2,15 @@
 import {PencilIcon, TrashIcon} from '@heroicons/react/outline';
 import {useCallback} from 'react';
 import {useSession} from 'next-auth/react';
-import {activeStateAtom, drawerOpenAtom, modalsAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom} from 'state';
+import {
+  activeStateAtom,
+  drawerOpenAtom,
+  modalsAtom,
+  projectAtom,
+  rowIdsAtom,
+  showLoadingAtom,
+  splitPaneSizeAtom,
+} from 'state';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
@@ -17,6 +25,7 @@ import {databaseTypes, webTypes} from 'types';
 export const State = ({item, idx}) => {
   const session = useSession();
   const url = useUrl();
+  const rowIds = useRecoilValue(rowIdsAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setModals = useSetRecoilState(modalsAtom);
@@ -66,9 +75,8 @@ export const State = ({item, idx}) => {
             setDrawer(true);
             console.log('open project called');
             window?.core?.OpenProject(
-              _createOpenProject(data, project, session, url, false, [], isNullCam ? undefined : camera)
+              _createOpenProject(data, project, session, url, false, rowIds || [], isNullCam ? undefined : camera)
             );
-            // setLoading({});
           }
         },
         onError: () => {
@@ -83,7 +91,7 @@ export const State = ({item, idx}) => {
         },
       });
     }
-  }, [idx, loading, project, session, setActiveState, setDrawer, setLoading, setResize, url, activeState]);
+  }, [idx, loading, project, session, setActiveState, setDrawer, setLoading, setResize, url, activeState, rowIds]);
 
   const deleteState = useCallback(() => {
     setModals(
