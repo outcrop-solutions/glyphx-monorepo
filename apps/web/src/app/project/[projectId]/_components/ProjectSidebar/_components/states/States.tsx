@@ -2,7 +2,7 @@
 import React, {SetStateAction, useEffect, useState} from 'react';
 import {StateList} from './StateList';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {projectAtom} from 'state/project';
+import {projectAtom, rowIdsAtom} from 'state/project';
 import {PlusIcon} from '@heroicons/react/outline';
 import {_createState, api} from 'lib';
 import {CreateStateInput} from './CreateStateInput';
@@ -13,6 +13,7 @@ import {webTypes} from 'types';
 export const States = () => {
   const {mutate} = useSWRConfig();
   const project = useRecoilValue(projectAtom);
+  const rowIds = useRecoilValue(rowIdsAtom);
   const [isCollapsed, setCollapsed] = useState(false);
   const [addState, setAddState] = useState(false);
   const [camera, setCamera] = useRecoilState(cameraAtom);
@@ -33,7 +34,8 @@ export const States = () => {
             width: (viewerPosition as webTypes.IViewerPosition).w || 300,
             height: (viewerPosition as webTypes.IViewerPosition).h || 200,
           },
-          image.imageHash
+          image.imageHash,
+          rowIds ? rowIds : []
         ),
         setLoading: (state) => setIsSubmitting(state as SetStateAction<boolean>),
         onError: () => {
