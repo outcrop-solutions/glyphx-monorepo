@@ -2,15 +2,7 @@
 import {PencilIcon, TrashIcon} from '@heroicons/react/outline';
 import {useCallback} from 'react';
 import {useSession} from 'next-auth/react';
-import {
-  activeStateAtom,
-  drawerOpenAtom,
-  modalsAtom,
-  projectAtom,
-  rowIdsAtom,
-  showLoadingAtom,
-  splitPaneSizeAtom,
-} from 'state';
+import {activeStateAtom, drawerOpenAtom, modalsAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom} from 'state';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
@@ -25,7 +17,6 @@ import {databaseTypes, webTypes} from 'types';
 export const State = ({item, idx}) => {
   const session = useSession();
   const url = useUrl();
-  const rowIds = useRecoilValue(rowIdsAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setModals = useSetRecoilState(modalsAtom);
@@ -53,17 +44,8 @@ export const State = ({item, idx}) => {
       const filteredStates = project.stateHistory.filter((state) => !state.deletedAt);
       const payloadHash = filteredStates[idx].payloadHash;
       const camera = filteredStates[idx].camera;
+      const rowIds = filteredStates[idx].rowIds ?? [];
       const isNullCam = isNullCamera(camera);
-
-      // // apply item to project state remote
-      // setLoading(
-      //   produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-      //     draft.processName = 'Retreiving State Snapshot...';
-      //     draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
-      //     draft.processStartTime = new Date();
-      //   })
-      // );
-      // console.log('setLoading');
 
       await api({
         ..._getSignedDataUrls(project?.workspace.id, project?.id, payloadHash),
@@ -75,7 +57,7 @@ export const State = ({item, idx}) => {
             setDrawer(true);
             console.log('open project called');
             window?.core?.OpenProject(
-              _createOpenProject(data, project, session, url, false, rowIds || [], isNullCam ? undefined : camera)
+              _createOpenProject(data, project, session, url, false, rowIds, isNullCam ? undefined : camera)
             );
           }
         },
@@ -91,7 +73,7 @@ export const State = ({item, idx}) => {
         },
       });
     }
-  }, [idx, loading, project, session, setActiveState, setDrawer, setLoading, setResize, url, activeState, rowIds]);
+  }, [idx, loading, project, session, setActiveState, setDrawer, setLoading, setResize, url, activeState]);
 
   const deleteState = useCallback(() => {
     setModals(
