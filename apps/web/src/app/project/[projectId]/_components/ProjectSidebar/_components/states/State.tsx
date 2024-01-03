@@ -50,6 +50,7 @@ export const State = ({item, idx}) => {
       const camera = filteredStates[idx].camera;
       const ids = filteredStates[idx].rowIds ?? [];
       const rowIds = convertRowIds(ids);
+
       const isNullCam = isNullCamera(camera);
 
       await api({
