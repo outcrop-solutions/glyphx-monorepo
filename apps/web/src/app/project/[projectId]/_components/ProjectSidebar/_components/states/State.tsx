@@ -25,6 +25,10 @@ export const State = ({item, idx}) => {
   const [activeState, setActiveState] = useRecoilState(activeStateAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
 
+  const convertRowIds = (input: {[key: string]: number}[]) => {
+    return input.map((obj) => Object.values(obj).join(''));
+  };
+
   const applyState = useCallback(async () => {
     if (activeState === idx) {
       setActiveState(-1);
@@ -44,7 +48,9 @@ export const State = ({item, idx}) => {
       const filteredStates = project.stateHistory.filter((state) => !state.deletedAt);
       const payloadHash = filteredStates[idx].payloadHash;
       const camera = filteredStates[idx].camera;
-      const rowIds = filteredStates[idx].rowIds ?? [];
+      const ids = filteredStates[idx].rowIds ?? [];
+      const rowIds = convertRowIds(ids);
+
       const isNullCam = isNullCamera(camera);
 
       await api({
