@@ -51,7 +51,9 @@ const SCHEMA = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
   properties: {type: Map, of: propertySchema},
   fileSystem: {type: [fileStatsSchema], required: true, default: []},
   rowIds: {
-    type: Array,
+    type: [String],
+    required: false,
+    default: [],
   },
 });
 
