@@ -12,7 +12,6 @@ import {wrapConfig} from './utilities/wrapConfig';
 import {genericDelete, genericGet, genericPut} from './utilities/genericReqs';
 import {Types as mongooseTypes} from 'mongoose';
 import {databaseTypes, webTypes, fileIngestionTypes} from 'types';
-import {Session} from 'next-auth';
 
 const MOCK_SESSION = {
   user: {
@@ -263,10 +262,7 @@ const MOCK_STATE: databaseTypes.IState = {
       z: 0,
     },
   },
-  aspectRatio: {
-    height: 1391,
-    width: 2421,
-  },
+  rowIds: [],
 };
 
 describe('GLYPH ENGINE ROUTE', () => {

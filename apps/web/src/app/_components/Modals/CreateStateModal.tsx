@@ -6,13 +6,14 @@ import {WritableDraft} from 'immer/dist/internal';
 import {_createState, api} from 'lib';
 import {webTypes} from 'types';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {cameraAtom, imageHashAtom, modalsAtom, projectAtom, viewerPositionSelector} from 'state';
+import {cameraAtom, imageHashAtom, modalsAtom, projectAtom, rowIdsAtom, viewerPositionSelector} from 'state';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 
 export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps) => {
   const {mutate} = useSWRConfig();
   const setModals = useSetRecoilState(modalsAtom);
   const [camera, setCamera] = useRecoilState(cameraAtom);
+  const rowIds = useRecoilValue(rowIdsAtom);
   const [image, setImage] = useRecoilState(imageHashAtom);
   const setProject = useSetRecoilState(projectAtom);
   const viewerPosition = useRecoilValue(viewerPositionSelector);
@@ -41,7 +42,8 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
           width: (viewerPosition as webTypes.IViewerPosition).w,
           height: (viewerPosition as webTypes.IViewerPosition).h,
         } as unknown as webTypes.Aspect,
-        image.imageHash
+        image.imageHash,
+        rowIds ? rowIds : []
       );
       console.log({retval});
 
@@ -54,7 +56,8 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
             width: (viewerPosition as webTypes.IViewerPosition).w,
             height: (viewerPosition as webTypes.IViewerPosition).h,
           } as unknown as webTypes.Aspect,
-          image.imageHash
+          image.imageHash,
+          rowIds ? rowIds : []
         ),
         setLoading: (state) =>
           setModals(
@@ -84,7 +87,19 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
         },
       });
     }
-  }, [camera, modalContent.data.id, name, setCamera, setModals, setProject, mutate, image, setImage, viewerPosition]);
+  }, [
+    camera,
+    modalContent.data.id,
+    name,
+    setCamera,
+    setModals,
+    setProject,
+    mutate,
+    image,
+    setImage,
+    viewerPosition,
+    rowIds,
+  ]);
 
   return (
     <div className="flex flex-col items-stretch justify-center px-4 py-8 space-y-5 bg-secondary-midnight rounded-md text-white">
