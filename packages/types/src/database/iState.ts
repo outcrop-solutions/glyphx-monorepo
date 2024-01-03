@@ -34,4 +34,5 @@ export interface IState {
   presence?: IPresence; // collaborative user state
   theads?: IAnnotation[];
   thresholds?: IThreshold[];
+  rowIds?: string[];
 }

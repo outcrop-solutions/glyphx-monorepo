@@ -35,9 +35,17 @@ export const getState = async (req: NextApiRequest, res: NextApiResponse) => {
  */
 
 export const createState = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {name, camera, projectId, imageHash, aspectRatio} = req.body;
+  const {name, camera, projectId, imageHash, aspectRatio, rowIds} = req.body;
   try {
-    const state = await stateService.createState(name, camera, projectId, session?.user?.id, aspectRatio, imageHash);
+    const state = await stateService.createState(
+      name,
+      camera,
+      projectId,
+      session?.user?.id,
+      aspectRatio,
+      rowIds,
+      imageHash
+    );
     const {agentData, location} = formatUserAgent(req);
 
     if (state) {

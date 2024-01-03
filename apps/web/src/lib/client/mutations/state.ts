@@ -36,12 +36,13 @@ export const _createState = (
   projectId: string,
   camera: webTypes.Camera,
   aspectRatio: webTypes.Aspect,
-  imageHash: string
+  imageHash: string,
+  rowIds: string[]
 ): webTypes.IFetchConfig => {
   return {
     url: '/api/state',
     options: {
-      body: {name: name, projectId: projectId, camera, imageHash, aspectRatio},
+      body: {name: name, projectId: projectId, camera, imageHash, aspectRatio, rowIds},
       method: 'POST',
     },
     successMsg: 'State successfully created',

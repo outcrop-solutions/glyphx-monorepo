@@ -33,6 +33,7 @@ export class StateService {
     projectId: string,
     userId: string,
     aspectRatio: webTypes.Aspect,
+    rowIds: string[],
     imageHash?: string
   ): Promise<databaseTypes.IState | null> {
     try {
@@ -55,6 +56,7 @@ export class StateService {
         workspace: {...workspace},
         project: {...project},
         fileSystem: [...project.files],
+        rowIds: rowIds,
       };
 
       const state = await mongoDbConnection.models.StateModel.createState(input);
