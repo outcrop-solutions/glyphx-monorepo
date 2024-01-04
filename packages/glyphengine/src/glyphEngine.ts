@@ -155,7 +155,6 @@ export class GlyphEngine {
   public async process(
     data: Map<string, string>
   ): Promise<{sdtFileName: string; sgnFileName: string; sgcFileName: string}> {
-    console.log({glyphengine: data});
     await processTrackingService.updateProcessStatus(
       this.processId,
       databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
@@ -177,15 +176,16 @@ export class GlyphEngine {
 
       data.set('view_name', viewName);
 
-      //Start our query now before we do any processing
-      await processTrackingService.addProcessMessage(this.processId, `Starting the query: ${new Date()}`);
-      await this.startQuery(data, viewName);
-
       await processTrackingService.addProcessMessage(
         this.processId,
         `Getting the data types and updating the SDT: ${new Date()}`
       );
       await this.getDataTypes(viewName, data);
+
+      //Start our query now before we do any processing
+      await processTrackingService.addProcessMessage(this.processId, `Starting the query: ${new Date()}`);
+      await this.startQuery(data, viewName);
+
       const template = this.updateSdt(await this.getTemplateAsString(), data);
 
       //bucket/client/workspaceId/ProjectId/output/model.sdt
@@ -194,7 +194,6 @@ export class GlyphEngine {
       await this.outputBucketField.putObject(sdtFileName, template);
 
       const {xCol, yCol, zCol, isXDate, isYDate, isZDate, zColName} = this.formatCols(data);
-
       const initialParser = new SdtParser(isXDate, isYDate, isZDate, xCol, yCol, zCol, zColName);
       const sdtParser = await initialParser.parseSdtString(template, viewName, data, this.athenaManager);
 
@@ -286,6 +285,8 @@ export class GlyphEngine {
     xCol: string;
     yCol: string;
     zCol: string;
+    xColName: string;
+    yColName: string;
     zColName: string;
   } {
     const xCol = data.get('x_axis') as string;
@@ -320,6 +321,8 @@ export class GlyphEngine {
       xCol: groupByXColumn,
       yCol: groupByYColumn,
       zCol: accumulatorFunction,
+      xColName: xCol,
+      yColName: yCol,
       zColName,
     };
   }
@@ -327,7 +330,7 @@ export class GlyphEngine {
   private async startQuery(data: Map<string, string>, viewName: string): Promise<void> {
     //TODO: need some validation here
     const filter = (data.get('filter') as string) ?? undefined;
-    const {xCol, yCol, zCol, zColName} = this.formatCols(data);
+    const {xCol, yCol, zCol, xColName, yColName, zColName} = this.formatCols(data);
 
     this.queryRunner = new QueryRunner({
       databaseName: this.athenaManager.databaseName,
@@ -335,6 +338,8 @@ export class GlyphEngine {
       xCol,
       yCol,
       zCol,
+      xColName,
+      yColName,
       zColName,
       filter,
     });

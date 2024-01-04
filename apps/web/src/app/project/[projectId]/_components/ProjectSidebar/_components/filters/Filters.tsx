@@ -35,7 +35,6 @@ export const Filters = () => {
   const [isCollapsed, setCollapsed] = useState(false);
 
   const handleApplyFilters = useCallback(async () => {
-    console.log({doesStateExist});
     // project already contains filter state, no deepMerge necessary
     const payloadHash = hashPayload(hashFileSystem(project.files), project);
     if (!isValidPayload(properties)) {

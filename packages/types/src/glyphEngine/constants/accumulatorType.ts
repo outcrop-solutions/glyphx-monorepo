@@ -1,7 +1,7 @@
 export enum ACCUMULATOR_TYPE {
-  SUM = 'sum',
-  AVG = 'avg',
-  MIN = 'min',
-  MAX = 'max',
-  COUNT = 'count',
+  SUM = 'SUM',
+  AVG = 'AVG',
+  MIN = 'MIN',
+  MAX = 'MAX',
+  COUNT = 'COUNT',
 }

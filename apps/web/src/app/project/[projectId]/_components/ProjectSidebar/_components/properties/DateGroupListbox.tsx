@@ -79,7 +79,6 @@ const DateGroupingListbox = ({axis}) => {
       const grouping = dateGrouping.replace(/ /g, '_').toLowerCase();
       const retval = handleDateGrouping(grouping as glyphEngineTypes.constants.DATE_GROUPING);
 
-      console.log({grouping, retval});
       setProject(
         produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
           draft.state.properties[`${axis}`].dateGrouping = retval;

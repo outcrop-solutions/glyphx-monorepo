@@ -10,7 +10,7 @@ import {
   athenaConnection,
   s3Connection,
 } from 'business';
-import {databaseTypes, webTypes} from 'types';
+import {databaseTypes, fileIngestionTypes, glyphEngineTypes, webTypes} from 'types';
 import {formatUserAgent} from 'lib/utils/formatUserAgent';
 import {generateFilterQuery} from 'lib/client/helpers';
 import {isValidPayload} from 'lib/utils/isValidPayload';
@@ -91,9 +91,17 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
       payload_hash: payloadHash,
       client_id: project?.workspace.id,
       x_axis: properties[webTypes.constants.AXIS.X]['key'],
-      x_date_grouping: properties[webTypes.constants.AXIS.X]['dateGrouping'],
+      x_date_grouping:
+        properties[webTypes.constants.AXIS.X]['dataType'] === fileIngestionTypes.constants.FIELD_TYPE.DATE &&
+        !properties[webTypes.constants.AXIS.X]['dateGrouping']
+          ? glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR
+          : properties[webTypes.constants.AXIS.X]['dateGrouping'],
       y_axis: properties[webTypes.constants.AXIS.Y]['key'],
-      y_date_grouping: properties[webTypes.constants.AXIS.Y]['dateGrouping'],
+      y_date_grouping:
+        properties[webTypes.constants.AXIS.Y]['dataType'] === fileIngestionTypes.constants.FIELD_TYPE.DATE &&
+        !properties[webTypes.constants.AXIS.Y]['dateGrouping']
+          ? glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR
+          : properties[webTypes.constants.AXIS.Y]['dateGrouping'],
       z_axis: properties[webTypes.constants.AXIS.Z]['key'],
       accumulatorType: properties[webTypes.constants.AXIS.Z]['accumulatorType'],
       x_func: properties[webTypes.constants.AXIS.X]['interpolation'],
@@ -109,7 +117,7 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
         : '',
     };
 
-    console.log({glyphEngine: true, filter: payload.filter});
+    console.log({glyphEngine: true, filter: payload.filter, payload});
 
     try {
       // Setup process tracking
