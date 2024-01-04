@@ -92,6 +92,8 @@ export class QueryRunner {
     GROUP BY groupedXColumn, groupedYColumn;
 `;
 
+    console.log({runner: true, query});
+
     //this is already wrapped in a GlyphxError so no need to wrap it again
     this.queryId = await this.athenaManager.startQuery(query);
 

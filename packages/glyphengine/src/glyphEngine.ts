@@ -155,6 +155,7 @@ export class GlyphEngine {
   public async process(
     data: Map<string, string>
   ): Promise<{sdtFileName: string; sgnFileName: string; sgcFileName: string}> {
+    console.log({glyphengine: data});
     await processTrackingService.updateProcessStatus(
       this.processId,
       databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
