@@ -297,7 +297,7 @@ describe('GLYPH ENGINE ROUTE', () => {
     initializerStub = {init: sandbox.stub(), initedField: false};
     initializerStub.init.resolves();
 
-    //   handler stubs
+    // handler stubs
     glyphEngineStub = sandbox.stub();
     formatUserAgentStub = sandbox.stub();
     generateFilterQueryStub = sandbox.stub();

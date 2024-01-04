@@ -12,6 +12,7 @@ export const generateFilterQuery = (prop: webTypes.Property) => {
     case fileIngestionTypes.constants.FIELD_TYPE.STRING:
       const strFilter = prop.filter as unknown as webTypes.IStringFilter;
       return `MATCH ${name || '-'} AGAINST (${strFilter.keywords.join(' ') || '-'})`;
+    // TODO: fileIngestionTypes.constants.FIELD_TYPE.DATE
     default:
       return '';
   }
