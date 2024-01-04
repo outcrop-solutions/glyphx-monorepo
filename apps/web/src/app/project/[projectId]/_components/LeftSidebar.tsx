@@ -58,7 +58,13 @@ const LeftSidebar = () => {
           )}
           {isWebGPUEnabled && (
             <>
-              <div onClick={() => setSegment('CONFIG')} className={`p-2 rounded ${segment === 'CONFIG' && 'bg-nav'}`}>
+              <div
+                onClick={() => {
+                  window?.core?.ToggleDrawer(false);
+                  setSegment('CONFIG');
+                }}
+                className={`p-2 rounded ${segment === 'CONFIG' && 'bg-nav'}`}
+              >
                 <EyeIcon className="h-5 w-5" />
               </div>
               {/* <div onClick={() => setSegment('DATA')} className={`p-2 rounded ${segment === 'DATA' && 'bg-nav'}`}>
