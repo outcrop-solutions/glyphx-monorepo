@@ -128,18 +128,27 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
 
       let data: Map<string, string>;
       data = new Map<string, string>([
+        // axes
         ['x_axis', payload['x_axis']],
         ['y_axis', payload['y_axis']],
         ['z_axis', payload['z_axis']],
+        // interpolation
         ['x_func', payload['x_func']],
         ['y_func', payload['y_func']],
         ['z_func', payload['z_func']],
+        // direction
         ['x_direction', payload['x_direction']],
         ['y_direction', payload['y_direction']],
         ['z_direction', payload['z_direction']],
+        // dates and accumulator
+        ['x_date_grouping', payload['x_date_grouping']],
+        ['y_date_grouping', payload['y_date_grouping']],
+        ['accumulatorType', payload['accumulatorType']],
+        // model info
         ['model_id', payload['model_id']],
         ['client_id', payload['client_id']],
         ['payload_hash', payload['payload_hash']],
+        // filter
         ['filter', payload['filter']],
       ]);
 

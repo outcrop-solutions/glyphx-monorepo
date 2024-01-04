@@ -265,7 +265,7 @@ const MOCK_STATE: databaseTypes.IState = {
   rowIds: [],
 };
 
-describe('GLYPH ENGINE ROUTE', () => {
+describe.only('GLYPH ENGINE ROUTE', () => {
   const sandbox = createSandbox();
   // glyph engine stubs
   let glyphEngineRoute;
@@ -297,7 +297,7 @@ describe('GLYPH ENGINE ROUTE', () => {
     initializerStub = {init: sandbox.stub(), initedField: false};
     initializerStub.init.resolves();
 
-    //   handler stubs
+    // handler stubs
     glyphEngineStub = sandbox.stub();
     formatUserAgentStub = sandbox.stub();
     generateFilterQueryStub = sandbox.stub();

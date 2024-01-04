@@ -53,7 +53,7 @@ export const Filters = () => {
       });
     } else {
       await callCreateModel({
-        isFilter: false,
+        isFilter: true,
         project,
         payloadHash,
         session,
