@@ -75,7 +75,7 @@ export const useProject = () => {
   );
 
   /**
-   * Checks wether to run glyph engine or not when dealign with templated proejcts
+   * Checks wether to run glyphengine or not when dealing with templated projects
    * @param axis //the prop value that has changed
    * @param properties // the existing project properties before being updated
    * @returns
