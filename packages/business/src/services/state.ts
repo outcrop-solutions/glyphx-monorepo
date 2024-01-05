@@ -37,6 +37,7 @@ export class StateService {
     imageHash?: string
   ): Promise<databaseTypes.IState | null> {
     try {
+      console.log({name, camera, project, userId, aspectRatio, rowIds, imageHash});
       const workspace = await mongoDbConnection.models.WorkspaceModel.getWorkspaceById(project?.workspace.id!);
       const user = await mongoDbConnection.models.UserModel.getUserById(userId);
       const image = imageHash ? {imageHash} : {};
