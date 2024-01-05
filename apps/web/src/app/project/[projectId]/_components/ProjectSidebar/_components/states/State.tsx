@@ -47,7 +47,8 @@ export const State = ({item, idx}) => {
     if (!(Object.keys(loading).length > 0)) {
       const filteredStates = project.stateHistory.filter((state) => !state.deletedAt);
       const payloadHash = filteredStates[idx].payloadHash;
-      // const properties = filteredStates[idx].properties;
+      const properties = filteredStates[idx];
+      console.log({state: filteredStates[idx]});
       const camera = filteredStates[idx].camera;
       const ids = filteredStates[idx].rowIds ?? [];
       const rowIds = convertRowIds(ids);
