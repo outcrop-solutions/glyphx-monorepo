@@ -42,7 +42,7 @@ export const _createState = (
   return {
     url: '/api/state',
     options: {
-      body: {name: name, projectId: project, camera, imageHash, aspectRatio, rowIds},
+      body: {name: name, project: project, camera, imageHash, aspectRatio, rowIds},
       method: 'POST',
     },
     successMsg: 'State successfully created',
