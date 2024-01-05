@@ -110,7 +110,7 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
       x_direction: properties[webTypes.constants.AXIS.X]['direction'],
       y_direction: properties[webTypes.constants.AXIS.Y]['direction'],
       z_direction: properties[webTypes.constants.AXIS.Z]['direction'],
-      filter: isFilter ? generateFilterQuery(properties) : '',
+      filter: isFilter ? generateFilterQuery(project) : '',
     };
 
     console.log({glyphEngine: true, filter: payload.filter, payload});

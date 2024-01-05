@@ -108,27 +108,27 @@ export const useProject = () => {
         ...project?.state.properties[`${axis}`],
       };
 
-      const isNotFull = checkOtherPropValues(axis, project);
+      // const isNotFull = checkOtherPropValues(axis, project);
 
-      if (prop.key === project?.template?.shape[prop.axis].key && isNotFull) {
-        setProject(
-          produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-            draft.state.properties[`${axis}`].key = column.key;
-            draft.state.properties[`${axis}`].dataType = column.dataType;
-          })
-        );
-      } else {
-        // we can compose these for a one liner
-        callETL(axis, column, project, isFilter);
-        setProject(
-          produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-            draft.state.properties[`${axis}`].key = column.key;
-            draft.state.properties[`${axis}`].dataType = column.dataType;
-          })
-        );
-      }
+      // if (prop.key === project?.template?.shape[prop.axis].key && isNotFull) {
+      //   setProject(
+      //     produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+      //       draft.state.properties[`${axis}`].key = column.key;
+      //       draft.state.properties[`${axis}`].dataType = column.dataType;
+      //     })
+      //   );
+      // } else {
+      // we can compose these for a one liner
+      // callETL(axis, column, project, isFilter);
+      setProject(
+        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+          draft.state.properties[`${axis}`].key = column.key;
+          draft.state.properties[`${axis}`].dataType = column.dataType;
+        })
+      );
+      // }
     },
-    [callETL, setProject]
+    [setProject]
   );
 
   return {

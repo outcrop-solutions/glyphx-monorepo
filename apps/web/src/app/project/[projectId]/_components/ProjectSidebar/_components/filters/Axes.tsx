@@ -1,11 +1,12 @@
 'use client';
-import {useState} from 'react';
-import {useRecoilValue} from 'recoil';
+import {useCallback, useState} from 'react';
+import {useRecoilState, useRecoilValue} from 'recoil';
 import {useDrop} from 'react-dnd';
 import {fileIngestionTypes, webTypes} from 'types';
-
+import {WritableDraft} from 'immer/dist/internal';
 import {RangeFilter} from './actions/RangeFilter';
 import {SearchFilter} from './actions/SearchFilter';
+import ClearIcon from 'public/svg/clear-icon.svg';
 
 import {AxesIcons} from '../icons/AxesIcons';
 import PlusIcon from 'public/svg/plus-icon.svg';
@@ -14,9 +15,10 @@ import GarbageIcon from 'public/svg/garbage-can-icon.svg';
 import {projectAtom, singlePropertySelectorFamily} from 'state';
 import {useProject} from 'services';
 import {handleDataType} from 'lib/client/helpers/handleDataType';
+import produce from 'immer';
 
 export const Axes = ({axis}) => {
-  const project = useRecoilValue(projectAtom);
+  const [project, setProject] = useRecoilState(projectAtom);
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
   const [showFilter, setShowFilter] = useState(false); //shows filter property
   const {handleDrop} = useProject();
@@ -31,13 +33,42 @@ export const Axes = ({axis}) => {
     }),
   });
 
+  const clearProp = useCallback(async () => {
+    setProject(
+      produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+        draft.state.properties[`${axis}`] = {
+          axis: axis,
+          accepts: webTypes.constants.ACCEPTS.COLUMN_DRAG,
+          key: `Column ${axis}`, //corresponds to column name
+          dataType: fileIngestionTypes.constants.FIELD_TYPE.NUMBER, //corresponds to column data type
+          interpolation: webTypes.constants.INTERPOLATION_TYPE.LIN,
+          direction: webTypes.constants.DIRECTION_TYPE.ASC,
+          filter: {
+            min: 0,
+            max: 0,
+          },
+        };
+      })
+    );
+  }, [axis, setProject]);
+
   return (
     <>
       <li
         ref={drop}
         className={`py-0 px-2 group-filters hover:bg-secondary-midnight hover:bg-opacity-70 last:mb-0 flex gap-x-2 items-center h-5`}
       >
-        <AxesIcons property={axis} />
+        {/* AXES ICON */}
+        <div className={`bg-secondary-space-blue border border-transparent hover:border-white p-0 rounded`}>
+          <div className="h-4 group">
+            <div className="flex group-hover:hidden">
+              <AxesIcons property={axis} />
+            </div>
+            <div onClick={clearProp} className="group-hover:flex hidden">
+              <ClearIcon />
+            </div>
+          </div>
+        </div>
         {/* PROPERTY CHIP */}
         <div
           data-type={handleDataType(prop, project)}

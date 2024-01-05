@@ -19,6 +19,7 @@ export const RangeFilter = ({prop}) => {
   const [max, setMax] = useState(0);
 
   const updateLocalRange = useCallback((e, filterProp) => {
+    console.log({filterProp, value: e.target.value});
     if (filterProp === 'min') {
       setMin(e.target.value);
     } else {
@@ -26,27 +27,26 @@ export const RangeFilter = ({prop}) => {
     }
   }, []);
 
+  const handleRemove = useCallback(() => {
+    setVisibility(false);
+    setProject(
+      produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+        (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).min = 0;
+        (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).max = 0;
+      })
+    );
+  }, [prop.axis, setProject]);
+
   const handleApply = useCallback(() => {
-    if (!visibility) {
-      // apply local min/max to project
-      setProject(
-        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).min =
-            min;
-          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).max =
-            max;
-        })
-      );
-    } else {
-      // remove local min/max from project (reset to default)
-      setProject(
-        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).min = 0;
-          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).max = 0;
-        })
-      );
-    }
-    setVisibility((prev) => !prev);
+    setVisibility(true);
+    setProject(
+      produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+        (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).min =
+          Number(min);
+        (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>).max =
+          Number(max);
+      })
+    );
     // disable to avoid visibility re-triggering callback
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [max, min, prop.axis, setProject]);
@@ -89,12 +89,21 @@ export const RangeFilter = ({prop}) => {
         />
       </div>
       {/* SHOW/HIDE */}
-      <div
-        onClick={handleApply}
-        className="rounded border border-transparent bg-secondary-space-blue hover:border-white"
-      >
-        {!visibility ? <ShowIcon /> : <HideIcon />}
-      </div>
+      {!visibility ? (
+        <div
+          onClick={handleApply}
+          className="rounded border border-transparent bg-secondary-space-blue hover:border-white"
+        >
+          <ShowIcon />
+        </div>
+      ) : (
+        <div
+          onClick={handleRemove}
+          className="rounded border border-transparent bg-secondary-space-blue hover:border-white"
+        >
+          <HideIcon />
+        </div>
+      )}
     </div>
   );
 };

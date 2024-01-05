@@ -5,17 +5,34 @@ const generateSegment = (name: string, prop: webTypes.Property) => {
   switch (prop.dataType) {
     case fileIngestionTypes.constants.FIELD_TYPE.NUMBER:
       const {min, max} = prop.filter as unknown as webTypes.INumbericFilter;
-      if (min && max && min === 0 && max === 0) {
+      console.log({min, max, name, prop});
+      if (min === 0 && max === 0) {
         return '';
       } else {
-        return `${name || '-'} BETWEEN ${min || '-'} AND ${max || '-'}`;
+        return `${name || '-'} BETWEEN ${min} AND ${max}`;
       }
     case fileIngestionTypes.constants.FIELD_TYPE.STRING:
       const {keywords} = prop.filter as unknown as webTypes.IStringFilter;
       if (keywords && keywords.length === 0) {
         return '';
       } else {
-        return `MATCH ${name || '-'} AGAINST (${keywords.join(' ') || '-'})`;
+        console.log({keywords});
+        const formatted = keywords
+          .map((word) => {
+            if (typeof word === 'string') {
+              return `'${word}'`;
+            } else {
+              Object.values(word).join('');
+            }
+          })
+          .filter((val) => typeof val !== 'undefined');
+
+        console.log({formatted});
+        if (formatted.length > 0) {
+          return `${name || '-'} IN (${formatted.join(',')})`;
+        } else {
+          return '';
+        }
       }
     // TODO: fileIngestionTypes.constants.FIELD_TYPE.DATE
     default:
@@ -26,16 +43,13 @@ const generateSegment = (name: string, prop: webTypes.Property) => {
 const genFilter = (prop: webTypes.Property, axis: webTypes.constants.AXIS) => {
   const cleaner = new BasicColumnNameCleaner();
   const name = cleaner.cleanColumnName(prop.key);
-  const isZ = axis === webTypes.constants.AXIS.Z;
-  const segment = isZ ? ' AND ' : '';
-
-  const retval = generateSegment(name, prop);
-
-  return `${retval}${segment}`;
+  return generateSegment(name, prop);
 };
 
-export const generateFilterQuery = (properties: databaseTypes.IProject['state']['properties']) => {
+export const generateFilterQuery = (project: databaseTypes.IProject) => {
+  const properties = project.state.properties;
   const axes = Object.values(webTypes.constants.AXIS);
+
   const segments: string[] = [];
 
   for (const axis of axes) {
@@ -43,5 +57,8 @@ export const generateFilterQuery = (properties: databaseTypes.IProject['state'][
     segments.push(segment);
   }
 
-  return segments.join('');
+  return segments
+    .filter((val) => val !== '')
+    .join(' AND ')
+    .trimEnd();
 };
