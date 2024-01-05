@@ -70,7 +70,7 @@ export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc
         }
       });
       console.log({formattedProject});
-      setProject(projectData);
+      setProject(formattedProject);
       setTemplates(templateData);
       setRightSidebarControl(
         produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
