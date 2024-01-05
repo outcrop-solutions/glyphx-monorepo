@@ -1,7 +1,7 @@
 import {useCallback} from 'react';
 import {useSession} from 'next-auth/react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
-import {webTypes} from 'types';
+import {fileIngestionTypes, webTypes} from 'types';
 import {_updateProjectState} from 'lib/client';
 import {doesStateExistSelector, drawerOpenAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom} from 'state';
 import {_createModel, _getSignedDataUrls} from 'lib/client/mutations/core';
@@ -74,59 +74,25 @@ export const useProject = () => {
     []
   );
 
-  /**
-   * Checks wether to run glyphengine or not when dealing with templated projects
-   * @param axis //the prop value that has changed
-   * @param properties // the existing project properties before being updated
-   * @returns
-   */
-  const checkOtherPropValues = (axis: webTypes.constants.AXIS, project: webTypes.IHydratedProject): boolean => {
-    let retval = false;
-    // reassign
-    let existingProps = {...project.state.properties};
-    const template = project?.template;
-
-    // delete axis
-    delete existingProps[axis];
-    const keys = Object.keys(existingProps);
-
-    for (const key of keys) {
-      const prop = existingProps[key];
-      // if not "third drop", don't run glyphengine
-      if (prop.key === template?.shape[prop.axis].key) {
-        retval = true;
-      }
-    }
-
-    return retval;
-  };
-
   const handleDrop = useCallback(
     (axis: webTypes.constants.AXIS, column: any, project: webTypes.IHydratedProject, isFilter: boolean) => {
-      // existing prop value
-      const prop = {
-        ...project?.state.properties[`${axis}`],
-      };
-
-      // const isNotFull = checkOtherPropValues(axis, project);
-
-      // if (prop.key === project?.template?.shape[prop.axis].key && isNotFull) {
-      //   setProject(
-      //     produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-      //       draft.state.properties[`${axis}`].key = column.key;
-      //       draft.state.properties[`${axis}`].dataType = column.dataType;
-      //     })
-      //   );
-      // } else {
       // we can compose these for a one liner
       // callETL(axis, column, project, isFilter);
       setProject(
         produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
           draft.state.properties[`${axis}`].key = column.key;
           draft.state.properties[`${axis}`].dataType = column.dataType;
+          // reset filters
+          if (
+            column.dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING ||
+            column.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE
+          ) {
+            draft.state.properties[`${axis}`].filter = {keywords: []};
+          } else {
+            draft.state.properties[`${axis}`].filter = {min: 0, max: 0};
+          }
         })
       );
-      // }
     },
     [setProject]
   );

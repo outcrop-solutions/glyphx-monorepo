@@ -3,14 +3,25 @@
 import React, {useCallback, useState} from 'react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {Property} from './Property';
-import {drawerOpenAtom, projectAtom, propertiesSelector, showLoadingAtom, splitPaneSizeAtom} from 'state';
+import {
+  doesStateExistSelector,
+  drawerOpenAtom,
+  projectAtom,
+  propertiesSelector,
+  showLoadingAtom,
+  splitPaneSizeAtom,
+} from 'state';
 import {_updateProjectState} from 'lib';
 import {useSession} from 'next-auth/react';
 import {useSWRConfig} from 'swr';
 import {callCreateModel} from 'lib/client/network/reqs/callCreateModel';
+import toast from 'react-hot-toast';
 import {hashPayload} from 'lib/utils/hashPayload';
 import {hashFileSystem} from 'lib/utils/hashFileSystem';
 import {useUrl} from 'lib/client/hooks';
+import {isValidPayload} from 'lib/utils/isValidPayload';
+import {callUpdateProject} from 'lib/client/network/reqs/callUpdateProject';
+import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
 
 export const Properties = () => {
   const session = useSession();
@@ -18,25 +29,43 @@ export const Properties = () => {
   const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
+  const doesStateExist = useRecoilValue(doesStateExistSelector);
   const url = useUrl();
   const properties = useRecoilValue(propertiesSelector);
   const [isCollapsed, setCollapsed] = useState(false);
   const project = useRecoilValue(projectAtom);
 
   const handleApply = useCallback(async () => {
+    // project already contains filter state, no deepMerge necessary
     const payloadHash = hashPayload(hashFileSystem(project.files), project);
-    await callCreateModel({
-      isFilter: false,
-      project,
-      payloadHash,
-      session,
-      url,
-      setLoading,
-      setDrawer,
-      setResize,
-      mutate,
-    });
-  }, [mutate, project, session, setDrawer, setLoading, setResize, url]);
+    if (!isValidPayload(properties)) {
+      toast.success('Generate a model before applying filters!');
+    } else if (doesStateExist) {
+      callUpdateProject(project, mutate);
+      await callDownloadModel({
+        project,
+        payloadHash,
+        session,
+        url,
+        setLoading,
+        setDrawer,
+        setResize,
+      });
+    } else {
+      await callCreateModel({
+        isFilter: true,
+        project,
+        payloadHash,
+        session,
+        url,
+        setLoading,
+        setDrawer,
+        setResize,
+        mutate,
+      });
+    }
+    setLoading({});
+  }, [doesStateExist, mutate, project, properties, session, setDrawer, setLoading, setResize, url]);
 
   return (
     properties && (

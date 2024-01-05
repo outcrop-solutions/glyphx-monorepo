@@ -87,6 +87,7 @@ export const State = ({item, idx}) => {
         },
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx, loading, project, session, setActiveState, setDrawer, setLoading, setResize, url, activeState]);
 
   const deleteState = useCallback(() => {

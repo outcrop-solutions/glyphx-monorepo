@@ -30,14 +30,13 @@ export class StateService {
   public static async createState(
     name: string,
     camera: webTypes.Camera,
-    projectId: string,
+    project: databaseTypes.IProject,
     userId: string,
     aspectRatio: webTypes.Aspect,
     rowIds: string[],
     imageHash?: string
   ): Promise<databaseTypes.IState | null> {
     try {
-      const project = await mongoDbConnection.models.ProjectModel.getProjectById(projectId);
       const workspace = await mongoDbConnection.models.WorkspaceModel.getWorkspaceById(project?.workspace.id!);
       const user = await mongoDbConnection.models.UserModel.getUserById(userId);
       const image = imageHash ? {imageHash} : {};
@@ -61,13 +60,13 @@ export class StateService {
 
       const state = await mongoDbConnection.models.StateModel.createState(input);
 
-      await mongoDbConnection.models.ProjectModel.updateProjectById(projectId, {
+      await mongoDbConnection.models.ProjectModel.updateProjectById(project.id as string, {
         imageHash: imageHash,
         aspectRatio: aspectRatio,
       });
 
       await mongoDbConnection.models.WorkspaceModel.addStates(workspace.id!, [state]);
-      await mongoDbConnection.models.ProjectModel.addStates(projectId, [state]);
+      await mongoDbConnection.models.ProjectModel.addStates(project.id as string, [state]);
 
       return state;
     } catch (err: any) {
@@ -79,7 +78,7 @@ export class StateService {
           'An unexpected error occurred while creating the state. See the inner error for additional details',
           'state',
           'createState',
-          {projectId, userId, name, camera, aspectRatio},
+          {project, userId, name, camera, aspectRatio},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);

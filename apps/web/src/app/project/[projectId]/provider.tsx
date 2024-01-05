@@ -2,7 +2,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
-import {webTypes} from 'types';
+import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
 import {useSetRecoilState} from 'recoil';
 import {dataGridAtom, projectAtom, rightSidebarControlAtom, templatesAtom, workspaceAtom} from 'state';
 import {useSendPosition, useWindowSize} from 'services';
@@ -51,6 +51,25 @@ export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc
   useEffect(() => {
     if (!templateLoading && !isLoading) {
       const projectData = openFirstFile(project);
+
+      let formattedProject = {...projectData};
+      // rectify mongo scalar array
+      Object.values(projectData.state.properties).forEach((prop: webTypes.Property) => {
+        if (
+          prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING ||
+          prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE
+        ) {
+          const {keywords} = prop.filter as unknown as webTypes.IStringFilter;
+          if (keywords && keywords.length > 0) {
+            formattedProject.state.properties[prop.axis].filter.keywords = [
+              ...keywords.map((word) => {
+                return Object.values(word).join('');
+              }),
+            ];
+          }
+        }
+      });
+      console.log({formattedProject});
       setProject(projectData);
       setTemplates(templateData);
       setRightSidebarControl(

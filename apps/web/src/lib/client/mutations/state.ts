@@ -33,7 +33,7 @@ export const _createAnnotation = ({
  */
 export const _createState = (
   name: string,
-  projectId: string,
+  project: databaseTypes.IProject,
   camera: webTypes.Camera,
   aspectRatio: webTypes.Aspect,
   imageHash: string,
@@ -42,7 +42,7 @@ export const _createState = (
   return {
     url: '/api/state',
     options: {
-      body: {name: name, projectId: projectId, camera, imageHash, aspectRatio, rowIds},
+      body: {name: name, projectId: project, camera, imageHash, aspectRatio, rowIds},
       method: 'POST',
     },
     successMsg: 'State successfully created',

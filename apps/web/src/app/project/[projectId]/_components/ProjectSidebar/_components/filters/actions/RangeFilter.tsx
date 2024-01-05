@@ -14,17 +14,27 @@ import {webTypes} from 'types';
 export const RangeFilter = ({prop}) => {
   const setProject = useSetRecoilState(projectAtom);
   const isFilterWritable = useRecoilValue(isFilterWritableSelector);
-  const [visibility, setVisibility] = useState(false);
-  const [min, setMin] = useState(0);
-  const [max, setMax] = useState(0);
+  const [visibility, setVisibility] = useState(true);
+  const [min, setMin] = useState(prop.filter.min);
+  const [max, setMax] = useState(prop.filter.max);
 
-  const updateLocalRange = useCallback((e, filterProp) => {
-    if (filterProp === 'min') {
-      setMin(e.target.value);
-    } else {
-      setMax(e.target.value);
-    }
-  }, []);
+  const updateLocalRange = useCallback(
+    (e, filterProp) => {
+      if (filterProp === 'min') {
+        setMin(e.target.value);
+      } else {
+        setMax(e.target.value);
+      }
+      setProject(
+        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.INumbericFilter>)[
+            filterProp
+          ] = Number(e.target.value);
+        })
+      );
+    },
+    [prop.axis, setProject]
+  );
 
   const handleRemove = useCallback(() => {
     setVisibility(false);

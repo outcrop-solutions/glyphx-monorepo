@@ -12,9 +12,9 @@ import {webTypes} from 'types';
 export const SearchFilter = ({prop}) => {
   const setProject = useSetRecoilState(projectAtom);
   const isFilterWritable = useRecoilValue(isFilterWritableSelector);
-  const [visibility, setVisibility] = useState(false);
+  const [visibility, setVisibility] = useState(true);
   const [keyword, setKeyword] = useState('');
-  const [keywords, setKeywords] = useState([]);
+  const [keywords, setKeywords] = useState(prop.filter.keywords || []);
 
   const addKeyword = useCallback(() => {
     setKeywords(
@@ -22,16 +22,33 @@ export const SearchFilter = ({prop}) => {
         draft.push(keyword);
       })
     );
-    setKeyword('');
-  }, [keyword]);
-
-  const deleteKeyword = useCallback((idx) => {
-    setKeywords(
-      produce((draft: WritableDraft<string[]>) => {
-        draft.splice(idx, 1);
+    setProject(
+      produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+        (
+          draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>
+        ).keywords.push(keyword);
       })
     );
-  }, []);
+    setKeyword('');
+  }, [keyword, prop.axis, setProject]);
+
+  const deleteKeyword = useCallback(
+    (idx) => {
+      setKeywords(
+        produce((draft: WritableDraft<string[]>) => {
+          draft.splice(idx, 1);
+        })
+      );
+      setProject(
+        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+          (
+            draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>
+          ).keywords.splice(idx, 1);
+        })
+      );
+    },
+    [prop.axis, setProject]
+  );
 
   const handleRemove = useCallback(() => {
     setVisibility(false);
@@ -44,6 +61,7 @@ export const SearchFilter = ({prop}) => {
   }, [prop.axis, setProject]);
 
   const handleApply = useCallback(() => {
+    setVisibility(true);
     // apply local keywords to project
     setProject(
       produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
@@ -51,7 +69,6 @@ export const SearchFilter = ({prop}) => {
           keywords;
       })
     );
-    setVisibility((prev) => !prev);
   }, [keywords, prop.axis, setProject]);
 
   return (

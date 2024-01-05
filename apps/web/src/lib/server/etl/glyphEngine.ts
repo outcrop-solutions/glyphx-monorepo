@@ -76,7 +76,7 @@ import {Session} from 'next-auth';
 // });
 
 export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {project, isFilter, payloadHash} = req.body;
+  const {project, payloadHash} = req.body;
 
   if (!isValidPayload(project.state.properties)) {
     console.log('INVALID PAYLOAD');
@@ -109,7 +109,7 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
       x_direction: properties[webTypes.constants.AXIS.X]['direction'],
       y_direction: properties[webTypes.constants.AXIS.Y]['direction'],
       z_direction: properties[webTypes.constants.AXIS.Z]['direction'],
-      filter: isFilter ? generateFilterQuery(project) : '',
+      filter: generateFilterQuery(project),
     };
 
     try {

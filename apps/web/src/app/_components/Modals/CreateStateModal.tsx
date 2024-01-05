@@ -36,7 +36,7 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
     if (Object.keys(camera).length > 0 && image.imageHash) {
       const retval = _createState(
         name,
-        modalContent.data.id as unknown as string,
+        modalContent.data,
         camera as unknown as webTypes.Camera,
         {
           width: (viewerPosition as webTypes.IViewerPosition).w,
@@ -50,7 +50,7 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
       api({
         ..._createState(
           name,
-          modalContent.data.id as unknown as string,
+          modalContent.data,
           camera as unknown as webTypes.Camera,
           {
             width: (viewerPosition as webTypes.IViewerPosition).w,
