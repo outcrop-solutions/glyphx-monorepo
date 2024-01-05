@@ -77,7 +77,6 @@ import {Session} from 'next-auth';
 
 export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const {project, isFilter, payloadHash} = req.body;
-  console.log({glyphengine: true, project, isFilter, payloadHash});
 
   if (!isValidPayload(project.state.properties)) {
     console.log('INVALID PAYLOAD');
@@ -110,14 +109,8 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
       x_direction: properties[webTypes.constants.AXIS.X]['direction'],
       y_direction: properties[webTypes.constants.AXIS.Y]['direction'],
       z_direction: properties[webTypes.constants.AXIS.Z]['direction'],
-      filter: isFilter
-        ? `${generateFilterQuery(properties[webTypes.constants.AXIS.X])} AND ${generateFilterQuery(
-            properties[webTypes.constants.AXIS.Y]
-          )} AND ${generateFilterQuery(properties[webTypes.constants.AXIS.Z])}`
-        : '',
+      filter: isFilter ? generateFilterQuery(project) : '',
     };
-
-    console.log({glyphEngine: true, filter: payload.filter, payload});
 
     try {
       // Setup process tracking

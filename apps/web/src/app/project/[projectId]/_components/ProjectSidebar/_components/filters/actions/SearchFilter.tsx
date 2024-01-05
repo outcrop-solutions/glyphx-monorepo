@@ -33,25 +33,26 @@ export const SearchFilter = ({prop}) => {
     );
   }, []);
 
+  const handleRemove = useCallback(() => {
+    setVisibility(false);
+    setProject(
+      produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+        (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>).keywords =
+          [];
+      })
+    );
+  }, [prop.axis, setProject]);
+
   const handleApply = useCallback(() => {
-    if (!visibility) {
-      // apply local keywords to project
-      setProject(
-        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>).keywords =
-            keywords;
-        })
-      );
-    } else {
-      setProject(
-        produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-          (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>).keywords =
-            [];
-        })
-      );
-    }
+    // apply local keywords to project
+    setProject(
+      produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
+        (draft.state.properties[`${prop.axis}`].filter as unknown as WritableDraft<webTypes.IStringFilter>).keywords =
+          keywords;
+      })
+    );
     setVisibility((prev) => !prev);
-  }, [keywords, prop.axis, setProject, visibility]);
+  }, [keywords, prop.axis, setProject]);
 
   return (
     <div>
@@ -78,12 +79,21 @@ export const SearchFilter = ({prop}) => {
           />
         </div>
         {/* SHOW/HIDE */}
-        <div
-          onClick={handleApply}
-          className="rounded border border-transparent bg-secondary-space-blue hover:border-white"
-        >
-          {!visibility ? <ShowIcon /> : <HideIcon />}
-        </div>
+        {!visibility ? (
+          <div
+            onClick={handleApply}
+            className="rounded border border-transparent bg-secondary-space-blue hover:border-white"
+          >
+            <ShowIcon />
+          </div>
+        ) : (
+          <div
+            onClick={handleRemove}
+            className="rounded border border-transparent bg-secondary-space-blue hover:border-white"
+          >
+            <HideIcon />
+          </div>
+        )}
       </div>
       {/* SEARCH KEYWORD CHIPS */}
       {keywords.length > 0 && (

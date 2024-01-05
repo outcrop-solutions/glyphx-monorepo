@@ -44,19 +44,6 @@ export const _uploadFile = (acceptedFile: ArrayBuffer, url: string): webTypes.IF
  * @returns config
  */
 export const _getDataGrid = (workspaceId: string, projectId: string, tableName: string): webTypes.IFetchConfig => {
-  console.log({
-    url: `/api/data/rows`,
-    options: {
-      method: 'POST',
-      body: {
-        workspaceId: workspaceId,
-        projectId: projectId,
-        tableName: tableName,
-      },
-    },
-    successMsg: 'Rows successfully selected',
-  });
-
   return {
     url: `/api/data/grid`,
     options: {
@@ -85,20 +72,6 @@ export const _getRowIds = (
   tableName: string,
   rowIds: string[]
 ): webTypes.IFetchConfig => {
-  console.log({
-    url: `/api/data/rows`,
-    options: {
-      method: 'POST',
-      body: {
-        workspaceId: workspaceId,
-        projectId: projectId,
-        tableName: tableName,
-        rowIds: rowIds,
-      },
-    },
-    successMsg: 'Rows successfully selected',
-  });
-
   return {
     url: `/api/data/rows`,
     options: {

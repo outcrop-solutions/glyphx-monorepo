@@ -57,7 +57,6 @@ export const State = ({item, idx}) => {
       await api({
         ..._getSignedDataUrls(project?.workspace.id, project?.id, payloadHash),
         onSuccess: (data) => {
-          console.log({data, project, idx, session, url, camera: isNullCam ? undefined : camera});
           // replace project state
           setProject(
             produce((draft: any) => {
