@@ -58,12 +58,13 @@ export const State = ({item, idx}) => {
         ..._getSignedDataUrls(project?.workspace.id, project?.id, payloadHash),
         onSuccess: (data) => {
           // replace project state
-          setProject(
-            produce((draft: any) => {
-              // set axes and filters
-              draft.state.properties = properties;
-            })
-          );
+          console.log({properties});
+          // setProject(
+          //   produce((draft: any) => {
+          //     // set axes and filters
+          //     draft.state.properties = properties;
+          //   })
+          // );
 
           if (window?.core) {
             setResize(150);

@@ -51,7 +51,6 @@ export const Filters = () => {
         setResize,
       });
     } else {
-      console.log({project});
       await callCreateModel({
         isFilter: true,
         project,
