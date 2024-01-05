@@ -20,7 +20,7 @@ export const State = ({item, idx}) => {
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setModals = useSetRecoilState(modalsAtom);
-  const [project, setProject] = useRecoilValue(projectAtom);
+  const [project, setProject] = useRecoilState(projectAtom);
   const loading = useRecoilValue(showLoadingAtom);
   const [activeState, setActiveState] = useRecoilState(activeStateAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
@@ -47,8 +47,7 @@ export const State = ({item, idx}) => {
     if (!(Object.keys(loading).length > 0)) {
       const filteredStates = project.stateHistory.filter((state) => !state.deletedAt);
       const payloadHash = filteredStates[idx].payloadHash;
-      const properties = filteredStates[idx];
-      console.log({state: filteredStates[idx]});
+      const properties = filteredStates[idx].properties;
       const camera = filteredStates[idx].camera;
       const ids = filteredStates[idx].rowIds ?? [];
       const rowIds = convertRowIds(ids);
@@ -59,13 +58,13 @@ export const State = ({item, idx}) => {
         ..._getSignedDataUrls(project?.workspace.id, project?.id, payloadHash),
         onSuccess: (data) => {
           // replace project state
-          // console.log({properties});
-          // setProject(
-          //   produce((draft: any) => {
-          //     // set axes and filters
-          //     draft.state.properties = properties;
-          //   })
-          // );
+          console.log({properties});
+          setProject(
+            produce((draft: any) => {
+              // set axes and filters
+              draft.state.properties = properties;
+            })
+          );
 
           if (window?.core) {
             setResize(150);
