@@ -47,7 +47,7 @@ export const State = ({item, idx}) => {
     if (!(Object.keys(loading).length > 0)) {
       const filteredStates = project.stateHistory.filter((state) => !state.deletedAt);
       const payloadHash = filteredStates[idx].payloadHash;
-      const properties = filteredStates[idx].properties;
+      // const properties = filteredStates[idx].properties;
       const camera = filteredStates[idx].camera;
       const ids = filteredStates[idx].rowIds ?? [];
       const rowIds = convertRowIds(ids);
@@ -58,7 +58,7 @@ export const State = ({item, idx}) => {
         ..._getSignedDataUrls(project?.workspace.id, project?.id, payloadHash),
         onSuccess: (data) => {
           // replace project state
-          console.log({properties});
+          // console.log({properties});
           // setProject(
           //   produce((draft: any) => {
           //     // set axes and filters
