@@ -5,7 +5,6 @@ const generateSegment = (name: string, prop: webTypes.Property) => {
   switch (prop.dataType) {
     case fileIngestionTypes.constants.FIELD_TYPE.NUMBER:
       const {min, max} = prop.filter as unknown as webTypes.INumbericFilter;
-      console.log({min, max, name, prop});
       if (min === 0 && max === 0) {
         return '';
       } else {
@@ -16,7 +15,6 @@ const generateSegment = (name: string, prop: webTypes.Property) => {
       if (keywords && keywords.length === 0) {
         return '';
       } else {
-        console.log({keywords});
         const formatted = keywords
           .map((word) => {
             if (typeof word === 'string') {
@@ -27,7 +25,6 @@ const generateSegment = (name: string, prop: webTypes.Property) => {
           })
           .filter((val) => typeof val !== 'undefined');
 
-        console.log({formatted});
         if (formatted.length > 0) {
           return `${name || '-'} IN (${formatted.join(',')})`;
         } else {

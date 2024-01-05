@@ -19,7 +19,6 @@ export const RangeFilter = ({prop}) => {
   const [max, setMax] = useState(0);
 
   const updateLocalRange = useCallback((e, filterProp) => {
-    console.log({filterProp, value: e.target.value});
     if (filterProp === 'min') {
       setMin(e.target.value);
     } else {
