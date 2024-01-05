@@ -77,6 +77,7 @@ import {Session} from 'next-auth';
 
 export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
   const {project, payloadHash} = req.body;
+  console.log({project, payloadHash});
 
   if (!isValidPayload(project.state.properties)) {
     console.log('INVALID PAYLOAD');

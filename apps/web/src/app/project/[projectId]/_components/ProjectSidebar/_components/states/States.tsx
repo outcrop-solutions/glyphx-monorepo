@@ -25,6 +25,17 @@ export const States = () => {
 
   useEffect(() => {
     if (Object.keys(camera).length > 0 && image.imageHash) {
+      console.log({
+        name,
+        project,
+        camera,
+        aspectRatio: {
+          width: (viewerPosition as webTypes.IViewerPosition).w || 300,
+          height: (viewerPosition as webTypes.IViewerPosition).h || 200,
+        },
+        imageHash: image.imageHash,
+        rowIds: rowIds || [],
+      });
       api({
         ..._createState(
           name,
