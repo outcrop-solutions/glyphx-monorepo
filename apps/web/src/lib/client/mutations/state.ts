@@ -39,10 +39,23 @@ export const _createState = (
   imageHash: string,
   rowIds: string[]
 ): webTypes.IFetchConfig => {
+  const cleanProject = {
+    id: project.id,
+    workspace: {
+      id: project.workspace.id,
+    },
+    state: {
+      properties: {
+        ...project.state.properties,
+      },
+    },
+    files: project.files,
+  };
+
   return {
     url: '/api/state',
     options: {
-      body: {name: name, project: project, camera, imageHash, aspectRatio, rowIds},
+      body: {name: name, project: cleanProject, camera, imageHash, aspectRatio, rowIds},
       method: 'POST',
     },
     successMsg: 'State successfully created',
