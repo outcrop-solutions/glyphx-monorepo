@@ -58,15 +58,19 @@ export class StateService {
         fileSystem: [...project.files],
         rowIds: rowIds,
       };
+      console.log({input});
 
       const state = await mongoDbConnection.models.StateModel.createState(input);
+      console.log({state});
 
       await mongoDbConnection.models.ProjectModel.updateProjectById(project.id as string, {
         imageHash: imageHash,
         aspectRatio: aspectRatio,
       });
+      console.log('updated project by id');
 
       await mongoDbConnection.models.WorkspaceModel.addStates(workspace.id!, [state]);
+      console.log('udded states to project by id');
       await mongoDbConnection.models.ProjectModel.addStates(project.id as string, [state]);
 
       return state;
