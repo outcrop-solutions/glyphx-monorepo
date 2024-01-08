@@ -11,6 +11,7 @@ import {ChatScrollAnchor} from './chat-scroll-anchor';
 import {PromptForm} from './prompt-form';
 import {useRecoilValue} from 'recoil';
 import {windowSizeAtom} from 'state';
+import {useParams} from 'next/navigation';
 
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[];
@@ -20,11 +21,12 @@ export interface ChatProps extends React.ComponentProps<'div'> {
 export function Chat({id, initialMessages, className}: ChatProps) {
   const [isCollapsed, setCollapsed] = useState(false);
   const {height} = useRecoilValue(windowSizeAtom);
+  const params = useParams();
   const {messages, append, reload, stop, isLoading, input, setInput} = useChat({
     initialMessages,
     id,
     body: {
-      id,
+      projectId: params?.projectId,
     },
     onResponse(response) {
       if (response.status === 401) {
