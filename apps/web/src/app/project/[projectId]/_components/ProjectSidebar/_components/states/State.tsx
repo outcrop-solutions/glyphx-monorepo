@@ -54,18 +54,18 @@ export const State = ({item, idx}) => {
 
       const isNullCam = isNullCamera(camera);
 
+      // replace project state
+      console.log({properties});
+      setProject(
+        produce((draft: any) => {
+          // set axes and filters
+          draft.state.properties = properties;
+        })
+      );
+
       await api({
         ..._getSignedDataUrls(project?.workspace.id, project?.id, payloadHash),
         onSuccess: (data) => {
-          // replace project state
-          console.log({properties});
-          setProject(
-            produce((draft: any) => {
-              // set axes and filters
-              draft.state.properties = properties;
-            })
-          );
-
           if (window?.core) {
             setResize(150);
             setDrawer(true);
