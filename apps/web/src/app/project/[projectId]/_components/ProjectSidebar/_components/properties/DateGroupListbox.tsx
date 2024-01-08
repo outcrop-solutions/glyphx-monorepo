@@ -9,8 +9,10 @@ import {projectAtom} from 'state';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {dayAtom, domAtom, dowAtom, monthAtom, quarterAtom, woyAtom} from 'state';
 
-const DateGroupingListbox = ({axis}) => {
-  const [selected, setSelected] = useState(glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR.toUpperCase());
+const DateGroupingListbox = ({axis, initialState}) => {
+  const [selected, setSelected] = useState(
+    initialState ?? glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR.toUpperCase()
+  );
   const setProject = useSetRecoilState(projectAtom);
   const doy = useRecoilValue(dayAtom);
   const month = useRecoilValue(monthAtom);

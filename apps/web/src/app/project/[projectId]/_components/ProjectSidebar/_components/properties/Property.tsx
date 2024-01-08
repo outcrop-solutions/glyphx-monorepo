@@ -144,7 +144,7 @@ export const Property = ({axis}) => {
         {/* TODO: use the project docId to determine version */}
         <div className="min-w-40">
           {(axis === 'X' || axis === 'Y') && prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE && (
-            <DateGroupingListbox axis={axis} />
+            <DateGroupingListbox axis={axis} initialState={project.state.properties[axis].dateGrouping} />
           )}
         </div>
         {axis === 'Z' && <AccumulatorType axis={axis} />}
