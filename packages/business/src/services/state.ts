@@ -58,7 +58,7 @@ export class StateService {
         fileSystem: [...project.files],
         rowIds: rowIds,
       };
-      console.log({input});
+      console.log({properties: input.properties});
 
       const state = await mongoDbConnection.models.StateModel.createState(input);
       console.log({state});
