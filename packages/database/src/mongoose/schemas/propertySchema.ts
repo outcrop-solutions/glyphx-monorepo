@@ -1,5 +1,5 @@
 import {Schema} from 'mongoose';
-import {webTypes, fileIngestionTypes} from 'types';
+import {webTypes, fileIngestionTypes, glyphEngineTypes} from 'types';
 import {filterSchema} from './filterSchema';
 
 const PROPERTY_SCHEMA = new Schema({
@@ -11,6 +11,16 @@ const PROPERTY_SCHEMA = new Schema({
     required: true,
     enum: fileIngestionTypes.constants.FIELD_TYPE,
     default: fileIngestionTypes.constants.FIELD_TYPE.NUMBER,
+  },
+  accumulatorType: {
+    type: String,
+    required: false,
+    enum: glyphEngineTypes.constants.ACCUMULATOR_TYPE,
+  },
+  dateGrouping: {
+    type: String,
+    required: false,
+    enum: glyphEngineTypes.constants.DATE_GROUPING,
   },
   interpolation: {
     type: String,
