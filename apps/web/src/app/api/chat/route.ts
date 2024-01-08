@@ -12,14 +12,14 @@ const openai = new OpenAIApi(configuration);
 
 export const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 7); // 7-character random string
 
-const projectCompletion = 'testing 123';
+const projectCompletion = `Based on the data, shipper number 27 (DHL) is has the lowest average cost for shipping containers above size 35`;
 export async function POST(req: Request) {
   const json = await req.json();
   const {messages, previewToken, projectId} = json;
 
   if (projectId === process.env.PROJECT_ID) {
     // Split the hardcoded response into chunks
-    const chunkSize = 1024; // Adjust chunk size as needed
+    const chunkSize = 8; // Adjust chunk size as needed
     const chunks: string[] = [];
     for (let i = 0; i < projectCompletion.length; i += chunkSize) {
       chunks.push(projectCompletion.substring(i, i + chunkSize));
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     const stream = new ReadableStream({
       async start(controller) {
         for (const chunk of chunks) {
-          await new Promise((resolve) => setTimeout(resolve, 1000)); // Delay in milliseconds
+          await new Promise((resolve) => setTimeout(resolve, 200)); // Delay in milliseconds
           controller.enqueue(chunk);
         }
         controller.close();
