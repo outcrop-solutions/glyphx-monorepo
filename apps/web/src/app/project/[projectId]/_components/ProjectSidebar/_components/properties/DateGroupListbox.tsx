@@ -1,25 +1,26 @@
 'use client';
-import {Fragment, useCallback, useState} from 'react';
+import {Fragment, useCallback} from 'react';
 import {Listbox, Transition} from '@headlessui/react';
 import {glyphEngineTypes, webTypes} from 'types';
 import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
 import {DateGroupOptions} from './DateGroupOptions';
 import {projectAtom} from 'state';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {useRecoilState, useRecoilValue} from 'recoil';
 import {dayAtom, domAtom, dowAtom, monthAtom, quarterAtom, woyAtom} from 'state';
 
-const DateGroupingListbox = ({axis, initialState}) => {
-  const [selected, setSelected] = useState(
-    initialState ?? glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR.toUpperCase()
-  );
-  const setProject = useSetRecoilState(projectAtom);
+const DateGroupingListbox = ({axis}: {axis: webTypes.Property['axis']}) => {
+  const [project, setProject] = useRecoilState(projectAtom);
   const doy = useRecoilValue(dayAtom);
   const month = useRecoilValue(monthAtom);
   const dom = useRecoilValue(domAtom);
   const dow = useRecoilValue(dowAtom);
   const woy = useRecoilValue(woyAtom);
   const quarter = useRecoilValue(quarterAtom);
+
+  const grouping =
+    project?.state?.properties[axis].dateGrouping ||
+    glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR.replace(/_/g, ' ').toUpperCase();
 
   const handleDateGrouping = useCallback(
     (dateGrouping: glyphEngineTypes.constants.DATE_GROUPING): glyphEngineTypes.constants.DATE_GROUPING => {
@@ -78,7 +79,7 @@ const DateGroupingListbox = ({axis, initialState}) => {
 
   const changeDateGrouping = useCallback(
     (dateGrouping: glyphEngineTypes.constants.DATE_GROUPING) => {
-      const grouping = dateGrouping.replace(/ /g, '_').toLowerCase();
+      const grouping = dateGrouping.replace(/ /g, '_').toLowerCase(); // turn DAY OF YEAR => day_of_year
       const retval = handleDateGrouping(grouping as glyphEngineTypes.constants.DATE_GROUPING);
 
       setProject(
@@ -92,15 +93,15 @@ const DateGroupingListbox = ({axis, initialState}) => {
 
   return (
     <Listbox
-      value={selected}
+      value={grouping}
       onChange={(newValue) => {
-        setSelected(newValue);
+        console.log({newValue});
         changeDateGrouping(newValue as glyphEngineTypes.constants.DATE_GROUPING);
       }}
     >
       <div className="relative -mt-1">
         <Listbox.Button className="relative w-full cursor-default bg-secondary-dark-blue rounded px-4 text-center shadow-md focus:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-300">
-          <span className="block truncate text-xs">{selected.replace(/_/g, ' ')}</span>
+          <span className="block truncate text-xs">{grouping.replace(/_/g, ' ').toUpperCase()}</span>
         </Listbox.Button>
         <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
           <Listbox.Options className="absolute mt-1 max-h-60 overflow-y-auto w-full rounded bg-secondary-dark-blue py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm z-60">
@@ -112,7 +113,7 @@ const DateGroupingListbox = ({axis, initialState}) => {
               .filter(
                 (key) => !key.includes('QUALIFIED') && key !== 'MONTH_DAY_OF_MONTH' && key !== 'YEAR_DAY_OF_MONTH'
               )
-              .map((key) => key.replace(/_/g, ' '))
+              .map((key) => key.replace(/_/g, ' ').toUpperCase())
               .map((accumulator, idx) => (
                 <Listbox.Option
                   key={idx}
