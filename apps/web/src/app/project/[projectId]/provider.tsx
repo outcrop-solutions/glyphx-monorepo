@@ -4,7 +4,7 @@ import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
 import {useSetRecoilState} from 'recoil';
-import {dataGridAtom, projectAtom, rightSidebarControlAtom, templatesAtom, workspaceAtom} from 'state';
+import {dataGridAtom, projectAtom, rightSidebarControlAtom, rowIdsAtom, templatesAtom, workspaceAtom} from 'state';
 import {useSendPosition, useWindowSize} from 'services';
 import {useCloseViewerOnModalOpen} from 'services/useCloseViewerOnModalOpen';
 import {useCloseViewerOnLoading} from 'services/useCloseViewerOnLoading';
@@ -42,6 +42,7 @@ export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc
   useCloseViewerOnLoading();
 
   const setWorkspace = useSetRecoilState(workspaceAtom);
+  const setRowIds = useSetRecoilState(rowIdsAtom);
   const setProject = useSetRecoilState(projectAtom);
   const setTemplates = useSetRecoilState(templatesAtom);
   const setDataGrid = useSetRecoilState(dataGridAtom);
@@ -71,6 +72,7 @@ export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc
       });
       console.log({formattedProject});
       setProject(formattedProject);
+      setRowIds([]);
       setTemplates(templateData);
       setRightSidebarControl(
         produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
