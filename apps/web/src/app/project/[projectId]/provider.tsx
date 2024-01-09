@@ -72,7 +72,7 @@ export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc
       });
       console.log({formattedProject});
       setProject(formattedProject);
-      setRowIds([]);
+      setRowIds(false);
       setTemplates(templateData);
       setRightSidebarControl(
         produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
