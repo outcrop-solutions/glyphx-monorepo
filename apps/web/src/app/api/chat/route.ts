@@ -21,8 +21,8 @@ export async function POST(req: Request) {
   const {messages, previewToken, projectId} = json;
   const intArr = new TextEncoder().encode(projectCompletion);
 
-  // if (projectId === process.env.PROJECT_ID) {
-  if (true) {
+  if (projectId === process.env.PROJECT_ID) {
+    // if (true) {
     // Split the encoded array into chunks
     const chunkSize = 4; // Adjust chunk size as needed
     const chunks: Uint8Array[] = [];
