@@ -2,22 +2,26 @@ import {kv} from '@vercel/kv';
 import {OpenAIStream, StreamingTextResponse} from 'ai';
 import {Configuration, OpenAIApi} from 'openai-edge';
 import {customAlphabet} from 'nanoid';
-export const runtime = 'edge';
 import {defaultMessages} from 'lib/utils/systemMessages';
+
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+export const runtime = 'edge';
 
 const openai = new OpenAIApi(configuration);
 
 export const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 7); // 7-character random string
 
 const projectCompletion = `Based on the data, shipper number 27 (DHL) is has the lowest average cost for shipping containers above size 35`;
+
 export async function POST(req: Request) {
   const json = await req.json();
   const {messages, previewToken, projectId} = json;
 
-  if (projectId === process.env.PROJECT_ID) {
+  // if (projectId === process.env.PROJECT_ID) {
+  if (true) {
     // Split the hardcoded response into chunks
     const chunkSize = 8; // Adjust chunk size as needed
     const chunks: string[] = [];
@@ -29,7 +33,7 @@ export async function POST(req: Request) {
     const stream = new ReadableStream({
       async start(controller) {
         for (const chunk of chunks) {
-          await new Promise((resolve) => setTimeout(resolve, 200)); // Delay in milliseconds
+          // await new Promise((resolve) => setTimeout(resolve, 200)); // Delay in milliseconds
           controller.enqueue(chunk);
         }
         controller.close();
