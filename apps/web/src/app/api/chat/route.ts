@@ -19,21 +19,24 @@ const projectCompletion = `Based on the data, shipper number 27 (DHL) is has the
 export async function POST(req: Request) {
   const json = await req.json();
   const {messages, previewToken, projectId} = json;
+  const intArr = new TextEncoder().encode(projectCompletion);
 
   // if (projectId === process.env.PROJECT_ID) {
   if (true) {
-    // Split the hardcoded response into chunks
-    const chunkSize = 8; // Adjust chunk size as needed
-    const chunks: string[] = [];
-    for (let i = 0; i < projectCompletion.length; i += chunkSize) {
-      chunks.push(projectCompletion.substring(i, i + chunkSize));
+    // Split the encoded array into chunks
+    const chunkSize = 4; // Adjust chunk size as needed
+    const chunks: Uint8Array[] = [];
+    for (let i = 0; i < intArr.length; i += chunkSize) {
+      const chunk = intArr.slice(i, i + chunkSize);
+      chunks.push(chunk);
     }
 
     // Create a ReadableStream for streaming the chunks
     const stream = new ReadableStream({
       async start(controller) {
         for (const chunk of chunks) {
-          // await new Promise((resolve) => setTimeout(resolve, 200)); // Delay in milliseconds
+          // Enqueue Uint8Array chunks directly
+          await new Promise((resolve) => setTimeout(resolve, 100)); // Delay in milliseconds
           controller.enqueue(chunk);
         }
         controller.close();
