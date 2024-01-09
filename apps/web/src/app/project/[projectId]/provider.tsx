@@ -90,6 +90,7 @@ export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc
     templateData,
     project,
     isLoading,
+    setRowIds,
   ]);
 
   return enabled ? (
