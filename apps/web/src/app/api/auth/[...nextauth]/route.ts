@@ -27,7 +27,7 @@ export const authOptions: NextAuthOptions = {
           ...userInfo,
           image: user.image as string | undefined,
           color: '#444444',
-          projectIds: userInfo.projects.map((proj) => proj.id as string) ?? [],
+          projectIds: userInfo.projects?.map((proj) => proj.id as string) ?? [],
         };
         session.user = newUser;
       }
