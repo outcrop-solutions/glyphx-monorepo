@@ -1,3 +1,4 @@
+'use client';
 import {useState} from 'react';
 import {ChevronDownIcon, ChevronRightIcon} from '@heroicons/react/solid';
 import {Disclosure} from '@headlessui/react';

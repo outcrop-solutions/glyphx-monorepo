@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';

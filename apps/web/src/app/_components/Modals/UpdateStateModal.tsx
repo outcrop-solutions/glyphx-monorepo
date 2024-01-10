@@ -1,3 +1,4 @@
+'use client';
 import React, {useState} from 'react';
 import Button from 'app/_components/Button';
 import produce from 'immer';

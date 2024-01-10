@@ -1,5 +1,5 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
-import type {Session} from 'next-auth';
+import {type Session} from 'next-auth';
 import {projectService, activityLogService} from 'business';
 import {databaseTypes} from 'types';
 import {formatUserAgent} from 'lib/utils';

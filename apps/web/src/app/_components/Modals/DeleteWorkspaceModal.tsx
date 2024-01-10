@@ -1,3 +1,4 @@
+'use client';
 import React, {useState} from 'react';
 import {useRouter, useParams} from 'next/navigation';
 import {webTypes} from 'types';
