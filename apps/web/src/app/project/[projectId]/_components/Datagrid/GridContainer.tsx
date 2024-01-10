@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {useRecoilValue} from 'recoil';
 import {MainDropzone} from '../ProjectSidebar/_components/files';
 import {Datagrid} from './DataGrid';
-import {GridHeader} from './GridHeader';
+import {GridHeader} from './GridHeader.1';
 import {ModelFooter} from './ModelFooter';
 
 import {filesOpenSelector} from 'state/files';
@@ -59,7 +59,7 @@ export const GridContainer = () => {
           <div className="flex flex-col w-full h-full">
             {openFiles?.length > 0 ? (
               <>
-                <GridHeader data={data} />
+                <GridHeader />
                 <Datagrid data={data} />
               </>
             ) : (

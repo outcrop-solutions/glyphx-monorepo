@@ -22,7 +22,7 @@ export const GridHeader = () => {
         window?.core?.SendCsv(csv);
       },
     });
-  }, [gridPayload.tableName, project.id, project.workspace.id, rowIds]);
+  }, []);
 
   return (
     <div className="bg-secondary-space-blue h-8 border-b border-gray text-white text-xs flex flex-shrink-0 items-center justify-between">

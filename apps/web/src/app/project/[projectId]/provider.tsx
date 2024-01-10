@@ -4,7 +4,15 @@ import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
 import {useSetRecoilState} from 'recoil';
-import {dataGridAtom, projectAtom, rightSidebarControlAtom, rowIdsAtom, templatesAtom, workspaceAtom} from 'state';
+import {
+  dataGridAtom,
+  projectAtom,
+  projectSegmentAtom,
+  rightSidebarControlAtom,
+  rowIdsAtom,
+  templatesAtom,
+  workspaceAtom,
+} from 'state';
 import {useSendPosition, useWindowSize} from 'services';
 import {useCloseViewerOnModalOpen} from 'services/useCloseViewerOnModalOpen';
 import {useCloseViewerOnLoading} from 'services/useCloseViewerOnLoading';
@@ -44,6 +52,7 @@ export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc
   const setWorkspace = useSetRecoilState(workspaceAtom);
   const setRowIds = useSetRecoilState(rowIdsAtom);
   const setProject = useSetRecoilState(projectAtom);
+  const setTab = useSetRecoilState(projectSegmentAtom);
   const setTemplates = useSetRecoilState(templatesAtom);
   const setDataGrid = useSetRecoilState(dataGridAtom);
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
@@ -70,8 +79,8 @@ export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc
           }
         }
       });
-      console.log({formattedProject});
       setProject(formattedProject);
+      setTab('FILES');
       setRowIds(false);
       setTemplates(templateData);
       setRightSidebarControl(
@@ -91,6 +100,7 @@ export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc
     project,
     isLoading,
     setRowIds,
+    setTab,
   ]);
 
   return enabled ? (
