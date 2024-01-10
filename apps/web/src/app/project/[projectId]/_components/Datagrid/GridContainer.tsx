@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {useRecoilValue} from 'recoil';
 import {MainDropzone} from '../ProjectSidebar/_components/files';
 import {Datagrid} from './DataGrid';
-import {GridHeader} from './GridHeader.1';
+import {GridHeader} from './GridHeader';
 import {ModelFooter} from './ModelFooter';
 
 import {filesOpenSelector} from 'state/files';

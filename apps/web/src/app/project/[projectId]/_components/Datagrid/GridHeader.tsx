@@ -7,6 +7,7 @@ import {useCallback} from 'react';
 import {toCSV} from './to-csv';
 import {api} from 'lib';
 import {_getRowIds} from 'lib/client/mutations';
+import {DownloadIcon} from '@heroicons/react/outline';
 
 export const GridHeader = () => {
   const filesOpen = useRecoilValue(filesOpenSelector);
