@@ -269,6 +269,43 @@ impl FieldDefinition {
             _ => None,
         }
     }
+
+    pub fn get_query_parts(&self) -> (String, String) {
+      //Field_value 
+      //Field_name
+      let mut field_value = String::new();
+      let mut field_name = String::new();
+      match self {
+          FieldDefinition::Standard {
+              field_definition, ..
+          } => {
+              field_value = format!("\"{}\"", field_definition.field_name);
+              field_name = self.get_field_display_name().to_string();
+          },
+          FieldDefinition::Date {
+              field_definition, ..
+          } => {
+              field_value = format!("\"{}\"", field_definition.field_name);
+              field_name = field_definition.field_name.clone();
+          },
+          FieldDefinition::Accumulated {
+              field_definition, ..
+          } => {
+              match &field_definition.accumulated_field_definition {
+                  AccumulatedFieldDefinition::Standard(standard_field_definition) => {
+                      field_value = format!("\"{}\"", standard_field_definition.field_name);
+                      field_name = standard_field_definition.field_name.clone();
+                  },
+                  _ => {
+                      panic!("Unexpected field definition");
+                  }
+              }
+          },
+          _ => {
+              panic!("Unexpected field definition");
+          }
+      }
+    }
 }
 
 #[cfg(test)]

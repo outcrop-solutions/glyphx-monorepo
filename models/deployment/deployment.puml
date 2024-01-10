@@ -1,0 +1,81 @@
+@startuml
+!include <awslib/AWSCommon>
+!include <awslib/Analytics/Athena>
+!include <awslib/Storage/SimpleStorageService>
+!include <awslib/SecurityIdentityCompliance/SecretsManager>
+!include <awslib/Serverless/Serverless>
+!include <tupadr3/common>
+!include <tupadr3/devicons2/mongodb>
+!include <tupadr3/devicons2/mocha>
+!include <tupadr3/devicons2/nextjs_original_wordmark>
+!include <tupadr3/devicons2/nodejs>
+!include <tupadr3/devicons2/react_original_wordmark>
+!include <tupadr3/devicons2/rust>
+
+left to right direction
+
+DEV2_MONGODB(mongodb, "MongoDB", database, green)
+DEV2_NEXTJS_ORIGINAL_WORDMARK(nextjs, "NextJs", rectangle, green)
+DEV2_REACT_ORIGINAL_WORDMARK(client, "Web App", rectangle, lightblue) 
+rectangle "Vercel" as vercel 
+Serverless(serverless, "Serverless Functions", "Deployment")
+
+
+DEV2_RUST(modeling,  "Model Renderings", node, brown) {
+	rectangle "WasmBindGen" as wasm
+	rectangle "WGPU" as wgpu
+
+}
+
+node "Third Party Services" as services {
+
+	rectangle "GrowthBook" as growthbook  
+	rectangle "LiveBlocks" as liveblocks
+	rectangle "NextAuth" as nextauth
+	rectangle "VercelAI SDK" as vercelai
+	
+}
+
+node "Testing" as frontendtesting {
+
+	rectangle "Cypress" as cypress
+	rectangle "Jest" as jest
+  }
+  node "Backend" as  backend { 
+        DEV2_NODEJS(api, "API", rectangle, green)
+	DEV2_RUST(glyphengine, "glyphengine", rectangle, brown)
+	DEV2_RUST(fileingestion, "data ingestion", rectangle, brown)
+}
+
+Node "AWS" as aws {
+	SimpleStorageService(S3Bucket, "S3 Bucket", "for client and model files")
+	Athena(athena, "Athena", "Data Processing")
+	SecretsManager(secretsmanager, "Secrets Manager", "Secrets")
+
+}
+Node "Testing" as betesting {
+
+  DEV2_MOCHA(mocha, "mocha", rectangle, brown)
+  rectangle "mocking" as mocking {
+	  rectangle "mockall" as mockall 
+          rectangle "sinon" as sinon
+  }
+}
+
+
+vercel -> serverless 
+vercel --> nextjs
+nextjs --> client
+nextjs --> backend
+client --|> growthbook : Feature Flags
+client --|> liveblocks : Colaboration
+client --|> nextauth : Authentication
+client --|> vercelai : AI Integration
+client --|> modeling : In Browser Modeling
+client --|> frontendtesting
+
+wasm -> wgpu 
+backend --> betesting
+backend --|> aws
+backend --> mongodb
+@enduml
