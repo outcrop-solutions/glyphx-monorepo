@@ -4,7 +4,9 @@ import {generalPurposeFunctions as sharedFunctions} from 'core';
 import {formatGridData} from 'lib/client/files/transforms/formatGridData';
 
 export const getDataByRowId = async (req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> => {
-  const {workspaceId, projectId, tableName, rowIds, page = 1, pageSize = 50} = req.body;
+  const {workspaceId, projectId, tableName, rowIds, isExport} = req.body;
+  const page = 1;
+  const pageSize = 50;
 
   if (Array.isArray(workspaceId) || Array.isArray(projectId) || Array.isArray(tableName)) {
     res.status(400).end('Invalid Query parameter');
@@ -25,7 +27,7 @@ export const getDataByRowId = async (req: NextApiRequest, res: NextApiResponse):
       } else {
         const start = (page - 1) * pageSize;
         const end = start + pageSize;
-        const paginatedRows = formattedData.rows.slice(start, end);
+        const paginatedRows = isExport ? formattedData.rows : formattedData.rows.slice(start, end);
 
         res.status(200).json({
           data: {...formattedData, rows: paginatedRows},

@@ -1,3 +1,4 @@
+'use client';
 import React, {useCallback, useState} from 'react';
 import produce from 'immer';
 import {webTypes} from 'types';

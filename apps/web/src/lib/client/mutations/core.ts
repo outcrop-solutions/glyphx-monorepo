@@ -70,7 +70,8 @@ export const _getRowIds = (
   workspaceId: string,
   projectId: string,
   tableName: string,
-  rowIds: string[]
+  rowIds: string[],
+  isExport?: boolean
 ): webTypes.IFetchConfig => {
   return {
     url: `/api/data/rows`,
@@ -81,6 +82,7 @@ export const _getRowIds = (
         projectId: projectId,
         tableName: tableName,
         rowIds: rowIds,
+        isExport: isExport || false,
       },
     },
     successMsg: 'Rows successfully selected',

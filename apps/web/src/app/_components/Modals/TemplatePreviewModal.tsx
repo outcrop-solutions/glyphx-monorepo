@@ -1,3 +1,4 @@
+'use client';
 import React, {useCallback, useState} from 'react';
 import Button from 'app/_components/Button';
 import {_createProjectFromTemplate, api} from 'lib';

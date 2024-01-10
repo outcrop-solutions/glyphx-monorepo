@@ -1,3 +1,4 @@
+'use client';
 import React, {useCallback, useState} from 'react';
 import {webTypes} from 'types';
 import {_createProjectFromTemplate, api} from 'lib';

@@ -59,7 +59,7 @@ export const GridContainer = () => {
           <div className="flex flex-col w-full h-full">
             {openFiles?.length > 0 ? (
               <>
-                <GridHeader data={data} />
+                <GridHeader />
                 <Datagrid data={data} />
               </>
             ) : (
