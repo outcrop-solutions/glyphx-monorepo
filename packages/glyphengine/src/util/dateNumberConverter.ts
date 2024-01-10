@@ -58,6 +58,14 @@ export default function dateNumberConvert(input: number, dateType: glyphEngineTy
     case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_QUARTER:
       retval = `${stringValue.substring(0, 4)}-${stringValue.substring(4, 5)}`;
       break;
+
+    case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_WEEK_OF_YEAR:
+      retval = `${stringValue.substring(0, 4)}-${stringValue.substring(4, 6)}`;
+      break;
+    case glyphEngineTypes.constants.DATE_GROUPING.WEEK_OF_YEAR:
+      retval = stringValue;
+      break;
+
     case glyphEngineTypes.constants.DATE_GROUPING.QUARTER:
       retval = stringValue;
       break;

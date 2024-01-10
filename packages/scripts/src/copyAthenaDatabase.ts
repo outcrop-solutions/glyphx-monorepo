@@ -41,13 +41,13 @@ async function run() {
         let file = project.files[j];
         let tableName = core.generalPurposeFunctions.fileIngestion.getFullTableName(
           project?.workspace?._id?.toString() ?? '',
-          project._id?.toString() ?? '',
-          file.tableName
-        );
-        console.log(`Table name : ${tableName}`);
-        if (!(await sourceAthenaManager.tableExists(tableName))) continue;
+         project._id?.toString() ?? '',
+         file.tableName
+       );
+       console.log(`Table name : ${tableName}`);
+       if (!(await sourceAthenaManager.tableExists(tableName))) continue;
 
-        const tableDefinition = await sourceAthenaManager.runQuery(`SHOW CREATE TABLE \`${tableName}\``, 60, true);
+       const tableDefinition = await sourceAthenaManager.runQuery(`SHOW CREATE TABLE \`${tableName}\``, 60, true);
 
         if (!(await copyS3Files(sourceS3Manager, SOURCE_S3_BUCKET_NAME, TARGET_S3_BUCKET_NAME, tableDefinition)))
           continue;
@@ -135,13 +135,13 @@ async function processFiles(
         Bucket: targetBucket,
         CopySource: `${sourceBucket}/${fileName}`,
         Key: fileName,
-      });
-    } catch (err) {
-      result = false;
-      console.log(`Error copying file ${fileName} : ${err}`);
-    }
-    if (!result) break;
-  }
+     });
+   } catch (err) {
+     result = false;
+     console.log(`Error copying file ${fileName} : ${err}`);
+   }
+   if (!result) break;
+ }
 
   return result;
 }

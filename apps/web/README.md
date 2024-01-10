@@ -12,13 +12,13 @@ import { GrowthBook } from "@growthbook/growthbook";
 const growthbook = new GrowthBook({
   apiHost: "...",
   clientKey: "...",
-  enableDevMode: true,
-  trackingCallback: (experiment, result) => {
-    // TODO: Use your real analytics tracking system
-    console.log("Viewed Experiment", {
-      experimentId: experiment.key,
-      variationId: result.key,
-    });
+ enableDevMode: true,
+ trackingCallback: (experiment, result) => {
+   // TODO: Use your real analytics tracking system
+   console.log("Viewed Experiment", {
+     experimentId: experiment.key,
+     variationId: result.key,
+   });
   },
 });
 
@@ -51,13 +51,13 @@ import { useEffect } from "react";
 const growthbook = new GrowthBook({
   apiHost: "http://localhost:3100",
   clientKey: "sdk-DxCjpOJmwJaWck",
-  enableDevMode: true,
-  trackingCallback: (experiment, result) => {
-    // TODO: Use your real analytics tracking system
-    console.log("Viewed Experiment", {
-      experimentId: experiment.key,
-      variationId: result.key,
-    });
+ enableDevMode: true,
+ trackingCallback: (experiment, result) => {
+   // TODO: Use your real analytics tracking system
+   console.log("Viewed Experiment", {
+     experimentId: experiment.key,
+     variationId: result.key,
+   });
   },
 });
 

@@ -3,6 +3,7 @@ import {IGlyph, IInputField, IProperty} from '../interfaces';
 import {SdtParser, IInputFields} from './sdtParser';
 import {linearInterpolation, logaritmicInterpolation, convertRgbToHsv, convertHsvToRgb} from '../util';
 import {FUNCTION, SHAPE, TYPE} from '../constants';
+import dateNumberConverter from '../util/dateNumberConverter';
 
 export class GlyphStream extends Transform {
   private sdtParser: SdtParser;
@@ -61,9 +62,11 @@ export class GlyphStream extends Transform {
     let retval = '';
 
     const inputFields = this.sdtParser.getInputFields();
-    const {fieldName: xFieldName, value: xValue} = this.getField('x', chunk, inputFields);
-    const {fieldName: yFieldName, value: yValue} = this.getField('y', chunk, inputFields);
-    const {fieldName: zFieldName, value: zValue} = this.getField('z', chunk, inputFields);
+    let {fieldName: xFieldName, value: xValue} = this.getField('x', chunk, inputFields);
+    let {fieldName: yFieldName, value: yValue} = this.getField('y', chunk, inputFields);
+    let {fieldName: zFieldName, value: zValue} = this.getField('z', chunk, inputFields);
+    //Change the field name to identify how the date is parsed.
+
     //Row ids should always be ints, so let's send them across the wire
     //as such
     const rowIdValues = chunk['rowids'] as string;
@@ -78,35 +81,27 @@ export class GlyphStream extends Transform {
 
     //to try and restrict the amount of data that we are sending across the wire
     //we will  send the field name and the data as a sting in the format {x : {filedName: value}}
-    // outObj.x[xFieldName] = xValue;
-    // outObj.y[yFieldName] = yValue;
-    // outObj.z[zFieldName] = zValue;
-
-    // //make it a string so it is easier to pass
-    // retval = JSON.stringify(outObj);
-    // return retval;
-
-    //to try and restrict the amount of data that we are sending across the wire
-    //we will  send the field name and the data as a sting in the format {x : {filedName: value}}
-    outObj.x[xFieldName] = !this.sdtParser.isXDate ? xValue : new Date(xValue);
-    outObj.y[yFieldName] = !this.sdtParser.isYDate ? yValue : new Date(yValue);
-    outObj.z[zFieldName] = !this.sdtParser.isZDate ? zValue : new Date(zValue);
+    outObj.x[xFieldName] = xValue;
+    outObj.y[yFieldName] = yValue;
+    outObj.z[zFieldName] = zValue;
 
     //make it a string so it is easier to pass
     retval = JSON.stringify(outObj);
+    console.log(outObj);
     return retval;
   }
 
   private getField(field: string, chunk: Record<string, unknown>, inputFields: IInputFields) {
     const fieldName = this.sdtParser.getInputFields()[field].field;
+    const dateType = field === 'x' ? this.sdtParser.xDateGrouping : this.sdtParser.yDateGrouping;
+    const fieldConfig = this.sdtParser.getInputFields()[field];
     let value = '';
     const chunkValue = chunk[fieldName];
-
     if (chunkValue !== null && chunkValue !== undefined) {
       value =
-        inputFields[field].type !== TYPE.DATE
+        inputFields[field].type !== TYPE.DATE || field === 'z'
           ? (chunkValue as any).toString()
-          : new Date(chunkValue as number).toISOString();
+          : `${dateType.replace('_', ' ').toUpperCase()}(${dateNumberConverter(chunkValue as number, dateType)})`;
     }
 
     return {fieldName: fieldName, value: value};

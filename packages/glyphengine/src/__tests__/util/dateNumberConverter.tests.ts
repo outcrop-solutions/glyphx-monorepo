@@ -131,4 +131,20 @@ describe('dateNumberConverter', () => {
     let actual = dateNumberConverter(value, dateType);
     assert.equal(actual, expected);
   });
+
+  it('will convert a qualified week of year', () => {
+    let value = 202402;
+    let dateType = glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_WEEK_OF_YEAR;
+    let expected = '2024-02';
+    let actual = dateNumberConverter(value, dateType);
+    assert.equal(actual, expected);
+  });
+
+  it('will convert a  week of year', () => {
+    let value = 2;
+    let dateType = glyphEngineTypes.constants.DATE_GROUPING.WEEK_OF_YEAR;
+    let expected = '2';
+    let actual = dateNumberConverter(value, dateType);
+    assert.equal(actual, expected);
+  });
 });

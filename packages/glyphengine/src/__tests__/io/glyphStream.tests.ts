@@ -11,6 +11,8 @@ import {Readable, Writable} from 'stream';
 import {pipeline} from 'stream/promises';
 import {IGlyph} from '../../interfaces/iGlyph';
 import {aws} from 'core';
+import {glyphEngineTypes} from 'types';
+import dateNumberConvert from '../../util/dateNumberConverter';
 
 describe('#io/GlyphStream', () => {
   const mockInputData = new Map<string, string>([
@@ -30,31 +32,31 @@ describe('#io/GlyphStream', () => {
   ]);
 
   const mockData = [
-    {rowids: '1', columnx: 'a', columny: new Date().getTime(), columnz: 1},
-    {rowids: '2', columnx: 'b', columny: new Date().getTime(), columnz: 2},
-    {rowids: '3', columnx: 'c', columny: new Date().getTime(), columnz: 3},
-    {rowids: '4', columnx: 'd', columny: new Date().getTime(), columnz: 4},
-    {rowids: '5', columnx: 'e', columny: new Date().getTime(), columnz: 5},
-    {rowids: '6', columnx: 'f', columny: new Date().getTime(), columnz: 6},
-    {rowids: '7', columnx: 'g', columny: new Date().getTime(), columnz: 7},
-    {rowids: '8', columnx: 'h', columny: new Date().getTime(), columnz: 8},
-    {rowids: '9', columnx: 'i', columny: new Date().getTime(), columnz: 9},
-    {rowids: '10', columnx: 'j', columny: new Date().getTime(), columnz: 10},
-    {rowids: '11', columnx: 'k', columny: new Date().getTime(), columnz: 11},
-    {rowids: '12', columnx: 'l', columny: new Date().getTime(), columnz: 12},
-    {rowids: '13', columnx: 'm', columny: new Date().getTime(), columnz: 13},
-    {rowids: '14', columnx: 'n', columny: new Date().getTime(), columnz: 14},
-    {rowids: '15', columnx: 'o', columny: new Date().getTime(), columnz: 15},
-    {rowids: '16', columnx: 'p', columny: new Date().getTime(), columnz: 16},
-    {rowids: '17', columnx: 'q', columny: new Date().getTime(), columnz: 17},
-    {rowids: '18', columnx: 'r', columny: new Date().getTime(), columnz: 18},
-    {rowids: '19|28', columnx: 's', columny: new Date().getTime(), columnz: 19},
-    {rowids: '20', columnx: 't', columny: new Date().getTime(), columnz: 20},
-    {rowids: '21', columnx: 'u', columny: new Date().getTime(), columnz: 21},
-    {rowids: '22', columnx: 'v', columny: new Date().getTime(), columnz: 22},
-    {rowids: '23', columnx: 'w', columny: new Date().getTime(), columnz: 23},
-    {rowids: '24|27', columnx: 'x', columny: new Date().getTime(), columnz: 24},
-    {rowids: '25|26', columnx: 'y', columny: new Date().getTime(), columnz: 25},
+    {rowids: '1', columnx: 'a', columny: 20240110, columnz: 1},
+    {rowids: '2', columnx: 'b', columny: 20240110, columnz: 2},
+    {rowids: '3', columnx: 'c', columny: 20240110, columnz: 3},
+    {rowids: '4', columnx: 'd', columny: 20240110, columnz: 4},
+    {rowids: '5', columnx: 'e', columny: 20240110, columnz: 5},
+    {rowids: '6', columnx: 'f', columny: 20240110, columnz: 6},
+    {rowids: '7', columnx: 'g', columny: 20240110, columnz: 7},
+    {rowids: '8', columnx: 'h', columny: 20240110, columnz: 8},
+    {rowids: '9', columnx: 'i', columny: 20240110, columnz: 9},
+    {rowids: '10', columnx: 'j', columny: 20240110, columnz: 10},
+    {rowids: '11', columnx: 'k', columny: 20240110, columnz: 11},
+    {rowids: '12', columnx: 'l', columny: 20240110, columnz: 12},
+    {rowids: '13', columnx: 'm', columny: 20240110, columnz: 13},
+    {rowids: '14', columnx: 'n', columny: 20240110, columnz: 14},
+    {rowids: '15', columnx: 'o', columny: 20240110, columnz: 15},
+    {rowids: '16', columnx: 'p', columny: 20240110, columnz: 16},
+    {rowids: '17', columnx: 'q', columny: 20240110, columnz: 17},
+    {rowids: '18', columnx: 'r', columny: 20240110, columnz: 18},
+    {rowids: '19|28', columnx: 's', columny: 20240110, columnz: 19},
+    {rowids: '20', columnx: 't', columny: 20240110, columnz: 20},
+    {rowids: '21', columnx: 'u', columny: 20240110, columnz: 21},
+    {rowids: '22', columnx: 'v', columny: 20240110, columnz: 22},
+    {rowids: '23', columnx: 'w', columny: 20240110, columnz: 23},
+    {rowids: '24|27', columnx: 'x', columny: 20240110, columnz: 24},
+    {rowids: '25|26', columnx: 'y', columny: 20240110, columnz: 25},
   ];
 
   const mockMinMaxData = {
@@ -133,7 +135,17 @@ describe('#io/GlyphStream', () => {
 
     sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => mockMinMaxData);
 
-    const initialParser = new SdtParser(false, false, false, 'xCol', 'yCol', 'zCol', 'zCol');
+    const initialParser = new SdtParser(
+      false,
+      glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+      true,
+      glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+      false,
+      'xCol',
+      'yCol',
+      'zCol',
+      'zCol'
+    );
     sdtParser = (await initialParser.parseSdtString(stringSdt, 'viewName', mockInputData, athenaManager)) as any;
   });
 
@@ -184,7 +196,10 @@ describe('#io/GlyphStream', () => {
 
           const expectedRowId = mockData[rowId].rowids.split('|');
           const expectedX = mockData[rowId].columnx;
-          const expectedY = new Date(mockData[rowId].columny).toISOString();
+          const expectedY = dateNumberConvert(
+            mockData[rowId].columny,
+            glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH
+          );
           const expectedZ = mockData[rowId].columnz;
 
           const desc = JSON.parse(chunk.desc);
@@ -193,7 +208,7 @@ describe('#io/GlyphStream', () => {
             assert.strictEqual(r, parseInt(expectedRowId[index]));
           });
           assert.strictEqual(desc.x.columnx, expectedX.toString());
-          assert.strictEqual(desc.y.columny, expectedY.toString());
+          assert.strictEqual(desc.y['columny(qualified day of month)'], expectedY.toString());
           assert.strictEqual(desc.z.columnz, expectedZ.toString());
 
           assert.strictEqual(chunk.tag, `columnz: ${expectedZ}`);

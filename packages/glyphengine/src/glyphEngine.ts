@@ -193,10 +193,22 @@ export class GlyphEngine {
       const sdtFileName = `${prefix}/${payloadHash}.sdt`;
       await this.outputBucketField.putObject(sdtFileName, template);
 
-      const {xCol, yCol, zCol, isXDate, isYDate, isZDate, zColName} = this.formatCols(data);
-      const initialParser = new SdtParser(isXDate, isYDate, isZDate, xCol, yCol, zCol, zColName);
-      const sdtParser = await initialParser.parseSdtString(template, viewName, data, this.athenaManager);
+      const {xCol, yCol, zCol, isXDate, xDateGrouping, isYDate, yDateGrouping, isZDate, zColName} =
+        this.formatCols(data);
 
+      const initialParser = new SdtParser(
+        isXDate,
+        xDateGrouping,
+        isYDate,
+        yDateGrouping,
+        isZDate,
+        xCol,
+        yCol,
+        zCol,
+        zColName
+      );
+      const sdtParser = await initialParser.parseSdtString(template, viewName, data, this.athenaManager);
+      console.log({sdtParser});
       await processTrackingService.addProcessMessage(
         this.processId,
         `Waiting for the query to complete: ${new Date()}`
@@ -280,7 +292,9 @@ export class GlyphEngine {
 
   private formatCols(data: Map<string, string>): {
     isXDate: boolean;
+    xDateGrouping: glyphEngineTypes.constants.DATE_GROUPING;
     isYDate: boolean;
+    yDateGrouping: glyphEngineTypes.constants.DATE_GROUPING;
     isZDate: boolean;
     xCol: string;
     yCol: string;
@@ -316,7 +330,9 @@ export class GlyphEngine {
       GlyphEngine.getAccumulatorFunction(isZDate, zAccumulatorType);
     return {
       isXDate,
+      xDateGrouping,
       isYDate,
+      yDateGrouping,
       isZDate,
       xCol: groupByXColumn,
       yCol: groupByYColumn,

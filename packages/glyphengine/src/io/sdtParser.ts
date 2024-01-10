@@ -5,6 +5,7 @@ import {MinMaxCalculator} from './minMaxCalulator';
 import {TextColumnToNumberConverter} from './textToNumberConverter';
 import {aws} from 'core';
 import {ISdtDocument} from 'interfaces/sdt';
+import {glyphEngineTypes} from 'types';
 
 export interface IInputFields {
   x: IInputField;
@@ -23,13 +24,17 @@ export class SdtParser {
   private yCol: string;
   private zCol: string;
   public isXDate: boolean;
+  public xDateGrouping: glyphEngineTypes.constants.DATE_GROUPING;
   public isYDate: boolean;
+  public yDateGrouping: glyphEngineTypes.constants.DATE_GROUPING;
   public isZDate: boolean;
   private zColName: string;
 
   constructor(
     isXDate: boolean,
+    xDateGrouping: glyphEngineTypes.constants.DATE_GROUPING,
     isYDate: boolean,
+    yDateGrouping: glyphEngineTypes.constants.DATE_GROUPING,
     isZDate: boolean,
     xCol: string,
     yCol: string,
@@ -44,7 +49,9 @@ export class SdtParser {
     this.yCol = yCol;
     this.zCol = zCol;
     this.isXDate = isXDate;
+    this.xDateGrouping = xDateGrouping;
     this.isYDate = isYDate;
+    this.yDateGrouping = yDateGrouping;
     this.isZDate = isZDate;
     this.zColName = zColName;
     this.sdtAsJson = parsedDocument;
@@ -149,7 +156,9 @@ export class SdtParser {
 
     const sdtParser = new SdtParser(
       this.isXDate,
+      this.xDateGrouping,
       this.isYDate,
+      this.yDateGrouping,
       this.isZDate,
       this.xCol,
       this.yCol,
@@ -194,8 +203,8 @@ export class SdtParser {
       subProperty.Function['@_type'] === 'Text Interpolation'
         ? FUNCTION.TEXT_INTERPOLATION
         : subProperty.Function['@_type'] === 'Linear Interpolation'
-        ? FUNCTION.LINEAR_INTERPOLATION
-        : FUNCTION.LOGARITHMIC_INTERPOLATION;
+          ? FUNCTION.LINEAR_INTERPOLATION
+          : FUNCTION.LOGARITHMIC_INTERPOLATION;
 
     if (axis === 'RGB') {
       const minRgb = this.parseRgb(subProperty.Min);

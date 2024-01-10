@@ -21,6 +21,8 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
         zColName: zColumn,
       }) as any;
       assert.strictEqual(queryRunner.viewName, viewName);
@@ -53,6 +55,8 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
         zColName: zColumn,
       }) as any;
       const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
@@ -74,6 +78,8 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
         zColName: zColumn,
       }) as any;
       const initStub = sandbox.stub(queryRunner.athenaManager, 'init').resolves();
@@ -97,6 +103,8 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
         zColName: zColumn,
       }) as any;
       const initStub = sandbox.stub(queryRunner.athenaManager, 'init').rejects(err);
@@ -136,6 +144,8 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
         zColName: zColumn,
       }) as any;
 
@@ -179,6 +189,8 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
         zColName: zColumn,
       }) as any;
 
@@ -220,6 +232,8 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
         zColName: zColumn,
         filter,
       }) as any;
@@ -261,6 +275,8 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
         zColName: zColumn,
       }) as any;
 
@@ -300,6 +316,8 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
         zColName: zColumn,
       }) as any;
 
@@ -336,6 +354,8 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
         zColName: zColumn,
       }) as any;
 
@@ -377,6 +397,8 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
         zColName: zColumn,
       }) as any;
 
@@ -417,6 +439,8 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
         zColName: zColumn,
       }) as any;
 
@@ -453,6 +477,8 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
         zColName: zColumn,
       }) as any;
 
@@ -489,6 +515,8 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
         zColName: zColumn,
       }) as any;
 
@@ -521,6 +549,8 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
         zColName: zColumn,
       }) as any;
 
