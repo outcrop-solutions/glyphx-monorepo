@@ -208,7 +208,6 @@ export class GlyphEngine {
         zColName
       );
       const sdtParser = await initialParser.parseSdtString(template, viewName, data, this.athenaManager);
-      console.log({sdtParser});
       await processTrackingService.addProcessMessage(
         this.processId,
         `Waiting for the query to complete: ${new Date()}`

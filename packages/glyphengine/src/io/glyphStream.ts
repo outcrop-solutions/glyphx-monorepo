@@ -49,7 +49,6 @@ export class GlyphStream extends Transform {
       url: '',
       desc: desc,
     };
-
     this.push(glyph);
     callback();
   }
@@ -87,21 +86,26 @@ export class GlyphStream extends Transform {
 
     //make it a string so it is easier to pass
     retval = JSON.stringify(outObj);
-    console.log(outObj);
     return retval;
   }
 
   private getField(field: string, chunk: Record<string, unknown>, inputFields: IInputFields) {
     const fieldName = this.sdtParser.getInputFields()[field].field;
+    let tempFieldName = fieldName;
+    if (field === 'x') {
+      tempFieldName = `x_${fieldName}`;
+    } else if (field === 'y') {
+      tempFieldName = `y_${fieldName}`;
+    }
     const dateType = field === 'x' ? this.sdtParser.xDateGrouping : this.sdtParser.yDateGrouping;
     const fieldConfig = this.sdtParser.getInputFields()[field];
     let value = '';
-    const chunkValue = chunk[fieldName];
+    const chunkValue = chunk[tempFieldName];
     if (chunkValue !== null && chunkValue !== undefined) {
       value =
         inputFields[field].type !== TYPE.DATE || field === 'z'
           ? (chunkValue as any).toString()
-          : `${dateType.replace('_', ' ').toUpperCase()}(${dateNumberConverter(chunkValue as number, dateType)})`;
+          : `${dateType.replaceAll('_', ' ').toUpperCase()}(${dateNumberConverter(chunkValue as number, dateType)})`;
     }
 
     return {fieldName: fieldName, value: value};
@@ -115,7 +119,13 @@ export class GlyphStream extends Transform {
   }
 
   private getValue(field: 'X' | 'Y' | 'Z', inputField: IInputField, values: Record<string, unknown>): number {
-    let value = values[inputField.field] as number;
+    let fieldName = inputField.field;
+    if (field === 'X') {
+      fieldName = `x_${fieldName}`;
+    } else if (field === 'Y') {
+      fieldName = `y_${fieldName}`;
+    }
+    let value = values[fieldName] as number;
 
     if (typeof value === 'string') {
       value = inputField.text_to_num?.convert(value) as number;

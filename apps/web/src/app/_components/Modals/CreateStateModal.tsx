@@ -46,7 +46,6 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
         image.imageHash,
         rowIds ? rowIds : []
       );
-      console.log({retval});
 
       api({
         ..._createState(
