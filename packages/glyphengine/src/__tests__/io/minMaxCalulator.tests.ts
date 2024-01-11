@@ -27,12 +27,12 @@ describe('#io/minMaxCalculator', () => {
   const filter = 'col1 >= 0';
 
   const minMaxRow: Record<string, string | number> = {};
-  minMaxRow[`min${xColumn}`] = 0;
-  minMaxRow[`max${xColumn}`] = 100;
-  minMaxRow[`min${yColumn}`] = 0;
-  minMaxRow[`max${yColumn}`] = 100;
-  minMaxRow[`min${zColumn}`] = 'a';
-  minMaxRow[`max${zColumn}`] = 'z';
+  minMaxRow[`min_x_${xColumn}`] = 0;
+  minMaxRow[`max_x_${xColumn}`] = 100;
+  minMaxRow[`min_y_${yColumn}`] = 0;
+  minMaxRow[`max_y_${yColumn}`] = 100;
+  minMaxRow[`min_z_${zColumn}`] = 'a';
+  minMaxRow[`max_z_${zColumn}`] = 'z';
 
   const minMaxData = [minMaxRow];
 
@@ -84,15 +84,16 @@ describe('#io/minMaxCalculator', () => {
       await minMaxCalculator.load();
 
       const minMax = minMaxCalculator.minMax;
+      console.log({minMax});
       assert.strictEqual(minMax.x.columnName, xColumn);
-      assert.strictEqual(minMax.x.min, minMaxRow[`min${xColumn}`]);
-      assert.strictEqual(minMax.x.max, minMaxRow[`max${xColumn}`]);
+      assert.strictEqual(minMax.x.min, minMaxRow[`min_x_${xColumn}`]);
+      assert.strictEqual(minMax.x.max, minMaxRow[`max_x_${xColumn}`]);
       assert.strictEqual(minMax.y.columnName, yColumn);
-      assert.strictEqual(minMax.y.min, minMaxRow[`min${yColumn}`]);
-      assert.strictEqual(minMax.y.max, minMaxRow[`max${yColumn}`]);
+      assert.strictEqual(minMax.y.min, minMaxRow[`min_y_${yColumn}`]);
+      assert.strictEqual(minMax.y.max, minMaxRow[`max_y_${yColumn}`]);
       assert.strictEqual(minMax.z.columnName, zColumn);
-      assert.strictEqual(minMax.z.min, minMaxRow[`min${zColumn}`]);
-      assert.strictEqual(minMax.z.max, minMaxRow[`max${zColumn}`]);
+      assert.strictEqual(minMax.z.min, minMaxRow[`min_z_${zColumn}`]);
+      assert.strictEqual(minMax.z.max, minMaxRow[`max_z_${zColumn}`]);
     });
 
     it('will pass through an error thrown from the underlying client', async () => {

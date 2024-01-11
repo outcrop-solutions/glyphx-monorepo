@@ -32,31 +32,31 @@ describe('#io/GlyphStream', () => {
   ]);
 
   const mockData = [
-    {rowids: '1', columnx: 'a', columny: 20240110, columnz: 1},
-    {rowids: '2', columnx: 'b', columny: 20240110, columnz: 2},
-    {rowids: '3', columnx: 'c', columny: 20240110, columnz: 3},
-    {rowids: '4', columnx: 'd', columny: 20240110, columnz: 4},
-    {rowids: '5', columnx: 'e', columny: 20240110, columnz: 5},
-    {rowids: '6', columnx: 'f', columny: 20240110, columnz: 6},
-    {rowids: '7', columnx: 'g', columny: 20240110, columnz: 7},
-    {rowids: '8', columnx: 'h', columny: 20240110, columnz: 8},
-    {rowids: '9', columnx: 'i', columny: 20240110, columnz: 9},
-    {rowids: '10', columnx: 'j', columny: 20240110, columnz: 10},
-    {rowids: '11', columnx: 'k', columny: 20240110, columnz: 11},
-    {rowids: '12', columnx: 'l', columny: 20240110, columnz: 12},
-    {rowids: '13', columnx: 'm', columny: 20240110, columnz: 13},
-    {rowids: '14', columnx: 'n', columny: 20240110, columnz: 14},
-    {rowids: '15', columnx: 'o', columny: 20240110, columnz: 15},
-    {rowids: '16', columnx: 'p', columny: 20240110, columnz: 16},
-    {rowids: '17', columnx: 'q', columny: 20240110, columnz: 17},
-    {rowids: '18', columnx: 'r', columny: 20240110, columnz: 18},
-    {rowids: '19|28', columnx: 's', columny: 20240110, columnz: 19},
-    {rowids: '20', columnx: 't', columny: 20240110, columnz: 20},
-    {rowids: '21', columnx: 'u', columny: 20240110, columnz: 21},
-    {rowids: '22', columnx: 'v', columny: 20240110, columnz: 22},
-    {rowids: '23', columnx: 'w', columny: 20240110, columnz: 23},
-    {rowids: '24|27', columnx: 'x', columny: 20240110, columnz: 24},
-    {rowids: '25|26', columnx: 'y', columny: 20240110, columnz: 25},
+    {rowids: '1', x_columnx: 'a', y_columny: 20240110, columnz: 1},
+    {rowids: '2', x_columnx: 'b', y_columny: 20240110, columnz: 2},
+    {rowids: '3', x_columnx: 'c', y_columny: 20240110, columnz: 3},
+    {rowids: '4', x_columnx: 'd', y_columny: 20240110, columnz: 4},
+    {rowids: '5', x_columnx: 'e', y_columny: 20240110, columnz: 5},
+    {rowids: '6', x_columnx: 'f', y_columny: 20240110, columnz: 6},
+    {rowids: '7', x_columnx: 'g', y_columny: 20240110, columnz: 7},
+    {rowids: '8', x_columnx: 'h', y_columny: 20240110, columnz: 8},
+    {rowids: '9', x_columnx: 'i', y_columny: 20240110, columnz: 9},
+    {rowids: '10', x_columnx: 'j', y_columny: 20240110, columnz: 10},
+    {rowids: '11', x_columnx: 'k', y_columny: 20240110, columnz: 11},
+    {rowids: '12', x_columnx: 'l', y_columny: 20240110, columnz: 12},
+    {rowids: '13', x_columnx: 'm', y_columny: 20240110, columnz: 13},
+    {rowids: '14', x_columnx: 'n', y_columny: 20240110, columnz: 14},
+    {rowids: '15', x_columnx: 'o', y_columny: 20240110, columnz: 15},
+    {rowids: '16', x_columnx: 'p', y_columny: 20240110, columnz: 16},
+    {rowids: '17', x_columnx: 'q', y_columny: 20240110, columnz: 17},
+    {rowids: '18', x_columnx: 'r', y_columny: 20240110, columnz: 18},
+    {rowids: '19|28', x_columnx: 's', y_columny: 20240110, columnz: 19},
+    {rowids: '20', x_columnx: 't', y_columny: 20240110, columnz: 20},
+    {rowids: '21', x_columnx: 'u', y_columny: 20240110, columnz: 21},
+    {rowids: '22', x_columnx: 'v', y_columny: 20240110, columnz: 22},
+    {rowids: '23', x_columnx: 'w', y_columny: 20240110, columnz: 23},
+    {rowids: '24|27', x_columnx: 'x', y_columny: 20240110, columnz: 24},
+    {rowids: '25|26', x_columnx: 'y', y_columny: 20240110, columnz: 25},
   ];
 
   const mockMinMaxData = {
@@ -66,8 +66,8 @@ describe('#io/GlyphStream', () => {
       columnName: 'columnx',
     },
     y: {
-      min: mockData[0].columny,
-      max: mockData[24].columny,
+      min: mockData[0].y_columny,
+      max: mockData[24].y_columny,
       columnName: 'columny',
     },
     z: {
@@ -195,11 +195,11 @@ describe('#io/GlyphStream', () => {
           lastColor = color;
 
           const expectedRowId = mockData[rowId].rowids.split('|');
-          const expectedX = mockData[rowId].columnx;
-          const expectedY = dateNumberConvert(
-            mockData[rowId].columny,
+          const expectedX = mockData[rowId]?.x_columnx;
+          const expectedY = `QUALIFIED DAY OF MONTH(${dateNumberConvert(
+            mockData[rowId].y_columny,
             glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH
-          );
+          )})`;
           const expectedZ = mockData[rowId].columnz;
 
           const desc = JSON.parse(chunk.desc);
@@ -208,7 +208,7 @@ describe('#io/GlyphStream', () => {
             assert.strictEqual(r, parseInt(expectedRowId[index]));
           });
           assert.strictEqual(desc.x.columnx, expectedX.toString());
-          assert.strictEqual(desc.y['columny(qualified day of month)'], expectedY.toString());
+          assert.strictEqual(desc.y['columny'], expectedY.toString());
           assert.strictEqual(desc.z.columnz, expectedZ.toString());
 
           assert.strictEqual(chunk.tag, `columnz: ${expectedZ}`);
