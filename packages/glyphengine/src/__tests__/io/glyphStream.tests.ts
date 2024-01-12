@@ -201,8 +201,8 @@ describe('#io/GlyphStream', () => {
             mockData[rowId].y_columny,
             glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH
           )})`;
-          const expectedZ = mockData[rowId].columnz;
-
+          const expectedZ = `SUM(${mockData[rowId].columnz})`;
+          const expectedTag = mockData[rowId].columnz;
           const desc = JSON.parse(chunk.desc);
 
           desc.rowId.forEach((r: number, index: number) => {
@@ -212,7 +212,7 @@ describe('#io/GlyphStream', () => {
           assert.strictEqual(desc.y['columny'], expectedY.toString());
           assert.strictEqual(desc.z.columnz, expectedZ.toString());
 
-          assert.strictEqual(chunk.tag, `columnz: ${expectedZ}`);
+          assert.strictEqual(chunk.tag, `columnz: ${expectedTag}`);
 
           rowId++;
           callback();

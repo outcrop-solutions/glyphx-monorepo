@@ -102,10 +102,14 @@ export class GlyphStream extends Transform {
     let value = '';
     const chunkValue = chunk[tempFieldName];
     if (chunkValue !== null && chunkValue !== undefined) {
-      value =
-        inputFields[field].type !== TYPE.DATE || field === 'z'
-          ? (chunkValue as any).toString()
-          : `${dateType.replaceAll('_', ' ').toUpperCase()}(${dateNumberConverter(chunkValue as number, dateType)})`;
+      if (field !== 'z') {
+        value =
+          inputFields[field].type !== TYPE.DATE
+            ? (chunkValue as any).toString()
+            : `${dateType.replaceAll('_', ' ').toUpperCase()}(${dateNumberConverter(chunkValue as number, dateType)})`;
+      } else {
+        value = `${this.sdtParser.accumulatorType.toUpperCase()}(${chunkValue})`;
+      }
     }
 
     return {fieldName: fieldName, value: value};
