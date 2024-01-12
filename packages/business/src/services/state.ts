@@ -37,7 +37,6 @@ export class StateService {
     imageHash?: string
   ): Promise<databaseTypes.IState | null> {
     try {
-      console.log({name, camera, project, userId, aspectRatio, rowIds});
       const workspace = await mongoDbConnection.models.WorkspaceModel.getWorkspaceById(project?.workspace.id!);
       const user = await mongoDbConnection.models.UserModel.getUserById(userId);
       const image = imageHash ? {imageHash} : {};
@@ -59,20 +58,15 @@ export class StateService {
         rowIds: rowIds,
       };
 
-      console.log({X: input.properties['X']});
-      console.log({Z: input.properties['Z']});
 
       const state = await mongoDbConnection.models.StateModel.createState(input);
-      // console.log({state});
 
       await mongoDbConnection.models.ProjectModel.updateProjectById(project.id as string, {
         imageHash: imageHash,
         aspectRatio: aspectRatio,
       });
-      console.log('updated project by id');
 
       await mongoDbConnection.models.WorkspaceModel.addStates(workspace.id!, [state]);
-      console.log('udded states to project by id');
       await mongoDbConnection.models.ProjectModel.addStates(project.id as string, [state]);
 
       return state;

@@ -874,6 +874,8 @@ describe('GlyphEngine', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
         zColName: zColumn,
       }) as any;
 
@@ -921,6 +923,8 @@ describe('GlyphEngine', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
         zColName: zColumn,
       }) as any;
 
@@ -969,6 +973,8 @@ describe('GlyphEngine', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
         zColName: zColumn,
       }) as any;
 
@@ -1513,7 +1519,18 @@ describe('GlyphEngine', () => {
       putObjectStub.resolves();
       sandbox.replace(aws.S3Manager.prototype, 'putObject', putObjectStub);
 
-      const sdtParser = new SdtParser(false, false, false, 'xCol', 'yCol', 'zCol', 'zCol');
+      const sdtParser = new SdtParser(
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        'xCol',
+        'yCol',
+        'zCol',
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
+      );
       const parseSdtStringStub = sandbox.stub();
       parseSdtStringStub.resolves({} as unknown as SdtParser);
       sandbox.replace(sdtParser, 'parseSdtString', parseSdtStringStub);
