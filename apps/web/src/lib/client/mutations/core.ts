@@ -194,9 +194,6 @@ export const _createOpenProject = (
 ) => {
   const cam = camera || {};
   const rows = rowIds || [];
-  console.log('createOpenProject');
-  console.log({rows, cam});
-
   return JSON.stringify({
     camera: {...cam},
     projectId: project?.id,

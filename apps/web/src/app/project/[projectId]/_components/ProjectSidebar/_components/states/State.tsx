@@ -2,7 +2,15 @@
 import {PencilIcon, TrashIcon} from '@heroicons/react/outline';
 import {useCallback} from 'react';
 import {useSession} from 'next-auth/react';
-import {activeStateAtom, drawerOpenAtom, modalsAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom} from 'state';
+import {
+  activeStateAtom,
+  drawerOpenAtom,
+  modalsAtom,
+  projectAtom,
+  projectSegmentAtom,
+  showLoadingAtom,
+  splitPaneSizeAtom,
+} from 'state';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
@@ -19,6 +27,7 @@ export const State = ({item, idx}) => {
   const url = useUrl();
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setResize = useSetRecoilState(splitPaneSizeAtom);
+  const segment = useRecoilValue(projectSegmentAtom);
   const setModals = useSetRecoilState(modalsAtom);
   const [project, setProject] = useRecoilState(projectAtom);
   const loading = useRecoilValue(showLoadingAtom);
@@ -35,7 +44,6 @@ export const State = ({item, idx}) => {
       return;
     }
     setActiveState(idx);
-    console.log('Apply state called');
 
     if (window && window?.core) {
       setResize(150);
@@ -68,7 +76,6 @@ export const State = ({item, idx}) => {
           if (window?.core) {
             setResize(150);
             setDrawer(true);
-            console.log('open project called');
             window?.core?.OpenProject(
               _createOpenProject(data, project, session, url, false, rowIds, isNullCam ? undefined : camera)
             );
@@ -119,15 +126,24 @@ export const State = ({item, idx}) => {
     );
   }, [item, setModals]);
 
+  const isThreads = segment === 'COLLAB';
+
   return (
     <li
       key={item.id}
-      className="p-2 group-states hover:bg-secondary-midnight hover:text-white last:mb-0 flex items-center justify-between cursor-pointer relative z-60"
+      className="p-2 group-states hover:bg-secondary-midnight hover:text-white last:mb-0 flex items-center justify-between cursor-pointer relative"
     >
-      <div className="hidden group-states-hover:flex absolute p-2 rounded border bg-primary-dark-blue w-56 h-56 bottom-16 z-60">
+      <div
+        className={`hidden group-states-hover:flex pointer-events-none absolute p-2 rounded border bg-primary-dark-blue w-56 h-56 ${
+          isThreads ? 'top-10' : 'bottom-16'
+        } z-60`}
+      >
         {item.imageHash && (
           <Image alt="state" width={300} height={200} src={`data:image/png;base64,${item.imageHash}`} />
         )}
+        <div className="absolute text-[10px] top-0 left-0 invisible group-states-hover:visible px-2 py-1 bg-gray">
+          {item.name}
+        </div>
       </div>
       <div className="flex items-center justify-center h-6 w-6">
         {activeState === idx ? <ActiveStateIcon /> : <StateIcon className="" />}
@@ -136,7 +152,9 @@ export const State = ({item, idx}) => {
         onClick={applyState}
         className="block group-states-hover:text-white transition duration-150 truncate grow ml-2"
       >
-        <span className={`w-full text-left text-gray text-sm ${activeState === idx ? 'text-white' : ''} font-medium`}>
+        <span
+          className={`w-full text-left text-gray text-sm ${activeState === idx ? 'text-white' : ''} font-medium z-0`}
+        >
           {item.name}
         </span>
       </div>

@@ -31,24 +31,15 @@ export class WorkspaceService {
     slug: string
   ): Promise<databaseTypes.IWorkspace | null> {
     try {
-      let newSlug = slug;
-      let count = await WorkspaceService.countWorkspaces(newSlug);
-
-      while (count > 0) {
-        newSlug = `${slug}-${count}`;
-        count = await WorkspaceService.countWorkspaces(newSlug);
-      }
-
       const input = {
         workspaceCode: v4().replaceAll('-', ''),
         inviteCode: v4().replaceAll('-', ''),
         creator: creatorId,
         name,
-        slug: newSlug,
+        slug: slug,
       } as unknown as Omit<databaseTypes.IWorkspace, '_id'>;
 
       const workspace = await mongoDbConnection.models.WorkspaceModel.createWorkspace(input);
-
       const member = await mongoDbConnection.models.MemberModel.createWorkspaceMember({
         inviter: email,
         email: email,
