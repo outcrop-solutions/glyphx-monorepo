@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -20,9 +20,9 @@
     <button id="move-up-button">Rotate Up</button>
     <button id="move-down-button">Rotate Down</button>
     <script type="module">
-      import init, { ModelRunner } from './pkg/glyphx_cube_model.js';
+      import init, {ModelRunner} from './pkg/glyphx_cube_model.js';
       async function run() {
-	let isDragRotate = false;
+        let isDragRotate = false;
         await init();
         console.log('WASM Loaded');
         const modelRunner = new ModelRunner();
@@ -38,33 +38,35 @@
         const moveDownButton = document.getElementById('move-down-button');
         const canvas = document.getElementById('glyphx-cube-model');
 
- // Append our event listeners.
-            canvas.addEventListener('mousedown', e => {
-                isDragRotate = true;
-            });
+        // Append our event listeners.
+        canvas.addEventListener('mousedown', (e) => {
+          isDragRotate = true;
+        });
 
-            canvas.addEventListener('mousemove', e => {
-                if (isDragRotate === true) {
-		    //Here we invert our x and y to get the rotation to match
-		    const rotation = -e.movementX;
-                     modelRunner.add_yaw(rotation);
-		     modelRunner.add_pitch(e.movementY);
+        canvas.addEventListener('mousemove', (e) => {
+          if (isDragRotate === true) {
+            //Here we invert our x and y to get the rotation to match
+            const rotation = -e.movementX;
+            modelRunner.add_yaw(rotation);
+            modelRunner.add_pitch(e.movementY);
+          }
+        });
 
-                }
-            });
+        canvas.addEventListener('mouseup', (e) => {
+          if (isDragRotate === true) {
+            isDragRotate = false;
+          }
+        });
 
-            canvas.addEventListener('mouseup', e => {
-                if (isDragRotate === true) {
-                    isDragRotate = false;
-                }
-            });
-
-            canvas.addEventListener('wheel', e => {
-		console.log("wheel event");
-                e.preventDefault();
-		modelRunner.add_distance(-e.deltaY);
-            }, true);
-
+        canvas.addEventListener(
+          'wheel',
+          (e) => {
+            console.log('wheel event');
+            e.preventDefault();
+            modelRunner.add_distance(-e.deltaY);
+          },
+          true
+        );
 
         moveLeftButton.addEventListener('click', function onClick() {
           console.log('Move Left Button Clicked');
@@ -103,7 +105,7 @@
         });
         window.addEventListener('model-event', (event) => {
           console.log('Model Event Received');
-          console.log({ event });
+          console.log({event});
         });
         await modelRunner.run();
       }
