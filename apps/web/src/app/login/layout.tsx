@@ -17,7 +17,6 @@ export default async function AuthLayout({children}) {
   if (session?.user) {
     await Initializer.init();
     const workspaces = await workspaceService.getWorkspaces(session.user.id, session.user.email as string);
-    console.log({workspaces});
     if (workspaces && workspaces.length > 0) {
       redirect(`/${workspaces[0].id}` as Route);
     } else {

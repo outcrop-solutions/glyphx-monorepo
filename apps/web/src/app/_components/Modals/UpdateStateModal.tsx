@@ -13,7 +13,7 @@ export const UpdateStateModal = ({modalContent}: webTypes.UpdateStateModalProps)
   const setModals = useSetRecoilState(modalsAtom);
   const setProject = useSetRecoilState(projectAtom);
   const [name, setName] = useState('');
-  const validName = name.length > 0 && name.length <= 16;
+  const validName = name.length > 0 && name.length <= 75;
 
   // local state
   const handleNameChange = (event) => setName(event.target.value);
