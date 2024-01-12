@@ -12,6 +12,8 @@ export enum DATE_GROUPING {
   DAY_OF_MONTH = 'day_of_month',
   // DOW variants
   QUALIFIED_DAY_OF_WEEK = 'qualified_day_of_week',
+  YEAR_DAY_OF_WEEK = 'year_day_of_week',
+  WEEK_DAY_OF_WEEK = 'week_day_of_week',
   DAY_OF_WEEK = 'day_of_week',
   // WOY variants
   QUALIFIED_WEEK_OF_YEAR = 'qualified_week_of_year',
