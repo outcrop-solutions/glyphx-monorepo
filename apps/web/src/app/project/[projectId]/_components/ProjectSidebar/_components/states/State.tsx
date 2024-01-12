@@ -35,7 +35,6 @@ export const State = ({item, idx}) => {
       return;
     }
     setActiveState(idx);
-    console.log('Apply state called');
 
     if (window && window?.core) {
       setResize(150);
@@ -68,7 +67,6 @@ export const State = ({item, idx}) => {
           if (window?.core) {
             setResize(150);
             setDrawer(true);
-            console.log('open project called');
             window?.core?.OpenProject(
               _createOpenProject(data, project, session, url, false, rowIds, isNullCam ? undefined : camera)
             );
@@ -128,6 +126,9 @@ export const State = ({item, idx}) => {
         {item.imageHash && (
           <Image alt="state" width={300} height={200} src={`data:image/png;base64,${item.imageHash}`} />
         )}
+        <div className="absolute text-[10px] top-0 left-0 invisible group-states-hover:visible px-2 py-1 bg-gray">
+          {item.name}
+        </div>
       </div>
       <div className="flex items-center justify-center h-6 w-6">
         {activeState === idx ? <ActiveStateIcon /> : <StateIcon className="" />}
