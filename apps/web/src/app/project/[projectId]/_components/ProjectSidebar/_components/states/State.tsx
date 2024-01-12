@@ -35,7 +35,6 @@ export const State = ({item, idx}) => {
       return;
     }
     setActiveState(idx);
-    console.log('Apply state called');
 
     if (window && window?.core) {
       setResize(150);
@@ -68,7 +67,6 @@ export const State = ({item, idx}) => {
           if (window?.core) {
             setResize(150);
             setDrawer(true);
-            console.log('open project called');
             window?.core?.OpenProject(
               _createOpenProject(data, project, session, url, false, rowIds, isNullCam ? undefined : camera)
             );

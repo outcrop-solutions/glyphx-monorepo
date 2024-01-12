@@ -95,7 +95,6 @@ const DateGroupingListbox = ({axis}: {axis: webTypes.Property['axis']}) => {
     <Listbox
       value={grouping}
       onChange={(newValue) => {
-        console.log({newValue});
         changeDateGrouping(newValue as glyphEngineTypes.constants.DATE_GROUPING);
       }}
     >
