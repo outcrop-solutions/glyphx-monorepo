@@ -119,7 +119,8 @@ describe('SdtParser', () => {
         'xCol',
         'yCol',
         'zCol',
-        'zCol'
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
       );
       const sdtParser = (await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager)) as any;
 
@@ -181,7 +182,8 @@ describe('SdtParser', () => {
         'xCol',
         'yCol',
         'zCol',
-        'zCol'
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
       );
       const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const dataSource = sdtParser.getDataSource();
@@ -230,7 +232,8 @@ describe('SdtParser', () => {
         'xCol',
         'yCol',
         'zCol',
-        'zCol'
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
       );
       const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const positionX = sdtParser.getGlyphProperty('Position', 'X');
@@ -276,7 +279,8 @@ describe('SdtParser', () => {
         'xCol',
         'yCol',
         'zCol',
-        'zCol'
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
       );
       const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const positionX = sdtParser.getGlyphProperty('Scale', 'X');
@@ -322,7 +326,8 @@ describe('SdtParser', () => {
         'xCol',
         'yCol',
         'zCol',
-        'zCol'
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
       );
       const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const transparency = sdtParser.getGlyphProperty('Color', 'Transparency');
@@ -354,7 +359,8 @@ describe('SdtParser', () => {
         'xCol',
         'yCol',
         'zCol',
-        'zCol'
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
       );
       const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const rgb = sdtParser.getGlyphProperty('Color', 'RGB');
@@ -386,7 +392,8 @@ describe('SdtParser', () => {
         'xCol',
         'yCol',
         'zCol',
-        'zCol'
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
       );
       const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
 
@@ -417,7 +424,8 @@ describe('SdtParser', () => {
         'xCol',
         'yCol',
         'zCol',
-        'zCol'
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
       );
       const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
 
@@ -465,7 +473,8 @@ describe('SdtParser', () => {
         'xCol',
         'yCol',
         'zCol',
-        'zCol'
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
       );
       const sdtParser = (await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager)) as any;
 
@@ -488,6 +497,53 @@ describe('SdtParser', () => {
       assert.strictEqual(inputFields.z.max, minMaxData.z.max);
       assert.isNotOk(inputFields.z.text_to_num);
       assert.strictEqual(inputFields.z.type, TYPE.REAL);
+    });
+  });
+
+  context('getAccumulator', () => {
+    let glyphEngine: GlyphEngine;
+    let stringSdt: string;
+    let athenaManager: aws.AthenaManager;
+    const sandbox = createSandbox();
+
+    before(async () => {
+      stringTemplate = await helperFunctions.getMockTemplate();
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      athenaManager = new aws.AthenaManager(databaseName);
+      glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
+      stringSdt = (glyphEngine as any).updateSdt(stringTemplate, data);
+    });
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will return the accumulator type', async () => {
+      const textToNumberLoadStub = sandbox.stub();
+      textToNumberLoadStub.resolves();
+      sandbox.replace(TextColumnToNumberConverter.prototype, 'load', textToNumberLoadStub);
+
+      sandbox.replaceGetter(TextColumnToNumberConverter.prototype, 'size', () => textToNumberResults.size);
+
+      const minMaxoadStub = sandbox.stub();
+      minMaxoadStub.resolves();
+      sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
+
+      sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
+      const initialParser = new SdtParser(
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        'xCol',
+        'yCol',
+        'zCol',
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
+      );
+      const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
+      const accumulator = sdtParser.accumulatorType;
+      assert.strictEqual(accumulator, glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM);
     });
   });
 });

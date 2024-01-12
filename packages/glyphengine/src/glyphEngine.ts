@@ -193,7 +193,7 @@ export class GlyphEngine {
       const sdtFileName = `${prefix}/${payloadHash}.sdt`;
       await this.outputBucketField.putObject(sdtFileName, template);
 
-      const {xCol, yCol, zCol, isXDate, xDateGrouping, isYDate, yDateGrouping, isZDate, zColName} =
+      const {xCol, yCol, zCol, isXDate, xDateGrouping, isYDate, yDateGrouping, isZDate, zColName, zAccumulatorType} =
         this.formatCols(data);
 
       const initialParser = new SdtParser(
@@ -205,7 +205,8 @@ export class GlyphEngine {
         xCol,
         yCol,
         zCol,
-        zColName
+        zColName,
+        zAccumulatorType
       );
       const sdtParser = await initialParser.parseSdtString(template, viewName, data, this.athenaManager);
       await processTrackingService.addProcessMessage(
@@ -301,6 +302,7 @@ export class GlyphEngine {
     xColName: string;
     yColName: string;
     zColName: string;
+    zAccumulatorType: glyphEngineTypes.constants.ACCUMULATOR_TYPE;
   } {
     const xCol = data.get('x_axis') as string;
     const yCol = data.get('y_axis') as string;
@@ -339,6 +341,7 @@ export class GlyphEngine {
       xColName: xCol,
       yColName: yCol,
       zColName,
+      zAccumulatorType,
     };
   }
 

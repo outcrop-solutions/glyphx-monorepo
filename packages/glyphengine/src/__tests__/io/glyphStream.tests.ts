@@ -144,7 +144,8 @@ describe('#io/GlyphStream', () => {
       'xCol',
       'yCol',
       'zCol',
-      'zCol'
+      'zCol',
+      glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
     );
     sdtParser = (await initialParser.parseSdtString(stringSdt, 'viewName', mockInputData, athenaManager)) as any;
   });

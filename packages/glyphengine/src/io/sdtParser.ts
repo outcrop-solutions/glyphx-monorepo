@@ -29,6 +29,7 @@ export class SdtParser {
   public yDateGrouping: glyphEngineTypes.constants.DATE_GROUPING;
   public isZDate: boolean;
   private zColName: string;
+  private zAccumulatorType: glyphEngineTypes.constants.ACCUMULATOR_TYPE;
 
   constructor(
     isXDate: boolean,
@@ -40,6 +41,7 @@ export class SdtParser {
     yCol: string,
     zCol: string,
     zColName: string,
+    zAccumulatorType: glyphEngineTypes.constants.ACCUMULATOR_TYPE,
     parsedDocument?: sdt.ISdtDocument,
     viewName?: string,
     data?: Map<string, string>,
@@ -54,6 +56,7 @@ export class SdtParser {
     this.yDateGrouping = yDateGrouping;
     this.isZDate = isZDate;
     this.zColName = zColName;
+    this.zAccumulatorType = zAccumulatorType;
     this.sdtAsJson = parsedDocument;
     this.viewName = viewName;
     if (viewName) {
@@ -164,6 +167,7 @@ export class SdtParser {
       this.yCol,
       this.zCol,
       this.zColName,
+      this.zAccumulatorType,
       parsedDocument as unknown as ISdtDocument,
       viewName,
       data,
@@ -171,6 +175,10 @@ export class SdtParser {
     );
     await sdtParser.loadInputFields();
     return sdtParser;
+  }
+
+  public get accumulatorType(): glyphEngineTypes.constants.ACCUMULATOR_TYPE {
+    return this.zAccumulatorType;
   }
 
   public getDataSource(): IDataSource {

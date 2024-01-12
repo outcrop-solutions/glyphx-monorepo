@@ -1528,7 +1528,8 @@ describe('GlyphEngine', () => {
         'xCol',
         'yCol',
         'zCol',
-        'zCol'
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
       );
       const parseSdtStringStub = sandbox.stub();
       parseSdtStringStub.resolves({} as unknown as SdtParser);
