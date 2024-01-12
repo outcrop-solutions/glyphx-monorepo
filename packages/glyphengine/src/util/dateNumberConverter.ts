@@ -43,6 +43,14 @@ export default function dateNumberConvert(input: number, dateType: glyphEngineTy
       retval = `${stringValue.substring(0, 4)}-${stringValue.substring(4, 6)}-${stringValue.substring(6, 7)}`;
       break;
 
+    case glyphEngineTypes.constants.DATE_GROUPING.YEAR_DAY_OF_WEEK:
+      retval = `${stringValue.substring(0, 4)}-${stringValue.substring(4, 6)}`;
+      break;
+
+    case glyphEngineTypes.constants.DATE_GROUPING.WEEK_DAY_OF_WEEK:
+      retval = `${stringValue.substring(0, 2)}-${stringValue.substring(2, 3)}`;
+      break;
+
     case glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK:
       retval = stringValue;
       break;
