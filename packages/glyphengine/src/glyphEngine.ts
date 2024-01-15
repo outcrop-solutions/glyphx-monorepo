@@ -422,6 +422,12 @@ export class GlyphEngine {
       case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_WEEK:
         return `(year_of_week(from_unixtime("${columnName}"/1000)) * 1000) + (week_of_year(from_unixtime("${columnName}"/1000)) * 10) + day_of_week(from_unixtime("${columnName}"/1000))`;
 
+      case glyphEngineTypes.constants.DATE_GROUPING.YEAR_DAY_OF_WEEK:
+        return `(year_of_week(from_unixtime("${columnName}"/1000)) * 100) + day_of_week(from_unixtime("${columnName}"/1000))`;
+
+      case glyphEngineTypes.constants.DATE_GROUPING.WEEK_DAY_OF_WEEK:
+        return `(week_of_year(from_unixtime("${columnName}"/1000)) * 10) + day_of_week(from_unixtime("${columnName}"/1000))`;
+
       case glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK:
         return `day_of_week(from_unixtime("${columnName}"/1000))`;
 
