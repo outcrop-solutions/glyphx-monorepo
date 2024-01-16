@@ -9,6 +9,7 @@ import {CreateStateInput} from './CreateStateInput';
 import {cameraAtom, imageHashAtom, viewerPositionSelector} from 'state';
 import {useSWRConfig} from 'swr';
 import {webTypes} from 'types';
+import useApplyState from 'services/useApplyState';
 
 export const States = () => {
   const {mutate} = useSWRConfig();
@@ -22,6 +23,7 @@ export const States = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState('Initial State');
   const viewerPosition = useRecoilValue(viewerPositionSelector);
+  const {applyState} = useApplyState();
 
   useEffect(() => {
     if (Object.keys(camera).length > 0 && image.imageHash) {
@@ -43,12 +45,22 @@ export const States = () => {
           setImage({imageHash: false});
           setAddState(false);
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
+          // @jp-burford needs to be validated in dev for state application to be uncommented
+          console.log({createStateData: data});
+          // reset camera
           setCamera({});
+          // reset imageHash
           setImage({imageHash: false});
-          setAddState(false);
-
+          // mutate the project swr cache
           mutate(`/api/project/${project.id}`);
+          // close create state input
+          setAddState(false);
+          // TODO: need to set state based on updated project.stateHistory length
+          // const filteredStates = project.stateHistory.filter((state) => !state.deletedAt);
+          // apply new state
+          // const idx = filteredStates.length;
+          // applyState(idx);
         },
       });
     }
