@@ -1,7 +1,7 @@
 import {useCallback} from 'react';
 import {useSession} from 'next-auth/react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
-import {fileIngestionTypes, webTypes} from 'types';
+import {fileIngestionTypes, webTypes, glyphEngineTypes} from 'types';
 import {_updateProjectState} from 'lib/client';
 import {doesStateExistSelector, drawerOpenAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom} from 'state';
 import {_createModel, _getSignedDataUrls} from 'lib/client/mutations/core';
@@ -83,6 +83,13 @@ export const useProject = () => {
           draft.state.properties[`${axis}`].key = column.key;
           draft.state.properties[`${axis}`].dataType = column.dataType;
           // reset filters
+          if (
+            axis === webTypes.constants.AXIS.Z &&
+            (column.dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING ||
+              column.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE)
+          ) {
+            draft.state.properties[`${axis}`].accumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.COUNT;
+          }
           if (
             column.dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING ||
             column.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE

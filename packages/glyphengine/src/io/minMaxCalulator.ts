@@ -83,7 +83,6 @@ export class MinMaxCalculator {
       MAX(zColumn) as "max_z_${this.zColumnName}"
     FROM temp;
   `;
-
     const data = await this.athenaClient.runQuery(query);
     this.minMaxField = {
       x: {
