@@ -7,11 +7,14 @@ import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {Route} from 'next';
 import {ClientDocumentManager} from 'collab/lib/client/ClientDocumentManager';
 import {useSession} from 'next-auth/react';
+import {useSetRecoilState} from 'recoil';
+import {projectSegmentAtom} from 'state';
 
 export const NewProject = ({exit}) => {
   const router = useRouter();
   const params = useParams();
   const session = useSession();
+  const setTab = useSetRecoilState(projectSegmentAtom);
   const {workspaceId} = params as {workspaceId: string};
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -38,9 +41,10 @@ export const NewProject = ({exit}) => {
         setLoading(false);
         exit();
         router.push(`/project/${data.id}` as Route);
+        setTab('FILES');
       },
     });
-  }, [description, exit, name, router, session, workspaceId]);
+  }, [description, exit, name, router, session.data?.user.id, setTab, workspaceId]);
 
   return (
     <div className="p-4 w-full">
