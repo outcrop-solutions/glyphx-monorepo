@@ -92,6 +92,20 @@ describe('dateNumberConverter', () => {
     assert.equal(actual, expected);
   });
 
+  it('will convert a year_day_of_week', () => {
+    let value = 20243;
+    let dateType = glyphEngineTypes.constants.DATE_GROUPING.YEAR_DAY_OF_WEEK;
+    let expected = '2024-3';
+    let actual = dateNumberConverter(value, dateType);
+    assert.equal(actual, expected);
+  });
+  it('will convert a week_day_of_week', () => {
+    let value = 113;
+    let dateType = glyphEngineTypes.constants.DATE_GROUPING.WEEK_DAY_OF_WEEK;
+    let expected = '11-3';
+    let actual = dateNumberConverter(value, dateType);
+    assert.equal(actual, expected);
+  });
   it('will convert a day_of_week', () => {
     let value = 1;
     let dateType = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK;

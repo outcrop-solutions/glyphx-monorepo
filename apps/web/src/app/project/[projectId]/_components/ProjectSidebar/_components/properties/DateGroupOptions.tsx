@@ -90,15 +90,39 @@ export const DateGroupOptions = ({grouping, selected}) => {
               );
             case 'DAY OF WEEK':
               return (
-                <div className="flex items-center">
-                  <Toggle
-                    grouping={grouping}
-                    value={dow}
-                    onChange={(val) => {
-                      setDow(val);
-                    }}
-                  />
-                  <div className="text-[8px]">YEAR</div>
+                <div className="flex items-center space-x-2">
+                  <div className="flex items-center">
+                    <Toggle
+                      grouping={grouping}
+                      value={dow.year}
+                      onChange={(val: boolean) => {
+                        setDow(
+                          // @ts-ignore
+                          produce((draft: WritableDraft<boolean>) => {
+                            // @ts-ignore
+                            draft.year = val;
+                          })
+                        );
+                      }}
+                    />
+                    <div className="text-[8px]">YEAR</div>
+                  </div>
+                  <div className="flex items-center">
+                    <Toggle
+                      grouping={grouping}
+                      value={dow.week}
+                      onChange={(val: boolean) => {
+                        setDow(
+                          // @ts-ignore
+                          produce((draft: WritableDraft<boolean>) => {
+                            // @ts-ignore
+                            draft.week = val;
+                          })
+                        );
+                      }}
+                    />
+                    <div className="text-[8px]">WEEK</div>
+                  </div>
                 </div>
               );
             case 'WEEK OF YEAR':

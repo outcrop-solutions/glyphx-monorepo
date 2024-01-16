@@ -48,9 +48,13 @@ const DateGroupingListbox = ({axis}: {axis: webTypes.Property['axis']}) => {
         retval = glyphEngineTypes.constants.DATE_GROUPING.MONTH;
       }
 
-      if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK && dow) {
+      if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK && dow.year && dow.week) {
         retval = glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_WEEK;
-      } else if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK && !dow) {
+      } else if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK && dow.year && !dow.week) {
+        retval = glyphEngineTypes.constants.DATE_GROUPING.YEAR_DAY_OF_WEEK;
+      } else if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK && !dow.year && dow.week) {
+        retval = glyphEngineTypes.constants.DATE_GROUPING.WEEK_DAY_OF_WEEK;
+      } else if (dateGrouping === glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK && !dow.year && !dow.week) {
         retval = glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK;
       }
 
@@ -95,7 +99,6 @@ const DateGroupingListbox = ({axis}: {axis: webTypes.Property['axis']}) => {
     <Listbox
       value={grouping}
       onChange={(newValue) => {
-        console.log({newValue});
         changeDateGrouping(newValue as glyphEngineTypes.constants.DATE_GROUPING);
       }}
     >
@@ -111,7 +114,12 @@ const DateGroupingListbox = ({axis}: {axis: webTypes.Property['axis']}) => {
               ) as (keyof typeof glyphEngineTypes.constants.DATE_GROUPING)[]
             )
               .filter(
-                (key) => !key.includes('QUALIFIED') && key !== 'MONTH_DAY_OF_MONTH' && key !== 'YEAR_DAY_OF_MONTH'
+                (key) =>
+                  !key.includes('QUALIFIED') &&
+                  key !== 'MONTH_DAY_OF_MONTH' &&
+                  key !== 'YEAR_DAY_OF_MONTH' &&
+                  key !== 'YEAR_DAY_OF_WEEK' &&
+                  key !== 'WEEK_DAY_OF_WEEK'
               )
               .map((key) => key.replace(/_/g, ' ').toUpperCase())
               .map((accumulator, idx) => (

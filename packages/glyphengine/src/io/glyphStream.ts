@@ -108,7 +108,7 @@ export class GlyphStream extends Transform {
             ? (chunkValue as any).toString()
             : `${dateType.replaceAll('_', ' ').toUpperCase()}(${dateNumberConverter(chunkValue as number, dateType)})`;
       } else {
-        value = `${this.sdtParser.accumulatorType.toUpperCase()}(${chunkValue})`;
+        value = `${this.sdtParser.accumulatorType?.toUpperCase() ?? 'SUM'}(${chunkValue})`;
       }
     }
 
