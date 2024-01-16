@@ -6,6 +6,7 @@ import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
 import {projectAtom} from 'state';
 import {useRecoilState, useSetRecoilState} from 'recoil';
+import {fileIngestionTypes} from 'types';
 
 const AccumulatorType = ({axis}) => {
   const [project, setProject] = useRecoilState(projectAtom);
@@ -41,25 +42,41 @@ const AccumulatorType = ({axis}) => {
               Object.keys(
                 glyphEngineTypes.constants.ACCUMULATOR_TYPE
               ) as (keyof typeof glyphEngineTypes.constants.ACCUMULATOR_TYPE)[]
-            ).map((accumulator, idx) => (
-              <Listbox.Option
-                key={idx}
-                className={({active}) =>
-                  `relative cursor-default select-none py-2 text-center text-xs ${
-                    active ? 'bg-secondary-midnight text-white' : 'text-white'
-                  }`
+            )
+              .filter((key) => {
+                const dataType = project?.state?.properties['Z'].dataType;
+                if (
+                  dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING ||
+                  dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE
+                ) {
+                  if (key === glyphEngineTypes.constants.ACCUMULATOR_TYPE.COUNT) {
+                    return true;
+                  } else {
+                    return false;
+                  }
+                } else {
+                  return true;
                 }
-                value={accumulator}
-              >
-                {({selected}) => (
-                  <>
-                    <span className={`block truncate text-white text-xs ${selected ? 'font-medium' : 'font-normal'}`}>
-                      {accumulator}
-                    </span>
-                  </>
-                )}
-              </Listbox.Option>
-            ))}
+              })
+              .map((accumulator, idx) => (
+                <Listbox.Option
+                  key={idx}
+                  className={({active}) =>
+                    `relative cursor-default select-none py-2 text-center text-xs ${
+                      active ? 'bg-secondary-midnight text-white' : 'text-white'
+                    }`
+                  }
+                  value={accumulator}
+                >
+                  {({selected}) => (
+                    <>
+                      <span className={`block truncate text-white text-xs ${selected ? 'font-medium' : 'font-normal'}`}>
+                        {accumulator}
+                      </span>
+                    </>
+                  )}
+                </Listbox.Option>
+              ))}
           </Listbox.Options>
         </Transition>
       </div>
