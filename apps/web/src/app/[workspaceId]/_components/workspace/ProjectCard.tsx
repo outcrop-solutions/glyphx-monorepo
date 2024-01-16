@@ -10,7 +10,7 @@ import {useSetRecoilState} from 'recoil';
 import {webTypes} from 'types';
 import {ProjectTemplateIcons} from '../../../project/[projectId]/_components/ProjectSidebar/_components/icons';
 
-import {modalsAtom, rightSidebarControlAtom} from 'state';
+import {modalsAtom, projectSegmentAtom, rightSidebarControlAtom} from 'state';
 
 import projectCard from 'public/images/project.png';
 import AddMemberIcon from 'public/svg/add-member-icon.svg';
@@ -23,12 +23,13 @@ export const ProjectCard = ({project}) => {
   dayjs.extend(relativeTime);
   const router = useRouter();
   const params = useParams();
-
+  const setTab = useSetRecoilState(projectSegmentAtom);
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
   const setModals = useSetRecoilState(modalsAtom);
 
   const navigate = () => {
     router.push(`/project/${project.id}` as Route);
+    setTab('FILES');
   };
 
   const deleteProject = useCallback(() => {
