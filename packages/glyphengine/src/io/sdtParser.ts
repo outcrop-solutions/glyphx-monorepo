@@ -107,7 +107,7 @@ export class SdtParser {
       table: this.viewName!,
     };
 
-    if (retval.type === TYPE.TEXT) {
+    if (retval.type === TYPE.TEXT && fieldName !== 'z') {
       const textToNumberConverter = new TextColumnToNumberConverter(this.viewName!, retval.field, this.athenaManager!);
       await textToNumberConverter.load();
       retval.text_to_num = textToNumberConverter;

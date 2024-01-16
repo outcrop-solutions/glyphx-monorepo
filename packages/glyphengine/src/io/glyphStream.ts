@@ -131,7 +131,7 @@ export class GlyphStream extends Transform {
     }
     let value = values[fieldName] as number;
 
-    if (typeof value === 'string') {
+    if (typeof value === 'string' && field !== 'Z') {
       value = inputField.text_to_num?.convert(value) as number;
     }
 
