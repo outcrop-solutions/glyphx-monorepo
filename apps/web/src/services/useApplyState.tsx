@@ -1,15 +1,7 @@
 'use client';
 import {useCallback} from 'react';
 import {useSession} from 'next-auth/react';
-import {
-  activeStateAtom,
-  drawerOpenAtom,
-  modalsAtom,
-  projectAtom,
-  projectSegmentAtom,
-  showLoadingAtom,
-  splitPaneSizeAtom,
-} from 'state';
+import {activeStateAtom, drawerOpenAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom} from 'state';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';

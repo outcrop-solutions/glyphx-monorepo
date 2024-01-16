@@ -27,7 +27,7 @@ export const State = ({item, idx}) => {
   const setModals = useSetRecoilState(modalsAtom);
   const [activeState, _] = useRecoilState(activeStateAtom);
 
-  const {applyState} = useApplyState(idx);
+  const {applyState} = useApplyState();
 
   const deleteState = useCallback(() => {
     setModals(
@@ -82,7 +82,7 @@ export const State = ({item, idx}) => {
         {activeState === idx ? <ActiveStateIcon /> : <StateIcon className="" />}
       </div>
       <div
-        onClick={applyState}
+        onClick={() => applyState(idx)}
         className="block group-states-hover:text-white transition duration-150 truncate grow ml-2"
       >
         <span
