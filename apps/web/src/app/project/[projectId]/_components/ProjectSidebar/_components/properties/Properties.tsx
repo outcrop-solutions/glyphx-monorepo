@@ -35,37 +35,42 @@ export const Properties = () => {
   const [isCollapsed, setCollapsed] = useState(false);
   const project = useRecoilValue(projectAtom);
 
-  const handleApply = useCallback(async () => {
-    // project already contains filter state, no deepMerge necessary
-    const payloadHash = hashPayload(hashFileSystem(project.files), project);
-    if (!isValidPayload(properties)) {
-      toast.success('Generate a model before applying filters!');
-    } else if (doesStateExist) {
-      callUpdateProject(project, mutate);
-      await callDownloadModel({
-        project,
-        payloadHash,
-        session,
-        url,
-        setLoading,
-        setDrawer,
-        setResize,
-      });
-    } else {
-      await callCreateModel({
-        isFilter: true,
-        project,
-        payloadHash,
-        session,
-        url,
-        setLoading,
-        setDrawer,
-        setResize,
-        mutate,
-      });
-    }
-    setLoading({});
-  }, [doesStateExist, mutate, project, properties, session, setDrawer, setLoading, setResize, url]);
+  const handleApply = useCallback(
+    async (event: any) => {
+      //Our apply button is wrapped in the summary element, and the click handler is bubbling up. so we need to stop propagation.  This will keep our axes control in the open state when pressing apply.
+      event.stopPropagation();
+      // project already contains filter state, no deepMerge necessary
+      const payloadHash = hashPayload(hashFileSystem(project.files), project);
+      if (!isValidPayload(properties)) {
+        toast.success('Generate a model before applying filters!');
+      } else if (doesStateExist) {
+        callUpdateProject(project, mutate);
+        await callDownloadModel({
+          project,
+          payloadHash,
+          session,
+          url,
+          setLoading,
+          setDrawer,
+          setResize,
+        });
+      } else {
+        await callCreateModel({
+          isFilter: true,
+          project,
+          payloadHash,
+          session,
+          url,
+          setLoading,
+          setDrawer,
+          setResize,
+          mutate,
+        });
+      }
+      setLoading({});
+    },
+    [doesStateExist, mutate, project, properties, session, setDrawer, setLoading, setResize, url]
+  );
 
   return (
     properties && (
