@@ -2,8 +2,19 @@ import AthenaConnection from '../lib/athenaConnection';
 import {error} from 'core';
 
 export class DataService {
-  public static async getDataByGlyphxIds(tableName: string, glyphxIds: number[]): Promise<any[]> {
-    const query = `SELECT * FROM ${tableName} WHERE glyphx_id__ IN (${glyphxIds.join(',')})`;
+  public static async getDataByGlyphxIds(
+    tableName: string,
+    glyphxIds: number[],
+    pageSize: number = 50,
+    pageNumber: number = 0,
+    isExport: boolean = false
+  ): Promise<any[]> {
+    const offset = pageNumber * pageSize;
+    const query = isExport
+      ? `SELECT * FROM ${tableName} WHERE glyphx_id__ IN (${glyphxIds.join(',')})`
+      : `SELECT * FROM ${tableName} WHERE glyphx_id__ IN (${glyphxIds.join(',')})  OFFSET ${offset} LIMIT ${pageSize}`;
+
+    console.log({query, pageSize, pageNumber, isRowId: true});
     try {
       const results = await AthenaConnection.connection.runQuery(query);
       return results;
@@ -23,8 +34,14 @@ export class DataService {
     }
   }
 
-  public static async getDataByTableName(tableName: string): Promise<any[]> {
-    const query = `SELECT * FROM "${tableName}"`;
+  public static async getDataByTableName(
+    tableName: string,
+    pageSize: number = 50,
+    pageNumber: number = 0
+  ): Promise<any[]> {
+    const offset = pageNumber * pageSize;
+    const query = `SELECT * FROM "${tableName}" OFFSET ${offset} LIMIT ${pageSize}`;
+    console.log({query, pageSize, pageNumber, isTable: true});
     try {
       const results = await AthenaConnection.connection.runQuery(query);
       return results;
