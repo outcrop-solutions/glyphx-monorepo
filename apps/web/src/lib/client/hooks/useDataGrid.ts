@@ -45,11 +45,15 @@ const useDataGrid = () => {
         // Get the set of existing glyphx_id__
         const existingIds = new Set(draft.rows.map((row) => row.glyphx_id__));
 
-        // Filter out duplicate rows based on glyphx_id__
+        // Filter out duplicate rows based on glyphx_id__ if not the first page
         const newRows = data.rows.filter((row) => !existingIds.has(row.glyphx_id__));
 
-        // Push only new, unique rows
-        draft.rows.push(...newRows);
+        if (pageNumber === 0) {
+          draft.rows = data.rows;
+        } else {
+          // Push only new, unique rows
+          draft.rows.push(...newRows);
+        }
       })
     );
     setIsLoadingRowIds(false);
