@@ -23,7 +23,7 @@ export const getDataByRowId = async (req: NextApiRequest, res: NextApiResponse):
       if (!formattedData.rows.length) {
         res.status(404).json({errors: {error: {msg: `No data found`}}});
       } else {
-        const start = (pageNumber - 1) * pageSize;
+        const start = pageNumber * pageSize;
         const end = start + pageSize;
         const paginatedRows = isExport ? formattedData.rows : formattedData.rows.slice(start, end);
 
