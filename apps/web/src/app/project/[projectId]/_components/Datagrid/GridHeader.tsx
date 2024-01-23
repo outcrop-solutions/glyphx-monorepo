@@ -17,7 +17,7 @@ export const GridHeader = () => {
 
   const exportCsv = useCallback(() => {
     api({
-      ..._getRowIds(project.workspace.id, project.id, gridPayload.tableName, rowIds as string[], false),
+      ..._getRowIds(project.workspace.id, project.id, gridPayload.tableName, rowIds as string[], 0, 0, true),
       onSuccess: (data) => {
         const csv = toCSV(data?.rows, data?.columns?.map(({key}) => key), ',', '"');
         window?.core?.SendCsv(csv);

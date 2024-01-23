@@ -4,7 +4,7 @@ import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {fileIngestionTypes, webTypes} from 'types';
 import {useSetRecoilState} from 'recoil';
-import {dataGridAtom, projectAtom, rightSidebarControlAtom, rowIdsAtom, templatesAtom, workspaceAtom} from 'state';
+import {projectAtom, rightSidebarControlAtom, rowIdsAtom, templatesAtom, workspaceAtom} from 'state';
 import {useSendPosition, useWindowSize} from 'services';
 import {useCloseViewerOnModalOpen} from 'services/useCloseViewerOnModalOpen';
 import {useCloseViewerOnLoading} from 'services/useCloseViewerOnLoading';
@@ -45,7 +45,6 @@ export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc
   const setRowIds = useSetRecoilState(rowIdsAtom);
   const setProject = useSetRecoilState(projectAtom);
   const setTemplates = useSetRecoilState(templatesAtom);
-  const setDataGrid = useSetRecoilState(dataGridAtom);
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
 
   // hydrate recoil state
@@ -82,7 +81,6 @@ export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc
     }
   }, [
     templateLoading,
-    setDataGrid,
     setProject,
     setRightSidebarControl,
     setWorkspace,

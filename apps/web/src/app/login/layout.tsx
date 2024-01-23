@@ -13,7 +13,6 @@ export const metadata: Metadata = {
 export default async function AuthLayout({children}) {
   const session = await getServerSession(authOptions);
 
-  console.log({session});
   if (session?.user) {
     await Initializer.init();
     const workspaces = await workspaceService.getWorkspaces(session.user.id, session.user.email as string);
@@ -26,7 +25,6 @@ export default async function AuthLayout({children}) {
         'Default Workspace',
         'default-workspace'
       );
-      console.log({workspace});
       if (workspace) {
         redirect(`/${workspace.id}` as Route);
       }
