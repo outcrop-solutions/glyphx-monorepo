@@ -14,7 +14,6 @@ export class DataService {
       ? `SELECT * FROM ${tableName} WHERE glyphx_id__ IN (${glyphxIds.join(',')})`
       : `SELECT * FROM ${tableName} WHERE glyphx_id__ IN (${glyphxIds.join(',')})  OFFSET ${offset} LIMIT ${pageSize}`;
 
-    console.log({query, pageSize, pageNumber, isRowId: true});
     try {
       const results = await AthenaConnection.connection.runQuery(query);
       return results;
@@ -41,7 +40,6 @@ export class DataService {
   ): Promise<any[]> {
     const offset = pageNumber * pageSize;
     const query = `SELECT * FROM "${tableName}" OFFSET ${offset} LIMIT ${pageSize}`;
-    console.log({query, pageSize, pageNumber, isTable: true});
     try {
       const results = await AthenaConnection.connection.runQuery(query);
       return results;

@@ -35,9 +35,7 @@ const useDataGrid = () => {
 
   const fetchDataWithRowIds = async (pageNumber: number) => {
     setIsLoadingRowIds(true);
-    console.log(fetchRowIdsConfig);
     const data = await api(fetchRowIdsConfig);
-    console.log({data, rowIds: true});
     setGridData(
       produce((draft: WritableDraft<webTypes.IRenderableDataGrid>) => {
         // if initial load, populate columns, otherwise skip
@@ -57,25 +55,17 @@ const useDataGrid = () => {
     setIsLoadingRowIds(false);
   };
 
-  // useEffect(() => {
-  //   console.log({gridData});
-  // }, [gridData]);
-
   useEffect(() => {
     if (!tableName || isLoadingRowIds || !rowIds) {
       return;
     }
-
-    console.log('fetch data with rowIds', {tableName, isLoadingRowIds, rowIds});
     fetchDataWithRowIds(pageNumber);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rowIds, tableName, pageNumber]);
 
   const fetchDataWithoutRowIds = async (pageNumber: number) => {
     setIsLoadingDataGrid(true);
-    console.log(fetchDataGridConfig);
     const data = await api(fetchDataGridConfig);
-    console.log({data, rowIds: false});
     setGridData(
       produce((draft: WritableDraft<webTypes.IRenderableDataGrid>) => {
         // if initial load, populate columns, otherwise skip

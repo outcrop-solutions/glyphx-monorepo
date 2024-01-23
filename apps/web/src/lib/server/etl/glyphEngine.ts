@@ -79,7 +79,6 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
   const {project, payloadHash} = req.body;
 
   if (!isValidPayload(project.state.properties)) {
-    console.log('INVALID PAYLOAD');
     // fails silently
     res.status(404).json({errors: {error: {msg: 'Invalid Payload'}}});
   } else {
@@ -185,7 +184,6 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
 
       res.status(200).json({data: {sdtFileName, sgnFileName, sgcFileName, updatedProject}});
     } catch (error) {
-      console.log({error});
       res.status(404).json({errors: {error: {msg: error.message}}});
     }
   }

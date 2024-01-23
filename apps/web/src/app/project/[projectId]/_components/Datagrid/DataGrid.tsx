@@ -37,14 +37,9 @@ const ReactDataGrid = dynamic(() => import('react-data-grid'), {
  * @returns
  */
 function shouldPaginate(event, isLoading: boolean, offset: number): boolean {
-  console.log({event, inside: true});
-
-  console.log(event, isLoading, offset);
-  console.log({paginate: event?.scrollDirection === 'downwards' && event?.rowOverscanEndIdx >= offset - 40});
   // check scroll direction
   // @ts-ignore
   if (event?.scrollDirection !== 'downwards') {
-    console.log('direction is upward');
     return false;
   } else if (event?.scrollDirection === 'downwards' && event?.rowOverscanEndIdx >= offset - 10) {
     return true;
@@ -75,11 +70,9 @@ export const Datagrid = () => {
   const handleScroll = useCallback(
     async (event: React.UIEvent<HTMLDivElement>) => {
       if (shouldPaginate(event, isLoading, offset)) {
-        console.log('increased page number');
         setPageNumber((prev) => prev + 1);
         return;
       } else {
-        console.log('did not paginate');
         return;
       }
     },

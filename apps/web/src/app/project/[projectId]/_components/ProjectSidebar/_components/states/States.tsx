@@ -47,7 +47,6 @@ export const States = () => {
         },
         onSuccess: (data) => {
           // @jp-burford needs to be validated in dev for state application to be uncommented
-          console.log({createStateData: data});
           // reset camera
           setCamera({});
           // reset imageHash
@@ -58,7 +57,6 @@ export const States = () => {
             // close create state input
             setAddState(false);
             // TODO: need to set state based on updated project.stateHistory length
-            console.log({stateHistory: project.stateHistory});
             const filteredStates = project.stateHistory.filter((state) => !state.deletedAt);
             // apply new state
             const idx = filteredStates.length;
