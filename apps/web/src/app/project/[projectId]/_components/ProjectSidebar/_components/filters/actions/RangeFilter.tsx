@@ -1,6 +1,6 @@
 'use client';
 import React, {useCallback, useState} from 'react';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {useRecoilState, useRecoilValue} from 'recoil';
 import produce from 'immer';
 
 import {isFilterWritableSelector, projectAtom} from 'state';
@@ -12,7 +12,7 @@ import {WritableDraft} from 'immer/dist/internal';
 import {webTypes} from 'types';
 
 export const RangeFilter = ({prop}) => {
-  const setProject = useSetRecoilState(projectAtom);
+  const [project, setProject] = useRecoilState(projectAtom);
   const isFilterWritable = useRecoilValue(isFilterWritableSelector);
   const [visibility, setVisibility] = useState(true);
   const [min, setMin] = useState(prop.filter.min);

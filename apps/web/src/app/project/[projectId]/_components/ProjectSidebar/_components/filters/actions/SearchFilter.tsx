@@ -5,12 +5,12 @@ import SearchIcon from 'public/svg/search-icon.svg';
 import ShowIcon from 'public/svg/show-visibility.svg';
 import HideIcon from 'public/svg/hide-visibility.svg';
 import {isFilterWritableSelector, projectAtom} from 'state';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {useRecoilState, useRecoilValue} from 'recoil';
 import {WritableDraft} from 'immer/dist/internal';
 import {webTypes} from 'types';
 
 export const SearchFilter = ({prop}) => {
-  const setProject = useSetRecoilState(projectAtom);
+  const [project, setProject] = useRecoilState(projectAtom);
   const isFilterWritable = useRecoilValue(isFilterWritableSelector);
   const [visibility, setVisibility] = useState(true);
   const [keyword, setKeyword] = useState('');
