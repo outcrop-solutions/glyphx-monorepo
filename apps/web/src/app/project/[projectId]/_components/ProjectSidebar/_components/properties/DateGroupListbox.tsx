@@ -102,12 +102,12 @@ const DateGroupingListbox = ({axis}: {axis: webTypes.Property['axis']}) => {
         changeDateGrouping(newValue as glyphEngineTypes.constants.DATE_GROUPING);
       }}
     >
-      <div className="relative -mt-1">
-        <Listbox.Button className="relative w-full cursor-default bg-secondary-dark-blue rounded px-4 text-center shadow-md focus:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-300">
+      <div className="relative -mt-1 min-w-[150px]">
+        <Listbox.Button className="relative w-full min-w-[150px] cursor-default bg-secondary-dark-blue rounded px-4 text-center shadow-md focus:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-300">
           <span className="block truncate text-xs">{grouping.replace(/_/g, ' ').toUpperCase()}</span>
         </Listbox.Button>
         <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-          <Listbox.Options className="absolute mt-1 max-h-60 overflow-y-auto w-full rounded bg-secondary-dark-blue py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm z-60">
+          <Listbox.Options className="absolute mt-1 max-h-60 overflow-y-auto w-[150px] rounded bg-secondary-dark-blue py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm z-60">
             {(
               Object.keys(
                 glyphEngineTypes.constants.DATE_GROUPING
