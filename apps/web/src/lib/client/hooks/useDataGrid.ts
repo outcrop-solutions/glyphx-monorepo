@@ -86,8 +86,12 @@ const useDataGrid = () => {
         // Filter out duplicate rows based on glyphx_id__
         const newRows = data.rows.filter((row) => !existingIds.has(row.glyphx_id__));
 
-        // Push only new, unique rows
-        draft.rows.push(...newRows);
+        if (pageNumber === 0) {
+          draft.rows = data.rows;
+        } else {
+          // Push only new, unique rows
+          draft.rows.push(...newRows);
+        }
       })
     );
     setIsLoadingDataGrid(false);
