@@ -11,8 +11,10 @@ export class DataService {
   ): Promise<any[]> {
     const offset = pageNumber * pageSize;
     const query = isExport
-      ? `SELECT * FROM ${tableName} WHERE glyphx_id__ IN (${glyphxIds.join(',')})`
-      : `SELECT * FROM ${tableName} WHERE glyphx_id__ IN (${glyphxIds.join(',')})  OFFSET ${offset} LIMIT ${pageSize}`;
+      ? `SELECT * FROM ${tableName} WHERE glyphx_id__ IN (${glyphxIds.join(',')}) ORDER BY glyphx_id__`
+      : `SELECT * FROM ${tableName} WHERE glyphx_id__ IN (${glyphxIds.join(
+          ','
+        )}) ORDER BY glyphx_id__ OFFSET ${offset} LIMIT ${pageSize}`;
 
     try {
       const results = await AthenaConnection.connection.runQuery(query);
@@ -39,7 +41,7 @@ export class DataService {
     pageNumber: number = 0
   ): Promise<any[]> {
     const offset = pageNumber * pageSize;
-    const query = `SELECT * FROM "${tableName}" OFFSET ${offset} LIMIT ${pageSize}`;
+    const query = `SELECT * FROM "${tableName}" ORDER BY glyphx_id__ OFFSET ${offset} LIMIT ${pageSize}`;
     try {
       const results = await AthenaConnection.connection.runQuery(query);
       return results;
