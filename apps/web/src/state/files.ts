@@ -140,9 +140,12 @@ export const filesOpenSelector = selector<webTypes.OpenFile[]>({
 /**
  * Peels the pre-calculated datagrid off the filesystem to render in react-data-grid
  */
-export const dataGridAtom = atom<webTypes.IRenderableDataGrid | null>({
+export const dataGridAtom = atom<webTypes.IRenderableDataGrid>({
   key: 'dataGridAtom',
-  default: null,
+  default: {
+    rows: [],
+    columns: [],
+  },
 });
 
 /**

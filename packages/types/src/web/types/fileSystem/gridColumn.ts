@@ -5,6 +5,7 @@ import {FIELD_TYPE} from '../../../fileIngestion/constants';
  * */
 export type GridColumn = {
   key: string;
+  name?: string; // necessary in
   dataType: FIELD_TYPE;
   width: number;
   resizable: boolean;

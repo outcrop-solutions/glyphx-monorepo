@@ -16,7 +16,6 @@ export async function fetchApiEndpoint<T = unknown>(
   fetchOptions?: RequestInit
 ): Promise<FetchApiResult<T>> {
   try {
-    console.log({endpoint: `${ENDPOINT_BASE_URL}${url}`, fetchOptions});
     const response = await fetch(`${ENDPOINT_BASE_URL}${url}`, fetchOptions);
     const body = await response.json();
 
