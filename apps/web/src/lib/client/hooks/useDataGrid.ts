@@ -2,7 +2,7 @@
 import {useEffect, useMemo, useState} from 'react';
 import {api} from '../network';
 import {_getDataGrid, _getRowIds} from '../mutations';
-import {dataGridAtom, dataGridPayloadSelector, rowIdsAtom} from 'state';
+import {dataGridAtom, dataGridPayloadSelector, pageNumberAtom, rowIdsAtom} from 'state';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
@@ -11,7 +11,7 @@ import {webTypes} from 'types';
 const useDataGrid = () => {
   const [gridData, setGridData] = useRecoilState(dataGridAtom);
   const [pageSize, setPageSize] = useState(50);
-  const [pageNumber, setPageNumber] = useState(0);
+  const [pageNumber, setPageNumber] = useRecoilState(pageNumberAtom);
   const rowIds = useRecoilValue(rowIdsAtom);
   const {workspaceId, projectId, tableName} = useRecoilValue(dataGridPayloadSelector);
   const [isLoadingRowIds, setIsLoadingRowIds] = useState(false);

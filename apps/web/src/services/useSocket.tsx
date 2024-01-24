@@ -2,7 +2,7 @@
 import {useState, useEffect, useRef} from 'react';
 import {QWebChannel} from 'qwebchannel';
 import {useSetRecoilState} from 'recoil';
-import {cameraAtom, imageHashAtom, rowIdsAtom} from 'state';
+import {cameraAtom, imageHashAtom, pageNumberAtom, rowIdsAtom} from 'state';
 import {webTypes} from 'types';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
@@ -12,6 +12,7 @@ export const useSocket = () => {
   const [channel, setChannel] = useState(null);
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const setRowIds = useSetRecoilState(rowIdsAtom);
+  const setPageNumber = useSetRecoilState(pageNumberAtom);
   const setImage = useSetRecoilState(imageHashAtom);
   const setCamera = useSetRecoilState(cameraAtom);
   const isMounted = useRef(false); // Ref to track component mount status
@@ -37,6 +38,7 @@ export const useSocket = () => {
               window.core.SendRowIds.connect((json: string) => {
                 const ids = JSON.parse(json)?.rowIds;
                 const rowIds = ids.length === 0 ? false : [...ids];
+                setPageNumber(0);
                 setRows(rowIds);
               });
               window.core.SendCameraPosition.connect((json: string) => {
