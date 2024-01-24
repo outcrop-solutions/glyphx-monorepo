@@ -19,7 +19,7 @@ const useDataGrid = () => {
 
   const fetchRowIdsConfig = useMemo(
     () => ({
-      ..._getRowIds(workspaceId, projectId, tableName, rowIds as string[], pageSize, pageNumber),
+      ..._getRowIds(workspaceId, projectId, tableName, rowIds as string[], pageSize, pageNumber, true),
       returnData: true,
     }),
     [workspaceId, projectId, tableName, rowIds, pageSize, pageNumber]
