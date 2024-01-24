@@ -42,18 +42,8 @@ const useDataGrid = () => {
         if (pageNumber === 0) {
           draft.columns.push(...data.columns);
         }
-        // Get the set of existing glyphx_id__
-        const existingIds = new Set(draft.rows.map((row) => row.glyphx_id__));
 
-        // Filter out duplicate rows based on glyphx_id__ if not the first page
-        const newRows = data.rows.filter((row) => !existingIds.has(row.glyphx_id__));
-
-        if (pageNumber === 0) {
-          draft.rows = data.rows;
-        } else {
-          // Push only new, unique rows
-          draft.rows.push(...newRows);
-        }
+        draft.rows = data.rows;
       })
     );
     setIsLoadingRowIds(false);
