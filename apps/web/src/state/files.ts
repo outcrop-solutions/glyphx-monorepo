@@ -148,6 +148,11 @@ export const dataGridAtom = atom<webTypes.IRenderableDataGrid>({
   },
 });
 
+export const pageNumberAtom = atom<number>({
+  key: 'pageNumberAtom',
+  default: 0,
+});
+
 /**
  * Holds the renderable columns of the grid, providing dataType for CSS selectors to override colours
  */
