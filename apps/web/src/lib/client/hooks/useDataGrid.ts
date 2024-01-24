@@ -35,15 +35,10 @@ const useDataGrid = () => {
 
   const fetchDataWithRowIds = async (pageNumber: number) => {
     setIsLoadingRowIds(true);
-    const data = await api(fetchRowIdsConfig);
+    const data: webTypes.IRenderableDataGrid = await api(fetchRowIdsConfig);
     setGridData(
       produce((draft: WritableDraft<webTypes.IRenderableDataGrid>) => {
-        // if initial load, populate columns, otherwise skip
-        if (pageNumber === 0) {
-          draft.columns.push(...data.columns);
-        }
-
-        draft.rows = data.rows;
+        return data;
       })
     );
     setIsLoadingRowIds(false);
