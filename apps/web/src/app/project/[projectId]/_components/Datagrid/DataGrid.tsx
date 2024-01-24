@@ -81,7 +81,11 @@ export const Datagrid = () => {
   );
 
   const debouncedScroll = debounce((data) => {
-    handleScroll(data);
+    if (typeof rowIds !== 'boolean' && rowIds.length > 0) {
+      return;
+    } else {
+      handleScroll(data);
+    }
   }, 100);
 
   return data.rows.length > 0 ? (
