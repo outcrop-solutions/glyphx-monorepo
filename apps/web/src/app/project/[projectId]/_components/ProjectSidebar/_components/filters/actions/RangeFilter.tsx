@@ -13,7 +13,6 @@ import {webTypes} from 'types';
 
 export const RangeFilter = ({prop}) => {
   const [project, setProject] = useRecoilState(projectAtom);
-  const isFilterWritable = useRecoilValue(isFilterWritableSelector);
   const [visibility, setVisibility] = useState(true);
   const [min, setMin] = useState(prop.filter.min);
   const [max, setMax] = useState(prop.filter.max);
@@ -78,7 +77,6 @@ export const RangeFilter = ({prop}) => {
           type="number"
           name="min"
           placeholder="MIN"
-          disabled={isFilterWritable}
           id="min"
           onChange={(e) => updateLocalRange(e, 'min')}
           value={min}
@@ -90,7 +88,6 @@ export const RangeFilter = ({prop}) => {
           onChange={(e) => updateLocalRange(e, 'max')}
           value={max}
           type="number"
-          disabled={isFilterWritable}
           name="max"
           id="max"
           placeholder="MAX"
