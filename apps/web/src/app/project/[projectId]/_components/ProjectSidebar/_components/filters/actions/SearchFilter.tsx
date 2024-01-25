@@ -11,7 +11,6 @@ import {webTypes} from 'types';
 
 export const SearchFilter = ({prop}) => {
   const [project, setProject] = useRecoilState(projectAtom);
-  const isFilterWritable = useRecoilValue(isFilterWritableSelector);
   const [visibility, setVisibility] = useState(true);
   const [keyword, setKeyword] = useState('');
   const [keywords, setKeywords] = useState(prop.filter.keywords || []);
@@ -80,7 +79,6 @@ export const SearchFilter = ({prop}) => {
           <input
             type="text"
             name="keyword"
-            disabled={isFilterWritable}
             id="name"
             onKeyPress={(ev) => {
               if (ev.key === 'Enter') {
