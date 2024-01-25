@@ -8,7 +8,7 @@ import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {webTypes} from 'types';
 
-const useDataGrid = () => {
+const useDataGrid = (ref) => {
   const [gridData, setGridData] = useRecoilState(dataGridAtom);
   const [pageSize, setPageSize] = useState(50);
   const [pageNumber, setPageNumber] = useRecoilState(pageNumberAtom);
@@ -16,6 +16,13 @@ const useDataGrid = () => {
   const {workspaceId, projectId, tableName} = useRecoilValue(dataGridPayloadSelector);
   const [isLoadingRowIds, setIsLoadingRowIds] = useState(false);
   const [isLoadingDataGrid, setIsLoadingDataGrid] = useState(false);
+
+  // resets scroll position of parent
+  const resetScrollPosition = () => {
+    if (ref.current) {
+      ref.current.scrollTop = 0; // Reset scroll position
+    }
+  };
 
   const fetchRowIdsConfig = useMemo(
     () => ({
@@ -41,6 +48,7 @@ const useDataGrid = () => {
         return data;
       })
     );
+    resetScrollPosition();
     setIsLoadingRowIds(false);
   };
 
@@ -79,6 +87,7 @@ const useDataGrid = () => {
         }
       })
     );
+    resetScrollPosition();
     setIsLoadingDataGrid(false);
   };
 
