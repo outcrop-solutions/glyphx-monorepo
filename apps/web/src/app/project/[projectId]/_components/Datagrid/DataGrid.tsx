@@ -1,5 +1,5 @@
 'use client';
-import {useCallback, useMemo} from 'react';
+import {useCallback, useMemo, useRef} from 'react';
 import BarLoader from 'react-spinners/BarLoader';
 import {debounce} from 'lodash';
 import {DraggableHeaderRenderer} from './DraggableHeaderRenderer';
@@ -50,7 +50,8 @@ function shouldPaginate(event, isLoading: boolean, offset: number): boolean {
 
 export const Datagrid = () => {
   const rowIds = useRecoilValue(rowIdsAtom);
-  const {data, offset, setPageNumber, setPageSize, isLoading} = useDataGrid();
+  const ref = useRef(null);
+  const {data, offset, setPageNumber, setPageSize, isLoading} = useDataGrid(ref);
 
   // data grid column handling
   const draggableColumns = useMemo(() => {
@@ -89,14 +90,16 @@ export const Datagrid = () => {
   }, 100);
 
   return data.rows.length > 0 ? (
-    <ReactDataGrid
-      //@ts-ignore
-      onScroll={(e) => debouncedScroll(e)}
-      columns={draggableColumns}
-      rowGetter={(i) => data.rows[i]}
-      rowsCount={data.rows.length}
-      minHeight={window.innerHeight - 88}
-    />
+    <div className="h-full w-full" ref={ref}>
+      <ReactDataGrid
+        //@ts-ignore
+        onScroll={(e) => debouncedScroll(e)}
+        columns={draggableColumns}
+        rowGetter={(i) => data.rows[i]}
+        rowsCount={data.rows.length}
+        minHeight={window.innerHeight - 88}
+      />
+    </div>
   ) : (
     <div className="h-full w-full flex flex-col justify-center items-center bg-secondary-mignight">
       <h1 className="text-xl font-bold my-4">Loading Data Grid...</h1>
