@@ -1,4 +1,4 @@
-import emailClient from 'email';
+// import emailClient from 'email';
 import {databaseTypes, emailTypes} from 'types';
 import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
@@ -56,15 +56,6 @@ export class WorkspaceService {
 
       await mongoDbConnection.models.UserModel.addMembership(creatorId, [member]);
       await mongoDbConnection.models.UserModel.addWorkspaces(creatorId, [newWorkspace]);
-
-      const emailData = {
-        type: emailTypes.EmailTypes.WORKSPACE_CREATED,
-        workspaceName: newWorkspace.name,
-        workspaceId: newWorkspace.id as string,
-        email: email,
-        workspaceCode: newWorkspace.inviteCode,
-      } satisfies emailTypes.EmailData;
-      await emailClient.sendEmail(emailData);
 
       return newWorkspace;
     } catch (err: any) {

@@ -1,9 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
-import * as React from 'react';
+import React from 'react';
 import {emailTypes} from 'types';
-import '../styles.css';
 
-export const EmailVerificationTemplate: React.FC<Readonly<emailTypes.iEmailVerificationData>> = ({url}) => {
+export const EmailVerificationTemplate = ({url}: emailTypes.iEmailVerificationData) => {
   return (
     <div className="mx-auto max-w-lg rounded-lg">
       <div className="text-center py-2.5 text-xl font-sans text-text">

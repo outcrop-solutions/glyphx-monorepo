@@ -1,18 +1,17 @@
-import * as React from 'react';
+import React from 'react';
 import {emailTypes} from 'types';
-import '../styles.css';
 
-export const WorkspaceInvitationTemplate: React.FC<Readonly<emailTypes.iWorkspaceInvitationData>> = ({
+export const WorkspaceJoinedTemplate = ({
   workspaceName,
   workspaceCode,
   workspaceId,
-}) => {
+}: emailTypes.iWorkspaceJoinedData) => {
   const link = `${process.env.APP_URL}/${workspaceId}/teams?code=${encodeURI(workspaceCode)}`;
   return (
     <div>
       <p>Hello there!</p>
       <p>
-        You have been invited to join the <strong>{workspaceName}</strong> workspace.
+        Congrats on joining the <strong>{workspaceName}</strong> workspace.
       </p>
       <p>Workspaces encapsulate your projects activities with your dedicated teammates.</p>
       <p>

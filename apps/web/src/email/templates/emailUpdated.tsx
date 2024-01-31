@@ -1,8 +1,7 @@
-import * as React from 'react';
+import React from 'react';
 import {emailTypes} from 'types';
-import '../styles.css';
 
-export const EmailUpdatedTemplate: React.FC<Readonly<emailTypes.iEmailUpdatedData>> = ({newEmail}) => {
+export const EmailUpdatedTemplate = ({newEmail}: emailTypes.iEmailUpdatedData) => {
   return (
     <div>
       <p>Hello there!</p>

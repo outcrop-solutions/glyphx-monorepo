@@ -1,6 +1,6 @@
 import 'mocha';
 import {assert} from 'chai';
-import emailClient from '../';
+import emailClient from '../email';
 import {emailTypes} from 'types';
 import {EmailError} from 'core/src/error';
 
@@ -72,7 +72,6 @@ describe('#integrationTests/ResendClient', () => {
       try {
         const emailData = {
           type: emailTypes.EmailTypes.STATE_CREATED,
-          userName: 'testing',
           stateName: '',
           stateImage: '',
           emails: ['james@glyphx.co', 'jp@glyphx.co'],
@@ -87,7 +86,6 @@ describe('#integrationTests/ResendClient', () => {
       try {
         const emailData = {
           type: emailTypes.EmailTypes.STATE_CREATED,
-          userName: undefined as unknown as string,
           stateName: undefined as unknown as string,
           stateImage: undefined as unknown as string,
           emails: [],
@@ -161,6 +159,8 @@ describe('#integrationTests/ResendClient', () => {
           type: emailTypes.EmailTypes.WORKSPACE_JOINED,
           userName: 'user',
           workspaceName: 'workspace',
+          workspaceCode: 'workspace',
+          workspaceId: 'id',
           email: 'james@glyphx.co',
         } satisfies emailTypes.EmailData;
         const retval = await emailClient.sendEmail(emailData);
@@ -175,6 +175,8 @@ describe('#integrationTests/ResendClient', () => {
           type: emailTypes.EmailTypes.WORKSPACE_JOINED,
           userName: undefined as unknown as string,
           workspaceName: undefined as unknown as string,
+          workspaceCode: undefined as unknown as string,
+          workspaceId: undefined as unknown as string,
           email: undefined as unknown as string,
         } satisfies emailTypes.EmailData;
         await emailClient.sendEmail(emailData);

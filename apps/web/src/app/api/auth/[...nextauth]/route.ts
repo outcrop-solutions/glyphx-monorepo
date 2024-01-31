@@ -4,7 +4,8 @@ import {Initializer, dbConnection, userService} from 'business';
 import {MongoDBAdapter} from '@next-auth/mongodb-adapter';
 import GoogleProvider from 'next-auth/providers/google';
 import EmailProvider from 'next-auth/providers/email';
-import {signInHtml, signInText, EmailClient} from 'email';
+import emailClient from '../../../../email';
+import {emailTypes} from 'types';
 
 const getConnectionPromise = (async () => {
   // initialize the business layer
@@ -44,14 +45,19 @@ export const authOptions: NextAuthOptions = {
     EmailProvider({
       from: process.env.EMAIL_FROM,
       server: process.env.EMAIL_SERVER,
-      sendVerificationRequest: async ({identifier: email, url}) => {
+      sendVerificationRequest: async ({identifier, url}) => {
         const {host} = new URL(url);
-        await EmailClient.sendMail({
-          html: signInHtml({email, url}),
-          subject: `[Glyphx] Sign in to ${host}`,
-          text: signInText({email, url}),
-          to: email,
-        });
+        const emailData = {
+          type: emailTypes.EmailTypes.EMAIL_VERFICATION,
+          url: host,
+          identifier,
+          provider: {
+            from: 'jp@glyphx.co',
+          },
+          theme: 'light',
+        } satisfies emailTypes.EmailData;
+        await emailClient.init();
+        await emailClient.sendEmail(emailData);
       },
     }),
     GoogleProvider({

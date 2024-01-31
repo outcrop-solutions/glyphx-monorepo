@@ -1,5 +1,5 @@
 import {EmailError} from 'core/src/error';
-import {bindSecrets, boundProperty} from 'core/src/secrets/secretClassDecorator';
+import {bindSecrets, boundProperty} from 'core';
 import {Resend} from 'resend';
 import {
   EmailUpdatedTemplate,
@@ -8,7 +8,7 @@ import {
   WorkspaceCreatedTemplate,
   WorkspaceInvitationTemplate,
   WorkspaceJoinedTemplate,
-} from 'templates';
+} from './templates';
 import {emailTypes} from 'types';
 
 /**
@@ -120,6 +120,7 @@ export class ResendClient {
 
   private async sendWorkspaceCreated(emailData: emailTypes.iWorkspaceCreatedData) {
     try {
+      console.log({emailData});
       const {data, error} = await this.client!.emails.send({
         from: this.fromField,
         to: [emailData.email],
@@ -132,7 +133,8 @@ export class ResendClient {
         return data;
       }
     } catch (error) {
-      throw new EmailError('An eror occured sending the workspace created email', error);
+      console.log({error});
+      throw new EmailError('An error occured sending the workspace created email', error);
     }
   }
 
@@ -140,7 +142,7 @@ export class ResendClient {
     try {
       const {data, error} = await this.client!.emails.send({
         from: this.fromField,
-        to: [emailData.email],
+        to: emailData.emails,
         subject: 'Glyphx: New Workspace Invitation',
         react: WorkspaceInvitationTemplate(emailData),
       });
