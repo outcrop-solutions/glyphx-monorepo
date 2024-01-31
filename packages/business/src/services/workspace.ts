@@ -1,5 +1,5 @@
-import {EmailClient, workspaceCreateHtml, workspaceCreateText, inviteHtml, inviteText} from 'email';
-import {databaseTypes} from 'types';
+import emailClient from 'email';
+import {databaseTypes, emailTypes} from 'types';
 import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
 
@@ -57,12 +57,14 @@ export class WorkspaceService {
       await mongoDbConnection.models.UserModel.addMembership(creatorId, [member]);
       await mongoDbConnection.models.UserModel.addWorkspaces(creatorId, [newWorkspace]);
 
-      await EmailClient.sendMail({
-        html: workspaceCreateHtml({id: newWorkspace.id!, code: workspace.inviteCode, name}),
-        subject: `[Glyphx] Workspace created: ${name}`,
-        text: workspaceCreateText({id: newWorkspace.id!, code: workspace.inviteCode, name}),
-        to: email,
-      });
+      const emailData = {
+        type: emailTypes.EmailTypes.WORKSPACE_CREATED,
+        workspaceName: newWorkspace.name,
+        workspaceId: newWorkspace.id as string,
+        email: email,
+        workspaceCode: newWorkspace.inviteCode,
+      } satisfies emailTypes.EmailData;
+      await emailClient.sendEmail(emailData);
 
       return newWorkspace;
     } catch (err: any) {
@@ -422,22 +424,17 @@ export class WorkspaceService {
           return mem._id.toString(); // FIXME: This should be added to the db layer as createMany()
         });
 
+        const emailData = {
+          type: emailTypes.EmailTypes.WORKSPACE_INVITATION,
+          workspaceName: workspace.name,
+          emails: members.map((member) => member.email),
+          workspaceId: workspace.id!,
+          inviteCode: workspace.inviteCode!,
+        } satisfies emailTypes.EmailData;
+
         await Promise.all([
           mongoDbConnection.models.WorkspaceModel.addMembers(workspace.id!, [...memberIds]),
-          EmailClient.sendMail({
-            html: inviteHtml({
-              id: workspace.id!,
-              code: workspace.inviteCode,
-              name: workspace.name,
-            }),
-            subject: `[Glyphx] You have been invited to join ${workspace.name} workspace`,
-            text: inviteText({
-              id: workspace.id!,
-              code: workspace.inviteCode,
-              name: workspace.name,
-            }),
-            to: members.map((member) => member.email),
-          }),
+          emailClient.sendEmail(emailData),
         ]);
 
         return {members: createdMembers, workspace: workspace};

@@ -1,5 +1,5 @@
-import {EmailClient, updateHtml, updateText} from 'email';
-import {databaseTypes} from 'types';
+import emailClient from 'email';
+import {databaseTypes, emailTypes} from 'types';
 import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
 
@@ -107,12 +107,13 @@ export class UserService {
         emailVerified: undefined,
       });
 
-      await EmailClient.sendMail({
-        html: updateHtml({email}),
-        subject: '[Glyphx] Email address updated',
-        text: updateText({email}),
-        to: [email, previousEmail],
-      });
+      const emailData = {
+        type: emailTypes.EmailTypes.EMAIL_UPDATED,
+        newEmail: 'james@glyphx.co',
+        oldEmail: 'james@glyphx.co',
+      } satisfies emailTypes.EmailData;
+
+      await emailClient.sendEmail(emailData);
 
       await mongoDbConnection.models.MemberModel.updateMemberWithFilter({email: previousEmail}, {email: email});
 

@@ -1,8 +1,15 @@
 {
   "extends": "tsconfig/node18.json",
   "compilerOptions": {
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "noImplicitAny": false,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "experimentalDecorators": true, // required for correct next transpilation
+    "emitDecoratorMetadata": true,
+    "jsx": "react"
   },
-  "include": ["src/**/*.ts", "**/*.tsx", "tsup.config.ts"],
-  "exclude": ["src/__tests__/**"]
+  "include": ["src/**/*.ts", "**/*.tsx", "next-env.d.ts"],
+  "exclude": ["src/__tests__/**", "src/__integrationTests__/**"]
 }
