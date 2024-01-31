@@ -12,8 +12,7 @@ import {webTypes} from 'types';
 import useApplyState from 'services/useApplyState';
 
 export const States = () => {
-  const { mutate } = useSWRConfig();
-  const 
+  const {mutate} = useSWRConfig();
   const project = useRecoilValue(projectAtom);
   const rowIds = useRecoilValue(rowIdsAtom);
   const [isCollapsed, setCollapsed] = useState(false);
