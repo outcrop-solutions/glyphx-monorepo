@@ -6,3 +6,4 @@ export * from './iStateCreated';
 export * from './iWorkspaceCreated';
 export * from './iWorkspaceInvitation';
 export * from './iWorkspaceJoined';
+export * from './iAnnotationCreated';

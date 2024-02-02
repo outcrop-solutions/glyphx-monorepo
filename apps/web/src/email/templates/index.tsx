@@ -4,7 +4,7 @@ import {StateCreatedTemplate} from './stateCreated';
 import {WorkspaceCreatedTemplate} from './workspaceCreated';
 import {WorkspaceInvitationTemplate} from './workspaceInvitation';
 import {WorkspaceJoinedTemplate} from './workspaceJoined';
-
+import {AnnotationCreatedTemplate} from './annotationCreated';
 export {
   EmailUpdatedTemplate,
   EmailVerificationTemplate,
@@ -12,4 +12,5 @@ export {
   WorkspaceCreatedTemplate,
   WorkspaceInvitationTemplate,
   WorkspaceJoinedTemplate,
+  AnnotationCreatedTemplate,
 };

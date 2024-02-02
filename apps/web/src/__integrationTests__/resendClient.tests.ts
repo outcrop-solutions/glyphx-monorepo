@@ -95,6 +95,35 @@ describe('#integrationTests/ResendClient', () => {
         assert.instanceOf(error, EmailError);
       }
     });
+    it('Will send the annotationCreated email', async () => {
+      try {
+        const emailData = {
+          type: emailTypes.EmailTypes.ANNOTATION_CREATED,
+          stateName: '',
+          stateImage: '',
+          annotation: '',
+          emails: ['james@glyphx.co'],
+        } satisfies emailTypes.EmailData;
+        const retval = await emailClient.sendEmail(emailData);
+        assert.isOk(retval?.id);
+      } catch (error) {
+        assert.fail();
+      }
+    });
+    it('Will throw an EmailError when provided invalid inputs', async () => {
+      try {
+        const emailData = {
+          type: emailTypes.EmailTypes.ANNOTATION_CREATED,
+          stateName: undefined as unknown as string,
+          stateImage: undefined as unknown as string,
+          annotation: undefined as unknown as string,
+          emails: [],
+        } satisfies emailTypes.EmailData;
+        await emailClient.sendEmail(emailData);
+      } catch (error) {
+        assert.instanceOf(error, EmailError);
+      }
+    });
     it('Will send the workspaceCreated email', async () => {
       try {
         const emailData = {

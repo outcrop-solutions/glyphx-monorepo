@@ -2,6 +2,7 @@ import {EmailError} from 'core/src/error';
 import {bindSecrets, boundProperty} from 'core';
 import {Resend} from 'resend';
 import {
+  AnnotationCreatedTemplate,
   EmailUpdatedTemplate,
   EmailVerificationTemplate,
   StateCreatedTemplate,
@@ -115,6 +116,24 @@ export class ResendClient {
       }
     } catch (error) {
       throw new EmailError('An eror occured sending the state created email', error);
+    }
+  }
+
+  private async sendAnnotationCreated(emailData: emailTypes.iAnnotationCreatedData) {
+    try {
+      const {data, error} = await this.client!.emails.send({
+        from: this.fromField,
+        to: emailData.emails,
+        subject: 'Glyphx: New State Created',
+        react: AnnotationCreatedTemplate(emailData),
+      });
+      if (error) {
+        throw error;
+      } else {
+        return data;
+      }
+    } catch (error) {
+      throw new EmailError('An eror occured sending the thread created email', error);
     }
   }
 
