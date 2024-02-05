@@ -56,6 +56,8 @@ export class ResendClient {
         return await this.sendStateCreated(emailData);
       case emailTypes.EmailTypes.WORKSPACE_CREATED:
         return await this.sendWorkspaceCreated(emailData);
+      case emailTypes.EmailTypes.ANNOTATION_CREATED:
+        return await this.sendAnnotationCreated(emailData);
       case emailTypes.EmailTypes.WORKSPACE_INVITATION:
         return await this.sendWorkspaceInvitation(emailData);
       case emailTypes.EmailTypes.WORKSPACE_JOINED:
