@@ -11,7 +11,7 @@ export const Annotation = ({item}) => {
     >
       <div className="flex items-center justify-between text-xs">
         <div className="flex items-center">
-          <div className="flex items-center justify-center h-6 w-6 rounded-full bg-teal">
+          <div className="flex items-center justify-center h-4 w-4 rounded-full bg-teal">
             {item.author.name.charAt(0)}
           </div>
           <div className="text-center  whitespace-nowrap truncate ml-2">{item.author.name}</div>

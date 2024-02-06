@@ -3,6 +3,7 @@ import React, {useState} from 'react';
 import {AnnotationList} from './AnnotationList';
 import {useAnnotations} from 'lib/client/hooks';
 import Link from 'next/link';
+import {PlusIcon} from '@heroicons/react/outline';
 
 export const Annotations = () => {
   const [isCollapsed, setCollapsed] = useState(false);
@@ -38,6 +39,10 @@ export const Annotations = () => {
             </span>
           </Link>
         </div>
+        <PlusIcon
+          color="#CECECE"
+          className="w-5 h-5 opacity-100 mr-2 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white"
+        />
       </summary>
       {!isCollapsed && !isLoading && <AnnotationList />}
     </div>
