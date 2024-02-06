@@ -1,8 +1,9 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
 import type {Session} from 'next-auth';
-import {stateService, activityLogService} from 'business';
+import {stateService, activityLogService, projectService} from 'business';
 import {formatUserAgent} from 'lib/utils';
-import {databaseTypes} from 'types';
+import {databaseTypes, emailTypes} from 'types';
+import emailClient from '../../email';
 /**
  * Get a State
  *
@@ -46,6 +47,21 @@ export const createState = async (req: NextApiRequest, res: NextApiResponse, ses
       rowIds,
       imageHash
     );
+
+    const retval = await projectService.getProject(project.id);
+
+    if (retval?.members) {
+      const emailData = {
+        type: emailTypes.EmailTypes.STATE_CREATED,
+        stateName: name,
+        stateImage: imageHash,
+        emails: retval.members?.map((mem) => mem.email),
+      } satisfies emailTypes.EmailData;
+
+      await emailClient.init();
+      await emailClient.sendEmail(emailData);
+    }
+
     const {agentData, location} = formatUserAgent(req);
 
     if (state) {

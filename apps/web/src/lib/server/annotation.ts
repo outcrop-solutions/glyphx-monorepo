@@ -1,6 +1,8 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
-import {annotationService} from 'business';
+import {annotationService, membershipService, stateService} from 'business';
 import {Session} from 'next-auth';
+import {emailTypes} from 'types';
+import emailClient from '../../email';
 
 /**
  * Get Project Annotations
@@ -79,6 +81,26 @@ export const createStateAnnotation = async (req: NextApiRequest, res: NextApiRes
       stateId: stateId as string,
       value: value as string,
     });
+
+    if (stateId) {
+      const state = await stateService.getState(stateId);
+      if (state?.imageHash && annotation?.value) {
+        const members = await membershipService.getMembers({project: state.project.id});
+        if (members) {
+          const emailData = {
+            type: emailTypes.EmailTypes.ANNOTATION_CREATED,
+            stateName: state.name,
+            stateImage: state.imageHash,
+            annotation: annotation.value,
+            emails: [...members.map((mem) => mem.email)],
+          } satisfies emailTypes.EmailData;
+
+          await emailClient.init();
+          await emailClient.sendEmail(emailData);
+        }
+      }
+    }
+
     res.status(200).json({data: annotation});
   } catch (error) {
     res.status(404).json({errors: {error: {msg: error.message}}});

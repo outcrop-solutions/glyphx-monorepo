@@ -3,7 +3,7 @@
   "recursive": true,
   "timeout": 999999,
   "exit": true,
-  "spec": ["./src/__tests__/**/*.tests.ts"],
+  "spec": ["./src/__integrationTests__/**/*.tests.ts"],
   "ts-node": {
     "project": "./tsconfig.json"
   }

@@ -16,5 +16,5 @@
     "@/secrets/*": ["src/secrets/*"],
     "@/streams/*": ["src/streams/*"]
   },
-  "exclude": ["src/__tests__/**", "src/__integrationTests__/**"]
+  "exclude": ["src/__tests__/**", "src/__integrationTests__/**", "node_modules"]
 }
