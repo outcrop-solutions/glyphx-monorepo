@@ -75,6 +75,9 @@ div[class='react-grid-Cell'] {
 div[class='rdg-selected'] {
   @apply border border-secondary-blue text-white rounded text-center;
 }
+div[class='rdg-last--frozen'] {
+  @apply bg-primary-dark-blue hover:bg-primary-dark-blue first:bg-secondary-deep-blue;
+}
 
 div[data-type='number'] {
   @apply bg-cyan text-white rounded text-center;

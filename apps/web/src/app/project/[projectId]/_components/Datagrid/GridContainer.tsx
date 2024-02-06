@@ -9,7 +9,6 @@ import {ModelFooter} from './ModelFooter';
 import {filesOpenSelector} from 'state/files';
 import {useResize} from 'services/useResize';
 import {orientationAtom, projectAtom, splitPaneSizeAtom, stateSelector, windowSizeAtom} from 'state';
-import useDataGrid from 'lib/client/hooks/useDataGrid';
 import SplitPane from 'react-split-pane';
 import Image from 'next/image';
 
@@ -21,7 +20,6 @@ export const GridContainer = () => {
     setIsClient(true);
   }, []);
 
-  const {data} = useDataGrid();
   const openFiles = useRecoilValue(filesOpenSelector);
   const activeState = useRecoilValue(stateSelector);
   const project = useRecoilValue(projectAtom);
@@ -60,7 +58,7 @@ export const GridContainer = () => {
             {openFiles?.length > 0 ? (
               <>
                 <GridHeader />
-                <Datagrid data={data} />
+                <Datagrid />
               </>
             ) : (
               <MainDropzone />

@@ -26,7 +26,6 @@ module.exports = {
     'core',
     'business',
     'database',
-    'email',
     'fileingestion',
     'glyphengine',
     'types',
@@ -43,6 +42,8 @@ module.exports = {
   },
   experimental: {
     serverActions: true,
+    serverComponentsExternalPackages: ['resend'],
+
     // gives us statically types routes
     // typedRoutes: true,
     // turbo: {

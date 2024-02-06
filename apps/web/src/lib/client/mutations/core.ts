@@ -43,7 +43,13 @@ export const _uploadFile = (acceptedFile: ArrayBuffer, url: string): webTypes.IF
  * @param tableName
  * @returns config
  */
-export const _getDataGrid = (workspaceId: string, projectId: string, tableName: string): webTypes.IFetchConfig => {
+export const _getDataGrid = (
+  workspaceId: string,
+  projectId: string,
+  tableName: string,
+  pageSize: number,
+  pageNumber: number
+): webTypes.IFetchConfig => {
   return {
     url: `/api/data/grid`,
     options: {
@@ -52,6 +58,8 @@ export const _getDataGrid = (workspaceId: string, projectId: string, tableName: 
         workspaceId: workspaceId,
         projectId: projectId,
         tableName: tableName,
+        pageSize: pageSize,
+        pageNumber: pageNumber,
       },
     },
     successMsg: 'File successfully loaded',
@@ -71,6 +79,8 @@ export const _getRowIds = (
   projectId: string,
   tableName: string,
   rowIds: string[],
+  pageSize: number,
+  pageNumber: number,
   isExport?: boolean
 ): webTypes.IFetchConfig => {
   return {
@@ -82,6 +92,8 @@ export const _getRowIds = (
         projectId: projectId,
         tableName: tableName,
         rowIds: rowIds,
+        pageSize,
+        pageNumber,
         isExport: isExport || false,
       },
     },

@@ -10,7 +10,8 @@ import {
 } from 'business';
 import slugify from 'slugify';
 import {formatUserAgent} from 'lib/utils/formatUserAgent';
-import {databaseTypes} from 'types';
+import {databaseTypes, emailTypes} from 'types';
+import emailClient from '../../email';
 
 /**
  * Create Workspace
@@ -56,6 +57,17 @@ export const createWorkspace = async (req: NextApiRequest, res: NextApiResponse,
       name,
       slug
     );
+
+    const emailData = {
+      type: emailTypes.EmailTypes.WORKSPACE_CREATED,
+      workspaceName: workspace!.name,
+      workspaceId: workspace!.id as string,
+      email: session?.user?.email,
+      workspaceCode: workspace!.workspaceCode,
+    } satisfies emailTypes.EmailData;
+
+    await emailClient.init();
+    await emailClient.sendEmail(emailData);
 
     const {agentData, location} = formatUserAgent(req);
 
