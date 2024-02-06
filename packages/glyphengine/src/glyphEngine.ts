@@ -176,15 +176,16 @@ export class GlyphEngine {
 
       data.set('view_name', viewName);
 
-      //Start our query now before we do any processing
-      await processTrackingService.addProcessMessage(this.processId, `Starting the query: ${new Date()}`);
-      await this.startQuery(data, viewName);
-
       await processTrackingService.addProcessMessage(
         this.processId,
         `Getting the data types and updating the SDT: ${new Date()}`
       );
       await this.getDataTypes(viewName, data);
+
+      //Start our query now before we do any processing
+      await processTrackingService.addProcessMessage(this.processId, `Starting the query: ${new Date()}`);
+      await this.startQuery(data, viewName);
+
       const template = this.updateSdt(await this.getTemplateAsString(), data);
 
       //bucket/client/workspaceId/ProjectId/output/model.sdt
@@ -192,10 +193,22 @@ export class GlyphEngine {
       const sdtFileName = `${prefix}/${payloadHash}.sdt`;
       await this.outputBucketField.putObject(sdtFileName, template);
 
-      const {xCol, yCol, zCol, isXDate, isYDate, isZDate, zColName} = this.formatCols(data);
-      const initialParser = new SdtParser(isXDate, isYDate, isZDate, xCol, yCol, zCol, zColName);
-      const sdtParser = await initialParser.parseSdtString(template, viewName, data, this.athenaManager);
+      const {xCol, yCol, zCol, isXDate, xDateGrouping, isYDate, yDateGrouping, isZDate, zColName, zAccumulatorType} =
+        this.formatCols(data);
 
+      const initialParser = new SdtParser(
+        isXDate,
+        xDateGrouping,
+        isYDate,
+        yDateGrouping,
+        isZDate,
+        xCol,
+        yCol,
+        zCol,
+        zColName,
+        zAccumulatorType
+      );
+      const sdtParser = await initialParser.parseSdtString(template, viewName, data, this.athenaManager);
       await processTrackingService.addProcessMessage(
         this.processId,
         `Waiting for the query to complete: ${new Date()}`
@@ -279,12 +292,17 @@ export class GlyphEngine {
 
   private formatCols(data: Map<string, string>): {
     isXDate: boolean;
+    xDateGrouping: glyphEngineTypes.constants.DATE_GROUPING;
     isYDate: boolean;
+    yDateGrouping: glyphEngineTypes.constants.DATE_GROUPING;
     isZDate: boolean;
     xCol: string;
     yCol: string;
     zCol: string;
+    xColName: string;
+    yColName: string;
     zColName: string;
+    zAccumulatorType: glyphEngineTypes.constants.ACCUMULATOR_TYPE;
   } {
     const xCol = data.get('x_axis') as string;
     const yCol = data.get('y_axis') as string;
@@ -313,19 +331,24 @@ export class GlyphEngine {
       GlyphEngine.getAccumulatorFunction(isZDate, zAccumulatorType);
     return {
       isXDate,
+      xDateGrouping,
       isYDate,
+      yDateGrouping,
       isZDate,
       xCol: groupByXColumn,
       yCol: groupByYColumn,
       zCol: accumulatorFunction,
+      xColName: xCol,
+      yColName: yCol,
       zColName,
+      zAccumulatorType,
     };
   }
 
   private async startQuery(data: Map<string, string>, viewName: string): Promise<void> {
     //TODO: need some validation here
     const filter = (data.get('filter') as string) ?? undefined;
-    const {xCol, yCol, zCol, zColName} = this.formatCols(data);
+    const {xCol, yCol, zCol, xColName, yColName, zColName} = this.formatCols(data);
 
     this.queryRunner = new QueryRunner({
       databaseName: this.athenaManager.databaseName,
@@ -333,6 +356,8 @@ export class GlyphEngine {
       xCol,
       yCol,
       zCol,
+      xColName,
+      yColName,
       zColName,
       filter,
     });
@@ -360,7 +385,6 @@ export class GlyphEngine {
         return `SUM(zColumn)`;
     }
   }
-
   // Maps date grouping to PRESTO compatible SQL functions
   public static getDateGroupingFunction(
     columnName: string,
@@ -397,6 +421,12 @@ export class GlyphEngine {
       // DOW variants
       case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_WEEK:
         return `(year_of_week(from_unixtime("${columnName}"/1000)) * 1000) + (week_of_year(from_unixtime("${columnName}"/1000)) * 10) + day_of_week(from_unixtime("${columnName}"/1000))`;
+
+      case glyphEngineTypes.constants.DATE_GROUPING.YEAR_DAY_OF_WEEK:
+        return `(year_of_week(from_unixtime("${columnName}"/1000)) * 100) + day_of_week(from_unixtime("${columnName}"/1000))`;
+
+      case glyphEngineTypes.constants.DATE_GROUPING.WEEK_DAY_OF_WEEK:
+        return `(week_of_year(from_unixtime("${columnName}"/1000)) * 10) + day_of_week(from_unixtime("${columnName}"/1000))`;
 
       case glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK:
         return `day_of_week(from_unixtime("${columnName}"/1000))`;

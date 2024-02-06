@@ -1,36 +1,31 @@
-import React, {useState} from 'react';
-import {useRecoilState, useRecoilValue} from 'recoil';
+'use client';
+import React from 'react';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import produce from 'immer';
 import toast from 'react-hot-toast';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {webTypes} from 'types';
 import {LinkDropDown} from './LinkDropDown';
 import {MemberList} from './MemberList';
-
-import {projectAtom, rightSidebarControlAtom} from 'state';
+import Link from 'next/link';
+import {drawerOpenAtom, projectAtom, rightSidebarControlAtom} from 'state';
 
 import CloseProjectInfoIcon from 'public/svg/close-project-info.svg';
 import CopyToClipboardIcon from 'public/svg/copy-to-clipboard.svg';
 import ShareIcon from 'public/svg/share-header-icon.svg';
 import GroupIcon from 'public/svg/group-icon.svg';
 import {WritableDraft} from 'immer/dist/internal';
+import {Route} from 'next';
+import {useParams} from 'next/navigation';
+import useIsTeamOwner from 'lib/client/hooks/useIsOwner';
 
 export const Share = () => {
   const [sidebarControl, setRightSidebarControl] = useRecoilState(rightSidebarControlAtom);
-  const [showShareText, setShareText] = useState(false);
-  const selectedProject = useRecoilValue(projectAtom);
-
-  /**
-   * Copies Model Link to clipboard
-   */
-  function copyLinkToClipBoard() {
-    navigator.clipboard.writeText('https://app.glyphx.co/share/' + selectedProject.id);
-    setShareText(true);
-    setTimeout(() => {
-      //take away text after 3 seconds
-      setShareText(false);
-    }, 3000);
-  }
+  const params = useParams();
+  const project = useRecoilValue(projectAtom);
+  const {data: ownership, isLoading: isOwnershipLoading} = useIsTeamOwner();
+  const workspaceId = params?.workspaceId ?? project.workspace.id;
+  const setDrawer = useSetRecoilState(drawerOpenAtom);
 
   const handleClose = () => {
     setRightSidebarControl(
@@ -61,7 +56,7 @@ export const Share = () => {
             <span className="inline-block mr-2">
               <GroupIcon />
             </span>
-            Everyone within this workspace can access this file
+            Everyone within this workspace can access this project
           </p>
         </div>
         <div className="flex flex-row justify-between mb-3">
@@ -78,31 +73,31 @@ export const Share = () => {
       <div className="absolute bottom-0 mt-5 pl-3 pr-3">
         <hr className="text-gray mb-2" />
         <div className="flex flex-row justify-between items-center space-x-3 mb-3 mt-2">
-          <div
-            onClick={copyLinkToClipBoard}
-            className="rounded-xl border border-transparent py-1 px-2 hover:bg-secondary-midnight hover:border-white hover:cursor-pointer"
-          >
+          <div className="rounded-xl border border-transparent py-1 px-2 hover:bg-secondary-midnight hover:border-white hover:cursor-pointer">
             <p className="text-light-gray font-roboto font-medium leading-[16px] text-center text-[14px]">
-              <span className="inline-block mr-2">
-                <CopyToClipboard
-                  onCopy={copyToClipboard}
-                  text={`https://app.glyphx.co/share/${sidebarControl?.data?.id}`}
-                >
-                  <CopyToClipboardIcon />
+              {!isOwnershipLoading && (
+                <CopyToClipboard onCopy={copyToClipboard} text={ownership?.inviteLink}>
+                  <span className="flex items-center">
+                    <CopyToClipboardIcon />
+                    <span className="inline-block ml-2">Copy Link</span>
+                  </span>
                 </CopyToClipboard>
-              </span>
-              Copy Link
+              )}
             </p>
           </div>
-
-          <div>
-            <button className="text-secondary-space-blue font-roboto font-medium text-[14px] leading-[16px] rounded-xl border bg-primary-yellow hover:bg-primary-yellow-hover py-1 px-2">
-              Send Invite
-            </button>
+          <div
+            onClick={() => {
+              if (window?.core) {
+                window?.core?.ToggleDrawer(false);
+              }
+            }}
+          >
+            <Link href={`/${workspaceId}/settings/team` as Route}>
+              <button className="text-secondary-space-blue font-roboto font-medium text-[14px] leading-[16px] rounded-xl border bg-primary-yellow hover:bg-primary-yellow-hover py-1 px-2">
+                Send Invite
+              </button>
+            </Link>
           </div>
-        </div>
-        <div className="mt-0 w-full pl-3 pr-3 mb-2">
-          {showShareText && <p className="text-white text-base">Link copied to clipboard</p>}
         </div>
       </div>
     </div>

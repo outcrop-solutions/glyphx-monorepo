@@ -2,7 +2,6 @@ import type {NextApiRequest, NextApiResponse} from 'next';
 import {generalPurposeFunctions} from 'core';
 
 import {GlyphEngine} from 'glyphengine';
-import {ATHENA_DB_NAME, S3_BUCKET_NAME} from 'config/constants';
 import {
   processTrackingService,
   activityLogService,
@@ -11,7 +10,7 @@ import {
   athenaConnection,
   s3Connection,
 } from 'business';
-import {databaseTypes, webTypes} from 'types';
+import {databaseTypes, fileIngestionTypes, glyphEngineTypes, webTypes} from 'types';
 import {formatUserAgent} from 'lib/utils/formatUserAgent';
 import {generateFilterQuery} from 'lib/client/helpers';
 import {isValidPayload} from 'lib/utils/isValidPayload';
@@ -77,9 +76,10 @@ import {Session} from 'next-auth';
 // });
 
 export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {project, isFilter, payloadHash} = req.body;
+  const {project, payloadHash} = req.body;
 
   if (!isValidPayload(project.state.properties)) {
+    console.log('INVALID PAYLOAD');
     // fails silently
     res.status(404).json({errors: {error: {msg: 'Invalid Payload'}}});
   } else {
@@ -88,11 +88,19 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
     const payload = {
       model_id: project.id,
       payload_hash: payloadHash,
-      client_id: project.workspace.id,
+      client_id: project?.workspace.id,
       x_axis: properties[webTypes.constants.AXIS.X]['key'],
-      x_date_grouping: properties[webTypes.constants.AXIS.X]['dateGrouping'],
+      x_date_grouping:
+        properties[webTypes.constants.AXIS.X]['dataType'] === fileIngestionTypes.constants.FIELD_TYPE.DATE &&
+        !properties[webTypes.constants.AXIS.X]['dateGrouping']
+          ? glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR
+          : properties[webTypes.constants.AXIS.X]['dateGrouping'],
       y_axis: properties[webTypes.constants.AXIS.Y]['key'],
-      y_date_grouping: properties[webTypes.constants.AXIS.Y]['dateGrouping'],
+      y_date_grouping:
+        properties[webTypes.constants.AXIS.Y]['dataType'] === fileIngestionTypes.constants.FIELD_TYPE.DATE &&
+        !properties[webTypes.constants.AXIS.Y]['dateGrouping']
+          ? glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR
+          : properties[webTypes.constants.AXIS.Y]['dateGrouping'],
       z_axis: properties[webTypes.constants.AXIS.Z]['key'],
       accumulatorType: properties[webTypes.constants.AXIS.Z]['accumulatorType'],
       x_func: properties[webTypes.constants.AXIS.X]['interpolation'],
@@ -101,11 +109,7 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
       x_direction: properties[webTypes.constants.AXIS.X]['direction'],
       y_direction: properties[webTypes.constants.AXIS.Y]['direction'],
       z_direction: properties[webTypes.constants.AXIS.Z]['direction'],
-      filter: isFilter
-        ? `${generateFilterQuery(properties[webTypes.constants.AXIS.X])} AND ${generateFilterQuery(
-            properties[webTypes.constants.AXIS.Y]
-          )} AND ${generateFilterQuery(properties[webTypes.constants.AXIS.Z])}`
-        : '',
+      filter: generateFilterQuery(project),
     };
 
     try {
@@ -125,18 +129,27 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
 
       let data: Map<string, string>;
       data = new Map<string, string>([
+        // axes
         ['x_axis', payload['x_axis']],
         ['y_axis', payload['y_axis']],
         ['z_axis', payload['z_axis']],
+        // interpolation
         ['x_func', payload['x_func']],
         ['y_func', payload['y_func']],
         ['z_func', payload['z_func']],
+        // direction
         ['x_direction', payload['x_direction']],
         ['y_direction', payload['y_direction']],
         ['z_direction', payload['z_direction']],
+        // dates and accumulator
+        ['x_date_grouping', payload['x_date_grouping']],
+        ['y_date_grouping', payload['y_date_grouping']],
+        ['accumulatorType', payload['accumulatorType']],
+        // model info
         ['model_id', payload['model_id']],
         ['client_id', payload['client_id']],
         ['payload_hash', payload['payload_hash']],
+        // filter
         ['filter', payload['filter']],
       ]);
 
@@ -172,6 +185,7 @@ export const glyphEngine = async (req: NextApiRequest, res: NextApiResponse, ses
 
       res.status(200).json({data: {sdtFileName, sgnFileName, sgcFileName, updatedProject}});
     } catch (error) {
+      console.log({error});
       res.status(404).json({errors: {error: {msg: error.message}}});
     }
   }

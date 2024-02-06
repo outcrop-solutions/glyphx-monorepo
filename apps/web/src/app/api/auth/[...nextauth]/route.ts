@@ -25,9 +25,10 @@ export const authOptions: NextAuthOptions = {
       } else {
         const newUser = {
           ...userInfo,
-          image: user.image as string | undefined,
-          color: '#444444',
-          projectIds: userInfo.projects.map((proj) => proj.id as string) ?? [],
+          id: userInfo.id as string,
+          // image: user.image as string | undefined,
+          // color: '#444444',
+          // projectIds: userInfo.projects?.map((proj) => proj.id as string) ?? [],
         };
         session.user = newUser;
       }
@@ -56,6 +57,7 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET || undefined,

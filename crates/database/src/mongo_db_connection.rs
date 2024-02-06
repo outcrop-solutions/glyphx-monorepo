@@ -66,6 +66,7 @@ impl MongoDbConnection {
     where
         T: SecretBoundError + From<ErrorKind>,
     {
+    
         let client = Self::new_impl::<T>(endpoint, database_name, username, password).await;
         if client.is_err() {
             let err = client.err().unwrap();

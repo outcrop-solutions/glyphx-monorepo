@@ -1,20 +1,29 @@
 'use client';
-import {filesOpenSelector} from 'state/files';
+import {dataGridPayloadSelector, filesOpenSelector} from 'state/files';
 import {useRecoilValue} from 'recoil';
 import {FileTab} from './FileTab';
-import {DownloadIcon} from '@heroicons/react/outline';
-import {rowIdsAtom} from 'state';
+import {projectAtom, rowIdsAtom} from 'state';
 import {useCallback} from 'react';
 import {toCSV} from './to-csv';
+import {api} from 'lib';
+import {_getRowIds} from 'lib/client/mutations';
+import {DownloadIcon} from '@heroicons/react/outline';
 
-export const GridHeader = ({data}) => {
+export const GridHeader = () => {
   const filesOpen = useRecoilValue(filesOpenSelector);
   const rowIds = useRecoilValue(rowIdsAtom);
+  const project = useRecoilValue(projectAtom);
+  const gridPayload = useRecoilValue(dataGridPayloadSelector);
 
   const exportCsv = useCallback(() => {
-    const csv = toCSV(data?.rows, data?.columns?.map(({key}) => key), ',', '"');
-    window?.core?.SendCsv(csv);
-  }, [data]);
+    api({
+      ..._getRowIds(project.workspace.id, project.id, gridPayload.tableName, rowIds as string[], false),
+      onSuccess: (data) => {
+        const csv = toCSV(data?.rows, data?.columns?.map(({key}) => key), ',', '"');
+        window?.core?.SendCsv(csv);
+      },
+    });
+  }, [gridPayload.tableName, project.id, project.workspace.id, rowIds]);
 
   return (
     <div className="bg-secondary-space-blue h-8 border-b border-gray text-white text-xs flex flex-shrink-0 items-center justify-between">
@@ -27,7 +36,7 @@ export const GridHeader = ({data}) => {
           </>
         )}
       </div>
-      {rowIds && window && !window?.core && (
+      {rowIds && window && window?.core && (
         <div
           onClick={() => exportCsv()}
           className="group cursor-pointer flex items-center justify-between px-4 bg-gray hover:bg-yellow border-r border-t border-l border-white hover:text-black h-full"

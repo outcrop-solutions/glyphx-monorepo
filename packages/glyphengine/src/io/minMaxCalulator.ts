@@ -75,31 +75,30 @@ export class MinMaxCalculator {
       GROUP BY ${this.xCol}, ${this.yCol}
     )
     SELECT
-      MIN(xColumn) as "min${this.xColumnName}",
-      MAX(xColumn) as "max${this.xColumnName}",
-      MIN(yColumn) as "min${this.yColumnName}",
-      MAX(yColumn) as "max${this.yColumnName}",
-      MIN(zColumn) as "min${this.zColumnName}",
-      MAX(zColumn) as "max${this.zColumnName}"
+      MIN(xColumn) as "min_x_${this.xColumnName}",
+      MAX(xColumn) as "max_x_${this.xColumnName}",
+      MIN(yColumn) as "min_y_${this.yColumnName}",
+      MAX(yColumn) as "max_y_${this.yColumnName}",
+      MIN(zColumn) as "min_z_${this.zColumnName}",
+      MAX(zColumn) as "max_z_${this.zColumnName}"
     FROM temp;
   `;
-
     const data = await this.athenaClient.runQuery(query);
     this.minMaxField = {
       x: {
         columnName: this.xColumnName,
-        min: data[0][`min${this.xColumnName}`] as number,
-        max: data[0][`max${this.xColumnName}`] as number,
+        min: data[0][`min_x_${this.xColumnName}`] as number,
+        max: data[0][`max_x_${this.xColumnName}`] as number,
       },
       y: {
         columnName: this.yColumnName,
-        min: data[0][`min${this.yColumnName}`] as number,
-        max: data[0][`max${this.yColumnName}`] as number,
+        min: data[0][`min_y_${this.yColumnName}`] as number,
+        max: data[0][`max_y_${this.yColumnName}`] as number,
       },
       z: {
         columnName: this.zColumnName,
-        min: data[0][`min${this.zColumnName}`] as number,
-        max: data[0][`max${this.zColumnName}`] as number,
+        min: data[0][`min_z_${this.zColumnName}`] as number,
+        max: data[0][`max_z_${this.zColumnName}`] as number,
       },
     };
   }

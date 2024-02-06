@@ -1,3 +1,4 @@
+'use client';
 import React, {useEffect, useState} from 'react';
 import Button from 'app/_components/Button';
 import {useSWRConfig} from 'swr';
@@ -6,13 +7,14 @@ import {WritableDraft} from 'immer/dist/internal';
 import {_createState, api} from 'lib';
 import {webTypes} from 'types';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {cameraAtom, imageHashAtom, modalsAtom, projectAtom, viewerPositionSelector} from 'state';
+import {cameraAtom, imageHashAtom, modalsAtom, projectAtom, rowIdsAtom, viewerPositionSelector} from 'state';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 
 export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps) => {
   const {mutate} = useSWRConfig();
   const setModals = useSetRecoilState(modalsAtom);
   const [camera, setCamera] = useRecoilState(cameraAtom);
+  const rowIds = useRecoilValue(rowIdsAtom);
   const [image, setImage] = useRecoilState(imageHashAtom);
   const setProject = useSetRecoilState(projectAtom);
   const viewerPosition = useRecoilValue(viewerPositionSelector);
@@ -33,16 +35,29 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
 
   useEffect(() => {
     if (Object.keys(camera).length > 0 && image.imageHash) {
+      const retval = _createState(
+        name,
+        modalContent.data,
+        camera as unknown as webTypes.Camera,
+        {
+          width: (viewerPosition as webTypes.IViewerPosition).w,
+          height: (viewerPosition as webTypes.IViewerPosition).h,
+        } as unknown as webTypes.Aspect,
+        image.imageHash,
+        rowIds ? rowIds : []
+      );
+
       api({
         ..._createState(
           name,
-          modalContent.data.id as unknown as string,
+          modalContent.data,
           camera as unknown as webTypes.Camera,
           {
             width: (viewerPosition as webTypes.IViewerPosition).w,
             height: (viewerPosition as webTypes.IViewerPosition).h,
           } as unknown as webTypes.Aspect,
-          image.imageHash
+          image.imageHash,
+          rowIds ? rowIds : []
         ),
         setLoading: (state) =>
           setModals(
@@ -67,11 +82,24 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
               draft.modals.splice(0, 1);
             })
           );
+
           mutate(`/api/project/${modalContent.data.id}`);
         },
       });
     }
-  }, [camera, modalContent.data.id, name, setCamera, setModals, setProject, mutate, image, setImage, viewerPosition]);
+  }, [
+    camera,
+    modalContent.data.id,
+    name,
+    setCamera,
+    setModals,
+    setProject,
+    mutate,
+    image,
+    setImage,
+    viewerPosition,
+    rowIds,
+  ]);
 
   return (
     <div className="flex flex-col items-stretch justify-center px-4 py-8 space-y-5 bg-secondary-midnight rounded-md text-white">

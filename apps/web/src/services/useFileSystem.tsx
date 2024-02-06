@@ -103,7 +103,7 @@ export const useFileSystem = () => {
     async (acceptedFiles: File[]) => {
       // parse payload
       const payload = await parsePayload(
-        project.workspace.id,
+        project?.workspace.id,
         project.id,
         acceptedFiles,
         session?.data?.user?.name || session?.data?.user?.email || ''
@@ -131,7 +131,7 @@ export const useFileSystem = () => {
         const keys = payload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
 
         const data = await api({
-          ..._getSignedUploadUrls(project.workspace.id, project.id, keys),
+          ..._getSignedUploadUrls(project?.workspace.id, project.id, keys),
           returnData: true,
         });
 
@@ -183,6 +183,7 @@ export const useFileSystem = () => {
                 draft.processEndTime = new Date();
               })
             );
+
             mutate(`/api/project/${project.id}`);
           },
           onError: () => {

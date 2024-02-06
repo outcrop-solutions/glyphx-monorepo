@@ -2,38 +2,42 @@
 import React, {SetStateAction, useEffect, useState} from 'react';
 import {StateList} from './StateList';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {projectAtom} from 'state/project';
+import {projectAtom, rowIdsAtom} from 'state/project';
 import {PlusIcon} from '@heroicons/react/outline';
 import {_createState, api} from 'lib';
 import {CreateStateInput} from './CreateStateInput';
 import {cameraAtom, imageHashAtom, viewerPositionSelector} from 'state';
 import {useSWRConfig} from 'swr';
 import {webTypes} from 'types';
+import useApplyState from 'services/useApplyState';
 
 export const States = () => {
   const {mutate} = useSWRConfig();
   const project = useRecoilValue(projectAtom);
+  const rowIds = useRecoilValue(rowIdsAtom);
   const [isCollapsed, setCollapsed] = useState(false);
   const [addState, setAddState] = useState(false);
   const [camera, setCamera] = useRecoilState(cameraAtom);
   const [image, setImage] = useRecoilState(imageHashAtom);
   const setProject = useSetRecoilState(projectAtom);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [name, setName] = useState('New State');
+  const [name, setName] = useState('Initial State');
   const viewerPosition = useRecoilValue(viewerPositionSelector);
+  const {applyState} = useApplyState();
 
   useEffect(() => {
     if (Object.keys(camera).length > 0 && image.imageHash) {
       api({
         ..._createState(
           name,
-          project.id as unknown as string,
+          project,
           camera as unknown as webTypes.Camera,
           {
             width: (viewerPosition as webTypes.IViewerPosition).w || 300,
             height: (viewerPosition as webTypes.IViewerPosition).h || 200,
           },
-          image.imageHash
+          image.imageHash,
+          rowIds ? rowIds : []
         ),
         setLoading: (state) => setIsSubmitting(state as SetStateAction<boolean>),
         onError: () => {
@@ -41,11 +45,25 @@ export const States = () => {
           setImage({imageHash: false});
           setAddState(false);
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
+          // @jp-burford needs to be validated in dev for state application to be uncommented
+          console.log({createStateData: data});
+          // reset camera
           setCamera({});
+          // reset imageHash
           setImage({imageHash: false});
-          setAddState(false);
-          mutate(`/api/project/${project.id}`);
+          // mutate the project swr cache
+          (async () => {
+            await mutate(`/api/project/${project.id}`);
+            // close create state input
+            setAddState(false);
+            // TODO: need to set state based on updated project.stateHistory length
+            console.log({stateHistory: project.stateHistory});
+            const filteredStates = project.stateHistory.filter((state) => !state.deletedAt);
+            // apply new state
+            const idx = filteredStates.length;
+            applyState(idx);
+          })();
         },
       });
     }

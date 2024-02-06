@@ -5,6 +5,7 @@ import {MinMaxCalculator} from './minMaxCalulator';
 import {TextColumnToNumberConverter} from './textToNumberConverter';
 import {aws} from 'core';
 import {ISdtDocument} from 'interfaces/sdt';
+import {glyphEngineTypes} from 'types';
 
 export interface IInputFields {
   x: IInputField;
@@ -23,18 +24,24 @@ export class SdtParser {
   private yCol: string;
   private zCol: string;
   public isXDate: boolean;
+  public xDateGrouping: glyphEngineTypes.constants.DATE_GROUPING;
   public isYDate: boolean;
+  public yDateGrouping: glyphEngineTypes.constants.DATE_GROUPING;
   public isZDate: boolean;
   private zColName: string;
+  private zAccumulatorType: glyphEngineTypes.constants.ACCUMULATOR_TYPE;
 
   constructor(
     isXDate: boolean,
+    xDateGrouping: glyphEngineTypes.constants.DATE_GROUPING,
     isYDate: boolean,
+    yDateGrouping: glyphEngineTypes.constants.DATE_GROUPING,
     isZDate: boolean,
     xCol: string,
     yCol: string,
     zCol: string,
     zColName: string,
+    zAccumulatorType: glyphEngineTypes.constants.ACCUMULATOR_TYPE,
     parsedDocument?: sdt.ISdtDocument,
     viewName?: string,
     data?: Map<string, string>,
@@ -44,9 +51,12 @@ export class SdtParser {
     this.yCol = yCol;
     this.zCol = zCol;
     this.isXDate = isXDate;
+    this.xDateGrouping = xDateGrouping;
     this.isYDate = isYDate;
+    this.yDateGrouping = yDateGrouping;
     this.isZDate = isZDate;
     this.zColName = zColName;
+    this.zAccumulatorType = zAccumulatorType;
     this.sdtAsJson = parsedDocument;
     this.viewName = viewName;
     if (viewName) {
@@ -97,7 +107,7 @@ export class SdtParser {
       table: this.viewName!,
     };
 
-    if (retval.type === TYPE.TEXT) {
+    if (retval.type === TYPE.TEXT && fieldName !== 'z') {
       const textToNumberConverter = new TextColumnToNumberConverter(this.viewName!, retval.field, this.athenaManager!);
       await textToNumberConverter.load();
       retval.text_to_num = textToNumberConverter;
@@ -149,12 +159,15 @@ export class SdtParser {
 
     const sdtParser = new SdtParser(
       this.isXDate,
+      this.xDateGrouping,
       this.isYDate,
+      this.yDateGrouping,
       this.isZDate,
       this.xCol,
       this.yCol,
       this.zCol,
       this.zColName,
+      this.zAccumulatorType,
       parsedDocument as unknown as ISdtDocument,
       viewName,
       data,
@@ -162,6 +175,10 @@ export class SdtParser {
     );
     await sdtParser.loadInputFields();
     return sdtParser;
+  }
+
+  public get accumulatorType(): glyphEngineTypes.constants.ACCUMULATOR_TYPE {
+    return this.zAccumulatorType;
   }
 
   public getDataSource(): IDataSource {
@@ -194,8 +211,8 @@ export class SdtParser {
       subProperty.Function['@_type'] === 'Text Interpolation'
         ? FUNCTION.TEXT_INTERPOLATION
         : subProperty.Function['@_type'] === 'Linear Interpolation'
-        ? FUNCTION.LINEAR_INTERPOLATION
-        : FUNCTION.LOGARITHMIC_INTERPOLATION;
+          ? FUNCTION.LINEAR_INTERPOLATION
+          : FUNCTION.LOGARITHMIC_INTERPOLATION;
 
     if (axis === 'RGB') {
       const minRgb = this.parseRgb(subProperty.Min);

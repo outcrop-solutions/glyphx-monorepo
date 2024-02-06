@@ -1,3 +1,4 @@
+'use client';
 import React, {useState} from 'react';
 import {signOut, useSession} from 'next-auth/react';
 import produce from 'immer';

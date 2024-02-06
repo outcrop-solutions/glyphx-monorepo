@@ -12,6 +12,7 @@ const projectAnnotations = async (req: NextApiRequest, res: NextApiResponse) => 
   }
   // check for valid session
   const session = (await validateSession(req, res)) as Session;
+
   if (!session?.user?.id) return res.status(401).end();
 
   // execute the appropriate handler

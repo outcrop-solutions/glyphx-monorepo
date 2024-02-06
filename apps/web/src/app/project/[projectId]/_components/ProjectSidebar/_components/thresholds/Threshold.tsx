@@ -55,7 +55,7 @@ export const Threshold = ({item, idx}) => {
             setResize(150);
             setDrawer(true);
             window?.core?.OpenProject(
-              _createOpenProject(data, project, session, url, false, isNullCam ? undefined : camera)
+              _createOpenProject(data, project, session, url, false, [], isNullCam ? undefined : camera)
             );
             setLoading({});
           }

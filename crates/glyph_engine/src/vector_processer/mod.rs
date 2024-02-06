@@ -38,7 +38,7 @@ where
 }
 
 #[derive(Debug, Clone)]
-enum TaskStatus {
+pub enum TaskStatus {
     Pending,
     Processing,
     Complete,
@@ -77,15 +77,15 @@ where
 
     pub fn start(&self) -> Result<(), ()> {
         let field_definition = self.field_definition.clone();
-        let thread_handle = spawn( async move {
-            let field_name = field_definition.  field_name.clone();
-            let table_name = field_definition.table_name.clone();
-            let query = format!("SELECT DISTINCT {} FROM {} ORDER BY {}",
-                field_name,
-                table_name,
-                field_name
-            );
-        });
+        // let thread_handle = spawn( async move {
+        //     let field_name = field_definition.field_name.clone();
+        //     let table_name = field_definition.table_name.clone();
+        //     let query = format!("SELECT DISTINCT {} FROM {} ORDER BY {}",
+        //         field_name,
+        //         table_name,
+        //         field_name
+        //     );
+        // });
         Ok(())
 
     }

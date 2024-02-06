@@ -9,11 +9,15 @@ type QueryRunnerConstructor = {
   xCol: string;
   yCol: string;
   zCol: string;
+  xColName: string;
+  yColName: string;
   zColName: string;
   filter?: string;
 };
 
 export class QueryRunner {
+  private readonly xColName: string;
+  private readonly yColName: string;
   private readonly zColName: string;
   private readonly xCol: string;
   private readonly yCol: string;
@@ -25,11 +29,23 @@ export class QueryRunner {
   private queryId?: string;
   private queryStatusField?: IQueryResponse;
   private readonly filter: string;
-  constructor({databaseName, viewName, xCol, yCol, zCol, zColName, filter}: QueryRunnerConstructor) {
+  constructor({
+    databaseName,
+    viewName,
+    xCol,
+    yCol,
+    zCol,
+    xColName,
+    yColName,
+    zColName,
+    filter,
+  }: QueryRunnerConstructor) {
     this.viewName = viewName;
     this.xCol = xCol;
     this.yCol = yCol;
     this.zCol = zCol;
+    this.xColName = xColName;
+    this.yColName = yColName;
     this.zColName = zColName;
     this.databaseName = databaseName;
     this.athenaManager = new aws.AthenaManager(databaseName);
@@ -85,16 +101,14 @@ export class QueryRunner {
         ${this.filter}
     )  
     SELECT array_join(array_agg(rowid), '|') as "rowids", 
-    groupedXColumn, 
-    groupedYColumn, 
-    ${this.zCol} as zValue  
+    groupedXColumn as x_${this.xColName}, 
+    groupedYColumn as y_${this.yColName}, 
+    ${this.zCol} as ${this.zColName}
     FROM temp 
     GROUP BY groupedXColumn, groupedYColumn;
 `;
-
     //this is already wrapped in a GlyphxError so no need to wrap it again
     this.queryId = await this.athenaManager.startQuery(query);
-
     this.queryStatusField = {
       status: QUERY_STATUS.RUNNING,
     };

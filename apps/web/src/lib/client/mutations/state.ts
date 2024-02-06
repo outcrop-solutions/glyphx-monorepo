@@ -33,15 +33,29 @@ export const _createAnnotation = ({
  */
 export const _createState = (
   name: string,
-  projectId: string,
+  project: databaseTypes.IProject,
   camera: webTypes.Camera,
   aspectRatio: webTypes.Aspect,
-  imageHash: string
+  imageHash: string,
+  rowIds: string[]
 ): webTypes.IFetchConfig => {
+  const cleanProject = {
+    id: project.id,
+    workspace: {
+      id: project.workspace.id,
+    },
+    state: {
+      properties: {
+        ...project.state.properties,
+      },
+    },
+    files: project.files,
+  };
+
   return {
     url: '/api/state',
     options: {
-      body: {name: name, projectId: projectId, camera, imageHash, aspectRatio},
+      body: {name: name, project: cleanProject, camera, imageHash, aspectRatio, rowIds},
       method: 'POST',
     },
     successMsg: 'State successfully created',

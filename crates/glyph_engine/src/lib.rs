@@ -5,6 +5,7 @@ pub mod vector_processer;
 use std::sync::mpsc::Receiver;
 use std::thread::JoinHandle;
 
+
 use glyphx_common::{AthenaConnection, Heartbeat, S3Connection};
 use glyphx_database::MongoDbConnection;
 use glyphx_core::{Singleton, ErrorTypeParser};
@@ -60,6 +61,7 @@ macro_rules! handle_error {
         }
         let $var_name = $var_name.unwrap();
     };
+//glyphx_error! (let x = foo(1,2,5); Error, fatal)
     (let $var_name:ident = $express : expr; $error_type: ident, $log_level: ident) => {
         let $var_name = $express;
         if $var_name.is_err() {
@@ -177,15 +179,15 @@ impl GlyphEngine {
 
    ///Returns a receiver and the thread handle for the thread that will process 
    ///the vectorization request.
-   fn process_single_vector(&self, field_definition: &FieldDefinition) -> (ThreadHandle, Receiver<Result<(), GlyphEngineProcessError>>) {
-      let (sender, receiver) = channel();
-      let thread_handle = thread::spawn(move || {
-         let result = self.process_single_vector_impl(field_definition);
-         sender.send(result);
-      });
-      (thread_handle, receiver)
+   // fn process_single_vector(&self, field_definition: &FieldDefinition) -> (ThreadHandle, Receiver<Result<(), GlyphEngineProcessError>>) {
+   //    let (sender, receiver) = channel();
+   //    let thread_handle = thread::spawn(move || {
+   //       let result = self.process_single_vector_impl(field_definition);
+   //       sender.send(result);
+   //    });
+   //    (thread_handle, receiver)
 
-   }
+   // }
    fn process_vectors(&self) -> Result<(), GlyphEngineProcessError> {
        //1. Build the vector/rank tables tables -- 1 for each vertex  
        handle_error!(let x_field_definition = self.parameters.get_field_definition("xaxis"); GlyphEngineProcessError::from_get_field_definition_error("xaxis"), error);

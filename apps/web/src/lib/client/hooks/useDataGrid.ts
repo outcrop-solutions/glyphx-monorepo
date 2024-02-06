@@ -4,7 +4,6 @@ import {api} from '../network';
 import {_getDataGrid, _getRowIds} from '../mutations';
 import {dataGridPayloadSelector, rowIdsAtom} from 'state';
 import {useRecoilValue} from 'recoil';
-import {debounce} from 'lodash';
 
 const useDataGrid = () => {
   const [data, setData] = useState(null);
@@ -29,12 +28,12 @@ const useDataGrid = () => {
     [workspaceId, projectId, tableName]
   );
 
-  const fetchDataWithRowIds = debounce(async () => {
+  const fetchDataWithRowIds = async () => {
     setIsLoadingRowIds(true);
     const data = await api(fetchRowIdsConfig);
     setData(data);
     setIsLoadingRowIds(false);
-  }, 5000);
+  };
 
   useEffect(() => {
     if (!tableName || isLoadingRowIds || !rowIds) {
@@ -45,12 +44,12 @@ const useDataGrid = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rowIds, tableName, isLoadingRowIds, fetchRowIdsConfig]);
 
-  const fetchDataWithoutRowIds = debounce(async () => {
+  const fetchDataWithoutRowIds = async () => {
     setIsLoadingDataGrid(true);
     const data = await api(fetchDataGridConfig);
     setData(data);
     setIsLoadingDataGrid(false);
-  }, 5000);
+  };
 
   useEffect(() => {
     if (!tableName || isLoadingDataGrid || rowIds) {

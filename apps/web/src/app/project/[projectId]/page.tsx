@@ -4,11 +4,11 @@ import {GridContainer} from 'app/project/[projectId]/_components/Datagrid/GridCo
 import {useRecoilValue} from 'recoil';
 import {projectSegmentAtom} from 'state';
 import {Model} from './_components/Model';
-import {useEnv} from 'lib/client/hooks';
+import {useFeatureIsOn} from '@growthbook/growthbook-react';
 
 export default function Collab() {
   const segment = useRecoilValue(projectSegmentAtom);
-  const {isProd} = useEnv();
+  const isWebGPUEnabled = useFeatureIsOn('webgpu');
 
-  return segment === 'CONFIG' && !isProd ? <Model /> : <GridContainer />;
+  return segment === 'CONFIG' && isWebGPUEnabled ? <Model /> : <GridContainer />;
 }

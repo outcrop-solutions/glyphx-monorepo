@@ -50,6 +50,11 @@ const SCHEMA = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
   },
   properties: {type: Map, of: propertySchema},
   fileSystem: {type: [fileStatsSchema], required: true, default: []},
+  rowIds: {
+    type: [String],
+    required: false,
+    default: [],
+  },
 });
 
 SCHEMA.static('stateIdExists', async (stateId: mongooseTypes.ObjectId): Promise<boolean> => {
@@ -159,6 +164,7 @@ SCHEMA.static('createState', async (input: IStateCreateInput): Promise<databaseT
       workspace: workspaceId,
       project: projectId,
       fileSystem: input.fileSystem,
+      rowIds: input.rowIds ?? [],
     };
     try {
       await STATE_MODEL.validate(resolvedInput);

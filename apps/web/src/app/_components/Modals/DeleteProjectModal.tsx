@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+'use client';
+import React, {useState, useTransition} from 'react';
 import Button from 'app/_components/Button';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
@@ -12,12 +13,14 @@ import {useSetRecoilState} from 'recoil';
 import {modalsAtom} from 'state';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {useRouter, useParams} from 'next/navigation';
+import {deleteProject} from 'lib/actions/project';
 
 export const DeleteProjectModal = ({modalContent}: webTypes.DeleteProjectModalProps) => {
   const {mutate} = useSWRConfig();
   const params = useParams();
   const {workspaceId} = params as {workspaceId: string};
   const setModals = useSetRecoilState(modalsAtom);
+  const [isPending, startTransition] = useTransition();
 
   const [verifyProject, setVerifyProject] = useState('');
   const verifiedProject = verifyProject === modalContent?.data.projectName;
@@ -26,27 +29,6 @@ export const DeleteProjectModal = ({modalContent}: webTypes.DeleteProjectModalPr
 
   // local state
   const handleVerifyProjectChange = (event) => setVerifyProject(event.target.value);
-
-  // mutations
-  const deleteProject = () => {
-    api({
-      ..._deleteProject(modalContent?.data.projectId as string),
-      setLoading: (state) =>
-        setModals(
-          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals[0].isSubmitting = state as boolean;
-          })
-        ),
-      onSuccess: () => {
-        setModals(
-          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals.splice(0, 1);
-          })
-        );
-        mutate(`/api/workspace/${workspaceId}`);
-      },
-    });
-  };
 
   return (
     <div className="bg-secondary-midnight text-white px-4 py-8 flex flex-col space-y-8 rounded-md">
@@ -78,8 +60,17 @@ export const DeleteProjectModal = ({modalContent}: webTypes.DeleteProjectModalPr
       <div className="flex flex-col items-stretch">
         <Button
           className="text-white bg-red-600 hover:bg-red-500"
-          disabled={!verifiedProject || modalContent.isSubmitting}
-          onClick={deleteProject}
+          disabled={!verifiedProject || isPending}
+          onClick={() => {
+            startTransition(() => {
+              deleteProject(modalContent?.data?.projectId);
+              setModals(
+                produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+                  draft.modals.splice(0, 1);
+                })
+              );
+            });
+          }}
         >
           {modalContent.isSubmitting ? <LoadingDots /> : <span>Delete Project</span>}
         </Button>

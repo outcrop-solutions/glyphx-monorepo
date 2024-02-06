@@ -34,38 +34,6 @@ export const Filters = () => {
   const showLoading = useRecoilValue(showLoadingAtom);
   const [isCollapsed, setCollapsed] = useState(false);
 
-  const handleApplyFilters = useCallback(async () => {
-    // project already contains filter state, no deepMerge necessary
-    const payloadHash = hashPayload(hashFileSystem(project.files), project);
-    if (!isValidPayload(properties)) {
-      toast.success('Generate a model before applying filters!');
-    } else if (doesStateExist) {
-      callUpdateProject(project, mutate);
-      await callDownloadModel({
-        project,
-        payloadHash,
-        session,
-        url,
-        setLoading,
-        setDrawer,
-        setResize,
-      });
-    } else {
-      await callCreateModel({
-        isFilter: false,
-        project,
-        payloadHash,
-        session,
-        url,
-        setLoading,
-        setDrawer,
-        setResize,
-        mutate,
-      });
-    }
-    setLoading({});
-  }, [doesStateExist, mutate, project, properties, session, setDrawer, setLoading, setResize, url]);
-
   const isLoading = Object.keys(showLoading).length > 0;
 
   return (
@@ -100,13 +68,6 @@ export const Filters = () => {
                 Filters{' '}
               </span>
             </div>
-            <button
-              disabled={isLoading}
-              onClick={handleApplyFilters}
-              className="flex items-center bg-gray hover:bg-yellow justify-around px-3 text-xs mr-2 my-2 text-center rounded disabled:opacity-75 text-white"
-            >
-              <span>Apply</span>
-            </button>
           </summary>
           {!isCollapsed && (
             <div className="block border-b border-gray">

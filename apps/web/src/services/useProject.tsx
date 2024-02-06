@@ -1,7 +1,7 @@
 import {useCallback} from 'react';
 import {useSession} from 'next-auth/react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
-import {webTypes} from 'types';
+import {fileIngestionTypes, webTypes, glyphEngineTypes} from 'types';
 import {_updateProjectState} from 'lib/client';
 import {doesStateExistSelector, drawerOpenAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom} from 'state';
 import {_createModel, _getSignedDataUrls} from 'lib/client/mutations/core';
@@ -77,15 +77,31 @@ export const useProject = () => {
   const handleDrop = useCallback(
     (axis: webTypes.constants.AXIS, column: any, project: webTypes.IHydratedProject, isFilter: boolean) => {
       // we can compose these for a one liner
-      callETL(axis, column, project, isFilter);
+      // callETL(axis, column, project, isFilter);
       setProject(
         produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
           draft.state.properties[`${axis}`].key = column.key;
           draft.state.properties[`${axis}`].dataType = column.dataType;
+          // reset filters
+          if (
+            axis === webTypes.constants.AXIS.Z &&
+            (column.dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING ||
+              column.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE)
+          ) {
+            draft.state.properties[`${axis}`].accumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.COUNT;
+          }
+          if (
+            column.dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING ||
+            column.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE
+          ) {
+            draft.state.properties[`${axis}`].filter = {keywords: []};
+          } else {
+            draft.state.properties[`${axis}`].filter = {min: 0, max: 0};
+          }
         })
       );
     },
-    [callETL, setProject]
+    [setProject]
   );
 
   return {

@@ -21,11 +21,11 @@ export const _createWorkspace = (name: string): webTypes.IFetchConfig => {
 /**
  * Deletes a workspace
  * @note uses workspaceService.deleteWorkspace() in business package
- * @param slug corresponds to workspace.slug in mongoDB
+ * @param id corresponds to workspace.id in mongoDB
  */
-export const _deleteWorkspace = (slug: string): webTypes.IFetchConfig => {
+export const _deleteWorkspace = (id: string): webTypes.IFetchConfig => {
   return {
-    url: `/api/workspace/${slug}`,
+    url: `/api/workspace/${id}`,
     options: {
       method: 'DELETE',
     },

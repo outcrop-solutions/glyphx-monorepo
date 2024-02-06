@@ -30,7 +30,6 @@ export function userAllowedInRooms({
   rooms,
   checkAccessLevels,
 }: UserAllowedInRoomsProps) {
-  console.log({accessesAllowed, userId, projectIds, rooms, checkAccessLevels});
   return rooms.every((room) =>
     userAllowedInRoom({
       accessesAllowed,

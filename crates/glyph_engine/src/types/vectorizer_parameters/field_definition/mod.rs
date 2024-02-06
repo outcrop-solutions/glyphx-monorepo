@@ -305,6 +305,7 @@ impl FieldDefinition {
               panic!("Unexpected field definition");
           }
       }
+      (field_name, field_value)
     }
 }
 

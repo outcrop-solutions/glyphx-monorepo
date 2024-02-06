@@ -1,4 +1,4 @@
-use glyphx_core::{SecretBoundSingleton, GlyphxError, GlyphxErrorData, aws::secret_manager::GetSecretsValueError};
+use glyphx_core::{SecretBoundSingleton, GlyphxError, GlyphxErrorData,SecretBoundError, aws::secret_manager::GetSecretsValueError};
 
 #[derive(Debug, Clone, GlyphxError)]
 #[error_definition("SecretBoundSingletonIntegrationTest")]
@@ -15,6 +15,8 @@ impl From<GetSecretsValueError> for InitError {
         Self::SecretBoundError(data)
     }
 }
+
+impl SecretBoundError for InitError {}
 
 #[derive(Clone, Debug, SecretBoundSingleton)]
 #[secret_binder({"secret_name": "test_secret", "initializer": "init", "initializer_error": "InitError"})]

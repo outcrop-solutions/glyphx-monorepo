@@ -502,7 +502,9 @@ fn build_query_documents(ident: &Ident, collection_name: &str ) -> TokenStream {
         if number_of_documents == 0 {
             return Ok(None);
         }
-        let number_of_pages = number_of_documents.div_ceil(page_size) - 1;
+        //0 indexed
+                let number_of_pages : u64 = (number_of_documents/page_size + if number_of_documents%page_size == 0 {0} else {1} )
+- 1;
         if page_number > number_of_pages {
             return Err(crate::errors::QueryDocumentsError::InvalidPageNumber(
                 glyphx_core::GlyphxErrorData::new(

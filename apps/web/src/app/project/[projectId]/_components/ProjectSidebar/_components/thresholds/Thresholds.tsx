@@ -27,7 +27,7 @@ export const Thresholds = () => {
       api({
         ..._createState(
           name,
-          project.id as unknown as string,
+          project,
           camera as unknown as webTypes.Camera,
           {
             width: (viewerPosition as webTypes.IViewerPosition).w || 300,
@@ -45,6 +45,7 @@ export const Thresholds = () => {
           setCamera({});
           setImage({imageHash: false});
           setAddThreshold(false);
+
           mutate(`/api/project/${project.id}`);
         },
       });

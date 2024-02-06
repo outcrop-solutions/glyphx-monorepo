@@ -3,6 +3,7 @@ import {IGlyph, IInputField, IProperty} from '../interfaces';
 import {SdtParser, IInputFields} from './sdtParser';
 import {linearInterpolation, logaritmicInterpolation, convertRgbToHsv, convertHsvToRgb} from '../util';
 import {FUNCTION, SHAPE, TYPE} from '../constants';
+import dateNumberConverter from '../util/dateNumberConverter';
 
 export class GlyphStream extends Transform {
   private sdtParser: SdtParser;
@@ -48,7 +49,6 @@ export class GlyphStream extends Transform {
       url: '',
       desc: desc,
     };
-
     this.push(glyph);
     callback();
   }
@@ -59,10 +59,13 @@ export class GlyphStream extends Transform {
     //us from having to do some pointer work to get the values into strongly
     //typed structures.
     let retval = '';
+
     const inputFields = this.sdtParser.getInputFields();
-    const {fieldName: xFieldName, value: xValue} = this.getField('x', chunk, inputFields);
-    const {fieldName: yFieldName, value: yValue} = this.getField('y', chunk, inputFields);
-    const {fieldName: zFieldName, value: zValue} = this.getField('z', chunk, inputFields);
+    let {fieldName: xFieldName, value: xValue} = this.getField('x', chunk, inputFields);
+    let {fieldName: yFieldName, value: yValue} = this.getField('y', chunk, inputFields);
+    let {fieldName: zFieldName, value: zValue} = this.getField('z', chunk, inputFields);
+    //Change the field name to identify how the date is parsed.
+
     //Row ids should always be ints, so let's send them across the wire
     //as such
     const rowIdValues = chunk['rowids'] as string;
@@ -77,9 +80,9 @@ export class GlyphStream extends Transform {
 
     //to try and restrict the amount of data that we are sending across the wire
     //we will  send the field name and the data as a sting in the format {x : {filedName: value}}
-    outObj.x[xFieldName] = !this.sdtParser.isXDate ? xValue : new Date(xValue);
-    outObj.y[yFieldName] = !this.sdtParser.isYDate ? yValue : new Date(yValue);
-    outObj.z[zFieldName] = !this.sdtParser.isZDate ? zValue : new Date(zValue);
+    outObj.x[xFieldName] = xValue;
+    outObj.y[yFieldName] = yValue;
+    outObj.z[zFieldName] = zValue;
 
     //make it a string so it is easier to pass
     retval = JSON.stringify(outObj);
@@ -88,14 +91,27 @@ export class GlyphStream extends Transform {
 
   private getField(field: string, chunk: Record<string, unknown>, inputFields: IInputFields) {
     const fieldName = this.sdtParser.getInputFields()[field].field;
-    let value = '';
-    const chunkValue = chunk[fieldName];
-    if (chunkValue !== null && chunkValue !== undefined) {
-      value =
-        inputFields[field].type !== TYPE.DATE
-          ? (chunkValue as any).toString()
-          : new Date(chunkValue as number).toISOString();
+    let tempFieldName = fieldName;
+    if (field === 'x') {
+      tempFieldName = `x_${fieldName}`;
+    } else if (field === 'y') {
+      tempFieldName = `y_${fieldName}`;
     }
+    const dateType = field === 'x' ? this.sdtParser.xDateGrouping : this.sdtParser.yDateGrouping;
+    const fieldConfig = this.sdtParser.getInputFields()[field];
+    let value = '';
+    const chunkValue = chunk[tempFieldName];
+    if (chunkValue !== null && chunkValue !== undefined) {
+      if (field !== 'z') {
+        value =
+          inputFields[field].type !== TYPE.DATE
+            ? (chunkValue as any).toString()
+            : `${dateType.replaceAll('_', ' ').toUpperCase()}(${dateNumberConverter(chunkValue as number, dateType)})`;
+      } else {
+        value = `${this.sdtParser.accumulatorType?.toUpperCase() ?? 'SUM'}(${chunkValue})`;
+      }
+    }
+
     return {fieldName: fieldName, value: value};
   }
 
@@ -106,15 +122,22 @@ export class GlyphStream extends Transform {
     return tag;
   }
 
-  private getValue(inputField: IInputField, values: Record<string, unknown>): number {
-    let value = values[inputField.field] as number;
+  private getValue(field: 'X' | 'Y' | 'Z', inputField: IInputField, values: Record<string, unknown>): number {
+    let fieldName = inputField.field;
+    if (field === 'X') {
+      fieldName = `x_${fieldName}`;
+    } else if (field === 'Y') {
+      fieldName = `y_${fieldName}`;
+    }
+    let value = values[fieldName] as number;
 
-    if (typeof value === 'string') {
+    if (typeof value === 'string' && field !== 'Z') {
       value = inputField.text_to_num?.convert(value) as number;
     }
 
     return value;
   }
+
   private getColorInterpolatedValue(values: Record<string, unknown>): {
     r: number;
     g: number;
@@ -122,7 +145,7 @@ export class GlyphStream extends Transform {
     a: number;
   } {
     const inputField = this.sdtParser.getInputFields().z;
-    const value = this.getValue(inputField, values);
+    const value = this.getValue('Z', inputField, values);
     const propertyField = this.sdtParser.getGlyphProperty('Color', 'RGB') as IProperty;
 
     const rawMinColor = propertyField.minRgb;
@@ -154,8 +177,9 @@ export class GlyphStream extends Transform {
     values: Record<string, unknown>
   ) {
     let retval = 0;
+
     const inputField = this.sdtParser.getInputFields()[field.toLowerCase()];
-    const value = this.getValue(inputField, values);
+    const value = this.getValue(field, inputField, values);
     const propertyField = this.sdtParser.getGlyphProperty(property, field) as IProperty;
 
     if (propertyField?.function === FUNCTION.LOGARITHMIC_INTERPOLATION) {

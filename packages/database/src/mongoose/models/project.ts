@@ -253,9 +253,9 @@ SCHEMA.static('validateUpdateObject', async (project: Omit<Partial<databaseTypes
 
   const tasks: Promise<void>[] = [];
 
-  if (project.workspace)
+  if (project?.workspace)
     tasks.push(
-      idValidator(project.workspace._id as mongooseTypes.ObjectId, 'Workspace', WorkspaceModel.workspaceIdExists)
+      idValidator(project?.workspace._id as mongooseTypes.ObjectId, 'Workspace', WorkspaceModel.workspaceIdExists)
     );
 
   if (project.template)

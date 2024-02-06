@@ -12,14 +12,10 @@ async function run() {
   const connection = new database.MongoDbConnection();
   await connection.init();
 
-  const sourceAthenaManager = new core.aws.AthenaManager(
-    SOURCE_ATHENA_DATABASE_NAME
-  );
+  const sourceAthenaManager = new core.aws.AthenaManager(SOURCE_ATHENA_DATABASE_NAME);
   await sourceAthenaManager.init();
 
-  const targetAthenaManager = new core.aws.AthenaManager(
-    TARGET_ATHENA_DATABASE_NAME
-  );
+  const targetAthenaManager = new core.aws.AthenaManager(TARGET_ATHENA_DATABASE_NAME);
   await targetAthenaManager.init();
 
   const sourceS3Manager = new core.aws.S3Manager(SOURCE_S3_BUCKET_NAME);
@@ -39,62 +35,36 @@ async function run() {
     pageNumber++;
     for (let i = 0; i < projects.results.length; i++) {
       let project = projects.results[i];
-      if (!project.workspace) continue;
-      if (!(await sourceAthenaManager.viewExists(project.viewName ?? '')))
-        continue;
+      if (!project?.workspace) continue;
+      if (!(await sourceAthenaManager.viewExists(project.viewName ?? ''))) continue;
       for (let j = 0; j < project.files.length; j++) {
         let file = project.files[j];
-        let tableName =
-          core.generalPurposeFunctions.fileIngestion.getFullTableName(
-            project.workspace?._id?.toString() ?? '',
-            project._id?.toString() ?? '',
-            file.tableName
-          );
-        console.log(`Table name : ${tableName}`);
-        if (!(await sourceAthenaManager.tableExists(tableName))) continue;
+        let tableName = core.generalPurposeFunctions.fileIngestion.getFullTableName(
+          project?.workspace?._id?.toString() ?? '',
+         project._id?.toString() ?? '',
+         file.tableName
+       );
+       console.log(`Table name : ${tableName}`);
+       if (!(await sourceAthenaManager.tableExists(tableName))) continue;
 
-        const tableDefinition = await sourceAthenaManager.runQuery(
-          `SHOW CREATE TABLE \`${tableName}\``,
-          60,
-          true
-        );
+       const tableDefinition = await sourceAthenaManager.runQuery(`SHOW CREATE TABLE \`${tableName}\``, 60, true);
 
-        if (
-          !(await copyS3Files(
-            sourceS3Manager,
-            SOURCE_S3_BUCKET_NAME,
-            TARGET_S3_BUCKET_NAME,
-            tableDefinition
-          ))
-        )
+        if (!(await copyS3Files(sourceS3Manager, SOURCE_S3_BUCKET_NAME, TARGET_S3_BUCKET_NAME, tableDefinition)))
           continue;
-        await copyAthenaTable(
-          tableDefinition,
-          TARGET_S3_BUCKET_NAME,
-          targetAthenaManager
-        );
+        await copyAthenaTable(tableDefinition, TARGET_S3_BUCKET_NAME, targetAthenaManager);
 
-        await copyAthenaView(
-          project.viewName ?? '',
-          sourceAthenaManager,
-          targetAthenaManager
-        );
+        await copyAthenaView(project.viewName ?? '', sourceAthenaManager, targetAthenaManager);
       }
     }
 
     if (pageNumber < numberOfPages) {
-      projects = await projectModel.queryProjects(
-        {deletedAt: null},
-        pageNumber
-      );
+      projects = await projectModel.queryProjects({deletedAt: null}, pageNumber);
     }
   }
 
   process.exit(0);
 }
-function getAthenaLocation(
-  tableDefinition: Record<string, string>[]
-): [string, number] {
+function getAthenaLocation(tableDefinition: Record<string, string>[]): [string, number] {
   let i = 0;
   let found = false;
   for (; i < tableDefinition.length; i++) {
@@ -115,10 +85,7 @@ function getAthenaLocation(
   }
 }
 
-function getS3DirectoryName(
-  sourceBucket: string,
-  tableDefinition: Record<string, string>[]
-): string {
+function getS3DirectoryName(sourceBucket: string, tableDefinition: Record<string, string>[]): string {
   const prefix = `s3://${sourceBucket}/`;
   let [value] = getAthenaLocation(tableDefinition);
   if (value.startsWith(prefix)) {
@@ -142,24 +109,11 @@ async function copyS3Files(
   TableDefinition: Record<string, unknown>[]
 ): Promise<boolean> {
   let result = false;
-  const dataDirectoryName = getS3DirectoryName(
-    sourceBucket,
-    TableDefinition as unknown as Record<string, string>[]
-  );
+  const dataDirectoryName = getS3DirectoryName(sourceBucket, TableDefinition as unknown as Record<string, string>[]);
   const inputDirectoryName = getS3InputDirectoryName(dataDirectoryName);
 
-  if (
-    await processFiles(dataDirectoryName, s3Manager, sourceBucket, targetBucket)
-  )
-    if (
-      await processFiles(
-        inputDirectoryName,
-        s3Manager,
-        sourceBucket,
-        targetBucket
-      )
-    )
-      result = true;
+  if (await processFiles(dataDirectoryName, s3Manager, sourceBucket, targetBucket))
+    if (await processFiles(inputDirectoryName, s3Manager, sourceBucket, targetBucket)) result = true;
   return result;
 }
 
@@ -181,13 +135,13 @@ async function processFiles(
         Bucket: targetBucket,
         CopySource: `${sourceBucket}/${fileName}`,
         Key: fileName,
-      });
-    } catch (err) {
-      result = false;
-      console.log(`Error copying file ${fileName} : ${err}`);
-    }
-    if (!result) break;
-  }
+     });
+   } catch (err) {
+     result = false;
+     console.log(`Error copying file ${fileName} : ${err}`);
+   }
+   if (!result) break;
+ }
 
   return result;
 }
@@ -203,7 +157,7 @@ async function copyAthenaTable(
   parts[2] = destination;
   let newLocation = parts.join('/') + '/';
   description[index]['createtab_stmt'] = `'${newLocation}'`;
-  const query = description.map(d => d['createtab_stmt']).join('\n');
+  const query = description.map((d) => d['createtab_stmt']).join('\n');
   await targetAthenaManager.runQuery(query, 60, true);
 }
 
@@ -214,10 +168,8 @@ async function copyAthenaView(
 ) {
   const query = `SHOW CREATE VIEW "${viewName}"`;
   const viewDefinition = await sourceAthenaManager.runQuery(query, 60, true);
-  viewDefinition[0][
-    'create view'
-  ] = `CREATE VIEW ${targetAthenaManager.databaseName}.${viewName} AS`;
-  let createQuery = viewDefinition.map(d => d['create view']).join('\n');
+  viewDefinition[0]['create view'] = `CREATE VIEW ${targetAthenaManager.databaseName}.${viewName} AS`;
+  let createQuery = viewDefinition.map((d) => d['create view']).join('\n');
   await targetAthenaManager.runQuery(createQuery, 60, true);
 }
 run();

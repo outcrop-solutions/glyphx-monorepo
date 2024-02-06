@@ -124,9 +124,9 @@ export const domAtom = atom<{month: boolean; year: boolean}>({
   default: {year: true, month: true},
 });
 
-export const dowAtom = atom<boolean>({
+export const dowAtom = atom<{year: boolean; week: boolean}>({
   key: 'dowAtom',
-  default: true,
+  default: {year: true, week: true},
 });
 
 export const woyAtom = atom<boolean>({

@@ -31,24 +31,15 @@ export class WorkspaceService {
     slug: string
   ): Promise<databaseTypes.IWorkspace | null> {
     try {
-      let newSlug = slug;
-      let count = await WorkspaceService.countWorkspaces(newSlug);
-
-      while (count > 0) {
-        newSlug = `${slug}-${count}`;
-        count = await WorkspaceService.countWorkspaces(newSlug);
-      }
-
       const input = {
         workspaceCode: v4().replaceAll('-', ''),
         inviteCode: v4().replaceAll('-', ''),
         creator: creatorId,
         name,
-        slug: newSlug,
+        slug: slug,
       } as unknown as Omit<databaseTypes.IWorkspace, '_id'>;
 
       const workspace = await mongoDbConnection.models.WorkspaceModel.createWorkspace(input);
-
       const member = await mongoDbConnection.models.MemberModel.createWorkspaceMember({
         inviter: email,
         email: email,
@@ -95,15 +86,15 @@ export class WorkspaceService {
   public static async deleteWorkspace(
     userId: string,
     email: string,
-    slug: string
+    id: string
   ): Promise<databaseTypes.IWorkspace | null> {
     try {
-      const workspace = await WorkspaceService.getOwnWorkspace(userId, email, slug);
+      const workspace = await WorkspaceService.getSiteWorkspace(id);
 
       if (workspace) {
         // delete workspace
         await mongoDbConnection.models.WorkspaceModel.updateWorkspaceByFilter(
-          {slug: slug},
+          {slug: workspace.slug},
           {
             deletedAt: new Date(),
           }
@@ -150,7 +141,7 @@ export class WorkspaceService {
           'An unexpected error occurred while updating the workspace. See the inner error for additional details',
           'workspace',
           'updateWorkspace',
-          {userId, email, slug},
+          {userId, email, id},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);

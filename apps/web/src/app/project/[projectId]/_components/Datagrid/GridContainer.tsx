@@ -59,14 +59,14 @@ export const GridContainer = () => {
           <div className="flex flex-col w-full h-full">
             {openFiles?.length > 0 ? (
               <>
-                <GridHeader data={data} />
+                <GridHeader />
                 <Datagrid data={data} />
               </>
             ) : (
               <MainDropzone />
             )}
           </div>
-          {project?.imageHash && (
+          {project?.imageHash && !window?.core && (
             <div className={`${orientation === 'vertical' ? 'w-full' : 'h-2/3 w-2/3'} object-scale-down p-20 mx-auto`}>
               <Image
                 src={

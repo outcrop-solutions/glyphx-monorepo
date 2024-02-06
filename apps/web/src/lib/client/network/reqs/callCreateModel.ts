@@ -29,6 +29,7 @@ export const callCreateModel = async ({
     silentFail: true,
     onSuccess: (data) => {
       mutate(`/api/project/${project.id}`);
+      console.log({data});
       setLoading(
         produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
           draft.processName = 'Fetching Data...';
@@ -42,7 +43,7 @@ export const callCreateModel = async ({
           if (window?.core) {
             setResize(150);
             setDrawer(true);
-            window?.core?.OpenProject(_createOpenProject(data, project, session, url, true));
+            window?.core?.OpenProject(_createOpenProject(data, project, session, url, true, []));
           }
         },
         onError: () => {

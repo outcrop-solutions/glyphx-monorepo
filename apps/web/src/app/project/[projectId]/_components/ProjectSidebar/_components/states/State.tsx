@@ -2,7 +2,15 @@
 import {PencilIcon, TrashIcon} from '@heroicons/react/outline';
 import {useCallback} from 'react';
 import {useSession} from 'next-auth/react';
-import {activeStateAtom, drawerOpenAtom, modalsAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom} from 'state';
+import {
+  activeStateAtom,
+  drawerOpenAtom,
+  modalsAtom,
+  projectAtom,
+  projectSegmentAtom,
+  showLoadingAtom,
+  splitPaneSizeAtom,
+} from 'state';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
@@ -10,69 +18,16 @@ import {_createOpenProject, _getSignedDataUrls, api} from 'lib';
 import {useUrl} from 'lib/client/hooks';
 import StateIcon from 'public/svg/state.svg';
 import ActiveStateIcon from 'public/svg/active-state.svg';
-import {isNullCamera} from 'lib/utils/isNullCamera';
 import Image from 'next/image';
-import {databaseTypes, webTypes} from 'types';
+import {webTypes} from 'types';
+import useApplyState from 'services/useApplyState';
 
 export const State = ({item, idx}) => {
-  const session = useSession();
-  const url = useUrl();
-  const setDrawer = useSetRecoilState(drawerOpenAtom);
-  const setResize = useSetRecoilState(splitPaneSizeAtom);
+  const segment = useRecoilValue(projectSegmentAtom);
   const setModals = useSetRecoilState(modalsAtom);
-  const project = useRecoilValue(projectAtom);
-  const loading = useRecoilValue(showLoadingAtom);
-  const [activeState, setActiveState] = useRecoilState(activeStateAtom);
-  const setLoading = useSetRecoilState(showLoadingAtom);
-  const applyState = useCallback(async () => {
-    setActiveState(idx);
+  const [activeState, _] = useRecoilState(activeStateAtom);
 
-    if (window && !window?.core) {
-      setResize(150);
-      setDrawer(true);
-      return;
-    }
-    // only apply state if not loading
-    if (!(Object.keys(loading).length > 0)) {
-      const filteredStates = project.stateHistory.filter((state) => !state.deletedAt);
-      const payloadHash = filteredStates[idx].payloadHash;
-      const camera = filteredStates[idx].camera;
-      const isNullCam = isNullCamera(camera);
-
-      // apply item to project state remote
-      setLoading(
-        produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-          draft.processName = 'Retreiving State Snapshot...';
-          draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
-          draft.processStartTime = new Date();
-        })
-      );
-
-      await api({
-        ..._getSignedDataUrls(project?.workspace.id, project?.id, payloadHash),
-        onSuccess: (data) => {
-          if (window?.core) {
-            setResize(150);
-            setDrawer(true);
-            window?.core?.OpenProject(
-              _createOpenProject(data, project, session, url, false, isNullCam ? undefined : camera)
-            );
-            setLoading({});
-          }
-        },
-        onError: () => {
-          setLoading(
-            produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-              draft.processName = 'Failed to Open State Snapshot';
-              draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
-              draft.processEndTime = new Date();
-            })
-          );
-          setActiveState(-1);
-        },
-      });
-    }
-  }, [idx, loading, project, session, setActiveState, setDrawer, setLoading, setResize, url]);
+  const {applyState} = useApplyState();
 
   const deleteState = useCallback(() => {
     setModals(
@@ -104,25 +59,34 @@ export const State = ({item, idx}) => {
     );
   }, [item, setModals]);
 
+  const isThreads = segment === 'COLLAB';
+
   return (
     <li
       key={item.id}
-      className="p-2 group-states hover:bg-secondary-midnight hover:text-white last:mb-0 flex items-center justify-between cursor-pointer relative z-60"
+      className="p-2 group-states hover:bg-secondary-midnight hover:text-white last:mb-0 flex items-center justify-between cursor-pointer relative"
     >
-      <div className="hidden group-states-hover:flex absolute p-2 rounded border bg-primary-dark-blue w-56 h-56 bottom-16 z-60">
+      <div
+        className={`hidden group-states-hover:flex pointer-events-none absolute p-2 rounded border bg-primary-dark-blue w-56 h-56 ${
+          isThreads ? 'top-10' : 'bottom-16'
+        } z-60`}
+      >
         {item.imageHash && (
           <Image alt="state" width={300} height={200} src={`data:image/png;base64,${item.imageHash}`} />
         )}
+        <div className="absolute text-[10px] top-0 left-0 invisible group-states-hover:visible px-2 py-1 bg-gray">
+          {item.name}
+        </div>
       </div>
       <div className="flex items-center justify-center h-6 w-6">
-        {activeState === idx ? <StateIcon className="" /> : <ActiveStateIcon />}
+        {activeState === idx ? <ActiveStateIcon /> : <StateIcon className="" />}
       </div>
       <div
-        onClick={applyState}
+        onClick={() => applyState(idx)}
         className="block group-states-hover:text-white transition duration-150 truncate grow ml-2"
       >
         <span
-          className={`w-full text-left text-light-gray text-sm ${activeState === idx ? 'text-white' : ''} font-medium`}
+          className={`w-full text-left text-gray text-sm ${activeState === idx ? 'text-white' : ''} font-medium z-0`}
         >
           {item.name}
         </span>
