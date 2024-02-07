@@ -12,6 +12,7 @@ import {IQueryResponse} from '../interfaces';
 import {QUERY_STATUS} from '../constants';
 import {SdtParser} from '../io/sdtParser';
 import {Heartbeat, processTrackingService, projectService} from 'business';
+import {glyphEngineTypes} from 'types';
 
 describe('GlyphEngine', () => {
   const mockProject = {
@@ -863,11 +864,20 @@ describe('GlyphEngine', () => {
       const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId) as any;
 
       const viewName = 'testViewName';
-      const xcolumn = 'testXColumn';
+      const xColumn = 'testXColumn';
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
 
-      const queryRunner = new QueryRunner(databaseName, viewName, xcolumn, yColumn, zColumn) as any;
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
+        zColName: zColumn,
+      }) as any;
 
       queryRunner.queryId = queryId;
       glyphEngine.queryRunner = queryRunner;
@@ -904,11 +914,19 @@ describe('GlyphEngine', () => {
       const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId) as any;
 
       const viewName = 'testViewName';
-      const xcolumn = 'testXColumn';
+      const xColumn = 'testXColumn';
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
-
-      const queryRunner = new QueryRunner(databaseName, viewName, xcolumn, yColumn, zColumn) as any;
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
+        zColName: zColumn,
+      }) as any;
 
       queryRunner.queryId = queryId;
       glyphEngine.queryRunner = queryRunner;
@@ -945,11 +963,20 @@ describe('GlyphEngine', () => {
       const glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId) as any;
 
       const viewName = 'testViewName';
-      const xcolumn = 'testXColumn';
+      const xColumn = 'testXColumn';
       const yColumn = 'testYColumn';
       const zColumn = 'testZColumn';
 
-      const queryRunner = new QueryRunner(databaseName, viewName, xcolumn, yColumn, zColumn) as any;
+      const queryRunner = new QueryRunner({
+        databaseName,
+        viewName,
+        xCol: xColumn,
+        yCol: yColumn,
+        zCol: zColumn,
+        xColName: xColumn,
+        yColName: yColumn,
+        zColName: zColumn,
+      }) as any;
 
       queryRunner.queryId = queryId;
       glyphEngine.queryRunner = queryRunner;
@@ -964,6 +991,7 @@ describe('GlyphEngine', () => {
       assert.isTrue(getQueryStatusStub.calledOnce);
     });
   });
+
   context('processData', () => {
     class FakeUpload {
       async done() {
@@ -1056,6 +1084,197 @@ describe('GlyphEngine', () => {
     });
   });
 
+  context('getAccumulatorFunction', () => {
+    it('should return the correct AVG function', () => {
+      const result = GlyphEngine.getAccumulatorFunction(false, glyphEngineTypes.constants.ACCUMULATOR_TYPE.AVG);
+      assert.strictEqual(result, 'AVG(zColumn)');
+    });
+
+    it('should return the correct MIN function', () => {
+      const result = GlyphEngine.getAccumulatorFunction(false, glyphEngineTypes.constants.ACCUMULATOR_TYPE.MIN);
+      assert.strictEqual(result, 'MIN(zColumn)');
+    });
+
+    it('should return the correct MAX function', () => {
+      const result = GlyphEngine.getAccumulatorFunction(false, glyphEngineTypes.constants.ACCUMULATOR_TYPE.MAX);
+      assert.strictEqual(result, 'MAX(zColumn)');
+    });
+
+    it('should return the correct COUNT function', () => {
+      const result = GlyphEngine.getAccumulatorFunction(false, glyphEngineTypes.constants.ACCUMULATOR_TYPE.COUNT);
+      assert.strictEqual(result, 'COUNT(zColumn)');
+    });
+
+    it('should return the correct COUNT function when z is a Date', () => {
+      const result = GlyphEngine.getAccumulatorFunction(true, glyphEngineTypes.constants.ACCUMULATOR_TYPE.MAX);
+      assert.strictEqual(result, 'COUNT(zColumn)');
+    });
+
+    it('should return the correct SUM function', () => {
+      const result = GlyphEngine.getAccumulatorFunction(false, glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM);
+      assert.strictEqual(result, 'SUM(zColumn)');
+    });
+  });
+
+  context('getDateGroupingFunction', () => {
+    it('should return the correct QUALIFIED_DAY_OF_YEAR function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR
+      );
+      assert.strictEqual(
+        result,
+        `(year(from_unixtime("testDateColumn"/1000)) * 1000) + day_of_year(from_unixtime("testDateColumn"/1000))`
+      );
+    });
+
+    it('should return the correct DAY_OF_YEAR function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR
+      );
+      assert.strictEqual(result, `day_of_year(from_unixtime("testDateColumn"/1000))`);
+    });
+
+    it('should return the correct QUALIFIED_MONTH function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_MONTH
+      );
+      assert.strictEqual(
+        result,
+        `(year(from_unixtime("testDateColumn"/1000)) * 100) + month(from_unixtime("testDateColumn"/1000))`
+      );
+    });
+
+    it('should return the correct MONTH function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.MONTH
+      );
+      assert.strictEqual(result, `month(from_unixtime("testDateColumn"/1000))`);
+    });
+
+    it('should return the correct QUALIFIED_DAY_OF_MONTH function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH
+      );
+      assert.strictEqual(
+        result,
+        `(year(from_unixtime("testDateColumn"/1000)) * 10000) + (month(from_unixtime("testDateColumn"/1000)) * 100) + day_of_month(from_unixtime("testDateColumn"/1000))`
+      );
+    });
+    it('should return the correct YEAR_DAY_OF_MONTH function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.YEAR_DAY_OF_MONTH
+      );
+      assert.strictEqual(
+        result,
+        `(year(from_unixtime("testDateColumn"/1000)) * 100) + day_of_month(from_unixtime("testDateColumn"/1000))`
+      );
+    });
+    it('should return the correct MONTH_DAY_OF_MONTH function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.MONTH_DAY_OF_MONTH
+      );
+      assert.strictEqual(
+        result,
+        `(month(from_unixtime("testDateColumn"/1000)) * 100) + day_of_month(from_unixtime("testDateColumn"/1000))`
+      );
+    });
+
+    it('should return the correct DAY_OF_MONTH function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_MONTH
+      );
+      assert.strictEqual(result, `day(from_unixtime("testDateColumn"/1000))`);
+    });
+
+    it('should return the correct QUALIFIED_DAY_OF_WEEK function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_WEEK
+      );
+      assert.strictEqual(
+        result,
+        `(year_of_week(from_unixtime("testDateColumn"/1000)) * 1000) + (week_of_year(from_unixtime("testDateColumn"/1000)) * 10) + day_of_week(from_unixtime("testDateColumn"/1000))`
+      );
+    });
+
+    it('should return the correct DAY_OF_WEEK function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK
+      );
+      assert.strictEqual(result, `day_of_week(from_unixtime("testDateColumn"/1000))`);
+    });
+
+    it('should return the correct QUALIFIED_WEEK_OF_YEAR function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_WEEK_OF_YEAR
+      );
+      assert.strictEqual(
+        result,
+        `(year_of_week(from_unixtime("testDateColumn"/1000)) * 100) + (week_of_year(from_unixtime("testDateColumn"/1000)))`
+      );
+    });
+
+    it('should return the correct WEEK_OF_YEAR function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.WEEK_OF_YEAR
+      );
+      assert.strictEqual(result, `week_of_year(from_unixtime("testDateColumn"/1000))`);
+    });
+
+    it('should return the correct year of week function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.YEAR_OF_WEEK
+      );
+      assert.strictEqual(result, `year_of_week(from_unixtime("testDateColumn"/1000))`);
+    });
+
+    it('should return the correct YEAR function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.YEAR
+      );
+      assert.strictEqual(result, `year(from_unixtime("testDateColumn"/1000))`);
+    });
+
+    it('should return the correct QUALIFIED_QUARTER function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_QUARTER
+      );
+      assert.strictEqual(
+        result,
+        `(year(from_unixtime("testDateColumn"/1000)) * 10) + quarter(from_unixtime("testDateColumn"/1000))`
+      );
+    });
+    it('should return the correct QUARTER function', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        glyphEngineTypes.constants.DATE_GROUPING.QUARTER
+      );
+      assert.strictEqual(result, `quarter(from_unixtime("testDateColumn"/1000))`);
+    });
+
+    it('should return the original column name when an unknown date grouping is provided', () => {
+      const result = GlyphEngine.getDateGroupingFunction(
+        'testDateColumn',
+        'UNKNOWN_GROUPING' as glyphEngineTypes.constants.DATE_GROUPING
+      );
+      assert.strictEqual(result, '"testDateColumn"');
+    });
+  });
+
   context('process', () => {
     const sandbox = createSandbox();
     const data: Map<string, string> = new Map([
@@ -1097,9 +1316,8 @@ describe('GlyphEngine', () => {
       putObjectStub.resolves();
       sandbox.replace(aws.S3Manager.prototype, 'putObject', putObjectStub);
 
-      const parseSdtStringStub = sandbox.stub();
+      const parseSdtStringStub = sandbox.stub(SdtParser.prototype, 'parseSdtString');
       parseSdtStringStub.resolves({} as unknown as SdtParser);
-      sandbox.replace(SdtParser, 'parseSdtString', parseSdtStringStub);
 
       const getQueryResponseStub = sandbox.stub();
       getQueryResponseStub.resolves({status: QUERY_STATUS.SUCCEEDED});
@@ -1199,10 +1417,8 @@ describe('GlyphEngine', () => {
       putObjectStub.resolves();
       sandbox.replace(aws.S3Manager.prototype, 'putObject', putObjectStub);
 
-      const parseSdtStringStub = sandbox.stub();
+      const parseSdtStringStub = sandbox.stub(SdtParser.prototype, 'parseSdtString');
       parseSdtStringStub.resolves({} as unknown as SdtParser);
-      sandbox.replace(SdtParser, 'parseSdtString', parseSdtStringStub);
-
       const errText = 'oops I did it again';
 
       const getQueryResponseStub = sandbox.stub();
@@ -1303,9 +1519,21 @@ describe('GlyphEngine', () => {
       putObjectStub.resolves();
       sandbox.replace(aws.S3Manager.prototype, 'putObject', putObjectStub);
 
+      const sdtParser = new SdtParser(
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        'xCol',
+        'yCol',
+        'zCol',
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
+      );
       const parseSdtStringStub = sandbox.stub();
       parseSdtStringStub.resolves({} as unknown as SdtParser);
-      sandbox.replace(SdtParser, 'parseSdtString', parseSdtStringStub);
+      sandbox.replace(sdtParser, 'parseSdtString', parseSdtStringStub);
 
       const getQueryResponseStub = sandbox.stub();
       getQueryResponseStub.resolves({status: QUERY_STATUS.SUCCEEDED});

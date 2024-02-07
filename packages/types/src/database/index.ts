@@ -18,3 +18,5 @@ export type {IUserAgent} from './iUserAgent';
 export type {IAnnotation} from './iAnnotation';
 export type {ITag} from './iTag';
 export type {IModelConfig} from './iModelConfig';
+export type {IPresence} from './iPresence';
+export type {IThreshold} from './iThreshold';

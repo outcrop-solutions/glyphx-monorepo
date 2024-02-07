@@ -11,3 +11,4 @@ export {PROJECT_ROLE} from './projectRole';
 export {ACTION_TYPE} from './action';
 export {RESOURCE_MODEL} from './resourceModels';
 export {ANNOTATION_TYPE} from './annotationType';
+export {THRESHOLD_OPERATOR} from './thresholdOperator';

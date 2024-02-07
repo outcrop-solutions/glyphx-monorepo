@@ -1,0 +1,25 @@
+{
+  "configurations": {
+    "unit tests": {
+      "adapter": "CodeLLDB",
+      "filetypes": ["rust"],
+      "configuration": {
+        "request": "launch",
+        "program": "${workspaceRoot}/../../target/debug/deps/glyphx_database-ef43412787e7052d",
+        "runInTerminal": true,
+        "preRunCommands": ["shell cargo test --no-run --features=test --package glyphx_database"]
+      }
+    },
+
+    "integration tests": {
+      "adapter": "CodeLLDB",
+      "filetypes": ["rust"],
+      "configuration": {
+        "request": "launch",
+        "program": "${workspaceRoot}/../../target/debug/deps/mongodb_connection-1ac87672041915ad",
+        "runInTerminal": true,
+        "preRunCommands": ["shell cargo test --no-run --features=test --package glyphx_database"]
+      }
+    }
+  }
+}

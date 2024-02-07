@@ -56,7 +56,7 @@ Session.vim
 
 #rust target directory
 target
-pkg
+crates/cube_model/pkg
 output.log
 
 #artifacts from logging tests

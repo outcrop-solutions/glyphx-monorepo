@@ -1,3 +1,4 @@
+'use client';
 import React, {useCallback, useState} from 'react';
 import {webTypes} from 'types';
 import {_createProjectFromTemplate, api} from 'lib';
@@ -33,11 +34,11 @@ export const AIRecommendationsModal = ({modalContent: any}) => {
               draft.modals.splice(0, 1);
             })
           );
-          router.push(`/account/${workspaceId}/${data.id}` as Route);
+          router.push(`/project/${data.id}` as Route);
         },
       });
     },
-    [id, router, setModals, workspaceId]
+    [id, router, setModals]
   );
 
   return (

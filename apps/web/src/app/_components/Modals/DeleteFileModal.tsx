@@ -1,3 +1,4 @@
+'use client';
 import React, {useCallback, useState} from 'react';
 import produce from 'immer';
 import {webTypes} from 'types';
@@ -28,7 +29,7 @@ export const DeleteFileModal = ({modalContent}: webTypes.DeleteFileModalProps) =
   const handleVerifyProjectChange = (event) => setVerifyFile(event.target.value);
 
   const deleteFile = useCallback(() => {
-    const payload = parseDeletePayload(project.workspace.id, project.id, project.files, modalContent.data.fileName);
+    const payload = parseDeletePayload(project?.workspace.id, project.id, project.files, modalContent.data.fileName);
 
     api({
       ..._ingestFiles(payload),
@@ -44,6 +45,7 @@ export const DeleteFileModal = ({modalContent}: webTypes.DeleteFileModalProps) =
             draft.modals.splice(0, 1);
           })
         );
+
         // update project filesystem
         mutate(`/api/project/${project.id}`);
       },

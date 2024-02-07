@@ -1,0 +1,31 @@
+[package]
+name = "glyphx_database"
+version = "0.1.0"
+edition = "2021"
+
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[profile.test]
+features = ["test"]
+
+[lib]
+test = true
+[dependencies]
+async-recursion = "1.0.4"
+async-trait = "0.1.68"
+cool_asserts = "2.0.3"
+derive_builder = "0.12.0"
+futures = "0.3.29"
+glyphx_core = {path = "../core", features=["macros"]}
+glyphx_data_model = {path = "../macros/glyphx_data_model"}
+log = "0.4.17"
+mockall = "0.11.4"
+mongodb = {version = "2.7.1", features=["tokio-sync"]} 
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serial_test = "2.0.0"
+tokio = { version = "1", features = ["full"] }
+
+[features]
+default = []
+test = []

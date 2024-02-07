@@ -444,7 +444,7 @@ describe('#services/workspace', () => {
         ],
       } as unknown as databaseTypes.IWorkspace);
 
-      sandbox.replace(workspaceService, 'getOwnWorkspace', getWorkspaceFromModelStub);
+      sandbox.replace(workspaceService, 'getSiteWorkspace', getWorkspaceFromModelStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.resolves();
@@ -510,7 +510,7 @@ describe('#services/workspace', () => {
         ],
       } as unknown as databaseTypes.IWorkspace);
 
-      sandbox.replace(workspaceService, 'getOwnWorkspace', getWorkspaceFromModelStub);
+      sandbox.replace(workspaceService, 'getSiteWorkspace', getWorkspaceFromModelStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.resolves();
@@ -566,7 +566,7 @@ describe('#services/workspace', () => {
 
       const getWorkspaceFromServiceStub = sandbox.stub();
       getWorkspaceFromServiceStub.rejects(err);
-      sandbox.replace(workspaceService, 'getOwnWorkspace', getWorkspaceFromServiceStub);
+      sandbox.replace(workspaceService, 'getSiteWorkspace', getWorkspaceFromServiceStub);
 
       function fakePublish() {
         //@ts-ignore
@@ -602,7 +602,7 @@ describe('#services/workspace', () => {
 
       const getWorkspaceFromServiceStub = sandbox.stub();
       getWorkspaceFromServiceStub.resolves(null);
-      sandbox.replace(workspaceService, 'getOwnWorkspace', getWorkspaceFromServiceStub);
+      sandbox.replace(workspaceService, 'getSiteWorkspace', getWorkspaceFromServiceStub);
 
       function fakePublish() {
         //@ts-ignore
@@ -638,7 +638,7 @@ describe('#services/workspace', () => {
 
       const getWorkspaceFromServiceStub = sandbox.stub();
       getWorkspaceFromServiceStub.rejects(err);
-      sandbox.replace(workspaceService, 'getOwnWorkspace', getWorkspaceFromServiceStub);
+      sandbox.replace(workspaceService, 'getSiteWorkspace', getWorkspaceFromServiceStub);
 
       function fakePublish() {
         //@ts-ignore
@@ -672,7 +672,7 @@ describe('#services/workspace', () => {
 
       const getWorkspaceFromServiceStub = sandbox.stub();
       getWorkspaceFromServiceStub.rejects(err);
-      sandbox.replace(workspaceService, 'getOwnWorkspace', getWorkspaceFromServiceStub);
+      sandbox.replace(workspaceService, 'getSiteWorkspace', getWorkspaceFromServiceStub);
 
       function fakePublish() {
         //@ts-ignore
@@ -731,7 +731,7 @@ describe('#services/workspace', () => {
         ],
       } as unknown as databaseTypes.IWorkspace);
 
-      sandbox.replace(workspaceService, 'getOwnWorkspace', getWorkspaceFromServiceStub);
+      sandbox.replace(workspaceService, 'getSiteWorkspace', getWorkspaceFromServiceStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.rejects(err);
@@ -788,7 +788,7 @@ describe('#services/workspace', () => {
         ],
       } as unknown as databaseTypes.IWorkspace);
 
-      sandbox.replace(workspaceService, 'getOwnWorkspace', getWorkspaceFromServiceStub);
+      sandbox.replace(workspaceService, 'getSiteWorkspace', getWorkspaceFromServiceStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.rejects(err);
@@ -845,7 +845,7 @@ describe('#services/workspace', () => {
         ],
       } as unknown as databaseTypes.IWorkspace);
 
-      sandbox.replace(workspaceService, 'getOwnWorkspace', getWorkspaceFromServiceStub);
+      sandbox.replace(workspaceService, 'getSiteWorkspace', getWorkspaceFromServiceStub);
 
       const updateWorkspaceFromModelStub = sandbox.stub();
       updateWorkspaceFromModelStub.rejects(err);
@@ -1241,28 +1241,21 @@ describe('#services/workspace', () => {
   });
   context('getSiteWorkspace', () => {
     it('should get non-deleted workspaces by slug', async () => {
-      const workspaceId =
-        // @ts-ignore
-        new mongooseTypes.ObjectId();
+      const workspaceId = new mongooseTypes.ObjectId().toString();
 
-      const queryWorkspacesFromModelStub = sandbox.stub();
-      queryWorkspacesFromModelStub.resolves({
-        results: [
-          {
-            _id: workspaceId,
-            deletedAt: undefined,
-          },
-        ] as unknown as databaseTypes.IWorkspace[],
-        numberOfItems: 1,
+      const getWorkspaceByIdFromModelStub = sandbox.stub();
+      getWorkspaceByIdFromModelStub.resolves({
+        _id: workspaceId.toString(),
+        deletedAt: undefined,
       });
 
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', queryWorkspacesFromModelStub);
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdFromModelStub);
 
       const workspace = await workspaceService.getSiteWorkspace(workspaceId.toString());
       assert.isOk(workspace);
-      assert.strictEqual(workspace?._id?.toString(), workspaceId.toString());
+      assert.strictEqual(workspace?._id?.toString(), workspaceId);
 
-      assert.isTrue(queryWorkspacesFromModelStub.calledOnce);
+      assert.isTrue(getWorkspaceByIdFromModelStub.calledOnce);
     });
     it('will log the failure, return null and publish DataNotFoundError if the underlying model throws one', async () => {
       const workspaceSlug = 'testSlug';
@@ -1274,7 +1267,7 @@ describe('#services/workspace', () => {
 
       const getWorkspaceFromModelStub = sandbox.stub();
       getWorkspaceFromModelStub.rejects(err);
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', getWorkspaceFromModelStub);
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'getWorkspaceById', getWorkspaceFromModelStub);
       function fakePublish() {
         //@ts-ignore
         assert.instanceOf(this, error.DataNotFoundError);
@@ -1304,7 +1297,7 @@ describe('#services/workspace', () => {
       });
       const getWorkspaceFromModelStub = sandbox.stub();
       getWorkspaceFromModelStub.rejects(err);
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', getWorkspaceFromModelStub);
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'getWorkspaceById', getWorkspaceFromModelStub);
       function fakePublish() {
         //@ts-ignore
         assert.instanceOf(this, error.InvalidArgumentError);
@@ -1328,10 +1321,10 @@ describe('#services/workspace', () => {
     it('will log the failure and throw a DatabaseService when the underlying model call fails', async () => {
       const workspaceSlug = 'testSlug';
       const errMessage = 'Something bad has happened';
-      const err = new error.DatabaseOperationError(errMessage, 'mongoDb', 'queryWorkspaces');
+      const err = new error.DatabaseOperationError(errMessage, 'mongoDb', 'getWorkspaceById');
       const getWorkspaceFromModelStub = sandbox.stub();
       getWorkspaceFromModelStub.rejects(err);
-      sandbox.replace(dbConnection.models.WorkspaceModel, 'queryWorkspaces', getWorkspaceFromModelStub);
+      sandbox.replace(dbConnection.models.WorkspaceModel, 'getWorkspaceById', getWorkspaceFromModelStub);
       function fakePublish() {
         //@ts-ignore
         assert.instanceOf(this, error.DatabaseOperationError);

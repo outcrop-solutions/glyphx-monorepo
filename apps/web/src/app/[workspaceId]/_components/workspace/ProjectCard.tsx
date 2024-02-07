@@ -8,9 +8,9 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import {useSetRecoilState} from 'recoil';
 
 import {webTypes} from 'types';
-import {ProjectTemplateIcons} from '../../project/[projectId]/_components/projectSidebar/icons';
+import {ProjectTemplateIcons} from '../../../project/[projectId]/_components/ProjectSidebar/_components/icons';
 
-import {modalsAtom, rightSidebarControlAtom} from 'state';
+import {modalsAtom, projectSegmentAtom, rightSidebarControlAtom} from 'state';
 
 import projectCard from 'public/images/project.png';
 import AddMemberIcon from 'public/svg/add-member-icon.svg';
@@ -23,13 +23,13 @@ export const ProjectCard = ({project}) => {
   dayjs.extend(relativeTime);
   const router = useRouter();
   const params = useParams();
-  const {workspaceId} = params as {workspaceId: string};
-
+  const setTab = useSetRecoilState(projectSegmentAtom);
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
   const setModals = useSetRecoilState(modalsAtom);
 
   const navigate = () => {
-    router.push(`/${workspaceId}/project/${project.id}` as Route);
+    router.push(`/project/${project.id}` as Route);
+    setTab('FILES');
   };
 
   const deleteProject = useCallback(() => {
@@ -86,7 +86,7 @@ export const ProjectCard = ({project}) => {
           </div>
           <div className="flex items-center justify-between w-full">
             <p className="font-roboto font-medium text-sm w-20 leading-[16px] text-light-gray whitespace-nowrap">
-              {project?.members[0]?.email.split('@')[0]}
+              {project?.members[0]?.email?.split('@')[0]}
             </p>
             <div className="bg-yellow px-2 py-1 rounded">
               <p className="font-roboto truncate font-medium text-sm leading-[16px] text-right text-white">

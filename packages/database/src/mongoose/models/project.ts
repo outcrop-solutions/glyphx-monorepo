@@ -29,6 +29,7 @@ const SCHEMA = new Schema<IProjectDocument, IProjectStaticMethods, IProjectMetho
   },
   name: {type: String, required: true},
   imageHash: {type: String, required: false},
+  docId: {type: String, required: false},
   aspectRatio: {type: aspectSchema, required: false},
   description: {type: String, required: false},
   sdtPath: {type: String, required: false},
@@ -252,9 +253,9 @@ SCHEMA.static('validateUpdateObject', async (project: Omit<Partial<databaseTypes
 
   const tasks: Promise<void>[] = [];
 
-  if (project.workspace)
+  if (project?.workspace)
     tasks.push(
-      idValidator(project.workspace._id as mongooseTypes.ObjectId, 'Workspace', WorkspaceModel.workspaceIdExists)
+      idValidator(project?.workspace._id as mongooseTypes.ObjectId, 'Workspace', WorkspaceModel.workspaceIdExists)
     );
 
   if (project.template)
@@ -527,6 +528,7 @@ SCHEMA.static('createProject', async (input: IProjectCreateInput): Promise<datab
       sdtPath: input.sdtPath,
       currentVersion: input.currentVersion ?? 0,
       state: input.state,
+      docId: input.docId ?? '',
       members: members ?? [],
       tags: tags ?? [],
       stateHistory: [],

@@ -45,10 +45,10 @@ function! ToggleAutoTests()
 	augroup END
     endif
 endfunction
-
-call ToggleAutoTests()
+if !exists("g:TestAutoGroupToggle")
+	call ToggleAutoTests()
+endif
 nnoremap <F2> :call ToggleAutoTests()<CR>
-
 
 "
 " close all buffers but the current.

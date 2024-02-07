@@ -1,3 +1,4 @@
+'use client';
 import React, {useState} from 'react';
 import {useRouter, useParams} from 'next/navigation';
 import {webTypes} from 'types';
@@ -49,9 +50,7 @@ export const DeleteWorkspaceModal = ({modalContent}: webTypes.DeleteWorkspaceMod
             })
           );
 
-          // @ts-ignore
-          setWorkspace(null);
-          router.replace('/account' as Route);
+          router.replace('/login' as Route);
         },
       });
   };

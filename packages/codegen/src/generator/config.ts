@@ -5,7 +5,8 @@ export const DEFAULT_CONFIG: databaseTypes.meta.ICodeGenConfig = {
   // base path configuration
   paths: {
     // where are your database interfaces defined?
-    source: './src/__tests__/mocks/database.ts',
+    // source: './src/__tests__/mocks/database.ts',
+    source: './database.ts',
     // where do i want to output my database files?
     destination: './src/output',
     baseUrl: 'src/',

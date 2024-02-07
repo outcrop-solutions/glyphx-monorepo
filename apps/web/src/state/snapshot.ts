@@ -24,7 +24,7 @@ export const cameraAtom = atom<webTypes.Camera | {}>({
 
 // populates state list
 export const stateSnapshotsSelector = selector<databaseTypes.IState[]>({
-  key: 'stateSnapshopsSelector',
+  key: 'stateSnapshotsSelector',
   get: ({get}) => {
     const project = get(projectAtom);
     return project?.stateHistory.filter((state) => !state.deletedAt);

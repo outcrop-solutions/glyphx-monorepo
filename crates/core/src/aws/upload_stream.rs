@@ -1,4 +1,4 @@
-use glyphx_types::error::GlyphxErrorData;
+pub use crate::types::error::GlyphxErrorData;
 use serde_json::json;
 
 use aws_sdk_s3::error::SdkError;
@@ -18,9 +18,9 @@ use aws_smithy_http::byte_stream::ByteStream;
 
 use async_trait::async_trait;
 use mockall::*;
-use glyphx_types::aws::upload_stream::*;
+pub use crate::types::aws::upload_stream::*;
 
-const BUFFER_LIMIT: usize = 1025 * 1024 * 5; // 5 MB
+const BUFFER_LIMIT: usize = 1024 * 1024 * 5; // 5 MB
 
 /// The UploadStream struct is a wrapper around the AWS S3 multipart upload functions.
 /// This structure behaves like a poor man's file stream.  It allows the user to 
@@ -573,7 +573,6 @@ where {
 mod constructor {
     use super::*;
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use http;
 
@@ -628,7 +627,7 @@ mod constructor {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
 
@@ -653,7 +652,6 @@ mod constructor {
 mod flush {
     use super::*;
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use http;
 
@@ -784,7 +782,7 @@ mod flush {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
         let mut upload_manager = UploadStream::new_impl(bucket_name, file_name, client, &mock_ops)
@@ -814,7 +812,6 @@ mod flush {
 mod write {
     use super::*;
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use http;
 
@@ -983,7 +980,7 @@ mod write {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
         mock_ops.expect_abort_multipart_upload_operation().returning(|_, _, _, _| Ok(AbortMultipartUploadOutput::builder().build())).times(1);
@@ -1101,7 +1098,6 @@ mod write {
 mod finish {
     use super::*;
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use http;
 
@@ -1218,7 +1214,7 @@ mod finish {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
         mock_ops.expect_abort_multipart_upload_operation().returning(|_, _, _, _| Ok(AbortMultipartUploadOutput::builder().build())).times(1);
@@ -1313,7 +1309,7 @@ mod finish {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(1);
         mock_ops.expect_abort_multipart_upload_operation().returning(|_, _, _, _| Ok(AbortMultipartUploadOutput::builder().build())).times(1);
@@ -1374,7 +1370,7 @@ mod finish {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(0);
         let mut upload_manager = UploadStream::new_impl(bucket_name, file_name, client, &mock_ops)
@@ -1428,7 +1424,7 @@ mod finish {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
             })
             .times(0);
         let mut upload_manager = UploadStream::new_impl(bucket_name, file_name, client, &mock_ops)
@@ -1455,7 +1451,6 @@ mod finish {
 pub mod abort {
     use super::*;
     use aws_smithy_http::body::SdkBody;
-    use aws_smithy_http::operation::Response;
     use aws_smithy_types::error::metadata::ErrorMetadata;
     use http;
 
@@ -1527,7 +1522,7 @@ pub mod abort {
                     .header("Content-Type", "application/json")
                     .body(SdkBody::empty())
                     .unwrap();
-                Err(SdkError::service_error(err, Response::new(inner)))
+                Err(SdkError::service_error(err, inner))
         }).times(1);
         let mut upload_manager = UploadStream::new_impl(bucket_name, file_name, client, &mock_ops)
             .await

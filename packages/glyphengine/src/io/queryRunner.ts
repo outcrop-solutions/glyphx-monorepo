@@ -1,11 +1,27 @@
 import {aws, error} from 'core';
 import {QUERY_STATUS} from '../constants';
 import {IQueryResponse} from '../interfaces';
+import {glyphEngineTypes} from 'types';
+
+type QueryRunnerConstructor = {
+  databaseName: string;
+  viewName: string;
+  xCol: string;
+  yCol: string;
+  zCol: string;
+  xColName: string;
+  yColName: string;
+  zColName: string;
+  filter?: string;
+};
 
 export class QueryRunner {
-  private readonly xColumn: string;
-  private readonly yColumn: string;
-  private readonly zColumn: string;
+  private readonly xColName: string;
+  private readonly yColName: string;
+  private readonly zColName: string;
+  private readonly xCol: string;
+  private readonly yCol: string;
+  private readonly zCol: string;
   private readonly athenaManager: aws.AthenaManager;
   private inited: boolean;
   private readonly viewName: string;
@@ -13,18 +29,24 @@ export class QueryRunner {
   private queryId?: string;
   private queryStatusField?: IQueryResponse;
   private readonly filter: string;
-  constructor(
-    databaseName: string,
-    viewName: string,
-    xcolumn: string,
-    yColumn: string,
-    zColumn: string,
-    filter?: string
-  ) {
+  constructor({
+    databaseName,
+    viewName,
+    xCol,
+    yCol,
+    zCol,
+    xColName,
+    yColName,
+    zColName,
+    filter,
+  }: QueryRunnerConstructor) {
     this.viewName = viewName;
-    this.xColumn = xcolumn;
-    this.yColumn = yColumn;
-    this.zColumn = zColumn;
+    this.xCol = xCol;
+    this.yCol = yCol;
+    this.zCol = zCol;
+    this.xColName = xColName;
+    this.yColName = yColName;
+    this.zColName = zColName;
     this.databaseName = databaseName;
     this.athenaManager = new aws.AthenaManager(databaseName);
     this.inited = false;
@@ -67,14 +89,49 @@ export class QueryRunner {
   }
 
   async startQuery() {
-    const query = `WITH temp as (SELECT glyphx_id__ as "rowid", "${this.xColumn}","${this.yColumn}","${this.zColumn}" FROM "${this.databaseName}"."${this.viewName}" ${this.filter})  SELECT array_join(array_agg(rowid) , '|') as "rowids", "${this.xColumn}", "${this.yColumn}", SUM("${this.zColumn}") as "${this.zColumn}"  FROM temp GROUP BY "${this.xColumn}", "${this.yColumn}";`;
+    // Handle Date Grouping for xColumn and yColumn
 
+    const query = `
+    WITH temp as (
+        SELECT glyphx_id__ as rowid, 
+        ${this.xCol} as groupedXColumn, 
+        ${this.yCol} as groupedYColumn, 
+        ${this.zColName} as zColumn
+        FROM "${this.databaseName}"."${this.viewName}" 
+        ${this.filter}
+    )  
+    SELECT array_join(array_agg(rowid), '|') as "rowids", 
+    groupedXColumn as x_${this.xColName}, 
+    groupedYColumn as y_${this.yColName}, 
+    ${this.zCol} as ${this.zColName}
+    FROM temp 
+    GROUP BY groupedXColumn, groupedYColumn;
+`;
     //this is already wrapped in a GlyphxError so no need to wrap it again
     this.queryId = await this.athenaManager.startQuery(query);
-
     this.queryStatusField = {
       status: QUERY_STATUS.RUNNING,
     };
     return this.queryId;
   }
 }
+
+// "
+// //    WITH temp as (
+// //        SELECT
+//        "col1" as xColumn,
+//      "col2" as yColumn,
+//      SUM(zColumn) as zColumn
+//      FROM "glyphx_testclientidd8c241b87b4a4c748ae24e244f5f15a2_654bc344fcad52d12ed973d6_view"
+
+//      GROUP BY "col1", "col2"
+//    )
+//    SELECT
+//      MIN(xColumn) as "mincol1",
+//      MAX(xColumn) as "maxcol1",
+//      MIN(yColumn) as "mincol2",
+//      MAX(yColumn) as "maxcol2",
+//      MIN(zColumn) as "mincol4",
+//      MAX(zColumn) as "maxcol4"
+//    FROM temp;
+//  ";

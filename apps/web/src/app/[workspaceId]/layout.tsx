@@ -1,31 +1,41 @@
-import {Metadata, Route} from 'next';
-import Header from 'app/_components/Header';
-import Sidebar from 'app/_components/Sidebar/index';
-import {getServerSession} from 'next-auth';
+import WorkspaceHeader from 'app/[workspaceId]/_components/WorkspaceHeader';
 import {authOptions} from 'app/api/auth/[...nextauth]/route';
+import {Initializer, workspaceService} from 'business';
+import {Metadata} from 'next';
+import {getServerSession} from 'next-auth/next';
 import {redirect} from 'next/navigation';
 import {RightSidebar} from './_components/rightSidebar';
+import LeftSidebar from 'app/[workspaceId]/_components/LeftSidebar';
 
 export const metadata: Metadata = {
   title: 'Workspace | Glyphx',
-  description: 'Glyphx Workspace',
+  description: 'Welcome to Glyphx Workspace',
 };
 
-export default async function WorkspaceLayout({children, params}) {
+declare global {
+  interface Window {
+    core: any | undefined;
+  }
+}
+
+export default async function WorkspaceLayout({children, params}: {children: React.ReactNode; params: any}) {
   const session = await getServerSession(authOptions);
 
-  // if (!session?.user) {
-  //   redirect(`/login` as Route);
-  // }
+  if (!session?.user) {
+    redirect('/login');
+  }
+
+  await Initializer.init();
+  const workspaces = await workspaceService.getWorkspaces(session.user.id, session.user.email as string);
 
   return (
     <div className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
-      <Sidebar />
+      <LeftSidebar workspaces={workspaces} />
       <div className="flex flex-col h-full w-full overflow-y-auto bg-transparent">
-        <Header />
+        <WorkspaceHeader />
         {children}
       </div>
-      {params?.workspaceId ? <RightSidebar /> : <></>}
+      <RightSidebar />
     </div>
   );
 }

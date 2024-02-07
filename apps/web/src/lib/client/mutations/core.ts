@@ -43,7 +43,13 @@ export const _uploadFile = (acceptedFile: ArrayBuffer, url: string): webTypes.IF
  * @param tableName
  * @returns config
  */
-export const _getDataGrid = (workspaceId: string, projectId: string, tableName: string): webTypes.IFetchConfig => {
+export const _getDataGrid = (
+  workspaceId: string,
+  projectId: string,
+  tableName: string,
+  pageSize: number,
+  pageNumber: number
+): webTypes.IFetchConfig => {
   return {
     url: `/api/data/grid`,
     options: {
@@ -52,6 +58,8 @@ export const _getDataGrid = (workspaceId: string, projectId: string, tableName: 
         workspaceId: workspaceId,
         projectId: projectId,
         tableName: tableName,
+        pageSize: pageSize,
+        pageNumber: pageNumber,
       },
     },
     successMsg: 'File successfully loaded',
@@ -70,7 +78,10 @@ export const _getRowIds = (
   workspaceId: string,
   projectId: string,
   tableName: string,
-  rowIds: string[]
+  rowIds: string[],
+  pageSize: number,
+  pageNumber: number,
+  isExport?: boolean
 ): webTypes.IFetchConfig => {
   return {
     url: `/api/data/rows`,
@@ -81,6 +92,9 @@ export const _getRowIds = (
         projectId: projectId,
         tableName: tableName,
         rowIds: rowIds,
+        pageSize,
+        pageNumber,
+        isExport: isExport || false,
       },
     },
     successMsg: 'Rows successfully selected',
@@ -116,15 +130,20 @@ export const _ingestFiles = (payload: webTypes.IClientSidePayload): webTypes.IFe
 // modal state should also include a payload hash in order to uniquely store the data, as subsequent create state calls with the same fileSystem will override privious states with the same file system
 
 export const _createModel = (
-  project: databaseTypes.IProject,
+  project: Partial<databaseTypes.IProject>,
   isFilter: boolean,
   payloadHash: string
 ): webTypes.IFetchConfig => {
+  const cleanProject = {
+    ...project,
+    stateHistory: [],
+  };
+
   return {
     url: `/api/etl/glyphengine`,
     options: {
       method: 'POST',
-      body: {project, isFilter, payloadHash},
+      body: {project: cleanProject, isFilter, payloadHash},
     },
     successMsg: 'Model successfully generated!',
   };
@@ -166,6 +185,7 @@ export const _createOpenProject = (
   session: Omit<databaseTypes.ISession & {status}, 'jwt' | 'user' | 'expires' | 'sessionToken'>,
   url: string,
   isCreate: boolean,
+  rowIds: any[],
   camera?: {
     pos: {
       x: number;
@@ -177,12 +197,17 @@ export const _createOpenProject = (
       y: number;
       z: number;
     };
+    center?: {
+      x: number;
+      y: number;
+      z: number;
+    };
   }
 ) => {
   const cam = camera || {};
-
+  const rows = rowIds || [];
   return JSON.stringify({
-    ...cam,
+    camera: {...cam},
     projectId: project?.id,
     workspaceId: project?.workspace.id,
     sdtUrl: data.sdtUrl,
@@ -190,6 +215,7 @@ export const _createOpenProject = (
     sgcUrl: data.sgcUrl,
     viewName: project?.viewName,
     isCreate,
+    rowIds: rows,
     apiLocation: `${url}/api`,
     sessionInformation:
       session.status === 'unauthenticated'

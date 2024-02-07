@@ -1,5 +1,5 @@
 import type {NextApiRequest, NextApiResponse} from 'next';
-import type {Session} from 'next-auth';
+import {type Session} from 'next-auth';
 import {projectService, activityLogService} from 'business';
 import {databaseTypes} from 'types';
 import {formatUserAgent} from 'lib/utils';
@@ -15,13 +15,16 @@ import {formatUserAgent} from 'lib/utils';
  */
 
 export const createProject = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {name, workspaceId} = req.body;
+  const {name, workspaceId, description, docId} = req.body;
   try {
     const project = await projectService.createProject(
       name,
       workspaceId,
-      session?.user?.id,
-      session?.user?.email as string
+      session.user.id,
+      session.user.email,
+      undefined,
+      description ?? '',
+      docId
     );
 
     const {agentData, location} = formatUserAgent(req);
@@ -30,7 +33,7 @@ export const createProject = async (req: NextApiRequest, res: NextApiResponse, s
       actorId: session?.user?.id,
       resourceId: project?.id!,
       projectId: project.id,
-      workspaceId: project.workspace.id,
+      workspaceId: project?.workspace.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
@@ -92,7 +95,7 @@ export const updateProjectState = async (req: NextApiRequest, res: NextApiRespon
       actorId: session?.user?.id,
       resourceId: project?.id!,
       projectId: project.id,
-      workspaceId: project.workspace.id,
+      workspaceId: project?.workspace.id,
       location: location,
       userAgent: agentData,
       onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
@@ -130,7 +133,7 @@ export const deleteProject = async (req: NextApiRequest, res: NextApiResponse, s
       await activityLogService.createLog({
         actorId: session?.user?.id,
         resourceId: project?.id!,
-        workspaceId: project.workspace.id,
+        workspaceId: project?.workspace.id,
         projectId: project.id,
         location: location,
         userAgent: agentData,

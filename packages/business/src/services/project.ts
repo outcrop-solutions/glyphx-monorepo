@@ -53,11 +53,11 @@ export class ProjectService {
     userId: string,
     email: string,
     template?: databaseTypes.IProjectTemplate,
-    description?: string
+    description?: string,
+    docId?: string
   ): Promise<databaseTypes.IProject> {
     try {
       let templateId;
-
       if (template) {
         templateId = typeof template === 'string' ? template : template.id;
       }
@@ -72,6 +72,7 @@ export class ProjectService {
         members: [],
         stateHistory: [],
         tags: [],
+        docId: docId,
         state: {
           properties: template?.shape || {
             X: {

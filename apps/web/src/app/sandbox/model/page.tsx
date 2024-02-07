@@ -5,9 +5,12 @@ import {MenuIcon, XIcon} from '@heroicons/react/outline';
 import {Resizable} from 're-resizable';
 import Script from 'next/script';
 import {SandboxSidebar} from 'app/_components/Sandbox';
+import {useRecoilValue} from 'recoil';
+import {isRenderedAtom} from 'state';
 
 export default function Sandbox() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const isRendered = useRecoilValue(isRenderedAtom);
 
   const [style, _] = useState({
     display: 'flex',
@@ -79,53 +82,100 @@ export default function Sandbox() {
           </button>
         </div>
         <main className="lg:ml-72 p-8 h-full">
-          <Script id="run-model" type="module">
-            {`import init, { ModelRunner } from '../../../../../pkg/glyphx_cube_model.js';
+          {isRendered && (
+            <Script strategy="lazyOnload" id="run-model" type="module">
+              {`import init, { ModelRunner } from '/pkg/glyphx_cube_model.js';
       async function run() {
+	let isDragRotate = false;
         await init();
         console.log('WASM Loaded');
         const modelRunner = new ModelRunner();
 
         console.log('ModelRunner created');
-        // Get the button element
+	
+	
+        const canvas = document.getElementById('glyphx-cube-model');
 
+            canvas.addEventListener('mousedown', e => {
+                isDragRotate = true;
+            });
+
+            canvas.addEventListener('mousemove', e => {
+                if (isDragRotate === true) {
+		    //Here we invert our x and y to get the rotation to match
+		    const rotation = -e.movementX;
+                     modelRunner.add_yaw(rotation);
+		     modelRunner.add_pitch(e.movementY);
+
+                }
+            });
+
+            canvas.addEventListener('mouseup', e => {
+                if (isDragRotate === true) {
+                    isDragRotate = false;
+                }
+            });
+
+            canvas.addEventListener('wheel', e => {
+		console.log("wheel event");
+                e.preventDefault();
+		modelRunner.add_distance(-e.deltaY);
+            }, true);
+
+	
+	// Get the button element
         const moveLeftButton = document.getElementById('move-left-button');
         const moveRightButton = document.getElementById('move-right-button');
         const moveForwardButton = document.getElementById('move-forward-button');
         const moveBackwardButton = document.getElementById('move-backward-button');
+        const moveUpButton = document.getElementById('move-up-button');
+        const moveDownButton = document.getElementById('move-down-button');
 
-        moveLeftButton.addEventListener('click', function onClick() {
+          moveLeftButton.addEventListener('click', function onClick() {
           console.log('Move Left Button Clicked');
 
-          modelRunner.move_left();
+          modelRunner.add_yaw(-5.0);
         });
 
         moveRightButton.addEventListener('click', function onClick() {
           console.log('Move Right Button Clicked');
 
-          modelRunner.move_right();
+          modelRunner.add_yaw(5.0);
         });
 
         moveForwardButton.addEventListener('click', function onClick() {
           console.log('Move Forward Button Clicked');
 
-          modelRunner.move_forward();
+          modelRunner.add_distance(-120.0);
         });
 
         moveBackwardButton.addEventListener('click', function onClick() {
           console.log('Move Backward Button Clicked');
 
-          modelRunner.move_back();
+          modelRunner.add_distance(120.0);
         });
 
+        moveUpButton.addEventListener('click', function onClick() {
+          console.log('Move Up Button Clicked');
+
+          modelRunner.add_pitch(-5.0);
+        });
+
+        moveDownButton.addEventListener('click', function onClick() {
+          console.log('Move Down Button Clicked');
+
+          modelRunner.add_pitch(5.0);
+        });
         window.addEventListener('model-event', (event) => {
           console.log('Model Event Received');
           console.log({ event });
         });
+
         await modelRunner.run();
       }
       run();`}
-          </Script>
+            </Script>
+          )}
           <Resizable minHeight={600} style={style}>
             <div id="glyphx-cube-model" className="h-600 w-600"></div>
           </Resizable>

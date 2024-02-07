@@ -101,6 +101,49 @@ export const projectAtom = atom<any>({
   default: null,
 });
 
+// const [doy, setDoy] = useState(true);
+// const [month, setMonth] = useState(true);
+// const [dom, setDom] = useState({year: true, month: true});
+// const [dow, setDow] = useState(true);
+// const [woy, setWoy] = useState(true);
+// const [quarter, setQuarter] = useState(true);
+
+// DATE GROUPINGs
+export const dayAtom = atom<boolean>({
+  key: 'dayAtom',
+  default: true,
+});
+
+export const monthAtom = atom<boolean>({
+  key: 'monthAtom',
+  default: true,
+});
+
+export const domAtom = atom<{month: boolean; year: boolean}>({
+  key: 'domAtom',
+  default: {year: true, month: true},
+});
+
+export const dowAtom = atom<{year: boolean; week: boolean}>({
+  key: 'dowAtom',
+  default: {year: true, week: true},
+});
+
+export const woyAtom = atom<boolean>({
+  key: 'woyAtom',
+  default: true,
+});
+
+export const quarterAtom = atom<boolean>({
+  key: 'quarterAtom',
+  default: true,
+});
+
+export const documentAtom = atom<any>({
+  key: 'liveblockDocumentAtom',
+  default: null,
+});
+
 // right sidebar info
 export const projectDetailsAtom = atom<databaseTypes.IProject | null>({
   key: 'projectDetailsAtom',

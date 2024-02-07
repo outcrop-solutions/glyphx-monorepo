@@ -43,3 +43,18 @@ export const showLoadingAtom = atom<Partial<Omit<databaseTypes.IProcessTracking,
   key: 'showLoadingAtom',
   default: {},
 });
+
+export const mobileMenuAtom = atom<boolean>({
+  key: 'mobileMenuAtom',
+});
+
+// Used as a utility to apply control events to web based model sandbox
+export const isRenderedAtom = atom<boolean>({
+  key: 'isRenderedAtom',
+  default: false,
+});
+
+export const projectSegmentAtom = atom({
+  key: 'innerSidebarSegmentAtom',
+  default: 'FILES', // 'FILES' | 'MODEL' | 'COLLAB' | 'AI'
+});

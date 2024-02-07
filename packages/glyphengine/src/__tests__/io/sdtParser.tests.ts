@@ -8,6 +8,7 @@ import {FUNCTION, SHAPE, TYPE} from '../../constants';
 import {TextColumnToNumberConverter} from '../../io/textToNumberConverter';
 import {MinMaxCalculator} from '../../io/minMaxCalulator';
 import {aws} from 'core';
+import {glyphEngineTypes} from 'types';
 
 describe('SdtParser', () => {
   let stringTemplate: string;
@@ -109,8 +110,19 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-
-      const sdtParser = (await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager)) as any;
+      const initialParser = new SdtParser(
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        'xCol',
+        'yCol',
+        'zCol',
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
+      );
+      const sdtParser = (await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager)) as any;
 
       assert.instanceOf(sdtParser, SdtParser);
       assert.equal((sdtParser as any).viewName, viewName);
@@ -161,7 +173,19 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
+      const initialParser = new SdtParser(
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        'xCol',
+        'yCol',
+        'zCol',
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
+      );
+      const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const dataSource = sdtParser.getDataSource();
 
       assert.strictEqual(dataSource.tableName, viewName);
@@ -199,7 +223,19 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
+      const initialParser = new SdtParser(
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        'xCol',
+        'yCol',
+        'zCol',
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
+      );
+      const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const positionX = sdtParser.getGlyphProperty('Position', 'X');
       assert.strictEqual(positionX?.function, FUNCTION.TEXT_INTERPOLATION);
       assert.strictEqual(positionX?.min, 205);
@@ -234,7 +270,19 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
+      const initialParser = new SdtParser(
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        'xCol',
+        'yCol',
+        'zCol',
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
+      );
+      const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const positionX = sdtParser.getGlyphProperty('Scale', 'X');
       assert.strictEqual(positionX?.function, FUNCTION.LINEAR_INTERPOLATION);
       assert.strictEqual(positionX?.min, 1);
@@ -269,7 +317,19 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
+      const initialParser = new SdtParser(
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        'xCol',
+        'yCol',
+        'zCol',
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
+      );
+      const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const transparency = sdtParser.getGlyphProperty('Color', 'Transparency');
       assert.strictEqual(transparency?.function, FUNCTION.LINEAR_INTERPOLATION);
       assert.strictEqual(transparency?.min, 0);
@@ -290,7 +350,19 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
+      const initialParser = new SdtParser(
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        'xCol',
+        'yCol',
+        'zCol',
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
+      );
+      const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
       const rgb = sdtParser.getGlyphProperty('Color', 'RGB');
       assert.strictEqual(rgb?.function, FUNCTION.LINEAR_INTERPOLATION);
       assert.strictEqual(rgb?.min, 0);
@@ -311,7 +383,19 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
+      const initialParser = new SdtParser(
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        'xCol',
+        'yCol',
+        'zCol',
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
+      );
+      const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
 
       delete (sdtParser as any).sdtAsJson.Transform.Glyphs.Glyph.Color;
 
@@ -331,7 +415,19 @@ describe('SdtParser', () => {
       sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
-      const sdtParser = await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager);
+      const initialParser = new SdtParser(
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        'xCol',
+        'yCol',
+        'zCol',
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
+      );
+      const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
 
       delete (sdtParser as any).sdtAsJson.Transform.Glyphs.Glyph.Color.RGB;
 
@@ -368,7 +464,19 @@ describe('SdtParser', () => {
 
       sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
 
-      const sdtParser = (await SdtParser.parseSdtString(stringSdt, viewName, data, athenaManager)) as any;
+      const initialParser = new SdtParser(
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        'xCol',
+        'yCol',
+        'zCol',
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
+      );
+      const sdtParser = (await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager)) as any;
 
       const inputFields = sdtParser.getInputFields();
       assert.strictEqual(inputFields.x.field, data.get('x_axis'));
@@ -389,6 +497,53 @@ describe('SdtParser', () => {
       assert.strictEqual(inputFields.z.max, minMaxData.z.max);
       assert.isNotOk(inputFields.z.text_to_num);
       assert.strictEqual(inputFields.z.type, TYPE.REAL);
+    });
+  });
+
+  context('getAccumulator', () => {
+    let glyphEngine: GlyphEngine;
+    let stringSdt: string;
+    let athenaManager: aws.AthenaManager;
+    const sandbox = createSandbox();
+
+    before(async () => {
+      stringTemplate = await helperFunctions.getMockTemplate();
+      let s3Manager = new aws.S3Manager(inputBucketName);
+      athenaManager = new aws.AthenaManager(databaseName);
+      glyphEngine = new GlyphEngine(s3Manager, s3Manager, athenaManager, processId);
+      stringSdt = (glyphEngine as any).updateSdt(stringTemplate, data);
+    });
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('will return the accumulator type', async () => {
+      const textToNumberLoadStub = sandbox.stub();
+      textToNumberLoadStub.resolves();
+      sandbox.replace(TextColumnToNumberConverter.prototype, 'load', textToNumberLoadStub);
+
+      sandbox.replaceGetter(TextColumnToNumberConverter.prototype, 'size', () => textToNumberResults.size);
+
+      const minMaxoadStub = sandbox.stub();
+      minMaxoadStub.resolves();
+      sandbox.replace(MinMaxCalculator.prototype, 'load', minMaxoadStub);
+
+      sandbox.replaceGetter(MinMaxCalculator.prototype, 'minMax', () => minMaxData);
+      const initialParser = new SdtParser(
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH,
+        false,
+        'xCol',
+        'yCol',
+        'zCol',
+        'zCol',
+        glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM
+      );
+      const sdtParser = await initialParser.parseSdtString(stringSdt, viewName, data, athenaManager);
+      const accumulator = sdtParser.accumulatorType;
+      assert.strictEqual(accumulator, glyphEngineTypes.constants.ACCUMULATOR_TYPE.SUM);
     });
   });
 });

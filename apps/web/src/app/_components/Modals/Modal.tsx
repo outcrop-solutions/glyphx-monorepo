@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import {useSetRecoilState} from 'recoil';
 import {modalsAtom} from 'state';

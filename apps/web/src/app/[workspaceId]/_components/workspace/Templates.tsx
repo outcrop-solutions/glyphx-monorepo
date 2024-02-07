@@ -1,9 +1,13 @@
 'use client';
 import {ChevronRightIcon} from '@heroicons/react/solid';
 import {CalendarIcon, SpeakerphoneIcon, TerminalIcon} from '@heroicons/react/outline';
-import {_createDefaultProject, api, useWorkspace} from 'lib/client';
-import {useParams, useRouter} from 'next/navigation';
+import {_createDefaultProject} from 'lib/client';
 import {Route} from 'next';
+import {useSetRecoilState} from 'recoil';
+import {modalsAtom} from 'state';
+import produce from 'immer';
+import {webTypes} from 'types';
+import {WritableDraft} from 'immer/dist/internal';
 import Link from 'next/link';
 const items = [
   {
@@ -30,19 +34,18 @@ const items = [
 ];
 
 export const Templates = () => {
-  const router = useRouter();
-  const params = useParams();
-  const {workspaceId} = params as {workspaceId: string};
-  const {data} = useWorkspace();
+  const setModals = useSetRecoilState(modalsAtom);
 
-  // mutations
-  const handleCreate = async () => {
-    api({
-      ..._createDefaultProject(data?.workspace?.id),
-      onSuccess: (data) => {
-        router.push(`/${workspaceId}/project/${data.id}` as Route);
-      },
-    });
+  const handleCreate = () => {
+    setModals(
+      produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+        draft.modals.push({
+          type: webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT,
+          isSubmitting: false,
+          data: {},
+        });
+      })
+    );
   };
 
   return (

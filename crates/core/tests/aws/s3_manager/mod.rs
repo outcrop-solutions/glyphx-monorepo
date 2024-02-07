@@ -1,7 +1,7 @@
 pub mod sub_mod;
 use crate::generate_random_file_name;
-use glyphx_types::aws::s3_manager::*;
 use glyphx_core::aws::S3Manager;
+use glyphx_core::aws::s3_manager::FileExistsError;
 use reqwest;
 
 const BUCKET_NAME: &str = "jps-test-bucket";

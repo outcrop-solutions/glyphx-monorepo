@@ -1,0 +1,107 @@
+'use client';
+import React, {useEffect, useRef, useState} from 'react';
+import produce from 'immer';
+import {WritableDraft} from 'immer/dist/internal';
+import {fileIngestionTypes, webTypes} from 'types';
+import {useSetRecoilState} from 'recoil';
+import {projectAtom, rightSidebarControlAtom, rowIdsAtom, templatesAtom, workspaceAtom} from 'state';
+import {useSendPosition, useWindowSize} from 'services';
+import {useCloseViewerOnModalOpen} from 'services/useCloseViewerOnModalOpen';
+import {useCloseViewerOnLoading} from 'services/useCloseViewerOnLoading';
+import useTemplates from 'lib/client/hooks/useTemplates';
+import useProject from 'lib/client/hooks/useProject';
+// Live Page Structure
+import {LiveMap} from '@liveblocks/client';
+import {InitialDocumentProvider} from 'collab/lib/client';
+import {RoomProvider} from 'liveblocks.config';
+import {useFeatureIsOn} from '@growthbook/growthbook-react';
+
+const openFirstFile = (projData) => {
+  const newFiles = projData?.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
+  return {
+    ...projData,
+    files: [...newFiles],
+  };
+};
+
+export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc: any}) => {
+  const {data: templateData, isLoading: templateLoading} = useTemplates();
+
+  const {data, isLoading} = useProject();
+  const project = data?.project;
+
+  const projectViewRef = useRef(null);
+
+  // check if collab is enabled from growthbook endpoint
+  const enabled = useFeatureIsOn('collaboration');
+
+  // resize setup
+  useWindowSize();
+  useSendPosition();
+  useCloseViewerOnModalOpen();
+  useCloseViewerOnLoading();
+
+  const setWorkspace = useSetRecoilState(workspaceAtom);
+  const setRowIds = useSetRecoilState(rowIdsAtom);
+  const setProject = useSetRecoilState(projectAtom);
+  const setTemplates = useSetRecoilState(templatesAtom);
+  const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
+
+  // hydrate recoil state
+  useEffect(() => {
+    if (!templateLoading && !isLoading) {
+      const projectData = openFirstFile(project);
+
+      let formattedProject = {...projectData};
+      // rectify mongo scalar array
+      Object.values(projectData.state.properties).forEach((prop: webTypes.Property) => {
+        if (
+          prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING ||
+          prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE
+        ) {
+          const {keywords} = prop.filter as unknown as webTypes.IStringFilter;
+          if (keywords && keywords.length > 0) {
+            formattedProject.state.properties[prop.axis].filter.keywords = [
+              ...keywords.map((word) => {
+                return Object.values(word).join('');
+              }),
+            ];
+          }
+        }
+      });
+      setProject(formattedProject);
+
+      setRowIds(false);
+      setTemplates(templateData);
+      setRightSidebarControl(
+        produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
+          draft.data = project;
+        })
+      );
+    }
+  }, [
+    templateLoading,
+    setProject,
+    setRightSidebarControl,
+    setWorkspace,
+    setTemplates,
+    templateData,
+    project,
+    isLoading,
+    setRowIds,
+  ]);
+
+  return enabled ? (
+    <RoomProvider id={project.docId as string} initialPresence={{cursor: null}} initialStorage={{notes: new LiveMap()}}>
+      <InitialDocumentProvider initialDocument={doc}>
+        <div ref={projectViewRef} className="flex w-full h-full">
+          {children}
+        </div>
+      </InitialDocumentProvider>
+    </RoomProvider>
+  ) : (
+    <div ref={projectViewRef} className="flex w-full h-full">
+      {children}
+    </div>
+  );
+};

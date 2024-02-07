@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import ShareIcon from 'public/svg/share-icon.svg';
 import {useSetRecoilState} from 'recoil';

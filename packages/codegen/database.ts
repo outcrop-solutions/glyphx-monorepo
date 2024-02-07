@@ -4,6 +4,7 @@ export namespace databaseTypes {
   // TABLES
   export interface IWorkspace {
     _id?: mongooseTypes.ObjectId;
+    id?: string;
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date;
@@ -21,6 +22,7 @@ export namespace databaseTypes {
 
   export interface IUser {
     _id?: mongooseTypes.ObjectId;
+    id?: string;
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date;
@@ -45,6 +47,7 @@ export namespace databaseTypes {
 
   export interface IMember {
     _id?: mongooseTypes.ObjectId;
+    id?: string;
     updatedAt: Date;
     createdAt: Date;
     deletedAt?: Date;
@@ -64,6 +67,7 @@ export namespace databaseTypes {
 
   export interface IAccount {
     _id?: mongooseTypes.ObjectId;
+    id?: string;
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date;
@@ -86,6 +90,7 @@ export namespace databaseTypes {
 
   export interface IProject {
     _id?: mongooseTypes.ObjectId;
+    id?: string;
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date;
@@ -109,6 +114,7 @@ export namespace databaseTypes {
 
   export interface IProjectTemplate {
     _id?: mongooseTypes.ObjectId;
+    id?: string;
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date;
@@ -120,6 +126,7 @@ export namespace databaseTypes {
 
   export interface IState {
     _id?: mongooseTypes.ObjectId;
+    id?: string;
     createdBy: IUser;
     createdAt: Date;
     deletedAt?: Date;
@@ -137,10 +144,25 @@ export namespace databaseTypes {
     project: IProject;
     workspace: IWorkspace;
     fileSystem: FileStats[];
+    document: IDocument;
   }
 
-  export interface IComment {
+  // Collaborative Document for user state references
+  export interface IDocument {
     _id?: mongooseTypes.ObjectId;
+    id?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt?: Date;
+    presence?: IPresence[];
+    annotations?: IAnnotation[];
+    thresholds?: IThreshold[];
+    configs?: IModelConfig[];
+  }
+
+  export interface IAnnotation {
+    _id?: mongooseTypes.ObjectId;
+    id?: string;
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date;
@@ -149,105 +171,33 @@ export namespace databaseTypes {
     state: IState;
   }
 
-  export interface ITag {
+  export interface IPresence {
     _id?: mongooseTypes.ObjectId;
+    id?: string;
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date;
-    workspaces: IWorkspace[];
-    templates: IProjectTemplate[];
-    projects: IProject[];
-    value: string;
+    cursor: Cursor;
+    camera: Camera; // collaborative camera position (multi-player)
+    config: IModelConfig; // collaborative model configuration
   }
 
-  export interface IActivityLog {
+  export interface IThreshold {
     _id?: mongooseTypes.ObjectId;
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt?: Date;
-    actor: IUser;
-    workspace?: IWorkspace;
-    project?: IProject;
-    location: string; // IP address
-    userAgent: IUserAgent;
-    action: ACTION_TYPE;
-    onModel: RESOURCE_MODEL;
-  }
-
-  export interface ICustomerPayment {
-    _id?: mongooseTypes.ObjectId;
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt?: Date;
-    paymentId: string;
-    email?: string;
-    subscriptionType: SUBSCRIPTION_TYPE;
-    customer: IUser;
-  }
-
-  export interface IProcessTracking {
-    _id?: mongooseTypes.ObjectId;
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt?: Date;
-    processId: string;
-    processName: string;
-    processStatus: PROCESS_STATUS;
-    processStartTime: Date;
-    processEndTime?: Date;
-    processMessages: string[];
-    processError: Record<string, unknown>[];
-    processResult?: Record<string, unknown>;
-    processHeartbeat?: Date;
-  }
-
-  export interface ISession {
-    _id?: mongooseTypes.ObjectId;
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt?: Date;
-    userId?: string;
-    sessionToken: string;
-    expires: Date;
-    user: IUser;
-  }
-
-  export interface IUserAgent {
-    _id?: mongooseTypes.ObjectId;
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt?: Date;
-    userAgent?: string;
-    platform?: string;
-    appName?: string;
-    appVersion?: string;
-    vendor?: string;
-    language?: string;
-    cookieEnabled?: boolean;
-  }
-
-  export interface IVerificationToken {
-    _id?: mongooseTypes.ObjectId;
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt?: Date;
-    identifier: string;
-    token: string;
-    expires: Date;
-  }
-
-  export interface IWebhook {
-    _id?: mongooseTypes.ObjectId;
+    id?: string;
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date;
     name: string;
-    url: string;
-    user: IUser;
+    actionType: ACTION_TYPE;
+    actionPayload: Record<string, unknown>;
+    value?: number;
+    operator?: THRESHOLD_OPERATOR;
   }
 
   export interface IModelConfig {
     _id?: mongooseTypes.ObjectId;
+    id?: string;
     updatedAt: Date;
     createdAt: Date;
     deletedAt?: Date;
@@ -271,6 +221,111 @@ export namespace databaseTypes {
     toggle_z_offset: boolean;
   }
 
+  export interface ITag {
+    _id?: mongooseTypes.ObjectId;
+    id?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt?: Date;
+    workspaces: IWorkspace[];
+    templates: IProjectTemplate[];
+    projects: IProject[];
+    value: string;
+  }
+
+  export interface IActivityLog {
+    _id?: mongooseTypes.ObjectId;
+    id?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt?: Date;
+    actor: IUser;
+    workspace?: IWorkspace;
+    project?: IProject;
+    location: string; // IP address
+    userAgent: IUserAgent;
+    action: ACTION_TYPE;
+    onModel: RESOURCE_MODEL;
+  }
+
+  export interface ICustomerPayment {
+    _id?: mongooseTypes.ObjectId;
+    id?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt?: Date;
+    paymentId: string;
+    email?: string;
+    subscriptionType: SUBSCRIPTION_TYPE;
+    customer: IUser;
+  }
+
+  export interface IProcessTracking {
+    _id?: mongooseTypes.ObjectId;
+    id?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt?: Date;
+    processId: string;
+    processName: string;
+    processStatus: PROCESS_STATUS;
+    processStartTime: Date;
+    processEndTime?: Date;
+    processMessages: string[];
+    processError: Record<string, unknown>[];
+    processResult?: Record<string, unknown>;
+    processHeartbeat?: Date;
+  }
+
+  export interface ISession {
+    _id?: mongooseTypes.ObjectId;
+    id?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt?: Date;
+    userId?: string;
+    sessionToken: string;
+    expires: Date;
+    user: IUser;
+  }
+
+  export interface IUserAgent {
+    _id?: mongooseTypes.ObjectId;
+    id?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt?: Date;
+    userAgent?: string;
+    platform?: string;
+    appName?: string;
+    appVersion?: string;
+    vendor?: string;
+    language?: string;
+    cookieEnabled?: boolean;
+  }
+
+  export interface IVerificationToken {
+    _id?: mongooseTypes.ObjectId;
+    id?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt?: Date;
+    identifier: string;
+    token: string;
+    expires: Date;
+  }
+
+  export interface IWebhook {
+    _id?: mongooseTypes.ObjectId;
+    id?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt?: Date;
+    name: string;
+    url: string;
+    user: IUser;
+  }
+
   // SCHEMAS
   export type Color = {r: number; g: number; b: number; a: number};
 
@@ -281,6 +336,11 @@ export namespace databaseTypes {
     dorx: number;
     dory: number;
     dorz: number;
+  };
+
+  export type Cursor = {
+    x: number;
+    y: number;
   };
 
   export type Aspect = {
@@ -459,5 +519,12 @@ export namespace databaseTypes {
   export enum DIRECTION_TYPE {
     ASC = 'ASC',
     DESC = 'DESC',
+  }
+
+  // used to construct decision rule for action trigger
+  export enum THRESHOLD_OPERATOR {
+    GT = 'GT', // greater than
+    LT = 'LT', // greater than
+    EQ = 'EQ', // equal to
   }
 }

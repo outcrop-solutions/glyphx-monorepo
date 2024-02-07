@@ -1,14 +1,26 @@
+'use client';
 import React, {Fragment} from 'react';
 import {Menu, Transition} from '@headlessui/react';
 import {signOut} from 'next-auth/react';
 import Link from 'next/link';
 
-import {CogIcon, CreditCardIcon, DesktopComputerIcon, LogoutIcon, UserCircleIcon} from '@heroicons/react/outline';
+import {
+  CogIcon,
+  CreditCardIcon,
+  DesktopComputerIcon,
+  ExclamationIcon,
+  LogoutIcon,
+  UserCircleIcon,
+  UserGroupIcon,
+} from '@heroicons/react/outline';
 import {useUrl} from 'lib/client/hooks';
 import {Route} from 'next';
+import {useParams} from 'next/navigation';
 
 export const SettingsDropdown = () => {
   const url = useUrl();
+  const params = useParams();
+  const workspaceId = params?.workspaceId;
   const logOut = () => {
     const result = confirm('Are you sure you want to logout?');
     if (result) {
@@ -36,23 +48,45 @@ export const SettingsDropdown = () => {
           <div className="p-2">
             <Menu.Item>
               <Link
-                href={'/account/settings' as Route}
+                href={`/${workspaceId}/settings` as Route}
                 className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-gray-800 rounded hover:bg-blue-600 hover:text-white group"
               >
                 <UserCircleIcon aria-hidden="true" className="w-5 h-5" />
                 <span>Account</span>
               </Link>
             </Menu.Item>
-            <Menu.Item>
-              <Link
-                href={'/account/billing' as Route}
-                className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-gray-800 rounded hover:bg-blue-600 hover:text-white group"
-              >
-                <CreditCardIcon aria-hidden="true" className="w-5 h-5" />
-                <span>Billing</span>
-              </Link>
-            </Menu.Item>
           </div>
+          {workspaceId && (
+            <div className="p-2">
+              <Menu.Item>
+                <Link
+                  href={`/${workspaceId}/settings/team` as Route}
+                  className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-gray-800 rounded hover:bg-blue-600 hover:text-white group"
+                >
+                  <UserGroupIcon aria-hidden="true" className="w-5 h-5" />
+                  <span>Team</span>
+                </Link>
+              </Menu.Item>
+              <Menu.Item>
+                <Link
+                  href={`/${workspaceId}/settings/general` as Route}
+                  className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-gray-800 rounded hover:bg-blue-600 hover:text-white group"
+                >
+                  <CogIcon aria-hidden="true" className="w-5 h-5" />
+                  <span>Settings</span>
+                </Link>
+              </Menu.Item>
+              <Menu.Item>
+                <Link
+                  href={`/${workspaceId}/settings/advanced` as Route}
+                  className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-gray-800 rounded hover:bg-blue-600 hover:text-white group"
+                >
+                  <ExclamationIcon aria-hidden="true" className="w-5 h-5" />
+                  <span>Advanced</span>
+                </Link>
+              </Menu.Item>
+            </div>
+          )}
           <div className="p-2">
             <Menu.Item>
               <Link

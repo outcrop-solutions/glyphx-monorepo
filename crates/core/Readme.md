@@ -58,7 +58,7 @@ cargo test --features=test --test aws upload_stream::upload_a_file_from_string
 Notice the single quotes around the test name when using the wildcard.
 
 ```
-cargo test --features=test --test 'aws upload_stream::*'
+cargo test --features=test --test aws 'upload_stream::*'
 ```
 
 By default, cargo test will swallow the output to stdout. To see the output you can add the `-- --nocapture` to the end of the command. For example:
