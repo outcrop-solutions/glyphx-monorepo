@@ -2,8 +2,9 @@ use crate::types::field_definition_type::FieldDefinitionType;
 use crate::types::vectorizer_parameters::json_has_field;
 use super::DateFieldDefinitionFromJsonError;
 use serde_json::Value;
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum DateGrouping {
   QualifiedDayOfYear,
   DayOfYear,
@@ -49,7 +50,7 @@ impl DateGrouping {
 
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DateFieldDefinition {
    pub field_type: FieldDefinitionType,
    pub field_name: String,

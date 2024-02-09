@@ -1,5 +1,6 @@
 use crate::types::error::GlyphxErrorData;
 use crate::GlyphxError;
+use serde::{Serialize, Deserialize};
 //This is a bit hackey, but I built our GlyphxError macro to import any types that it needs are
 //part of derived code, fully pathed to glyphx_core.  This allows errors defined in external
 //crates, i.e. common, to not have to worry about bringing structs and traits into scope.  This
@@ -9,7 +10,7 @@ use crate as glyphx_core;
 
 ///Error that are returned from calls to run_query or related methods.  In most cases this just
 ///aggregate errors from start_query, get_query_status and get_query_results.
-#[derive(Debug, Clone, GlyphxError)]
+#[derive(Debug, Clone, Serialize, Deserialize, GlyphxError)]
 #[error_definition("AthenaManager")]
 pub enum RunQueryError {
     ///If the query_id does not point to a valid query this is returned.

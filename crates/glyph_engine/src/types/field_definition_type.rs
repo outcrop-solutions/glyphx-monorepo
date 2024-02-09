@@ -1,4 +1,5 @@
-#[derive(Debug, Copy, Clone)]
+use serde::{Serialize, Deserialize};
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum FieldDefinitionType {
     Standard,
     Date,

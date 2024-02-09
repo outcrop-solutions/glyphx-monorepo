@@ -1485,6 +1485,7 @@ dependencies = [
  "glyphx_database",
  "im",
  "lazy_static",
+ "log",
  "mockall",
  "serde",
  "serde_json",

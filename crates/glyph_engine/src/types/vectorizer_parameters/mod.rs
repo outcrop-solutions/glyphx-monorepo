@@ -935,6 +935,7 @@ mod get_field_definition {
                 field_display_name,
                 field_data_type,
                 field_definition,
+                field_query,
             } => {
                 assert_eq!(field_display_name, "field1");
                 match field_data_type {
@@ -942,6 +943,7 @@ mod get_field_definition {
                     _ => assert!(false),
                 }
                 assert_eq!(field_definition.field_name, "field1");
+                assert_eq!(field_query, r#""field1" as "field1""#);
                 match field_definition.field_type {
                     FieldDefinitionType::Standard => assert!(true),
                     _ => assert!(false),
@@ -984,6 +986,7 @@ mod get_field_definition {
                 field_display_name,
                 field_data_type,
                 field_definition,
+                field_query,
             } => {
                 assert_eq!(field_display_name, "field1");
                 match field_data_type {
@@ -999,6 +1002,7 @@ mod get_field_definition {
                     DateGrouping::DayOfWeek => assert!(true),
                     _ => assert!(false),
                 }
+                assert_eq!(field_query, r#"day_of_week(from_unixtime("field1"/1000)) as "field1""#);
             }
             _ => {
                 panic!("Unexpected field definition type");

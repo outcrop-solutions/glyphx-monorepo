@@ -1,21 +1,21 @@
 mod accumulated_field_definition;
+mod accumulated_field_definition_errors;
 mod date_field_definition;
+mod date_field_definition_errors;
 mod field_definition_collection;
 mod field_definition_errors;
 mod standard_field_definition;
 mod standard_field_definition_errors;
-mod date_field_definition_errors;
-mod accumulated_field_definition_errors;
 pub use accumulated_field_definition::{
     AccumulatedFieldDefinition, AccumulatorFieldDefinition, AccumulatorType,
 };
+pub use accumulated_field_definition_errors::FromJsonError as AccumulatedFieldDefinitionFromJsonError;
 pub use date_field_definition::{DateFieldDefinition, DateGrouping};
+pub use date_field_definition_errors::FromJsonError as DateFieldDefinitionFromJsonError;
 pub use field_definition_collection::FieldDefinitionCollection;
 pub use field_definition_errors::*;
 pub use standard_field_definition::StandardFieldDefinition;
 pub use standard_field_definition_errors::FromJsonError as StandardFieldDefinitionFromJsonError;
-pub use date_field_definition_errors::FromJsonError as DateFieldDefinitionFromJsonError;
-pub use accumulated_field_definition_errors::FromJsonError as AccumulatedFieldDefinitionFromJsonError;
 
 use crate::types::vectorizer_parameters::helper_functions::json_has_field;
 
@@ -23,23 +23,28 @@ use crate::types::vectorizer_parameters::FieldDefinitionType;
 use crate::types::FieldType;
 use glyphx_core::GlyphxErrorData;
 use serde_json::{json, Value};
-#[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum FieldDefinition {
     Standard {
         field_display_name: String,
         field_data_type: FieldType,
         field_definition: StandardFieldDefinition,
+        field_query: String,
     },
     //    Formula(FormulaFieldDefinition),
     Date {
         field_display_name: String,
         field_data_type: FieldType,
         field_definition: DateFieldDefinition,
+        field_query: String,
     },
     Accumulated {
         field_display_name: String,
         field_data_type: FieldType,
         field_definition: AccumulatorFieldDefinition,
+        field_query: String,
     },
     Unknown(),
 }
@@ -90,11 +95,13 @@ impl FieldDefinition {
             let err = FromJsonError::from_accumulated_field_from_json_error(err);
             return Err(err);
         }
-
+        let accumulated_field_definition = accumulated_field_definition.unwrap();
+        let field_query = accumulated_field_definition.get_query(&field_display_name);
         Ok(FieldDefinition::Accumulated {
             field_display_name,
             field_data_type,
-            field_definition: accumulated_field_definition.unwrap(),
+            field_definition: accumulated_field_definition,
+            field_query,
         })
     }
     fn build_date_field(
@@ -108,11 +115,14 @@ impl FieldDefinition {
             let err = FromJsonError::from_date_field_from_json_error(err);
             return Err(err);
         }
+        let date_field_definition = date_field_definition.unwrap();
+        let field_query = date_field_definition.get_query(&field_display_name);
 
         Ok(FieldDefinition::Date {
             field_display_name,
             field_data_type,
-            field_definition: date_field_definition.unwrap(),
+            field_definition: date_field_definition,
+            field_query,
         })
     }
 
@@ -122,16 +132,20 @@ impl FieldDefinition {
         field_definition: &Value,
     ) -> Result<FieldDefinition, FromJsonError> {
         let standard_field_definition = StandardFieldDefinition::from_json(field_definition);
+    
         if standard_field_definition.is_err() {
             let err = standard_field_definition.err().unwrap();
             let err = FromJsonError::from_standard_field_from_json_error(err);
             return Err(err);
         }
 
+        let standard_field_definition = standard_field_definition.unwrap();
+        let field_query = standard_field_definition.get_query(&field_display_name);
         Ok(FieldDefinition::Standard {
             field_display_name,
             field_data_type,
-            field_definition: standard_field_definition.unwrap(),
+            field_definition: standard_field_definition,
+            field_query,
         })
     }
 
@@ -242,6 +256,20 @@ impl FieldDefinition {
             _ => "",
         }
     }
+    pub fn get_field_query(&self) -> &str {
+        match self {
+            FieldDefinition::Standard {
+                field_query, ..
+            } => field_query.as_str(),
+            FieldDefinition::Date {
+                field_query, ..
+            } => field_query.as_str(),
+            FieldDefinition::Accumulated {
+                field_query, ..
+            } => field_query.as_str(),
+            _ => "",
+        }
+    }
 
     pub fn get_standard_field_definition(&self) -> Option<&StandardFieldDefinition> {
         match self {
@@ -271,41 +299,41 @@ impl FieldDefinition {
     }
 
     pub fn get_query_parts(&self) -> (String, String) {
-      //Field_value 
-      //Field_name
-      let mut field_value = String::new();
-      let mut field_name = String::new();
-      match self {
-          FieldDefinition::Standard {
-              field_definition, ..
-          } => {
-              field_value = format!("\"{}\"", field_definition.field_name);
-              field_name = self.get_field_display_name().to_string();
-          },
-          FieldDefinition::Date {
-              field_definition, ..
-          } => {
-              field_value = format!("\"{}\"", field_definition.field_name);
-              field_name = field_definition.field_name.clone();
-          },
-          FieldDefinition::Accumulated {
-              field_definition, ..
-          } => {
-              match &field_definition.accumulated_field_definition {
-                  AccumulatedFieldDefinition::Standard(standard_field_definition) => {
-                      field_value = format!("\"{}\"", standard_field_definition.field_name);
-                      field_name = standard_field_definition.field_name.clone();
-                  },
-                  _ => {
-                      panic!("Unexpected field definition");
-                  }
-              }
-          },
-          _ => {
-              panic!("Unexpected field definition");
-          }
-      }
-      (field_name, field_value)
+        //Field_value
+        //Field_name
+        let field_value;
+        let field_name;
+        match self {
+            FieldDefinition::Standard {
+                field_definition,
+                field_display_name,
+                ..
+            } => {
+                field_name = field_display_name.clone();
+                field_value = field_definition.get_query(&field_name);
+            }
+            FieldDefinition::Date {
+                field_definition,
+                field_display_name,
+                ..
+            } => {
+                field_name = field_display_name.clone();
+                field_value = field_definition.get_query(&field_name);
+            }
+            FieldDefinition::Accumulated {
+                field_definition,
+                field_display_name,
+                ..
+            } => {
+                field_name = field_display_name.clone();
+                field_value = field_definition.get_query(&field_name);
+            }
+
+            _ => {
+                panic!("Unexpected field definition");
+            }
+        }
+        (field_name, field_value)
     }
 }
 
@@ -322,6 +350,7 @@ mod is_standard {
                 field_type: FieldDefinitionType::Standard,
                 field_name: "test".to_string(),
             },
+            field_query: String::from(r#""test" as "test""#),
         };
         assert!(field_definition.is_standard());
     }
@@ -336,6 +365,7 @@ mod is_standard {
                 field_name: "test".to_string(),
                 date_grouping: DateGrouping::DayOfMonth,
             },
+            field_query: String::from(r#""test" as "test""#),
         };
         assert!(!field_definition.is_standard());
     }
@@ -355,6 +385,7 @@ mod is_date {
                 field_name: "test".to_string(),
                 date_grouping: DateGrouping::DayOfMonth,
             },
+            field_query: String::from(r#""test" as "test""#),
         };
         assert!(field_definition.is_date());
     }
@@ -368,6 +399,7 @@ mod is_date {
                 field_type: FieldDefinitionType::Standard,
                 field_name: "test".to_string(),
             },
+            field_query: String::from(r#""test" as "test""#),
         };
         assert!(!field_definition.is_date());
     }
@@ -392,6 +424,7 @@ mod is_accumulated {
                     },
                 ),
             },
+            field_query: String::from(r#""test" as "test""#),
         };
         assert!(field_definition.is_accumulated());
     }
@@ -405,6 +438,7 @@ mod is_accumulated {
                 field_type: FieldDefinitionType::Standard,
                 field_name: "test".to_string(),
             },
+            field_query: String::from(r#""test" as "test""#),
         };
         assert!(!field_definition.is_accumulated());
     }
@@ -423,6 +457,7 @@ mod get_field_display_name {
                 field_type: FieldDefinitionType::Standard,
                 field_name: "test".to_string(),
             },
+            field_query: String::from(r#""test" as "test""#),
         };
         assert_eq!(field_definition.get_field_display_name(), "test");
     }
@@ -437,6 +472,7 @@ mod get_field_display_name {
                 field_name: "test".to_string(),
                 date_grouping: DateGrouping::DayOfMonth,
             },
+            field_query: String::from(r#""test" as "test""#),
         };
         assert_eq!(field_definition.get_field_display_name(), "test");
     }
@@ -456,8 +492,72 @@ mod get_field_display_name {
                     },
                 ),
             },
+            field_query: String::from(r#""test" as "test""#),
         };
         assert_eq!(field_definition.get_field_display_name(), "test");
+    }
+
+    #[test]
+    fn unknown() {
+        let field_definition = FieldDefinition::Unknown();
+        assert_eq!(field_definition.get_field_display_name(), "");
+    }
+}
+
+#[cfg(test)]
+mod get_field_query {
+    use super::*;
+    use crate::types::field_definition_type::FieldDefinitionType;
+    #[test]
+    fn standard() {
+        let field_query = String::from(r#""test" as "test""#);
+        let field_definition = FieldDefinition::Standard {
+            field_display_name: "test".to_string(),
+            field_data_type: FieldType::String,
+            field_definition: StandardFieldDefinition {
+                field_type: FieldDefinitionType::Standard,
+                field_name: "test".to_string(),
+            },
+            field_query : field_query.clone(),
+        };
+        assert_eq!(field_definition.get_field_query(), field_query);
+    }
+
+    #[test]
+    fn date() {
+        let field_query = String::from(r#""test" as "test""#);
+        let field_definition = FieldDefinition::Date {
+            field_display_name: "test".to_string(),
+            field_data_type: FieldType::String,
+            field_definition: DateFieldDefinition {
+                field_type: FieldDefinitionType::Date,
+                field_name: "test".to_string(),
+                date_grouping: DateGrouping::DayOfMonth,
+            },
+            field_query : field_query.clone(),
+        };
+        assert_eq!(field_definition.get_field_query(), field_query);
+    }
+
+    #[test]
+    fn accumulated() {
+        let field_query = String::from(r#""test" as "test""#);
+        let field_definition = FieldDefinition::Accumulated {
+            field_display_name: "test".to_string(),
+            field_data_type: FieldType::String,
+            field_definition: AccumulatorFieldDefinition {
+                accumulator_type: AccumulatorType::SUM,
+                field_type: FieldDefinitionType::ACCUMULATED,
+                accumulated_field_definition: AccumulatedFieldDefinition::Standard(
+                    StandardFieldDefinition {
+                        field_type: FieldDefinitionType::Standard,
+                        field_name: "test".to_string(),
+                    },
+                ),
+            },
+            field_query : field_query.clone(),
+        };
+        assert_eq!(field_definition.get_field_query(), field_query);
     }
 
     #[test]
@@ -480,6 +580,7 @@ mod get_standard_field_definition {
                 field_type: FieldDefinitionType::Standard,
                 field_name: "test".to_string(),
             },
+            field_query: String::from(r#""test" as "test""#),
         };
         let result = field_definition.get_standard_field_definition();
         assert!(result.is_some());
@@ -497,6 +598,7 @@ mod get_standard_field_definition {
                 field_name: "test".to_string(),
                 date_grouping: DateGrouping::DayOfMonth,
             },
+            field_query: String::from(r#""test" as "test""#),
         };
         let result = field_definition.get_standard_field_definition();
         assert!(result.is_none());
@@ -517,6 +619,7 @@ mod get_standard_field_definition {
                     },
                 ),
             },
+            field_query: String::from(r#""test" as "test""#),
         };
         let result = field_definition.get_standard_field_definition();
         assert!(result.is_none());
@@ -544,6 +647,7 @@ mod get_date_field_definition {
                 field_name: "test".to_string(),
                 date_grouping: DateGrouping::DayOfMonth,
             },
+            field_query: String::from(r#""test" as "test""#),
         };
         let result = field_definition.get_date_field_definition();
         assert!(result.is_some());
@@ -560,6 +664,7 @@ mod get_date_field_definition {
                 field_type: FieldDefinitionType::Standard,
                 field_name: "test".to_string(),
             },
+            field_query: String::from(r#""test" as "test""#),
         };
         let result = field_definition.get_date_field_definition();
         assert!(result.is_none());
@@ -580,6 +685,7 @@ mod get_date_field_definition {
                     },
                 ),
             },
+            field_query: String::from(r#""test" as "test""#),
         };
         let result = field_definition.get_date_field_definition();
         assert!(result.is_none());
@@ -613,6 +719,7 @@ mod get_accumulator_field_definition {
                     },
                 ),
             },
+            field_query: String::from(r#""test" as "test""#),
         };
         let result = field_definition.get_accumulator_field_definition();
         assert!(result.is_some());
@@ -632,6 +739,7 @@ mod get_accumulator_field_definition {
                 field_name: "test".to_string(),
                 date_grouping: DateGrouping::DayOfMonth,
             },
+            field_query: String::from(r#""test" as "test""#),
         };
         let result = field_definition.get_accumulator_field_definition();
         assert!(result.is_none());
@@ -646,6 +754,7 @@ mod get_accumulator_field_definition {
                 field_type: FieldDefinitionType::Standard,
                 field_name: "test".to_string(),
             },
+            field_query: String::from(r#""test" as "test""#),
         };
         let result = field_definition.get_accumulator_field_definition();
         assert!(result.is_none());
@@ -699,7 +808,6 @@ mod validate_outer_json {
             _ => {
                 panic!("Unexpected result");
             }
-            
         }
     }
 
@@ -723,7 +831,6 @@ mod validate_outer_json {
             _ => {
                 panic!("Unexpected result");
             }
-            
         }
     }
 
@@ -744,7 +851,6 @@ mod validate_outer_json {
             _ => {
                 panic!("Unexpected result");
             }
-            
         }
     }
 }
@@ -773,6 +879,7 @@ mod from_json {
                 field_display_name,
                 field_data_type,
                 field_definition,
+                field_query,
             } => {
                 assert_eq!(field_display_name, "test");
                 match field_data_type {
@@ -811,7 +918,6 @@ mod from_json {
             _ => {
                 panic!("Unexpected result");
             }
-            
         }
     }
 
@@ -834,6 +940,7 @@ mod from_json {
                 field_display_name,
                 field_data_type,
                 field_definition,
+                field_query,
             } => {
                 assert_eq!(field_display_name, "test");
                 match field_data_type {
@@ -877,7 +984,6 @@ mod from_json {
             _ => {
                 panic!("Unexpected result");
             }
-            
         }
     }
 
@@ -903,6 +1009,7 @@ mod from_json {
                 field_display_name,
                 field_data_type,
                 field_definition,
+                field_query,
             } => {
                 assert_eq!(field_display_name, "test");
                 match field_data_type {
@@ -957,7 +1064,6 @@ mod from_json {
             _ => {
                 panic!("Unexpected result");
             }
-            
         }
     }
 
@@ -980,7 +1086,6 @@ mod from_json {
             _ => {
                 panic!("Unexpected result");
             }
-            
         }
     }
 
@@ -1005,7 +1110,6 @@ mod from_json {
             _ => {
                 panic!("Unexpected result");
             }
-            
         }
     }
 
@@ -1027,11 +1131,10 @@ mod from_json {
                 let d = data.data.unwrap();
                 assert_eq!(d["field"], "test");
                 assert_eq!(d["field_definition_type"], "invalid");
-            },
+            }
             _ => {
                 panic!("Unexpected result");
             }
-            
         }
     }
 }
@@ -1082,7 +1185,6 @@ mod get_field_definition_type {
             _ => {
                 panic!("Unexpected result");
             }
-            
         }
     }
 }
@@ -1132,7 +1234,109 @@ mod get_field_data_type {
             _ => {
                 panic!("Unexpected result");
             }
-            
         }
+    }
+}
+#[cfg(test)]
+mod get_query_parts {
+    use super::*;
+    use crate::types::field_definition_type::FieldDefinitionType;
+    use serde_json::json;
+
+    #[test]
+    fn standard_field() {
+        let display_name = "some_standard";
+        let internal_field_name = "test";
+        let input = json!({
+            "fieldDisplayName": display_name,
+            "fieldDataType": 1,
+            "fieldDefinition": {
+                "fieldType": "standard",
+                "fieldName": internal_field_name
+            }
+        });
+        let result = FieldDefinition::from_json(&input);
+        assert!(result.is_ok());
+        let result = result.unwrap();
+        let (field_name, field_value) = result.get_query_parts();
+        assert_eq!(field_name, display_name);
+        let expected_value = format!(r#""{}" as "{}""#, internal_field_name, display_name);
+        assert_eq!(field_value, expected_value);
+    }
+
+    #[test]
+    fn date_field() {
+        let display_name = "some_date";
+        let internal_field_name = "test";
+        let input = json!({
+            "fieldDisplayName": display_name,
+            "fieldDataType": 1,
+            "fieldDefinition": {
+                "fieldType": "date",
+                "fieldName": internal_field_name,
+                "dateGrouping": "day_of_month"
+            }
+        });
+        let result = FieldDefinition::from_json(&input);
+        assert!(result.is_ok());
+        let result = result.unwrap();
+        let (field_name, field_value) = result.get_query_parts();
+        assert_eq!(field_name, display_name);
+        let expected_value = format!(
+            r#"day(from_unixtime("{}"/1000)) as "{}""#,
+            internal_field_name, display_name
+        );
+        assert_eq!(field_value, expected_value);
+    }
+
+    #[test]
+    fn accumulator_field_standard() {
+        let display_name = "some_accumulator";
+        let internal_field_name = "test";
+        let input = json!({
+            "fieldDisplayName": display_name,
+            "fieldDataType": 1,
+            "fieldDefinition": {
+                "fieldType": "accumulated",
+                "accumulator": "sum",
+                "accumulatedFieldDefinition": {
+                    "fieldType": "standard",
+                    "fieldName": internal_field_name
+                }
+            }
+        });
+        let result = FieldDefinition::from_json(&input);
+        assert!(result.is_ok());
+        let result = result.unwrap();
+        let (field_name, field_value) = result.get_query_parts();
+        assert_eq!(field_name, display_name);
+        let expected_value = format!(r#"SUM("{}") as "{}""#, internal_field_name, display_name);
+        assert_eq!(field_value, expected_value);
+    }
+
+    #[test]
+    fn accumulator_field_date() {
+        let display_name = "some_accumulator";
+        let internal_field_name = "test";
+        let input = json!({
+            "fieldDisplayName": display_name,
+            "fieldDataType": 1,
+            "fieldDefinition": {
+                "fieldType": "accumulated",
+                "accumulator": "sum",
+                "accumulatedFieldDefinition": {
+                    "fieldType": "date",
+                    "fieldName": internal_field_name,
+                    "dateGrouping": "day_of_month"
+                }
+            }
+        });
+        let result = FieldDefinition::from_json(&input);
+        assert!(result.is_ok());
+        let result = result.unwrap();
+        let (field_name, field_value) = result.get_query_parts();
+        assert_eq!(field_name, display_name);
+        let expected_value = format!(r#"SUM(day(from_unixtime("{}"/1000))) as "{}""#, internal_field_name, display_name);
+        assert_eq!(field_value, expected_value);
     }
 }

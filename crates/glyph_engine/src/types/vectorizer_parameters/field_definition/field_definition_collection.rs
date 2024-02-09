@@ -122,7 +122,7 @@ mod add_field_definition {
         assert_eq!(first_field.name, "test1");
         let first_field_definition = &first_field.field_definition;
         match first_field_definition {
-            FieldDefinition::Standard{field_display_name: _, field_data_type: _, field_definition:_ }  => {
+            FieldDefinition::Standard{..}  => {
                 assert!(true);
             },
             _ => {
@@ -153,7 +153,7 @@ mod get_field_definition {
         assert!(first_field.is_some());
         let first_field = first_field.unwrap();
         match first_field {
-            FieldDefinition::Standard{field_display_name: _, field_data_type: _, field_definition:_ }  => {
+            FieldDefinition::Standard{..}  => {
                 assert!(true);
             },
             _ => {
@@ -200,7 +200,7 @@ mod iter {
             assert_eq!(field_definition.name, field_name);
             let field_definition = &field_definition.field_definition;
             match field_definition {
-                FieldDefinition::Standard{field_display_name: _, field_data_type: _, field_definition:_ }  => {
+                FieldDefinition::Standard{..}  => {
                     assert!(true);
                 },
                 _ => {
