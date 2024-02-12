@@ -9,4 +9,5 @@ export interface IFileProcessingResult {
   fileProcessingErrors: IFileProcessingError[];
   joinInformation: IJoinTableDefinition[];
   viewName: string;
+  info?: Record<any, any>;
 }
