@@ -15,7 +15,7 @@ pub use vectorizer_parameters_error::{
     FromJsonStringError, FromJsonValueError, GetFieldDefinitionError,GetFieldDefinitionsError, GetFieldDefinitionTypeError
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct VectorizerParameters {
     pub workspace_id: String,
     pub project_id: String,
@@ -257,6 +257,19 @@ impl VectorizerParameters {
         return Ok(results);
     }
 }
+impl Default for VectorizerParameters {
+    fn default() -> Self {
+        VectorizerParameters {
+            workspace_id: "".to_string(),
+            project_id: "".to_string(),
+            data_table_name: "".to_string(),
+            raw_data: json!({}),
+        }
+    }
+
+}
+ 
+impl Eq for VectorizerParameters {}
 
 #[cfg(test)]
 mod from_json_value {

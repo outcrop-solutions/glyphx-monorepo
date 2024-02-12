@@ -49,84 +49,26 @@ pub struct VectorProcesser {
     task_status: TaskStatus,
 }
 
-impl VectorProcesser {
-    pub fn new(axis_name: &str, table_name: &str, field_definition: FieldDefinition) -> Self {
-        Self {
-            axis_name: axis_name.to_string(),
-            table_name: table_name.to_string(),
-            field_definition,
-            receiver: None,
-            vectors: OrdMap::new(),
-            join_handle: None,
-            task_status: TaskStatus::Pending,
-        }
-    }
+///Using a trait pattern will allow me to implemnet a mock for testing using a 
+///impl pattern in glyph_engine directly.
+#[automock]
+pub trait VectorValueProcesser {
+    fn get_axis_name(&self) -> &str;
+    fn start(&mut self);
+    fn check_status(&mut self) -> TaskStatus;
+}
 
-    pub fn start(&mut self) {
+impl VectorValueProcesser for VectorProcesser {
+
+    fn get_axis_name(&self) -> &str {
+        &self.axis_name
+    }
+    
+    fn start(&mut self) {
         self.start_impl(&ThreadOperationsImpl)
     }
-    fn start_impl<T: ThreadOperations + Sync>(&mut self, thread_operations: &'static T) {
-        let field_definition = self.field_definition.clone();
-        let (field_name, field_value) = field_definition.get_query_parts();
-        let table_name = self.table_name.clone();
-        let (sender, receiver) = channel::<Result<Vector, VectorCaclulationError>>();
-        self.receiver = Some(receiver);
-        let thread_handle = spawn(async move {
-            let query = format!(
-                "SELECT DISTINCT {} FROM {} ORDER BY {}",
-                field_value, table_name, field_name
-            );
-            let result = thread_operations.run_athena_query(&query).await;
-            if result.is_err() {
-                let error = result.err().unwrap();
-                let error = VectorCaclulationError::from(error);
-                error.error();
-                //if sending fails we are really kind of screwed
-                //we will do our best to try and log the error so that we
-                //have something on the backend to help troubleshoot.
-                let send_result = sender.send(Err(error));
-                if send_result.is_err() {
-                    let send_error = send_result.err().unwrap();
-                    let error_string = format!("{:?}", send_error);
-                    error!("{}", error_string);
-                }
 
-                return;
-            }
-            let result = result.unwrap();
-            let mut rank = 0;
-            for row in result.as_array().unwrap() {
-                let value = row.get(&field_name).unwrap();
-                let orig_value: VectorOrigionalValue;
-                let vector: f64;
-                if value.is_string() {
-                    orig_value = VectorOrigionalValue::String(value.as_str().unwrap().to_string());
-                    vector = rank.clone() as f64;
-                } else if value.is_f64() {
-                    let raw_value = value.as_f64().unwrap();
-                    vector = raw_value.clone();
-                    orig_value = VectorOrigionalValue::F64(raw_value);
-                } else {
-                    let raw_value = value.as_u64().unwrap();
-                    vector = raw_value.clone() as f64;
-                    orig_value = VectorOrigionalValue::U64(raw_value);
-                }
-                let vector = Vector::new(orig_value, vector, rank);
-                let send_result = sender.send(Ok(vector));
-                if send_result.is_err() {
-                    let send_error = send_result.err().unwrap();
-                    let error_string = format!("{:?}", send_error);
-                    error!("{}", error_string);
-                    return;
-                }
-                rank += 1;
-            }
-            sender.send(Ok(Vector::empty())).unwrap();
-        });
-        self.join_handle = Some(thread_handle);
-    }
-
-    pub fn check_status(&mut self) -> TaskStatus {
+    fn check_status(&mut self) -> TaskStatus {
         if self.receiver.is_none() {
             let data = json!({
                 "axis_name": self.axis_name,
@@ -201,6 +143,82 @@ impl VectorProcesser {
             }
         }
     }
+}
+
+impl VectorProcesser {
+
+    pub fn new(axis_name: &str, table_name: &str, field_definition: FieldDefinition) -> Self {
+        Self {
+            axis_name: axis_name.to_string(),
+            table_name: table_name.to_string(),
+            field_definition,
+            receiver: None,
+            vectors: OrdMap::new(),
+            join_handle: None,
+            task_status: TaskStatus::Pending,
+        }
+    }
+    fn start_impl<T: ThreadOperations + Sync>(&mut self, thread_operations: &'static T) {
+        let field_definition = self.field_definition.clone();
+        let (field_name, field_value) = field_definition.get_query_parts();
+        let table_name = self.table_name.clone();
+        let (sender, receiver) = channel::<Result<Vector, VectorCaclulationError>>();
+        self.receiver = Some(receiver);
+        let thread_handle = spawn(async move {
+            let query = format!(
+                "SELECT DISTINCT {} FROM {} ORDER BY {}",
+                field_value, table_name, field_name
+            );
+            let result = thread_operations.run_athena_query(&query).await;
+            if result.is_err() {
+                let error = result.err().unwrap();
+                let error = VectorCaclulationError::from(error);
+                error.error();
+                //if sending fails we are really kind of screwed
+                //we will do our best to try and log the error so that we
+                //have something on the backend to help troubleshoot.
+                let send_result = sender.send(Err(error));
+                if send_result.is_err() {
+                    let send_error = send_result.err().unwrap();
+                    let error_string = format!("{:?}", send_error);
+                    error!("{}", error_string);
+                }
+
+                return;
+            }
+            let result = result.unwrap();
+            let mut rank = 0;
+            for row in result.as_array().unwrap() {
+                let value = row.get(&field_name).unwrap();
+                let orig_value: VectorOrigionalValue;
+                let vector: f64;
+                if value.is_string() {
+                    orig_value = VectorOrigionalValue::String(value.as_str().unwrap().to_string());
+                    vector = rank.clone() as f64;
+                } else if value.is_f64() {
+                    let raw_value = value.as_f64().unwrap();
+                    vector = raw_value.clone();
+                    orig_value = VectorOrigionalValue::F64(raw_value);
+                } else {
+                    let raw_value = value.as_u64().unwrap();
+                    vector = raw_value.clone() as f64;
+                    orig_value = VectorOrigionalValue::U64(raw_value);
+                }
+                let vector = Vector::new(orig_value, vector, rank);
+                let send_result = sender.send(Ok(vector));
+                if send_result.is_err() {
+                    let send_error = send_result.err().unwrap();
+                    let error_string = format!("{:?}", send_error);
+                    error!("{}", error_string);
+                    return;
+                }
+                rank += 1;
+            }
+            sender.send(Ok(Vector::empty())).unwrap();
+        });
+        self.join_handle = Some(thread_handle);
+    }
+
 
     pub fn get_vector(&self, key: &VectorOrigionalValue) -> Option<&Vector> {
         self.vectors.get(key)

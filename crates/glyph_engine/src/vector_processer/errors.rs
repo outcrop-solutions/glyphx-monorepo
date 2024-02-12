@@ -1,8 +1,9 @@
+use serde::{Deserialize, Serialize};
 use glyphx_core::{aws::athena_manager::RunQueryError, GlyphxError, GlyphxErrorData};
 
 use serde_json::to_value;
 
-#[derive(Debug, Clone, GlyphxError, PartialEq)]
+#[derive(Debug, Clone, GlyphxError, PartialEq, Serialize, Deserialize)]
 #[error_definition("vector_processer")]
 pub enum VectorCaclulationError {
     IntializationError(GlyphxErrorData),
