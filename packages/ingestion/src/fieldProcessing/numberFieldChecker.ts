@@ -1,6 +1,6 @@
 import * as fieldProcessingInterfaces from '../interfaces/fieldProcessing';
 import {error} from 'core';
-const CURRENCY_TO_SYMBOL_MAP = {
+export const CURRENCY_TO_SYMBOL_MAP = {
   AED: 'د.إ',
   AFN: '؋',
   ALL: 'L',
@@ -220,6 +220,7 @@ export class NumberFieldChecker implements fieldProcessingInterfaces.IFieldCheck
    */
   private cleanStringForProcessing(input: string) {
     //make a copy because we may alter the string
+
     let tempString = input.trim();
     const asciiCode = tempString.charCodeAt(0);
 
@@ -234,6 +235,7 @@ export class NumberFieldChecker implements fieldProcessingInterfaces.IFieldCheck
       }
     }
 
+    // console.log({tempString});
     return tempString;
   }
 
@@ -245,7 +247,7 @@ export class NumberFieldChecker implements fieldProcessingInterfaces.IFieldCheck
     //eslint-disable-next-line no-useless-escape
     const regex =
       //eslint-disable-next-line no-useless-escape
-      /^[\-\+]?([0-9]{1,3},([0-9]{3},)*[0-9]{3}|[0-9]+)(\.([0-9]*))?$/;
+      /^[\-\+]?([0-9]{1,3},([0-9]{3},)*[0-9]{3}|[0-9]+)(\.([0-9]*))?%?$/;
 
     const retval = regex.test(trimmed);
     return retval;
@@ -259,8 +261,17 @@ export class NumberFieldChecker implements fieldProcessingInterfaces.IFieldCheck
       throw new error.InvalidArgumentError(`The input value of : ${input} is not a number`, 'input', input);
     }
 
+    const isPercent = tempString.endsWith('%');
+
+    if (isPercent) {
+      tempString = tempString.substring(0, tempString.length - 1);
+    }
     tempString = tempString.replace(/,/g, '');
-    const retval = Number(tempString);
+    let retval = Number(tempString);
+
+    if (isPercent) {
+      retval = retval / 100;
+    }
     return retval;
   }
 }
