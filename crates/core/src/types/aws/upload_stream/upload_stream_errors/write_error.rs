@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use crate::types::error::GlyphxErrorData;
 use crate::GlyphxError;
 //This is a bit hackey, but I built our GlyphxError macro to import any types that it needs are
@@ -9,7 +10,7 @@ use crate as glyphx_core;
 ///
 /// This enum holds the possible errors that can be returned by the upload streams write
 /// function.
-#[derive(Debug, Clone, GlyphxError)]
+#[derive(Debug, Clone, GlyphxError, Serialize, Deserialize)]
 #[error_definition("UploadStream")]
 pub enum UploadStreamWriteError {
     ///Indicates that an unexpected error occurred while trying to write a part of the multipart upload

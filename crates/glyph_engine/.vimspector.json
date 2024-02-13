@@ -5,7 +5,7 @@
       "filetypes": ["rust"],
       "configuration": {
         "request": "launch",
-        "program": "${workspaceRoot}/../../target/debug/deps/glyph_engine-db3e5a1c818a4f8e",
+        "program": "${workspaceRoot}/../../target/debug/deps/glyph_engine-5f49d6819c3393b3",
         "runInTerminal": true,
         "preRunCommands": ["shell cargo test --no-run --package glyph_engine"]
       }

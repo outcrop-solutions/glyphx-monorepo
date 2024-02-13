@@ -153,7 +153,7 @@ impl GlyphEngineOperations for GlyphEngineOperationsImpl {
         data_table_name: &str,
         field_definition: &FieldDefinition,
     ) -> Box<dyn VectorValueProcesser> {
-        let field_processor = VectorProcesser::new(axis, data_table_name, field_definition.clone());
+        let field_processor = VectorProcesser::new(axis, data_table_name, "Fixme",  field_definition.clone());
         Box::new(field_processor)
     }
 }

@@ -9,12 +9,13 @@ pub use vector::*;
 pub use vector_origional_value::*;
 
 use crate::types::vectorizer_parameters::FieldDefinition;
-use glyphx_common::AthenaConnection;
+use glyphx_common::{AthenaConnection, S3Connection};
 use glyphx_core::{
     aws::athena_manager::RunQueryError, ErrorTypeParser, GlyphxErrorData, Singleton,
 };
 
 use async_trait::async_trait;
+use bincode::serialize;
 use im::OrdMap;
 use log::error;
 use mockall::automock;
@@ -35,13 +36,14 @@ impl ThreadOperations for ThreadOperationsImpl {
     async fn run_athena_query(&self, query: &str) -> Result<Value, RunQueryError> {
         let athena_connection = AthenaConnection::get_instance();
         let athena_manager = athena_connection.get_athena_manager();
-        athena_manager.run_query(&query, Some(300), None).await
+        athena_manager.run_query(&query, Some(300), Some(true)).await
     }
 }
 
 pub struct VectorProcesser {
     axis_name: String,
     table_name: String,
+    s3_file_name: String,
     field_definition: FieldDefinition,
     receiver: Option<Receiver<Result<Vector, VectorCaclulationError>>>,
     vectors: OrdMap<VectorOrigionalValue, Vector>,
@@ -147,7 +149,7 @@ impl VectorValueProcesser for VectorProcesser {
 
 impl VectorProcesser {
 
-    pub fn new(axis_name: &str, table_name: &str, field_definition: FieldDefinition) -> Self {
+    pub fn new(axis_name: &str, table_name: &str, s3_file_name: &str, field_definition: FieldDefinition) -> Self {
         Self {
             axis_name: axis_name.to_string(),
             table_name: table_name.to_string(),
@@ -156,10 +158,12 @@ impl VectorProcesser {
             vectors: OrdMap::new(),
             join_handle: None,
             task_status: TaskStatus::Pending,
+            s3_file_name: s3_file_name.to_string(),
         }
     }
     fn start_impl<T: ThreadOperations + Sync>(&mut self, thread_operations: &'static T) {
         let field_definition = self.field_definition.clone();
+        let s3_file_name = self.s3_file_name.clone();
         let (field_name, field_value) = field_definition.get_query_parts();
         let table_name = self.table_name.clone();
         let (sender, receiver) = channel::<Result<Vector, VectorCaclulationError>>();
@@ -170,6 +174,7 @@ impl VectorProcesser {
                 field_value, table_name, field_name
             );
             let result = thread_operations.run_athena_query(&query).await;
+
             if result.is_err() {
                 let error = result.err().unwrap();
                 let error = VectorCaclulationError::from(error);
@@ -188,6 +193,24 @@ impl VectorProcesser {
             }
             let result = result.unwrap();
             let mut rank = 0;
+            let s3_manager = S3Connection::get_instance().get_s3_manager();
+            let upload_stream = s3_manager.get_upload_stream(&s3_file_name).await;
+            if upload_stream.is_err() {
+                let error = upload_stream.err().unwrap();
+                let error = VectorCaclulationError::from(error);
+                error.error();
+                //if sending fails we are really kind of screwed
+                //we will do our best to try and log the error so that we
+                //have something on the backend to help troubleshoot.
+                let send_result = sender.send(Err(error));
+                if send_result.is_err() {
+                    let send_error = send_result.err().unwrap();
+                    let error_string = format!("{:?}", send_error);
+                    error!("{}", error_string);
+                }
+                return;
+            } 
+            let mut upload_stream = upload_stream.unwrap();
             for row in result.as_array().unwrap() {
                 let value = row.get(&field_name).unwrap();
                 let orig_value: VectorOrigionalValue;
@@ -205,6 +228,33 @@ impl VectorProcesser {
                     orig_value = VectorOrigionalValue::U64(raw_value);
                 }
                 let vector = Vector::new(orig_value, vector, rank);
+                //Byte Serialize the vector 
+                let vector_binary_size = vector.get_binary_size();
+                let mut ser_vector: Vec<u8> = Vec::with_capacity(8 + vector_binary_size);
+                //We are including the size of the vector so that when we write this to a file we
+                //will be able to determine the size of the vector when we read it back in.  This
+                //prevents us from having to store the vectors in two seperate blocks of memory,
+                //one here and one on the main thread.  In the future, we will stream the results
+                //back from athena so we will not hold them all ion memory at once.
+                ser_vector.append(serialize(&vector_binary_size).unwrap().as_mut());
+                ser_vector.append(serialize(&vector).unwrap().as_mut());
+
+                let write_result = upload_stream.write(Some(ser_vector)).await;
+                if write_result.is_err() {
+                    let error = write_result.err().unwrap();
+                    let error = VectorCaclulationError::from(error);
+                    error.error();
+                    //if sending fails we are really kind of screwed
+                    //we will do our best to try and log the error so that we
+                    //have something on the backend to help troubleshoot.
+                    let send_result = sender.send(Err(error));
+                    if send_result.is_err() {
+                        let send_error = send_result.err().unwrap();
+                        let error_string = format!("{:?}", send_error);
+                        error!("{}", error_string);
+                    }
+                    return;
+                }
                 let send_result = sender.send(Ok(vector));
                 if send_result.is_err() {
                     let send_error = send_result.err().unwrap();
@@ -213,6 +263,22 @@ impl VectorProcesser {
                     return;
                 }
                 rank += 1;
+            }
+            let result = upload_stream.finish().await;
+            if result.is_err() {
+                let error = result.err().unwrap();
+                let error = VectorCaclulationError::from(error);
+                error.error();
+                //if sending fails we are really kind of screwed
+                //we will do our best to try and log the error so that we
+                //have something on the backend to help troubleshoot.
+                let send_result = sender.send(Err(error));
+                if send_result.is_err() {
+                    let send_error = send_result.err().unwrap();
+                    let error_string = format!("{:?}", send_error);
+                    error!("{}", error_string);
+                }
+                return;
             }
             sender.send(Ok(Vector::empty())).unwrap();
         });
@@ -369,9 +435,10 @@ mod tests {
         fn is_ok() {
             let axis_name = "test_axis";
             let table_name = "test_table";
+            let s3_file_name = "s3_file_name";
             let field_definition =
                 helper_functions::get_standard_field_definition("Test", "field_name");
-            let vector_processer = VectorProcesser::new(axis_name, table_name, field_definition);
+            let vector_processer = VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
             assert_eq!(vector_processer.axis_name, axis_name);
             assert_eq!(vector_processer.table_name, table_name);
             assert!(vector_processer.field_definition.is_standard());
@@ -383,16 +450,19 @@ mod tests {
     }
 
     mod threading {
+        use glyphx_core::aws::s3_manager;
+
         use super::*;
 
         #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
         async fn single_string_axis_is_ok() {
             let axis_name = "test_axis";
             let table_name = "test_table";
+            let s3_file_name = "s3_file_name";
             let field_definition =
                 helper_functions::get_standard_field_definition("Test", "field_name");
             let mut vector_processer =
-                VectorProcesser::new(axis_name, table_name, field_definition);
+                VectorProcesser::new(axis_name, table_name, s3_file_name , field_definition);
 
             vector_processer.start_impl(&helper_functions::StringMocks1);
             let final_status: TaskStatus;
@@ -431,17 +501,19 @@ mod tests {
         async fn two_string_axis_is_ok() {
             let axis_name = "test_axis";
             let table_name = "test_table";
+            let s3_file_name = "s3_file_name";
             let field_definition =
                 helper_functions::get_standard_field_definition("Test", "field_name");
             let mut vector_processer =
-                VectorProcesser::new(axis_name, table_name, field_definition);
+                VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
 
             let axis_name2 = "test_axis2";
             let table_name2 = "test_table2";
+            let s3_file_name2 = "s3_file_name2";
             let field_definition2 =
                 helper_functions::get_standard_field_definition("Test2", "field_name2");
             let mut vector_processer2 =
-                VectorProcesser::new(axis_name2, table_name2, field_definition2);
+                VectorProcesser::new(axis_name2, table_name2, s3_file_name2 ,  field_definition2);
 
             vector_processer.start_impl(&helper_functions::StringMocks1);
             vector_processer2.start_impl(&helper_functions::StringMocks2);
@@ -521,10 +593,11 @@ mod tests {
         async fn single_string_axis_query_errors() {
             let axis_name = "test_axis";
             let table_name = "test_table";
+            let s3_file_name = "s3_file_name";
             let field_definition =
                 helper_functions::get_standard_field_definition("Test", "field_name");
             let mut vector_processer =
-                VectorProcesser::new(axis_name, table_name, field_definition);
+                VectorProcesser::new(axis_name, table_name, s3_file_name ,field_definition);
 
             vector_processer.start_impl(&helper_functions::MocksError);
             let final_status: TaskStatus;
@@ -544,17 +617,19 @@ mod tests {
         async fn two_string_axis_one_errors() {
             let axis_name = "test_axis";
             let table_name = "test_table";
+            let s3_file_name = "s3_file_name";
             let field_definition =
                 helper_functions::get_standard_field_definition("Test", "field_name");
             let mut vector_processer =
-                VectorProcesser::new(axis_name, table_name, field_definition);
+                VectorProcesser::new(axis_name, table_name, s3_file_name , field_definition);
 
             let axis_name2 = "test_axis2";
             let table_name2 = "test_table2";
+            let s3_file_name2 = "s3_file_name2";
             let field_definition2 =
                 helper_functions::get_standard_field_definition("Test2", "field_name2");
             let mut vector_processer2 =
-                VectorProcesser::new(axis_name2, table_name2, field_definition2);
+                VectorProcesser::new(axis_name2, table_name2,  s3_file_name2 ,field_definition2);
 
             vector_processer.start_impl(&helper_functions::MocksError);
             vector_processer2.start_impl(&helper_functions::StringMocks2);
@@ -615,10 +690,11 @@ mod tests {
         async fn single_number_axis_is_ok() {
             let axis_name = "test_axis";
             let table_name = "test_table";
+            let s3_file_name = "s3_file_name";
             let field_definition =
                 helper_functions::get_standard_field_definition("Test", "field_name");
             let mut vector_processer =
-                VectorProcesser::new(axis_name, table_name, field_definition);
+                VectorProcesser::new(axis_name, table_name,  s3_file_name ,field_definition);
 
             vector_processer.start_impl(&helper_functions::NumberFloatMocks);
             let final_status: TaskStatus;
@@ -661,10 +737,11 @@ mod tests {
         async fn single_integer_axis_is_ok() {
             let axis_name = "test_axis";
             let table_name = "test_table";
+            let s3_file_name = "s3_file_name";
             let field_definition =
                 helper_functions::get_standard_field_definition("Test", "field_name");
             let mut vector_processer =
-                VectorProcesser::new(axis_name, table_name, field_definition);
+                VectorProcesser::new(axis_name, table_name, s3_file_name ,field_definition);
 
             vector_processer.start_impl(&helper_functions::NumberIntMocks);
             let final_status: TaskStatus;
