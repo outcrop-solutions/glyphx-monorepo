@@ -270,7 +270,8 @@ impl GlyphEngine {
         &self,
         operations: &T,
     ) -> Result<(), GlyphEngineProcessError> {
-        //1. Build the vector/rank tables tables -- 1 for each vertex
+        //1. Build the vector/rank tables tables and upload them to S3. -- 1 for each vertex (X and
+        //   Y)
         let (x_field_processor, y_field_processor) = self.process_vectors(operations)?;
         Ok(())
     }

@@ -226,7 +226,7 @@ impl UploadStream {
         Self::new_impl(bucket_name, file_name, client, &UploadStreamImpl {}).await
     }
 
-    pub(super) fn empty(client: Client) -> UploadStream {
+    pub fn empty(client: Client) -> UploadStream {
         UploadStream {
             bucket_name: String::new(),
             file_name: String::new(),
