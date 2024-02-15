@@ -1,6 +1,7 @@
 mod process_status;
 
 use crate::errors::*;
+
 use crate::traits::GlyphxDataModel;
 
 use glyphx_core::GlyphxErrorData;

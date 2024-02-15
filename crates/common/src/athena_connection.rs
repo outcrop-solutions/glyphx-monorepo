@@ -90,7 +90,15 @@ impl AthenaConnection {
         })
     }
 }
-
+impl Default for AthenaConnection {
+    fn default() -> Self {
+        Self {
+            catalog_name: "".to_string(),
+            database_name: "".to_string(),
+            athena_manager: AthenaManager::default(),
+        }
+    }
+}
 #[cfg(test)]
 mod contructor {
     use super::*;

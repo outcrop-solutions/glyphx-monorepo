@@ -1,8 +1,10 @@
+use serde::{Deserialize, Serialize};
+
 use glyphx_core::GlyphxErrorData;
 use glyphx_core::GlyphxError;
 use crate::types::vectorizer_parameters::field_definition::FromJsonError;
 
-#[derive(Debug, Clone, GlyphxError)]
+#[derive(Debug, Clone, GlyphxError, Deserialize, Serialize)]
 #[error_definition("VectorizerParameters")]
 pub enum GetFieldDefinitionError {
       AxisNotDefined(GlyphxErrorData),

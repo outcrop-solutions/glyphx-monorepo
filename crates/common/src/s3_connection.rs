@@ -3,7 +3,6 @@ use glyphx_core::aws::S3Manager;
 use glyphx_core::SecretBoundSingleton;
 use glyphx_core::aws::s3_manager::ConstructorError as S3ManagerConstructorError;
 use crate::types::s3_connection_errors::ConstructorError;
-use log::error;
 use mockall::automock;
 use glyphx_core::SecretBoundError;
 
@@ -70,6 +69,14 @@ impl S3Connection {
             bucket_name,
             s3_manager: s3_manager.unwrap(),
         })
+    }
+}
+impl Default for S3Connection {
+    fn default() -> Self {
+        Self {
+            bucket_name: "".to_string(),
+            s3_manager: S3Manager::default(),
+        }
     }
 }
 

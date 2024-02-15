@@ -1,5 +1,4 @@
 use crate::types::field_definition_type::FieldDefinitionType;
-use crate::types::field_type::FieldType;
 use crate::types::vectorizer_parameters::{
     DateFieldDefinition, StandardFieldDefinition
 };
@@ -8,8 +7,9 @@ use super::AccumulatedFieldDefinitionFromJsonError;
 use crate::types::vectorizer_parameters::helper_functions::json_has_field;
 use glyphx_core::GlyphxErrorData;
 use serde_json::{Value, json};
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum AccumulatorType {
     SUM,
     AVG,
@@ -34,7 +34,7 @@ impl AccumulatorType {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum AccumulatedFieldDefinition {
     Standard(StandardFieldDefinition),
     //FormulaFieldDefinition(FormulaFieldDefinition),
@@ -146,9 +146,30 @@ impl AccumulatedFieldDefinition {
             _ => None,
         }
     }
+    
+    pub fn get_query(&self) -> String {
+        let query =
+        match self {
+            AccumulatedFieldDefinition::Standard(field_definition) => {
+                let inner_query = field_definition.get_query("foo");
+                let pos = inner_query.find(" as ").unwrap();
+                inner_query.split_at(pos).0.to_string()
+
+            },
+            AccumulatedFieldDefinition::Date(field_definition) => {
+                let inner_query = field_definition.get_query("foo");
+                let pos = inner_query.find(" as ").unwrap();
+                inner_query.split_at(pos).0.to_string()
+            },
+            _  => "Formula Field".to_string(),
+        };
+
+        
+        query
+    }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AccumulatorFieldDefinition {
     pub field_type: FieldDefinitionType,
     pub accumulator_type: AccumulatorType,
@@ -207,6 +228,12 @@ impl AccumulatorFieldDefinition {
         }
 
         Ok(())
+    }
+
+    pub fn get_query(&self, display_name : &str) -> String {
+        let query = self.accumulated_field_definition.get_query();
+        let query = format!(r#"{:?}({}) as "{}""#, self.accumulator_type,  query, display_name);
+        query
     }
 }
 #[cfg(test)]

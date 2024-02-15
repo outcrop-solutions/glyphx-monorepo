@@ -2,16 +2,26 @@ use crate::types::field_definition_type::FieldDefinitionType;
 use crate::types::vectorizer_parameters::json_has_field;
 use super::DateFieldDefinitionFromJsonError;
 use serde_json::Value;
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum DateGrouping {
+  QualifiedDayOfYear,
   DayOfYear,
+  QualifiedDayOfMonth,
+  YearDayOfMonth,
+  MonthDayOfMonth,
   DayOfMonth,
+  QualifiedDayOfWeek,
   DayOfWeek,
+  QualifiedWeekOfYear,
   WeekOfYear,
+  QualifiedMonth,
   MonthOfYear,
   Year,
+  QualifiedQuarter,
   Quarter,
+  YearOfWeek,
 }
 
 impl DateGrouping {
@@ -19,19 +29,28 @@ impl DateGrouping {
      let cleaned_input = input.trim().to_lowercase();
      let cleaned_input = cleaned_input.as_str();
      match cleaned_input {
+         "qualified_day_of_year" => DateGrouping::QualifiedDayOfYear,
          "day_of_year" => DateGrouping::DayOfYear,
+         "qualified_day_of_month" => DateGrouping::QualifiedDayOfMonth,
+         "year_day_of_month" => DateGrouping::YearDayOfMonth,
+         "month_day_of_month" => DateGrouping::MonthDayOfMonth,
          "day_of_month" => DateGrouping::DayOfMonth,
+         "qualified_day_of_week" => DateGrouping::QualifiedDayOfWeek,
          "day_of_week" => DateGrouping::DayOfWeek,
+         "qualified_week_of_year" => DateGrouping::QualifiedWeekOfYear,
          "week_of_year" => DateGrouping::WeekOfYear,
-         "month_of_year" => DateGrouping::MonthOfYear,
+         "qualified_month" => DateGrouping::QualifiedMonth,
+         "month_of_year" | "month" => DateGrouping::MonthOfYear,
          "year" => DateGrouping::Year,
+         "qualified_quarter" => DateGrouping::QualifiedQuarter,
          "quarter" => DateGrouping::Quarter,
+         "year_of_week" => DateGrouping::YearOfWeek,
          _ => DateGrouping::DayOfYear,
      }
 
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DateFieldDefinition {
    pub field_type: FieldDefinitionType,
    pub field_name: String,
@@ -78,6 +97,76 @@ impl DateFieldDefinition {
         Ok(())
 
     }
+    pub fn get_query(&self, display_name: &str) -> String {
+        let field_name = self.field_name.clone();
+        let query = match &self.date_grouping {
+            DateGrouping::QualifiedDayOfYear => {
+                format!(r#"(year(from_unixtime("{}"/1000)) * 1000) + day_of_year(from_unixtime("{}"/1000)) as "{}""#, self.field_name,self.field_name, display_name)
+            },
+
+            DateGrouping::DayOfYear => {
+                format!(r#"day_of_year(from_unixtime("{}"/1000)) as "{}""#, self.field_name, display_name)
+            },
+
+            DateGrouping::QualifiedDayOfMonth => {
+                format!(r#"(year(from_unixtime("{}"/1000)) * 10000) + (month(from_unixtime("{}"/1000)) * 100) + day_of_month(from_unixtime("{}"/1000)) as "{}""#, self.field_name, self.field_name, self.field_name, display_name)
+            },
+
+            DateGrouping::YearDayOfMonth => {
+                format!(r#"(year(from_unixtime("{}"/1000)) * 100) + day_of_month(from_unixtime("{}"/1000)) as "{}""#, self.field_name, self.field_name, display_name)
+            },
+
+            DateGrouping::MonthDayOfMonth => {
+                format!(r#"(month(from_unixtime("{}"/1000)) * 100) + day_of_month(from_unixtime("{}"/1000)) as "{}""#, self.field_name, self.field_name, display_name)
+            },
+
+            DateGrouping::DayOfMonth => {
+                format!(r#"day(from_unixtime("{}"/1000)) as "{}""#, self.field_name, display_name)
+            },
+
+        DateGrouping::QualifiedDayOfWeek => {
+                format!(r#"(year_of_week(from_unixtime("{}"/1000)) * 1000) + (week_of_year(from_unixtime("{}"/1000)) * 10) + day_of_week(from_unixtime("{}"/1000)) as "{}""#, self.field_name, self.field_name, self.field_name, display_name)
+            },
+
+        DateGrouping::DayOfWeek => {
+                format!(r#"day_of_week(from_unixtime("{}"/1000)) as "{}""#, self.field_name, display_name)
+            },
+
+            DateGrouping::QualifiedWeekOfYear => {
+                format!(r#" (year_of_week(from_unixtime({}/1000)) * 100) + (week_of_year(from_unixtime({}/1000))) as "{}""#, self.field_name, self.field_name, display_name)
+            },
+
+            DateGrouping::WeekOfYear => {
+                format!(r#"week_of_year(from_unixtime("{}"/1000)) as "{}""#, self.field_name, display_name)
+            },
+
+            DateGrouping::QualifiedMonth => {
+                format!(r#"(year(from_unixtime("{}"/1000)) * 100) + month(from_unixtime("{}"/1000)) as "{}""#, self.field_name, self.field_name, display_name)
+            },
+
+            DateGrouping::MonthOfYear => {
+                format!(r#"month(from_unixtime("{}"/1000))   as "{}""#, self.field_name, display_name)
+            },
+
+            DateGrouping::Year => {
+                format!(r#"year(from_unixtime("{}"/1000)) as "{}""#, self.field_name, display_name)
+            },
+
+            DateGrouping::QualifiedQuarter => {
+                format!(r#"(year(from_unixtime("{}"/1000)) * 10) + quarter(from_unixtime("{}"/1000)) as "{}""#, self.field_name, self.field_name, display_name)
+            },
+
+
+            DateGrouping::Quarter => {
+                format!(r#"quarter(from_unixtime("{}"/1000)) as "{}""#, self.field_name, display_name)
+            },
+
+            DateGrouping::YearOfWeek => {
+                format!(r#"year_of_week(from_unixtime("{}"/1000)) as "{}""#, self.field_name, display_name)
+            },
+        };
+        query
+    }
 }
 
 #[cfg(test)]
@@ -85,10 +174,45 @@ impl DateFieldDefinition {
 mod DateGrouping_from_str {
   use super::*;
   #[test]
+  fn qualified_day_of_year() {
+    let date_grouping = DateGrouping::from_str("qualified_day_of_year");
+    match date_grouping {
+      DateGrouping::QualifiedDayOfYear => assert!(true),
+      _ => assert!(false),
+    }
+  }
+  #[test]
   fn day_of_year() {
     let date_grouping = DateGrouping::from_str("day_of_year");
     match date_grouping {
       DateGrouping::DayOfYear => assert!(true),
+      _ => assert!(false),
+    }
+  }
+
+  #[test]
+  fn qualified_day_of_month() {
+    let date_grouping = DateGrouping::from_str("qualified_day_of_month");
+    match date_grouping {
+      DateGrouping::QualifiedDayOfMonth => assert!(true),
+      _ => assert!(false),
+    }
+  }
+
+  #[test]
+  fn year_day_of_month() {
+    let date_grouping = DateGrouping::from_str("year_day_of_month");
+    match date_grouping {
+      DateGrouping::YearDayOfMonth => assert!(true),
+      _ => assert!(false),
+    }
+  }
+
+  #[test]
+  fn month_day_of_month() {
+    let date_grouping = DateGrouping::from_str("month_day_of_month");
+    match date_grouping {
+      DateGrouping::MonthDayOfMonth => assert!(true),
       _ => assert!(false),
     }
   }
@@ -103,6 +227,15 @@ mod DateGrouping_from_str {
   }
 
   #[test]
+  fn qualified_day_of_week() {
+    let date_grouping = DateGrouping::from_str("qualified_day_of_week");
+    match date_grouping {
+      DateGrouping::QualifiedDayOfWeek => assert!(true),
+      _ => assert!(false),
+    }
+  }
+
+  #[test]
   fn day_of_week() {
     let date_grouping = DateGrouping::from_str("day_of_week");
     match date_grouping {
@@ -112,10 +245,37 @@ mod DateGrouping_from_str {
   }
 
   #[test]
+  fn qualified_week_of_year() {
+    let date_grouping = DateGrouping::from_str("qualified_week_of_year");
+    match date_grouping {
+      DateGrouping::QualifiedWeekOfYear => assert!(true),
+      _ => assert!(false),
+    }
+  }
+
+  #[test]
   fn week_of_year() {
     let date_grouping = DateGrouping::from_str("week_of_year");
     match date_grouping {
       DateGrouping::WeekOfYear => assert!(true),
+      _ => assert!(false),
+    }
+  }
+
+  #[test] 
+  fn qualified_month() {
+    let date_grouping = DateGrouping::from_str("qualified_month");
+    match date_grouping {
+      DateGrouping::QualifiedMonth => assert!(true),
+      _ => assert!(false),
+    }
+  }
+
+  #[test] 
+  fn month() {
+    let date_grouping = DateGrouping::from_str("month");
+    match date_grouping {
+      DateGrouping::MonthOfYear => assert!(true),
       _ => assert!(false),
     }
   }
@@ -134,6 +294,24 @@ mod DateGrouping_from_str {
     let date_grouping = DateGrouping::from_str("year");
     match date_grouping {
       DateGrouping::Year => assert!(true),
+      _ => assert!(false),
+    }
+  }
+
+  #[test]
+  fn year_of_week() {
+    let date_grouping = DateGrouping::from_str("year_of_week");
+    match date_grouping {
+      DateGrouping::YearOfWeek => assert!(true),
+      _ => assert!(false),
+    }
+  }
+
+  #[test]
+  fn qualified_quarter() {
+    let date_grouping = DateGrouping::from_str("qualified_quarter");
+    match date_grouping {
+      DateGrouping::QualifiedQuarter => assert!(true),
       _ => assert!(false),
     }
   }
