@@ -298,11 +298,12 @@ impl FieldDefinition {
         }
     }
 
-    pub fn get_query_parts(&self) -> (String, String) {
+    pub fn get_query_parts(&self) -> (String, String, String) {
         //Field_value
         //Field_name
         let field_value;
         let field_name;
+        let raw_field_query;
         match self {
             FieldDefinition::Standard {
                 field_definition,
@@ -310,7 +311,7 @@ impl FieldDefinition {
                 ..
             } => {
                 field_name = field_display_name.clone();
-                field_value = field_definition.get_query(&field_name);
+                (field_value, raw_field_query) = field_definition.get_query(&field_name);
             }
             FieldDefinition::Date {
                 field_definition,
@@ -333,7 +334,7 @@ impl FieldDefinition {
                 panic!("Unexpected field definition");
             }
         }
-        (field_name, field_value)
+        (field_name, field_value, raw_field_query)
     }
 }
 

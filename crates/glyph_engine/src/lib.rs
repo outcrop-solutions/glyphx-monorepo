@@ -228,15 +228,13 @@ impl GlyphEngine {
     ///Will create our vector tables for the given field definition.
     fn process_vectors<T: GlyphEngineOperations>(
         &self,
+        x_field_definition: &FieldDefinition,
+        y_field_definition: &FieldDefinition,
         operations: &T,
     ) -> Result<
         (Box<dyn VectorValueProcesser>, Box<dyn VectorValueProcesser>),
         GlyphEngineProcessError,
     > {
-        //Get our field definitions
-        handle_error!(let x_field_definition = self.parameters.get_field_definition("xaxis"); GlyphEngineProcessError::from_get_field_definition_error("xaxis"), error);
-        handle_error!(let y_field_definition = self.parameters.get_field_definition("yaxis"); GlyphEngineProcessError::from_get_field_definition_error("yaxis"), error);
-
         let mut x_field_processor = operations.get_vector_processer(
             "x",
             &self.parameters.data_table_name,
@@ -266,13 +264,57 @@ impl GlyphEngine {
         Ok((x_field_processor, y_field_processor))
     }
 
+    async fn start_query(&self, x_axis_definition : &FieldDefinition, y_axis_definition : &FieldDefinition, z_axis_definition: &FieldDefinition) -> Result<String, GlyphEngineProcessError> {
+    let (x_field_name, x_query_value) = x_axis_definition.get_query_parts(); 
+    let (y_field_name, y_query_value) = y_axis_definition.get_query_parts(); 
+    let (z_field_name, z_query_value) = z_axis_definition.get_query_parts(); 
+    let database_name = self.athena_connection.get_database_name();
+    let filter = self.parameters.filter;
+    let filter = match filter {
+        Some(filter) => format!("WHERE {}", filter),
+        None => "".to_string()
+    };
+    let query = format!(r#"
+    WITH temp as (
+        SELECT glyphx_id__ as rowid, 
+        {}, 
+        {}, 
+        {}
+        FROM "{}"."{}" 
+        {}
+    )  
+    SELECT array_join(array_agg(rowid), '|') as "rowids", 
+    groupedXColumn as x_${this.xColName}, 
+    groupedYColumn as y_${this.yColName}, 
+    ${this.zCol} as ${this.zColName}
+    FROM temp 
+    GROUP BY groupedXColumn, groupedYColumn;
+"#, x_query_value, y_query_value, z_field_name,database_name, self.data_table_name, filter, );
+
+        let query_id = self
+            .athena_connection
+            .start_query(&self.parameters.query)
+            .await;
+        handle_error!(let query_id = query_id; GlyphEngineProcessError::from_athena_query_error(query_id), error);
+        Ok(query_id)
+    }   
+
     async fn process_impl<T: GlyphEngineOperations>(
         &self,
         operations: &T,
     ) -> Result<(), GlyphEngineProcessError> {
+        //Get our field definitions
+        handle_error!(let x_field_definition = self.parameters.get_field_definition("xaxis"); GlyphEngineProcessError::from_get_field_definition_error("xaxis"), error);
+        handle_error!(let y_field_definition = self.parameters.get_field_definition("yaxis"); GlyphEngineProcessError::from_get_field_definition_error("yaxis"), error);
+        handle_error!(let z_field_definition = self.parameters.get_field_definition("zaxis"); GlyphEngineProcessError::from_get_field_definition_error("zaxis"), error);
+
+        //1. Kick off the main query.  This runs offline on AWS and we need it to finish before we
+        //   can do anything else.  Here we can start the query, then go and get our vector tables
+        let query_id = self.start_query().await?;
         //1. Build the vector/rank tables tables and upload them to S3. -- 1 for each vertex (X and
         //   Y)
-        let (x_field_processor, y_field_processor) = self.process_vectors(operations)?;
+        let (x_field_processor, y_field_processor) = self.process_vectors( &x_field_definition, &y_field_definition, operations)?;
+
         Ok(())
     }
     pub async fn process(&self) -> Result<(), GlyphEngineProcessError> {
@@ -577,8 +619,10 @@ mod glyph_engine {
                 .times(2);
 
             let parameters = VectorizerParameters::from_json_string(&INPUT.to_string()).unwrap();
+            let x_field_definition = parameters.get_field_definition("xaxis").unwrap();
+            let y_field_definition = parameters.get_field_definition("yaxis").unwrap();
             let glyph_engine = GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
-            let result = glyph_engine.process_vectors(&mocks);
+            let result = glyph_engine.process_vectors(&x_field_definition, &y_field_definition, &mocks);
             assert!(result.is_ok());
         }
 
@@ -638,8 +682,10 @@ mod glyph_engine {
                 .times(2);
 
             let parameters = VectorizerParameters::from_json_string(&INPUT.to_string()).unwrap();
+            let x_field_definition = parameters.get_field_definition("xaxis").unwrap();
+            let y_field_definition = parameters.get_field_definition("yaxis").unwrap();
             let glyph_engine = GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
-            let result = glyph_engine.process_vectors(&mocks);
+            let result = glyph_engine.process_vectors(&x_field_definition, &y_field_definition, &mocks);
             assert!(result.is_err());
             let error = result.err().unwrap();
             match error {
@@ -704,8 +750,10 @@ mod glyph_engine {
                 .times(2);
 
             let parameters = VectorizerParameters::from_json_string(&INPUT.to_string()).unwrap();
+            let x_field_definition = parameters.get_field_definition("xaxis").unwrap();
+            let y_field_definition = parameters.get_field_definition("yaxis").unwrap();
             let glyph_engine = GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
-            let result = glyph_engine.process_vectors(&mocks);
+            let result = glyph_engine.process_vectors(&x_field_definition, &y_field_definition, &mocks);
             assert!(result.is_err());
             let error = result.err().unwrap();
             match error {
@@ -713,71 +761,72 @@ mod glyph_engine {
                 _ => panic!("Expected VectorProcessingError"),
             }
         }
+        //TODO: This goes into the process function once we are ready to test that
+        // #[tokio::test]
+        // async fn x_axis_is_not_defined() {
+        //     static mut CALL_NUMBER: i32 = 0;
+        //     let mut mocks = MockGlyphEngineOperations::new();
+        //     mocks
+        //         .expect_build_s3_connection()
+        //         .returning(|| Ok(unsafe { &S3_CONNECTION_INSTANCE.as_ref().unwrap() }));
+        //     mocks
+        //         .expect_build_athena_connection()
+        //         .returning(|| Ok(unsafe { &ATHENA_CONNECTION_INSTANCE.as_ref().unwrap() }));
+        //     mocks
+        //         .expect_build_mongo_connection()
+        //         .returning(|| Ok(unsafe { &MONGO_CONNECTION_INSTANCE.as_ref().unwrap() }));
+        //     mocks
+        //         .expect_build_heartbeat()
+        //         .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }));
+        //     mocks
+        //         .expect_get_vector_processer()
+        //         .times(0);
 
-        #[tokio::test]
-        async fn x_axis_is_not_defined() {
-            static mut CALL_NUMBER: i32 = 0;
-            let mut mocks = MockGlyphEngineOperations::new();
-            mocks
-                .expect_build_s3_connection()
-                .returning(|| Ok(unsafe { &S3_CONNECTION_INSTANCE.as_ref().unwrap() }));
-            mocks
-                .expect_build_athena_connection()
-                .returning(|| Ok(unsafe { &ATHENA_CONNECTION_INSTANCE.as_ref().unwrap() }));
-            mocks
-                .expect_build_mongo_connection()
-                .returning(|| Ok(unsafe { &MONGO_CONNECTION_INSTANCE.as_ref().unwrap() }));
-            mocks
-                .expect_build_heartbeat()
-                .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }));
-            mocks
-                .expect_get_vector_processer()
-                .times(0);
+        //     let mut input = INPUT.clone();
+        //     input["xAxis"].take();
+        //     let parameters = VectorizerParameters::from_json_string(&input.to_string()).unwrap();
+        //     let glyph_engine = GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
+        //     let result = glyph_engine.process_vectors(&mocks);
+        //     assert!(result.is_err());
+        //     let error = result.err().unwrap();
+        //     match error {
+        //         GlyphEngineProcessError::ConfigurationError(_) => {}
+        //         _ => panic!("Expected ConfigurationError"),
+        //     }
+        // }
 
-            let mut input = INPUT.clone();
-            input["xAxis"].take();
-            let parameters = VectorizerParameters::from_json_string(&input.to_string()).unwrap();
-            let glyph_engine = GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
-            let result = glyph_engine.process_vectors(&mocks);
-            assert!(result.is_err());
-            let error = result.err().unwrap();
-            match error {
-                GlyphEngineProcessError::ConfigurationError(_) => {}
-                _ => panic!("Expected ConfigurationError"),
-            }
-        }
+        //TODO: This goes into the process function once we are ready to test that
+        // #[tokio::test]
+        // async fn y_axis_is_not_defined() {
+        //     static mut CALL_NUMBER: i32 = 0;
+        //     let mut mocks = MockGlyphEngineOperations::new();
+        //     mocks
+        //         .expect_build_s3_connection()
+        //         .returning(|| Ok(unsafe { &S3_CONNECTION_INSTANCE.as_ref().unwrap() }));
+        //     mocks
+        //         .expect_build_athena_connection()
+        //         .returning(|| Ok(unsafe { &ATHENA_CONNECTION_INSTANCE.as_ref().unwrap() }));
+        //     mocks
+        //         .expect_build_mongo_connection()
+        //         .returning(|| Ok(unsafe { &MONGO_CONNECTION_INSTANCE.as_ref().unwrap() }));
+        //     mocks
+        //         .expect_build_heartbeat()
+        //         .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }));
+        //     mocks
+        //         .expect_get_vector_processer()
+        //         .times(0);
 
-        #[tokio::test]
-        async fn y_axis_is_not_defined() {
-            static mut CALL_NUMBER: i32 = 0;
-            let mut mocks = MockGlyphEngineOperations::new();
-            mocks
-                .expect_build_s3_connection()
-                .returning(|| Ok(unsafe { &S3_CONNECTION_INSTANCE.as_ref().unwrap() }));
-            mocks
-                .expect_build_athena_connection()
-                .returning(|| Ok(unsafe { &ATHENA_CONNECTION_INSTANCE.as_ref().unwrap() }));
-            mocks
-                .expect_build_mongo_connection()
-                .returning(|| Ok(unsafe { &MONGO_CONNECTION_INSTANCE.as_ref().unwrap() }));
-            mocks
-                .expect_build_heartbeat()
-                .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }));
-            mocks
-                .expect_get_vector_processer()
-                .times(0);
-
-            let mut input = INPUT.clone();
-            input["yAxis"].take();
-            let parameters = VectorizerParameters::from_json_string(&input.to_string()).unwrap();
-            let glyph_engine = GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
-            let result = glyph_engine.process_vectors(&mocks);
-            assert!(result.is_err());
-            let error = result.err().unwrap();
-            match error {
-                GlyphEngineProcessError::ConfigurationError(_) => {}
-                _ => panic!("Expected ConfigurationError"),
-            }
-        }
+        //     let mut input = INPUT.clone();
+        //     input["yAxis"].take();
+        //     let parameters = VectorizerParameters::from_json_string(&input.to_string()).unwrap();
+        //     let glyph_engine = GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
+        //     let result = glyph_engine.process_vectors(&mocks);
+        //     assert!(result.is_err());
+        //     let error = result.err().unwrap();
+        //     match error {
+        //         GlyphEngineProcessError::ConfigurationError(_) => {}
+        //         _ => panic!("Expected ConfigurationError"),
+        //     }
+        // }
     }
 }

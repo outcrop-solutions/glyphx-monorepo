@@ -20,6 +20,7 @@ pub struct VectorizerParameters {
     pub workspace_id: String,
     pub project_id: String,
     pub data_table_name: String,
+    pub filter: Option<String>,
     raw_data: Value,
 }
 
@@ -64,10 +65,20 @@ impl VectorizerParameters {
         if data_table_name.is_null() {
             return Err(FromJsonValueError::new("data_table_name"));
         }
+
+        let filter = match &input["filter"] {
+            Value::Null => None,
+            Value::String(s) => Some(s.to_string()),
+            _ => {
+                return Err(FromJsonValueError::new("filter"));
+            }
+
+        };
         Ok(VectorizerParameters {
             workspace_id: workspace_id.as_str().unwrap().to_string(),
             project_id: project_id.as_str().unwrap().to_string(),
             data_table_name: data_table_name.as_str().unwrap().to_string(),
+            filter,
             raw_data: input.clone(),
         })
     }
@@ -254,7 +265,7 @@ impl VectorizerParameters {
             results.add_field_definition(supporting_field_name, supporting_field.unwrap());
         }
 
-        return Ok(results);
+        Ok(results)
     }
 }
 impl Default for VectorizerParameters {
@@ -263,6 +274,7 @@ impl Default for VectorizerParameters {
             workspace_id: "".to_string(),
             project_id: "".to_string(),
             data_table_name: "".to_string(),
+            filter: None,
             raw_data: json!({}),
         }
     }
@@ -281,6 +293,7 @@ mod from_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "filter": "This is a filter"
         });
 
         let result = VectorizerParameters::from_json_value(&input);
@@ -289,6 +302,7 @@ mod from_json_value {
         assert_eq!(result.workspace_id, "1234");
         assert_eq!(result.project_id, "5678");
         assert_eq!(result.data_table_name, "my_table");
+        assert_eq!(result.filter.unwrap(), "This is a filter");
     }
 
     #[test]
@@ -350,6 +364,44 @@ mod from_json_value {
                 let data = error_data.data.unwrap();
                 let field_name = data["fieldName"].as_str().unwrap();
                 assert_eq!(field_name, "data_table_name");
+            }
+            _ => {
+                panic!("Unexpected error type");
+            }
+        }
+    }
+
+    #[test]
+    fn empty_filter() {
+        let input = json!({
+            "workspace_id": "1234",
+            "project_id": "5678",
+            "data_table_name": "my_table",
+        });
+
+        let result = VectorizerParameters::from_json_value(&input);
+        assert!(result.is_ok());
+        let result = result.unwrap();
+        assert_eq!(result.filter, None);
+    }
+
+    #[test]
+    fn invalid_filter() {
+        let input = json!({
+            "workspace_id": "1234",
+            "project_id": "5678",
+            "data_table_name": "my_table",
+            "filter": 1234
+        });
+
+        let result = VectorizerParameters::from_json_value(&input);
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            FromJsonValueError::JsonValidationError(error_data) => {
+                let data = error_data.data.unwrap();
+                let field_name = data["fieldName"].as_str().unwrap();
+                assert_eq!(field_name, "filter");
             }
             _ => {
                 panic!("Unexpected error type");

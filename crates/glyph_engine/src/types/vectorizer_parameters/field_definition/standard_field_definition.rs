@@ -37,10 +37,11 @@ impl StandardFieldDefinition {
 
     }
 
-    pub fn get_query(&self, display_name: &str) -> String {
+    pub fn get_query(&self, display_name: &str) -> (String, String) {
         let field_name = self.field_name.clone();
-        let query = format!(r#""{}" as "{}""#, field_name, display_name); 
-        query
+        let raw_query = format!(r#""{}""#, field_name);
+        let query = format!(r#"{} as "{}""#, raw_query, display_name); 
+        (query, raw_query)
     }
 }
 
