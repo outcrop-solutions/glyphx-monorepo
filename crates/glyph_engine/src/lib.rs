@@ -119,7 +119,6 @@ trait GlyphEngineOperations {
         data_table_name: &str,
         field_definition: &FieldDefinition,
     ) -> Box<dyn VectorValueProcesser>;
-
     async fn start_athena_query(&self, athena_connection: &AthenaConnection, query: &str) -> Result<String, GlyphEngineProcessError>;
 }
 

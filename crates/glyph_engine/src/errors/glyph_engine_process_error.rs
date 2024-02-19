@@ -46,6 +46,3 @@ impl GlyphEngineProcessError {
         Self::QueryProcessingError(error_data)
     }
 }
-
-
-
