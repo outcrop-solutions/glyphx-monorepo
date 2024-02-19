@@ -97,75 +97,76 @@ impl DateFieldDefinition {
         Ok(())
 
     }
-    pub fn get_query(&self, display_name: &str) -> String {
+    pub fn get_query(&self, display_name: &str) -> (String, String) {
         let field_name = self.field_name.clone();
-        let query = match &self.date_grouping {
+        let raw_query = match &self.date_grouping {
             DateGrouping::QualifiedDayOfYear => {
-                format!(r#"(year(from_unixtime("{}"/1000)) * 1000) + day_of_year(from_unixtime("{}"/1000)) as "{}""#, self.field_name,self.field_name, display_name)
+                format!(r#"(year(from_unixtime("{}"/1000)) * 1000) + day_of_year(from_unixtime("{}"/1000))"#, self.field_name,self.field_name)
             },
 
             DateGrouping::DayOfYear => {
-                format!(r#"day_of_year(from_unixtime("{}"/1000)) as "{}""#, self.field_name, display_name)
+                format!(r#"day_of_year(from_unixtime("{}"/1000))"#, self.field_name)
             },
 
             DateGrouping::QualifiedDayOfMonth => {
-                format!(r#"(year(from_unixtime("{}"/1000)) * 10000) + (month(from_unixtime("{}"/1000)) * 100) + day_of_month(from_unixtime("{}"/1000)) as "{}""#, self.field_name, self.field_name, self.field_name, display_name)
+                format!(r#"(year(from_unixtime("{}"/1000)) * 10000) + (month(from_unixtime("{}"/1000)) * 100) + day_of_month(from_unixtime("{}"/1000))"#, self.field_name, self.field_name, self.field_name)
             },
 
             DateGrouping::YearDayOfMonth => {
-                format!(r#"(year(from_unixtime("{}"/1000)) * 100) + day_of_month(from_unixtime("{}"/1000)) as "{}""#, self.field_name, self.field_name, display_name)
+                format!(r#"(year(from_unixtime("{}"/1000)) * 100) + day_of_month(from_unixtime("{}"/1000))"#, self.field_name, self.field_name)
             },
 
             DateGrouping::MonthDayOfMonth => {
-                format!(r#"(month(from_unixtime("{}"/1000)) * 100) + day_of_month(from_unixtime("{}"/1000)) as "{}""#, self.field_name, self.field_name, display_name)
+                format!(r#"(month(from_unixtime("{}"/1000)) * 100) + day_of_month(from_unixtime("{}"/1000))"#, self.field_name, self.field_name)
             },
 
             DateGrouping::DayOfMonth => {
-                format!(r#"day(from_unixtime("{}"/1000)) as "{}""#, self.field_name, display_name)
+                format!(r#"day(from_unixtime("{}"/1000))"#, self.field_name)
             },
 
         DateGrouping::QualifiedDayOfWeek => {
-                format!(r#"(year_of_week(from_unixtime("{}"/1000)) * 1000) + (week_of_year(from_unixtime("{}"/1000)) * 10) + day_of_week(from_unixtime("{}"/1000)) as "{}""#, self.field_name, self.field_name, self.field_name, display_name)
+                format!(r#"(year_of_week(from_unixtime("{}"/1000)) * 1000) + (week_of_year(from_unixtime("{}"/1000)) * 10) + day_of_week(from_unixtime("{}"/1000))"#, self.field_name, self.field_name, self.field_name)
             },
 
         DateGrouping::DayOfWeek => {
-                format!(r#"day_of_week(from_unixtime("{}"/1000)) as "{}""#, self.field_name, display_name)
+                format!(r#"day_of_week(from_unixtime("{}"/1000))"#, self.field_name)
             },
 
             DateGrouping::QualifiedWeekOfYear => {
-                format!(r#" (year_of_week(from_unixtime({}/1000)) * 100) + (week_of_year(from_unixtime({}/1000))) as "{}""#, self.field_name, self.field_name, display_name)
+                format!(r#" (year_of_week(from_unixtime({}/1000)) * 100) + (week_of_year(from_unixtime({}/1000)))"#, self.field_name, self.field_name)
             },
 
             DateGrouping::WeekOfYear => {
-                format!(r#"week_of_year(from_unixtime("{}"/1000)) as "{}""#, self.field_name, display_name)
+                format!(r#"week_of_year(from_unixtime("{}"/1000))"#, self.field_name)
             },
 
             DateGrouping::QualifiedMonth => {
-                format!(r#"(year(from_unixtime("{}"/1000)) * 100) + month(from_unixtime("{}"/1000)) as "{}""#, self.field_name, self.field_name, display_name)
+                format!(r#"(year(from_unixtime("{}"/1000)) * 100) + month(from_unixtime("{}"/1000))"#, self.field_name, self.field_name)
             },
 
             DateGrouping::MonthOfYear => {
-                format!(r#"month(from_unixtime("{}"/1000))   as "{}""#, self.field_name, display_name)
+                format!(r#"month(from_unixtime("{}"/1000))"#, self.field_name)
             },
 
             DateGrouping::Year => {
-                format!(r#"year(from_unixtime("{}"/1000)) as "{}""#, self.field_name, display_name)
+                format!(r#"year(from_unixtime("{}"/1000))"#, self.field_name)
             },
 
             DateGrouping::QualifiedQuarter => {
-                format!(r#"(year(from_unixtime("{}"/1000)) * 10) + quarter(from_unixtime("{}"/1000)) as "{}""#, self.field_name, self.field_name, display_name)
+                format!(r#"(year(from_unixtime("{}"/1000)) * 10) + quarter(from_unixtime("{}"/1000))"#, self.field_name, self.field_name)
             },
 
 
             DateGrouping::Quarter => {
-                format!(r#"quarter(from_unixtime("{}"/1000)) as "{}""#, self.field_name, display_name)
+                format!(r#"quarter(from_unixtime("{}"/1000))"#, self.field_name)
             },
 
             DateGrouping::YearOfWeek => {
-                format!(r#"year_of_week(from_unixtime("{}"/1000)) as "{}""#, self.field_name, display_name)
+                format!(r#"year_of_week(from_unixtime("{}"/1000))"#, self.field_name)
             },
         };
-        query
+        let query = format!(r#"{} as "{}""#, raw_query, display_name);
+        (query, raw_query)
     }
 }
 

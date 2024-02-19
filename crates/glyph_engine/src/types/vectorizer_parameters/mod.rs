@@ -220,6 +220,7 @@ impl VectorizerParameters {
         }
 
         let json = json.unwrap();
+        let s = json.to_string();
         let field_definition = FieldDefinition::from_json(json);
         if field_definition.is_err() {
              let err = field_definition.err().unwrap();
@@ -1001,6 +1002,7 @@ mod get_field_definition {
                 field_data_type,
                 field_definition,
                 field_query,
+                raw_query
             } => {
                 assert_eq!(field_display_name, "field1");
                 match field_data_type {
@@ -1009,6 +1011,7 @@ mod get_field_definition {
                 }
                 assert_eq!(field_definition.field_name, "field1");
                 assert_eq!(field_query, r#""field1" as "field1""#);
+                assert_eq!(raw_query, r#""field1""#);
                 match field_definition.field_type {
                     FieldDefinitionType::Standard => assert!(true),
                     _ => assert!(false),
@@ -1052,6 +1055,7 @@ mod get_field_definition {
                 field_data_type,
                 field_definition,
                 field_query,
+                raw_query
             } => {
                 assert_eq!(field_display_name, "field1");
                 match field_data_type {
@@ -1068,6 +1072,7 @@ mod get_field_definition {
                     _ => assert!(false),
                 }
                 assert_eq!(field_query, r#"day_of_week(from_unixtime("field1"/1000)) as "field1""#);
+                assert_eq!(raw_query, r#"day_of_week(from_unixtime("field1"/1000))"#);
             }
             _ => {
                 panic!("Unexpected field definition type");

@@ -119,6 +119,8 @@ trait GlyphEngineOperations {
         data_table_name: &str,
         field_definition: &FieldDefinition,
     ) -> Box<dyn VectorValueProcesser>;
+
+    async fn start_athena_query(&self, athena_connection: &AthenaConnection, query: &str) -> Result<String, GlyphEngineProcessError>;
 }
 
 struct GlyphEngineOperationsImpl;
@@ -153,8 +155,20 @@ impl GlyphEngineOperations for GlyphEngineOperationsImpl {
         data_table_name: &str,
         field_definition: &FieldDefinition,
     ) -> Box<dyn VectorValueProcesser> {
-        let field_processor = VectorProcesser::new(axis, data_table_name, "Fixme",  field_definition.clone());
+        let field_processor =
+            VectorProcesser::new(axis, data_table_name, "Fixme", field_definition.clone());
         Box::new(field_processor)
+    }
+
+    async fn start_athena_query(&self, athena_connection: &AthenaConnection,  query: &str) -> Result<String, GlyphEngineProcessError> {
+        handle_error!(let query_id = 
+            athena_connection
+            .get_athena_manager()
+            .start_query(&query, None)
+            .await;
+        GlyphEngineProcessError::from_start_query_error(&query), error);
+    
+    Ok(query_id)
     }
 }
 pub struct GlyphEngine {
@@ -264,40 +278,54 @@ impl GlyphEngine {
         Ok((x_field_processor, y_field_processor))
     }
 
-    async fn start_query(&self, x_axis_definition : &FieldDefinition, y_axis_definition : &FieldDefinition, z_axis_definition: &FieldDefinition) -> Result<String, GlyphEngineProcessError> {
-    let (x_field_name, x_query_value) = x_axis_definition.get_query_parts(); 
-    let (y_field_name, y_query_value) = y_axis_definition.get_query_parts(); 
-    let (z_field_name, z_query_value) = z_axis_definition.get_query_parts(); 
-    let database_name = self.athena_connection.get_database_name();
-    let filter = self.parameters.filter;
-    let filter = match filter {
-        Some(filter) => format!("WHERE {}", filter),
-        None => "".to_string()
-    };
-    let query = format!(r#"
+    async fn start_query<T: GlyphEngineOperations>(
+        &self,
+        x_axis_definition: &FieldDefinition,
+        y_axis_definition: &FieldDefinition,
+        z_axis_definition: &FieldDefinition,
+        operations: &T,
+    ) -> Result<String, GlyphEngineProcessError> {
+        let (x_field_name, _, x_raw_query) = x_axis_definition.get_query_parts();
+        let (y_field_name, _, y_raw_query) = y_axis_definition.get_query_parts();
+        let (z_field_name, _, z_raw_query) = z_axis_definition.get_query_parts();
+        let database_name = self.athena_connection.get_database_name();
+        let filter = &self.parameters.filter;
+        let filter = match filter {
+            Some(filter) => format!("WHERE {}", filter),
+            None => "".to_string(),
+        };
+        let query = format!(
+            r#"
     WITH temp as (
         SELECT glyphx_id__ as rowid, 
-        {}, 
-        {}, 
-        {}
+        {} as groupedXColumn, 
+        {} as groupedYColumn, 
+        "{}"
         FROM "{}"."{}" 
         {}
     )  
     SELECT array_join(array_agg(rowid), '|') as "rowids", 
-    groupedXColumn as x_${this.xColName}, 
-    groupedYColumn as y_${this.yColName}, 
-    ${this.zCol} as ${this.zColName}
+    groupedXColumn as "x_{}", 
+    groupedYColumn as "y_{}", 
+    {} as "z_{}"
     FROM temp 
     GROUP BY groupedXColumn, groupedYColumn;
-"#, x_query_value, y_query_value, z_field_name,database_name, self.data_table_name, filter, );
+"#,
+            x_raw_query,
+            y_raw_query,
+            z_field_name,
+            database_name,
+            self.parameters.data_table_name,
+            filter,
+            x_field_name,
+            y_field_name,
+            z_raw_query,
+            z_field_name
+        );
 
-        let query_id = self
-            .athena_connection
-            .start_query(&self.parameters.query)
-            .await;
-        handle_error!(let query_id = query_id; GlyphEngineProcessError::from_athena_query_error(query_id), error);
+        let query_id = operations.start_athena_query(self.athena_connection, &query).await?;
         Ok(query_id)
-    }   
+    }
 
     async fn process_impl<T: GlyphEngineOperations>(
         &self,
@@ -310,10 +338,18 @@ impl GlyphEngine {
 
         //1. Kick off the main query.  This runs offline on AWS and we need it to finish before we
         //   can do anything else.  Here we can start the query, then go and get our vector tables
-        let query_id = self.start_query().await?;
+        let query_id = self
+            .start_query(
+                &x_field_definition,
+                &y_field_definition,
+                &z_field_definition,
+                operations,
+            )
+            .await?;
         //1. Build the vector/rank tables tables and upload them to S3. -- 1 for each vertex (X and
         //   Y)
-        let (x_field_processor, y_field_processor) = self.process_vectors( &x_field_definition, &y_field_definition, operations)?;
+        let (x_field_processor, y_field_processor) =
+            self.process_vectors(&x_field_definition, &y_field_definition, operations)?;
 
         Ok(())
     }
@@ -549,8 +585,12 @@ mod glyph_engine {
                     "fieldDisplayName": "field3",
                     "fieldDataType": 1,
                     "fieldDefinition": {
-                        "fieldType": "standard",
-                        "fieldName": "field3"
+                        "fieldType": "accumulated",
+                        "accumulator" : "sum",
+                        "accumulatedFieldDefinition" : {
+                            "fieldType": "standard",
+                            "fieldName": "field3"
+                        }
                     }
                 },
                 "supportingFields" : [
@@ -622,7 +662,8 @@ mod glyph_engine {
             let x_field_definition = parameters.get_field_definition("xaxis").unwrap();
             let y_field_definition = parameters.get_field_definition("yaxis").unwrap();
             let glyph_engine = GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
-            let result = glyph_engine.process_vectors(&x_field_definition, &y_field_definition, &mocks);
+            let result =
+                glyph_engine.process_vectors(&x_field_definition, &y_field_definition, &mocks);
             assert!(result.is_ok());
         }
 
@@ -685,7 +726,8 @@ mod glyph_engine {
             let x_field_definition = parameters.get_field_definition("xaxis").unwrap();
             let y_field_definition = parameters.get_field_definition("yaxis").unwrap();
             let glyph_engine = GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
-            let result = glyph_engine.process_vectors(&x_field_definition, &y_field_definition, &mocks);
+            let result =
+                glyph_engine.process_vectors(&x_field_definition, &y_field_definition, &mocks);
             assert!(result.is_err());
             let error = result.err().unwrap();
             match error {
@@ -753,7 +795,8 @@ mod glyph_engine {
             let x_field_definition = parameters.get_field_definition("xaxis").unwrap();
             let y_field_definition = parameters.get_field_definition("yaxis").unwrap();
             let glyph_engine = GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
-            let result = glyph_engine.process_vectors(&x_field_definition, &y_field_definition, &mocks);
+            let result =
+                glyph_engine.process_vectors(&x_field_definition, &y_field_definition, &mocks);
             assert!(result.is_err());
             let error = result.err().unwrap();
             match error {
@@ -828,5 +871,127 @@ mod glyph_engine {
         //         _ => panic!("Expected ConfigurationError"),
         //     }
         // }
+    }
+    mod start_query {
+        use super::*;
+        use glyphx_core::GlyphxErrorData;
+        use serde_json::{json, Value};
+
+        static INPUT: Lazy<Value> = Lazy::new(|| {
+            json!({
+                "workspace_id": "1234",
+                "project_id": "5678",
+                "data_table_name": "my_table",
+                "xAxis" : {
+                    "fieldDisplayName": "field1",
+                    "fieldDataType": 1,
+                    "fieldDefinition": {
+                        "fieldType": "standard",
+                        "fieldName": "field1"
+                    }
+                },
+                "yAxis" : {
+                    "fieldDisplayName": "field2",
+                    "fieldDataType": 1,
+                    "fieldDefinition": {
+                        "fieldType": "standard",
+                        "fieldName": "field2"
+                    }
+                },
+                "zAxis" : {
+                    "fieldDisplayName": "field3",
+                    "fieldDataType": 1,
+                    "fieldDefinition": {
+                        "fieldType": "accumulated",
+                        "accumulator" : "sum",
+                        "accumulatedFieldDefinition" : {
+                            "fieldType": "standard",
+                            "fieldName": "field3"
+                        }
+                    }
+                },
+                "supportingFields" : [
+                {
+                    "fieldDisplayName": "field4",
+                    "fieldDataType": 1,
+                    "fieldDefinition": {
+                        "fieldType": "standard",
+                        "fieldName": "field4"
+                    }
+                }]
+            })
+        });
+
+        #[tokio::test]
+        async fn is_ok() {
+            let mut mocks = MockGlyphEngineOperations::new();
+            mocks
+                .expect_build_s3_connection()
+                .returning(|| Ok(unsafe { &S3_CONNECTION_INSTANCE.as_ref().unwrap() }));
+            mocks
+                .expect_build_athena_connection()
+                .returning(|| Ok(unsafe { &ATHENA_CONNECTION_INSTANCE.as_ref().unwrap() }));
+            mocks
+                .expect_build_mongo_connection()
+                .returning(|| Ok(unsafe { &MONGO_CONNECTION_INSTANCE.as_ref().unwrap() }));
+            mocks
+                .expect_build_heartbeat()
+                .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }));
+
+            mocks.expect_start_athena_query().returning(|_, _| {
+                Ok("1234".to_string())
+                   });
+            let parameters = VectorizerParameters::from_json_string(&INPUT.to_string()).unwrap();
+            let x_field_definition = parameters.get_field_definition("xaxis").unwrap();
+            let y_field_definition = parameters.get_field_definition("yaxis").unwrap();
+            let z_field_definition = parameters.get_field_definition("zaxis").unwrap();
+            let glyph_engine = GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
+            let result =
+                glyph_engine.start_query(&x_field_definition, &y_field_definition, &z_field_definition, &mocks).await;
+            assert!(result.is_ok());
+            let query_id = result.unwrap();
+            assert_eq!(query_id, "1234");
+        }
+
+        #[tokio::test]
+        async fn start_query_fails() {
+            let mut mocks = MockGlyphEngineOperations::new();
+            mocks
+                .expect_build_s3_connection()
+                .returning(|| Ok(unsafe { &S3_CONNECTION_INSTANCE.as_ref().unwrap() }));
+            mocks
+                .expect_build_athena_connection()
+                .returning(|| Ok(unsafe { &ATHENA_CONNECTION_INSTANCE.as_ref().unwrap() }));
+            mocks
+                .expect_build_mongo_connection()
+                .returning(|| Ok(unsafe { &MONGO_CONNECTION_INSTANCE.as_ref().unwrap() }));
+            mocks
+                .expect_build_heartbeat()
+                .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }));
+
+            mocks.expect_start_athena_query().returning(|_, _| {
+                Err(GlyphEngineProcessError::QueryProcessingError(
+                    GlyphxErrorData::new(
+                        "An unexpected error occurred while running the vector query.  See the inner error for additional information".to_string(),
+                        None,
+                        None
+                    )
+                   )
+                  )
+                });
+            let parameters = VectorizerParameters::from_json_string(&INPUT.to_string()).unwrap();
+            let x_field_definition = parameters.get_field_definition("xaxis").unwrap();
+            let y_field_definition = parameters.get_field_definition("yaxis").unwrap();
+            let z_field_definition = parameters.get_field_definition("zaxis").unwrap();
+            let glyph_engine = GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
+            let result =
+                glyph_engine.start_query(&x_field_definition, &y_field_definition, &z_field_definition, &mocks).await;
+            assert!(result.is_err());
+            let error = result.err().unwrap();
+            match error {
+                GlyphEngineProcessError::QueryProcessingError(_) => {}
+                _ => panic!("Expected QueryProcessingError"),
+            }
+        }
     }
 }

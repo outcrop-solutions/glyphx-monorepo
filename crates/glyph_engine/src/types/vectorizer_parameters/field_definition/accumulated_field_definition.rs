@@ -151,15 +151,13 @@ impl AccumulatedFieldDefinition {
         let query =
         match self {
             AccumulatedFieldDefinition::Standard(field_definition) => {
-                let inner_query = field_definition.get_query("foo");
-                let pos = inner_query.find(" as ").unwrap();
-                inner_query.split_at(pos).0.to_string()
+                let (_, raw_query) = field_definition.get_query("foo");
+                raw_query
 
             },
             AccumulatedFieldDefinition::Date(field_definition) => {
-                let inner_query = field_definition.get_query("foo");
-                let pos = inner_query.find(" as ").unwrap();
-                inner_query.split_at(pos).0.to_string()
+                let (_, raw_query) = field_definition.get_query("foo");
+                raw_query
             },
             _  => "Formula Field".to_string(),
         };
@@ -230,10 +228,11 @@ impl AccumulatorFieldDefinition {
         Ok(())
     }
 
-    pub fn get_query(&self, display_name : &str) -> String {
-        let query = self.accumulated_field_definition.get_query();
-        let query = format!(r#"{:?}({}) as "{}""#, self.accumulator_type,  query, display_name);
-        query
+    pub fn get_query(&self, display_name : &str) -> (String, String) {
+        let base_query = self.accumulated_field_definition.get_query();
+        let query = format!(r#"{:?}({}) as "{}""#, self.accumulator_type,  base_query, display_name);
+        let raw_query = format!(r#"{:?}({})"#, self.accumulator_type,  base_query);
+        (query, raw_query)
     }
 }
 #[cfg(test)]

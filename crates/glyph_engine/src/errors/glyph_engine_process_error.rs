@@ -4,13 +4,14 @@ use serde_json::{json, to_value};
 use crate::types::vectorizer_parameters::GetFieldDefinitionError;
 use crate::vector_processer::TaskStatus;
 
-use glyphx_core::{GlyphxError, GlyphxErrorData};
+use glyphx_core::{GlyphxError, GlyphxErrorData, aws::athena_manager::StartQueryError};
 
 #[derive(Debug, Clone, GlyphxError, Serialize, Deserialize)]
 #[error_definition("GlyphEngineProcess")]
 pub enum GlyphEngineProcessError {
    ConfigurationError(GlyphxErrorData),
    VectorProcessingError(GlyphxErrorData),
+   QueryProcessingError(GlyphxErrorData),
 }
 
 impl GlyphEngineProcessError {
@@ -37,6 +38,14 @@ impl GlyphEngineProcessError {
         Self::VectorProcessingError(error_data)
     }
 
+    pub fn from_start_query_error(error: StartQueryError, query: &str) -> Self {
+        let message = "An error occurred while starting the query, see the inner error for additional information ".to_string();
+        let data = json!({query: query});
+        let inner_error = to_value(error).unwrap();
+        let error_data = GlyphxErrorData::new(message, Some(data), Some(inner_error));
+        Self::QueryProcessingError(error_data)
+    }
 }
+
 
 

@@ -242,7 +242,7 @@ impl VectorProcesser {
     fn start_impl<T: ThreadOperations + Sync>(&mut self, thread_operations: &'static T) {
         let field_definition = self.field_definition.clone();
         let s3_file_name = self.s3_file_name.clone();
-        let (field_name, field_value) = field_definition.get_query_parts();
+        let (field_name, field_value, _) = field_definition.get_query_parts();
         let table_name = self.table_name.clone();
 
         let (sender, receiver) = channel::<Result<Vector, VectorCaclulationError>>();
@@ -728,6 +728,7 @@ mod tests {
                     field_type: FieldDefinitionType::Standard,
                 },
                 field_query: format!(r#""{}" as "{}""#, field_name, display_name),
+                raw_query: format!(r#""{}""#, field_name),
             }
         }
     }
