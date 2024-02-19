@@ -123,7 +123,6 @@ impl FieldDefinition {
         }
         let date_field_definition = date_field_definition.unwrap();
         let (field_query, raw_query) = date_field_definition.get_query(&field_display_name);
-        let field_query = date_field_definition.get_query(&field_display_name);
 
         Ok(FieldDefinition::Date {
             field_display_name,
@@ -149,7 +148,6 @@ impl FieldDefinition {
 
         let standard_field_definition = standard_field_definition.unwrap();
         let (field_query, raw_query) = standard_field_definition.get_query(&field_display_name);
-        let field_query = standard_field_definition.get_query(&field_display_name);
         Ok(FieldDefinition::Standard {
             field_display_name,
             field_data_type,
