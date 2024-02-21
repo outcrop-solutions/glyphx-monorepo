@@ -66,6 +66,8 @@
     "date-fns": "^2.28.0",
     "dotenv": "^16.0.3",
     "express-validator": "^6.14.0",
+    "fileingestion": "workspace:*",
+    "glyphengine": "workspace:^",
     "logsnag": "^0.1.6",
     "mongoose": "6.11.5",
     "next": "13.5.4",

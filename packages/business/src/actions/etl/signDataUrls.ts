@@ -1,39 +1,40 @@
-import type {NextApiRequest, NextApiResponse} from 'next';
-import {aws} from 'core';
-import {S3_BUCKET_NAME} from 'config/constants';
-import * as business from 'business';
+'use server';
+import {error, constants} from 'core';
+import {s3Connection} from '../../lib';
+
 /**
  * Created signed url to upload files
- *
- * @note signs url via s3Manager
- * @route POST /api/etl/signedUrl
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- *
+ * @param workspaceId
+ * @param projectId
+ * @param payloadHash
+ * @returns
  */
-
-export const signDataUrls = async (req: NextApiRequest, res: NextApiResponse) => {
-  const {workspaceId, projectId, payloadHash} = req.body;
+export const signDataUrls = async (workspaceId: string, projectId: string, payloadHash: string) => {
   try {
     // init S3 client
-    const s3Manager = business.s3Connection.s3Manager;
+    const s3Manager = s3Connection.s3Manager;
     const urls = [
       `client/${workspaceId}/${projectId}/output/${payloadHash}.sdt`,
       `client/${workspaceId}/${projectId}/output/${payloadHash}.sgn`,
       `client/${workspaceId}/${projectId}/output/${payloadHash}.sgc`,
     ];
-
     // Create an array of promises
     const promises = urls.map((url) => s3Manager.getSignedDataUrlPromise(url));
-
     // Use Promise.all to fetch all URLs concurrently
     const signedUrls = await Promise.all(promises);
     const sdtUrl = signedUrls.find((u: string) => u.includes('.sdt'));
     const sgcUrl = signedUrls.find((u: string) => u.includes('.sgc'));
     const sgnUrl = signedUrls.find((u: string) => u.includes('.sgn'));
 
-    res.status(200).json({data: {sdtUrl, sgcUrl, sgnUrl}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    return {sdtUrl, sgcUrl, sgnUrl};
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred runningsign data urls',
+      'etl',
+      {workspaceId, projectId, payloadHash},
+      err
+    );
+    e.publish('etl', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };

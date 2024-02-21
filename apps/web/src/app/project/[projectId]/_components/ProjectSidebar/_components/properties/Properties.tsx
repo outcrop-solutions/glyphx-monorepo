@@ -18,8 +18,8 @@ import {hashPayload} from 'lib/utils/hashPayload';
 import {hashFileSystem} from 'lib/utils/hashFileSystem';
 import {useUrl} from 'lib/client/hooks';
 import {isValidPayload} from 'lib/utils/isValidPayload';
-import {callUpdateProject} from 'lib/client/network/reqs/callUpdateProject';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
+import {updateProjectState} from 'business/src/actions';
 
 export const Properties = () => {
   const session = useSession();
@@ -42,7 +42,7 @@ export const Properties = () => {
       if (!isValidPayload(properties)) {
         toast.success('Generate a model before applying filters!');
       } else if (doesStateExist) {
-        callUpdateProject(project, mutate);
+        await updateProjectState(project.id, project.state);
         await callDownloadModel({
           project,
           payloadHash,

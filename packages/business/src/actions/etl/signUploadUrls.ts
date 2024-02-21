@@ -1,23 +1,16 @@
-import type {NextApiRequest, NextApiResponse} from 'next';
+'use server';
+import {error, constants} from 'core';
 import {BasicColumnNameCleaner} from 'fileingestion';
-import {s3Connection} from 'business';
+import {s3Connection} from '../../lib';
+
 /**
  * Created signed url to upload files
- *
- * @note signs url via s3Manager
- * @route POST /api/etl/signedUrl
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- *
+ * @param keys
+ * @param workspaceId
+ * @param projectId
+ * @returns
  */
-
-export const signUploadUrls = async (req: NextApiRequest, res: NextApiResponse) => {
-  const {keys, workspaceId, projectId} = req.body;
-
-  if (Array.isArray(workspaceId) || Array.isArray(projectId)) {
-    return res.status(400).end('Bad request. Parameter cannot be an array.');
-  }
-
+export const signUploadUrls = async (keys, workspaceId, projectId) => {
   try {
     const urls = (keys as string[]).map((key) => {
       const tableName = key.split('/')[0];
@@ -38,8 +31,15 @@ export const signUploadUrls = async (req: NextApiRequest, res: NextApiResponse) 
     // Use Promise.all to fetch all URLs concurrently
     const signedUrls = await Promise.all(promises);
 
-    res.status(200).json({data: {signedUrls}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    return {signedUrls};
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred running sign upload urls',
+      'etl',
+      {keys, workspaceId, projectId},
+      err
+    );
+    e.publish('etl', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };

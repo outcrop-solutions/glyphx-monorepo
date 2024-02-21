@@ -13,9 +13,9 @@ import {hashPayload} from 'lib/utils/hashPayload';
 import {isValidPayload} from 'lib/utils/isValidPayload';
 import {deepMergeProject} from 'lib/utils/deepMerge';
 import {useSWRConfig} from 'swr';
-import {callUpdateProject} from 'lib/client/network/reqs/callUpdateProject';
 import {callCreateModel} from 'lib/client/network/reqs/callCreateModel';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
+import {updateProjectState} from 'business/src/actions';
 
 export const useProject = () => {
   const session = useSession();
@@ -34,7 +34,8 @@ export const useProject = () => {
       const isCurrentlyLoaded = payloadHash === hashPayload(hashFileSystem(project.files), project);
       // if invalid payload, only update project
       if (!isValidPayload(deepMerge.state.properties)) {
-        callUpdateProject(deepMerge, mutate);
+        const {state, id} = deepMerge;
+        await updateProjectState(id, state);
         // if model currently generated and downloaded, open project
       } else if (isCurrentlyLoaded) {
         if (window?.core) {
@@ -43,7 +44,9 @@ export const useProject = () => {
           window?.core?.ToggleDrawer(true);
         }
       } else if (doesStateExist) {
-        callUpdateProject(deepMerge, mutate);
+        const {state, id} = deepMerge;
+        await updateProjectState(id, state);
+
         await callDownloadModel({
           project: deepMerge,
           payloadHash,
