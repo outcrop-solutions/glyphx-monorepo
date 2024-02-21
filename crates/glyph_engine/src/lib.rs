@@ -3,7 +3,10 @@ pub mod types;
 pub mod vector_processer;
 
 use glyphx_common::{AthenaConnection, Heartbeat, S3Connection};
-use glyphx_core::{ErrorTypeParser, Singleton};
+use glyphx_core::{GlyphxErrorData,ErrorTypeParser, Singleton};
+use glyphx_core::aws::athena_manager::AthenaQueryStatus;
+use glyphx_core::aws::athena_stream_iterator::{AthenaStreamIterator, GetQueryResultsOutput, SdkError, GetQueryResultsError};
+//, GetQueryResultsOutput, SdkError, GetQueryResultsError, Response, GetQueryResultsError as AwsGetQueryResultsError};
 use glyphx_database::MongoDbConnection;
 
 use async_trait::async_trait;
@@ -15,6 +18,7 @@ pub use types::*;
 
 use vector_processer::{TaskStatus, VectorProcesser, VectorValueProcesser};
 
+use tokio_stream::{Stream, StreamExt};
 /// This macro is used to handle functions that return Result<T, E>  in a consistent way.
 /// If a code block returns the Result::Err(E) variant, the emited code will unwrap the error
 /// and convert it to the supplied error type using the From trait.  There is also an
@@ -101,7 +105,6 @@ macro_rules! pass_error {
         let $var_name = $var_name.unwrap();
     };
 }
-
 #[automock]
 #[async_trait]
 trait GlyphEngineOperations {
@@ -120,6 +123,8 @@ trait GlyphEngineOperations {
         field_definition: &FieldDefinition,
     ) -> Box<dyn VectorValueProcesser>;
     async fn start_athena_query(&self, athena_connection: &AthenaConnection, query: &str) -> Result<String, GlyphEngineProcessError>;
+    async fn check_query_status(&self, athena_connection: &AthenaConnection, query_id: &str) -> Result<AthenaQueryStatus, GlyphEngineProcessError>;
+    async fn get_query_results( query_id: &str, athena_connection: &AthenaConnection) ->  Result<AthenaStreamIterator, GlyphEngineProcessError>;
 }
 
 struct GlyphEngineOperationsImpl;
@@ -169,7 +174,58 @@ impl GlyphEngineOperations for GlyphEngineOperationsImpl {
     
     Ok(query_id)
     }
-}
+    async fn check_query_status(&self, athena_connection: &AthenaConnection, query_id: &str) -> Result<AthenaQueryStatus, GlyphEngineProcessError> {
+        handle_error!(let query_status = 
+            athena_connection
+            .get_athena_manager()
+            .get_query_status(query_id) 
+            .await;
+        GlyphEngineProcessError::from_get_query_status_error(&query_id), error);
+   
+        match query_status {
+           AthenaQueryStatus::Failed(error) => {
+                let message = format!("An error occurred while running the query.  See the inner error for additional information");
+                let data = serde_json::json!({query_id: query_id});
+                let string_error = format!("{:?}", error);
+                let inner_error = serde_json::to_value(string_error).unwrap();
+                let error_data = GlyphxErrorData::new(message, Some(data), Some(inner_error));
+                return Err(GlyphEngineProcessError::QueryProcessingError(error_data));
+           },
+           AthenaQueryStatus::Cancelled => {
+                let message = format!("The query was cancelled by another process.  I have no additional information to provide");
+                let data = serde_json::json!({query_id: query_id});
+                let error_data = GlyphxErrorData::new(message, Some(data), None);
+                return Err(GlyphEngineProcessError::QueryProcessingError(error_data));
+           },
+           AthenaQueryStatus::Unknown => {
+                let message = format!("Athena returned an unknown status.  I have no additional information to provide");
+                let data = serde_json::json!({query_id: query_id});
+                let error_data = GlyphxErrorData::new(message, Some(data), None);
+                return Err(GlyphEngineProcessError::QueryProcessingError(error_data));
+           },
+           _ => {},
+        };
+    
+    
+        Ok(query_status)
+    }
+
+
+    async fn get_query_results(query_id: &str, athena_connection: &AthenaConnection) ->  Result<AthenaStreamIterator, GlyphEngineProcessError>{
+        let results = athena_connection.get_athena_manager().get_paged_query_results(query_id, Some(1000)).await;
+        if results.is_err() {
+            let error = results.err().unwrap();
+            let error = GlyphEngineProcessError::from_get_query_pager_error(error, query_id);
+            error.error();
+            return Err(error);
+        }
+        let results = Box::new(results.unwrap());
+       
+        let iterator = AthenaStreamIterator::new(results, query_id, "foo", athena_connection.get_database_name());
+        Ok(iterator)
+        }
+    }
+
 pub struct GlyphEngine {
     parameters: VectorizerParameters,
     heartbeat: Heartbeat,
@@ -325,6 +381,10 @@ impl GlyphEngine {
         let query_id = operations.start_athena_query(self.athena_connection, &query).await?;
         Ok(query_id)
     }
+
+    async fn get_query_results<T: GlyphEngineOperations>(&self, query_id: &str, operations: &T) -> Result<AthenaQueryStatus, GlyphEngineProcessError> {
+        operations.check_query_status(self.athena_connection, query_id).await
+    } 
 
     async fn process_impl<T: GlyphEngineOperations>(
         &self,
