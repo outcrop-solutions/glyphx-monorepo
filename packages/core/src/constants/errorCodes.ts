@@ -23,6 +23,7 @@ export class ErrorCodes {
     CodeGenError: 456,
 
     AiProviderError: 600,
+    ActionError: 800,
     EmailError: 700,
 
     ConfigurationError: 460,

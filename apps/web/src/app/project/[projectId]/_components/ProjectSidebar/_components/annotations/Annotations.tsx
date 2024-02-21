@@ -32,12 +32,12 @@ export const Annotations = () => {
               />
             </svg>
           </span>
-          <Link href="/">
+          <div>
             <span className="font-roboto font-medium text-[12px] leading-[14px] tracking-[.01em] ml-3 text-light-gray">
               {' '}
               Threads{' '}
             </span>
-          </Link>
+          </div>
         </div>
         <PlusIcon
           color="#CECECE"

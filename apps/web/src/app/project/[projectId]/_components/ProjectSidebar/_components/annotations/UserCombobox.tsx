@@ -1,14 +1,9 @@
-import {useState} from 'react';
-import {CheckIcon, ChevronDownIcon} from '@heroicons/react/solid';
+import {useState, useEffect, useRef} from 'react';
 import {Combobox} from '@headlessui/react';
 import produce from 'immer';
-
-const people = [
-  {name: 'James Graham', username: '@jgraham5'},
-  {name: 'JP Burford', username: '@jp'},
-  {name: 'Danny Hill', username: '@dhill'},
-  {name: 'Michael Wicks', username: '@mwicks'},
-];
+import {getSuggestedMembers} from 'business/src/actions/annotation';
+import {useParams} from 'next/navigation';
+import {CheckIcon, ChevronDownIcon} from '@heroicons/react/outline';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -16,14 +11,42 @@ function classNames(...classes) {
 
 const UserCombobox = ({setShowCombo, setValue}) => {
   const [query, setQuery] = useState('');
+  const [members, setMembers] = useState<{name: string; username: string}[]>([]);
   const [selectedPerson, setSelectedPerson] = useState(null);
+  const params = useParams();
 
-  const filteredPeople =
+  const filteredMembers =
     query === ''
-      ? people
-      : people.filter((person) => {
-          return person.name.toLowerCase().includes(query.toLowerCase());
+      ? members
+      : members.filter((member) => {
+          return (
+            member.name.toLowerCase().includes(query.toLowerCase()) ||
+            member.username.toLowerCase().includes(query.toLowerCase())
+          );
         });
+
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      // @ts-ignore
+      inputRef.current?.focus();
+    }
+  }, []);
+
+  useEffect(() => {
+    const getUsers = async () => {
+      console.log('calling get users');
+      if (params?.projectId) {
+        const retval = await getSuggestedMembers(params?.projectId as string);
+        console.log({retval});
+        if (retval) {
+          setMembers(retval);
+        }
+      }
+    };
+    getUsers();
+  }, [params?.projectId]);
 
   const handleChange = (val) => {
     setSelectedPerson(val);
@@ -38,17 +61,18 @@ const UserCombobox = ({setShowCombo, setValue}) => {
     <Combobox as="div" value={selectedPerson} onChange={(val) => handleChange(val)}>
       <div className="relative mt-2">
         <Combobox.Input
+          ref={inputRef}
           style={{background: '#0D1321', fontSize: '14px'}}
           className="w-full rounded-md border-0 bg-white py-1.5 pl-3 text-xs text-white shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray sm:text-sm sm:leading-6"
           onChange={(event) => setQuery(event.target.value)}
-          displayValue={(person) => person?.name}
+          displayValue={(member) => member?.name}
         />
         <Combobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
           <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
         </Combobox.Button>
-        {filteredPeople.length > 0 && (
+        {filteredMembers.length > 0 && (
           <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-            {filteredPeople.map((person) => (
+            {filteredMembers.map((person) => (
               <Combobox.Option
                 style={{background: '#0D1321'}}
                 key={person.username}
@@ -76,7 +100,6 @@ const UserCombobox = ({setShowCombo, setValue}) => {
                         {person.username}
                       </span>
                     </div>
-
                     {selected && (
                       <span
                         className={classNames(

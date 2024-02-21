@@ -1,3 +1,4 @@
+'use client';
 import {useCallback} from 'react';
 import {debounce} from 'lodash';
 import {useRecoilValue, useSetRecoilState} from 'recoil';

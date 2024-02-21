@@ -5,8 +5,9 @@ export class DateFieldChecker implements fieldProcessingInterfaces.IFieldChecker
   checkField(input: string): boolean {
     const trimmedInput = input.trim();
     if (isNaN(Number(trimmedInput))) {
-      const time = new Date(trimmedInput).getTime();
-      return !isNaN(time);
+      const date = new Date(trimmedInput);
+      const year = date.getFullYear();
+      return !isNaN(date.getTime()) && year >= 1980 && year <= 2030;
     } else {
       return trimmedInput.length >= 10 && trimmedInput.length <= 13;
     }

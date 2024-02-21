@@ -1,5 +1,3 @@
-// import {logging} from 'core';
-// import {EmailClient} from 'email';
 import databaseConnection from './lib/databaseConnection';
 import athenaConnection from './lib/athenaConnection';
 import s3Connection from './lib/s3Connection';

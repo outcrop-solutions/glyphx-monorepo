@@ -1,7 +1,7 @@
 'use client';
 import {ArrowRightIcon} from '@heroicons/react/outline';
 import {_createAnnotation, api} from 'lib';
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {toast} from 'react-hot-toast';
 import {useSWRConfig} from 'swr';
 import UserCombobox from './UserCombobox';
@@ -10,6 +10,8 @@ export const InputArea = ({id, type}) => {
   const {mutate} = useSWRConfig();
   const [value, setValue] = useState('');
   const [showCombo, setShowCombo] = useState(false);
+  const textAreaRef = useRef(null);
+  const comboBoxRef = useRef(null);
 
   const createAnnotation = useCallback(() => {
     if (value === '') {
@@ -30,6 +32,12 @@ export const InputArea = ({id, type}) => {
   useEffect(() => {
     if (value.includes('@')) {
       setShowCombo(true);
+      // @ts-ignore
+      textAreaRef.current?.blur();
+    } else {
+      setShowCombo(false);
+      // @ts-ignore
+      textAreaRef.current?.focus();
     }
   }, [value]);
 
@@ -37,6 +45,7 @@ export const InputArea = ({id, type}) => {
     <div className="w-full">
       <div className="relative flex w-full">
         <textarea
+          ref={textAreaRef}
           rows={3}
           name="comment"
           id="comment"
@@ -45,7 +54,7 @@ export const InputArea = ({id, type}) => {
           value={value}
           onChange={(e) => setValue(e.target.value)}
         />
-        <div className="absolute top-0 right-2 z-[9999]">
+        <div className="absolute bottom-0 inset-x-0 z-[9999]">
           {showCombo && <UserCombobox setShowCombo={setShowCombo} setValue={setValue} />}
         </div>
         <div className="absolute bottom-0 right-0 flex justify-between py-2 pl-3 pr-2">

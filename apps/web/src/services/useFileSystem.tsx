@@ -1,3 +1,4 @@
+'use client';
 import {useCallback} from 'react';
 import produce from 'immer';
 import {databaseTypes, webTypes} from 'types';
