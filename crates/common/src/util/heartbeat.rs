@@ -147,6 +147,19 @@ impl Heartbeat {
     }
 }
 
+impl Default for Heartbeat {
+    fn default() -> Self {
+        let process_id = Self::get_new_process_id();
+        Heartbeat {
+            process_name: "Default".to_string(),
+            process_id,
+            interval: 60000,
+            in_error: false,
+            join_handle: Arc::new(None),
+        }
+    }
+}
+
 #[cfg(test)]
 mod start {
     use super::*;

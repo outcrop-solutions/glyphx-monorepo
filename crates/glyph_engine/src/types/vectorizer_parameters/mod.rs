@@ -15,7 +15,7 @@ pub use vectorizer_parameters_error::{
     FromJsonStringError, FromJsonValueError, GetFieldDefinitionError,GetFieldDefinitionsError, GetFieldDefinitionTypeError
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct VectorizerParameters {
     pub workspace_id: String,
     pub project_id: String,
@@ -257,6 +257,19 @@ impl VectorizerParameters {
         return Ok(results);
     }
 }
+impl Default for VectorizerParameters {
+    fn default() -> Self {
+        VectorizerParameters {
+            workspace_id: "".to_string(),
+            project_id: "".to_string(),
+            data_table_name: "".to_string(),
+            raw_data: json!({}),
+        }
+    }
+
+}
+ 
+impl Eq for VectorizerParameters {}
 
 #[cfg(test)]
 mod from_json_value {
@@ -935,6 +948,7 @@ mod get_field_definition {
                 field_display_name,
                 field_data_type,
                 field_definition,
+                field_query,
             } => {
                 assert_eq!(field_display_name, "field1");
                 match field_data_type {
@@ -942,6 +956,7 @@ mod get_field_definition {
                     _ => assert!(false),
                 }
                 assert_eq!(field_definition.field_name, "field1");
+                assert_eq!(field_query, r#""field1" as "field1""#);
                 match field_definition.field_type {
                     FieldDefinitionType::Standard => assert!(true),
                     _ => assert!(false),
@@ -984,6 +999,7 @@ mod get_field_definition {
                 field_display_name,
                 field_data_type,
                 field_definition,
+                field_query,
             } => {
                 assert_eq!(field_display_name, "field1");
                 match field_data_type {
@@ -999,6 +1015,7 @@ mod get_field_definition {
                     DateGrouping::DayOfWeek => assert!(true),
                     _ => assert!(false),
                 }
+                assert_eq!(field_query, r#"day_of_week(from_unixtime("field1"/1000)) as "field1""#);
             }
             _ => {
                 panic!("Unexpected field definition type");

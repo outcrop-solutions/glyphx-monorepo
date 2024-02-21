@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 ///Our standard error structure.  All Glyphx crates should pass relevant error information in 
 ///this structure.
-#[derive(Clone, Deserialize, Serialize, Debug)]
+#[derive(Clone, Deserialize, Serialize, Debug, PartialEq)]
 pub struct GlyphxErrorData {
     pub message: String,
     pub data: Option<serde_json::Value>,

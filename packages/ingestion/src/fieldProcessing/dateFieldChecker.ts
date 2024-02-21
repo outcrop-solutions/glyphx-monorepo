@@ -1,6 +1,6 @@
 import * as fieldProcessingInterfaces from '../interfaces/fieldProcessing';
 import {error} from 'core';
-
+import {CURRENCY_TO_SYMBOL_MAP} from './numberFieldChecker';
 export class DateFieldChecker implements fieldProcessingInterfaces.IFieldChecker<Date> {
   checkField(input: string): boolean {
     const trimmedInput = input.trim();
@@ -9,8 +9,20 @@ export class DateFieldChecker implements fieldProcessingInterfaces.IFieldChecker
       const year = date.getFullYear();
       return !isNaN(date.getTime()) && year >= 1980 && year <= 2030;
     } else {
-      return trimmedInput.length >= 10 && trimmedInput.length <= 13;
+      return false;
     }
+  }
+
+  containsCurrencySymbol(input: string) {
+    let retval = false;
+    for (const key in CURRENCY_TO_SYMBOL_MAP) {
+      const sym = CURRENCY_TO_SYMBOL_MAP[key];
+      if (input.includes(sym)) {
+        retval = true;
+        break;
+      }
+    }
+    return retval;
   }
 
   convertField(input: string): Date {

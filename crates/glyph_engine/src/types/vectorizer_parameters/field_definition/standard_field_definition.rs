@@ -2,7 +2,8 @@ use crate::types::vectorizer_parameters::helper_functions::json_has_field;
 use crate::types::vectorizer_parameters::field_definition::standard_field_definition_errors::FromJsonError;
 use crate::types::field_definition_type::FieldDefinitionType;
 use serde_json::Value;
-#[derive(Debug, Clone)]
+use serde::{Serialize, Deserialize};
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StandardFieldDefinition {
    pub field_type: FieldDefinitionType,
    pub field_name: String
@@ -34,6 +35,12 @@ impl StandardFieldDefinition {
         }
         Ok(())
 
+    }
+
+    pub fn get_query(&self, display_name: &str) -> String {
+        let field_name = self.field_name.clone();
+        let query = format!(r#""{}" as "{}""#, field_name, display_name); 
+        query
     }
 }
 

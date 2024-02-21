@@ -102,7 +102,8 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
     if (!fileIngestor.inited) {
       await fileIngestor.init();
     }
-    const {fileInformation, fileProcessingErrors, joinInformation, viewName, status} = await fileIngestor.process();
+    const {fileInformation, fileProcessingErrors, joinInformation, viewName, status, info} =
+      await fileIngestor.process();
 
     console.log(fileInformation, fileProcessingErrors, joinInformation, viewName, status);
 
@@ -143,6 +144,7 @@ export const fileIngestion = async (req: NextApiRequest, res: NextApiResponse, s
         status,
         processId: PROCESS_ID,
         project: project,
+        info,
       },
     });
     // res.status(200).json({ ok: true });

@@ -1,5 +1,5 @@
 use glyphx_core::aws::secret_manager::GetSecretsValueError;
-use glyphx_core::{GlyphxError, GlyphxErrorData};
+use glyphx_core::{GlyphxError, GlyphxErrorData, SecretBoundError};
 
 #[derive(Debug, Clone, GlyphxError)]
 #[error_definition("SecretBoundSingletonTest")]
@@ -16,6 +16,8 @@ impl From<GetSecretsValueError> for FooInitError {
         Self::SecretBoundError(data)
     }
 }
+
+impl SecretBoundError for FooInitError { }
 
 #[cfg(test)]
 mod secret_bound_singleton {
