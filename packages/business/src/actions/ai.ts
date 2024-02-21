@@ -1,8 +1,8 @@
-import type {NextApiRequest, NextApiResponse} from 'next';
-
+'use server';
+import {error, constants} from 'core';
 import {Configuration, OpenAIApi} from 'openai-edge';
-import {systemMessage} from 'lib/utils/systemMessages';
-import {projectService, projectTemplateService} from 'business';
+import {systemMessage} from './utils/systemMessages';
+import {projectService, projectTemplateService} from '../services';
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -17,8 +17,7 @@ const configuration = new Configuration({
  *
  */
 
-export const createCompletion = async (req: NextApiRequest, res: NextApiResponse) => {
-  const {payload} = req.body;
+export const createCompletion = async (payload) => {
   try {
     const openai = new OpenAIApi(configuration);
     const templates = await projectTemplateService.getProjectTemplates({});
@@ -33,11 +32,15 @@ export const createCompletion = async (req: NextApiRequest, res: NextApiResponse
       max_tokens: 300,
     });
 
-    const result = await response.json();
-    res.status(200).json({data: result});
-
-    // return new StreamingTextResponse(stream);
+    return await response.json();
   } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    const e = new error.ActionError(
+      'An unexpected error occurred getting the project logs',
+      'projectId',
+      projectId,
+      err
+    );
+    e.publish('annotations', constants.ERROR_SEVERITY.ERROR);
+    return {error: e};
   }
 };

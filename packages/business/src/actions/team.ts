@@ -1,175 +1,170 @@
-import type {NextApiRequest, NextApiResponse} from 'next';
-import type {Session} from 'next-auth';
+'use server';
+import {error, constants} from 'core';
+import {getServerSession} from 'next-auth';
+import {authOptions} from '../auth';
 import {databaseTypes} from 'types';
-import {workspaceService, membershipService, activityLogService} from 'business';
-import {formatUserAgent} from 'lib/utils/formatUserAgent';
+import {workspaceService, membershipService, activityLogService} from '../services';
+import {revalidatePath} from 'next/cache';
+import {redirect} from 'next/navigation';
 
 /**
- * Update Role
- *
- * @note Updated member role from MEMBER/OWNER
- * @route PUT /api/workspace/team/role
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * Update team role
+ * @param memberId
+ * @param role
+ * @returns
  */
-
-export const updateRole = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {memberId, role} = req.body;
+export const updateRole = async (
+  memberId: string,
+  role: databaseTypes.constants.ROLE | databaseTypes.constants.PROJECT_ROLE
+) => {
   try {
-    const member = await membershipService.getMember(memberId);
-    await membershipService.updateRole(member?.id!, role);
+    const session = await getServerSession(authOptions);
+    if (session) {
+      const member = await membershipService.getMember(memberId);
+      await membershipService.updateRole(member?.id!, role);
 
-    const {agentData, location} = formatUserAgent(req);
-
-    await activityLogService.createLog({
-      actorId: session?.user?.id,
-      resourceId: member?.id!,
-      workspaceId: member?.workspace.id,
-      location: location,
-      userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
-      action: databaseTypes.constants.ACTION_TYPE.ROLE_UPDATED,
-    });
-
-    res.status(200).json({data: {updatedAt: new Date()}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+      await activityLogService.createLog({
+        actorId: session?.user?.id,
+        resourceId: member?.id!,
+        workspaceId: member?.workspace.id,
+        location: '',
+        userAgent: {},
+        onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
+        action: databaseTypes.constants.ACTION_TYPE.ROLE_UPDATED,
+      });
+      revalidatePath('/[workspaceId]');
+    }
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred updating the team role', 'memberId', memberId, err);
+    e.publish('team', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
- * Remove Member
- *
- * @note Removes member from workspace
- * @route DELETE /api/workspace/team/member
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- *
+ * Removes member by Id
+ * @param memberId
+ * @returns
  */
-
-export const removeMember = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {memberId} = req.body;
+export const removeMember = async (memberId: string) => {
   try {
-    const member = await membershipService.remove(memberId);
-
-    const {agentData, location} = formatUserAgent(req);
-
-    await activityLogService.createLog({
-      actorId: session?.user?.id,
-      resourceId: member?.id!,
-      workspaceId: member?.workspace.id,
-      location: location,
-      userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
-      action: databaseTypes.constants.ACTION_TYPE.DELETED,
-    });
-
-    res.status(200).json({data: {deletedAt: new Date()}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    const session = await getServerSession(authOptions);
+    if (session) {
+      const member = await membershipService.remove(memberId);
+      await activityLogService.createLog({
+        actorId: session?.user?.id,
+        resourceId: member?.id!,
+        workspaceId: member?.workspace.id,
+        location: '',
+        userAgent: {},
+        onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
+        action: databaseTypes.constants.ACTION_TYPE.DELETED,
+      });
+      revalidatePath('/[workspaceId]');
+    }
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error removing the member', 'memberId', memberId, err);
+    e.publish('team', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
- * Join Workspace
- *
- * @note Joins user to workspace
- * @route POST /api/workspace/team/join
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * Joins a workspace
+ * @param workspaceCode
  */
-
-export const joinWorkspace = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {workspaceCode} = req.body;
+export const joinWorkspace = async (workspaceCode: string) => {
   try {
-    const workspace = await workspaceService.joinWorkspace(
-      workspaceCode,
-      session?.user?.email as string,
-      session?.user?.id as string,
-      session?.user?.id as string // This will need to be differentiated when we start to track inviteLinks
-    );
-    const {agentData, location} = formatUserAgent(req);
-
-    await activityLogService.createLog({
-      actorId: session?.user?.id,
-      resourceId: workspace?.id!,
-      workspaceId: workspace?.id,
-      location: location,
-      userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
-      action: databaseTypes.constants.ACTION_TYPE.WORKSPACE_JOINED,
-    });
-    res.status(200).json({data: {workspace}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    const session = await getServerSession(authOptions);
+    if (session) {
+      const workspace = await workspaceService.joinWorkspace(
+        workspaceCode,
+        session?.user?.email as string,
+        session?.user?.id as string,
+        session?.user?.id as string // This will need to be differentiated when we start to track inviteLinks
+      );
+      await activityLogService.createLog({
+        actorId: session?.user?.id,
+        resourceId: workspace?.id!,
+        workspaceId: workspace?.id,
+        location: '',
+        userAgent: {},
+        onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
+        action: databaseTypes.constants.ACTION_TYPE.WORKSPACE_JOINED,
+      });
+      // FIXME: redirect serverside here
+      revalidatePath('/[workspaceId]');
+      redirect(`/${workspace.id}`);
+    }
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error joining the workspace', 'workspaceCode', workspaceCode, err);
+    e.publish('team', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
  * Decline Invitation
- *
- * @note Joins user to workspace
- * @route POST /api/workspace/team/decline
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @param memberId
  */
-
-export const declineInvitation = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {memberId} = req.body;
+export const declineInvitation = async (memberId: string) => {
   try {
-    const member = await membershipService.updateStatus(memberId, databaseTypes.constants.INVITATION_STATUS.DECLINED);
+    const session = await getServerSession(authOptions);
+    if (session) {
+      const member = await membershipService.updateStatus(memberId, databaseTypes.constants.INVITATION_STATUS.DECLINED);
 
-    const {agentData, location} = formatUserAgent(req);
-
-    await activityLogService.createLog({
-      actorId: session?.user?.id,
-      resourceId: memberId,
-      workspaceId: member?.workspace.id,
-      location: location,
-      userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
-      action: databaseTypes.constants.ACTION_TYPE.INVITATION_DECLINED,
-    });
-    res.status(200).json({data: {updatedAt: new Date()}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+      await activityLogService.createLog({
+        actorId: session?.user?.id,
+        resourceId: memberId,
+        workspaceId: member?.workspace.id,
+        location: '',
+        userAgent: {},
+        onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
+        action: databaseTypes.constants.ACTION_TYPE.INVITATION_DECLINED,
+      });
+    }
+    revalidatePath('/[workspaceId]');
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error declining the workspace invitation',
+      'memberId',
+      memberId,
+      err
+    );
+    e.publish('team', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
  * Accept Invitation
- *
- * @note Joins user to workspace
- * @route POST /api/workspace/team/accept
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @param memberId
  */
-
-export const acceptInvitation = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {memberId} = req.body;
+export const acceptInvitation = async (memberId: string) => {
   try {
-    const member = await membershipService.updateStatus(memberId, databaseTypes.constants.INVITATION_STATUS.ACCEPTED);
-    const {agentData, location} = formatUserAgent(req);
+    const session = await getServerSession(authOptions);
+    if (session) {
+      const member = await membershipService.updateStatus(memberId, databaseTypes.constants.INVITATION_STATUS.ACCEPTED);
 
-    await activityLogService.createLog({
-      actorId: session?.user?.id,
-      resourceId: memberId,
-      workspaceId: member?.workspace.id,
-      location: location,
-      userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
-      action: databaseTypes.constants.ACTION_TYPE.INVITATION_ACCEPTED,
-    });
-    res.status(200).json({data: {member}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+      await activityLogService.createLog({
+        actorId: session?.user?.id,
+        resourceId: memberId,
+        workspaceId: member?.workspace.id,
+        location: '',
+        userAgent: {},
+        onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
+        action: databaseTypes.constants.ACTION_TYPE.INVITATION_ACCEPTED,
+      });
+      revalidatePath('/[workspaceId]');
+    }
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error accepting the workspace invitation',
+      'memberId',
+      memberId,
+      err
+    );
+    e.publish('team', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };

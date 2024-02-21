@@ -1,5 +1,5 @@
 'use client';
-import React, {useState} from 'react';
+import React, {startTransition, useState} from 'react';
 import {useRouter, useParams} from 'next/navigation';
 import {webTypes} from 'types';
 import {useSWRConfig} from 'swr';
@@ -8,22 +8,17 @@ import toast from 'react-hot-toast';
 import {DocumentDuplicateIcon} from '@heroicons/react/outline';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
-
-import {_deleteWorkspace, api} from 'lib';
 import Button from 'app/_components/Button';
+import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 
 import {useSetRecoilState} from 'recoil';
 import {modalsAtom, workspaceAtom} from 'state';
-import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
-import {Route} from 'next';
+import {deleteWorkspace} from 'business/src/actions';
 
 export const DeleteWorkspaceModal = ({modalContent}: webTypes.DeleteWorkspaceModalProps) => {
-  const {mutate} = useSWRConfig();
-  const router = useRouter();
   const params = useParams();
   const {workspaceId} = params as {workspaceId: string};
   const setModals = useSetRecoilState(modalsAtom);
-  const setWorkspace = useSetRecoilState(workspaceAtom);
 
   const [verifyWorkspace, setVerifyWorkspace] = useState('');
   const verifiedWorkspace = verifyWorkspace === workspaceId;
@@ -31,29 +26,6 @@ export const DeleteWorkspaceModal = ({modalContent}: webTypes.DeleteWorkspaceMod
 
   // local state
   const handleVerifyWorkspaceChange = (event) => setVerifyWorkspace(event.target.value);
-
-  // mutations
-  const deleteWorkspace = () => {
-    if (!Array.isArray(workspaceId))
-      api({
-        ..._deleteWorkspace(workspaceId),
-        setLoading: (state) =>
-          setModals(
-            produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-              draft.modals[0].isSubmitting = state as boolean;
-            })
-          ),
-        onSuccess: () => {
-          setModals(
-            produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-              draft.modals.splice(0, 1);
-            })
-          );
-
-          router.replace('/login' as Route);
-        },
-      });
-  };
 
   return (
     <div className="bg-secondary-midnight text-white px-4 py-8 flex flex-col space-y-8 rounded-md">
@@ -86,7 +58,16 @@ export const DeleteWorkspaceModal = ({modalContent}: webTypes.DeleteWorkspaceMod
         <Button
           className="text-white bg-red-600 hover:bg-red-500"
           disabled={!verifiedWorkspace || modalContent.isSubmitting}
-          onClick={deleteWorkspace}
+          onClick={() =>
+            startTransition(() => {
+              deleteWorkspace(workspaceId);
+              setModals(
+                produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+                  draft.modals.splice(0, 1);
+                })
+              );
+            })
+          }
         >
           {modalContent.isSubmitting ? <LoadingDots /> : <span>Delete Workspace</span>}
         </Button>

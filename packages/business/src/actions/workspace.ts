@@ -1,314 +1,305 @@
-import type {NextApiRequest, NextApiResponse} from 'next';
-import type {Session} from 'next-auth';
-import {
-  membershipService,
-  validateCreateWorkspace,
-  validateUpdateWorkspaceName,
-  validateUpdateWorkspaceSlug,
-  workspaceService,
-  activityLogService,
-} from 'business';
+'use server';
+import {error, constants} from 'core';
+import {getServerSession} from 'next-auth';
+import {Route} from 'next';
+import {membershipService, workspaceService, activityLogService} from '../services';
 import slugify from 'slugify';
-import {formatUserAgent} from 'lib/utils/formatUserAgent';
+import {authOptions} from '../auth';
+import {revalidatePath} from 'next/cache';
+import {redirect} from 'next/navigation';
 import {databaseTypes, emailTypes} from 'types';
-import emailClient from '../../email';
+import emailClient from '../email';
 
 /**
- * Create Workspace
- *
- * @note Fetches & returns all workspaces available.
- * @route POST /api/workspace
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * Get or Create Default Workspace
+ * redirect to first workspace or create default workspace and redirect
  */
-export const getWorkspace = async (req: NextApiRequest, res: NextApiResponse) => {
-  const {workspaceId} = req.query;
-  if (Array.isArray(workspaceId)) {
-    return res.status(400).end('Bad request. Parameter cannot be an array.');
-  }
+export const getOrCreateWorkspace = async () => {
   try {
-    const workspace = await workspaceService.getSiteWorkspace(workspaceId as string);
-    res.status(200).json({data: {workspace}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    const session = await getServerSession(authOptions);
+    if (session?.user) {
+      const workspaces = await workspaceService.getWorkspaces(session.user.id, session.user.email as string);
+      if (workspaces) {
+        redirect(`/${workspaces[0].id}` as Route);
+      } else {
+        const workspace = await workspaceService.createWorkspace(
+          session?.user?.id,
+          session?.user.email as string,
+          'Default Workspace',
+          'default-workspace'
+        );
+        if (workspace) {
+          redirect(`/${workspace.id}` as Route);
+        }
+      }
+    }
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred getting or creating the workspace', '', {}, err);
+    e.publish('workspace', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
+
 /**
  * Create Workspace
- *
- * @note Creates a new workspace
- * @route POST /api/workspace
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @param workspaceId
+ * @returns
  */
-
-export const createWorkspace = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {name} = req.body;
+export const getWorkspace = async (workspaceId: string) => {
   try {
-    await validateCreateWorkspace(req, res);
-    const slug = slugify(name.toLowerCase());
-    const workspace = await workspaceService.createWorkspace(
-      session?.user?.id,
-      session?.user?.email as string,
-      name,
-      slug
+    const session = await getServerSession(authOptions);
+    if (session) {
+      return await workspaceService.getSiteWorkspace(workspaceId as string);
+    }
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred updating the workspace',
+      'workspaceId',
+      workspaceId,
+      err
     );
+    e.publish('workspace', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
+  }
+};
 
-    const emailData = {
-      type: emailTypes.EmailTypes.WORKSPACE_CREATED,
-      workspaceName: workspace!.name,
-      workspaceId: workspace!.id as string,
-      email: session?.user?.email,
-      workspaceCode: workspace!.workspaceCode,
-    } satisfies emailTypes.EmailData;
+/**
+ * Create Workspace
+ * @param name
+ */
+export const createWorkspace = async (name: string) => {
+  try {
+    const session = await getServerSession(authOptions);
+    if (session) {
+      const slug = slugify(name.toLowerCase());
+      const workspace = await workspaceService.createWorkspace(
+        session?.user?.id,
+        session?.user?.email as string,
+        name,
+        slug
+      );
 
-    await emailClient.init();
-    await emailClient.sendEmail(emailData);
+      const emailData = {
+        type: emailTypes.EmailTypes.WORKSPACE_CREATED,
+        workspaceName: workspace!.name,
+        workspaceId: workspace!.id as string,
+        email: session?.user?.email,
+        workspaceCode: workspace!.workspaceCode,
+      } satisfies emailTypes.EmailData;
 
-    const {agentData, location} = formatUserAgent(req);
+      await emailClient.init();
+      await emailClient.sendEmail(emailData);
 
-    await activityLogService.createLog({
-      actorId: session?.user?.id,
-      resourceId: workspace?.id!,
-      workspaceId: workspace?.id,
-      location: location,
-      userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
-      action: databaseTypes.constants.ACTION_TYPE.CREATED,
-    });
+      await activityLogService.createLog({
+        actorId: session?.user?.id,
+        resourceId: workspace?.id!,
+        workspaceId: workspace?.id,
+        location: '',
+        userAgent: {},
+        onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
+        action: databaseTypes.constants.ACTION_TYPE.CREATED,
+      });
 
-    res.status(200).json({data: workspace});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+      redirect(`/${workspace.id}`);
+    }
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred creating the workspace', 'name', name, err);
+    e.publish('workspace', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
  * Update Workspace Slug
- *
- * @note Updates workspace slug
- * @route PUT /api/workspace/[workspaceSlug]/slug
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @param workspaceId
+ * @param slug
  */
-
-export const updateWorkspaceSlug = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {slug} = req.body;
-  const {workspaceId} = req.query;
-
-  if (Array.isArray(workspaceId)) {
-    return res.status(400).end('Bad request. Parameter cannot be an array.');
-  }
-
+export const updateWorkspaceSlug = async (workspaceId: string, slug: string) => {
   try {
-    await validateUpdateWorkspaceSlug(req, res);
-    const workspace = await workspaceService.updateWorkspaceSlug(workspaceId as string, slug);
-
-    const {agentData, location} = formatUserAgent(req);
-
-    await activityLogService.createLog({
-      actorId: session?.user?.id,
-      resourceId: workspaceId!,
-      workspaceId: workspaceId,
-      location: location,
-      userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
-      action: databaseTypes.constants.ACTION_TYPE.UPDATED,
-    });
-
-    res.status(200).json({data: {workspace}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    const session = await getServerSession(authOptions);
+    if (session) {
+      await workspaceService.updateWorkspaceSlug(workspaceId as string, slug);
+      await activityLogService.createLog({
+        actorId: session?.user?.id,
+        resourceId: workspaceId!,
+        workspaceId: workspaceId,
+        location: '',
+        userAgent: {},
+        onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
+        action: databaseTypes.constants.ACTION_TYPE.UPDATED,
+      });
+      revalidatePath('/[workspaceId]');
+    }
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred updating the workspace slug',
+      'workspaceId',
+      workspaceId,
+      err
+    );
+    e.publish('workspace', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
  * Update Workspace Name
- *
- * @note Updates workspace name
- * @route PUT /api/workspace/[workspaceSlug]/name
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @param workspaceId
+ * @param name
+ * @returns
  */
-
-export const updateWorkspaceName = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {name} = req.body;
-  const {workspaceId} = req.query;
-
-  if (Array.isArray(workspaceId)) {
-    return res.status(400).end('Bad request. Parameter cannot be an array.');
-  }
-
+export const updateWorkspaceName = async (workspaceId: string, name: string) => {
   try {
-    const updatedName = await validateUpdateWorkspaceName(req, res);
-    await workspaceService.updateWorkspaceName(session?.user?.id, session?.user?.email as string, name, workspaceId!);
-    const {agentData, location} = formatUserAgent(req);
-
-    await activityLogService.createLog({
-      actorId: session?.user?.id,
-      resourceId: workspaceId as string,
-      workspaceId: workspaceId as string,
-      location: location,
-      userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
-      action: databaseTypes.constants.ACTION_TYPE.UPDATED,
-    });
-    res.status(200).json({data: {name: updatedName}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    const session = await getServerSession(authOptions);
+    if (session) {
+      await workspaceService.updateWorkspaceName(session?.user?.id, session?.user?.email as string, name, workspaceId!);
+      await activityLogService.createLog({
+        actorId: session?.user?.id,
+        resourceId: workspaceId as string,
+        workspaceId: workspaceId as string,
+        location: '',
+        userAgent: {},
+        onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
+        action: databaseTypes.constants.ACTION_TYPE.UPDATED,
+      });
+      revalidatePath('/[workspaceId]');
+    }
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred updating the workspace name',
+      'workspaceId',
+      workspaceId,
+      err
+    );
+    e.publish('workspace', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
  * Get Members
- *
- * @note Fetches & returns all members of workspace
- * @route GET /api/workspace/[workspaceSlug]/members
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @param workspaceSlug
+ * @returns
  */
-
-export const getMembers = async (req: NextApiRequest, res: NextApiResponse) => {
-  const {workspaceSlug} = req.query;
-
-  if (Array.isArray(workspaceSlug)) {
-    return res.status(400).end('Bad request. Parameter cannot be an array.');
-  }
+export const getMembers = async (workspaceSlug: string) => {
   try {
-    const members = await membershipService.getMembers({slug: req.query.workspaceSlug});
-    res.status(200).json({data: {members}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    const session = await getServerSession(authOptions);
+    if (session) {
+      return await membershipService.getMembers({slug: workspaceSlug});
+    }
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred getting worksapce members',
+      'workspaceSlug',
+      workspaceSlug,
+      err
+    );
+    e.publish('workspace', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
  * Invite users to a workspace
- *
- * @note Invites users to a workspace via membership
- * @route POST /api/workspace/[workspaceSlug]/invite
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @param workspaceId
+ * @param members
+ * @returns
  */
-
-export const inviteUsers = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {members} = req.body;
-  const {workspaceId} = req.query;
-
-  if (Array.isArray(workspaceId)) {
-    return res.status(400).end('Bad request. Parameter cannot be an array.');
-  }
-
+export const inviteUsers = async (workspaceId: string, members: any[]) => {
   try {
-    // @ts-ignore
-    const {members: memberData, workspace} = await workspaceService.inviteUsers(
-      session?.user?.id,
-      session?.user?.email as string,
-      members,
-      workspaceId as string
+    const session = await getServerSession(authOptions);
+    if (session) {
+      await workspaceService.inviteUsers(
+        session?.user?.id,
+        session?.user?.email as string,
+        members,
+        workspaceId as string
+      );
+      await activityLogService.createLog({
+        actorId: session?.user?.id,
+        resourceId: workspaceId,
+        workspaceId: workspaceId,
+        location: '',
+        userAgent: {},
+        onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
+        action: databaseTypes.constants.ACTION_TYPE.INVITED,
+      });
+      revalidatePath('/[workspaceId]');
+    }
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred inviting the user to the workspace',
+      'workspaceId',
+      workspaceId,
+      err
     );
-
-    const {agentData, location} = formatUserAgent(req);
-
-    await activityLogService.createLog({
-      actorId: session?.user?.id,
-      resourceId: workspace.id,
-      workspaceId: workspace.id,
-      location: location,
-      userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
-      action: databaseTypes.constants.ACTION_TYPE.INVITED,
-    });
-
-    res.status(200).json({data: {members: memberData}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    e.publish('workspace', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
  * Delete Workspace
- *
- * @note Deletes a workspace
- * @route DELETE /api/workspace/[workspaceSlug]
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @param workspaceId
+ * @returns
  */
-
-export const deleteWorkspace = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {workspaceId} = req.query;
-
-  if (Array.isArray(workspaceId)) {
-    return res.status(400).end('Bad request. Parameter cannot be an array.');
-  }
-
+export const deleteWorkspace = async (workspaceId: string) => {
   try {
-    const workspace = await workspaceService.deleteWorkspace(
-      session.user.id,
-      session.user.email as string,
-      workspaceId as string
+    const session = await getServerSession(authOptions);
+    if (session?.user) {
+      await workspaceService.deleteWorkspace(session.user.id, session.user.email as string, workspaceId as string);
+
+      await activityLogService.createLog({
+        actorId: session?.user?.id,
+        resourceId: workspaceId as string,
+        workspaceId: workspaceId,
+        location: '',
+        userAgent: {},
+        onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
+        action: databaseTypes.constants.ACTION_TYPE.DELETED,
+      });
+
+      redirect('/login');
+    }
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred soft deleting the workspace',
+      'workspaceId',
+      workspaceId,
+      err
     );
-
-    const {agentData, location} = formatUserAgent(req);
-
-    await activityLogService.createLog({
-      actorId: session?.user?.id,
-      resourceId: workspaceId as string,
-      workspaceId: workspaceId,
-      location: location,
-      userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
-      action: databaseTypes.constants.ACTION_TYPE.DELETED,
-    });
-    res.status(200).json({data: {workspace}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    e.publish('workspace', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
  * Checks if user is team owner
- *
- * @route GET /api/workspace/[workspaceSlug]/isTeamOwner
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @param workspaceId
+ * @returns
  */
-
-export const isTeamOwner = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {workspaceId} = req.query;
-
-  if (Array.isArray(workspaceId)) {
-    return res.status(400).end('Query parameter is invalid');
-  }
-
+export const isTeamOwner = async (workspaceId: string) => {
   try {
-    const workspace = await workspaceService.getWorkspace(session?.user?.email as string, workspaceId as string);
+    const session = await getServerSession(authOptions);
+    if (session?.user) {
+      const workspace = await workspaceService.getWorkspace(session?.user?.email as string, workspaceId as string);
 
-    if (workspace) {
-      const isTeamOwner = await workspaceService.isWorkspaceOwner(session?.user?.email as string, workspace);
-      const inviteLink = `${process.env.APP_URL || 'http://localhost:3000'}/${workspace?.id}/teams?code=${encodeURI(
-        workspace?.inviteCode
-      )}`;
-
-      res.status(200).json({data: {isTeamOwner, inviteLink}});
+      if (workspace) {
+        const isTeamOwner = await workspaceService.isWorkspaceOwner(session?.user?.email as string, workspace);
+        const inviteLink = `${process.env.APP_URL || 'http://localhost:3000'}/${workspace?.id}/teams?code=${encodeURI(
+          workspace?.inviteCode
+        )}`;
+        return {isTeamOwner, inviteLink};
+      }
     }
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred checking wether the current user is a team owner',
+      'workspaceId',
+      workspaceId,
+      err
+    );
+    e.publish('workspace', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };

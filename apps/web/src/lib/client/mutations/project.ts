@@ -3,46 +3,6 @@ import {databaseTypes, webTypes} from 'types';
 
 /**
  * Creates Project
- * @param id
- * @param name
- * @returns
- */
-export const _createDefaultProject = (workspaceId: string): webTypes.IFetchConfig => {
-  return {
-    url: '/api/project/create',
-    options: {
-      body: {name: 'Untitled', workspaceId},
-      method: 'POST',
-    },
-    successMsg: 'New project successfully created',
-  };
-};
-/**
- * Creates Project
- * @note not active
- * @param id
- * @param name
- * @param description
- * @returns
- */
-export const _createProject = (
-  docId: string,
-  workspaceId: string,
-  name: string,
-  description: string
-): webTypes.IFetchConfig => {
-  return {
-    url: '/api/project/create',
-    options: {
-      body: {docId, name: name, description: description, workspaceId},
-      method: 'POST',
-    },
-    successMsg: 'New project successfully created',
-  };
-};
-
-/**
- * Creates Project
  * @note not active
  * @param id
  * @param name
@@ -75,29 +35,3 @@ export const _updateProjectState = (
     successMsg: 'Project updated successfully',
   };
 };
-
-/**
- * Deletes a project
- * @note not active
- * @param id
- * @param name
- * @returns
- */
-export const _deleteProject = (id: string): webTypes.IFetchConfig => {
-  return {
-    url: `/api/project/${id}`,
-    options: {
-      method: 'DELETE',
-    },
-    successMsg: 'Project successfully deleted.',
-  };
-};
-
-/**
- * Updates Project Name
- * @note not active
- * @param id
- * @param name
- * @returns
- */
-export const updateProjectName = (id: string, name: string) => {};

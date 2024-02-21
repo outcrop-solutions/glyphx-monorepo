@@ -1,32 +1,40 @@
-import type {NextApiRequest, NextApiResponse} from 'next';
-import type {Session} from 'next-auth';
-import {projectTemplateService, activityLogService, projectService} from 'business';
+'use server';
+import {error, constants} from 'core';
+import {getServerSession} from 'next-auth';
+import {revalidatePath} from 'next/cache';
+import {projectTemplateService, activityLogService, projectService} from '../services';
 import {databaseTypes} from 'types';
-import {formatUserAgent} from 'lib/utils';
+import {authOptions} from '../auth';
+
 /**
  * Create Default ProjectTemplate
- *
- * @note Creates a std default template
- * @route POST /api/template
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @param projectId
+ * @param projectName
+ * @param projectDesc
+ * @param properties
+ * @returns
  */
-
-export const createProjectTemplate = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {projectId, projectName, projectDesc, properties} = req.body;
+export const createProjectTemplate = async (
+  projectId: string,
+  projectName: string,
+  projectDesc: string,
+  properties: databaseTypes.IProject['state']['properties']
+) => {
   try {
-    const template = await projectTemplateService.createProjectTemplate(
-      projectId,
-      projectName,
-      projectDesc,
-      properties
+    const session = await getServerSession(authOptions);
+    if (session) {
+      await projectTemplateService.createProjectTemplate(projectId, projectName, projectDesc, properties);
+      revalidatePath('/[workspaceId]');
+    }
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred creating the project template',
+      'projectId',
+      {projectId, projectName, projectDesc, properties},
+      err
     );
-
-    res.status(200).json({data: template});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    e.publish('template', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
@@ -41,126 +49,106 @@ export const createProjectTemplate = async (req: NextApiRequest, res: NextApiRes
  *
  */
 
-export const createProjectFromTemplate = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {workspaceId, template} = req.body;
+export const createProjectFromTemplate = async (workspaceId: string, template: databaseTypes.IProjectTemplate) => {
   try {
-    const result = await projectService.createProject(
-      `${template.name}`,
-      workspaceId,
-      session?.user?.id,
-      session?.user?.email as string,
-      template,
-      template.description
+    const session = await getServerSession(authOptions);
+    if (session) {
+      await projectService.createProject(
+        `${template.name}`,
+        workspaceId,
+        session?.user?.id,
+        session?.user?.email as string,
+        template,
+        template.description
+      );
+      revalidatePath('/[workspaceId]');
+    }
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred creating the project from projectTemplate',
+      'workspaceId',
+      {workspaceId, template},
+      err
     );
-
-    // const { agentData, location } = formatUserAgent(req);
-
-    // await activityLogService.createLog({
-    //   actorId: session?.user?.id,
-    //   resourceId: template.id,
-    //   templateId: template.id,
-    //   workspaceId: template.workspace.id,
-    //   location: location,
-    //   userAgent: agentData,
-    //   onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT_TEMPLATE,
-    //   action: databaseTypes.constants.ACTION_TYPE.CREATED,
-    // });
-
-    res.status(200).json({data: result});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    e.publish('template', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
  * Get ProjectTemplateTemplate
- *
- * @note returns a template by id
- * @route GET /api/template/[templateId]
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
  */
-
-export const getProjectTemplates = async (req: NextApiRequest, res: NextApiResponse) => {
+export const getProjectTemplates = async () => {
   try {
-    const templates = await projectTemplateService.getProjectTemplates({});
-    res.status(200).json({data: {templates}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    const session = await getServerSession(authOptions);
+    if (session) {
+      return await projectTemplateService.getProjectTemplates({});
+    }
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred getting the projectTemplates', '', {}, err);
+    e.publish('template', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
  * Update ProjectTemplate
- *
- * @note returns a template by id
- * @route GET /api/template/[templateId]
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @param templateId
+ * @param properties
+ * @returns
  */
-
-export const updateProjectTemplate = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {templateId} = req.query;
-  const {properties} = req.body;
-  if (Array.isArray(templateId)) {
-    return res.status(400).end('Bad request. Parameter cannot be an array.');
-  }
+export const updateProjectTemplate = async (
+  templateId: string,
+  properties: databaseTypes.IProjectTemplate['shape']
+) => {
   try {
-    const template = await projectTemplateService.updateProjectTemplate(templateId as string, properties);
-    const {agentData, location} = formatUserAgent(req);
-
-    await activityLogService.createLog({
-      actorId: session?.user?.id,
-      resourceId: template.id!,
-      location: location,
-      userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT_TEMPLATE,
-      action: databaseTypes.constants.ACTION_TYPE.UPDATED,
-    });
-    res.status(200).json({data: {template}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
-  }
-};
-
-/**
- * Delete ProjectTemplate
- *
- * @note  update template deletedAt date
- * @route DELETE /api/user
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
- */
-
-const ALLOW_DELETE = true;
-
-export const deleteProjectTemplate = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {templateId} = req.query;
-  if (Array.isArray(templateId)) {
-    return res.status(400).end('Bad request. Parameter cannot be an array.');
-  }
-  try {
-    if (ALLOW_DELETE) {
-      const template = await projectTemplateService.deactivate(templateId as string);
-      const {agentData, location} = formatUserAgent(req);
+    const session = await getServerSession(authOptions);
+    if (session) {
+      const template = await projectTemplateService.updateProjectTemplate(templateId as string, properties);
 
       await activityLogService.createLog({
         actorId: session?.user?.id,
         resourceId: template.id!,
-        location: location,
-        userAgent: agentData,
+        location: '',
+        userAgent: {},
         onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT_TEMPLATE,
-        action: databaseTypes.constants.ACTION_TYPE.DELETED,
+        action: databaseTypes.constants.ACTION_TYPE.UPDATED,
       });
+      revalidatePath('/[workspaceId]');
     }
-    res.status(200).json({data: {email: session?.user?.email}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred getting the projectTemplates', '', {}, err);
+    e.publish('template', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
+  }
+};
+
+const ALLOW_DELETE = true;
+
+/**
+ * Delete ProjectTemplate
+ * @param templateId
+ * @returns
+ */
+export const deleteProjectTemplate = async (templateId: string) => {
+  try {
+    const session = await getServerSession(authOptions);
+    if (session) {
+      if (ALLOW_DELETE) {
+        const template = await projectTemplateService.deactivate(templateId as string);
+        await activityLogService.createLog({
+          actorId: session?.user?.id,
+          resourceId: template.id!,
+          location: '',
+          userAgent: {},
+          onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT_TEMPLATE,
+          action: databaseTypes.constants.ACTION_TYPE.DELETED,
+        });
+      }
+    }
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred deleting the projectTemplate', '', {}, err);
+    e.publish('template', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };

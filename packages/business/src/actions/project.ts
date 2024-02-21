@@ -1,148 +1,143 @@
-import type {NextApiRequest, NextApiResponse} from 'next';
-import {type Session} from 'next-auth';
-import {projectService, activityLogService} from 'business';
+'use server';
+import {error, constants} from 'core';
+import {getServerSession} from 'next-auth';
+import {projectService, activityLogService} from '../services';
 import {databaseTypes} from 'types';
-import {formatUserAgent} from 'lib/utils';
+import {revalidatePath} from 'next/cache';
+import {authOptions} from '../auth';
+import {redirect} from 'next/navigation';
+
 /**
  * Create Default Project
- *
- * @note Creates a std default project
- * @route POST /api/project
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @param name
+ * @param workspaceId
+ * @param description
+ * @param docId
  */
-
-export const createProject = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {name, workspaceId, description, docId} = req.body;
+export const createProject = async (name: string, workspaceId: string, description: string, docId: string) => {
   try {
-    const project = await projectService.createProject(
-      name,
+    const session = await getServerSession(authOptions);
+    if (session?.user) {
+      const project = await projectService.createProject(
+        name,
+        workspaceId,
+        session.user.id,
+        session.user.email,
+        undefined,
+        description ?? '',
+        docId
+      );
+
+      await activityLogService.createLog({
+        actorId: session?.user?.id,
+        resourceId: project?.id!,
+        projectId: project.id,
+        workspaceId: project?.workspace.id,
+        location: '',
+        userAgent: {},
+        onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
+        action: databaseTypes.constants.ACTION_TYPE.CREATED,
+      });
+
+      revalidatePath('/[workspaceId]');
+      redirect(`/project/${project.id}`);
+    }
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred creating the project',
+      'workspaceId',
       workspaceId,
-      session.user.id,
-      session.user.email,
-      undefined,
-      description ?? '',
-      docId
+      err
     );
-
-    const {agentData, location} = formatUserAgent(req);
-
-    await activityLogService.createLog({
-      actorId: session?.user?.id,
-      resourceId: project?.id!,
-      projectId: project.id,
-      workspaceId: project?.workspace.id,
-      location: location,
-      userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
-      action: databaseTypes.constants.ACTION_TYPE.CREATED,
-    });
-
-    res.status(200).json({data: project});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    e.publish('project', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
  * Get Project
- *
- * @note returns a project by id
- * @route GET /api/project/[projectId]
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @param projectId
  */
-
-export const getProject = async (req: NextApiRequest, res: NextApiResponse) => {
-  const {projectId} = req.query;
-  if (Array.isArray(projectId)) {
-    return res.status(400).end('Bad request. Parameter cannot be an array.');
-  }
+export const getProject = async (projectId: string) => {
   try {
-    const project = await projectService.getProject(projectId as string);
-    res.status(200).json({data: {project}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    const session = await getServerSession(authOptions);
+    if (session) {
+      return await projectService.getProject(projectId as string);
+    }
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred getting the project by id',
+      'projectId',
+      projectId,
+      err
+    );
+    e.publish('project', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
- * Update Project
- *
- * @note returns a project by id
- * @route GET /api/project/[projectId]
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * Update Project State
+ * @param projectId
+ * @param state
+ * @returns
  */
-
-export const updateProjectState = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {projectId} = req.query;
-  const {state} = req.body;
-  if (Array.isArray(projectId)) {
-    return res.status(400).end('Bad request. Parameter cannot be an array.');
-  }
+export const updateProjectState = async (projectId: string, state: databaseTypes.IState) => {
   try {
-    const project = await projectService.updateProjectState(projectId as string, state);
-    const {agentData, location} = formatUserAgent(req);
-
-    await activityLogService.createLog({
-      actorId: session?.user?.id,
-      resourceId: project?.id!,
-      projectId: project.id,
-      workspaceId: project?.workspace.id,
-      location: location,
-      userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
-      action: databaseTypes.constants.ACTION_TYPE.UPDATED,
-    });
-    res.status(200).json({data: {project}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
-  }
-};
-
-/**
- * Delete Project
- *
- * @note  update project deletedAt date
- * @route DELETE /api/user
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
- */
-
-const ALLOW_DELETE = true;
-
-export const deleteProject = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {projectId} = req.query;
-  if (Array.isArray(projectId)) {
-    return res.status(400).end('Bad request. Parameter cannot be an array.');
-  }
-  try {
-    if (ALLOW_DELETE) {
-      const project = await projectService.deactivate(projectId as string);
-      const {agentData, location} = formatUserAgent(req);
+    const session = await getServerSession(authOptions);
+    if (session) {
+      const project = await projectService.updateProjectState(projectId as string, state);
 
       await activityLogService.createLog({
-        actorId: session?.user?.id,
+        actorId: session?.user?.id!,
+        resourceId: project?.id!,
+        projectId: project.id,
+        workspaceId: project?.workspace.id,
+        location: '',
+        userAgent: {},
+        onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
+        action: databaseTypes.constants.ACTION_TYPE.UPDATED,
+      });
+      revalidatePath('/project/[projectId]');
+    }
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred updating the project state',
+      'projectId',
+      projectId,
+      err
+    );
+    e.publish('project', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
+  }
+};
+
+/**
+ * Deactivate a project by id
+ * @param projectId
+ * @returns
+ */
+export const deactivateProject = async (projectId: string) => {
+  try {
+    const session = await getServerSession(authOptions);
+    if (session) {
+      const project = await projectService.deactivate(projectId as string);
+      await activityLogService.createLog({
+        actorId: session?.user?.id ?? '',
         resourceId: project?.id!,
         workspaceId: project?.workspace.id,
         projectId: project.id,
-        location: location,
-        userAgent: agentData,
+        location: 'serverAction',
+        userAgent: {},
         onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
         action: databaseTypes.constants.ACTION_TYPE.DELETED,
       });
+
+      revalidatePath('/[workspaceId]', 'page');
     }
-    res.status(200).json({data: {email: session?.user?.email}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred deleting the project', 'projectId', projectId, err);
+    e.publish('project', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };

@@ -1,120 +1,109 @@
-import type {NextApiRequest, NextApiResponse} from 'next';
-import type {Session} from 'next-auth';
-import {modelConfigService} from 'business';
+'use server';
+import {error, constants} from 'core';
+import {databaseTypes} from 'types';
+import {modelConfigService} from '../services';
+import {revalidatePath} from 'next/cache';
+import {getServerSession} from 'next-auth';
+import {authOptions} from 'auth';
+
 /**
  * Create Default Config
- *
- * @note Creates a std default config
- * @route POST /api/config
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @param config
+ * @returns
  */
-
-export const createConfig = async (req: NextApiRequest, res: NextApiResponse) => {
+export const createConfig = async (config: Omit<databaseTypes.IModelConfig, 'createdAt' | 'updatedAt'>) => {
   try {
-    const config = await modelConfigService.createModelConfig(req.body);
-    res.status(200).json({data: config});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    const session = await getServerSession(authOptions);
+    if (session) {
+      await modelConfigService.createModelConfig(config as databaseTypes.IModelConfig);
+      revalidatePath('/[workspaceId]');
+    }
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred creating the model config', 'config', config, err);
+    e.publish('config', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
  * Get Configs
- *
- * @note returns configs
- * @route GET /api/configs
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @returns
  */
-
-export const getConfigs = async (req: NextApiRequest, res: NextApiResponse) => {
+export const getConfigs = async () => {
   try {
-    const configs = await modelConfigService.getModelConfigs({deletedAt: undefined});
-    res.status(200).json({data: {configs}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    const session = await getServerSession(authOptions);
+    if (session) {
+      return await modelConfigService.getModelConfigs({deletedAt: undefined});
+    }
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred getting the model configs', 'config', null, err);
+    e.publish('config', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
  * Get Config
- *
- * @note returns a config by id
- * @route GET /api/config/[configId]
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @param configId
  */
-
-export const getConfig = async (req: NextApiRequest, res: NextApiResponse) => {
-  const {configId} = req.query;
-  if (Array.isArray(configId)) {
-    return res.status(400).end('Bad request. Parameter cannot be an array.');
-  }
+export const getConfig = async (configId: string) => {
   try {
-    const config = await modelConfigService.getModelConfig(configId as string);
-    res.status(200).json({data: {config}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    const session = await getServerSession(authOptions);
+    if (session) {
+      return await modelConfigService.getModelConfig(configId as string);
+    }
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred getting the model config', 'configId', configId, err);
+    e.publish('config', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
  * Update Config
- *
- * @note returns a config by id
- * @route PUT /api/config/[configId]
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @param configId
+ * @param config
  */
-
-export const updateConfig = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {configId} = req.query;
-  const {config} = req.body;
-  if (Array.isArray(configId)) {
-    return res.status(400).end('Bad request. Parameter cannot be an array.');
-  }
+export const updateConfig = async (configId: string, config: databaseTypes.IModelConfig) => {
   try {
-    const updatedConfig = await modelConfigService.updateModelConfig(configId as string, config);
-
-    res.status(200).json({data: {config: updatedConfig}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    const session = await getServerSession(authOptions);
+    if (session) {
+      await modelConfigService.updateModelConfig(configId as string, config);
+      revalidatePath('/[workspaceId]');
+    }
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred updating the model config',
+      'configId',
+      configId,
+      err
+    );
+    e.publish('config', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
-/**
- * Delete Config
- *
- * @note  update config deletedAt date
- * @route DELETE /api/config
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
- */
-
 const ALLOW_DELETE = true;
 
-export const deleteConfig = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {configId} = req.query;
-  if (Array.isArray(configId)) {
-    return res.status(400).end('Bad request. Parameter cannot be an array.');
-  }
+/**
+ * Delete Config
+ * @param configId
+ * @returns
+ */
+export const deleteConfig = async (configId: string) => {
   try {
-    if (ALLOW_DELETE) {
+    const session = await getServerSession(authOptions);
+    if (session && ALLOW_DELETE) {
       await modelConfigService.deleteModelConfig(configId as string);
     }
-    res.status(200).json({data: {email: session?.user?.email}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred deleting the model config',
+      'configId',
+      configId,
+      err
+    );
+    e.publish('config', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };

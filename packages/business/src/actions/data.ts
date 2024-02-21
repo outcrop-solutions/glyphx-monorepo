@@ -1,75 +1,114 @@
-import type {NextApiRequest, NextApiResponse} from 'next';
-import {dataService, projectService} from 'business';
+'use server';
+import {error, constants} from 'core';
+import {dataService, projectService} from '../services';
 import {generalPurposeFunctions as sharedFunctions} from 'core';
-import {formatGridData} from 'lib/client/files/transforms/formatGridData';
+import {formatGridData} from './utils/formatGridData';
+import {getServerSession} from 'next-auth';
+import {authOptions} from '../auth';
 
-export const getDataByRowId = async (req: NextApiRequest, res: NextApiResponse): Promise<void | NextApiResponse> => {
-  const {workspaceId, projectId, tableName, rowIds, isExport, pageSize, pageNumber} = req.body;
-
-  if (Array.isArray(workspaceId) || Array.isArray(projectId) || Array.isArray(tableName)) {
-    res.status(400).end('Invalid Query parameter');
-  }
-
-  const fullTableName = sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName);
+/**
+ * Get Data by Row Id
+ * @param workspaceId
+ * @param projectId
+ * @param tableName
+ * @param rowIds
+ * @param isExport
+ * @param pageSize
+ * @param pageNumber
+ */
+export const getDataByRowId = async (
+  workspaceId: string,
+  projectId: string,
+  tableName: string,
+  rowIds: number[],
+  isExport: boolean,
+  pageSize: number,
+  pageNumber: number
+) => {
   try {
-    const data = await dataService.getDataByGlyphxIds(fullTableName, rowIds, undefined, undefined, true);
-    const project = await projectService.getProject(projectId);
+    const session = await getServerSession(authOptions);
+    if (session) {
+      const fullTableName = sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName);
+      const data = await dataService.getDataByGlyphxIds(fullTableName, rowIds, undefined, undefined, true);
+      const project = await projectService.getProject(projectId);
 
-    if (project) {
-      const columns = project.files.filter((file) => file.tableName === tableName)[0].columns;
+      if (project) {
+        const columns = project.files.filter((file) => file.tableName === tableName)[0].columns;
+        const formattedData = formatGridData(data, columns);
+        if (!formattedData.rows.length) {
+          return {error: `No data found`};
+        } else {
+          const start = pageNumber * pageSize;
+          const end = start + pageSize;
+          const paginatedRows = isExport ? formattedData.rows : formattedData.rows.slice(start, end);
 
-      const formattedData = formatGridData(data, columns);
-
-      if (!formattedData.rows.length) {
-        res.status(404).json({errors: {error: {msg: `No data found`}}});
-      } else {
-        const start = pageNumber * pageSize;
-        const end = start + pageSize;
-        const paginatedRows = isExport ? formattedData.rows : formattedData.rows.slice(start, end);
-
-        res.status(200).json({
-          data: {...formattedData, rows: paginatedRows},
-          totalPages: Math.ceil(formattedData.rows.length / pageSize),
-          currentPage: pageNumber,
-        });
+          return {
+            data: {...formattedData, rows: paginatedRows},
+            totalPages: Math.ceil(formattedData.rows.length / pageSize),
+            currentPage: pageNumber,
+          };
+        }
       }
     }
-  } catch (e) {
-    res.status(500).send(e.message);
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred getting the data by rowId',
+      'data',
+      {workspaceId, projectId, tableName, rowIds, isExport, pageSize, pageNumber},
+      err
+    );
+    e.publish('data', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
+/**
+ * Gets data by table name
+ * @param workspaceId
+ * @param projectId
+ * @param tableName
+ * @param pageSize
+ * @param pageNumber
+ * @returns
+ */
 export const getDataByTableName = async (
-  req: NextApiRequest,
-  res: NextApiResponse
-): Promise<void | NextApiResponse> => {
-  const {workspaceId, projectId, tableName, pageNumber, pageSize} = req.body;
-
-  if (Array.isArray(workspaceId) || Array.isArray(projectId) || Array.isArray(tableName)) {
-    res.status(400).end('Invalid Query parameter');
-  }
-
+  workspaceId: string,
+  projectId: string,
+  tableName: string,
+  pageSize: number,
+  pageNumber: number
+) => {
   try {
-    const table = sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName);
+    const session = await getServerSession(authOptions);
+    if (session) {
+      const table = sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName);
 
-    const data = await dataService.getDataByTableName(table, pageSize, pageNumber);
-    const project = await projectService.getProject(projectId);
+      const data = await dataService.getDataByTableName(table, pageSize, pageNumber);
+      const project = await projectService.getProject(projectId);
 
-    if (project) {
-      const columns = project.files.filter((file) => file.tableName === tableName)[0].columns;
+      if (project) {
+        const columns = project.files.filter((file) => file.tableName === tableName)[0].columns;
 
-      const formattedData = formatGridData(data, columns);
-      if (!formattedData.rows.length) {
-        res.status(404).json({errors: {error: {msg: `No data found`}}});
-      } else {
-        res.status(200).json({
-          data: {...formattedData},
-          totalPages: Math.ceil(formattedData.rows.length / pageSize),
-          currentPage: pageNumber,
-        });
+        const formattedData = formatGridData(data, columns);
+        if (!formattedData.rows.length) {
+          return {error: `No data found`};
+        } else {
+          return {
+            data: {...formattedData},
+            totalPages: Math.ceil(formattedData.rows.length / pageSize),
+            currentPage: pageNumber,
+          };
+        }
       }
     }
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred getting the data by table name',
+      'data',
+      {workspaceId, projectId, tableName, pageSize, pageNumber},
+      err
+    );
+    e.publish('data', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };

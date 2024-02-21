@@ -1,33 +1,13 @@
 'use client';
 import {ArrowRightIcon} from '@heroicons/react/outline';
-import {_createAnnotation, api} from 'lib';
-import {useCallback, useEffect, useRef, useState} from 'react';
-import {toast} from 'react-hot-toast';
-import {useSWRConfig} from 'swr';
+import {startTransition, useEffect, useRef, useState} from 'react';
 import UserCombobox from './UserCombobox';
+import {createProjectAnnotation, createStateAnnotation} from 'business/src/actions/annotation';
 
 export const InputArea = ({id, type}) => {
-  const {mutate} = useSWRConfig();
   const [value, setValue] = useState('');
   const [showCombo, setShowCombo] = useState(false);
   const textAreaRef = useRef(null);
-  const comboBoxRef = useRef(null);
-
-  const createAnnotation = useCallback(() => {
-    if (value === '') {
-      toast.success('Please provide a comment to annotate!');
-      return;
-    }
-    api({
-      ..._createAnnotation({id, type, value}),
-      onSuccess: () => {
-        setValue('');
-        // TODO: revalidate annotations
-        mutate(`/api/annotations/project/${id}`);
-        mutate(`/api/annotations/state/${id}`);
-      },
-    });
-  }, [id, type, value, mutate]);
 
   useEffect(() => {
     if (value.includes('@')) {
@@ -60,7 +40,15 @@ export const InputArea = ({id, type}) => {
         <div className="absolute bottom-0 right-0 flex justify-between py-2 pl-3 pr-2">
           <div className="flex-shrink-0">
             <button
-              onClick={createAnnotation}
+              onClick={() =>
+                startTransition(() => {
+                  if (type === 'PROJECT') {
+                    createProjectAnnotation(id, value);
+                  } else {
+                    createStateAnnotation(id, value);
+                  }
+                })
+              }
               className="inline-flex items-center rounded-md bg-gray px-3 py-1 text-sm font-semibold text-white shadow-sm hover:bg-yellow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow"
             >
               <ArrowRightIcon className="shrink-0 h-2 w-2" />

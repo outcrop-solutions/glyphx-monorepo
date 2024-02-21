@@ -1,27 +1,24 @@
-import React, {useCallback, useState} from 'react';
+'use client';
+import React, {useCallback, useState, useTransition} from 'react';
 import {useRouter, useParams} from 'next/navigation';
 import TextareaAutosize from 'react-textarea-autosize';
-import {_createProject, api} from 'lib/client';
 import ExitModalIcon from 'public/svg/exit-project-modal-icon.svg';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
-import {Route} from 'next';
 import {ClientDocumentManager} from 'collab/lib/client/ClientDocumentManager';
 import {useSession} from 'next-auth/react';
-import {useSetRecoilState} from 'recoil';
-import {projectSegmentAtom} from 'state';
+import {createProject} from 'business/src/actions';
 
 export const NewProject = ({exit}) => {
   const router = useRouter();
   const params = useParams();
+  const [_, startTransition] = useTransition();
   const session = useSession();
-  const setTab = useSetRecoilState(projectSegmentAtom);
   const {workspaceId} = params as {workspaceId: string};
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleCreateProject = useCallback(async () => {
-    setLoading(true);
     const clientDoc = new ClientDocumentManager();
     const {data, error} = await clientDoc.createDocument({
       name: name,
@@ -34,17 +31,8 @@ export const NewProject = ({exit}) => {
     if (error || !data) {
       return;
     }
-
-    api({
-      ..._createProject(data?.id, workspaceId, name, description),
-      onSuccess: (data) => {
-        setLoading(false);
-        exit();
-        router.push(`/project/${data.id}` as Route);
-        setTab('FILES');
-      },
-    });
-  }, [description, exit, name, router, session.data?.user.id, setTab, workspaceId]);
+    await createProject(name, workspaceId, description, data.id);
+  }, [description, exit, name, router, session, workspaceId]);
 
   return (
     <div className="p-4 w-full">
@@ -77,7 +65,7 @@ export const NewProject = ({exit}) => {
       </div>
       <div className="mb-4 mt-4 flex flex-row justify-end items-center">
         <button
-          onClick={handleCreateProject}
+          onClick={() => startTransition(() => handleCreateProject())}
           className="bg-primary-yellow py-2 px-2 font-roboto font-medium text-[14px] leading-[16px] text-secondary-space-blue"
         >
           {loading ? <LoadingDots /> : <span>Create</span>}

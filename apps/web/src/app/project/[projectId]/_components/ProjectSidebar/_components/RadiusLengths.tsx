@@ -1,11 +1,11 @@
 import produce from 'immer';
-import React, {useCallback, useState} from 'react';
+import React, {startTransition, useCallback, useState} from 'react';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {configSelector, configsAtom, currentConfigAtom, radiusConfigDirtyAtom} from 'state';
 import {databaseTypes} from 'types';
 import {toSnakeCase} from './toSnakeCase';
-import {_updateConfig, api} from 'lib';
 import {CheckIcon} from '@heroicons/react/outline';
+import {updateConfig} from 'business/src/actions';
 
 const fields = [
   'Grid Cylinder Radius',
@@ -35,13 +35,6 @@ export const RadiusLengths = () => {
     },
     [setConfigDirty, setConfigs]
   );
-
-  const saveChanges = useCallback(async () => {
-    await api({
-      ..._updateConfig(config?.id!, config as databaseTypes.IModelConfig),
-      setLoading: (loading) => setConfigDirty(loading as boolean),
-    });
-  }, [config, setConfigDirty]);
 
   return (
     config && (
@@ -78,7 +71,12 @@ export const RadiusLengths = () => {
             <CheckIcon
               color="#CECECE"
               className="w-5 h-5 opacity-100 mr-2 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white"
-              onClick={saveChanges}
+              onClick={() =>
+                startTransition(() =>
+                  // @ts-ignore
+                  updateConfig(config?.id, config as databaseTypes.IModelConfig)
+                )
+              }
             />
           )}
         </summary>

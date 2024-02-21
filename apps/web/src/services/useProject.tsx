@@ -3,7 +3,6 @@ import {useCallback} from 'react';
 import {useSession} from 'next-auth/react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {fileIngestionTypes, webTypes, glyphEngineTypes} from 'types';
-import {_updateProjectState} from 'lib/client';
 import {doesStateExistSelector, drawerOpenAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom} from 'state';
 import {_createModel, _getSignedDataUrls} from 'lib/client/mutations/core';
 import {useUrl} from 'lib/client/hooks';
@@ -27,7 +26,6 @@ export const useProject = () => {
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
   const url = useUrl();
-  // const setShowQtViewer = useSetRecoilState(showQtViewerAtom);
 
   const callETL = useCallback(
     async (axis: webTypes.constants.AXIS, column: any, project, isFilter: boolean) => {

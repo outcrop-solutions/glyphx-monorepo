@@ -1,25 +1,22 @@
 'use client';
+import {useCallback} from 'react';
 import {useDrop} from 'react-dnd';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {webTypes, fileIngestionTypes, glyphEngineTypes} from 'types';
 import {AxesIcons} from '../icons/AxesIcons';
-
 import {useProject} from 'services';
 import {handleDataType} from 'lib/client/helpers/handleDataType';
-
 // state
 import {projectAtom, singlePropertySelectorFamily} from 'state/project';
-
+// icons
 import ClearIcon from 'public/svg/clear-icon.svg';
 import LinIcon from 'public/svg/lin-icon.svg';
 import LogIcon from 'public/svg/log-icon.svg';
 import SwapLeftIcon from 'public/svg/swap-left-icon.svg';
 import SwapRightIcon from 'public/svg/swap-right-icon.svg';
 import produce from 'immer';
-import {useCallback} from 'react';
 import {WritableDraft} from 'immer/dist/internal';
 import {showLoadingAtom} from 'state';
-import {_updateProjectState} from 'lib';
 import AccumulatorType from './AccumulatorListbox';
 import DateGroupingListbox from './DateGroupListbox';
 

@@ -1,24 +1,20 @@
 'use client';
-import {useEffect, useState} from 'react';
+import {startTransition, useEffect, useState} from 'react';
 import {DocumentDuplicateIcon} from '@heroicons/react/outline';
-import {useRouter} from 'next/navigation';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import isAlphanumeric from 'validator/lib/isAlphanumeric';
 import isSlug from 'validator/lib/isSlug';
-
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
-import {_updateWorkspaceName, _updateWorkspaceSlug, api, useWorkspace} from 'lib/client';
+import {useWorkspace} from 'lib/client';
 import useIsTeamOwner from 'lib/client/hooks/useIsOwner';
-import {Route} from 'next';
+import {updateWorkspaceName, updateWorkspaceSlug} from 'business/src/actions';
 
 const General = () => {
-  const router = useRouter();
   const {data} = useWorkspace();
   const {data: ownership} = useIsTeamOwner();
-
   const [isSubmitting, setSubmittingState] = useState(false);
   const [name, setName] = useState(data?.workspace?.name || '');
   const [slug, setSlug] = useState(data?.workspace?.slug || '');
@@ -31,23 +27,6 @@ const General = () => {
   const copyToClipboard = () => toast.success('Copied to clipboard!');
   const handleNameChange = (event) => setName(event.target.value);
   const handleSlugChange = (event) => setSlug(event.target.value);
-
-  // mutations
-  const changeName = (event) => {
-    event.preventDefault();
-    api({
-      ..._updateWorkspaceName({id: data?.workspace.id as string, name}),
-      setLoading: (state) => setSubmittingState(state as boolean),
-    });
-  };
-
-  const changeSlug = (event) => {
-    event.preventDefault();
-    api({
-      ..._updateWorkspaceSlug({workspaceId: data?.workspace.id!, newSlug: slug}),
-      setLoading: (state) => setSubmittingState(state as boolean),
-    });
-  };
 
   useEffect(() => {
     if (data?.workspace) {
@@ -74,7 +53,15 @@ const General = () => {
           <Card.Footer>
             <small>Please use 16 characters at maximum</small>
             {ownership?.isTeamOwner && (
-              <Button className="bg-primary-yellow" disabled={!validName || isSubmitting} onClick={changeName}>
+              <Button
+                className="bg-primary-yellow"
+                disabled={!validName || isSubmitting}
+                onClick={() =>
+                  startTransition(() => {
+                    updateWorkspaceName(data.id, name);
+                  })
+                }
+              >
                 Save
               </Button>
             )}
@@ -96,7 +83,15 @@ const General = () => {
           <Card.Footer>
             <small>Please use 16 characters at maximum. Hyphenated alphanumeric characters only.</small>
             {ownership?.isTeamOwner && (
-              <Button className="" disabled={!validSlug || isSubmitting} onClick={changeSlug}>
+              <Button
+                className=""
+                disabled={!validSlug || isSubmitting}
+                onClick={() =>
+                  startTransition(() => {
+                    updateWorkspaceSlug(data.id, slug);
+                  })
+                }
+              >
                 Save
               </Button>
             )}

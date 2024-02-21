@@ -1,9 +1,9 @@
-import React, {useCallback} from 'react';
+import React, {startTransition} from 'react';
 import {useRecoilState, useRecoilValue} from 'recoil';
-import {_updateConfig, api} from 'lib';
 import {togglesConfigDirtyAtom, configSelector, currentConfigAtom} from 'state';
 import {databaseTypes} from 'types';
 import {Toggle} from './Toggle';
+import {updateConfig} from 'business/src/actions';
 
 const fields = ['Toggle Grid Lines', 'Toggle Glyph Offset', 'Toggle Z Offset'];
 
@@ -12,10 +12,6 @@ export const Toggles = () => {
   const currentConfig = useRecoilValue(currentConfigAtom);
   const [configDirty] = useRecoilState(togglesConfigDirtyAtom);
 
-  const saveChanges = useCallback(async () => {
-    await api({..._updateConfig(config?.id!, config as databaseTypes.IModelConfig)});
-  }, [config]);
-
   return (
     config && (
       <details className="py-2">
@@ -23,7 +19,12 @@ export const Toggles = () => {
           Toggles{' '}
           {configDirty && (
             <div
-              onClick={saveChanges}
+              onClick={() =>
+                startTransition(() =>
+                  // @ts-ignore
+                  updateConfig(config?.id, config as databaseTypes.IModelConfig)
+                )
+              }
               className="bg-yellow hover:bg-primary-yellow rounded px-1 text-secondary-midnight"
             >
               save

@@ -1,23 +1,21 @@
 'use client';
 import React, {useCallback} from 'react';
+import {Route} from 'next';
 import {useRouter, useParams} from 'next/navigation';
 import Image from 'next/image';
 import produce from 'immer';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import {useSetRecoilState} from 'recoil';
-
-import {webTypes} from 'types';
-import {ProjectTemplateIcons} from '../../../project/[projectId]/_components/ProjectSidebar/_components/icons';
-
 import {modalsAtom, projectSegmentAtom, rightSidebarControlAtom} from 'state';
-
+import {webTypes} from 'types';
+// icons
+import {ProjectTemplateIcons} from '../../../project/[projectId]/_components/ProjectSidebar/_components/icons';
 import projectCard from 'public/images/project.png';
 import AddMemberIcon from 'public/svg/add-member-icon.svg';
 import ProjectInfoIcon from 'public/svg/project-info-icon.svg';
 import DeleteProjectIcon from 'public/svg/delete-project-icon.svg';
 import {WritableDraft} from 'immer/dist/internal';
-import {Route} from 'next';
 
 export const ProjectCard = ({project}) => {
   dayjs.extend(relativeTime);

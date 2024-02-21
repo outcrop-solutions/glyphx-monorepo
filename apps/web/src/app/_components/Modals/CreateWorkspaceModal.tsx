@@ -1,15 +1,14 @@
 'use client';
-import React, {useState} from 'react';
+import React, {startTransition, useState} from 'react';
 import Button from 'app/_components/Button';
-import produce from 'immer';
-import {WritableDraft} from 'immer/dist/internal';
-import {_createWorkspace, api} from 'lib';
 import {webTypes} from 'types';
 import {useRouter} from 'next/navigation';
 import {useSetRecoilState} from 'recoil';
 import {modalsAtom} from 'state';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
-import {Route} from 'next';
+import {createWorkspace} from 'business/src/actions';
+import produce from 'immer';
+import {WritableDraft} from 'immer/dist/internal';
 
 export const CreateWorkspaceModal = ({modalContent}: webTypes.CreateWorkspaceModalProps) => {
   const router = useRouter();
@@ -19,29 +18,6 @@ export const CreateWorkspaceModal = ({modalContent}: webTypes.CreateWorkspaceMod
 
   // local state
   const handleNameChange = (event) => setName(event.target.value);
-
-  // mutations
-  const createWorkspace = (event) => {
-    event.preventDefault();
-    api({
-      ..._createWorkspace(name),
-      setLoading: (state) =>
-        setModals(
-          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals[0].isSubmitting = state as boolean;
-          })
-        ),
-      onSuccess: (result) => {
-        setModals(
-          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals.splice(0, 1);
-          })
-        );
-        router.replace(`/${result.id}` as Route);
-      },
-    });
-  };
-
   return (
     <div className="flex flex-col items-stretch justify-center px-4 py-8 space-y-5 bg-secondary-midnight rounded-md text-white">
       <div className="space-y-0 text-sm text-gray-600">
@@ -60,7 +36,20 @@ export const CreateWorkspaceModal = ({modalContent}: webTypes.CreateWorkspaceMod
         />
       </div>
       <div className="flex flex-col items-stretch">
-        <Button className="" disabled={!validName || modalContent.isSubmitting} onClick={createWorkspace}>
+        <Button
+          className=""
+          disabled={!validName || modalContent.isSubmitting}
+          onClick={() =>
+            startTransition(() => {
+              createWorkspace(name);
+              setModals(
+                produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+                  draft.modals.splice(0, 1);
+                })
+              );
+            })
+          }
+        >
           {modalContent.isSubmitting ? <LoadingDots /> : <span>Create Workspace</span>}
         </Button>
       </div>

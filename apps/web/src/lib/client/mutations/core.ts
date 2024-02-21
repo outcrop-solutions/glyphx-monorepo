@@ -1,4 +1,4 @@
-import {webTypes, databaseTypes, fileIngestionTypes} from 'types';
+import {webTypes, databaseTypes} from 'types';
 
 /******************** INGESTION *********************/
 /**
@@ -34,70 +34,6 @@ export const _uploadFile = (acceptedFile: ArrayBuffer, url: string): webTypes.IF
       body: acceptedFile,
     },
     successMsg: 'File successfully uploaded',
-  };
-};
-
-/**
- * @param workpaceId
- * @param projectId
- * @param tableName
- * @returns config
- */
-export const _getDataGrid = (
-  workspaceId: string,
-  projectId: string,
-  tableName: string,
-  pageSize: number,
-  pageNumber: number
-): webTypes.IFetchConfig => {
-  return {
-    url: `/api/data/grid`,
-    options: {
-      method: 'POST',
-      body: {
-        workspaceId: workspaceId,
-        projectId: projectId,
-        tableName: tableName,
-        pageSize: pageSize,
-        pageNumber: pageNumber,
-      },
-    },
-    successMsg: 'File successfully loaded',
-  };
-};
-
-/**
- * @note I know it's not great form to put body on a get but we will refactor the query param / routing later
- * @param workpaceId
- * @param projectId
- * @param tableName
- * @param rowIds
- * @returns config
- */
-export const _getRowIds = (
-  workspaceId: string,
-  projectId: string,
-  tableName: string,
-  rowIds: string[],
-  pageSize: number,
-  pageNumber: number,
-  isExport?: boolean
-): webTypes.IFetchConfig => {
-  return {
-    url: `/api/data/rows`,
-    options: {
-      method: 'POST',
-      body: {
-        workspaceId: workspaceId,
-        projectId: projectId,
-        tableName: tableName,
-        rowIds: rowIds,
-        pageSize,
-        pageNumber,
-        isExport: isExport || false,
-      },
-    },
-    successMsg: 'Rows successfully selected',
   };
 };
 

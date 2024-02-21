@@ -1,5 +1,4 @@
 'use client';
-/* eslint-disable no-lone-blocks */
 import React, {useCallback, useState} from 'react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {Property} from './Property';
@@ -11,7 +10,6 @@ import {
   showLoadingAtom,
   splitPaneSizeAtom,
 } from 'state';
-import {_updateProjectState} from 'lib';
 import {useSession} from 'next-auth/react';
 import {useSWRConfig} from 'swr';
 import {callCreateModel} from 'lib/client/network/reqs/callCreateModel';

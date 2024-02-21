@@ -2,13 +2,11 @@
 import React, {useEffect, useState} from 'react';
 import Button from 'app/_components/Button';
 import {useSWRConfig} from 'swr';
-import produce from 'immer';
-import {WritableDraft} from 'immer/dist/internal';
-import {_createState, api} from 'lib';
-import {webTypes} from 'types';
+import {databaseTypes, webTypes} from 'types';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {cameraAtom, imageHashAtom, modalsAtom, projectAtom, rowIdsAtom, viewerPositionSelector} from 'state';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
+import {createState} from 'business/src/actions';
 
 export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps) => {
   const {mutate} = useSWRConfig();
@@ -25,7 +23,7 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
   const handleNameChange = (event) => setName(event.target.value);
 
   // mutations
-  const createState = async (event) => {
+  const createStateTrigger = async (event) => {
     event.preventDefault();
     if (window?.core) {
       window?.core?.GetCameraPosition(true);
@@ -35,57 +33,30 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
 
   useEffect(() => {
     if (Object.keys(camera).length > 0 && image.imageHash) {
-      const retval = _createState(
+      const cleanProject = {
+        id: modalContent.data.id,
+        workspace: {
+          id: modalContent.data.workspace.id,
+        },
+        state: {
+          properties: {
+            ...modalContent.data.state.properties,
+          },
+        },
+        files: modalContent.data.files,
+      };
+      const rows = (rowIds ? rowIds : []) as unknown as number[];
+      createState(
         name,
-        modalContent.data,
         camera as unknown as webTypes.Camera,
+        cleanProject as databaseTypes.IProject,
+        image.imageHash,
         {
           width: (viewerPosition as webTypes.IViewerPosition).w,
           height: (viewerPosition as webTypes.IViewerPosition).h,
         } as unknown as webTypes.Aspect,
-        image.imageHash,
-        rowIds ? rowIds : []
+        rows
       );
-
-      api({
-        ..._createState(
-          name,
-          modalContent.data,
-          camera as unknown as webTypes.Camera,
-          {
-            width: (viewerPosition as webTypes.IViewerPosition).w,
-            height: (viewerPosition as webTypes.IViewerPosition).h,
-          } as unknown as webTypes.Aspect,
-          image.imageHash,
-          rowIds ? rowIds : []
-        ),
-        setLoading: (state) =>
-          setModals(
-            produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-              draft.modals[0].isSubmitting = state as boolean;
-            })
-          ),
-        onError: () => {
-          setCamera({});
-          setImage({imageHash: false});
-          setModals(
-            produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-              draft.modals.splice(0, 1);
-            })
-          );
-        },
-        onSuccess: () => {
-          setCamera({});
-          setImage({imageHash: false});
-          setModals(
-            produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-              draft.modals.splice(0, 1);
-            })
-          );
-
-          mutate(`/api/project/${modalContent.data.id}`);
-        },
-      });
     }
   }, [
     camera,
@@ -119,7 +90,7 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
         />
       </div>
       <div className="flex flex-col items-stretch">
-        <Button className="" disabled={!validName || modalContent.isSubmitting} onClick={createState}>
+        <Button className="" disabled={!validName || modalContent.isSubmitting} onClick={createStateTrigger}>
           {modalContent.isSubmitting ? <LoadingDots /> : <span>Take State Snapshot</span>}
         </Button>
       </div>

@@ -1,7 +1,5 @@
 'use client';
-import React, {useCallback, useState} from 'react';
-import {webTypes} from 'types';
-import {_createProjectFromTemplate, api} from 'lib';
+import React, {startTransition, useState} from 'react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {modalsAtom, templatesAtom, workspaceAtom} from 'state';
 import {useRouter, useParams} from 'next/navigation';
@@ -9,7 +7,8 @@ import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {LoadingDots} from '../Loaders/LoadingDots';
 import Button from '../Button';
-import {Route} from 'next';
+import {webTypes} from 'types';
+import {createProjectFromTemplate} from 'business/src/actions';
 
 export const AIRecommendationsModal = ({modalContent: any}) => {
   const [loading, setLoading] = useState(false);
@@ -19,27 +18,6 @@ export const AIRecommendationsModal = ({modalContent: any}) => {
   const {templates} = useRecoilValue(templatesAtom);
   const setModals = useSetRecoilState(modalsAtom);
   const {id} = useRecoilValue(workspaceAtom);
-  // mutations
-  const getTemplate = useCallback(
-    (template) => {
-      api({
-        ..._createProjectFromTemplate(id!, template),
-        setLoading: (state) => {
-          setLoading(state as boolean);
-        },
-        onSuccess: (data: any) => {
-          setLoading(false);
-          setModals(
-            produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-              draft.modals.splice(0, 1);
-            })
-          );
-          router.push(`/project/${data.id}` as Route);
-        },
-      });
-    },
-    [id, router, setModals]
-  );
 
   return (
     <div className="rounded-lg px-20 py-10 bg-secondary-midnight w-[1000px] h-[800px] z-60">
@@ -58,7 +36,20 @@ export const AIRecommendationsModal = ({modalContent: any}) => {
                         {template.name}
                       </div>
                     </div>
-                    <Button className="" disabled={loading} onClick={() => getTemplate(template)}>
+                    <Button
+                      className=""
+                      disabled={loading}
+                      onClick={() =>
+                        startTransition(() => {
+                          createProjectFromTemplate(id!, template);
+                          setModals(
+                            produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+                              draft.modals.splice(0, 1);
+                            })
+                          );
+                        })
+                      }
+                    >
                       {loading ? <LoadingDots /> : <span>Get Template</span>}
                     </Button>
                   </div>

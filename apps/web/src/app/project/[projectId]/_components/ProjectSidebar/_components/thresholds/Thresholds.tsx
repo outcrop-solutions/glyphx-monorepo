@@ -1,57 +1,14 @@
 'use client';
-import React, {SetStateAction, useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {ThresholdList} from './ThresholdList';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {projectAtom} from 'state/project';
 import {PlusIcon} from '@heroicons/react/outline';
-import {_createState, api} from 'lib';
 import {CreateThresholdInput} from './CreateThresholdInput';
-import {cameraAtom, imageHashAtom, viewerPositionSelector} from 'state';
-import {useSWRConfig} from 'swr';
-import {webTypes} from 'types';
 
 export const Thresholds = () => {
-  const {mutate} = useSWRConfig();
-  const project = useRecoilValue(projectAtom);
   const [isCollapsed, setCollapsed] = useState(false);
   const [addThreshold, setAddThreshold] = useState(false);
-  const [camera, setCamera] = useRecoilState(cameraAtom);
-  const [image, setImage] = useRecoilState(imageHashAtom);
-  const setProject = useSetRecoilState(projectAtom);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState('New Threshold');
-  const viewerPosition = useRecoilValue(viewerPositionSelector);
-
-  useEffect(() => {
-    if (Object.keys(camera).length > 0 && image.imageHash) {
-      api({
-        ..._createState(
-          name,
-          project,
-          camera as unknown as webTypes.Camera,
-          {
-            width: (viewerPosition as webTypes.IViewerPosition).w || 300,
-            height: (viewerPosition as webTypes.IViewerPosition).h || 200,
-          },
-          image.imageHash
-        ),
-        setLoading: (state) => setIsSubmitting(state as SetStateAction<boolean>),
-        onError: () => {
-          setCamera({});
-          setImage({imageHash: false});
-          setAddThreshold(false);
-        },
-        onSuccess: () => {
-          setCamera({});
-          setImage({imageHash: false});
-          setAddThreshold(false);
-
-          mutate(`/api/project/${project.id}`);
-        },
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [camera, name, setCamera, setProject, mutate, image, setImage, project?.id, setAddThreshold]);
 
   const createThreshold = () => setAddThreshold(true);
 

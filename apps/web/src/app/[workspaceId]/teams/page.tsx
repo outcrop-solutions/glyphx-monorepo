@@ -1,34 +1,17 @@
 'use client';
-import React, {useState} from 'react';
+import React, {startTransition, useState} from 'react';
 import Link from 'next/link';
 import {useSession} from 'next-auth/react';
-import {useRouter} from 'next/navigation';
-
 import Card from 'app/_components/Card';
 import Button from 'app/_components/Button';
-import {_joinWorkspace, api, useWorkspace} from 'lib/client';
+import {useWorkspace} from 'lib/client';
 import {Route} from 'next';
+import {joinWorkspace} from 'business/src/actions';
 
 export default function Invite() {
-  const router = useRouter();
   const {data} = useSession();
   const [isSubmitting, setSubmittingState] = useState(false);
   const {data: workspace} = useWorkspace();
-
-  const join = () => {
-    api({
-      ..._joinWorkspace(workspace.workspace.inviteCode),
-      setLoading: (state) => setSubmittingState(state as boolean),
-      onSuccess: (data) => {
-        router.replace(`/${data.workspace.id}` as Route);
-      },
-      onError: (status) => {
-        if (status === 422) {
-          router.replace('/account' as Route);
-        }
-      },
-    });
-  };
 
   return (
     <div className="flex flex-col items-center justify-center mx-auto h-full w-full">
@@ -36,7 +19,15 @@ export default function Invite() {
         <Card.Body title={workspace?.workspace.name} subtitle="You are invited to join this workspace." />
         <Card.Footer>
           {data ? (
-            <Button className="" disabled={isSubmitting} onClick={join}>
+            <Button
+              className=""
+              disabled={isSubmitting}
+              onClick={() =>
+                startTransition(() => {
+                  joinWorkspace(workspace.workspace.inviteCode);
+                })
+              }
+            >
               Join Workspace
             </Button>
           ) : (

@@ -1,149 +1,142 @@
-import type {NextApiRequest, NextApiResponse} from 'next';
-import type {Session} from 'next-auth';
-import {stateService, activityLogService, projectService} from 'business';
-import {formatUserAgent} from 'lib/utils';
-import {databaseTypes, emailTypes} from 'types';
-import emailClient from '../../email';
+'use server';
+import {error, constants} from 'core';
+import {getServerSession} from 'next-auth';
+import {stateService, activityLogService, projectService} from '../services';
+import {databaseTypes, emailTypes, webTypes} from 'types';
+import {authOptions} from '../auth';
+import {revalidatePath} from 'next/cache';
+import emailClient from '../email';
 /**
- * Get a State
- *
- * @note retrieves a state
- * @route GET /api/state
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * Gets a state by id
+ * @param stateId
  */
-
-export const getState = async (req: NextApiRequest, res: NextApiResponse) => {
-  const {stateId} = req.body;
+export const getState = async (stateId: string) => {
   try {
-    const state = await stateService.getState(stateId);
-    res.status(200).json({data: state});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    return await stateService.getState(stateId);
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred getting the state by id', 'stateId', stateId, err);
+    e.publish('state', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
+
 /**
- * Creates a State
- *
- * @note Creates a new state
- * @route POST /api/state
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * Creates a new state
+ * @param name
+ * @param camera
+ * @param project
+ * @param imageHash
+ * @param aspectRatio
+ * @param rowIds
  */
-
-export const createState = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {name, camera, project, imageHash, aspectRatio, rowIds} = req.body;
+export const createState = async (
+  name: string,
+  camera: webTypes.Camera,
+  project: databaseTypes.IProject,
+  imageHash: string,
+  aspectRatio: webTypes.Aspect,
+  rowIds: number[]
+) => {
   try {
-    const state = await stateService.createState(
-      name,
-      camera,
-      project,
-      session?.user?.id,
-      aspectRatio,
-      rowIds,
-      imageHash
-    );
+    const session = await getServerSession(authOptions);
+    if (session?.user) {
+      const state = await stateService.createState(
+        name,
+        camera,
+        project,
+        session?.user?.id,
+        aspectRatio,
+        rowIds as unknown as string[],
+        imageHash
+      );
 
-    const retval = await projectService.getProject(project.id);
+      const retval = await projectService.getProject(project.id as string);
 
-    if (retval?.members) {
-      const emailData = {
-        type: emailTypes.EmailTypes.STATE_CREATED,
-        stateName: name,
-        stateImage: imageHash,
-        emails: retval.members?.map((mem) => mem.email),
-      } satisfies emailTypes.EmailData;
+      if (retval?.members) {
+        const emailData = {
+          type: emailTypes.EmailTypes.STATE_CREATED,
+          stateName: name,
+          stateImage: imageHash,
+          emails: retval.members?.map((mem) => mem.email),
+        } satisfies emailTypes.EmailData;
 
-      await emailClient.init();
-      await emailClient.sendEmail(emailData);
+        await emailClient.init();
+        await emailClient.sendEmail(emailData);
+      }
+
+      if (state) {
+        await activityLogService.createLog({
+          actorId: session?.user?.id,
+          resourceId: state?.id!,
+          workspaceId: state.workspace.id,
+          location: '',
+          userAgent: {},
+          onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
+          action: databaseTypes.constants.ACTION_TYPE.CREATED,
+        });
+      }
+      revalidatePath('/project/[projectId]');
     }
-
-    const {agentData, location} = formatUserAgent(req);
-
-    if (state) {
-      await activityLogService.createLog({
-        actorId: session?.user?.id,
-        resourceId: state?.id!,
-        workspaceId: state.workspace.id,
-        location: location,
-        userAgent: agentData,
-        onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
-        action: databaseTypes.constants.ACTION_TYPE.CREATED,
-      });
-    }
-
-    res.status(200).json({data: state});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred creating the state', 'project', project, err);
+    e.publish('state', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
  * Update State Name
- *
- * @note Updates a state's display name
- * @route PUT /api/state
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @param stateId
+ * @param name
  */
-
-export const updateState = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {stateId, name} = req.body;
+export const updateState = async (stateId: string, name: string) => {
   try {
-    const state = await stateService.updateState(stateId, name);
-    const {agentData, location} = formatUserAgent(req);
-
-    await activityLogService.createLog({
-      actorId: session?.user?.id,
-      resourceId: state.id!,
-      workspaceId: state.project?.workspace?.toString(),
-      projectId: state.project.id,
-      location: location,
-      userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
-      action: databaseTypes.constants.ACTION_TYPE.UPDATED,
-    });
-    res.status(200).json({data: {name}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    const session = await getServerSession(authOptions);
+    if (session?.user) {
+      const state = await stateService.updateState(stateId, name);
+      await activityLogService.createLog({
+        actorId: session?.user?.id,
+        resourceId: state.id!,
+        workspaceId: state.project?.workspace?.toString(),
+        projectId: state.project.id,
+        location: '',
+        userAgent: {},
+        onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
+        action: databaseTypes.constants.ACTION_TYPE.UPDATED,
+      });
+      revalidatePath('/project/[projectId]');
+    }
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred updating the state', 'stateId', stateId, err);
+    e.publish('state', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
  * Delete a state
- *
- * @note  update state deletedAt date
- * @route DELETE /api/state
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * @param stateId
  */
-
-export const deleteState = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
+export const deleteState = async (stateId: string) => {
   try {
-    const {stateId} = req.body;
-    const state = await stateService.deleteState(stateId);
-    const {agentData, location} = formatUserAgent(req);
-
-    await activityLogService.createLog({
-      actorId: session?.user?.id,
-      resourceId: state.id!,
-      workspaceId: state.project?.workspace?.toString(),
-      projectId: state.project.id,
-      location: location,
-      userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
-      action: databaseTypes.constants.ACTION_TYPE.DELETED,
-    });
-    res.status(200).json({data: {deleted: true}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    const session = await getServerSession(authOptions);
+    if (session?.user) {
+      const state = await stateService.deleteState(stateId);
+      await activityLogService.createLog({
+        actorId: session?.user?.id,
+        resourceId: state.id!,
+        workspaceId: state.project?.workspace?.toString(),
+        projectId: state.project.id,
+        location: '',
+        userAgent: {},
+        onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
+        action: databaseTypes.constants.ACTION_TYPE.DELETED,
+      });
+      revalidatePath('/project/[projectId]');
+    }
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred deleting the state', 'stateId', stateId, err);
+    e.publish('state', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };

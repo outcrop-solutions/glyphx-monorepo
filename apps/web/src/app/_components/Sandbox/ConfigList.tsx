@@ -1,9 +1,9 @@
-import React, {useCallback} from 'react';
+import React, {useTransition} from 'react';
 import {ConfigName} from './ConfigName';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {configsAtom, currentConfigAtom} from 'state';
 import {PlusCircleIcon} from '@heroicons/react/outline';
-import {api, _createConfig} from 'lib';
+import {createConfig} from 'business/src/actions';
 
 const DEFAULT_CONFIG = {
   name: 'Default Config',
@@ -28,17 +28,21 @@ const DEFAULT_CONFIG = {
 
 export const ConfigList = () => {
   const configs = useRecoilValue(configsAtom);
+  const [isPending, startTransition] = useTransition();
   const setCurrentConfig = useSetRecoilState(currentConfigAtom);
-
-  const addConfig = useCallback(async () => {
-    await api({..._createConfig(DEFAULT_CONFIG)});
-  }, []);
 
   return (
     <details>
       <summary className="flex items-center justify-between text-base font-semibold leading-7 text-white cursor-pointer py-2">
         Configurations
-        <PlusCircleIcon onClick={addConfig} className="w-6 h-6" />
+        <PlusCircleIcon
+          onClick={() =>
+            startTransition(async () => {
+              await createConfig(DEFAULT_CONFIG);
+            })
+          }
+          className="w-6 h-6"
+        />
       </summary>
       {configs && (
         <ul role="list" className="-mx-2 mt-2 space-y-1">

@@ -1,10 +1,10 @@
-import React, {useCallback, useState} from 'react';
+import React, {startTransition, useCallback, useState} from 'react';
 import {useRecoilState, useRecoilValue} from 'recoil';
-import {_updateConfig, api} from 'lib';
 import {togglesConfigDirtyAtom, configSelector, currentConfigAtom} from 'state';
 import {databaseTypes} from 'types';
 import {Toggle} from './Toggle';
 import {CheckIcon} from '@heroicons/react/outline';
+import {updateConfig} from 'business/src/actions';
 
 const fields = ['Toggle Grid Lines', 'Toggle Glyph Offset', 'Toggle Z Offset'];
 
@@ -13,10 +13,6 @@ export const Toggles = () => {
   const currentConfig = useRecoilValue(currentConfigAtom);
   const [configDirty] = useRecoilState(togglesConfigDirtyAtom);
   const [isCollapsed, setCollapsed] = useState(true);
-
-  const saveChanges = useCallback(async () => {
-    await api({..._updateConfig(config?.id!, config as databaseTypes.IModelConfig)});
-  }, [config]);
 
   return (
     config && (
@@ -53,7 +49,12 @@ export const Toggles = () => {
             <CheckIcon
               color="#CECECE"
               className="w-5 h-5 opacity-100 mr-2 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white"
-              onClick={saveChanges}
+              onClick={() =>
+                startTransition(() =>
+                  // @ts-ignore
+                  updateConfig(config?.id, config as databaseTypes.IModelConfig)
+                )
+              }
             />
           )}
         </summary>

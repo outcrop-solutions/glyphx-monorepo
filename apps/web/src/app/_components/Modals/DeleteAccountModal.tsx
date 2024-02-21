@@ -1,25 +1,18 @@
 'use client';
-import React, {useState} from 'react';
+import React, {startTransition, useState} from 'react';
 import {signOut, useSession} from 'next-auth/react';
-import produce from 'immer';
-import {WritableDraft} from 'immer/dist/internal';
 import {webTypes} from 'types';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import {DocumentDuplicateIcon} from '@heroicons/react/outline';
 import Button from 'app/_components/Button';
-
-import {_deactivateAccount, api} from 'lib';
-import {useUrl} from 'lib/client/hooks';
-
-import {useSetRecoilState} from 'recoil';
-import {modalsAtom} from 'state';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
+import {useUrl} from 'lib/client/hooks';
+import {deactivateUser} from 'business/src/actions';
 
 export const DeleteAccountModal = ({modalContent}: webTypes.DeleteAccountModalProps) => {
   const {data} = useSession();
   const url = useUrl();
-  const setModals = useSetRecoilState(modalsAtom);
   const [verifyEmail, setVerifyEmail] = useState('');
 
   const copyToClipboard = () => toast.success('Copied to clipboard!');
@@ -27,27 +20,6 @@ export const DeleteAccountModal = ({modalContent}: webTypes.DeleteAccountModalPr
   const verifiedEmail = verifyEmail === data?.user.email;
 
   const handleVerifyEmailChange = (event) => setVerifyEmail(event.target.value);
-
-  const deactivateAccount = (event) => {
-    event.preventDefault();
-    api({
-      ..._deactivateAccount(),
-      setLoading: (state) =>
-        setModals(
-          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals[0].isSubmitting = state as boolean;
-          })
-        ),
-      onSuccess: () => {
-        setModals(
-          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals.splice(0, 1);
-          })
-        );
-        signOut({callbackUrl: `${url}/auth/login`});
-      },
-    });
-  };
 
   return (
     <div className="bg-secondary-midnight text-white px-4 py-8 flex flex-col space-y-8 rounded-md">
@@ -77,7 +49,12 @@ export const DeleteAccountModal = ({modalContent}: webTypes.DeleteAccountModalPr
         <Button
           className="text-white bg-red-600 hover:bg-red-500"
           disabled={!verifiedEmail || modalContent.isSubmitting}
-          onClick={deactivateAccount}
+          onClick={() =>
+            startTransition(() => {
+              deactivateUser();
+              signOut({callbackUrl: `${url}/auth/login`});
+            })
+          }
         >
           {modalContent.isSubmitting ? <LoadingDots /> : <span>Delete Personal Account</span>}
         </Button>

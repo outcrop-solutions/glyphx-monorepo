@@ -1,10 +1,10 @@
 import produce from 'immer';
-import React, {useCallback} from 'react';
+import React, {startTransition, useCallback} from 'react';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {configSelector, configsAtom, currentConfigAtom, radiusConfigDirtyAtom} from 'state';
 import {databaseTypes} from 'types';
 import {toSnakeCase} from './toSnakeCase';
-import {_updateConfig, api} from 'lib';
+import {updateConfig} from 'business/src/actions';
 
 const fields = [
   'Grid Cylinder Radius',
@@ -34,13 +34,6 @@ export const RadiusLengths = () => {
     [setConfigDirty, setConfigs]
   );
 
-  const saveChanges = useCallback(async () => {
-    await api({
-      ..._updateConfig(config?.id!, config as databaseTypes.IModelConfig),
-      setLoading: (loading) => setConfigDirty(loading as boolean),
-    });
-  }, [config, setConfigDirty]);
-
   return (
     config && (
       <details className="py-2">
@@ -48,7 +41,12 @@ export const RadiusLengths = () => {
           Radius and Lengths
           {configDirty && (
             <div
-              onClick={saveChanges}
+              onClick={() =>
+                startTransition(() =>
+                  // @ts-ignore
+                  updateConfig(config?.id!, config as databaseTypes.IModelConfig)
+                )
+              }
               className="bg-yellow hover:bg-primary-yellow rounded px-1 text-secondary-midnight"
             >
               save

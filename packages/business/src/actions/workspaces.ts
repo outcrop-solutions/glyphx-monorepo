@@ -1,34 +1,35 @@
-import type {NextApiRequest, NextApiResponse} from 'next';
-import type {Session} from 'next-auth';
-import {membershipService, workspaceService} from 'business';
+'use server';
+import {error, constants} from 'core';
+import {getServerSession} from 'next-auth';
+import {membershipService, workspaceService} from '../services';
+import {authOptions} from '../auth';
 
 /**
  * Get Workspaces
- *
- * @note Fetches & returns all workspaces available.
- * @route GET /api/workspaces
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
  */
-
-export const getWorkspaces = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const workspaces = await workspaceService.getWorkspaces(session?.user?.id!, session?.user?.email as string);
-  res.status(200).json({data: {workspaces}});
+export const getWorkspaces = async () => {
+  try {
+    const session = await getServerSession(authOptions);
+    if (session?.user) {
+      return await workspaceService.getWorkspaces(session?.user?.id!, session?.user?.email as string);
+    }
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred getting workspaces', '', {}, err);
+    e.publish('workspace', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
+  }
 };
 
 /**
  * Get Pending Invitations
- *
- * @note Fetches & returns all pending invitations
- * @route GET /api/workspaces/invitations
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
  */
-
-export const getPendingInvitations = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const invitations = await membershipService.getPendingInvitations(session?.user?.email as string);
-  res.status(200).json({data: {invitations}});
+export const getPendingInvitations = async () => {
+  try {
+    const session = await getServerSession(authOptions);
+    return await membershipService.getPendingInvitations(session?.user?.email as string);
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred getting pending invitations', '', {}, err);
+    e.publish('workspace', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
+  }
 };

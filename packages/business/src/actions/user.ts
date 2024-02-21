@@ -1,115 +1,101 @@
-import type {NextApiRequest, NextApiResponse} from 'next';
-import type {Session} from 'next-auth';
-import {userService, activityLogService, validateUpdateName, validateUpdateEmail} from 'business';
-import {formatUserAgent} from 'lib/utils/formatUserAgent';
+'use server';
+import {error, constants} from 'core';
+import {getServerSession} from 'next-auth';
+import {userService, activityLogService} from '../services';
 import {databaseTypes, emailTypes} from 'types';
-import emailClient from '../../email';
+import emailClient from '../email';
+import {revalidatePath} from 'next/cache';
+import {authOptions} from '../auth';
 
 /**
- * Update Name
- *
- * @note Updated user name
- * @route PUT /api/user/name
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * Update user name
+ * @param name
  */
-
-export const updateName = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {name} = req.body;
+export const updateUserName = async (name: string) => {
   try {
-    await validateUpdateName(req, res);
-    const user = await userService.updateName(session?.user?.id, name);
-    const {agentData, location} = formatUserAgent(req);
-
-    await activityLogService.createLog({
-      actorId: session?.user?.id,
-      resourceId: user.id!,
-      location: location,
-      userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.USER,
-      action: databaseTypes.constants.ACTION_TYPE.UPDATED,
-    });
-    res.status(200).json({data: {name}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    const session = await getServerSession(authOptions);
+    if (session) {
+      const user = await userService.updateName(session?.user?.id, name);
+      await activityLogService.createLog({
+        actorId: session?.user?.id,
+        resourceId: user.id!,
+        location: '',
+        userAgent: {},
+        onModel: databaseTypes.constants.RESOURCE_MODEL.USER,
+        action: databaseTypes.constants.ACTION_TYPE.UPDATED,
+      });
+      revalidatePath('/[workspaceId]');
+    }
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred updating the user name', 'name', name, err);
+    e.publish('user', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
 
 /**
- * Update Email
- *
- * @note Updated user email
- * @route PUT /api/user/email
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
+ * Updates user email
+ * @param email
+ * @returns
  */
-
-export const updateEmail = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  const {email} = req.body;
+export const updateUserEmail = async (email: string) => {
   try {
-    await validateUpdateEmail(req, res);
-    const user = await userService.updateEmail(session?.user?.id, email, session?.user?.email as string);
+    const session = await getServerSession(authOptions);
 
-    const emailData = {
-      type: emailTypes.EmailTypes.EMAIL_UPDATED,
-      oldEmail: session?.user?.email,
-      newEmail: email,
-    } satisfies emailTypes.EmailData;
+    if (session) {
+      const user = await userService.updateEmail(session?.user?.id, email, session?.user?.email as string);
 
-    await emailClient.init();
-    await emailClient.sendEmail(emailData);
+      const emailData = {
+        type: emailTypes.EmailTypes.EMAIL_UPDATED,
+        oldEmail: session?.user?.email,
+        newEmail: email,
+      } satisfies emailTypes.EmailData;
 
-    const {agentData, location} = formatUserAgent(req);
-
-    await activityLogService.createLog({
-      actorId: session?.user?.id,
-      resourceId: user.id!,
-      location: location,
-      userAgent: agentData,
-      onModel: databaseTypes.constants.RESOURCE_MODEL.USER,
-      action: databaseTypes.constants.ACTION_TYPE.UPDATED,
-    });
-
-    res.status(200).json({data: {email}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
-  }
-};
-
-/**
- * Deactivate User
- *
- * @note  update user deletedAt date
- * @route DELETE /api/user
- * @param req - Next.js API Request
- * @param res - Next.js API Response
- * @param session - NextAuth.js session
- *
- */
-
-const ALLOW_DEACTIVATION = true;
-
-export const deactivateUser = async (req: NextApiRequest, res: NextApiResponse, session: Session) => {
-  try {
-    if (ALLOW_DEACTIVATION) {
-      const user = await userService.deactivate(session?.user?.id);
-      const {agentData, location} = formatUserAgent(req);
+      await emailClient.init();
+      await emailClient.sendEmail(emailData);
 
       await activityLogService.createLog({
         actorId: session?.user?.id,
         resourceId: user.id!,
-        location: location,
-        userAgent: agentData,
+        location: '',
+        userAgent: {},
+        onModel: databaseTypes.constants.RESOURCE_MODEL.USER,
+        action: databaseTypes.constants.ACTION_TYPE.UPDATED,
+      });
+    }
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred updating the user email', 'email', email, err);
+    e.publish('user', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
+  }
+};
+
+const ALLOW_DEACTIVATION = true;
+/**
+ * Deactivate User
+ * @returns
+ */
+export const deactivateUser = async () => {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (session && ALLOW_DEACTIVATION) {
+      const user = await userService.deactivate(session?.user?.id);
+
+      await activityLogService.createLog({
+        actorId: session?.user?.id,
+        resourceId: user.id!,
+        location: '',
+        userAgent: {},
         onModel: databaseTypes.constants.RESOURCE_MODEL.USER,
         action: databaseTypes.constants.ACTION_TYPE.DELETED,
       });
     }
-    res.status(200).json({data: {email: session?.user?.email}});
-  } catch (error) {
-    res.status(404).json({errors: {error: {msg: error.message}}});
+    revalidatePath('/[workspaceId]');
+    // FIXME: add redirect server side here
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred decativating the user', '', null, err);
+    e.publish('user', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
   }
 };
