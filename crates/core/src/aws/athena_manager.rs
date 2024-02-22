@@ -28,7 +28,7 @@ use super::result_set_converter::convert_to_json;
 use async_trait::async_trait;
 pub use crate::types::aws::athena_manager::athena_manager_errors::{
     ConstructorError, GetQueryPagerError, GetQueryResultsError as GlyphxGetQueryResultsError,
-    GetQueryStatusError, GetTableDescriptionError, RunQueryError, StartQueryError,
+    GetQueryStatusError, GetTableDescriptionError, RunQueryError, StartQueryError, AthenaStreamIteratorError
 };
 pub use crate::types::aws::athena_manager::query_status::AthenaQueryStatus;
 pub use crate::types::aws::athena_manager::table_description::*;

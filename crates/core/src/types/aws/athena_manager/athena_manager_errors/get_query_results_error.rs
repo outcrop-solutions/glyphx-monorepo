@@ -9,8 +9,9 @@ use crate::GlyphxError;
 //glyphx_core.
 use crate as glyphx_core;
 use serde_json::json;
+use serde::{Deserialize, Serialize};
 ///Errors that are returned from our get_query_results method.
-#[derive(Debug, Clone, GlyphxError)]
+#[derive(Debug, Clone, GlyphxError, Deserialize, Serialize)]
 #[error_definition("AthenaManager")]
 pub enum GetQueryResultsError {
     ///If the query_id does not point to a valid query this is returned.
