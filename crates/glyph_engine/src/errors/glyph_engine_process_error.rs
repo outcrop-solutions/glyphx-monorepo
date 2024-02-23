@@ -5,7 +5,12 @@ use crate::types::vectorizer_parameters::GetFieldDefinitionError;
 use crate::vector_processer::TaskStatus;
 
 use glyphx_core::{
-    aws::athena_manager::{GetQueryPagerError, GetQueryStatusError, StartQueryError},
+    aws::{
+        athena_manager::{
+            AthenaStreamIteratorError, GetQueryPagerError, GetQueryStatusError, StartQueryError,
+        },
+        s3_manager::{GetUploadStreamError, UploadStreamFinishError, UploadStreamWriteError},
+    },
     GlyphxError, GlyphxErrorData,
 };
 
@@ -15,6 +20,7 @@ pub enum GlyphEngineProcessError {
     ConfigurationError(GlyphxErrorData),
     VectorProcessingError(GlyphxErrorData),
     QueryProcessingError(GlyphxErrorData),
+    DataProcessingError(GlyphxErrorData),
 }
 
 impl GlyphEngineProcessError {
@@ -66,5 +72,40 @@ impl GlyphEngineProcessError {
         let inner_error = to_value(error).unwrap();
         let error_data = GlyphxErrorData::new(message, Some(data), Some(inner_error));
         Self::QueryProcessingError(error_data)
+    }
+
+    pub fn from_athena_stream_iterator_error(error: AthenaStreamIteratorError) -> Self {
+        let message = "An error occurred while iterating the query results, see the inner error for additional information ".to_string();
+        let data = None;
+        let inner_error = to_value(error).unwrap();
+        let error_data = GlyphxErrorData::new(message, data, Some(inner_error));
+        Self::DataProcessingError(error_data)
+    }
+
+    pub fn from_get_upload_stream_error(error: GetUploadStreamError, file_name: &str) -> Self {
+        let message = "An error occurred while getting the upload stream, see the inner error for additional information ".to_string();
+        let data = Some(json!({ file_name: file_name }));
+        let inner_error = to_value(error).unwrap();
+        let error_data = GlyphxErrorData::new(message, data, Some(inner_error));
+        Self::DataProcessingError(error_data)
+    }
+
+    pub fn from_upload_stream_write_error(error: UploadStreamWriteError, file_name: &str) -> Self {
+        let message = "An error occurred while writing to the upload stream, see the inner error for additional information ".to_string();
+        let data = Some(json!({ file_name: file_name }));
+        let inner_error = to_value(error).unwrap();
+        let error_data = GlyphxErrorData::new(message, data, Some(inner_error));
+        Self::DataProcessingError(error_data)
+    }
+
+    pub fn from_upload_stream_finish_error(
+        error: UploadStreamFinishError,
+        file_name: &str,
+    ) -> Self {
+        let message = "An error occurred while finishing the upload stream, see the inner error for additional information ".to_string();
+        let data = Some(json!({ file_name: file_name }));
+        let inner_error = to_value(error).unwrap();
+        let error_data = GlyphxErrorData::new(message, data, Some(inner_error));
+        Self::DataProcessingError(error_data)
     }
 }

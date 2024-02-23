@@ -8,6 +8,7 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 
 use tokio_stream::Stream;
+
 pub struct MockStreamState {
     pub counter: usize,
     pub closure: RefCell<
@@ -25,6 +26,7 @@ pub struct MockStreamState {
     pub z_field_name: String,
     pub result_set_size: usize,
 }
+
 pub struct MockStream {
     // Fields to hold the internal state of your stream
     pub state: MockStreamState,

@@ -13,7 +13,7 @@ use glyphx_common::{AthenaConnection, S3Connection};
 use glyphx_core::{
     aws::{
         athena_manager::RunQueryError,
-        s3_manager::{GetUploadStreamError, UploadStreamWriteError, UploadStreamFinishError},
+        s3_manager::{GetUploadStreamError, UploadStreamFinishError, UploadStreamWriteError},
         upload_stream::UploadStream,
     },
     ErrorTypeParser, GlyphxErrorData, Singleton,
@@ -72,10 +72,8 @@ pub trait ThreadOperations {
         data: Vec<u8>,
     ) -> Result<(), UploadStreamWriteError>;
 
-    async fn finish_stream(
-        &self,
-        stream: &mut UploadStream,
-    ) -> Result<(), UploadStreamFinishError>;
+    async fn finish_stream(&self, stream: &mut UploadStream)
+        -> Result<(), UploadStreamFinishError>;
 }
 
 struct ThreadOperationsImpl;
@@ -331,6 +329,30 @@ fn serialize_vector(vector: &Vector) -> Vec<u8> {
     ser_vector.append(serialize(vector).unwrap().as_mut());
     ser_vector
 }
+
+//This allows us to build a vector processer from a json result set.  This is useful for testing
+pub(super) fn build_vector_processer_from_json(
+    axis_name: &str,
+    table_name: &str,
+    s3_file_name: &str,
+    field_definition: FieldDefinition,
+    result_set: Value,
+    field_name: String,
+) -> VectorProcesser {
+    let mut vector_processer =
+        VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
+    let mut rank = 0;
+    for row in result_set.as_array().unwrap() {
+        let vector = build_vector(row, &field_name, rank);
+        vector_processer
+            .vectors
+            .insert(vector.orig_value.clone(), vector);
+        rank += 1;
+    }
+    vector_processer.task_status = TaskStatus::Complete;
+    vector_processer
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -559,7 +581,7 @@ mod tests {
                 Ok(())
             }
         }
-        
+
         pub struct MocksStartUploadError;
         #[async_trait]
         impl ThreadOperations for MocksStartUploadError {
@@ -583,7 +605,7 @@ mod tests {
                 ]);
                 Ok(json)
             }
-            
+
             async fn get_upload_stream(
                 &self,
                 _s3_file_name: &str,
@@ -634,7 +656,7 @@ mod tests {
                 ]);
                 Ok(json)
             }
-            
+
             async fn get_upload_stream(
                 &self,
                 _s3_file_name: &str,
@@ -687,7 +709,7 @@ mod tests {
                 ]);
                 Ok(json)
             }
-            
+
             async fn get_upload_stream(
                 &self,
                 _s3_file_name: &str,
@@ -1105,7 +1127,9 @@ mod tests {
             }
 
             match final_status {
-                TaskStatus::Errored(VectorCaclulationError::GetS3UploadStreamError(_)) => assert!(true),
+                TaskStatus::Errored(VectorCaclulationError::GetS3UploadStreamError(_)) => {
+                    assert!(true)
+                }
                 _ => assert!(false),
             }
         }

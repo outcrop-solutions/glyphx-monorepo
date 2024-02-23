@@ -24,8 +24,8 @@ use crate::types::vectorizer_parameters::helper_functions::json_has_field;
 use crate::types::vectorizer_parameters::FieldDefinitionType;
 use crate::types::FieldType;
 use glyphx_core::GlyphxErrorData;
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum FieldDefinition {
@@ -139,7 +139,7 @@ impl FieldDefinition {
         field_definition: &Value,
     ) -> Result<FieldDefinition, FromJsonError> {
         let standard_field_definition = StandardFieldDefinition::from_json(field_definition);
-    
+
         if standard_field_definition.is_err() {
             let err = standard_field_definition.err().unwrap();
             let err = FromJsonError::from_standard_field_from_json_error(err);
@@ -267,30 +267,18 @@ impl FieldDefinition {
     }
     pub fn get_field_query(&self) -> &str {
         match self {
-            FieldDefinition::Standard {
-                field_query, ..
-            } => field_query.as_str(),
-            FieldDefinition::Date {
-                field_query, ..
-            } => field_query.as_str(),
-            FieldDefinition::Accumulated {
-                field_query, ..
-            } => field_query.as_str(),
+            FieldDefinition::Standard { field_query, .. } => field_query.as_str(),
+            FieldDefinition::Date { field_query, .. } => field_query.as_str(),
+            FieldDefinition::Accumulated { field_query, .. } => field_query.as_str(),
             _ => "",
         }
     }
 
     pub fn get_raw_query(&self) -> &str {
         match self {
-            FieldDefinition::Standard {
-                raw_query, ..
-            } => raw_query.as_str(),
-            FieldDefinition::Date {
-                raw_query, ..
-            } => raw_query.as_str(),
-            FieldDefinition::Accumulated {
-                raw_query, ..
-            } => raw_query.as_str(),
+            FieldDefinition::Standard { raw_query, .. } => raw_query.as_str(),
+            FieldDefinition::Date { raw_query, .. } => raw_query.as_str(),
+            FieldDefinition::Accumulated { raw_query, .. } => raw_query.as_str(),
             _ => "",
         }
     }
@@ -549,7 +537,7 @@ mod get_field_query {
                 field_type: FieldDefinitionType::Standard,
                 field_name: "test".to_string(),
             },
-            field_query : field_query.clone(),
+            field_query: field_query.clone(),
             raw_query: String::from(r#""test""#),
         };
         assert_eq!(field_definition.get_field_query(), field_query);
@@ -566,7 +554,7 @@ mod get_field_query {
                 field_name: "test".to_string(),
                 date_grouping: DateGrouping::DayOfMonth,
             },
-            field_query : field_query.clone(),
+            field_query: field_query.clone(),
             raw_query: String::from(r#""test""#),
         };
         assert_eq!(field_definition.get_field_query(), field_query);
@@ -588,7 +576,7 @@ mod get_field_query {
                     },
                 ),
             },
-            field_query : field_query.clone(),
+            field_query: field_query.clone(),
             raw_query: String::from(r#""test""#),
         };
         assert_eq!(field_definition.get_field_query(), field_query);
@@ -615,7 +603,7 @@ mod get_raw_query {
                 field_type: FieldDefinitionType::Standard,
                 field_name: "test".to_string(),
             },
-            field_query : String::from(r#""test" as "test""#),
+            field_query: String::from(r#""test" as "test""#),
             raw_query: raw_query.clone(),
         };
         assert_eq!(field_definition.get_raw_query(), raw_query);
@@ -632,7 +620,7 @@ mod get_raw_query {
                 field_name: "test".to_string(),
                 date_grouping: DateGrouping::DayOfMonth,
             },
-            field_query : String::from(r#""test" as "test""#),
+            field_query: String::from(r#""test" as "test""#),
             raw_query: raw_query.clone(),
         };
         assert_eq!(field_definition.get_raw_query(), raw_query);
@@ -654,7 +642,7 @@ mod get_raw_query {
                     },
                 ),
             },
-            field_query : String::from(r#""test" as "test""#),
+            field_query: String::from(r#""test" as "test""#),
             raw_query: raw_query.clone(),
         };
         assert_eq!(field_definition.get_raw_query(), raw_query);
@@ -1403,10 +1391,7 @@ mod get_query_parts {
         );
         assert_eq!(field_value, expected_value);
 
-        let raw_expected_value = format!(
-            r#"day(from_unixtime("{}"/1000))"#,
-            internal_field_name
-        );
+        let raw_expected_value = format!(r#"day(from_unixtime("{}"/1000))"#, internal_field_name);
         assert_eq!(raw_query, raw_expected_value);
     }
 
@@ -1460,10 +1445,14 @@ mod get_query_parts {
         let result = result.unwrap();
         let (field_name, field_value, raw_query) = result.get_query_parts();
         assert_eq!(field_name, display_name);
-        let expected_value = format!(r#"SUM(day(from_unixtime("{}"/1000))) as "{}""#, internal_field_name, display_name);
+        let expected_value = format!(
+            r#"SUM(day(from_unixtime("{}"/1000))) as "{}""#,
+            internal_field_name, display_name
+        );
         assert_eq!(field_value, expected_value);
 
-        let raw_expected_value = format!(r#"SUM(day(from_unixtime("{}"/1000)))"#, internal_field_name);
+        let raw_expected_value =
+            format!(r#"SUM(day(from_unixtime("{}"/1000)))"#, internal_field_name);
         assert_eq!(raw_query, raw_expected_value);
     }
 }

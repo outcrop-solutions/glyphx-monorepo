@@ -13,6 +13,12 @@ use super::{
     athena_manager::{AthenaStreamIteratorError, GlyphxGetQueryResultsError},
     result_set_converter::convert_to_json,
 };
+//We are re-exporting the types from the aws_sdk_athena crate so that we can use them in the other
+//crates to avoid having to import them in each file.
+pub use aws_sdk_athena::types::error::InternalServerException;
+pub use aws_smithy_http::body::SdkBody;
+pub use aws_smithy_runtime_api::client::orchestrator::HttpResponse;
+pub use aws_smithy_types::error::ErrorMetadata;
 use serde_json::Value;
 
 pub struct AthenaStreamIterator {

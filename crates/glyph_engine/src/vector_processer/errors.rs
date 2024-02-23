@@ -1,5 +1,11 @@
+use glyphx_core::{
+    aws::{
+        athena_manager::RunQueryError,
+        s3_manager::{GetUploadStreamError, UploadStreamFinishError, UploadStreamWriteError},
+    },
+    GlyphxError, GlyphxErrorData,
+};
 use serde::{Deserialize, Serialize};
-use glyphx_core::{aws::{s3_manager::{GetUploadStreamError, UploadStreamWriteError, UploadStreamFinishError},  athena_manager::RunQueryError}, GlyphxError, GlyphxErrorData};
 
 use serde_json::to_value;
 

@@ -1490,6 +1490,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "bincode",
+ "futures-core",
  "glyphx_common",
  "glyphx_core",
  "glyphx_database",
@@ -1498,6 +1499,7 @@ dependencies = [
  "log",
  "mockall",
  "once_cell",
+ "rand",
  "serde",
  "serde_json",
  "tokio",
@@ -1539,6 +1541,7 @@ dependencies = [
  "aws-sdk-s3",
  "aws-sdk-secretsmanager",
  "aws-smithy-http",
+ "aws-smithy-runtime-api",
  "aws-smithy-types",
  "backtrace",
  "bytes",

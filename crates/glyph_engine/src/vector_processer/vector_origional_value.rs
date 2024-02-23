@@ -48,4 +48,3 @@ impl Ord for VectorOrigionalValue {
         }
     }
 }
-
