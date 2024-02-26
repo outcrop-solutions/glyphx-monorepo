@@ -9,7 +9,7 @@ import {cameraAtom, imageHashAtom, viewerPositionSelector} from 'state';
 import {useSWRConfig} from 'swr';
 import {webTypes} from 'types';
 import useApplyState from 'services/useApplyState';
-import {createState} from 'business/src/actions';
+import {createState} from 'actions';
 
 export const States = () => {
   const {mutate} = useSWRConfig();

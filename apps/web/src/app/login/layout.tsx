@@ -3,7 +3,7 @@ import {authOptions} from 'app/api/auth/[...nextauth]/route';
 import {Metadata, Route} from 'next';
 import {redirect} from 'next/navigation';
 import {Initializer} from 'business';
-import {createWorkspace, getWorkspaces} from 'business/src/actions';
+import {createWorkspace, getWorkspaces} from 'actions';
 
 export const metadata: Metadata = {
   title: 'Login | Glyphx',

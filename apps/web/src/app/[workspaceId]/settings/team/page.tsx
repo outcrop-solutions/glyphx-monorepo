@@ -14,14 +14,15 @@ import {toast} from 'react-hot-toast';
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
-import {useWorkspace} from 'lib/client';
 import useIsTeamOwner from 'lib/client/hooks/useIsOwner';
-import {inviteUsers, removeMember, updateRole} from 'business/src/actions';
+import {inviteUsers, removeMember, updateRole} from 'actions';
+import {useRecoilValue} from 'recoil';
+import {workspaceAtom} from 'state';
 
 const MEMBERS_TEMPLATE = {email: '', teamRole: databaseTypes.constants.ROLE.MEMBER};
 
 const Team = () => {
-  const {data, isLoading: isWorkspaceLoading} = useWorkspace();
+  const workspace = useRecoilValue(workspaceAtom);
   const {data: ownership, isLoading: isOwnershipLoading} = useIsTeamOwner();
 
   const [isSubmitting, setSubmittingState] = useState(false);
@@ -136,7 +137,7 @@ const Team = () => {
                   disabled={isSubmitting}
                   onClick={() =>
                     startTransition(() => {
-                      inviteUsers(data.id, members);
+                      inviteUsers(workspace.id as string, members);
                     })
                   }
                 >
@@ -160,8 +161,8 @@ const Team = () => {
                   </tr>
                 </thead>
                 <tbody className="text-sm py-4">
-                  {!isWorkspaceLoading ? (
-                    data?.workspace?.members
+                  {workspace ? (
+                    workspace?.members
                       .filter((mem) => !mem.deletedAt)
                       .map((member, index) => (
                         <tr key={index}>
@@ -188,7 +189,7 @@ const Team = () => {
                                 {member?.status.toLowerCase()}
                               </span>
                               <h4 className="capitalize">{member?.teamRole?.toLowerCase()}</h4>
-                              {data?.workspace?.creator?.email !== member?.email && ownership?.isTeamOwner && (
+                              {workspace?.creator?.email !== member?.email && ownership?.isTeamOwner && (
                                 <Menu as="div" className="relative inline-block text-left">
                                   <div>
                                     <Menu.Button className="flex items-center justify-center p-3 space-x-3 rounded hover:bg-secondary-midnight">
@@ -218,7 +219,7 @@ const Team = () => {
                                                     startTransition(() => {
                                                       // @ts-ignore
                                                       updateRole(
-                                                        member.id,
+                                                        member.id as string,
                                                         event.target.value as unknown as
                                                           | databaseTypes.constants.ROLE
                                                           | databaseTypes.constants.PROJECT_ROLE

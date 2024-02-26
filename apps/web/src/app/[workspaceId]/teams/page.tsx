@@ -4,19 +4,20 @@ import Link from 'next/link';
 import {useSession} from 'next-auth/react';
 import Card from 'app/_components/Card';
 import Button from 'app/_components/Button';
-import {useWorkspace} from 'lib/client';
 import {Route} from 'next';
-import {joinWorkspace} from 'business/src/actions';
+import {joinWorkspace} from 'actions';
+import {useRecoilValue} from 'recoil';
+import {workspaceAtom} from 'state';
 
 export default function Invite() {
   const {data} = useSession();
   const [isSubmitting, setSubmittingState] = useState(false);
-  const {data: workspace} = useWorkspace();
+  const workspace = useRecoilValue(workspaceAtom);
 
   return (
     <div className="flex flex-col items-center justify-center mx-auto h-full w-full">
       <Card>
-        <Card.Body title={workspace?.workspace.name} subtitle="You are invited to join this workspace." />
+        <Card.Body title={workspace?.name} subtitle="You are invited to join this workspace." />
         <Card.Footer>
           {data ? (
             <Button
@@ -24,7 +25,7 @@ export default function Invite() {
               disabled={isSubmitting}
               onClick={() =>
                 startTransition(() => {
-                  joinWorkspace(workspace.workspace.inviteCode);
+                  joinWorkspace(workspace?.inviteCode);
                 })
               }
             >

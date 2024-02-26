@@ -5,7 +5,7 @@ import {configSelector, configsAtom, currentConfigAtom, radiusConfigDirtyAtom} f
 import {databaseTypes} from 'types';
 import {toSnakeCase} from './toSnakeCase';
 import {CheckIcon} from '@heroicons/react/outline';
-import {updateConfig} from 'business/src/actions';
+import {updateConfig} from 'actions';
 
 const fields = [
   'Grid Cylinder Radius',

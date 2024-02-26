@@ -2,13 +2,13 @@
 import {error, constants} from 'core';
 import {getServerSession} from 'next-auth';
 import {Route} from 'next';
-import {membershipService, workspaceService, activityLogService} from '../services';
+import {membershipService, workspaceService, activityLogService} from '../../business/src/services';
 import slugify from 'slugify';
-import {authOptions} from '../auth';
+import {authOptions} from './auth';
 import {revalidatePath} from 'next/cache';
 import {redirect} from 'next/navigation';
 import {databaseTypes, emailTypes} from 'types';
-import emailClient from '../email';
+import emailClient from './email';
 
 /**
  * Get or Create Default Workspace

@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {DocumentDuplicateIcon} from '@heroicons/react/outline';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
-import {deleteState} from 'business/src/actions';
+import {deleteState} from 'actions';
 
 export const DeleteStateModal = ({modalContent}: webTypes.DeleteStateModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);

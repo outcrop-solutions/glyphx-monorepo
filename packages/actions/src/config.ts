@@ -1,10 +1,10 @@
 'use server';
 import {error, constants} from 'core';
 import {databaseTypes} from 'types';
-import {modelConfigService} from '../services';
+import {modelConfigService} from '../../business/src/services';
 import {revalidatePath} from 'next/cache';
 import {getServerSession} from 'next-auth';
-import {authOptions} from 'auth';
+import {authOptions} from './auth';
 
 /**
  * Create Default Config

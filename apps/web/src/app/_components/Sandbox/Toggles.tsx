@@ -3,7 +3,7 @@ import {useRecoilState, useRecoilValue} from 'recoil';
 import {togglesConfigDirtyAtom, configSelector, currentConfigAtom} from 'state';
 import {databaseTypes} from 'types';
 import {Toggle} from './Toggle';
-import {updateConfig} from 'business/src/actions';
+import {updateConfig} from 'actions';
 
 const fields = ['Toggle Grid Lines', 'Toggle Glyph Offset', 'Toggle Z Offset'];
 

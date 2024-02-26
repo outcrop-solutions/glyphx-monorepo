@@ -8,7 +8,7 @@ import {DocumentDuplicateIcon} from '@heroicons/react/outline';
 import Button from 'app/_components/Button';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {useUrl} from 'lib/client/hooks';
-import {deactivateUser} from 'business/src/actions';
+import {deactivateUser} from 'actions';
 
 export const DeleteAccountModal = ({modalContent}: webTypes.DeleteAccountModalProps) => {
   const {data} = useSession();

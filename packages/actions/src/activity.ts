@@ -1,7 +1,7 @@
 'use server';
 import {error, constants} from 'core';
-import {Initializer} from '../init';
-import {activityLogService} from '../services';
+import {Initializer} from '../../business/src/init';
+import {activityLogService} from '../../business/src/services';
 import {databaseTypes} from 'types';
 
 /**

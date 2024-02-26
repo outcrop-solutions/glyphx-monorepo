@@ -3,7 +3,7 @@ import {ConfigName} from './ConfigName';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {configsAtom, currentConfigAtom} from 'state';
 import {PlusCircleIcon} from '@heroicons/react/outline';
-import {createConfig} from 'business/src/actions';
+import {createConfig} from 'actions';
 
 const DEFAULT_CONFIG = {
   name: 'Default Config',

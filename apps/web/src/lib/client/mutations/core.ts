@@ -1,26 +1,8 @@
 import {webTypes, databaseTypes} from 'types';
-
 /******************** INGESTION *********************/
-/**
- * Gets signed urls to pass to the Qt engine
- * @note implements s3Manager.getSignedDataUrlPromise concurrently
- * @note requires signed body, so no go for now
- * @param workpaceId
- * @param projectId
- * @param keys
- */
-export const _getSignedUploadUrls = (workspaceId: string, projectId: string, keys: string[]): webTypes.IFetchConfig => {
-  return {
-    url: `/api/etl/sign-upload-urls`,
-    options: {
-      method: 'POST',
-      body: {workspaceId, projectId, keys},
-    },
-    successMsg: 'File successfully added',
-  };
-};
 
 /**
+ * This is still necessary because we are sending to s3
  * @note could potentially be changed to multi-part upload in api Content-Type
  * @param acceptedFile
  * @param url
@@ -36,74 +18,14 @@ export const _uploadFile = (acceptedFile: ArrayBuffer, url: string): webTypes.IF
     successMsg: 'File successfully uploaded',
   };
 };
-
-/**
- * Ingest files
- * @note implements processFiles()
- * @param payload
- */
-export const _ingestFiles = (payload: webTypes.IClientSidePayload): webTypes.IFetchConfig => {
-  return {
-    url: `/api/etl/ingest`,
-    options: {
-      method: 'POST',
-      body: {payload},
-    },
-    successMsg: 'File successfully ingested',
-  };
-};
-
 /******************** ETL *********************/
-
 /**
  * Calls the glyph engine to create data files
  * @note implements glyphengine.process()
  * @param payload corresponds to the glyph engine payload
  */
-
 // iState should include a filehash, to determine whether filtering is available via checking against current fileHash
-
 // modal state should also include a payload hash in order to uniquely store the data, as subsequent create state calls with the same fileSystem will override privious states with the same file system
-
-export const _createModel = (
-  project: Partial<databaseTypes.IProject>,
-  isFilter: boolean,
-  payloadHash: string
-): webTypes.IFetchConfig => {
-  const cleanProject = {
-    ...project,
-    stateHistory: [],
-  };
-
-  return {
-    url: `/api/etl/glyphengine`,
-    options: {
-      method: 'POST',
-      body: {project: cleanProject, isFilter, payloadHash},
-    },
-    successMsg: 'Model successfully generated!',
-  };
-};
-
-/**
- * Created signed urls to upload files to S3
- * @note implements s3Manager.getSignedDataUrlPromise concurrently
- */
-
-export const _getSignedDataUrls = (
-  workspaceId: string,
-  projectId: string,
-  payloadHash: string
-): webTypes.IFetchConfig => {
-  return {
-    url: `/api/etl/sign-data-urls`,
-    options: {
-      method: 'POST',
-      body: {workspaceId, projectId, payloadHash},
-    },
-    successMsg: 'Signed data packets',
-  };
-};
 
 /**
  *

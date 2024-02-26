@@ -2,7 +2,7 @@
 import {error, constants} from 'core';
 import {Configuration, OpenAIApi} from 'openai-edge';
 import {systemMessage} from './utils/systemMessages';
-import {projectService, projectTemplateService} from '../services';
+import {projectService, projectTemplateService} from '../../business/src/services';
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,

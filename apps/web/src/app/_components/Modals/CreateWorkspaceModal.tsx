@@ -6,7 +6,7 @@ import {useRouter} from 'next/navigation';
 import {useSetRecoilState} from 'recoil';
 import {modalsAtom} from 'state';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
-import {createWorkspace} from 'business/src/actions';
+import {createWorkspace} from 'actions';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 

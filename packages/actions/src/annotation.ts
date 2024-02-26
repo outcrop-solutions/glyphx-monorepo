@@ -1,11 +1,11 @@
 'use server';
 import {error, constants} from 'core';
-import {membershipService, projectService, annotationService, stateService} from '../services';
+import {membershipService, projectService, annotationService, stateService} from '../../business/src/services';
 import {getServerSession} from 'next-auth';
 import {databaseTypes, emailTypes} from 'types';
-import {authOptions} from 'auth';
+import {authOptions} from './auth';
 import {revalidatePath} from 'next/cache';
-import emailClient from '../email';
+import emailClient from './email';
 /**
  * Gets suggested members for combobox
  * @param projectId

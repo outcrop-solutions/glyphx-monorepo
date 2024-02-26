@@ -10,7 +10,7 @@ import ColXIcon from 'public/svg/col-x-icon.svg';
 import ColYIcon from 'public/svg/col-y-icon.svg';
 import ColZIcon from 'public/svg/col-z-icon.svg';
 import {LoadingDots} from '../Loaders/LoadingDots';
-import {createProjectTemplate} from 'business/src/actions';
+import {createProjectTemplate} from 'actions';
 
 export const CreateProjectTemplateModal = ({modalContent}: webTypes.CreateProjectTemplateModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);

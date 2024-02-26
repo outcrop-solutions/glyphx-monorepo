@@ -13,7 +13,7 @@ import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 
 import {useSetRecoilState} from 'recoil';
 import {modalsAtom, workspaceAtom} from 'state';
-import {deleteWorkspace} from 'business/src/actions';
+import {deleteWorkspace} from 'actions';
 
 export const DeleteWorkspaceModal = ({modalContent}: webTypes.DeleteWorkspaceModalProps) => {
   const params = useParams();

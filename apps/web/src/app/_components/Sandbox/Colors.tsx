@@ -6,7 +6,7 @@ import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {configSelector, configsAtom, currentConfigAtom, colorsConfigDirtyAtom} from 'state';
 import {toSnakeCase} from './toSnakeCase';
 import {databaseTypes} from 'types';
-import {updateConfig} from 'business/src/actions';
+import {updateConfig} from 'actions';
 const fields = ['Max Color', 'Min Color', 'Background Color', 'X Axis Color', 'Y Axis Color', 'Z Axis Color'];
 
 export const Colors = () => {

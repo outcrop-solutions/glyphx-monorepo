@@ -1,9 +1,9 @@
 'use server';
 import {error, constants} from 'core';
 import {getServerSession} from 'next-auth';
-import {authOptions} from '../auth';
+import {authOptions} from './auth';
 import {databaseTypes} from 'types';
-import {workspaceService, membershipService, activityLogService} from '../services';
+import {workspaceService, membershipService, activityLogService} from '../../business/src/services';
 import {revalidatePath} from 'next/cache';
 import {redirect} from 'next/navigation';
 

@@ -2,7 +2,7 @@
 import {ArrowRightIcon} from '@heroicons/react/outline';
 import {startTransition, useEffect, useRef, useState} from 'react';
 import UserCombobox from './UserCombobox';
-import {createProjectAnnotation, createStateAnnotation} from 'business/src/actions/annotation';
+import {createProjectAnnotation, createStateAnnotation} from 'actions/src/annotation';
 
 export const InputArea = ({id, type}) => {
   const [value, setValue] = useState('');

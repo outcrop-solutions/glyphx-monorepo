@@ -44,7 +44,7 @@ export const Annotations = () => {
           className="w-5 h-5 opacity-100 mr-2 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white"
         />
       </summary>
-      {!isCollapsed && !isLoading && <AnnotationList />}
+      <AnnotationList />
     </div>
   );
 };

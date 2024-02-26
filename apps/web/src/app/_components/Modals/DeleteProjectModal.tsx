@@ -10,7 +10,7 @@ import {webTypes} from 'types';
 import {useSetRecoilState} from 'recoil';
 import {modalsAtom} from 'state';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
-import {deactivateProject} from 'business/src/actions';
+import {deactivateProject} from 'actions';
 
 export const DeleteProjectModal = ({modalContent}: webTypes.DeleteProjectModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);

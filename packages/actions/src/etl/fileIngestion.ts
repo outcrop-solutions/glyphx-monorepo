@@ -3,11 +3,11 @@ import {error, constants} from 'core';
 import {revalidatePath} from 'next/cache';
 import {generalPurposeFunctions} from 'core';
 import {FileIngestor, BasicColumnNameCleaner} from 'fileingestion';
-import {processTrackingService, activityLogService, projectService} from '../../services';
-import {s3Connection, athenaConnection} from '../../lib';
+import {processTrackingService, activityLogService, projectService} from '../../../business/src/services';
+import {s3Connection, athenaConnection} from '../../../business/src/lib';
 import {databaseTypes} from 'types';
 import {getServerSession} from 'next-auth';
-import {authOptions} from 'auth';
+import {authOptions} from '../auth';
 
 /**
  * File Ingestion Key Notes
@@ -118,6 +118,7 @@ export const fileIngestion = async (payload) => {
       });
       //get the updated project
       const project = await projectService.getProject(newPayload.modelId);
+      revalidatePath('/project/[projectId]');
       return {
         fileInformation,
         joinInformation,

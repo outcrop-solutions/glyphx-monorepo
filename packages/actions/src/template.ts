@@ -2,9 +2,9 @@
 import {error, constants} from 'core';
 import {getServerSession} from 'next-auth';
 import {revalidatePath} from 'next/cache';
-import {projectTemplateService, activityLogService, projectService} from '../services';
+import {projectTemplateService, activityLogService, projectService} from '../../business/src/services';
 import {databaseTypes} from 'types';
-import {authOptions} from '../auth';
+import {authOptions} from './auth';
 
 /**
  * Create Default ProjectTemplate

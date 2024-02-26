@@ -7,7 +7,7 @@ import {webTypes} from 'types';
 import {useSetRecoilState} from 'recoil';
 import {modalsAtom, projectAtom} from 'state';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
-import {updateState} from 'business/src/actions';
+import {updateState} from 'actions';
 
 export const UpdateStateModal = ({modalContent}: webTypes.UpdateStateModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);

@@ -4,7 +4,7 @@ import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {configSelector, configsAtom, currentConfigAtom, radiusConfigDirtyAtom} from 'state';
 import {databaseTypes} from 'types';
 import {toSnakeCase} from './toSnakeCase';
-import {updateConfig} from 'business/src/actions';
+import {updateConfig} from 'actions';
 
 const fields = [
   'Grid Cylinder Radius',

@@ -6,12 +6,7 @@
     "baseUrl": "./src",
     "noImplicitAny": false,
     "experimentalDecorators": true, // required for correct next transpilation
-    "emitDecoratorMetadata": true
-  },
-  "paths": {
-    "@/constants/*": ["src/constants/*"],
-    "@/lib/*": ["src/lib/*"],
-    "@/services/*": ["src/services/*"],
-    "@/validation/*": ["src/validation/*"]
+    "emitDecoratorMetadata": true,
+    "jsx": "preserve"
   }
 }

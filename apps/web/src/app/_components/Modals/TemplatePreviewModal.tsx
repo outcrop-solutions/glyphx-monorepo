@@ -11,7 +11,7 @@ import ColYIcon from 'public/svg/col-y-icon.svg';
 import ColZIcon from 'public/svg/col-z-icon.svg';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
-import {createProjectFromTemplate} from 'business/src/actions';
+import {createProjectFromTemplate} from 'actions';
 
 export const TemplatePreviewModal = ({modalContent}: webTypes.TemplatePreviewModalProps) => {
   const params = useParams();

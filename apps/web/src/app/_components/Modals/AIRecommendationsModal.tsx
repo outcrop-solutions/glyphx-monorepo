@@ -8,7 +8,7 @@ import {WritableDraft} from 'immer/dist/internal';
 import {LoadingDots} from '../Loaders/LoadingDots';
 import Button from '../Button';
 import {webTypes} from 'types';
-import {createProjectFromTemplate} from 'business/src/actions';
+import {createProjectFromTemplate} from 'actions';
 
 export const AIRecommendationsModal = ({modalContent: any}) => {
   const [loading, setLoading] = useState(false);

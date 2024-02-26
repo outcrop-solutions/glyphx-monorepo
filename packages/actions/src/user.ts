@@ -1,11 +1,11 @@
 'use server';
 import {error, constants} from 'core';
 import {getServerSession} from 'next-auth';
-import {userService, activityLogService} from '../services';
+import {userService, activityLogService} from '../../business/src/services';
 import {databaseTypes, emailTypes} from 'types';
-import emailClient from '../email';
+import emailClient from './email';
 import {revalidatePath} from 'next/cache';
-import {authOptions} from '../auth';
+import {authOptions} from './auth';
 
 /**
  * Update user name

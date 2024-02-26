@@ -6,7 +6,7 @@ import ExitModalIcon from 'public/svg/exit-project-modal-icon.svg';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {ClientDocumentManager} from 'collab/lib/client/ClientDocumentManager';
 import {useSession} from 'next-auth/react';
-import {createProject} from 'business/src/actions';
+import {createProject} from 'actions';
 
 export const NewProject = ({exit}) => {
   const router = useRouter();

@@ -19,7 +19,7 @@ import {hashFileSystem} from 'lib/utils/hashFileSystem';
 import {useUrl} from 'lib/client/hooks';
 import {isValidPayload} from 'lib/utils/isValidPayload';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
-import {updateProjectState} from 'business/src/actions';
+import {updateProjectState} from 'actions';
 
 export const Properties = () => {
   const session = useSession();

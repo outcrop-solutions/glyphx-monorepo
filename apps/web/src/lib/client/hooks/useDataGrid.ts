@@ -5,7 +5,7 @@ import {useRecoilState, useRecoilValue} from 'recoil';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {webTypes} from 'types';
-import {getDataByRowId, getDataByTableName} from 'business/src/actions';
+import {getDataByRowId, getDataByTableName} from 'actions';
 
 const useDataGrid = (ref) => {
   const [gridData, setGridData] = useRecoilState(dataGridAtom);

@@ -2,7 +2,7 @@ import {useState, Fragment, useTransition} from 'react';
 import {Menu, Transition} from '@headlessui/react';
 import {ChevronDownIcon, DotsVerticalIcon} from '@heroicons/react/outline';
 import {databaseTypes} from 'types';
-import {removeMember, updateRole} from 'business/src/actions';
+import {removeMember, updateRole} from 'actions';
 
 export function PermissionsDropDown({member}) {
   const [isSubmitting] = useState(false);

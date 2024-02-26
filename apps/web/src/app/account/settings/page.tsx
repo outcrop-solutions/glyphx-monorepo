@@ -12,7 +12,7 @@ import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
 import {modalsAtom} from 'state';
-import {updateUserEmail, updateUserName} from 'business/src/actions';
+import {updateUserEmail, updateUserName} from 'actions';
 
 export default function Settings() {
   const {data} = useSession();

@@ -1,11 +1,11 @@
 'use server';
 import {error, constants} from 'core';
 import {getServerSession} from 'next-auth';
-import {stateService, activityLogService, projectService} from '../services';
+import {stateService, activityLogService, projectService} from '../../business/src/services';
 import {databaseTypes, emailTypes, webTypes} from 'types';
-import {authOptions} from '../auth';
+import {authOptions} from './auth';
 import {revalidatePath} from 'next/cache';
-import emailClient from '../email';
+import emailClient from './email';
 /**
  * Gets a state by id
  * @param stateId

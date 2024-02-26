@@ -6,7 +6,7 @@ import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
 import {useInvitations, useWorkspaces} from 'lib/client';
 import {Route} from 'next';
-import {acceptInvitation, declineInvitation} from 'business/src/actions';
+import {acceptInvitation, declineInvitation} from 'actions';
 
 export default function Welcome() {
   const router = useRouter();

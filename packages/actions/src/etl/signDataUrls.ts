@@ -1,6 +1,6 @@
 'use server';
 import {error, constants} from 'core';
-import {s3Connection} from '../../lib';
+import {s3Connection} from '../../../business/src/lib';
 
 /**
  * Created signed url to upload files

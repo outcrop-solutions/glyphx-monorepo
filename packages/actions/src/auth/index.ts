@@ -4,9 +4,9 @@ import {MongoDBAdapter} from '@next-auth/mongodb-adapter';
 import GoogleProvider from 'next-auth/providers/google';
 import EmailProvider from 'next-auth/providers/email';
 import {databaseTypes, emailTypes} from 'types';
-import {Initializer} from '../init';
-import dbConnection from '../lib/databaseConnection';
-import {userService} from '../services';
+import dbConnection from 'business/src/lib/databaseConnection';
+import {userService, Initializer} from 'business';
+import emailClient from '../email';
 
 const getConnectionPromise = (async () => {
   // initialize the business layer

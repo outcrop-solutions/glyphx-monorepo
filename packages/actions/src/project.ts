@@ -1,10 +1,10 @@
 'use server';
 import {error, constants} from 'core';
 import {getServerSession} from 'next-auth';
-import {projectService, activityLogService} from '../services';
+import {projectService, activityLogService} from '../../business/src/services';
 import {databaseTypes} from 'types';
 import {revalidatePath} from 'next/cache';
-import {authOptions} from '../auth';
+import {authOptions} from './auth';
 import {redirect} from 'next/navigation';
 
 /**

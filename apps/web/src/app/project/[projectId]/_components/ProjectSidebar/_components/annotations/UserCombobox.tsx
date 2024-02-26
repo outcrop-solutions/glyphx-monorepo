@@ -1,7 +1,7 @@
 import {useState, useEffect, useRef} from 'react';
 import {Combobox} from '@headlessui/react';
 import produce from 'immer';
-import {getSuggestedMembers} from 'business/src/actions/annotation';
+import {getSuggestedMembers} from 'actions/src/annotation';
 import {useParams} from 'next/navigation';
 import {CheckIcon, ChevronDownIcon} from '@heroicons/react/outline';
 
@@ -9,9 +9,14 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
+const members = [
+  {name: 'jp', username: 'username'},
+  {name: 'james', username: 'username'},
+];
+
 const UserCombobox = ({setShowCombo, setValue}) => {
   const [query, setQuery] = useState('');
-  const [members, setMembers] = useState<{name: string; username: string}[]>([]);
+  // const [members, setMembers] = useState<{name: string; username: string}[]>([]);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const params = useParams();
 
@@ -19,13 +24,11 @@ const UserCombobox = ({setShowCombo, setValue}) => {
     query === ''
       ? members
       : members.filter((member) => {
-          return (
-            member.name.toLowerCase().includes(query.toLowerCase()) ||
-            member.username.toLowerCase().includes(query.toLowerCase())
-          );
+          return member.name.toLowerCase().includes(query.toLowerCase());
         });
 
   const inputRef = useRef(null);
+
 
   useEffect(() => {
     if (inputRef.current) {
@@ -40,8 +43,10 @@ const UserCombobox = ({setShowCombo, setValue}) => {
       if (params?.projectId) {
         const retval = await getSuggestedMembers(params?.projectId as string);
         console.log({retval});
-        if (retval) {
-          setMembers(retval);
+        // @ts-ignore
+        if (!retval?.error) {
+          // @ts-ignore
+          // setMembers(retval);
         }
       }
     };
@@ -70,9 +75,9 @@ const UserCombobox = ({setShowCombo, setValue}) => {
         <Combobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
           <ChevronDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
         </Combobox.Button>
-        {filteredMembers.length > 0 && (
+        {members.length > 0 && (
           <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-            {filteredMembers.map((person) => (
+            {members.map((person) => (
               <Combobox.Option
                 style={{background: '#0D1321'}}
                 key={person.username}

@@ -8,16 +8,17 @@ import isSlug from 'validator/lib/isSlug';
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
-import {useWorkspace} from 'lib/client';
 import useIsTeamOwner from 'lib/client/hooks/useIsOwner';
-import {updateWorkspaceName, updateWorkspaceSlug} from 'business/src/actions';
+import {updateWorkspaceName, updateWorkspaceSlug} from 'actions';
+import {workspaceAtom} from 'state';
+import {useRecoilValue} from 'recoil';
 
 const General = () => {
-  const {data} = useWorkspace();
+  const workspace = useRecoilValue(workspaceAtom);
   const {data: ownership} = useIsTeamOwner();
   const [isSubmitting, setSubmittingState] = useState(false);
-  const [name, setName] = useState(data?.workspace?.name || '');
-  const [slug, setSlug] = useState(data?.workspace?.slug || '');
+  const [name, setName] = useState(workspace?.name || '');
+  const [slug, setSlug] = useState(workspace?.slug || '');
 
   const validName = name?.length > 0 && name?.length <= 16;
   const validSlug =
@@ -29,11 +30,11 @@ const General = () => {
   const handleSlugChange = (event) => setSlug(event.target.value);
 
   useEffect(() => {
-    if (data?.workspace) {
-      setName(data?.workspace?.name);
-      setSlug(data?.workspace.slug!);
+    if (workspace) {
+      setName(workspace?.name);
+      setSlug(workspace.slug!);
     }
-  }, [data?.workspace]);
+  }, [workspace]);
 
   return (
     <>
@@ -58,7 +59,7 @@ const General = () => {
                 disabled={!validName || isSubmitting}
                 onClick={() =>
                   startTransition(() => {
-                    updateWorkspaceName(data.id, name);
+                    updateWorkspaceName(workspace.id as string, name);
                   })
                 }
               >
@@ -88,7 +89,7 @@ const General = () => {
                 disabled={!validSlug || isSubmitting}
                 onClick={() =>
                   startTransition(() => {
-                    updateWorkspaceSlug(data.id, slug);
+                    updateWorkspaceSlug(workspace.id as string, slug);
                   })
                 }
               >
@@ -100,8 +101,8 @@ const General = () => {
         <Card>
           <Card.Body title="Workspace ID" subtitle="Used when interacting with APIs">
             <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border rounded md:w-1/2">
-              <span className="overflow-x-auto">{data?.workspace?.workspaceCode}</span>
-              <CopyToClipboard onCopy={copyToClipboard} text={data?.workspace?.workspaceCode}>
+              <span className="overflow-x-auto">{workspace?.workspaceCode}</span>
+              <CopyToClipboard onCopy={copyToClipboard} text={workspace?.workspaceCode}>
                 <DocumentDuplicateIcon className="w-5 h-5 cursor-pointer hover:text-blue-600" />
               </CopyToClipboard>
             </div>

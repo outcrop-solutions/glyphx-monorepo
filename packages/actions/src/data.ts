@@ -1,10 +1,10 @@
 'use server';
 import {error, constants} from 'core';
-import {dataService, projectService} from '../services';
+import {dataService, projectService} from '../../business/src/services';
 import {generalPurposeFunctions as sharedFunctions} from 'core';
 import {formatGridData} from './utils/formatGridData';
 import {getServerSession} from 'next-auth';
-import {authOptions} from '../auth';
+import {authOptions} from './auth';
 
 /**
  * Get Data by Row Id

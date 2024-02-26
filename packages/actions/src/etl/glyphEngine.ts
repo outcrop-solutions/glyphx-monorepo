@@ -2,13 +2,14 @@
 import {error, constants} from 'core';
 import {generalPurposeFunctions} from 'core';
 import {GlyphEngine} from 'glyphengine';
-import {processTrackingService, activityLogService, projectService} from '../../services';
+import {processTrackingService, activityLogService, projectService} from '../../../business/src/services';
 import {generateFilterQuery} from '../utils/generateFilterQuery';
 import {isValidPayload} from '../utils/isValidPayload';
-import {s3Connection, athenaConnection} from '../../lib';
+import {s3Connection, athenaConnection} from '../../../business/src/lib';
 import {databaseTypes, fileIngestionTypes, glyphEngineTypes, webTypes} from 'types';
 import {getServerSession} from 'next-auth';
-import {authOptions} from 'auth';
+import {authOptions} from '../auth';
+import {revalidatePath} from 'next/cache';
 
 /**
  * Call Glyph Engine
@@ -119,6 +120,7 @@ export const glyphEngine = async (project, payloadHash) => {
           onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
           action: databaseTypes.constants.ACTION_TYPE.MODEL_GENERATED,
         });
+        revalidatePath('/project/[projectId]');
 
         return {sdtFileName, sgnFileName, sgcFileName, updatedProject};
       }

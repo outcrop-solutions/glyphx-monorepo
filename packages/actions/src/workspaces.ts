@@ -1,8 +1,8 @@
 'use server';
 import {error, constants} from 'core';
 import {getServerSession} from 'next-auth';
-import {membershipService, workspaceService} from '../services';
-import {authOptions} from '../auth';
+import {membershipService, workspaceService} from '../../business/src/services';
+import {authOptions} from './auth';
 
 /**
  * Get Workspaces

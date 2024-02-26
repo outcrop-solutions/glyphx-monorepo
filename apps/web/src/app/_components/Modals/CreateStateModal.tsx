@@ -6,7 +6,7 @@ import {databaseTypes, webTypes} from 'types';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {cameraAtom, imageHashAtom, modalsAtom, projectAtom, rowIdsAtom, viewerPositionSelector} from 'state';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
-import {createState} from 'business/src/actions';
+import {createState} from 'actions';
 
 export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps) => {
   const {mutate} = useSWRConfig();
