@@ -2,7 +2,7 @@ use glyph_engine::types::vectorizer_parameters::VectorizerParameters;
 use glyph_engine::vector_processer::{TaskStatus, VectorProcesser, VectorValueProcesser};
 use glyphx_common::{AthenaConnection, S3Connection};
 use glyphx_core::Singleton;
-
+use glyph_engine::GlyphEngine;
 use serde_json::json;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
@@ -25,45 +25,34 @@ async fn test_vector_processor() {
             }
         },
         "yAxis" : {
-            "fieldDisplayName": "field2",
-            "fieldDataType": 1,
+            "fieldDisplayName": "last_receipt_date",
+            "fieldDataType": 0,
             "fieldDefinition": {
-                "fieldType": "standard",
-                "fieldName": "field2"
+                "fieldType": "date",
+                "fieldName": "last_receipt_date",
+                "dateGrouping" : "month_of_year"
+
             }
         },
         "zAxis" : {
-            "fieldDisplayName": "field3",
+            "fieldDisplayName": "delta",
             "fieldDataType": 1,
             "fieldDefinition": {
-                "fieldType": "standard",
-                "fieldName": "field3"
+                "fieldType": "accumulated",
+                "accumulator": "sum",
+                "accumulatedFieldDefinition" : {
+                    "fieldType": "standard",
+                    "fieldName": "delta"
+                }
+                    
             }
         },
         "supportingFields" : [ ]
     });
     let params = VectorizerParameters::from_json_value(&params).unwrap();
-    let mut vector_processer = VectorProcesser::new(
-        "x",
-        &params.data_table_name,
-        "test/jptesting",
-        params.get_field_definition("xaxis").unwrap(),
-    );
-    vector_processer.start();
-    let final_status;
-    loop {
-        let status = vector_processer.check_status();
-        if status == TaskStatus::Complete {
-            final_status = status;
-            break;
-        }
-        match status {
-            TaskStatus::Errored(_) => {
-                final_status = status;
-                break;
-            }
-            _ => {}
-        }
-    }
-    assert_eq!(final_status, TaskStatus::Complete);
+    let mut glyph_engine = GlyphEngine::new(&params).await.unwrap();
+
+    let result = glyph_engine.process().await;
+    eprintln!("result: {:?}", result);
+    assert!(result.is_ok());
 }

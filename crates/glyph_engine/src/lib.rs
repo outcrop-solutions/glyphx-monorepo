@@ -43,6 +43,7 @@ trait GlyphEngineOperations {
         axis: &str,
         data_table_name: &str,
         field_definition: &FieldDefinition,
+        output_file_name: &str,
     ) -> Box<dyn VectorValueProcesser>;
     async fn start_athena_query(
         &self,
@@ -55,6 +56,7 @@ trait GlyphEngineOperations {
         query_id: &str,
     ) -> Result<AthenaQueryStatus, GlyphEngineProcessError>;
     async fn get_query_results(
+        &self,
         query_id: &str,
         athena_connection: &AthenaConnection,
     ) -> Result<AthenaStreamIterator, GlyphEngineProcessError>;
@@ -107,10 +109,15 @@ impl GlyphEngineOperations for GlyphEngineOperationsImpl {
         axis: &str,
         data_table_name: &str,
         field_definition: &FieldDefinition,
+        output_file_name: &str,
     ) -> Box<dyn VectorValueProcesser> {
         //TODO: We need to get the table names for this run
-        let field_processor =
-            VectorProcesser::new(axis, data_table_name, "Fixme", field_definition.clone());
+        let field_processor = VectorProcesser::new(
+            axis,
+            data_table_name,
+            output_file_name,
+            field_definition.clone(),
+        );
         Box::new(field_processor)
     }
 
@@ -158,6 +165,7 @@ impl GlyphEngineOperations for GlyphEngineOperationsImpl {
     }
 
     async fn get_query_results(
+        &self,
         query_id: &str,
         athena_connection: &AthenaConnection,
     ) -> Result<AthenaStreamIterator, GlyphEngineProcessError> {
@@ -287,15 +295,33 @@ impl GlyphEngine {
         (Box<dyn VectorValueProcesser>, Box<dyn VectorValueProcesser>),
         GlyphEngineProcessError,
     > {
+        let x_file_name = format!(
+            "{}/{}/{}/output/{}_{}-axis.vec",
+            self.parameters.output_file_prefix,
+            self.parameters.workspace_id,
+            self.parameters.project_id,
+            self.parameters.model_hash,
+            "x"
+        );
         let mut x_field_processor = operations.get_vector_processer(
             "x",
             &self.parameters.data_table_name,
             &x_field_definition,
+            &x_file_name,
+        );
+        let y_file_name = format!(
+            "{}/{}/{}/output/{}_{}-axis.vec",
+            self.parameters.output_file_prefix,
+            self.parameters.workspace_id,
+            self.parameters.project_id,
+            self.parameters.model_hash,
+            "y"
         );
         let mut y_field_processor = operations.get_vector_processer(
             "y",
             &self.parameters.data_table_name,
             &y_field_definition,
+            &y_file_name,
         );
 
         x_field_processor.start();
@@ -381,7 +407,7 @@ impl GlyphEngine {
         &self,
         result: &Value,
         field_name: &str,
-        vector_processor: &VectorProcesser,
+        vector_processor: &Box<dyn VectorValueProcesser>,
     ) -> Result<Vector, GlyphEngineProcessError> {
         let value = result.get(field_name);
         if value.is_none() {
@@ -395,9 +421,12 @@ impl GlyphEngine {
         }
         let value = value.unwrap();
         let orig_value: VectorOrigionalValue;
-        if value.is_number() {
+        if value.is_f64() {
             let value = value.as_f64().unwrap();
             orig_value = VectorOrigionalValue::F64(value);
+        } else if value.is_u64() {
+            let value = value.as_u64().unwrap();
+            orig_value = VectorOrigionalValue::U64(value);
         } else if value.is_string() {
             let value = value.as_str().unwrap();
             orig_value = VectorOrigionalValue::String(value.to_string());
@@ -468,18 +497,19 @@ impl GlyphEngine {
             return Err(GlyphEngineProcessError::DataProcessingError(error_data));
         }
         let value = value.as_str().unwrap();
-        let values:Vec<&str> = value.split("|").collect();
+        let values: Vec<&str> = value.split("|").collect();
         let mut return_value: Vec<usize> = Vec::new();
         for v in values {
-           let result = v.parse::<usize>();
-           if result.is_err(){
-               let result = result.err().unwrap();
-               let message = format!("The field rowids was not a pipe delimited string of integers");
-               let data = serde_json::json!({"value": value, "bad_value": v});
-               let error_data = GlyphxErrorData::new(message, Some(data), None);
-               return Err(GlyphEngineProcessError::DataProcessingError(error_data));
-           }
-           return_value.push(result.unwrap());
+            let result = v.parse::<usize>();
+            if result.is_err() {
+                let result = result.err().unwrap();
+                let message =
+                    format!("The field rowids was not a pipe delimited string of integers");
+                let data = serde_json::json!({"value": value, "bad_value": v});
+                let error_data = GlyphxErrorData::new(message, Some(data), None);
+                return Err(GlyphEngineProcessError::DataProcessingError(error_data));
+            }
+            return_value.push(result.unwrap());
         }
         Ok(return_value)
     }
@@ -490,8 +520,8 @@ impl GlyphEngine {
         x_field_name: &str,
         y_field_name: &str,
         z_field_name: &str,
-        x_vector_processer: &VectorProcesser,
-        y_vector_processer: &VectorProcesser,
+        x_vector_processer: &Box<dyn VectorValueProcesser>,
+        y_vector_processer: &Box<dyn VectorValueProcesser>,
     ) -> Result<Glyph, GlyphEngineProcessError> {
         let x_field_name = format!("x_{}", x_field_name);
         let y_field_name = format!("y_{}", y_field_name);
@@ -521,8 +551,8 @@ impl GlyphEngine {
         x_field_name: &str,
         y_field_name: &str,
         z_field_name: &str,
-        x_vector_processer: &VectorProcesser,
-        y_vector_processer: &VectorProcesser,
+        x_vector_processer: &Box<dyn VectorValueProcesser>,
+        y_vector_processer: &Box<dyn VectorValueProcesser>,
         operations: &T,
     ) -> Result<(), GlyphEngineProcessError> {
         handle_error!(let upload_stream = operations.get_upload_stream(file_name, &self.s3_connection).await; GlyphEngineProcessError::from_get_upload_stream_error(file_name), error);
@@ -569,9 +599,62 @@ impl GlyphEngine {
             .await?;
         //1. Build the vector/rank tables tables and upload them to S3. -- 1 for each vertex (X and
         //   Y)
+        let mut status: AthenaQueryStatus;
         let (x_field_processor, y_field_processor) =
             self.process_vectors(&x_field_definition, &y_field_definition, operations)?;
 
+        loop {
+            status = operations
+                .check_query_status(self.athena_connection, &query_id)
+                .await?;
+            if status != AthenaQueryStatus::Queued && status != AthenaQueryStatus::Running {
+                break;
+            }
+        }
+
+        if status != AthenaQueryStatus::Succeeded {
+            let message = format!(
+                "The query did not complete successfully.  The status was {:?}",
+                status
+            );
+            let data =
+                serde_json::json!({ "query_id": query_id, "status": format!("{:?}", status) });
+            let inner_error = match status {
+                AthenaQueryStatus::Failed(error) => {
+                    let string_error = format!("{:?}", error);
+                    Some(serde_json::to_value(string_error).unwrap())
+                }
+                _ => None,
+            };
+            let error_data = GlyphxErrorData::new(message, Some(data), inner_error);
+
+            return Err(GlyphEngineProcessError::QueryProcessingError(error_data));
+        }
+
+        let output_file_name = format!(
+            "{}/{}/{}/output/{}.gly",
+            self.parameters.output_file_prefix,
+            self.parameters.workspace_id,
+            self.parameters.project_id,
+            self.parameters.model_hash
+        );
+
+        let mut results_iterator = operations
+            .get_query_results(&query_id, &self.athena_connection)
+            .await?;
+
+        let _ = self
+            .process_query_results(
+                &output_file_name,
+                &mut results_iterator,
+                &x_field_definition.get_field_display_name(),
+                &y_field_definition.get_field_display_name(),
+                &z_field_definition.get_field_display_name(),
+                &x_field_processor,
+                &y_field_processor,
+                operations,
+            )
+            .await?;
         Ok(())
     }
     pub async fn process(&self) -> Result<(), GlyphEngineProcessError> {
@@ -786,6 +869,8 @@ mod glyph_engine {
                 "workspace_id": "1234",
                 "project_id": "5678",
                 "data_table_name": "my_table",
+                "output_file_prefix" : "test",
+                "model_hash" : "test_hash",
                 "xAxis" : {
                     "fieldDisplayName": "field1",
                     "fieldDataType": 1,
@@ -843,7 +928,7 @@ mod glyph_engine {
                 .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }));
             mocks
                 .expect_get_vector_processer()
-                .returning(|_, _, _| unsafe {
+                .returning(|_, _, _, _| unsafe {
                     CALL_NUMBER += 1;
                     if CALL_NUMBER == 1 {
                         let mut vector_processer_mock1 = MockVectorValueProcesser::new();
@@ -906,7 +991,7 @@ mod glyph_engine {
                 .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }));
             mocks
                 .expect_get_vector_processer()
-                .returning(|_, _, _| unsafe {
+                .returning(|_, _, _, _| unsafe {
                     CALL_NUMBER += 1;
                     if CALL_NUMBER == 1 {
                         let mut vector_processer_mock1 = MockVectorValueProcesser::new();
@@ -975,7 +1060,7 @@ mod glyph_engine {
                 .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }));
             mocks
                 .expect_get_vector_processer()
-                .returning(|_, _, _| unsafe {
+                .returning(|_, _, _, _| unsafe {
                     CALL_NUMBER += 1;
                     if CALL_NUMBER == 1 {
                         let mut vector_processer_mock1 = MockVectorValueProcesser::new();
@@ -1103,6 +1188,8 @@ mod glyph_engine {
                 "workspace_id": "1234",
                 "project_id": "5678",
                 "data_table_name": "my_table",
+                "output_file_prefix" : "test",
+                "model_hash" : "test_hash",
                 "xAxis" : {
                     "fieldDisplayName": "field1",
                     "fieldDataType": 1,
@@ -1376,6 +1463,8 @@ mod glyph_engine {
                 "workspace_id": "1234",
                 "project_id": "5678",
                 "data_table_name": "my_table",
+                "output_file_prefix" : "test",
+                "model_hash" : "test_hash",
                 "xAxis" : {
                     "fieldDisplayName": "field1",
                     "fieldDataType": 1,

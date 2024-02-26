@@ -20,7 +20,9 @@ pub use vectorizer_parameters_error::{
 pub struct VectorizerParameters {
     pub workspace_id: String,
     pub project_id: String,
+    pub output_file_prefix: String,
     pub data_table_name: String,
+    pub model_hash: String,
     pub filter: Option<String>,
     raw_data: Value,
 }
@@ -43,11 +45,11 @@ impl VectorizerParameters {
         let value = parse_result.unwrap();
         let parsed_data = Self::from_json_value(&value);
         if parsed_data.is_ok() {
-            return Ok(parsed_data.unwrap());
+            Ok(parsed_data.unwrap())
         } else {
             let err = parsed_data.err().unwrap();
             let error = FromJsonStringError::from_json_value_error(err);
-            return Err(error);
+            Err(error)
         }
     }
 
@@ -67,6 +69,16 @@ impl VectorizerParameters {
             return Err(FromJsonValueError::new("data_table_name"));
         }
 
+        let output_file_prefix = &input["output_file_prefix"];
+        if output_file_prefix.is_null() {
+            return Err(FromJsonValueError::new("output_file_prefix"));
+        }
+
+        let model_hash = &input["model_hash"];
+        if model_hash.is_null() {
+            return Err(FromJsonValueError::new("model_hash"));
+        }
+
         let filter = match &input["filter"] {
             Value::Null => None,
             Value::String(s) => Some(s.to_string()),
@@ -78,6 +90,8 @@ impl VectorizerParameters {
             workspace_id: workspace_id.as_str().unwrap().to_string(),
             project_id: project_id.as_str().unwrap().to_string(),
             data_table_name: data_table_name.as_str().unwrap().to_string(),
+            output_file_prefix: output_file_prefix.as_str().unwrap().to_string(),
+            model_hash: model_hash.as_str().unwrap().to_string(),
             filter,
             raw_data: input.clone(),
         })
@@ -277,6 +291,8 @@ impl Default for VectorizerParameters {
             workspace_id: "".to_string(),
             project_id: "".to_string(),
             data_table_name: "".to_string(),
+            output_file_prefix: "".to_string(),
+            model_hash: "".to_string(),
             filter: None,
             raw_data: json!({}),
         }
@@ -295,6 +311,8 @@ mod from_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "filter": "This is a filter"
         });
 
@@ -304,6 +322,7 @@ mod from_json_value {
         assert_eq!(result.workspace_id, "1234");
         assert_eq!(result.project_id, "5678");
         assert_eq!(result.data_table_name, "my_table");
+        assert_eq!(result.output_file_prefix, "test");
         assert_eq!(result.filter.unwrap(), "This is a filter");
     }
 
@@ -374,11 +393,59 @@ mod from_json_value {
     }
 
     #[test]
+    fn missing_output_file_prefix() {
+        let input = json!({
+            "workspace_id": "5678",
+            "project_id": "1234",
+            "data_table_name" : "my_table"
+        });
+
+        let result = VectorizerParameters::from_json_value(&input);
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            FromJsonValueError::JsonValidationError(error_data) => {
+                let data = error_data.data.unwrap();
+                let field_name = data["fieldName"].as_str().unwrap();
+                assert_eq!(field_name, "output_file_prefix");
+            }
+            _ => {
+                panic!("Unexpected error type");
+            }
+        }
+    }
+
+    #[test]
+    fn missing_model_hash() {
+        let input = json!({
+            "workspace_id": "5678",
+            "project_id": "1234",
+            "data_table_name" : "my_table",
+            "output_file_prefix": "test"
+        });
+
+        let result = VectorizerParameters::from_json_value(&input);
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            FromJsonValueError::JsonValidationError(error_data) => {
+                let data = error_data.data.unwrap();
+                let field_name = data["fieldName"].as_str().unwrap();
+                assert_eq!(field_name, "model_hash");
+            }
+            _ => {
+                panic!("Unexpected error type");
+            }
+        }
+    }
+    #[test]
     fn empty_filter() {
         let input = json!({
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash"
         });
 
         let result = VectorizerParameters::from_json_value(&input);
@@ -393,6 +460,8 @@ mod from_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "filter": 1234
         });
 
@@ -422,7 +491,9 @@ mod from_json_string {
         {
             "workspace_id": "1234",
             "project_id": "5678",
-            "data_table_name": "my_table"
+            "data_table_name": "my_table",
+            "model_hash" : "test_hash",
+            "output_file_prefix": "test"
         }
         "#;
 
@@ -462,6 +533,9 @@ mod get_supporting_field_names {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash"
+
         });
 
         let result = VectorizerParameters::from_json_value(&input);
@@ -477,6 +551,8 @@ mod get_supporting_field_names {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "supportingFields": []
         });
 
@@ -493,6 +569,8 @@ mod get_supporting_field_names {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "supportingFields": [
                 {
                     "fieldDisplayName": "field1"
@@ -525,6 +603,8 @@ mod get_field_definition_type {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "xAxis": {
                 "fieldDefinition": {
                     "fieldType": "standard"
@@ -552,6 +632,8 @@ mod get_field_definition_type {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "yAxis": {
                 "fieldDefinition": {
                     "fieldType": "date"
@@ -579,6 +661,8 @@ mod get_field_definition_type {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "zAxis": {
                 "fieldDefinition": {
                     "fieldType": "accumulated"
@@ -606,6 +690,8 @@ mod get_field_definition_type {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "supportingFields" : [{
             "fieldDisplayName": "field1",
                 "fieldDefinition": {
@@ -635,6 +721,8 @@ mod get_field_definition_type {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "zAxis": {
                 "fieldDefinition": {
                 }
@@ -666,6 +754,8 @@ mod get_field_definition_type {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "zAxis": {
             }
         });
@@ -694,6 +784,8 @@ mod get_field_definition_type {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "zAxis": {
                 "fieldDefinition": {
                     "fieldType": "invalid"
@@ -732,6 +824,8 @@ mod get_field_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "xAxis": {
                 "fieldDefinition": {
                     "fieldType": "standard"
@@ -753,6 +847,8 @@ mod get_field_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "yAxis": {
                 "fieldDefinition": {
                     "fieldType": "standard"
@@ -774,6 +870,8 @@ mod get_field_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "zAxis": {
                 "fieldDefinition": {
                     "fieldType": "standard"
@@ -795,6 +893,8 @@ mod get_field_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "supportingFields" : [{
             "fieldDisplayName": "field1",
                 "fieldDefinition": {
@@ -818,6 +918,8 @@ mod get_field_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "yAxis": {
                 "fieldDefinition": {
                     "fieldType": "standard"
@@ -849,6 +951,8 @@ mod get_field_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "xAxis": {
                 "fieldDefinition": {
                     "fieldType": "standard"
@@ -880,6 +984,8 @@ mod get_field_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "xAxis": {
                 "fieldDefinition": {
                     "fieldType": "standard"
@@ -911,6 +1017,8 @@ mod get_field_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "supportingFields" : [{
             "fieldDisplayName": "field1",
                 "fieldDefinition": {
@@ -943,7 +1051,9 @@ mod get_field_json_value {
         let input = json!({
             "workspace_id": "1234",
             "project_id": "5678",
-            "data_table_name": "my_table"
+            "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash"
         });
 
         let result = VectorizerParameters::from_json_value(&input);
@@ -978,6 +1088,8 @@ mod get_field_definition {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "xAxis" : {
                 "fieldDisplayName": "field1",
                 "fieldDataType": 1,
@@ -1030,6 +1142,8 @@ mod get_field_definition {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "yAxis" : {
                 "fieldDisplayName": "field1",
                 "fieldDataType": 1,
@@ -1090,6 +1204,8 @@ mod get_field_definition {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "xAxis" : {
                 "fieldDisplayName": "field1",
                 "fieldDataType": 1,
@@ -1132,6 +1248,8 @@ pub mod get_field_definitions {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "xAxis" : {
                 "fieldDisplayName": "field1",
                 "fieldDataType": 1,
@@ -1203,6 +1321,8 @@ pub mod get_field_definitions {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "yAxis" : {
                 "fieldDisplayName": "field2",
                 "fieldDataType": 1,
@@ -1255,6 +1375,8 @@ pub mod get_field_definitions {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "xAxis" : {
                 "fieldDisplayName": "field2",
                 "fieldDataType": 1,
@@ -1307,6 +1429,8 @@ pub mod get_field_definitions {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "xAxis" : {
                 "fieldDisplayName": "field2",
                 "fieldDataType": 1,

@@ -131,6 +131,7 @@ pub trait VectorValueProcesser {
     fn get_axis_name(&self) -> &str;
     fn start(&mut self);
     fn check_status(&mut self) -> TaskStatus;
+    fn get_vector(&self, key: &VectorOrigionalValue) -> Option<Vector>;
 }
 
 impl VectorValueProcesser for VectorProcesser {
@@ -213,9 +214,19 @@ impl VectorValueProcesser for VectorProcesser {
                 self.join_handle = None;
                 return self.task_status.clone();
             } else {
+                eprintln!("Vector : {:?}", result);
                 self.vectors.insert(result.orig_value.clone(), result);
             }
         }
+    }
+   fn get_vector(&self, key: &VectorOrigionalValue) -> Option<Vector> {
+        let vector = self.vectors.get(key);
+        if vector.is_none() {
+             None
+        } else {
+             Some(vector.unwrap().clone())
+        }
+
     }
 }
 
@@ -290,9 +301,6 @@ impl VectorProcesser {
         self.join_handle = Some(thread_handle);
     }
 
-    pub fn get_vector(&self, key: &VectorOrigionalValue) -> Option<&Vector> {
-        self.vectors.get(key)
-    }
 }
 
 ///These functions are run inside the tokio task and have no understading of Self as it is not
@@ -338,7 +346,7 @@ pub(super) fn build_vector_processer_from_json(
     field_definition: FieldDefinition,
     result_set: Value,
     field_name: String,
-) -> VectorProcesser {
+) -> Box<dyn VectorValueProcesser> {
     let mut vector_processer =
         VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
     let mut rank = 0;
@@ -350,7 +358,7 @@ pub(super) fn build_vector_processer_from_json(
         rank += 1;
     }
     vector_processer.task_status = TaskStatus::Complete;
-    vector_processer
+    Box::new(vector_processer)
 }
 
 #[cfg(test)]

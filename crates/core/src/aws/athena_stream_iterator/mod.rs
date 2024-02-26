@@ -63,6 +63,11 @@ impl AthenaStreamIterator {
         //Get the next page of results from the stream.
         let next_result = self.results.next().await;
 
+        if next_result.is_none() {
+            //The stream has ended, we have exhausted the results.
+            self.exhausted = true;
+            return Ok(None);
+        }
         //It looks like the stream always returns data so we should never get a None.
         let next_result = next_result.unwrap();
         if next_result.is_err() {
