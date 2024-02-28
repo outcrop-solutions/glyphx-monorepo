@@ -90,7 +90,6 @@ impl DateFieldDefinition {
         Ok(())
     }
     pub fn get_query(&self, display_name: &str) -> (String, String) {
-        let field_name = self.field_name.clone();
         let raw_query = match &self.date_grouping {
             DateGrouping::QualifiedDayOfYear => {
                 format!(
@@ -382,6 +381,7 @@ mod validate_json {
                 let field_name = data["field"].as_str().unwrap();
                 assert_eq!(field_name, "fieldName");
             }
+            #[allow(unreachable_patterns)]
             _ => {
                 panic!("Unexpected result");
             }
@@ -404,6 +404,8 @@ mod validate_json {
                 let field_name = data["field"].as_str().unwrap();
                 assert_eq!(field_name, "dateGrouping");
             }
+
+            #[allow(unreachable_patterns)]
             _ => {
                 panic!("Unexpected result");
             }
@@ -453,6 +455,8 @@ mod from_json {
                 let field_name = data["field"].as_str().unwrap();
                 assert_eq!(field_name, "fieldName");
             }
+
+            #[allow(unreachable_patterns)]
             _ => {
                 panic!("Unexpected result");
             }

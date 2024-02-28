@@ -6,7 +6,6 @@ mod field_definition_collection;
 mod field_definition_errors;
 mod standard_field_definition;
 mod standard_field_definition_errors;
-use std::os::linux::raw;
 
 pub use accumulated_field_definition::{
     AccumulatedFieldDefinition, AccumulatorFieldDefinition, AccumulatorType,
@@ -181,7 +180,6 @@ impl FieldDefinition {
     }
 
     fn get_field_definition_type(input: &Value) -> Result<FieldDefinitionType, FromJsonError> {
-        let s = input.to_string();
         let field_display_name = input["fieldDisplayName"].as_str().unwrap().to_string();
         let raw_field_definition_type = input["fieldDefinition"]["fieldType"].as_str().unwrap();
         let field_definition_type = FieldDefinitionType::from_string(raw_field_definition_type);
@@ -868,7 +866,6 @@ mod get_accumulator_field_definition {
 #[cfg(test)]
 mod validate_outer_json {
     use super::*;
-    use crate::types::field_definition_type::FieldDefinitionType;
     use serde_json::json;
 
     #[test]
@@ -976,8 +973,8 @@ mod from_json {
                 field_display_name,
                 field_data_type,
                 field_definition,
-                field_query,
-                raw_query,
+                field_query: _,
+                raw_query : _,
             } => {
                 assert_eq!(field_display_name, "test");
                 match field_data_type {
@@ -1038,8 +1035,8 @@ mod from_json {
                 field_display_name,
                 field_data_type,
                 field_definition,
-                field_query,
-                raw_query,
+                field_query: _,
+                raw_query : _,
             } => {
                 assert_eq!(field_display_name, "test");
                 match field_data_type {
@@ -1108,8 +1105,8 @@ mod from_json {
                 field_display_name,
                 field_data_type,
                 field_definition,
-                field_query,
-                raw_query,
+                field_query: _,
+                raw_query: _,
             } => {
                 assert_eq!(field_display_name, "test");
                 match field_data_type {
@@ -1340,7 +1337,6 @@ mod get_field_data_type {
 #[cfg(test)]
 mod get_query_parts {
     use super::*;
-    use crate::types::field_definition_type::FieldDefinitionType;
     use serde_json::json;
 
     #[test]

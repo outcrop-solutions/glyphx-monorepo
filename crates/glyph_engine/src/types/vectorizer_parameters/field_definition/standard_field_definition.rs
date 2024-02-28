@@ -69,6 +69,7 @@ mod validate_json {
                 let field_name = data["field"].as_str().unwrap();
                 assert_eq!(field_name, "fieldName");
             }
+            #[allow(unreachable_patterns)]
             _ => {
                 panic!("Unexpected result");
             }
@@ -111,6 +112,7 @@ mod from_json {
                 let field_name = data["field"].as_str().unwrap();
                 assert_eq!(field_name, "fieldName");
             }
+            #[allow(unreachable_patterns)]
             _ => {
                 panic!("Unexpected result");
             }

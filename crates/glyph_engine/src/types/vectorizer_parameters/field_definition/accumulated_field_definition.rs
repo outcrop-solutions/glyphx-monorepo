@@ -576,7 +576,7 @@ mod AccumulatedFieldDefinition_from_json {
         let accumulated_field_definition = AccumulatedFieldDefinition::from_json(&input, "test");
         assert!(accumulated_field_definition.is_err());
         let accumulated_field_definition = accumulated_field_definition.err().unwrap();
-        let foo = accumulated_field_definition.to_string();
+        let _foo = accumulated_field_definition.to_string();
         match accumulated_field_definition {
             AccumulatedFieldDefinitionFromJsonError::DateFieldDefinitionFromJsonError(
                 error_data,
@@ -734,7 +734,7 @@ mod AccumulatorFieldDefinition_from_json {
         let result = AccumulatorFieldDefinition::from_json(&input);
         assert!(result.is_err());
         let result = result.err().unwrap();
-        let foo = result.to_string();
+        let _foo = result.to_string();
         match result {
             AccumulatedFieldDefinitionFromJsonError::InvalidFieldDefinitionType(error_data) => {
                 let data = error_data.data.unwrap();

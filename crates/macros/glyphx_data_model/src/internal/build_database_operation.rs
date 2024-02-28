@@ -1,6 +1,6 @@
 use super::types::*;
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::quote;
 use syn::Ident;
 
 fn build_get_collection_function(struct_ident: &Ident, collection_name: &str) -> TokenStream {
@@ -18,7 +18,7 @@ fn build_get_collection_function(struct_ident: &Ident, collection_name: &str) ->
     }
 }
 
-fn build_find_one(struct_ident: &Ident, collection_name: &str) -> TokenStream {
+fn build_find_one(struct_ident: &Ident) -> TokenStream {
     quote! {
       async fn find_one(
           &self,
@@ -36,7 +36,7 @@ fn build_find_one(struct_ident: &Ident, collection_name: &str) -> TokenStream {
     }
 }
 
-fn build_count_documents(struct_ident: &Ident, collection_name: &str) -> TokenStream {
+fn build_count_documents() -> TokenStream {
     quote! {
       async fn count_documents(
           &self,
@@ -53,7 +53,7 @@ fn build_count_documents(struct_ident: &Ident, collection_name: &str) -> TokenSt
     }
 }
 
-fn build_query_documents(struct_ident: &Ident, collection_name: &str) -> TokenStream {
+fn build_query_documents(struct_ident: &Ident) -> TokenStream {
     quote! {
       async fn query_documents(
           &self,
@@ -77,7 +77,7 @@ fn build_query_documents(struct_ident: &Ident, collection_name: &str) -> TokenSt
     }
 }
 
-fn build_query_ids(struct_ident: &Ident, collection_name: &str) -> TokenStream {
+fn build_query_ids() -> TokenStream {
     quote! {
        async fn query_ids(
           &self,
@@ -108,7 +108,7 @@ fn build_query_ids(struct_ident: &Ident, collection_name: &str) -> TokenStream {
     }
 }
 
-fn build_insert_document(struct_ident: &Ident, collection_name: &str) -> TokenStream {
+fn build_insert_document() -> TokenStream {
     quote! {
       async fn insert_document(
           &self,
@@ -133,7 +133,7 @@ fn build_insert_document(struct_ident: &Ident, collection_name: &str) -> TokenSt
     }
 }
 
-fn build_update_document(struct_ident: &Ident, collection_name: &str) -> TokenStream {
+fn build_update_document() -> TokenStream {
     quote! {
       async fn update_one_document(
           &self,
@@ -160,7 +160,7 @@ fn build_update_document(struct_ident: &Ident, collection_name: &str) -> TokenSt
     }
 }
 
-fn build_delete_document(struct_ident: &Ident, collection_name: &str) -> TokenStream {
+fn build_delete_document() -> TokenStream {
     quote! {
       async fn delete_one_document(
           &self,
@@ -190,28 +190,27 @@ fn build_delete_document(struct_ident: &Ident, collection_name: &str) -> TokenSt
 pub fn build_database_operations_impl(
     struct_ident: &Ident,
     model_definition: &ModelDefinition,
-    field_definitions: &Vec<FieldDefinition>,
 ) -> TokenStream {
     let get_collection_function =
         build_get_collection_function(struct_ident, &model_definition.collection);
-    let find_one_function = build_find_one(struct_ident, &model_definition.collection);
+    let find_one_function = build_find_one(struct_ident);
 
     let count_documents_function =
-        build_count_documents(struct_ident, &model_definition.collection);
+        build_count_documents();
 
     let query_documents_function =
-        build_query_documents(struct_ident, &model_definition.collection);
+        build_query_documents(struct_ident);
 
-    let query_ids_function = build_query_ids(struct_ident, &model_definition.collection);
+    let query_ids_function = build_query_ids();
 
     let insert_document_function =
-        build_insert_document(struct_ident, &model_definition.collection);
+        build_insert_document();
 
     let update_document_function =
-        build_update_document(struct_ident, &model_definition.collection);
+        build_update_document();
 
     let delete_document_function =
-        build_delete_document(struct_ident, &model_definition.collection);
+        build_delete_document();
 
     quote! {
      use futures::stream::StreamExt;

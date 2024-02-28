@@ -1,8 +1,7 @@
-use serde::{Deserialize, Serialize};
 use aws_sdk_athena::types::AthenaError;
 ///This enum represents the available states of an Athena Query.
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq )]
 pub enum AthenaQueryStatus {
     ///The query has been submitted to Athena, but has not yet started.
     Queued,

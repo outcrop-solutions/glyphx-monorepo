@@ -386,7 +386,6 @@ fn process_fields(input: &DeriveInput) -> Vec<FieldDefinition> {
         }
 
         let field_name = field.ident.as_ref().unwrap().to_token_stream().to_string();
-        let (is_bound, secret_name) = process_field_attribute_meta(field, &field_name);
 
         match field.ty {
             syn::Type::Path(ref type_path) => {

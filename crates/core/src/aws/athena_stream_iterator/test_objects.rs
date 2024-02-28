@@ -146,7 +146,7 @@ impl MockStream {
 impl Stream for MockStream {
     type Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>;
 
-    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+    fn poll_next(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         let closure = self.state.closure.borrow_mut().take();
         if closure.is_none() {
             return Poll::Ready(Some(Ok(self.get_query_results_set(Some(())))));

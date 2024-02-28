@@ -43,7 +43,7 @@ impl GlyphEngineProcessError {
         };
 
         let message = format!("An Error occurred while processing the vectors for axis :  {}.  See the inner error for additional information", axis_name);
-        let data = json!({ axis_name: axis_name });
+        let data = json!({ "axis_name": axis_name });
 
         let error_data =
             GlyphxErrorData::new(message, Some(data), Some(to_value(inner_error).unwrap()));
@@ -75,7 +75,7 @@ impl GlyphEngineProcessError {
     }
 
     pub fn from_athena_stream_iterator_error(error: AthenaStreamIteratorError) -> Self {
-        let message = "An error occurred while iterating the query results, see the inner error for additional information ".to_string();
+        let message = "An error occurred while iterating the query results, see the inner error for additional information".to_string();
         let data = None;
         let inner_error = to_value(error).unwrap();
         let error_data = GlyphxErrorData::new(message, data, Some(inner_error));

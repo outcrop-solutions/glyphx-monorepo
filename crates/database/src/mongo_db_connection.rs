@@ -72,6 +72,7 @@ impl MongoDbConnectionOps for MongoDbConnectionOpsImpl {
 
 #[derive(SecretBoundSingleton, Debug, Clone)]
 #[secret_binder({"secret_name" : "db/mongodb", "initializer": "new", "initializer_error": "MongoDbConnectionConstructionError"})]
+#[allow(dead_code)]
 pub struct MongoDbConnection {
     endpoint: String,
     #[bind_field({"secret_name" : "schema" })]

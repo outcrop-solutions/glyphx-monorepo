@@ -39,6 +39,7 @@ mod from_json_has_field_error {
                 assert_eq!(field, "test");
                 assert!(error_data.inner_error.is_none());
             }
+            #[allow(unreachable_patterns)]
             _ => panic!("Expected FieldNotDefined"),
         }
     }

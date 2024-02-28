@@ -44,7 +44,7 @@ macro_rules! handle_task_error {
         let $var_name = $express;
         if $var_name.is_err() {
             let error = $var_name.unwrap_err();
-            let error = VectorCaclulationError::from(error);
+            let error = VectorCalculationError::from(error);
             error.error();
             let send_result = $sender.send(Err(error));
             if send_result.is_err() {
@@ -118,7 +118,7 @@ pub struct VectorProcesser {
     table_name: String,
     s3_file_name: String,
     field_definition: FieldDefinition,
-    receiver: Option<Receiver<Result<Vector, VectorCaclulationError>>>,
+    receiver: Option<Receiver<Result<Vector, VectorCalculationError>>>,
     vectors: OrdMap<VectorOrigionalValue, Vector>,
     join_handle: Option<JoinHandle<()>>,
     task_status: TaskStatus,
@@ -157,7 +157,7 @@ impl VectorValueProcesser for VectorProcesser {
                 None,
             );
             self.task_status =
-                TaskStatus::Errored(VectorCaclulationError::IntializationError(error_data));
+                TaskStatus::Errored(VectorCalculationError::IntializationError(error_data));
             return self.task_status.clone();
         }
         //This task has already run to completion so just return the status
@@ -188,7 +188,7 @@ impl VectorValueProcesser for VectorProcesser {
                             None,
                         );
                         self.task_status = TaskStatus::Errored(
-                            VectorCaclulationError::IntializationError(error_data),
+                            VectorCalculationError::IntializationError(error_data),
                         );
                         self.join_handle.as_ref().unwrap().abort();
                         self.join_handle = None;
@@ -214,7 +214,6 @@ impl VectorValueProcesser for VectorProcesser {
                 self.join_handle = None;
                 return self.task_status.clone();
             } else {
-                eprintln!("Vector : {:?}", result);
                 self.vectors.insert(result.orig_value.clone(), result);
             }
         }
@@ -254,7 +253,7 @@ impl VectorProcesser {
         let (field_name, field_value, _) = field_definition.get_query_parts();
         let table_name = self.table_name.clone();
 
-        let (sender, receiver) = channel::<Result<Vector, VectorCaclulationError>>();
+        let (sender, receiver) = channel::<Result<Vector, VectorCalculationError>>();
         self.receiver = Some(receiver);
 
         let thread_handle = spawn(async move {
@@ -339,6 +338,7 @@ fn serialize_vector(vector: &Vector) -> Vec<u8> {
 }
 
 //This allows us to build a vector processer from a json result set.  This is useful for testing
+#[cfg(test)]
 pub(super) fn build_vector_processer_from_json(
     axis_name: &str,
     table_name: &str,
@@ -943,7 +943,7 @@ mod tests {
                 }
             }
             match final_status {
-                TaskStatus::Errored(VectorCaclulationError::AthenaQueryError(_)) => assert!(true),
+                TaskStatus::Errored(VectorCalculationError::AthenaQueryError(_)) => assert!(true),
                 _ => assert!(false),
             }
         }
@@ -992,7 +992,7 @@ mod tests {
                 }
             }
             match final_status {
-                TaskStatus::Errored(VectorCaclulationError::AthenaQueryError(_)) => assert!(true),
+                TaskStatus::Errored(VectorCalculationError::AthenaQueryError(_)) => assert!(true),
                 _ => assert!(false),
             }
 
@@ -1135,7 +1135,7 @@ mod tests {
             }
 
             match final_status {
-                TaskStatus::Errored(VectorCaclulationError::GetS3UploadStreamError(_)) => {
+                TaskStatus::Errored(VectorCalculationError::GetS3UploadStreamError(_)) => {
                     assert!(true)
                 }
                 _ => assert!(false),
@@ -1163,7 +1163,7 @@ mod tests {
             }
 
             match final_status {
-                TaskStatus::Errored(VectorCaclulationError::WriteUploadError(_)) => assert!(true),
+                TaskStatus::Errored(VectorCalculationError::WriteUploadError(_)) => assert!(true),
                 _ => assert!(false),
             }
         }
@@ -1189,7 +1189,7 @@ mod tests {
             }
 
             match final_status {
-                TaskStatus::Errored(VectorCaclulationError::WriteUploadError(_)) => assert!(true),
+                TaskStatus::Errored(VectorCalculationError::WriteUploadError(_)) => assert!(true),
                 _ => assert!(false),
             }
         }

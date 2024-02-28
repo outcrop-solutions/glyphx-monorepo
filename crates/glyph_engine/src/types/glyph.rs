@@ -1,4 +1,3 @@
-use bincode::{deserialize, serialize};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -26,6 +25,7 @@ impl Glyph {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use bincode::{deserialize, serialize};
 
     #[test]
     fn encode_glyph() {

@@ -68,7 +68,7 @@ impl AthenaStreamIterator {
             self.exhausted = true;
             return Ok(None);
         }
-        //It looks like the stream always returns data so we should never get a None.
+
         let next_result = next_result.unwrap();
         if next_result.is_err() {
             let error = next_result.err().unwrap().into_service_error();
@@ -275,6 +275,7 @@ mod test {
                             did_error = true;
                             break;
                         }
+                        #[allow(unreachable_patterns)]
                         _ => {
                             assert!(false);
                             break;

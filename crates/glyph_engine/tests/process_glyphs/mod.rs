@@ -1,5 +1,4 @@
 use glyph_engine::types::vectorizer_parameters::VectorizerParameters;
-use glyph_engine::vector_processer::{TaskStatus, VectorProcesser, VectorValueProcesser};
 use glyphx_common::{AthenaConnection, S3Connection};
 use glyphx_core::Singleton;
 use glyph_engine::GlyphEngine;
@@ -13,7 +12,7 @@ async fn test_vector_processor() {
     let params = json!({
         "workspace_id": "1234",
         "project_id": "5678",
-        "data_table_name": "glyphx_646fa59785272d19babc2af1_6483770b7fb04babe1412e04_view",
+        "data_table_name": table_name,
         "output_file_prefix": "test",
         "model_hash": "jptesting",
         "xAxis" : {
@@ -53,6 +52,5 @@ async fn test_vector_processor() {
     let mut glyph_engine = GlyphEngine::new(&params).await.unwrap();
 
     let result = glyph_engine.process().await;
-    eprintln!("result: {:?}", result);
     assert!(result.is_ok());
 }

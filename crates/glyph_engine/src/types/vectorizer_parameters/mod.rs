@@ -236,7 +236,6 @@ impl VectorizerParameters {
         }
 
         let json = json.unwrap();
-        let s = json.to_string();
         let field_definition = FieldDefinition::from_json(json);
         if field_definition.is_err() {
             let err = field_definition.err().unwrap();
@@ -342,6 +341,7 @@ mod from_json_value {
                 let field_name = data["fieldName"].as_str().unwrap();
                 assert_eq!(field_name, "workspace_id");
             }
+            #[allow(unreachable_patterns)]
             _ => {
                 panic!("Unexpected error type");
             }
@@ -364,6 +364,7 @@ mod from_json_value {
                 let field_name = data["fieldName"].as_str().unwrap();
                 assert_eq!(field_name, "project_id");
             }
+            #[allow(unreachable_patterns)]
             _ => {
                 panic!("Unexpected error type");
             }
@@ -386,6 +387,7 @@ mod from_json_value {
                 let field_name = data["fieldName"].as_str().unwrap();
                 assert_eq!(field_name, "data_table_name");
             }
+            #[allow(unreachable_patterns)]
             _ => {
                 panic!("Unexpected error type");
             }
@@ -409,6 +411,7 @@ mod from_json_value {
                 let field_name = data["fieldName"].as_str().unwrap();
                 assert_eq!(field_name, "output_file_prefix");
             }
+            #[allow(unreachable_patterns)]
             _ => {
                 panic!("Unexpected error type");
             }
@@ -433,6 +436,7 @@ mod from_json_value {
                 let field_name = data["fieldName"].as_str().unwrap();
                 assert_eq!(field_name, "model_hash");
             }
+            #[allow(unreachable_patterns)]
             _ => {
                 panic!("Unexpected error type");
             }
@@ -474,6 +478,7 @@ mod from_json_value {
                 let field_name = data["fieldName"].as_str().unwrap();
                 assert_eq!(field_name, "filter");
             }
+            #[allow(unreachable_patterns)]
             _ => {
                 panic!("Unexpected error type");
             }

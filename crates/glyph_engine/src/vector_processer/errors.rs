@@ -11,7 +11,7 @@ use serde_json::to_value;
 
 #[derive(Debug, Clone, GlyphxError, PartialEq, Serialize, Deserialize)]
 #[error_definition("vector_processer")]
-pub enum VectorCaclulationError {
+pub enum VectorCalculationError {
     IntializationError(GlyphxErrorData),
     ThreadDisconnected(GlyphxErrorData),
     AthenaQueryError(GlyphxErrorData),
@@ -19,33 +19,33 @@ pub enum VectorCaclulationError {
     WriteUploadError(GlyphxErrorData),
 }
 
-impl From<RunQueryError> for VectorCaclulationError {
+impl From<RunQueryError> for VectorCalculationError {
     fn from(error: RunQueryError) -> Self {
         let inner_error = to_value(error).unwrap();
         let error_data = GlyphxErrorData::new("An unexpected error occurred while running the vector query.  See the inner error for additional information".to_string(),None, Some(inner_error));
-        VectorCaclulationError::AthenaQueryError(error_data)
+        VectorCalculationError::AthenaQueryError(error_data)
     }
 }
 
-impl From<GetUploadStreamError> for VectorCaclulationError {
+impl From<GetUploadStreamError> for VectorCalculationError {
     fn from(error: GetUploadStreamError) -> Self {
         let inner_error = to_value(error).unwrap();
         let error_data = GlyphxErrorData::new("An unexpected error occurred while getting the S3 upload stream.  See the inner error for additional information".to_string(),None, Some(inner_error));
-        VectorCaclulationError::GetS3UploadStreamError(error_data)
+        VectorCalculationError::GetS3UploadStreamError(error_data)
     }
 }
-impl From<UploadStreamWriteError> for VectorCaclulationError {
+impl From<UploadStreamWriteError> for VectorCalculationError {
     fn from(error: UploadStreamWriteError) -> Self {
         let inner_error = to_value(error).unwrap();
         let error_data = GlyphxErrorData::new("An unexpected error occurred while writing to the S3 upload stream.  See the inner error for additional information".to_string(),None, Some(inner_error));
-        VectorCaclulationError::WriteUploadError(error_data)
+        VectorCalculationError::WriteUploadError(error_data)
     }
 }
 
-impl From<UploadStreamFinishError> for VectorCaclulationError {
+impl From<UploadStreamFinishError> for VectorCalculationError {
     fn from(error: UploadStreamFinishError) -> Self {
         let inner_error = to_value(error).unwrap();
         let error_data = GlyphxErrorData::new("An unexpected error occurred while writing to the S3 upload stream.  See the inner error for additional information".to_string(),None, Some(inner_error));
-        VectorCaclulationError::WriteUploadError(error_data)
+        VectorCalculationError::WriteUploadError(error_data)
     }
 }

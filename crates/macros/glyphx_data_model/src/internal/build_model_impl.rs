@@ -51,7 +51,7 @@ fn build_get_one_by_filter(ident: &Ident, collection_name: &str) -> TokenStream 
     }
 }
 
-fn build_id_exists(ident: &Ident, collection_name: &str) -> TokenStream {
+fn build_id_exists(collection_name: &str) -> TokenStream {
     quote! {
 
     async fn id_exists_impl<T: DatabaseOperations>(
@@ -345,7 +345,7 @@ fn build_delete_document_by_id(ident: &Ident, collection_name: &str ) -> TokenSt
     }
 }
 
-fn build_delete_document_by_filter(ident: &Ident, collection_name: &str ) -> TokenStream {
+fn build_delete_document_by_filter(collection_name: &str ) -> TokenStream {
     quote! {
     async fn delete_document_by_filter_impl<T: DatabaseOperations>(
         filter: &mongodb::bson::Document,
@@ -555,14 +555,14 @@ pub fn build_model_impl(
 ) -> TokenStream {
     let get_by_id = build_get_by_id(ident, &model_definition.collection);
     let get_one_by_filter = build_get_one_by_filter(ident, &model_definition.collection);
-    let id_exists = build_id_exists(ident, &model_definition.collection);
+    let id_exists = build_id_exists(&model_definition.collection);
     let all_ids_exists = build_all_ids_exists(ident, &model_definition.collection);
     let insert_document = build_insert_document(ident, &model_definition.collection);
     let update_document_by_id = build_update_document_by_id(ident, &model_definition.collection);
     let update_document_by_filter = build_update_document_by_filter(ident, &model_definition.collection);
     let update_document = build_update_document(ident, &model_definition.collection);
     let delete_document_by_id = build_delete_document_by_id(ident, &model_definition.collection);
-    let delete_document_by_filter = build_delete_document_by_filter(ident, &model_definition.collection);
+    let delete_document_by_filter = build_delete_document_by_filter(&model_definition.collection);
     let vector_fields = field_definitions.iter().filter(|field_definition| field_definition.is_vector.is_some()).collect();
     let adds_for_vector_fields = build_adds_for_vector_fields(ident, &model_definition.collection, &vector_fields);
     let query_documents = build_query_documents(ident, &model_definition.collection);

@@ -172,7 +172,6 @@ async fn integration_test() {
         let result = result.unwrap();
         if result.is_some() {
         let result = result.unwrap();
-        eprintln!("Result: {:?}", result);
         count += 1;
         } else {
             break;

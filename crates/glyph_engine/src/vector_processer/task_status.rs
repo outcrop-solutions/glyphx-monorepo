@@ -1,9 +1,9 @@
-use super::VectorCaclulationError;
+use super::VectorCalculationError;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum TaskStatus {
     Pending,
     Processing,
     Complete,
-    Errored(VectorCaclulationError),
+    Errored(VectorCalculationError),
 }
