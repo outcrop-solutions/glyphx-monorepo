@@ -132,8 +132,7 @@ pub trait VectorValueProcesser {
     fn start(&mut self);
     fn check_status(&mut self) -> TaskStatus;
     fn get_vector(&self, key: &VectorOrigionalValue) -> Option<Vector>;
-    fn get_statistics_vector(&self) -> Vec<f64>; 
-
+    fn get_statistics_vector(&self) -> Vec<f64>;
 }
 
 impl VectorValueProcesser for VectorProcesser {
@@ -220,19 +219,17 @@ impl VectorValueProcesser for VectorProcesser {
             }
         }
     }
-   fn get_vector(&self, key: &VectorOrigionalValue) -> Option<Vector> {
+    fn get_vector(&self, key: &VectorOrigionalValue) -> Option<Vector> {
         let vector = self.vectors.get(key);
         if vector.is_none() {
-             None
+            None
         } else {
-             Some(vector.unwrap().clone())
+            Some(vector.unwrap().clone())
         }
-
     }
 
     fn get_statistics_vector(&self) -> Vec<f64> {
         self.vectors.iter().map(|(_, v)| v.vector).collect()
-
     }
 }
 
@@ -306,7 +303,6 @@ impl VectorProcesser {
         });
         self.join_handle = Some(thread_handle);
     }
-
 }
 
 ///These functions are run inside the tokio task and have no understading of Self as it is not
@@ -1221,17 +1217,19 @@ mod tests {
             assert!(vector_processer.vectors.is_empty());
             assert!(vector_processer.join_handle.is_none());
             assert_eq!(vector_processer.task_status, TaskStatus::Pending);
-            
+
             for i in 0..10 {
                 let vector = Vector::new(VectorOrigionalValue::F64(i as f64), i as f64, i);
-                vector_processer.vectors.insert(vector.orig_value.clone(), vector);
+                vector_processer
+                    .vectors
+                    .insert(vector.orig_value.clone(), vector);
             }
 
             let stats = vector_processer.get_statistics_vector();
             assert_eq!(stats.len(), 10);
             for i in 0..10 {
                 assert_eq!(stats[i], i as f64);
-            } 
+            }
         }
     }
 }
