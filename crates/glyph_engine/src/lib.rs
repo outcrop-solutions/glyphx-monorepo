@@ -34,6 +34,9 @@ use serde_json::{to_value, Value};
 use statrs::statistics::*;
 
 pub use errors::*;
+use mockall::automock;
+use serde_json::to_value;
+
 use types::vectorizer_parameters::{FieldDefinition, VectorizerParameters};
 pub use types::*;
 
@@ -880,7 +883,6 @@ impl GlyphEngine {
         process_error!(let z_stats_vector = self.process_query_results( &glyph_file_name, &mut results_iterator, &x_field_definition.get_field_display_name(), &y_field_definition.get_field_display_name(), &z_field_definition.get_field_display_name(), &x_field_processor, &y_field_processor, operations,).await; operations; self);
 
         process_error!(let stats_file_name = self.calculate_statistics(&x_field_processor, &y_field_processor, z_stats_vector, operations).await; operations; self);
-
         let results = GlyphEngineResults {
             x_axis_vectors_file_name: x_file_name,
             y_axis_vectors_file_name: y_file_name,
@@ -3693,7 +3695,9 @@ pub mod glyph_engine {
             let result = glyph_engine.process_impl(&mocks).await;
             eprintln!("Result: {:?}", result);
             assert!(result.is_err());
+
             let error = result.err().unwrap();
+
             match error {
                 GlyphEngineProcessError::DataProcessingError(data) => {
                     assert_eq!(data.message, "An error occurred while getting the upload stream, see the inner error for additional information ")
@@ -4185,6 +4189,1986 @@ pub mod glyph_engine {
 
                 }
             }
+        }
+    }
+
+    mod process_query_results {
+        use super::*;
+        use glyphx_core::aws::athena_stream_iterator::{
+            ErrorMetadata, GetQueryResultsError, HttpResponse, InternalServerException, SdkBody,
+            SdkError,
+        };
+        use vector_processer::build_vector_processer_from_json;
+
+        #[tokio::test]
+        async fn is_ok() {
+            //1. Mock out our GlyhEngineOperations
+            let mut mocks = get_setup_mocks();
+
+            mocks
+                .expect_get_upload_stream()
+                .times(1)
+                .returning(|_, _| unsafe {
+                    let client = S3_CONNECTION_INSTANCE.as_ref().unwrap().clone();
+                    Ok(UploadStream::empty(client.get_s3_manager().get_client()))
+                });
+
+            mocks
+                .expect_write_to_upload_stream()
+                .times(10)
+                .returning(|_, _| Ok(()));
+
+            mocks
+                .expect_finish_upload_stream()
+                .times(1)
+                .returning(|_| Ok(()));
+
+            //2. Get our glyph_engine
+            let glyph_engine = get_glyph_engine().await; //  GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
+
+            //3. Build our field_definitions
+            let x_field_definition = glyph_engine
+                .parameters
+                .get_field_definition("xaxis")
+                .unwrap();
+
+            let y_field_definition = glyph_engine
+                .parameters
+                .get_field_definition("yaxis")
+                .unwrap();
+
+            //4. Mock out our vector processers
+            let x_vector_processor = build_vector_processer_from_json(
+                "x",
+                "test_table",
+                "test_file",
+                x_field_definition.clone(),
+                RESULT_SET.clone(),
+                X_FIELD_NAME.to_string(),
+            );
+
+            let y_vector_processor = build_vector_processer_from_json(
+                "y",
+                "test_table",
+                "test_file",
+                y_field_definition.clone(),
+                RESULT_SET.clone(),
+                Y_FIELD_NAME.to_string(),
+            );
+
+            //5. Mock out our AthenaStream
+            let mut athena_stream = get_mock_athena_stream_iterator(Box::new(move |stream| {
+                if stream.state.counter == 0 {
+                    Some(Ok(get_query_results_set()))
+                } else {
+                    Some(Ok(stream.get_query_results_set(Some(())))) //End the stream
+                }
+            }));
+
+            let result = glyph_engine
+                .process_query_results(
+                    "test_file_name",
+                    &mut athena_stream,
+                    "field1",
+                    "field2",
+                    "field3",
+                    &x_vector_processor,
+                    &y_vector_processor,
+                    &mocks,
+                )
+                .await;
+
+            assert!(result.is_ok());
+        }
+
+        #[tokio::test]
+        async fn get_upload_stream_fails() {
+            //1. Mock out our GlyhEngineOperations
+            let mut mocks = get_setup_mocks();
+
+            mocks.expect_get_upload_stream().times(1).returning(|_, _| {
+                Err(GetUploadStreamError::UnexpectedError(GlyphxErrorData::new(
+                    "An unexpected error occurred while getting the upload stream".to_string(),
+                    None,
+                    None,
+                )))
+            });
+
+            mocks
+                .expect_write_to_upload_stream()
+                .times(0)
+                .returning(|_, _| Ok(()));
+
+            mocks
+                .expect_finish_upload_stream()
+                .times(0)
+                .returning(|_| Ok(()));
+
+            //2. Get our glyph_engine
+            let glyph_engine = get_glyph_engine().await;
+
+            //3. Build our field_definitions
+            let x_field_definition = glyph_engine
+                .parameters
+                .get_field_definition("xaxis")
+                .unwrap();
+
+            let y_field_definition = glyph_engine
+                .parameters
+                .get_field_definition("yaxis")
+                .unwrap();
+
+            //4. Mock out our vector processers
+            let x_vector_processor = build_vector_processer_from_json(
+                "x",
+                "test_table",
+                "test_file",
+                x_field_definition.clone(),
+                RESULT_SET.clone(),
+                X_FIELD_NAME.to_string(),
+            );
+
+            let y_vector_processor = build_vector_processer_from_json(
+                "y",
+                "test_table",
+                "test_file",
+                y_field_definition.clone(),
+                RESULT_SET.clone(),
+                Y_FIELD_NAME.to_string(),
+            );
+
+            //5. Mock out our AthenaStream
+            let mut athena_stream = get_mock_athena_stream_iterator(Box::new(move |stream| {
+                if stream.state.counter == 0 {
+                    Some(Ok(get_query_results_set()))
+                } else {
+                    Some(Ok(stream.get_query_results_set(Some(())))) //End the stream
+                }
+            }));
+
+            let result = glyph_engine
+                .process_query_results(
+                    "test_file_name",
+                    &mut athena_stream,
+                    "field1",
+                    "field2",
+                    "field3",
+                    &x_vector_processor,
+                    &y_vector_processor,
+                    &mocks,
+                )
+                .await;
+
+            assert!(result.is_err());
+
+            let result = result.err().unwrap();
+
+            match result {
+                GlyphEngineProcessError::DataProcessingError(_) => {}
+                _ => panic!("Expected DataProcessingError"),
+            }
+        }
+
+        #[tokio::test]
+        async fn the_iterator_fails() {
+            //1. Mock out our GlyhEngineOperations
+            let mut mocks = get_setup_mocks();
+
+            mocks
+                .expect_get_upload_stream()
+                .times(1)
+                .returning(|_, _| unsafe {
+                    let client = S3_CONNECTION_INSTANCE.as_ref().unwrap().clone();
+                    Ok(UploadStream::empty(client.get_s3_manager().get_client()))
+                });
+
+            mocks
+                .expect_write_to_upload_stream()
+                .times(10)
+                .returning(|_, _| Ok(()));
+
+            mocks
+                .expect_finish_upload_stream()
+                .times(0)
+                .returning(|_| Ok(()));
+
+            //2. Get our glyph_engine
+            let glyph_engine = get_glyph_engine().await; //  GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
+
+            //3. Build our field_definitions
+            let x_field_definition = glyph_engine
+                .parameters
+                .get_field_definition("xaxis")
+                .unwrap();
+
+            let y_field_definition = glyph_engine
+                .parameters
+                .get_field_definition("yaxis")
+                .unwrap();
+
+            //4. Mock out our vector processers
+            let x_vector_processor = build_vector_processer_from_json(
+                "x",
+                "test_table",
+                "test_file",
+                x_field_definition.clone(),
+                RESULT_SET.clone(),
+                X_FIELD_NAME.to_string(),
+            );
+
+            let y_vector_processor = build_vector_processer_from_json(
+                "y",
+                "test_table",
+                "test_file",
+                y_field_definition.clone(),
+                RESULT_SET.clone(),
+                Y_FIELD_NAME.to_string(),
+            );
+
+            //5. Mock out our AthenaStream
+            let mut athena_stream = get_mock_athena_stream_iterator(Box::new(move |stream| {
+                if stream.state.counter == 0 {
+                    Some(Ok(get_query_results_set()))
+                } else {
+                    let body = SdkBody::from("An error occurred".to_string());
+                    let metadata = ErrorMetadata::builder()
+                        .code("500")
+                        .message("An error has occurred")
+                        .build();
+                    let internal_server_exception = InternalServerException::builder()
+                        .message("An error has occurred")
+                        .meta(metadata)
+                        .build();
+
+                    let query_response_error =
+                        GetQueryResultsError::InternalServerException(internal_server_exception);
+                    let raw: HttpResponse = HttpResponse::new(body);
+                    let error: SdkError<GetQueryResultsError> =
+                        SdkError::service_error(query_response_error, raw);
+                    Some(Err(error))
+                }
+            }));
+
+            let result = glyph_engine
+                .process_query_results(
+                    "test_file_name",
+                    &mut athena_stream,
+                    "field1",
+                    "field2",
+                    "field3",
+                    &x_vector_processor,
+                    &y_vector_processor,
+                    &mocks,
+                )
+                .await;
+
+            assert!(result.is_err());
+
+            let result = result.err().unwrap();
+
+            match result {
+                GlyphEngineProcessError::DataProcessingError(_) => {}
+                _ => panic!("Expected DataProcessingError"),
+            }
+        }
+
+        #[tokio::test]
+        async fn write_to_upload_fails() {
+            //1. Mock out our GlyhEngineOperations
+            let mut mocks = get_setup_mocks();
+
+            mocks
+                .expect_get_upload_stream()
+                .times(1)
+                .returning(|_, _| unsafe {
+                    let client = S3_CONNECTION_INSTANCE.as_ref().unwrap().clone();
+                    Ok(UploadStream::empty(client.get_s3_manager().get_client()))
+                });
+
+            mocks
+                .expect_write_to_upload_stream()
+                .times(1)
+                .returning(|_, _| {
+                    Err(UploadStreamWriteError::UnexpectedError(
+                        GlyphxErrorData::new(
+                            "An unexpected error occurred while writing to the upload stream"
+                                .to_string(),
+                            None,
+                            None,
+                        ),
+                    ))
+                });
+
+            mocks
+                .expect_finish_upload_stream()
+                .times(0)
+                .returning(|_| Ok(()));
+
+            //2. Get our glyph_engine
+            let glyph_engine = get_glyph_engine().await; //  GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
+
+            //3. Build our field_definitions
+            let x_field_definition = glyph_engine
+                .parameters
+                .get_field_definition("xaxis")
+                .unwrap();
+
+            let y_field_definition = glyph_engine
+                .parameters
+                .get_field_definition("yaxis")
+                .unwrap();
+
+            //4. Mock out our vector processers
+            let x_vector_processor = build_vector_processer_from_json(
+                "x",
+                "test_table",
+                "test_file",
+                x_field_definition.clone(),
+                RESULT_SET.clone(),
+                X_FIELD_NAME.to_string(),
+            );
+
+            let y_vector_processor = build_vector_processer_from_json(
+                "y",
+                "test_table",
+                "test_file",
+                y_field_definition.clone(),
+                RESULT_SET.clone(),
+                Y_FIELD_NAME.to_string(),
+            );
+
+            //5. Mock out our AthenaStream
+            let mut athena_stream = get_mock_athena_stream_iterator(Box::new(move |stream| {
+                if stream.state.counter == 0 {
+                    Some(Ok(get_query_results_set()))
+                } else {
+                    Some(Ok(stream.get_query_results_set(Some(())))) //End the stream
+                }
+            }));
+
+            let result = glyph_engine
+                .process_query_results(
+                    "test_file_name",
+                    &mut athena_stream,
+                    "field1",
+                    "field2",
+                    "field3",
+                    &x_vector_processor,
+                    &y_vector_processor,
+                    &mocks,
+                )
+                .await;
+
+            assert!(result.is_err());
+
+            let result = result.err().unwrap();
+
+            match result {
+                GlyphEngineProcessError::DataProcessingError(_) => {}
+                _ => panic!("Expected DataProcessingError"),
+            }
+        }
+
+        #[tokio::test]
+        async fn finish_upload_stream_fails() {
+            //1. Mock out our GlyhEngineOperations
+            let mut mocks = get_setup_mocks();
+
+            mocks
+                .expect_get_upload_stream()
+                .times(1)
+                .returning(|_, _| unsafe {
+                    let client = S3_CONNECTION_INSTANCE.as_ref().unwrap().clone();
+                    Ok(UploadStream::empty(client.get_s3_manager().get_client()))
+                });
+
+            mocks
+                .expect_write_to_upload_stream()
+                .times(10)
+                .returning(|_, _| Ok(()));
+
+            mocks.expect_finish_upload_stream().times(1).returning(|_| {
+                Err(UploadStreamFinishError::UnexpectedError(
+                    GlyphxErrorData::new(
+                        "An unexpected error occurred while finishing the upload stream"
+                            .to_string(),
+                        None,
+                        None,
+                    ),
+                ))
+            });
+
+            //2. Get our glyph_engine
+            let glyph_engine = get_glyph_engine().await; //  GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
+
+            //3. Build our field_definitions
+            let x_field_definition = glyph_engine
+                .parameters
+                .get_field_definition("xaxis")
+                .unwrap();
+
+            let y_field_definition = glyph_engine
+                .parameters
+                .get_field_definition("yaxis")
+                .unwrap();
+
+            //4. Mock out our vector processers
+            let x_vector_processor = build_vector_processer_from_json(
+                "x",
+                "test_table",
+                "test_file",
+                x_field_definition.clone(),
+                RESULT_SET.clone(),
+                X_FIELD_NAME.to_string(),
+            );
+
+            let y_vector_processor = build_vector_processer_from_json(
+                "y",
+                "test_table",
+                "test_file",
+                y_field_definition.clone(),
+                RESULT_SET.clone(),
+                Y_FIELD_NAME.to_string(),
+            );
+
+            //5. Mock out our AthenaStream
+            let mut athena_stream = get_mock_athena_stream_iterator(Box::new(move |stream| {
+                if stream.state.counter == 0 {
+                    Some(Ok(get_query_results_set()))
+                } else {
+                    Some(Ok(stream.get_query_results_set(Some(())))) //End the stream
+                }
+            }));
+
+            let result = glyph_engine
+                .process_query_results(
+                    "test_file_name",
+                    &mut athena_stream,
+                    "field1",
+                    "field2",
+                    "field3",
+                    &x_vector_processor,
+                    &y_vector_processor,
+                    &mocks,
+                )
+                .await;
+
+            assert!(result.is_err());
+
+            let result = result.err().unwrap();
+
+            match result {
+                GlyphEngineProcessError::DataProcessingError(_) => {}
+                _ => panic!("Expected DataProcessingError"),
+            }
+        }
+
+        #[tokio::test]
+        async fn build_glyph_fails() {
+            //1. Mock out our GlyhEngineOperations
+            let mut mocks = get_setup_mocks();
+
+            mocks
+                .expect_get_upload_stream()
+                .times(1)
+                .returning(|_, _| unsafe {
+                    let client = S3_CONNECTION_INSTANCE.as_ref().unwrap().clone();
+                    Ok(UploadStream::empty(client.get_s3_manager().get_client()))
+                });
+
+            mocks
+                .expect_write_to_upload_stream()
+                .times(0)
+                .returning(|_, _| Ok(()));
+
+            mocks
+                .expect_finish_upload_stream()
+                .times(0)
+                .returning(|_| Ok(()));
+
+            //2. Get our glyph_engine
+            let glyph_engine = get_glyph_engine().await; //  GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
+
+            //3. Build our field_definitions
+            let x_field_definition = glyph_engine
+                .parameters
+                .get_field_definition("xaxis")
+                .unwrap();
+
+            let y_field_definition = glyph_engine
+                .parameters
+                .get_field_definition("yaxis")
+                .unwrap();
+
+            //4. Mock out our vector processers
+            let x_vector_processor = build_vector_processer_from_json(
+                "x",
+                "test_table",
+                "test_file",
+                x_field_definition.clone(),
+                RESULT_SET.clone(),
+                X_FIELD_NAME.to_string(),
+            );
+
+            let y_vector_processor = build_vector_processer_from_json(
+                "y",
+                "test_table",
+                "test_file",
+                y_field_definition.clone(),
+                RESULT_SET.clone(),
+                Y_FIELD_NAME.to_string(),
+            );
+
+            //5. Mock out our AthenaStream
+            let mut athena_stream = get_mock_athena_stream_iterator(Box::new(move |stream| {
+                if stream.state.counter == 0 {
+                    Some(Ok(get_query_results_set()))
+                } else {
+                    Some(Ok(stream.get_query_results_set(Some(())))) //End the stream
+                }
+            }));
+
+            let result = glyph_engine
+                .process_query_results(
+                    "test_file_name",
+                    &mut athena_stream,
+                    //Sending a bad field name will
+                    //cause build_glyph to fail.
+                    //There is a cub module to more fully test out
+                    //the build_glyph function
+                    "field1_bad",
+                    "field2",
+                    "field3",
+                    &x_vector_processor,
+                    &y_vector_processor,
+                    &mocks,
+                )
+                .await;
+
+            assert!(result.is_err());
+
+            let result = result.err().unwrap();
+
+            match result {
+                GlyphEngineProcessError::DataProcessingError(_) => {}
+                _ => panic!("Expected DataProcessingError"),
+            }
+        }
+
+        mod build_glyph {
+            use super::*;
+
+            #[tokio::test]
+            async fn is_ok() {
+
+                //1. Get our glyph_engine
+                let glyph_engine = get_glyph_engine().await;
+
+                //2. Build our field_definitions
+                let x_field_definition = glyph_engine
+                    .parameters
+                    .get_field_definition("xaxis")
+                    .unwrap();
+                let y_field_definition = glyph_engine
+                    .parameters
+                    .get_field_definition("yaxis")
+                    .unwrap();
+                //3. Mock out our vector processers
+                let x_vector_processor = build_vector_processer_from_json(
+                    "x",
+                    "test_table",
+                    "test_file",
+                    x_field_definition.clone(),
+                    RESULT_SET.clone(),
+                    X_FIELD_NAME.to_string(),
+                );
+
+                let y_vector_processor = build_vector_processer_from_json(
+                    "y",
+                    "test_table",
+                    "test_file",
+                    y_field_definition.clone(),
+                    RESULT_SET.clone(),
+                    Y_FIELD_NAME.to_string(),
+                );
+
+                let value: Value = json!({
+                    "x_field1": 4.0,
+                    "y_field2": 8.0,
+                    "z_field3": 12.0,
+                    "rowids": "1|2|3"
+                });
+
+                let result = glyph_engine.build_glyph(
+                    &value,
+                    "field1",
+                    "field2",
+                    "field3",
+                    &x_vector_processor,
+                    &y_vector_processor,
+                );
+                assert!(result.is_ok());
+                let result = result.unwrap();
+                assert_eq!(result.x_value, 4.0);
+                assert_eq!(result.y_value, 8.0);
+                assert_eq!(result.z_value, 12.0);
+                assert_eq!(result.row_ids, vec![1, 2, 3]);
+            }
+            #[tokio::test]
+            async fn get_x_vector_fails() {
+                //1. Get our glyph_engine
+                let glyph_engine = get_glyph_engine().await;
+
+                //2. Build our field_definitions
+                let x_field_definition = glyph_engine
+                    .parameters
+                    .get_field_definition("xaxis")
+                    .unwrap();
+                let y_field_definition = glyph_engine
+                    .parameters
+                    .get_field_definition("yaxis")
+                    .unwrap();
+                //3. Mock out our vector processers
+                let x_vector_processor = build_vector_processer_from_json(
+                    "x",
+                    "test_table",
+                    "test_file",
+                    x_field_definition.clone(),
+                    RESULT_SET.clone(),
+                    X_FIELD_NAME.to_string(),
+                );
+
+                let y_vector_processor = build_vector_processer_from_json(
+                    "y",
+                    "test_table",
+                    "test_file",
+                    y_field_definition.clone(),
+                    RESULT_SET.clone(),
+                    Y_FIELD_NAME.to_string(),
+                );
+
+                let value: Value = json!({
+                    "x_field1_fail": 1.0,
+                    "y_field2": 2.0,
+                    "z_field3": 3.0,
+                    "rowids": "1"
+                });
+
+                let result = glyph_engine.build_glyph(
+                    &value,
+                    "field1",
+                    "field2",
+                    "field3",
+                    &x_vector_processor,
+                    &y_vector_processor,
+                );
+                assert!(result.is_err());
+                let result = result.err().unwrap();
+                match result {
+                    GlyphEngineProcessError::DataProcessingError(error_data) => {
+                        assert_eq!(
+                            error_data.message,
+                            "The field x_field1 was not found in the query results"
+                        );
+                    }
+                    _ => panic!("Expected DataProcessingError"),
+                }
+            }
+
+            #[tokio::test]
+            async fn get_y_vector_fails() {
+                //1. Get our glyph_engine
+                let glyph_engine = get_glyph_engine().await;
+
+                //2. Build our field_definitions
+                let x_field_definition = glyph_engine
+                    .parameters
+                    .get_field_definition("xaxis")
+                    .unwrap();
+                let y_field_definition = glyph_engine
+                    .parameters
+                    .get_field_definition("yaxis")
+                    .unwrap();
+                //3. Mock out our vector processers
+                let x_vector_processor = build_vector_processer_from_json(
+                    "x",
+                    "test_table",
+                    "test_file",
+                    x_field_definition.clone(),
+                    RESULT_SET.clone(),
+                    X_FIELD_NAME.to_string(),
+                );
+
+                let y_vector_processor = build_vector_processer_from_json(
+                    "y",
+                    "test_table",
+                    "test_file",
+                    y_field_definition.clone(),
+                    RESULT_SET.clone(),
+                    Y_FIELD_NAME.to_string(),
+                );
+
+                let value: Value = json!({
+                    "x_field1": 1.0,
+                    "y_field2_fail": 2.0,
+                    "z_field3": 3.0,
+                    "rowids": "1"
+                });
+
+                let result = glyph_engine.build_glyph(
+                    &value,
+                    "field1",
+                    "field2",
+                    "field3",
+                    &x_vector_processor,
+                    &y_vector_processor,
+                );
+                assert!(result.is_err());
+                let result = result.err().unwrap();
+                match result {
+                    GlyphEngineProcessError::DataProcessingError(error_data) => {
+                        assert_eq!(
+                            error_data.message,
+                            "The field y_field2 was not found in the query results"
+                        );
+                    }
+                    _ => panic!("Expected DataProcessingError"),
+                }
+            }
+
+            #[tokio::test]
+            async fn get_z_value_fails() {
+                //1. Get our glyph_engine
+                let glyph_engine = get_glyph_engine().await;
+
+                //2. Build our field_definitions
+                let x_field_definition = glyph_engine
+                    .parameters
+                    .get_field_definition("xaxis")
+                    .unwrap();
+                let y_field_definition = glyph_engine
+                    .parameters
+                    .get_field_definition("yaxis")
+                    .unwrap();
+                //3. Mock out our vector processers
+                let x_vector_processor = build_vector_processer_from_json(
+                    "x",
+                    "test_table",
+                    "test_file",
+                    x_field_definition.clone(),
+                    RESULT_SET.clone(),
+                    X_FIELD_NAME.to_string(),
+                );
+
+                let y_vector_processor = build_vector_processer_from_json(
+                    "y",
+                    "test_table",
+                    "test_file",
+                    y_field_definition.clone(),
+                    RESULT_SET.clone(),
+                    Y_FIELD_NAME.to_string(),
+                );
+
+                let value: Value = json!({
+                    "x_field1": 1.0,
+                    "y_field2": 2.0,
+                    "z_field3_fail": 3.0,
+                    "rowids": "1"
+                });
+
+                let result = glyph_engine.build_glyph(
+                    &value,
+                    "field1",
+                    "field2",
+                    "field3",
+                    &x_vector_processor,
+                    &y_vector_processor,
+                );
+                assert!(result.is_err());
+                let result = result.err().unwrap();
+                match result {
+                    GlyphEngineProcessError::DataProcessingError(error_data) => {
+                        assert_eq!(
+                            error_data.message,
+                            "The field z_field3 was not found in the query results"
+                        );
+                    }
+                    _ => panic!("Expected DataProcessingError"),
+                }
+            }
+
+            #[tokio::test]
+            async fn get_row_ids_fails() {
+                let glyph_engine = get_glyph_engine().await;
+
+                // Build our field_definitions
+                let x_field_definition = glyph_engine
+                    .parameters
+                    .get_field_definition("xaxis")
+                    .unwrap();
+                let y_field_definition = glyph_engine
+                    .parameters
+                    .get_field_definition("yaxis")
+                    .unwrap();
+                //Mock out our vector processers
+                let x_vector_processor = build_vector_processer_from_json(
+                    "x",
+                    "test_table",
+                    "test_file",
+                    x_field_definition.clone(),
+                    RESULT_SET.clone(),
+                    X_FIELD_NAME.to_string(),
+                );
+
+                let y_vector_processor = build_vector_processer_from_json(
+                    "y",
+                    "test_table",
+                    "test_file",
+                    y_field_definition.clone(),
+                    RESULT_SET.clone(),
+                    Y_FIELD_NAME.to_string(),
+                );
+
+                let value: Value = json!({
+                    "x_field1": 1.0,
+                    "y_field2": 2.0,
+                    "z_field3": 3.0,
+                    "rowids_fail": "1"
+                });
+
+                let result = glyph_engine.build_glyph(
+                    &value,
+                    "field1",
+                    "field2",
+                    "field3",
+                    &x_vector_processor,
+                    &y_vector_processor,
+                );
+                assert!(result.is_err());
+                let result = result.err().unwrap();
+                match result {
+                    GlyphEngineProcessError::DataProcessingError(error_data) => {
+                        assert_eq!(
+                            error_data.message,
+                            "The field rowids was not found in the query results"
+                        );
+                    }
+                    _ => panic!("Expected DataProcessingError"),
+                }
+            }
+        }
+
+        mod get_vector {
+            use super::*;
+
+            #[tokio::test]
+            async fn is_ok() {
+                //1. Get our glyph_engine
+                let glyph_engine = get_glyph_engine().await;
+
+                //2. Build our field_definitions
+                let x_field_definition = glyph_engine
+                    .parameters
+                    .get_field_definition("xaxis")
+                    .unwrap();
+
+                //3. Mock out our vector processers
+                let vector_processor = build_vector_processer_from_json(
+                    "x",
+                    "test_table",
+                    "test_file",
+                    x_field_definition.clone(),
+                    RESULT_SET.clone(),
+                    X_FIELD_NAME.to_string(),
+                );
+
+                let value: Value = json!({
+                    "x_field1": 4.0,
+                    "y_field2": 8.0,
+                    "z_field3": 12.0,
+                    "rowids": "1|2|3"
+                });
+
+                let result = glyph_engine.get_vector(&value, "x_field1", &vector_processor);
+                assert!(result.is_ok());
+                let result = result.unwrap();
+                assert_eq!(result.vector, 4.0);
+                assert_eq!(result.rank, 1);
+                assert_eq!(result.orig_value, VectorOrigionalValue::F64(4.0));
+            }
+
+            #[tokio::test]
+            async fn field_is_not_in_value() {
+                //1. Get our glyph_engine
+                let glyph_engine = get_glyph_engine().await;
+
+                //2. Build our field_definitions
+                let x_field_definition = glyph_engine
+                    .parameters
+                    .get_field_definition("xaxis")
+                    .unwrap();
+
+                //3. Mock out our vector processers
+                let vector_processor = build_vector_processer_from_json(
+                    "x",
+                    "test_table",
+                    "test_file",
+                    x_field_definition.clone(),
+                    RESULT_SET.clone(),
+                    X_FIELD_NAME.to_string(),
+                );
+
+                let value: Value = json!({
+                    "x_field1": 4.0,
+                    "y_field2": 8.0,
+                    "z_field3": 12.0,
+                    "rowids": "1|2|3"
+                });
+
+                let result = glyph_engine.get_vector(&value, "x_field1_bad", &vector_processor);
+                assert!(result.is_err());
+                let result = result.err().unwrap();
+
+                match result {
+                    GlyphEngineProcessError::DataProcessingError(error_data) => {
+                        assert_eq!(
+                            error_data.message,
+                            "The field x_field1_bad was not found in the query results"
+                        );
+                    }
+                    _ => panic!("Expected DataProcessingError"),
+                }
+            }
+
+            #[tokio::test]
+            async fn value_is_an_invalid_type() {
+                //1. Get our glyph_engine
+                let glyph_engine = get_glyph_engine().await;
+
+                //2. Build our field_definitions
+                let x_field_definition = glyph_engine
+                    .parameters
+                    .get_field_definition("xaxis")
+                    .unwrap();
+
+                //3. Mock out our vector processers
+                let vector_processor = build_vector_processer_from_json(
+                    "x",
+                    "test_table",
+                    "test_file",
+                    x_field_definition.clone(),
+                    RESULT_SET.clone(),
+                    X_FIELD_NAME.to_string(),
+                );
+
+                let value: Value = json!({
+                    "x_field1": true,
+                    "y_field2": 8.0,
+                    "z_field3": 12.0,
+                    "rowids": "1|2|3"
+                });
+
+                let result = glyph_engine.get_vector(&value, "x_field1", &vector_processor);
+                assert!(result.is_err());
+                let result = result.err().unwrap();
+                match result {
+                    GlyphEngineProcessError::DataProcessingError(error_data) => {
+                        assert_eq!(
+                            error_data.message,
+                            "The field x_field1 was not a number or string in the query results"
+                        );
+                    }
+                    _ => panic!("Expected DataProcessingError"),
+                }
+            }
+
+            #[tokio::test]
+            async fn value_is_not_in_the_vector_processer() {
+                //1. Get our glyph_engine
+                let glyph_engine = get_glyph_engine().await;
+
+                //2. Build our field_definitions
+                let x_field_definition = glyph_engine
+                    .parameters
+                    .get_field_definition("xaxis")
+                    .unwrap();
+
+                //3. Mock out our vector processers
+                let vector_processor = build_vector_processer_from_json(
+                    "x",
+                    "test_table",
+                    "test_file",
+                    x_field_definition.clone(),
+                    RESULT_SET.clone(),
+                    X_FIELD_NAME.to_string(),
+                );
+
+                let value: Value = json!({
+                    "x_field1": 444.0,
+                    "y_field2": 8.0,
+                    "z_field3": 12.0,
+                    "rowids": "1|2|3"
+                });
+
+                let result = glyph_engine.get_vector(&value, "x_field1", &vector_processor);
+
+                assert!(result.is_err());
+                let result = result.err().unwrap();
+                match result {
+                    GlyphEngineProcessError::DataProcessingError(error_data) => {
+                        assert_eq!(
+                            error_data.message,
+                "The value F64(444.0) was not found in the vector table for the field x_field1",
+                        );
+                    }
+                    _ => panic!("Expected DataProcessingError"),
+                }
+            }
+        }
+
+        mod get_z_value {
+            use super::*;
+
+            #[tokio::test]
+            async fn is_ok() {
+                //1. Get our glyph_engine
+                let glyph_engine = get_glyph_engine().await;
+
+                let value: Value = json!({
+                    "x_field1": 4.0,
+                    "y_field2": 8.0,
+                    "z_field3": 12.0,
+                    "rowids": "1|2|3"
+                });
+
+                let result = glyph_engine.get_z_value(&value, "z_field3");
+                assert!(result.is_ok());
+                let result = result.unwrap();
+                assert_eq!(result, 12.0);
+            }
+
+            #[tokio::test]
+            async fn field_not_in_results() {
+                //1. Get our glyph_engine
+                let glyph_engine = get_glyph_engine().await;
+
+                let value: Value = json!({
+                    "x_field1": 4.0,
+                    "y_field2": 8.0,
+                    "z_field3": 12.0,
+                    "rowids": "1|2|3"
+                });
+
+                let result = glyph_engine.get_z_value(&value, "z_field3_bad");
+                assert!(result.is_err());
+                let result = result.err().unwrap();
+                match result {
+                    GlyphEngineProcessError::DataProcessingError(error_data) => {
+                        assert_eq!(
+                            error_data.message,
+                            "The field z_field3_bad was not found in the query results"
+                        );
+                    }
+                    _ => panic!("Expected DataProcessingError"),
+                }
+            }
+
+            #[tokio::test]
+            async fn z_is_not_a_number() {
+                //1. Get our glyph_engine
+                let glyph_engine = get_glyph_engine().await;
+
+                let value: Value = json!({
+                    "x_field1": 4.0,
+                    "y_field2": 8.0,
+                    "z_field3": "string",
+                    "rowids": "1|2|3"
+                });
+
+                let result = glyph_engine.get_z_value(&value, "z_field3");
+                assert!(result.is_err());
+                let result = result.err().unwrap();
+                match result {
+                    GlyphEngineProcessError::DataProcessingError(error_data) => {
+                        assert_eq!(
+                            error_data.message,
+                            "The field z_field3 was not a number in the query results"
+                        );
+                    }
+                    _ => panic!("Expected DataProcessingError"),
+                }
+            }
+        }
+
+        mod get_row_ids {
+            use super::*;
+
+            #[tokio::test]
+            async fn is_ok() {
+                //1. Get our glyph_engine
+                let glyph_engine = get_glyph_engine().await;
+
+                let value: Value = json!({
+                    "x_field1": 4.0,
+                    "y_field2": 8.0,
+                    "z_field3": 12.0,
+                    "rowids": "1|2|3"
+                });
+
+                let result = glyph_engine.get_row_ids(&value);
+                assert!(result.is_ok());
+                let result = result.unwrap();
+                assert_eq!(result, vec![1, 2, 3]);
+            }
+
+            #[tokio::test]
+            async fn field_is_not_in_the_result() {
+                //1. Get our glyph_engine
+                let glyph_engine = get_glyph_engine().await;
+
+                let value: Value = json!({
+                    "x_field1": 4.0,
+                    "y_field2": 8.0,
+                    "z_field3": 12.0,
+                    "rowids_fail": "1|2|3"
+                });
+
+                let result = glyph_engine.get_row_ids(&value);
+                assert!(result.is_err());
+                let result = result.err().unwrap();
+                match result {
+                    GlyphEngineProcessError::DataProcessingError(error_data) => {
+                        assert_eq!(
+                            error_data.message,
+                            "The field rowids was not found in the query results"
+                        );
+                    }
+                    _ => panic!("Expected DataProcessingError"),
+                }
+            }
+
+            #[tokio::test]
+            async fn rowids_is_not_a_string() {
+                //1. Get our glyph_engine
+                let glyph_engine = get_glyph_engine().await;
+
+                let value: Value = json!({
+                    "x_field1": 4.0,
+                    "y_field2": 8.0,
+                    "z_field3": 12.0,
+                    "rowids": 123
+                });
+
+                let result = glyph_engine.get_row_ids(&value);
+                assert!(result.is_err());
+                let result = result.err().unwrap();
+                match result {
+                    GlyphEngineProcessError::DataProcessingError(error_data) => {
+                        assert_eq!(
+                            error_data.message,
+                            "The field rowids was not a string in the query results"
+                        );
+                    }
+                    _ => panic!("Expected DataProcessingError"),
+                }
+            }
+
+            #[tokio::test]
+            async fn rowids_is_malformed() {
+                //1. Get our glyph_engine
+                let glyph_engine = get_glyph_engine().await;
+
+                let value: Value = json!({
+                    "x_field1": 4.0,
+                    "y_field2": 8.0,
+                    "z_field3": 12.0,
+                    "rowids": "1|a|2|3"
+                });
+
+                let result = glyph_engine.get_row_ids(&value);
+                assert!(result.is_err());
+                let result = result.err().unwrap();
+                match result {
+                    GlyphEngineProcessError::DataProcessingError(error_data) => {
+                        assert_eq!(
+                            error_data.message,
+                            "The field rowids was not a pipe delimited string of integers"
+                        );
+                    }
+                    _ => panic!("Expected DataProcessingError"),
+                }
+            }
+        }
+    }
+
+    mod process {
+        use super::*;
+        use glyphx_core::aws::athena_stream_iterator::{
+            ErrorMetadata, GetQueryResultsError,
+             HttpResponse, InternalServerException,
+             SdkBody, SdkError,
+        };
+        use vector_processer::{MockVectorValueProcesser, VectorCalculationError};
+
+        #[tokio::test]
+        async fn is_ok() {
+            let query_id = "12345".to_string();
+
+            //1. Mock out our GlyhEngineOperations
+            let mut mocks = get_setup_mocks();
+            mocks
+                .expect_start_athena_query()
+                .times(1)
+                .returning(move |_, _| Ok(query_id.clone()));
+        
+            static mut CALL_NUMBER: usize = 0;
+            
+            mocks
+                .expect_get_vector_processer()
+                .times(2)
+                .returning(|_, _, _, _| unsafe {
+                    //This is where we setup our vector processer moocks.  Add a get_vector
+                    //expectation here so we can build our glyphs
+                    CALL_NUMBER += 1;
+                    if CALL_NUMBER == 1 {
+                        let mut vector_processer_mock1 = MockVectorValueProcesser::new();
+                        vector_processer_mock1
+                            .expect_start()
+                            .times(1)
+                            .return_const(());
+                        vector_processer_mock1
+                            .expect_get_axis_name()
+                            .times(0)
+                            .return_const("x".to_string());
+                        vector_processer_mock1
+                            .expect_check_status()
+                            .times(1)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock1
+                            .expect_get_vector()
+                            .times(10)
+                            .returning(|_| {
+                                Some(Vector::new(VectorOrigionalValue::F64(1.0), 1.0, 1))
+                            });
+                        Box::new(vector_processer_mock1)
+                    } else {
+                        let mut vector_processer_mock2 = MockVectorValueProcesser::new();
+                        vector_processer_mock2
+                            .expect_start()
+                            .times(1)
+                            .return_const(());
+                        vector_processer_mock2
+                            .expect_get_axis_name()
+                            .times(0)
+                            .return_const("y".to_string());
+                        vector_processer_mock2
+                            .expect_check_status()
+                            .times(1)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock2
+                            .expect_get_vector()
+                            .times(10)
+                            .returning(|_| {
+                                Some(Vector::new(VectorOrigionalValue::F64(2.0), 2.0, 2))
+                            });
+                        Box::new(vector_processer_mock2)
+                    }
+                });
+
+            mocks
+                .expect_check_query_status()
+                .times(1)
+                .returning(move |_, _| Ok(AthenaQueryStatus::Succeeded));
+
+            mocks.expect_get_query_results().times(1).returning(|_, _| {
+                Ok(get_mock_athena_stream_iterator(Box::new(move |stream| {
+                    if stream.state.counter == 0 {
+                        Some(Ok(get_query_results_set()))
+                    } else {
+                        Some(Ok(stream.get_query_results_set(Some(())))) //End the stream
+                    }
+                })))
+            });
+
+            mocks
+                .expect_get_upload_stream()
+                .times(1)
+                .returning(|_, _| unsafe {
+                    let client = S3_CONNECTION_INSTANCE.as_ref().unwrap().clone();
+                    Ok(UploadStream::empty(client.get_s3_manager().get_client()))
+                });
+
+            mocks
+                .expect_finish_upload_stream()
+                .times(1)
+                .returning(|_| Ok(()));
+
+            mocks
+                .expect_write_to_upload_stream()
+                .times(10)
+                .returning(|_, _| Ok(()));
+
+            mocks
+                .expect_complete_process_tracking()
+                .times(1)
+                .returning(|_, _, _| Ok(()));
+
+            mocks.expect_stop_heartbeat().times(1).return_const(());
+
+            //2. Get our glyph_engine
+            let mut glyph_engine = get_glyph_engine().await; //  GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
+            let result = glyph_engine.process_impl(&mocks).await;
+
+            assert!(result.is_ok());
+            let result = result.unwrap();
+            
+            assert_eq!(
+                result.x_axis_vectors_file_name,
+                "test/1234/5678/output/test_hash-x-axis.vec"
+            );
+            
+            assert_eq!(
+                result.y_axis_vectors_file_name,
+                "test/1234/5678/output/test_hash-y-axis.vec"
+            );
+            
+            assert_eq!(
+                result.glyphs_file_name,
+                "test/1234/5678/output/test_hash.gly"
+            );
+            
+            assert_eq!(
+                result.statistics_file_name,
+                "test/1234/5678/output/test_hash.sts"
+            );
+        }
+
+        #[tokio::test]
+        async fn no_x_axis() {
+            //1. Mock out our GlyhEngineOperations
+            let mut mocks = get_setup_mocks();
+
+            mocks
+                .expect_add_process_tracking_error()
+                .times(1)
+                .return_const(Ok(()));
+
+            mocks
+                .expect_complete_process_tracking()
+                .times(1)
+                .returning(|_, _, _| Ok(()));
+
+            mocks.expect_stop_heartbeat().times(1).return_const(());
+            //2. Get our glyph_engine
+
+            let mut input = INPUT.clone();
+            
+            input["xAxis"].take();
+
+            let parameters = VectorizerParameters::from_json_string(&input.to_string()).unwrap();
+            let mut glyph_engine = GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
+            let result = glyph_engine.process_impl(&mocks).await;
+
+            assert!(result.is_err());
+            
+            let error = result.err().unwrap();
+            
+            match error {
+                GlyphEngineProcessError::ConfigurationError(data) => {
+                    assert_eq!(
+                        data.message,
+                        "Error getting field definition for axis xaxis"
+                    )
+                }
+                _ => panic!("Expected ConfigurationError"),
+            }
+        }
+
+        #[tokio::test]
+        async fn no_y_axis() {
+            //1. Mock out our GlyhEngineOperations
+            let mut mocks = get_setup_mocks();
+
+            mocks
+                .expect_add_process_tracking_error()
+                .times(1)
+                .return_const(Ok(()));
+
+            mocks
+                .expect_complete_process_tracking()
+                .times(1)
+                .returning(|_, _, _| Ok(()));
+
+            mocks.expect_stop_heartbeat().times(1).return_const(());
+            //2. Get our glyph_engine
+
+            let mut input = INPUT.clone();
+            
+            input["yAxis"].take();
+
+            let parameters = VectorizerParameters::from_json_string(&input.to_string()).unwrap();
+            let mut glyph_engine = GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
+            let result = glyph_engine.process_impl(&mocks).await;
+
+            assert!(result.is_err());
+            
+            let error = result.err().unwrap();
+            
+            match error {
+                GlyphEngineProcessError::ConfigurationError(data) => {
+                    assert_eq!(
+                        data.message,
+                        "Error getting field definition for axis yaxis"
+                    )
+                }
+                _ => panic!("Expected ConfigurationError"),
+            }
+        }
+
+        #[tokio::test]
+        async fn no_z_axis() {
+            //1. Mock out our GlyhEngineOperations
+            let mut mocks = get_setup_mocks();
+
+            mocks
+                .expect_add_process_tracking_error()
+                .times(1)
+                .return_const(Ok(()));
+
+            mocks
+                .expect_complete_process_tracking()
+                .times(1)
+                .returning(|_, _, _| Ok(()));
+
+            mocks.expect_stop_heartbeat().times(1).return_const(());
+            //2. Get our glyph_engine
+
+            let mut input = INPUT.clone();
+            
+            input["zAxis"].take();
+
+            let parameters = VectorizerParameters::from_json_string(&input.to_string()).unwrap();
+            let mut glyph_engine = GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
+            let result = glyph_engine.process_impl(&mocks).await;
+
+            assert!(result.is_err());
+            
+            let error = result.err().unwrap();
+            
+            match error {
+                GlyphEngineProcessError::ConfigurationError(data) => {
+                    assert_eq!(
+                        data.message,
+                        "Error getting field definition for axis zaxis"
+                    )
+                }
+                _ => panic!("Expected ConfigurationError"),
+            }
+        }
+
+        #[tokio::test]
+        async fn start_query_fails() {
+            //1. Mock out our GlyhEngineOperations
+            let mut mocks = get_setup_mocks();
+            mocks
+                .expect_start_athena_query()
+                .times(1)
+                .returning(move |_, _| {
+                    Err(GlyphEngineProcessError::QueryProcessingError(
+                        GlyphxErrorData::new(
+                            "An Unexpected Error Occurred".to_string(),
+                            None,
+                            None,
+                        ),
+                    ))
+                });
+            
+            mocks
+                .expect_add_process_tracking_error()
+                .times(1)
+                .return_const(Ok(()));
+
+            mocks
+                .expect_complete_process_tracking()
+                .times(1)
+                .returning(|_, _, _| Ok(()));
+
+            mocks.expect_stop_heartbeat().times(1).return_const(());
+            //2. Get our glyph_engine
+            let mut glyph_engine = get_glyph_engine().await; //  GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
+            let result = glyph_engine.process_impl(&mocks).await;
+
+            assert!(result.is_err());
+            
+            let error = result.err().unwrap();
+            
+            match error {
+                GlyphEngineProcessError::QueryProcessingError(data) => {
+                    assert_eq!(data.message, "An Unexpected Error Occurred")
+                }
+                _ => panic!("Expected QueryProcessingError"),
+            }
+        }
+
+        #[tokio::test]
+        async fn process_vectors_fails() {
+            let query_id = "12345".to_string();
+
+            //1. Mock out our GlyhEngineOperations
+            let mut mocks = get_setup_mocks();
+            mocks
+                .expect_start_athena_query()
+                .times(1)
+                .returning(move |_, _| Ok(query_id.clone()));
+            
+            static mut CALL_NUMBER: usize = 0;
+            
+            mocks
+                .expect_get_vector_processer()
+                .times(2)
+                .returning(|_, _, _, _| unsafe {
+                    //This is where we setup our vector processer moocks.  Add a get_vector
+                    //expectation here so we can build our glyphs
+                    CALL_NUMBER += 1;
+                    if CALL_NUMBER == 1 {
+                        let mut vector_processer_mock1 = MockVectorValueProcesser::new();
+                        vector_processer_mock1
+                            .expect_start()
+                            .times(1)
+                            .return_const(());
+                        vector_processer_mock1
+                            .expect_get_axis_name()
+                            .times(1)
+                            .return_const("x".to_string());
+                        vector_processer_mock1
+                            .expect_check_status()
+                            .times(1)
+                            .returning(|| {
+                                TaskStatus::Errored(VectorCalculationError::AthenaQueryError(
+                                    GlyphxErrorData::new(
+                                        "An Unexpected Error Occurred".to_string(),
+                                        None,
+                                        None,
+                                    ),
+                                ))
+                            });
+                        Box::new(vector_processer_mock1)
+                    } else {
+                        let mut vector_processer_mock2 = MockVectorValueProcesser::new();
+                        vector_processer_mock2
+                            .expect_start()
+                            .times(1)
+                            .return_const(());
+                        vector_processer_mock2
+                            .expect_get_axis_name()
+                            .times(0)
+                            .return_const("y".to_string());
+                        Box::new(vector_processer_mock2)
+                    }
+                });
+
+            mocks
+                .expect_add_process_tracking_error()
+                .times(1)
+                .return_const(Ok(()));
+
+            mocks
+                .expect_complete_process_tracking()
+                .times(1)
+                .returning(|_, _, _| Ok(()));
+
+            mocks.expect_stop_heartbeat().times(1).return_const(());
+
+            //2. Get our glyph_engine
+            let mut glyph_engine = get_glyph_engine().await; //  GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
+            let result = glyph_engine.process_impl(&mocks).await;
+
+            assert!(result.is_err());
+
+            let error = result.err().unwrap();
+            
+            match error {
+                GlyphEngineProcessError::VectorProcessingError(data) => {
+                    assert_eq!(data.message, "An Error occurred while processing the vectors for axis :  x.  See the inner error for additional information")
+                }
+                _ => panic!("Expected VectorProcessingError"),
+            }
+        }
+
+        #[tokio::test]
+        async fn check_query_status_fails() {
+            let query_id = "12345".to_string();
+
+            //1. Mock out our GlyhEngineOperations
+            let mut mocks = get_setup_mocks();
+            mocks
+                .expect_start_athena_query()
+                .times(1)
+                .returning(move |_, _| Ok(query_id.clone()));
+            static mut CALL_NUMBER: usize = 0;
+            
+            mocks
+                .expect_get_vector_processer()
+                .times(2)
+                .returning(|_, _, _, _| unsafe {
+                    //This is where we setup our vector processer moocks.  Add a get_vector
+                    //expectation here so we can build our glyphs
+                    CALL_NUMBER += 1;
+                    if CALL_NUMBER == 1 {
+                        let mut vector_processer_mock1 = MockVectorValueProcesser::new();
+                        vector_processer_mock1
+                            .expect_start()
+                            .times(1)
+                            .return_const(());
+                        vector_processer_mock1
+                            .expect_get_axis_name()
+                            .times(0)
+                            .return_const("x".to_string());
+                        vector_processer_mock1
+                            .expect_check_status()
+                            .times(1)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock1
+                            .expect_get_vector()
+                            .times(0)
+                            .returning(|_| {
+                                Some(Vector::new(VectorOrigionalValue::F64(1.0), 1.0, 1))
+                            });
+                        Box::new(vector_processer_mock1)
+                    } else {
+                        let mut vector_processer_mock2 = MockVectorValueProcesser::new();
+                        vector_processer_mock2
+                            .expect_start()
+                            .times(1)
+                            .return_const(());
+                        vector_processer_mock2
+                            .expect_get_axis_name()
+                            .times(0)
+                            .return_const("y".to_string());
+                        vector_processer_mock2
+                            .expect_check_status()
+                            .times(1)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock2
+                            .expect_get_vector()
+                            .times(0)
+                            .returning(|_| {
+                                Some(Vector::new(VectorOrigionalValue::F64(2.0), 2.0, 2))
+                            });
+                        Box::new(vector_processer_mock2)
+                    }
+                });
+
+            mocks
+                .expect_check_query_status()
+                .times(1)
+                .returning(|_, _| {
+                    Err(GlyphEngineProcessError::QueryProcessingError(
+                        GlyphxErrorData::new(
+                            "An Unexpected Error Occurred".to_string(),
+                            None,
+                            None,
+                        ),
+                    ))
+                });
+
+            mocks
+                .expect_add_process_tracking_error()
+                .times(1)
+                .return_const(Ok(()));
+
+            mocks
+                .expect_complete_process_tracking()
+                .times(1)
+                .returning(|_, _, _| Ok(()));
+
+            mocks.expect_stop_heartbeat().times(1).return_const(());
+
+            //2. Get our glyph_engine
+            let mut glyph_engine = get_glyph_engine().await; //  GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
+            let result = glyph_engine.process_impl(&mocks).await;
+
+            assert!(result.is_err());
+            
+            let error = result.err().unwrap();
+            
+            match error {
+                GlyphEngineProcessError::QueryProcessingError(data) => {
+                    assert_eq!(data.message, "An Unexpected Error Occurred")
+                }
+                _ => panic!("Expected QueryProcessingError"),
+            }
+        }
+        
+        #[tokio::test]
+        async fn process_query_results_fails() {
+            let query_id = "12345".to_string();
+
+            //1. Mock out our GlyhEngineOperations
+            let mut mocks = get_setup_mocks();
+        
+            mocks
+                .expect_start_athena_query()
+                .times(1)
+                .returning(move |_, _| Ok(query_id.clone()));
+            
+            static mut CALL_NUMBER: usize = 0;
+            
+            mocks
+                .expect_get_vector_processer()
+                .times(2)
+                .returning(|_, _, _, _| unsafe {
+                    //This is where we setup our vector processer moocks.  Add a get_vector
+                    //expectation here so we can build our glyphs
+                    CALL_NUMBER += 1;
+                    if CALL_NUMBER == 1 {
+                        let mut vector_processer_mock1 = MockVectorValueProcesser::new();
+                        vector_processer_mock1
+                            .expect_start()
+                            .times(1)
+                            .return_const(());
+                        vector_processer_mock1
+                            .expect_get_axis_name()
+                            .times(0)
+                            .return_const("x".to_string());
+                        vector_processer_mock1
+                            .expect_check_status()
+                            .times(1)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock1
+                            .expect_get_vector()
+                            .times(0)
+                            .returning(|_| {
+                                Some(Vector::new(VectorOrigionalValue::F64(1.0), 1.0, 1))
+                            });
+                        Box::new(vector_processer_mock1)
+                    } else {
+                        let mut vector_processer_mock2 = MockVectorValueProcesser::new();
+                        vector_processer_mock2
+                            .expect_start()
+                            .times(1)
+                            .return_const(());
+                        vector_processer_mock2
+                            .expect_get_axis_name()
+                            .times(0)
+                            .return_const("y".to_string());
+                        vector_processer_mock2
+                            .expect_check_status()
+                            .times(1)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock2
+                            .expect_get_vector()
+                            .times(0)
+                            .returning(|_| {
+                                Some(Vector::new(VectorOrigionalValue::F64(2.0), 2.0, 2))
+                            });
+                        Box::new(vector_processer_mock2)
+                    }
+                });
+
+            mocks
+                .expect_check_query_status()
+                .times(1)
+                .returning(move |_, _| Ok(AthenaQueryStatus::Succeeded));
+
+            mocks
+                .expect_get_upload_stream()
+                .times(1)
+                .returning(|_, _| unsafe {
+                    let client = S3_CONNECTION_INSTANCE.as_ref().unwrap().clone();
+                    Ok(UploadStream::empty(client.get_s3_manager().get_client()))
+                });
+
+            mocks.expect_get_query_results().times(1).returning(|_, _| {
+                Ok(get_mock_athena_stream_iterator(Box::new(move |_| {
+                    let body = SdkBody::from("An error occurred".to_string());
+                    let metadata = ErrorMetadata::builder()
+                        .code("500")
+                        .message("An error has occurred")
+                        .build();
+                    let internal_server_exception = InternalServerException::builder()
+                        .message("An error has occurred")
+                        .meta(metadata)
+                        .build();
+
+                    let query_response_error =
+                        GetQueryResultsError::InternalServerException(internal_server_exception);
+                    let raw: HttpResponse = HttpResponse::new(body);
+                    let error: SdkError<GetQueryResultsError> =
+                        SdkError::service_error(query_response_error, raw);
+
+                    Some(Err(error))
+                })))
+            });
+
+            mocks
+                .expect_add_process_tracking_error()
+                .times(1)
+                .return_const(Ok(()));
+
+            mocks
+                .expect_complete_process_tracking()
+                .times(1)
+                .returning(|_, _, _| Ok(()));
+
+            mocks.expect_stop_heartbeat().times(1).return_const(());
+            
+            //2. Get our glyph_engine
+            let mut glyph_engine = get_glyph_engine().await; //  GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
+            let result = glyph_engine.process_impl(&mocks).await;
+
+            assert!(result.is_err());
+            
+            let error = result.err().unwrap();
+            
+            match error {
+                GlyphEngineProcessError::DataProcessingError(data) => {
+                    assert_eq!(
+                        data.message,
+                        "An error occurred while iterating the query results, see the inner error for additional information"
+                    )
+                }
+                _ => panic!("Expected ConfigurationError"),
+            }
+        }
+
+        #[tokio::test]
+        async fn complete_process_traking_fails() {
+            let query_id = "12345".to_string();
+
+            //1. Mock out our GlyhEngineOperations
+            let mut mocks = get_setup_mocks();
+            mocks
+                .expect_start_athena_query()
+                .times(1)
+                .returning(move |_, _| Ok(query_id.clone()));
+            static mut CALL_NUMBER: usize = 0;
+            
+            mocks
+                .expect_get_vector_processer()
+                .times(2)
+                .returning(|_, _, _, _| unsafe {
+                    //This is where we setup our vector processer moocks.  Add a get_vector
+                    //expectation here so we can build our glyphs
+                    CALL_NUMBER += 1;
+                    if CALL_NUMBER == 1 {
+                        let mut vector_processer_mock1 = MockVectorValueProcesser::new();
+                        vector_processer_mock1
+                            .expect_start()
+                            .times(1)
+                            .return_const(());
+                        vector_processer_mock1
+                            .expect_get_axis_name()
+                            .times(0)
+                            .return_const("x".to_string());
+                        vector_processer_mock1
+                            .expect_check_status()
+                            .times(1)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock1
+                            .expect_get_vector()
+                            .times(10)
+                            .returning(|_| {
+                                Some(Vector::new(VectorOrigionalValue::F64(1.0), 1.0, 1))
+                            });
+                        Box::new(vector_processer_mock1)
+                    } else {
+                        let mut vector_processer_mock2 = MockVectorValueProcesser::new();
+                        vector_processer_mock2
+                            .expect_start()
+                            .times(1)
+                            .return_const(());
+                        vector_processer_mock2
+                            .expect_get_axis_name()
+                            .times(0)
+                            .return_const("y".to_string());
+                        vector_processer_mock2
+                            .expect_check_status()
+                            .times(1)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock2
+                            .expect_get_vector()
+                            .times(10)
+                            .returning(|_| {
+                                Some(Vector::new(VectorOrigionalValue::F64(2.0), 2.0, 2))
+                            });
+                        Box::new(vector_processer_mock2)
+                    }
+                });
+
+            mocks
+                .expect_check_query_status()
+                .times(1)
+                .returning(move |_, _| Ok(AthenaQueryStatus::Succeeded));
+
+            mocks.expect_get_query_results().times(1).returning(|_, _| {
+                Ok(get_mock_athena_stream_iterator(Box::new(move |stream| {
+                    if stream.state.counter == 0 {
+                        Some(Ok(get_query_results_set()))
+                    } else {
+                        Some(Ok(stream.get_query_results_set(Some(())))) //End the stream
+                    }
+                })))
+            });
+
+            mocks
+                .expect_get_upload_stream()
+                .times(1)
+                .returning(|_, _| unsafe {
+                    let client = S3_CONNECTION_INSTANCE.as_ref().unwrap().clone();
+                    Ok(UploadStream::empty(client.get_s3_manager().get_client()))
+                });
+
+            mocks
+                .expect_finish_upload_stream()
+                .times(1)
+                .returning(|_| Ok(()));
+
+            mocks
+                .expect_write_to_upload_stream()
+                .times(10)
+                .returning(|_, _| Ok(()));
+
+            mocks
+                .expect_complete_process_tracking()
+                .times(1)
+                .returning(|_, _, _| {
+                    Err(UpdateDocumentError::UnexpectedError(GlyphxErrorData::new(
+                        "An UnexpectedError Has Occurred".to_string(),
+                        None,
+                        None,
+                    )))
+                });
+
+            mocks.expect_stop_heartbeat().times(1).return_const(());
+
+            //2. Get our glyph_engine
+            let mut glyph_engine = get_glyph_engine().await; //  GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
+            let result = glyph_engine.process_impl(&mocks).await;
+
+            assert!(result.is_ok());
+            
+            let result = result.unwrap();
+            
+            assert_eq!(
+                result.x_axis_vectors_file_name,
+                "test/1234/5678/output/test_hash-x-axis.vec"
+            );
+            
+            assert_eq!(
+                result.y_axis_vectors_file_name,
+                "test/1234/5678/output/test_hash-y-axis.vec"
+            );
+            
+            assert_eq!(
+                result.glyphs_file_name,
+                "test/1234/5678/output/test_hash.gly"
+            );
+            
+            assert_eq!(
+                result.statistics_file_name,
+                "test/1234/5678/output/test_hash.sts"
+            );
         }
     }
 }
