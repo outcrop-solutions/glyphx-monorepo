@@ -7,7 +7,7 @@ pub mod traits;
 #[cfg(feature = "macros")]
 pub use traits::*;
 #[cfg(feature = "macros")]
-pub use secret_bound_singleton::SecretBoundSingleton;
+pub use secret_bound_singleton::{SecretBoundSingleton, SyncSecretBoundSingleton};
 #[cfg(feature = "macros")]
 pub use glyphx_error::GlyphxError;
 #[cfg(feature = "macros")]

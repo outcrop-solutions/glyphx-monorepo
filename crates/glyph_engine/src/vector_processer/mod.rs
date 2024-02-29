@@ -11,7 +11,12 @@ pub use vector_origional_value::*;
 use crate::types::vectorizer_parameters::FieldDefinition;
 use glyphx_common::{AthenaConnection, S3Connection};
 use glyphx_core::{
-    aws::athena_manager::RunQueryError, ErrorTypeParser, GlyphxErrorData, Singleton,
+    aws::{
+        athena_manager::RunQueryError,
+        s3_manager::{GetUploadStreamError, UploadStreamFinishError, UploadStreamWriteError},
+        upload_stream::UploadStream,
+    },
+    ErrorTypeParser, GlyphxErrorData, Singleton,
 };
 
 use async_trait::async_trait;
@@ -23,10 +28,52 @@ use serde_json::{json, to_value, Value};
 use std::sync::mpsc::{channel, Receiver, TryRecvError};
 use tokio::task::{spawn, JoinHandle};
 
+/// This macro is used to handle functions that return Result<T, E>  in a consistent way in our
+/// tokio Tasks. If a code block returns the Result::Err(E) variant, the emited code will unwrap the error
+/// and convert it to the supplied error type using the From trait.  Should our underlying logging
+/// fail, we will use the internal error! macro from the log crate to spit out the error. An exmaple of
+/// using this macro is:
+///handle_task_error! (let x = foo(1,2,5), sender)
+///If the call to foo is an error, the error will be converted to a VectorCaclulationError logged and returned.
+///sender is the name of the variable that holdds the sender for the channel that the task is using to communicate. The macro will also unwrap the result of the call to foo and assign it to the variable x.  If the
+///call to foo is successful, the variable x will be assigned the result of the call to foo.
+macro_rules! handle_task_error {
+    //In this pattern, the error will be passed to the $function_name as the first argument.
+    //The $functions_arguments will be passed as the second argument.
+    (let $var_name:ident = $express : expr, $sender:ident) => {
+        let $var_name = $express;
+        if $var_name.is_err() {
+            let error = $var_name.unwrap_err();
+            let error = VectorCalculationError::from(error);
+            error.error();
+            let send_result = $sender.send(Err(error));
+            if send_result.is_err() {
+                let send_error = send_result.err().unwrap();
+                let error_string = format!("{:?}", send_error);
+                error!("{}", error_string);
+            }
+            return;
+        }
+        let $var_name = $var_name.unwrap();
+    };
+}
+
 #[automock]
 #[async_trait]
 pub trait ThreadOperations {
     async fn run_athena_query(&self, query: &str) -> Result<Value, RunQueryError>;
+    async fn get_upload_stream(
+        &self,
+        s3_file_name: &str,
+    ) -> Result<UploadStream, GetUploadStreamError>;
+    async fn write_to_stream(
+        &self,
+        stream: &mut UploadStream,
+        data: Vec<u8>,
+    ) -> Result<(), UploadStreamWriteError>;
+
+    async fn finish_stream(&self, stream: &mut UploadStream)
+        -> Result<(), UploadStreamFinishError>;
 }
 
 struct ThreadOperationsImpl;
@@ -36,7 +83,33 @@ impl ThreadOperations for ThreadOperationsImpl {
     async fn run_athena_query(&self, query: &str) -> Result<Value, RunQueryError> {
         let athena_connection = AthenaConnection::get_instance();
         let athena_manager = athena_connection.get_athena_manager();
-        athena_manager.run_query(&query, Some(300), Some(true)).await
+        athena_manager
+            .run_query(&query, Some(300), Some(true))
+            .await
+    }
+    async fn get_upload_stream(
+        &self,
+        s3_file_name: &str,
+    ) -> Result<UploadStream, GetUploadStreamError> {
+        let s3_connection = S3Connection::get_instance();
+        let s3_manager = s3_connection.get_s3_manager();
+        let upload_stream = s3_manager.get_upload_stream(&s3_file_name).await;
+        upload_stream
+    }
+    async fn write_to_stream(
+        &self,
+        stream: &mut UploadStream,
+        data: Vec<u8>,
+    ) -> Result<(), UploadStreamWriteError> {
+        let write_result = stream.write(Some(data)).await;
+        write_result
+    }
+    async fn finish_stream(
+        &self,
+        stream: &mut UploadStream,
+    ) -> Result<(), UploadStreamFinishError> {
+        let result = stream.finish().await;
+        result
     }
 }
 
@@ -45,27 +118,27 @@ pub struct VectorProcesser {
     table_name: String,
     s3_file_name: String,
     field_definition: FieldDefinition,
-    receiver: Option<Receiver<Result<Vector, VectorCaclulationError>>>,
+    receiver: Option<Receiver<Result<Vector, VectorCalculationError>>>,
     vectors: OrdMap<VectorOrigionalValue, Vector>,
     join_handle: Option<JoinHandle<()>>,
     task_status: TaskStatus,
 }
 
-///Using a trait pattern will allow me to implemnet a mock for testing using a 
+///Using a trait pattern will allow me to implemnet a mock for testing using a
 ///impl pattern in glyph_engine directly.
 #[automock]
 pub trait VectorValueProcesser {
     fn get_axis_name(&self) -> &str;
     fn start(&mut self);
     fn check_status(&mut self) -> TaskStatus;
+    fn get_vector(&self, key: &VectorOrigionalValue) -> Option<Vector>;
 }
 
 impl VectorValueProcesser for VectorProcesser {
-
     fn get_axis_name(&self) -> &str {
         &self.axis_name
     }
-    
+
     fn start(&mut self) {
         self.start_impl(&ThreadOperationsImpl)
     }
@@ -84,7 +157,7 @@ impl VectorValueProcesser for VectorProcesser {
                 None,
             );
             self.task_status =
-                TaskStatus::Errored(VectorCaclulationError::IntializationError(error_data));
+                TaskStatus::Errored(VectorCalculationError::IntializationError(error_data));
             return self.task_status.clone();
         }
         //This task has already run to completion so just return the status
@@ -115,7 +188,7 @@ impl VectorValueProcesser for VectorProcesser {
                             None,
                         );
                         self.task_status = TaskStatus::Errored(
-                            VectorCaclulationError::IntializationError(error_data),
+                            VectorCalculationError::IntializationError(error_data),
                         );
                         self.join_handle.as_ref().unwrap().abort();
                         self.join_handle = None;
@@ -145,11 +218,24 @@ impl VectorValueProcesser for VectorProcesser {
             }
         }
     }
+   fn get_vector(&self, key: &VectorOrigionalValue) -> Option<Vector> {
+        let vector = self.vectors.get(key);
+        if vector.is_none() {
+             None
+        } else {
+             Some(vector.unwrap().clone())
+        }
+
+    }
 }
 
 impl VectorProcesser {
-
-    pub fn new(axis_name: &str, table_name: &str, s3_file_name: &str, field_definition: FieldDefinition) -> Self {
+    pub fn new(
+        axis_name: &str,
+        table_name: &str,
+        s3_file_name: &str,
+        field_definition: FieldDefinition,
+    ) -> Self {
         Self {
             axis_name: axis_name.to_string(),
             table_name: table_name.to_string(),
@@ -164,97 +250,32 @@ impl VectorProcesser {
     fn start_impl<T: ThreadOperations + Sync>(&mut self, thread_operations: &'static T) {
         let field_definition = self.field_definition.clone();
         let s3_file_name = self.s3_file_name.clone();
-        let (field_name, field_value) = field_definition.get_query_parts();
+        let (field_name, field_value, _) = field_definition.get_query_parts();
         let table_name = self.table_name.clone();
-        let (sender, receiver) = channel::<Result<Vector, VectorCaclulationError>>();
+
+        let (sender, receiver) = channel::<Result<Vector, VectorCalculationError>>();
         self.receiver = Some(receiver);
+
         let thread_handle = spawn(async move {
             let query = format!(
                 "SELECT DISTINCT {} FROM {} ORDER BY {}",
                 field_value, table_name, field_name
             );
-            let result = thread_operations.run_athena_query(&query).await;
+            handle_task_error!(let result = thread_operations.run_athena_query(&query).await, sender);
 
-            if result.is_err() {
-                let error = result.err().unwrap();
-                let error = VectorCaclulationError::from(error);
-                error.error();
-                //if sending fails we are really kind of screwed
-                //we will do our best to try and log the error so that we
-                //have something on the backend to help troubleshoot.
-                let send_result = sender.send(Err(error));
-                if send_result.is_err() {
-                    let send_error = send_result.err().unwrap();
-                    let error_string = format!("{:?}", send_error);
-                    error!("{}", error_string);
-                }
-
-                return;
-            }
-            let result = result.unwrap();
             let mut rank = 0;
-            let s3_manager = S3Connection::get_instance().get_s3_manager();
-            let upload_stream = s3_manager.get_upload_stream(&s3_file_name).await;
-            if upload_stream.is_err() {
-                let error = upload_stream.err().unwrap();
-                let error = VectorCaclulationError::from(error);
-                error.error();
-                //if sending fails we are really kind of screwed
-                //we will do our best to try and log the error so that we
-                //have something on the backend to help troubleshoot.
-                let send_result = sender.send(Err(error));
-                if send_result.is_err() {
-                    let send_error = send_result.err().unwrap();
-                    let error_string = format!("{:?}", send_error);
-                    error!("{}", error_string);
-                }
-                return;
-            } 
-            let mut upload_stream = upload_stream.unwrap();
+            handle_task_error!(let upload_stream = thread_operations.get_upload_stream(&s3_file_name).await, sender);
+            //handle_task_error does not unwrap as mut, we need to do that here
+            let mut upload_stream = upload_stream;
             for row in result.as_array().unwrap() {
-                let value = row.get(&field_name).unwrap();
-                let orig_value: VectorOrigionalValue;
-                let vector: f64;
-                if value.is_string() {
-                    orig_value = VectorOrigionalValue::String(value.as_str().unwrap().to_string());
-                    vector = rank.clone() as f64;
-                } else if value.is_f64() {
-                    let raw_value = value.as_f64().unwrap();
-                    vector = raw_value.clone();
-                    orig_value = VectorOrigionalValue::F64(raw_value);
-                } else {
-                    let raw_value = value.as_u64().unwrap();
-                    vector = raw_value.clone() as f64;
-                    orig_value = VectorOrigionalValue::U64(raw_value);
-                }
-                let vector = Vector::new(orig_value, vector, rank);
-                //Byte Serialize the vector 
-                let vector_binary_size = vector.get_binary_size();
-                let mut ser_vector: Vec<u8> = Vec::with_capacity(8 + vector_binary_size);
-                //We are including the size of the vector so that when we write this to a file we
-                //will be able to determine the size of the vector when we read it back in.  This
-                //prevents us from having to store the vectors in two seperate blocks of memory,
-                //one here and one on the main thread.  In the future, we will stream the results
-                //back from athena so we will not hold them all ion memory at once.
-                ser_vector.append(serialize(&vector_binary_size).unwrap().as_mut());
-                ser_vector.append(serialize(&vector).unwrap().as_mut());
+                let vector = build_vector(row, &field_name, rank);
+                //Byte Serialize the vector
+                let ser_vector = serialize_vector(&vector);
 
-                let write_result = upload_stream.write(Some(ser_vector)).await;
-                if write_result.is_err() {
-                    let error = write_result.err().unwrap();
-                    let error = VectorCaclulationError::from(error);
-                    error.error();
-                    //if sending fails we are really kind of screwed
-                    //we will do our best to try and log the error so that we
-                    //have something on the backend to help troubleshoot.
-                    let send_result = sender.send(Err(error));
-                    if send_result.is_err() {
-                        let send_error = send_result.err().unwrap();
-                        let error_string = format!("{:?}", send_error);
-                        error!("{}", error_string);
-                    }
-                    return;
-                }
+                handle_task_error!(let _write_result = thread_operations.write_to_stream(&mut upload_stream, ser_vector).await, sender);
+                //This doesn't use our macro because the it is actually already sending the result
+                //so if that fails, there is no need to try and send the error a second time as it
+                //will always fail.
                 let send_result = sender.send(Ok(vector));
                 if send_result.is_err() {
                     let send_error = send_result.err().unwrap();
@@ -264,31 +285,80 @@ impl VectorProcesser {
                 }
                 rank += 1;
             }
-            let result = upload_stream.finish().await;
-            if result.is_err() {
-                let error = result.err().unwrap();
-                let error = VectorCaclulationError::from(error);
-                error.error();
-                //if sending fails we are really kind of screwed
-                //we will do our best to try and log the error so that we
-                //have something on the backend to help troubleshoot.
-                let send_result = sender.send(Err(error));
-                if send_result.is_err() {
-                    let send_error = send_result.err().unwrap();
-                    let error_string = format!("{:?}", send_error);
-                    error!("{}", error_string);
-                }
+            handle_task_error!(let _result = thread_operations.finish_stream(&mut upload_stream).await, sender);
+            //Send and empty vector to signal that the task is complete
+            let send_result = sender.send(Ok(Vector::empty()));
+            //Same as above, if this fails, there is no need to try and send the error a second time as it
+            //will always fail.
+            if send_result.is_err() {
+                let send_error = send_result.err().unwrap();
+                let error_string = format!("{:?}", send_error);
+                error!("{}", error_string);
                 return;
             }
-            sender.send(Ok(Vector::empty())).unwrap();
         });
         self.join_handle = Some(thread_handle);
     }
 
+}
 
-    pub fn get_vector(&self, key: &VectorOrigionalValue) -> Option<&Vector> {
-        self.vectors.get(key)
+///These functions are run inside the tokio task and have no understading of Self as it is not
+///copied into the clousure.  It is ok to place them here outside of the impl block.
+fn build_vector(row: &Value, field_name: &String, rank: u64) -> Vector {
+    let value = row.get(field_name).unwrap();
+    let orig_value: VectorOrigionalValue;
+    let vector: f64;
+    if value.is_string() {
+        orig_value = VectorOrigionalValue::String(value.as_str().unwrap().to_string());
+        vector = rank.clone() as f64;
+    } else if value.is_f64() {
+        let raw_value = value.as_f64().unwrap();
+        vector = raw_value.clone();
+        orig_value = VectorOrigionalValue::F64(raw_value);
+    } else {
+        let raw_value = value.as_u64().unwrap();
+        vector = raw_value.clone() as f64;
+        orig_value = VectorOrigionalValue::U64(raw_value);
     }
+    let vector = Vector::new(orig_value, vector, rank);
+    vector
+}
+
+fn serialize_vector(vector: &Vector) -> Vec<u8> {
+    let vector_binary_size = vector.get_binary_size();
+    let mut ser_vector: Vec<u8> = Vec::with_capacity(8 + vector_binary_size);
+    //We are including the size of the vector so that when we write this to a file we
+    //will be able to determine the size of the vector when we read it back in.  This
+    //prevents us from having to store the vectors in two seperate blocks of memory,
+    //one here and one on the main thread.  In the future, we will stream the results
+    //back from athena so we will not hold them all ion memory at once.
+    ser_vector.append(serialize(&vector_binary_size).unwrap().as_mut());
+    ser_vector.append(serialize(vector).unwrap().as_mut());
+    ser_vector
+}
+
+//This allows us to build a vector processer from a json result set.  This is useful for testing
+#[cfg(test)]
+pub(super) fn build_vector_processer_from_json(
+    axis_name: &str,
+    table_name: &str,
+    s3_file_name: &str,
+    field_definition: FieldDefinition,
+    result_set: Value,
+    field_name: String,
+) -> Box<dyn VectorValueProcesser> {
+    let mut vector_processer =
+        VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
+    let mut rank = 0;
+    for row in result_set.as_array().unwrap() {
+        let vector = build_vector(row, &field_name, rank);
+        vector_processer
+            .vectors
+            .insert(vector.orig_value.clone(), vector);
+        rank += 1;
+    }
+    vector_processer.task_status = TaskStatus::Complete;
+    Box::new(vector_processer)
 }
 
 #[cfg(test)]
@@ -299,6 +369,7 @@ mod tests {
         use crate::field_definition_type::FieldDefinitionType;
         use crate::types::vectorizer_parameters::{FieldDefinition, StandardFieldDefinition};
         use crate::FieldType;
+        use glyphx_core::aws::S3Manager;
 
         pub struct StringMocks1;
         #[async_trait]
@@ -322,6 +393,28 @@ mod tests {
                     },
                 ]);
                 Ok(json)
+            }
+            async fn get_upload_stream(
+                &self,
+                _s3_file_name: &str,
+            ) -> Result<UploadStream, GetUploadStreamError> {
+                let s3_manager = S3Manager::default();
+                let client = s3_manager.get_client();
+                Ok(UploadStream::empty(client))
+            }
+            async fn write_to_stream(
+                &self,
+                _stream: &mut UploadStream,
+                _data: Vec<u8>,
+            ) -> Result<(), UploadStreamWriteError> {
+                Ok(())
+            }
+
+            async fn finish_stream(
+                &self,
+                _stream: &mut UploadStream,
+            ) -> Result<(), UploadStreamFinishError> {
+                Ok(())
             }
         }
 
@@ -348,6 +441,27 @@ mod tests {
                 ]);
                 Ok(json)
             }
+            async fn get_upload_stream(
+                &self,
+                _s3_file_name: &str,
+            ) -> Result<UploadStream, GetUploadStreamError> {
+                let s3_manager = S3Manager::default();
+                let client = s3_manager.get_client();
+                Ok(UploadStream::empty(client))
+            }
+            async fn write_to_stream(
+                &self,
+                _stream: &mut UploadStream,
+                _data: Vec<u8>,
+            ) -> Result<(), UploadStreamWriteError> {
+                Ok(())
+            }
+            async fn finish_stream(
+                &self,
+                _stream: &mut UploadStream,
+            ) -> Result<(), UploadStreamFinishError> {
+                Ok(())
+            }
         }
 
         pub struct NumberFloatMocks;
@@ -372,6 +486,27 @@ mod tests {
                     },
                 ]);
                 Ok(json)
+            }
+            async fn get_upload_stream(
+                &self,
+                _s3_file_name: &str,
+            ) -> Result<UploadStream, GetUploadStreamError> {
+                let s3_manager = S3Manager::default();
+                let client = s3_manager.get_client();
+                Ok(UploadStream::empty(client))
+            }
+            async fn write_to_stream(
+                &self,
+                _stream: &mut UploadStream,
+                _data: Vec<u8>,
+            ) -> Result<(), UploadStreamWriteError> {
+                Ok(())
+            }
+            async fn finish_stream(
+                &self,
+                _stream: &mut UploadStream,
+            ) -> Result<(), UploadStreamFinishError> {
+                Ok(())
             }
         }
 
@@ -398,10 +533,31 @@ mod tests {
                 ]);
                 Ok(json)
             }
+            async fn get_upload_stream(
+                &self,
+                _s3_file_name: &str,
+            ) -> Result<UploadStream, GetUploadStreamError> {
+                let s3_manager = S3Manager::default();
+                let client = s3_manager.get_client();
+                Ok(UploadStream::empty(client))
+            }
+            async fn write_to_stream(
+                &self,
+                _stream: &mut UploadStream,
+                _data: Vec<u8>,
+            ) -> Result<(), UploadStreamWriteError> {
+                Ok(())
+            }
+            async fn finish_stream(
+                &self,
+                _stream: &mut UploadStream,
+            ) -> Result<(), UploadStreamFinishError> {
+                Ok(())
+            }
         }
-        pub struct MocksError;
+        pub struct MocksRunAthenaError;
         #[async_trait]
-        impl ThreadOperations for MocksError {
+        impl ThreadOperations for MocksRunAthenaError {
             async fn run_athena_query(&self, _query: &str) -> Result<Value, RunQueryError> {
                 let error_data = GlyphxErrorData::new(
                     "An unexpected error occurred while running the  query.".to_string(),
@@ -411,8 +567,185 @@ mod tests {
                 let error = RunQueryError::QueryFailed(error_data);
                 Err(error)
             }
+            async fn get_upload_stream(
+                &self,
+                _s3_file_name: &str,
+            ) -> Result<UploadStream, GetUploadStreamError> {
+                let s3_manager = S3Manager::default();
+                let client = s3_manager.get_client();
+                Ok(UploadStream::empty(client))
+            }
+            async fn write_to_stream(
+                &self,
+                _stream: &mut UploadStream,
+                _data: Vec<u8>,
+            ) -> Result<(), UploadStreamWriteError> {
+                Ok(())
+            }
+            async fn finish_stream(
+                &self,
+                _stream: &mut UploadStream,
+            ) -> Result<(), UploadStreamFinishError> {
+                Ok(())
+            }
         }
 
+        pub struct MocksStartUploadError;
+        #[async_trait]
+        impl ThreadOperations for MocksStartUploadError {
+            async fn run_athena_query(&self, _query: &str) -> Result<Value, RunQueryError> {
+                let json = serde_json::json!([
+                    {
+                        "Test2": "f"
+                    },
+                    {
+                        "Test2": "g"
+                    },
+                    {
+                        "Test2": "h"
+                    },
+                    {
+                        "Test2": "i"
+                    },
+                    {
+                        "Test2": "j"
+                    },
+                ]);
+                Ok(json)
+            }
+
+            async fn get_upload_stream(
+                &self,
+                _s3_file_name: &str,
+            ) -> Result<UploadStream, GetUploadStreamError> {
+                let error_data = GlyphxErrorData::new(
+                    "An unexpected error occurred while starting the upload stream.".to_string(),
+                    None,
+                    None,
+                );
+                let error = GetUploadStreamError::UnexpectedError(error_data);
+                Err(error)
+            }
+            async fn write_to_stream(
+                &self,
+                _stream: &mut UploadStream,
+                _data: Vec<u8>,
+            ) -> Result<(), UploadStreamWriteError> {
+                Ok(())
+            }
+            async fn finish_stream(
+                &self,
+                _stream: &mut UploadStream,
+            ) -> Result<(), UploadStreamFinishError> {
+                Ok(())
+            }
+        }
+
+        pub struct MocksWriteUploadError;
+        #[async_trait]
+        impl ThreadOperations for MocksWriteUploadError {
+            async fn run_athena_query(&self, _query: &str) -> Result<Value, RunQueryError> {
+                let json = serde_json::json!([
+                    {
+                        "Test": "f"
+                    },
+                    {
+                        "Test": "g"
+                    },
+                    {
+                        "Test": "h"
+                    },
+                    {
+                        "Test": "i"
+                    },
+                    {
+                        "Test": "j"
+                    },
+                ]);
+                Ok(json)
+            }
+
+            async fn get_upload_stream(
+                &self,
+                _s3_file_name: &str,
+            ) -> Result<UploadStream, GetUploadStreamError> {
+                let s3_manager = S3Manager::default();
+                let client = s3_manager.get_client();
+                Ok(UploadStream::empty(client))
+            }
+            async fn write_to_stream(
+                &self,
+                _stream: &mut UploadStream,
+                _data: Vec<u8>,
+            ) -> Result<(), UploadStreamWriteError> {
+                let error_data = GlyphxErrorData::new(
+                    "An unexpected error occurred while writing to the upload stream.".to_string(),
+                    None,
+                    None,
+                );
+                let error = UploadStreamWriteError::UnexpectedError(error_data);
+                Err(error)
+            }
+            async fn finish_stream(
+                &self,
+                _stream: &mut UploadStream,
+            ) -> Result<(), UploadStreamFinishError> {
+                Ok(())
+            }
+        }
+
+        pub struct MocksFinishUploadError;
+        #[async_trait]
+        impl ThreadOperations for MocksFinishUploadError {
+            async fn run_athena_query(&self, _query: &str) -> Result<Value, RunQueryError> {
+                let json = serde_json::json!([
+                    {
+                        "Test": "f"
+                    },
+                    {
+                        "Test": "g"
+                    },
+                    {
+                        "Test": "h"
+                    },
+                    {
+                        "Test": "i"
+                    },
+                    {
+                        "Test": "j"
+                    },
+                ]);
+                Ok(json)
+            }
+
+            async fn get_upload_stream(
+                &self,
+                _s3_file_name: &str,
+            ) -> Result<UploadStream, GetUploadStreamError> {
+                let s3_manager = S3Manager::default();
+                let client = s3_manager.get_client();
+                Ok(UploadStream::empty(client))
+            }
+            async fn write_to_stream(
+                &self,
+                _stream: &mut UploadStream,
+                _data: Vec<u8>,
+            ) -> Result<(), UploadStreamWriteError> {
+                Ok(())
+            }
+            async fn finish_stream(
+                &self,
+                _stream: &mut UploadStream,
+            ) -> Result<(), UploadStreamFinishError> {
+                let error_data = GlyphxErrorData::new(
+                    "An unexpected error occurred while writing to the upload stream.".to_string(),
+                    None,
+                    None,
+                );
+                let error = UploadStreamFinishError::UnexpectedError(error_data);
+                Err(error)
+            }
+        }
         pub fn get_standard_field_definition(
             display_name: &str,
             field_name: &str,
@@ -425,6 +758,7 @@ mod tests {
                     field_type: FieldDefinitionType::Standard,
                 },
                 field_query: format!(r#""{}" as "{}""#, field_name, display_name),
+                raw_query: format!(r#""{}""#, field_name),
             }
         }
     }
@@ -438,7 +772,8 @@ mod tests {
             let s3_file_name = "s3_file_name";
             let field_definition =
                 helper_functions::get_standard_field_definition("Test", "field_name");
-            let vector_processer = VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
+            let vector_processer =
+                VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
             assert_eq!(vector_processer.axis_name, axis_name);
             assert_eq!(vector_processer.table_name, table_name);
             assert!(vector_processer.field_definition.is_standard());
@@ -450,7 +785,6 @@ mod tests {
     }
 
     mod threading {
-        use glyphx_core::aws::s3_manager;
 
         use super::*;
 
@@ -462,7 +796,7 @@ mod tests {
             let field_definition =
                 helper_functions::get_standard_field_definition("Test", "field_name");
             let mut vector_processer =
-                VectorProcesser::new(axis_name, table_name, s3_file_name , field_definition);
+                VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
 
             vector_processer.start_impl(&helper_functions::StringMocks1);
             let final_status: TaskStatus;
@@ -513,7 +847,7 @@ mod tests {
             let field_definition2 =
                 helper_functions::get_standard_field_definition("Test2", "field_name2");
             let mut vector_processer2 =
-                VectorProcesser::new(axis_name2, table_name2, s3_file_name2 ,  field_definition2);
+                VectorProcesser::new(axis_name2, table_name2, s3_file_name2, field_definition2);
 
             vector_processer.start_impl(&helper_functions::StringMocks1);
             vector_processer2.start_impl(&helper_functions::StringMocks2);
@@ -597,9 +931,9 @@ mod tests {
             let field_definition =
                 helper_functions::get_standard_field_definition("Test", "field_name");
             let mut vector_processer =
-                VectorProcesser::new(axis_name, table_name, s3_file_name ,field_definition);
+                VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
 
-            vector_processer.start_impl(&helper_functions::MocksError);
+            vector_processer.start_impl(&helper_functions::MocksRunAthenaError);
             let final_status: TaskStatus;
             loop {
                 let status = vector_processer.check_status();
@@ -609,7 +943,7 @@ mod tests {
                 }
             }
             match final_status {
-                TaskStatus::Errored(VectorCaclulationError::AthenaQueryError(_)) => assert!(true),
+                TaskStatus::Errored(VectorCalculationError::AthenaQueryError(_)) => assert!(true),
                 _ => assert!(false),
             }
         }
@@ -621,7 +955,7 @@ mod tests {
             let field_definition =
                 helper_functions::get_standard_field_definition("Test", "field_name");
             let mut vector_processer =
-                VectorProcesser::new(axis_name, table_name, s3_file_name , field_definition);
+                VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
 
             let axis_name2 = "test_axis2";
             let table_name2 = "test_table2";
@@ -629,9 +963,9 @@ mod tests {
             let field_definition2 =
                 helper_functions::get_standard_field_definition("Test2", "field_name2");
             let mut vector_processer2 =
-                VectorProcesser::new(axis_name2, table_name2,  s3_file_name2 ,field_definition2);
+                VectorProcesser::new(axis_name2, table_name2, s3_file_name2, field_definition2);
 
-            vector_processer.start_impl(&helper_functions::MocksError);
+            vector_processer.start_impl(&helper_functions::MocksRunAthenaError);
             vector_processer2.start_impl(&helper_functions::StringMocks2);
 
             let mut final_status = TaskStatus::Pending;
@@ -658,7 +992,7 @@ mod tests {
                 }
             }
             match final_status {
-                TaskStatus::Errored(VectorCaclulationError::AthenaQueryError(_)) => assert!(true),
+                TaskStatus::Errored(VectorCalculationError::AthenaQueryError(_)) => assert!(true),
                 _ => assert!(false),
             }
 
@@ -694,7 +1028,7 @@ mod tests {
             let field_definition =
                 helper_functions::get_standard_field_definition("Test", "field_name");
             let mut vector_processer =
-                VectorProcesser::new(axis_name, table_name,  s3_file_name ,field_definition);
+                VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
 
             vector_processer.start_impl(&helper_functions::NumberFloatMocks);
             let final_status: TaskStatus;
@@ -741,7 +1075,7 @@ mod tests {
             let field_definition =
                 helper_functions::get_standard_field_definition("Test", "field_name");
             let mut vector_processer =
-                VectorProcesser::new(axis_name, table_name, s3_file_name ,field_definition);
+                VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
 
             vector_processer.start_impl(&helper_functions::NumberIntMocks);
             let final_status: TaskStatus;
@@ -778,6 +1112,86 @@ mod tests {
             assert!(six.is_none());
 
             assert_eq!(final_status, TaskStatus::Complete);
+        }
+
+        #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+        async fn start_upload_fails() {
+            let axis_name = "test_axis";
+            let table_name = "test_table";
+            let s3_file_name = "s3_file_name";
+            let field_definition =
+                helper_functions::get_standard_field_definition("Test", "field_name");
+            let mut vector_processer =
+                VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
+
+            vector_processer.start_impl(&helper_functions::MocksStartUploadError);
+            let final_status: TaskStatus;
+            loop {
+                let status = vector_processer.check_status();
+                if status != TaskStatus::Pending && status != TaskStatus::Processing {
+                    final_status = status;
+                    break;
+                }
+            }
+
+            match final_status {
+                TaskStatus::Errored(VectorCalculationError::GetS3UploadStreamError(_)) => {
+                    assert!(true)
+                }
+                _ => assert!(false),
+            }
+        }
+
+        #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+        async fn write_upload_fails() {
+            let axis_name = "test_axis";
+            let table_name = "test_table";
+            let s3_file_name = "s3_file_name";
+            let field_definition =
+                helper_functions::get_standard_field_definition("Test", "field_name");
+            let mut vector_processer =
+                VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
+
+            vector_processer.start_impl(&helper_functions::MocksWriteUploadError);
+            let final_status: TaskStatus;
+            loop {
+                let status = vector_processer.check_status();
+                if status != TaskStatus::Pending && status != TaskStatus::Processing {
+                    final_status = status;
+                    break;
+                }
+            }
+
+            match final_status {
+                TaskStatus::Errored(VectorCalculationError::WriteUploadError(_)) => assert!(true),
+                _ => assert!(false),
+            }
+        }
+
+        #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+        async fn finish_upload_fails() {
+            let axis_name = "test_axis";
+            let table_name = "test_table";
+            let s3_file_name = "s3_file_name";
+            let field_definition =
+                helper_functions::get_standard_field_definition("Test", "field_name");
+            let mut vector_processer =
+                VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
+
+            vector_processer.start_impl(&helper_functions::MocksFinishUploadError);
+            let final_status: TaskStatus;
+            loop {
+                let status = vector_processer.check_status();
+                if status != TaskStatus::Pending && status != TaskStatus::Processing {
+                    final_status = status;
+                    break;
+                }
+            }
+
+            match final_status {
+                TaskStatus::Errored(VectorCalculationError::WriteUploadError(_)) => assert!(true),
+                _ => assert!(false),
+            }
         }
     }
 }

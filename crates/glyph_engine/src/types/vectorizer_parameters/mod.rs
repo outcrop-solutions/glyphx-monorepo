@@ -1,10 +1,10 @@
 mod field_definition;
-mod vectorizer_parameters_error;
 mod helper_functions;
+mod vectorizer_parameters_error;
 
-pub use helper_functions::*;
 use crate::types::field_definition_type::FieldDefinitionType;
 use glyphx_core::GlyphxErrorData;
+pub use helper_functions::*;
 use serde_json::{json, Value};
 
 pub use field_definition::{
@@ -12,14 +12,18 @@ pub use field_definition::{
     StandardFieldDefinition,
 };
 pub use vectorizer_parameters_error::{
-    FromJsonStringError, FromJsonValueError, GetFieldDefinitionError,GetFieldDefinitionsError, GetFieldDefinitionTypeError
+    FromJsonStringError, FromJsonValueError, GetFieldDefinitionError, GetFieldDefinitionTypeError,
+    GetFieldDefinitionsError,
 };
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct VectorizerParameters {
     pub workspace_id: String,
     pub project_id: String,
+    pub output_file_prefix: String,
     pub data_table_name: String,
+    pub model_hash: String,
+    pub filter: Option<String>,
     raw_data: Value,
 }
 
@@ -41,11 +45,11 @@ impl VectorizerParameters {
         let value = parse_result.unwrap();
         let parsed_data = Self::from_json_value(&value);
         if parsed_data.is_ok() {
-            return Ok(parsed_data.unwrap());
+            Ok(parsed_data.unwrap())
         } else {
             let err = parsed_data.err().unwrap();
             let error = FromJsonStringError::from_json_value_error(err);
-            return Err(error);
+            Err(error)
         }
     }
 
@@ -64,10 +68,31 @@ impl VectorizerParameters {
         if data_table_name.is_null() {
             return Err(FromJsonValueError::new("data_table_name"));
         }
+
+        let output_file_prefix = &input["output_file_prefix"];
+        if output_file_prefix.is_null() {
+            return Err(FromJsonValueError::new("output_file_prefix"));
+        }
+
+        let model_hash = &input["model_hash"];
+        if model_hash.is_null() {
+            return Err(FromJsonValueError::new("model_hash"));
+        }
+
+        let filter = match &input["filter"] {
+            Value::Null => None,
+            Value::String(s) => Some(s.to_string()),
+            _ => {
+                return Err(FromJsonValueError::new("filter"));
+            }
+        };
         Ok(VectorizerParameters {
             workspace_id: workspace_id.as_str().unwrap().to_string(),
             project_id: project_id.as_str().unwrap().to_string(),
             data_table_name: data_table_name.as_str().unwrap().to_string(),
+            output_file_prefix: output_file_prefix.as_str().unwrap().to_string(),
+            model_hash: model_hash.as_str().unwrap().to_string(),
+            filter,
             raw_data: input.clone(),
         })
     }
@@ -130,7 +155,7 @@ impl VectorizerParameters {
                 let supporting_fields = &self.raw_data["supportingFields"];
                 if supporting_fields.is_null() {
                     let message = format!("{} is not defined", field_name).to_string();
-                    let data = json!({"field": field_name});
+                    let data = json!({ "field": field_name });
                     return Err(GetFieldDefinitionError::SupportingFieldNotDefined(
                         GlyphxErrorData::new(message, Some(data), None),
                     ));
@@ -149,7 +174,7 @@ impl VectorizerParameters {
                 });
                 if supporting_field.is_none() {
                     let message = format!("{} is not defined", field_name).to_string();
-                    let data = json!({"field": field_name});
+                    let data = json!({ "field": field_name });
                     return Err(GetFieldDefinitionError::SupportingFieldNotDefined(
                         GlyphxErrorData::new(message, Some(data), None),
                     ));
@@ -174,27 +199,29 @@ impl VectorizerParameters {
 
         let field_definition = value.as_object().unwrap();
         if !field_definition.contains_key("fieldDefinition") {
-                let description = "fieldDefinition is not defined".to_string();
-                let data = json!({"field": field_name.to_string()});
-                let error_data = GlyphxErrorData::new(description, Some(data), None);
-                return Err(GetFieldDefinitionTypeError::JsonParsingError(error_data));
+            let description = "fieldDefinition is not defined".to_string();
+            let data = json!({"field": field_name.to_string()});
+            let error_data = GlyphxErrorData::new(description, Some(data), None);
+            return Err(GetFieldDefinitionTypeError::JsonParsingError(error_data));
         }
         let field_definition = &field_definition["fieldDefinition"];
         let field_definition = field_definition.as_object().unwrap();
         if !field_definition.contains_key("fieldType") {
-                let description = "fieldType is not defined".to_string();
-                let data = json!({"field": field_name.to_string()});
-                let error_data = GlyphxErrorData::new(description, Some(data), None);
-                return Err(GetFieldDefinitionTypeError::JsonParsingError(error_data));
+            let description = "fieldType is not defined".to_string();
+            let data = json!({"field": field_name.to_string()});
+            let error_data = GlyphxErrorData::new(description, Some(data), None);
+            return Err(GetFieldDefinitionTypeError::JsonParsingError(error_data));
         }
         let field_type = &field_definition["fieldType"];
         let field_type = field_type.as_str().unwrap().to_string();
         let field_definition_type = FieldDefinitionType::from_string(&field_type);
         if field_definition_type.is_none() {
-                let description =  format!("the fieldType {} is not defined", field_type);
-                let data = json!({"field": field_name.to_string(), "fieldType": field_type});
-                let error_data = GlyphxErrorData::new(description, Some(data), None);
-                return Err(GetFieldDefinitionTypeError::InvalidFieldDefinitionType(error_data));
+            let description = format!("the fieldType {} is not defined", field_type);
+            let data = json!({"field": field_name.to_string(), "fieldType": field_type});
+            let error_data = GlyphxErrorData::new(description, Some(data), None);
+            return Err(GetFieldDefinitionTypeError::InvalidFieldDefinitionType(
+                error_data,
+            ));
         }
         Ok(field_definition_type.unwrap())
     }
@@ -211,7 +238,7 @@ impl VectorizerParameters {
         let json = json.unwrap();
         let field_definition = FieldDefinition::from_json(json);
         if field_definition.is_err() {
-             let err = field_definition.err().unwrap();
+            let err = field_definition.err().unwrap();
             return Err(GetFieldDefinitionError::from_from_json_error(err));
         }
         Ok(field_definition.unwrap())
@@ -247,14 +274,14 @@ impl VectorizerParameters {
         for supporting_field_name in self.get_supporting_field_names().unwrap() {
             let supporting_field = self.get_field_definition(&supporting_field_name);
             if supporting_field.is_err() {
-            let err = supporting_field.unwrap_err();
-            let err = GetFieldDefinitionsError::from_get_field_definition_error(err);
-            return Err(err);
+                let err = supporting_field.unwrap_err();
+                let err = GetFieldDefinitionsError::from_get_field_definition_error(err);
+                return Err(err);
             }
             results.add_field_definition(supporting_field_name, supporting_field.unwrap());
         }
 
-        return Ok(results);
+        Ok(results)
     }
 }
 impl Default for VectorizerParameters {
@@ -263,12 +290,14 @@ impl Default for VectorizerParameters {
             workspace_id: "".to_string(),
             project_id: "".to_string(),
             data_table_name: "".to_string(),
+            output_file_prefix: "".to_string(),
+            model_hash: "".to_string(),
+            filter: None,
             raw_data: json!({}),
         }
     }
-
 }
- 
+
 impl Eq for VectorizerParameters {}
 
 #[cfg(test)]
@@ -281,6 +310,9 @@ mod from_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
+            "filter": "This is a filter"
         });
 
         let result = VectorizerParameters::from_json_value(&input);
@@ -289,6 +321,8 @@ mod from_json_value {
         assert_eq!(result.workspace_id, "1234");
         assert_eq!(result.project_id, "5678");
         assert_eq!(result.data_table_name, "my_table");
+        assert_eq!(result.output_file_prefix, "test");
+        assert_eq!(result.filter.unwrap(), "This is a filter");
     }
 
     #[test]
@@ -307,6 +341,7 @@ mod from_json_value {
                 let field_name = data["fieldName"].as_str().unwrap();
                 assert_eq!(field_name, "workspace_id");
             }
+            #[allow(unreachable_patterns)]
             _ => {
                 panic!("Unexpected error type");
             }
@@ -329,6 +364,7 @@ mod from_json_value {
                 let field_name = data["fieldName"].as_str().unwrap();
                 assert_eq!(field_name, "project_id");
             }
+            #[allow(unreachable_patterns)]
             _ => {
                 panic!("Unexpected error type");
             }
@@ -351,6 +387,98 @@ mod from_json_value {
                 let field_name = data["fieldName"].as_str().unwrap();
                 assert_eq!(field_name, "data_table_name");
             }
+            #[allow(unreachable_patterns)]
+            _ => {
+                panic!("Unexpected error type");
+            }
+        }
+    }
+
+    #[test]
+    fn missing_output_file_prefix() {
+        let input = json!({
+            "workspace_id": "5678",
+            "project_id": "1234",
+            "data_table_name" : "my_table"
+        });
+
+        let result = VectorizerParameters::from_json_value(&input);
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            FromJsonValueError::JsonValidationError(error_data) => {
+                let data = error_data.data.unwrap();
+                let field_name = data["fieldName"].as_str().unwrap();
+                assert_eq!(field_name, "output_file_prefix");
+            }
+            #[allow(unreachable_patterns)]
+            _ => {
+                panic!("Unexpected error type");
+            }
+        }
+    }
+
+    #[test]
+    fn missing_model_hash() {
+        let input = json!({
+            "workspace_id": "5678",
+            "project_id": "1234",
+            "data_table_name" : "my_table",
+            "output_file_prefix": "test"
+        });
+
+        let result = VectorizerParameters::from_json_value(&input);
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            FromJsonValueError::JsonValidationError(error_data) => {
+                let data = error_data.data.unwrap();
+                let field_name = data["fieldName"].as_str().unwrap();
+                assert_eq!(field_name, "model_hash");
+            }
+            #[allow(unreachable_patterns)]
+            _ => {
+                panic!("Unexpected error type");
+            }
+        }
+    }
+    #[test]
+    fn empty_filter() {
+        let input = json!({
+            "workspace_id": "1234",
+            "project_id": "5678",
+            "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash"
+        });
+
+        let result = VectorizerParameters::from_json_value(&input);
+        assert!(result.is_ok());
+        let result = result.unwrap();
+        assert_eq!(result.filter, None);
+    }
+
+    #[test]
+    fn invalid_filter() {
+        let input = json!({
+            "workspace_id": "1234",
+            "project_id": "5678",
+            "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
+            "filter": 1234
+        });
+
+        let result = VectorizerParameters::from_json_value(&input);
+        assert!(result.is_err());
+        let result = result.err().unwrap();
+        match result {
+            FromJsonValueError::JsonValidationError(error_data) => {
+                let data = error_data.data.unwrap();
+                let field_name = data["fieldName"].as_str().unwrap();
+                assert_eq!(field_name, "filter");
+            }
+            #[allow(unreachable_patterns)]
             _ => {
                 panic!("Unexpected error type");
             }
@@ -368,7 +496,9 @@ mod from_json_string {
         {
             "workspace_id": "1234",
             "project_id": "5678",
-            "data_table_name": "my_table"
+            "data_table_name": "my_table",
+            "model_hash" : "test_hash",
+            "output_file_prefix": "test"
         }
         "#;
 
@@ -408,6 +538,9 @@ mod get_supporting_field_names {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash"
+
         });
 
         let result = VectorizerParameters::from_json_value(&input);
@@ -423,6 +556,8 @@ mod get_supporting_field_names {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "supportingFields": []
         });
 
@@ -439,6 +574,8 @@ mod get_supporting_field_names {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "supportingFields": [
                 {
                     "fieldDisplayName": "field1"
@@ -471,6 +608,8 @@ mod get_field_definition_type {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "xAxis": {
                 "fieldDefinition": {
                     "fieldType": "standard"
@@ -498,6 +637,8 @@ mod get_field_definition_type {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "yAxis": {
                 "fieldDefinition": {
                     "fieldType": "date"
@@ -525,6 +666,8 @@ mod get_field_definition_type {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "zAxis": {
                 "fieldDefinition": {
                     "fieldType": "accumulated"
@@ -552,6 +695,8 @@ mod get_field_definition_type {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "supportingFields" : [{
             "fieldDisplayName": "field1",
                 "fieldDefinition": {
@@ -581,6 +726,8 @@ mod get_field_definition_type {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "zAxis": {
                 "fieldDefinition": {
                 }
@@ -612,6 +759,8 @@ mod get_field_definition_type {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "zAxis": {
             }
         });
@@ -640,6 +789,8 @@ mod get_field_definition_type {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "zAxis": {
                 "fieldDefinition": {
                     "fieldType": "invalid"
@@ -678,6 +829,8 @@ mod get_field_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "xAxis": {
                 "fieldDefinition": {
                     "fieldType": "standard"
@@ -699,6 +852,8 @@ mod get_field_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "yAxis": {
                 "fieldDefinition": {
                     "fieldType": "standard"
@@ -720,6 +875,8 @@ mod get_field_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "zAxis": {
                 "fieldDefinition": {
                     "fieldType": "standard"
@@ -741,6 +898,8 @@ mod get_field_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "supportingFields" : [{
             "fieldDisplayName": "field1",
                 "fieldDefinition": {
@@ -764,6 +923,8 @@ mod get_field_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "yAxis": {
                 "fieldDefinition": {
                     "fieldType": "standard"
@@ -778,11 +939,11 @@ mod get_field_json_value {
         assert!(field_json_value.is_err());
         let result = field_json_value.err().unwrap();
         match result {
-            GetFieldDefinitionError::AxisNotDefined (error_data)=> {
+            GetFieldDefinitionError::AxisNotDefined(error_data) => {
                 let data = error_data.data.unwrap();
                 let field = data["field"].as_str().unwrap();
                 assert_eq!(field, "xAxis");
-            },
+            }
             _ => {
                 panic!("Unexpected error type");
             }
@@ -795,6 +956,8 @@ mod get_field_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "xAxis": {
                 "fieldDefinition": {
                     "fieldType": "standard"
@@ -809,11 +972,11 @@ mod get_field_json_value {
         assert!(field_json_value.is_err());
         let result = field_json_value.err().unwrap();
         match result {
-            GetFieldDefinitionError::AxisNotDefined (error_data)=> {
+            GetFieldDefinitionError::AxisNotDefined(error_data) => {
                 let data = error_data.data.unwrap();
                 let field = data["field"].as_str().unwrap();
                 assert_eq!(field, "yAxis");
-            },
+            }
             _ => {
                 panic!("Unexpected error type");
             }
@@ -826,6 +989,8 @@ mod get_field_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "xAxis": {
                 "fieldDefinition": {
                     "fieldType": "standard"
@@ -840,11 +1005,11 @@ mod get_field_json_value {
         assert!(field_json_value.is_err());
         let result = field_json_value.err().unwrap();
         match result {
-            GetFieldDefinitionError::AxisNotDefined (error_data)=> {
+            GetFieldDefinitionError::AxisNotDefined(error_data) => {
                 let data = error_data.data.unwrap();
                 let field = data["field"].as_str().unwrap();
                 assert_eq!(field, "zAxis");
-            },
+            }
             _ => {
                 panic!("Unexpected error type");
             }
@@ -857,6 +1022,8 @@ mod get_field_json_value {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "supportingFields" : [{
             "fieldDisplayName": "field1",
                 "fieldDefinition": {
@@ -873,11 +1040,11 @@ mod get_field_json_value {
         assert!(field_json_value.is_err());
         let result = field_json_value.err().unwrap();
         match result {
-            GetFieldDefinitionError::SupportingFieldNotDefined(error_data)=> {
+            GetFieldDefinitionError::SupportingFieldNotDefined(error_data) => {
                 let data = error_data.data.unwrap();
                 let field = data["field"].as_str().unwrap();
                 assert_eq!(field, "field2");
-            },
+            }
             _ => {
                 panic!("Unexpected error type");
             }
@@ -889,7 +1056,9 @@ mod get_field_json_value {
         let input = json!({
             "workspace_id": "1234",
             "project_id": "5678",
-            "data_table_name": "my_table"
+            "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash"
         });
 
         let result = VectorizerParameters::from_json_value(&input);
@@ -899,11 +1068,11 @@ mod get_field_json_value {
         assert!(field_json_value.is_err());
         let result = field_json_value.err().unwrap();
         match result {
-            GetFieldDefinitionError::SupportingFieldNotDefined(error_data)=> {
+            GetFieldDefinitionError::SupportingFieldNotDefined(error_data) => {
                 let data = error_data.data.unwrap();
                 let field = data["field"].as_str().unwrap();
                 assert_eq!(field, "field2");
-            },
+            }
             _ => {
                 panic!("Unexpected error type");
             }
@@ -924,6 +1093,8 @@ mod get_field_definition {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "xAxis" : {
                 "fieldDisplayName": "field1",
                 "fieldDataType": 1,
@@ -949,6 +1120,7 @@ mod get_field_definition {
                 field_data_type,
                 field_definition,
                 field_query,
+                raw_query,
             } => {
                 assert_eq!(field_display_name, "field1");
                 match field_data_type {
@@ -957,6 +1129,7 @@ mod get_field_definition {
                 }
                 assert_eq!(field_definition.field_name, "field1");
                 assert_eq!(field_query, r#""field1" as "field1""#);
+                assert_eq!(raw_query, r#""field1""#);
                 match field_definition.field_type {
                     FieldDefinitionType::Standard => assert!(true),
                     _ => assert!(false),
@@ -974,6 +1147,8 @@ mod get_field_definition {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "yAxis" : {
                 "fieldDisplayName": "field1",
                 "fieldDataType": 1,
@@ -1000,6 +1175,7 @@ mod get_field_definition {
                 field_data_type,
                 field_definition,
                 field_query,
+                raw_query,
             } => {
                 assert_eq!(field_display_name, "field1");
                 match field_data_type {
@@ -1015,7 +1191,11 @@ mod get_field_definition {
                     DateGrouping::DayOfWeek => assert!(true),
                     _ => assert!(false),
                 }
-                assert_eq!(field_query, r#"day_of_week(from_unixtime("field1"/1000)) as "field1""#);
+                assert_eq!(
+                    field_query,
+                    r#"day_of_week(from_unixtime("field1"/1000)) as "field1""#
+                );
+                assert_eq!(raw_query, r#"day_of_week(from_unixtime("field1"/1000))"#);
             }
             _ => {
                 panic!("Unexpected field definition type");
@@ -1029,6 +1209,8 @@ mod get_field_definition {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "xAxis" : {
                 "fieldDisplayName": "field1",
                 "fieldDataType": 1,
@@ -1047,11 +1229,11 @@ mod get_field_definition {
 
         let field_definition = field_definition.err().unwrap();
         match field_definition {
-            GetFieldDefinitionError::JsonParsingError(error_data)=> {
+            GetFieldDefinitionError::JsonParsingError(error_data) => {
                 let data = error_data.data.unwrap();
                 let field = data["field"].as_str().unwrap();
                 assert_eq!(field, "fieldName");
-            },
+            }
             _ => {
                 panic!("Unexpected error type");
             }
@@ -1071,6 +1253,8 @@ pub mod get_field_definitions {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "xAxis" : {
                 "fieldDisplayName": "field1",
                 "fieldDataType": 1,
@@ -1142,6 +1326,8 @@ pub mod get_field_definitions {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "yAxis" : {
                 "fieldDisplayName": "field2",
                 "fieldDataType": 1,
@@ -1177,11 +1363,11 @@ pub mod get_field_definitions {
         assert!(field_definitions.is_err());
         let field_definitions = field_definitions.err().unwrap();
         match field_definitions {
-            GetFieldDefinitionsError::AxisNotDefined (error_data)=> {
+            GetFieldDefinitionsError::AxisNotDefined(error_data) => {
                 let data = error_data.data.unwrap();
                 let field = data["field"].as_str().unwrap();
                 assert_eq!(field, "xAxis");
-            },
+            }
             _ => {
                 panic!("Unexpected error type");
             }
@@ -1194,6 +1380,8 @@ pub mod get_field_definitions {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "xAxis" : {
                 "fieldDisplayName": "field2",
                 "fieldDataType": 1,
@@ -1228,12 +1416,12 @@ pub mod get_field_definitions {
 
         assert!(field_definitions.is_err());
         let field_definitions = field_definitions.err().unwrap();
-        match field_definitions{
-            GetFieldDefinitionsError::AxisNotDefined (error_data)=> {
+        match field_definitions {
+            GetFieldDefinitionsError::AxisNotDefined(error_data) => {
                 let data = error_data.data.unwrap();
                 let field = data["field"].as_str().unwrap();
                 assert_eq!(field, "yAxis");
-            },
+            }
             _ => {
                 panic!("Unexpected error type");
             }
@@ -1246,6 +1434,8 @@ pub mod get_field_definitions {
             "workspace_id": "1234",
             "project_id": "5678",
             "data_table_name": "my_table",
+            "output_file_prefix": "test",
+            "model_hash" : "test_hash",
             "xAxis" : {
                 "fieldDisplayName": "field2",
                 "fieldDataType": 1,
@@ -1280,12 +1470,12 @@ pub mod get_field_definitions {
 
         assert!(field_definitions.is_err());
         let field_definitions = field_definitions.err().unwrap();
-        match field_definitions{
-            GetFieldDefinitionsError::AxisNotDefined (error_data)=> {
+        match field_definitions {
+            GetFieldDefinitionsError::AxisNotDefined(error_data) => {
                 let data = error_data.data.unwrap();
                 let field = data["field"].as_str().unwrap();
                 assert_eq!(field, "zAxis");
-            },
+            }
             _ => {
                 panic!("Unexpected error type");
             }

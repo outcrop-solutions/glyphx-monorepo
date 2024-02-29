@@ -32,7 +32,7 @@ async fn invalid_server_endpoint() {
     let database_name = secret["schema"].as_str().unwrap().to_string();
     let username = secret["user"].as_str().unwrap().to_string();
 
-    let result = MongoDbConnection::new_impl(
+    let result = MongoDbConnection::new(
             //endpoint,
             "m6kgmt4.mongodb.net/".to_string(),
             database_name,
@@ -60,7 +60,7 @@ async fn invalid_credentials() {
     let database_name = secret["schema"].as_str().unwrap().to_string();
     let username = secret["user"].as_str().unwrap().to_string();
 
-    let result = MongoDbConnection::new_impl(
+    let result = MongoDbConnection::new(
             endpoint,
             database_name,
             username,
@@ -87,7 +87,7 @@ async fn invalid_database_name() {
     let username = secret["user"].as_str().unwrap().to_string();
     let password = secret["password"].as_str().unwrap().to_string();
 
-    let result = MongoDbConnection::new_impl(
+    let result = MongoDbConnection::new(
             endpoint,
             "foo".to_string(),
             username,
@@ -115,7 +115,7 @@ async fn new_panics_on_error() {
     let username = secret["user"].as_str().unwrap().to_string();
     let password = secret["password"].as_str().unwrap().to_string();
 
-    let result = MongoDbConnection::new::<MongoDbConnectionConstructionError>(
+    let result = MongoDbConnection::new(
             endpoint,
             "foo".to_string(),
             username,

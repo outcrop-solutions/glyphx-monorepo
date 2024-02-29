@@ -1,24 +1,78 @@
 use crate::errors::{MongoDbConnectionConstructionError, MongoDbInitializationError};
 use async_trait::async_trait;
-use glyphx_core::SecretBoundError;
 use glyphx_core::{GlyphxErrorData, SecretBoundSingleton};
 use mockall::automock;
-use mongodb::error::ErrorKind;
 
+use mongodb::{Client, Database};
 #[automock]
 #[async_trait]
 trait MongoDbConnectionOps {
     async fn build_mongodb_connection(
         &self,
-        endpoint: String,
-        database_name: String,
-        username: String,
-        password: String,
-    ) -> MongoDbConnection;
+        uri: &str
+    ) -> Result<Option<Client>, MongoDbConnectionConstructionError>;
+
+    fn get_database(&self, client: &Option<Client>, database_name: &str) -> Option<Database>;
+    async fn validate_database(&self, database: &Option<Database>) -> Result<(), MongoDbConnectionConstructionError>;
+}
+
+struct MongoDbConnectionOpsImpl;
+#[async_trait]
+impl MongoDbConnectionOps for MongoDbConnectionOpsImpl {
+    async fn build_mongodb_connection(
+        &self,
+        uri: &str
+    ) -> Result<Option<Client>, MongoDbConnectionConstructionError> {
+        let client = Client::with_uri_str(uri).await;
+        if client.is_err() {
+            let err = client.err().unwrap();
+            let err = *err.kind.clone();
+            let err = MongoDbConnectionConstructionError::from(err);
+            return Err(err);
+        }
+        let client = client.unwrap();
+        Ok(Some(client))
+    }
+
+    fn get_database(&self, client: &Option<Client>, database_name: &str) -> Option<Database> {
+        if client.is_none() {
+            return None;
+        }
+        let client = client.as_ref().unwrap();
+        let database = client.database(database_name);
+        Some(database)
+    }
+    async fn validate_database(&self, database: &Option<Database>) -> Result<(), MongoDbConnectionConstructionError> {
+        if database.is_none() {
+            let err = MongoDbConnectionConstructionError::from_str("ServerSelectionError", GlyphxErrorData::new("The database is not initialized.".to_string(), None, None));
+            return Err(err);
+
+        }
+        let database = &database.as_ref().unwrap();
+        let check_results = database.list_collection_names(None).await;
+        if check_results.is_err() {
+            let err = check_results.err().unwrap();
+            let err = *err.kind;
+            let err = MongoDbConnectionConstructionError::from(err);
+            return Err(err);
+        }
+        let check_results = check_results.unwrap();
+        if check_results.len() == 0 {
+            let err =  MongoDbConnectionConstructionError::from_str("ServerSelectionError", glyphx_core::GlyphxErrorData::new(
+                "The database does not contain any collections.  This is likely due to an incorrect database name.".to_string(),
+                None,
+                None,
+            ));
+            return Err(err);
+        }
+
+        Ok(())
+    }
 }
 
 #[derive(SecretBoundSingleton, Debug, Clone)]
 #[secret_binder({"secret_name" : "db/mongodb", "initializer": "new", "initializer_error": "MongoDbConnectionConstructionError"})]
+#[allow(dead_code)]
 pub struct MongoDbConnection {
     endpoint: String,
     #[bind_field({"secret_name" : "schema" })]
@@ -27,13 +81,13 @@ pub struct MongoDbConnection {
     username: String,
     password: String,
     #[bind_field({"is_bound": false})]
-    client: Option<mongodb::Client>,
+    client: Option<Client>,
     #[bind_field({"is_bound": false})]
-    database: Option<mongodb::Database>,
+    database: Option<Database>,
 }
 
 impl MongoDbConnection {
-    pub fn get_client(&self) -> Result<&mongodb::Client, MongoDbInitializationError> {
+    pub fn get_client(&self) -> Result<&Client, MongoDbInitializationError> {
         if self.client.is_none() {
             let error_data = GlyphxErrorData::new(
                 "The client has not been initialized.".to_string(),
@@ -45,7 +99,7 @@ impl MongoDbConnection {
         }
         Ok(&self.client.as_ref().unwrap())
     }
-    pub fn get_database(&self) -> Result<&mongodb::Database, MongoDbInitializationError> {
+    pub fn get_database(&self) -> Result<&Database, MongoDbInitializationError> {
         if self.database.is_none() {
             let error_data = GlyphxErrorData::new(
                 "The database has not been initialized.".to_string(),
@@ -57,78 +111,46 @@ impl MongoDbConnection {
         }
         Ok(&self.database.as_ref().unwrap())
     }
-    pub async fn new<T>(
+    pub async fn new(
         endpoint: String,
         database_name: String,
         username: String,
         password: String,
-    ) -> Result<Self, T>
-    where
-        T: SecretBoundError + From<ErrorKind>,
+    ) -> Result<Self, MongoDbConnectionConstructionError>
     {
-    
-        let client = Self::new_impl::<T>(endpoint, database_name, username, password).await;
-        if client.is_err() {
-            let err = client.err().unwrap();
-            err.error();
-            return Err(err);
-        }
-        Ok(client.unwrap())
+       Self::new_impl(endpoint, database_name, username, password, &MongoDbConnectionOpsImpl).await 
     }
     //Mongo has made it difficult to test this, so we are going to have an impl function that will
     //return a Result<Self, MongoDbConnectionConstructionError>.  This way we can test the error
     //mapping in our integration tests.  Then the actual new call will panic.  We know that
     //error.fatal() will panic, calling to_string() on the error so all we will really need to
     //test is that new panics.
-    pub async fn new_impl<T>(
+    async fn new_impl<T: MongoDbConnectionOps>(
         endpoint: String,
         database_name: String,
         username: String,
         password: String,
-    ) -> Result<Self, T>
-    where
-        T: SecretBoundError + From<ErrorKind>,
+        operations: &T,
+    ) -> Result<Self, MongoDbConnectionConstructionError>
     {
         let uri = format!(
             "mongodb+srv://{}:{}@{}?retryWrites=true&w=majority",
             username, password, endpoint
         );
-        let client = mongodb::Client::with_uri_str(uri).await;
-        if client.is_err() {
-            let err = client.err().unwrap();
-            let err = *err.kind.clone();
-            let err = T::from(err);
-            return Err(err);
-        }
-        let client = client.unwrap();
-        let database = client.database(database_name.as_str());
+        let client = operations.build_mongodb_connection(&uri).await?;
+        let database = operations.get_database(&client, &database_name);
 
         //Our database should have at least one collection in it.  This is the only way to check if
         //our parameters are correct.  So we will either get some type of mongodb error or an empty
         //vector.
-        let check_results = database.list_collection_names(None).await;
-        if check_results.is_err() {
-            let err = check_results.err().unwrap();
-            let err = *err.kind;
-            let err = T::from(err);
-            return Err(err);
-        }
-        let check_results = check_results.unwrap();
-        if check_results.len() == 0 {
-            let err =  T::from_str("ServerSelectionError", glyphx_core::GlyphxErrorData::new(
-                "The database does not contain any collections.  This is likely due to an incorrect database name.".to_string(),
-                None,
-                None,
-            ));
-            return Err(err);
-        }
+        let _ =  operations.validate_database(&database).await?;
         Ok(MongoDbConnection {
             endpoint,
             database_name,
             username,
             password,
-            client: Some(client),
-            database: Some(database),
+            client,
+            database,
         })
     }
 }
@@ -142,6 +164,157 @@ impl Default for MongoDbConnection {
             password: "".to_string(),
             client: None,
             database: None,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    mod constructror {
+        use super::*;
+        use std::sync::Arc;
+        use mongodb::error::ErrorKind;
+        #[tokio::test]
+        async fn is_ok() {
+            let endpoint = "test".to_string();
+            let database_name = "test".to_string();
+            let username = "test".to_string();
+            let password = "test".to_string();
+
+            let mut mocks = MockMongoDbConnectionOps::new();
+            mocks.expect_build_mongodb_connection()
+                .times(1)
+                .returning(|_| Ok(None));
+    
+            mocks.expect_get_database()
+                .times(1)
+                .returning(|_, _| None);
+            mocks.expect_validate_database()
+                .times(1)
+                .returning(|_| Ok(()));
+
+            let result = MongoDbConnection::new_impl(endpoint, database_name, username, password, &mocks).await;
+            assert!(result.is_ok());
+        }
+
+        #[tokio::test]
+        async fn get_client_fails() {
+            let endpoint = "test".to_string();
+            let database_name = "test".to_string();
+            let username = "test".to_string();
+            let password = "test".to_string();
+
+            let mut mocks = MockMongoDbConnectionOps::new();
+            mocks.expect_build_mongodb_connection()
+                .times(1)
+                .returning(|_| Err(MongoDbConnectionConstructionError::from(ErrorKind::Custom(Arc::new("An Error has Occurred".to_string())))));
+    
+            mocks.expect_get_database()
+                .times(0)
+                .returning(|_, _| None);
+            mocks.expect_validate_database()
+                .times(0)
+                .returning(|_| Ok(()));
+
+            let result = MongoDbConnection::new_impl(endpoint, database_name, username, password, &mocks).await;
+            assert!(result.is_err());
+            let result = result.err().unwrap();
+            match result {
+                MongoDbConnectionConstructionError::UnexpectedError(_) => (),
+                _ => panic!("Expected ClientConstructionError"),
+            }
+        }
+
+        #[tokio::test]
+        async fn get_collection_names_fails() {
+            let endpoint = "test".to_string();
+            let database_name = "test".to_string();
+            let username = "test".to_string();
+            let password = "test".to_string();
+
+            let mut mocks = MockMongoDbConnectionOps::new();
+            mocks.expect_build_mongodb_connection()
+                .times(1)
+                .returning(|_| Ok(None));
+    
+            mocks.expect_get_database()
+                .times(1)
+                .returning(|_, _| None);
+            mocks.expect_validate_database()
+                .times(1)
+                .returning(|_| Err(MongoDbConnectionConstructionError::from(ErrorKind::Custom(Arc::new("An Error has Occurred".to_string())))));
+
+            let result = MongoDbConnection::new_impl(endpoint, database_name, username, password, &mocks).await;
+            assert!(result.is_err());
+            let result = result.err().unwrap();
+            match result {
+                MongoDbConnectionConstructionError::UnexpectedError(_) => (),
+                _ => panic!("Expected ClientConstructionError"),
+            }
+        }
+
+        #[tokio::test]
+        async fn get_database_fails() {
+            let endpoint = "test".to_string();
+            let database_name = "test".to_string();
+            let username = "test".to_string();
+            let password = "test".to_string();
+
+            let mut mocks = MockMongoDbConnectionOps::new();
+            mocks.expect_build_mongodb_connection()
+                .times(1)
+                .returning(|_| Ok(None));
+    
+            mocks.expect_get_database()
+                .times(1)
+                .returning(|_, _| None);
+            mocks.expect_validate_database()
+                .times(1)
+                .returning(|_| Ok(()));
+
+            let result = MongoDbConnection::new_impl(endpoint, database_name, username, password, &mocks).await;
+            assert!(result.is_ok());
+            let result = result.unwrap();
+            let database = result.get_database();
+            assert!(database.is_err());
+            let database = database.err().unwrap();
+            match database {
+                MongoDbInitializationError::DatabaseNotInitialized(_) => (),
+                _ => panic!("Expected DatabaseNotInitialized"),
+            }
+        }
+
+        #[tokio::test]
+        async fn get_client_accessor_fails() {
+            let endpoint = "test".to_string();
+            let database_name = "test".to_string();
+            let username = "test".to_string();
+            let password = "test".to_string();
+
+            let mut mocks = MockMongoDbConnectionOps::new();
+            mocks.expect_build_mongodb_connection()
+                .times(1)
+                .returning(|_| Ok(None));
+    
+            mocks.expect_get_database()
+                .times(1)
+                .returning(|_, _| None);
+            mocks.expect_validate_database()
+                .times(1)
+                .returning(|_| Ok(()));
+
+            let result = MongoDbConnection::new_impl(endpoint, database_name, username, password, &mocks).await;
+            assert!(result.is_ok());
+            let result = result.unwrap();
+            let client = result.get_client();
+            assert!(client.is_err());
+            let client = client.err().unwrap();
+            match client {
+                MongoDbInitializationError::ClientNotInitialized(_) => (),
+                _ => panic!("Expected ClientNotInitialized"),
+            }
         }
     }
 }

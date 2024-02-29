@@ -5,7 +5,8 @@
       "filetypes": ["rust"],
       "configuration": {
         "request": "launch",
-        "program": "${workspaceRoot}/../../target/debug/deps/glyph_engine-5f49d6819c3393b3",
+        "program": "${workspaceRoot}/../../target/debug/deps/glyph_engine-8d718e047e3fffa4",
+	"args": ["glyph_engine::process_query_results::is_ok", "--","--nocapture"],
         "runInTerminal": true,
         "preRunCommands": ["shell cargo test --no-run --package glyph_engine"]
       }
@@ -15,9 +16,10 @@
       "filetypes": ["rust"],
       "configuration": {
         "request": "launch",
-        "program": "${workspaceRoot}/../../target/debug/glyphx_cube_model",
+        "program": "${workspaceRoot}/../../target/debug/deps/main-457735d7a79c68f5",
+	"args": ["process_glyphs", "--","--nocapture"],
         "runInTerminal": true,
-        "preRunCommands": ["shell cargo build --package glyphx_cube_model"]
+        "preRunCommands": ["shell cargo build --package glyphx_engine"]
       }
     }
   }

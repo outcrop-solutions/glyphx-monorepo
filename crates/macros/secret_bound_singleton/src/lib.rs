@@ -18,11 +18,36 @@ struct FieldDefinition {
 #[proc_macro_derive(SecretBoundSingleton, attributes(secret_binder, bind_field))]
 pub fn derive(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);
-    let (secret_name, initializer,initializer_error, fake_secret) = parse_secret_binder(&ast);
+    let (secret_name, initializer, initializer_error, fake_secret) = parse_secret_binder(&ast);
     let error_ident: syn::Ident = syn::parse_str(&initializer_error).unwrap();
     let fields = process_fields(&ast);
-    let output =
-        build_secret_bound_impl(&ast.ident, &error_ident, &secret_name, &initializer, fake_secret, &fields);
+    let output = build_secret_bound_impl(
+        &ast.ident,
+        &error_ident,
+        &secret_name,
+        &initializer,
+        fake_secret,
+        &fields,
+        true,
+    );
+    output.into()
+}
+
+#[proc_macro_derive(SyncSecretBoundSingleton, attributes(secret_binder, bind_field))]
+pub fn sync_derive(input: TokenStream) -> TokenStream {
+    let ast = parse_macro_input!(input as DeriveInput);
+    let (secret_name, initializer, initializer_error, fake_secret) = parse_secret_binder(&ast);
+    let error_ident: syn::Ident = syn::parse_str(&initializer_error).unwrap();
+    let fields = process_fields(&ast);
+    let output = build_secret_bound_impl(
+        &ast.ident,
+        &error_ident,
+        &secret_name,
+        &initializer,
+        fake_secret,
+        &fields,
+        false,
+    );
     output.into()
 }
 
@@ -113,6 +138,7 @@ fn generate_required_field_quote(
 fn build_initializer_call(
     initializer_name: &str,
     fields: &Vec<FieldDefinition>,
+    is_async: bool,
 ) -> proc_macro2::TokenStream {
     let mut fields_quote = quote!();
     let init_ident = syn::Ident::new(initializer_name, proc_macro2::Span::call_site());
@@ -123,15 +149,20 @@ fn build_initializer_call(
             let field_ident = syn::Ident::new(&field.field_name, proc_macro2::Span::call_site());
             fields_quote = quote!(#fields_quote  #field_ident,);
         });
-    quote!(let bound_self = Self::#init_ident(#fields_quote).await;
+    if is_async {
+        quote!(let bound_self = Self::#init_ident(#fields_quote).await;
            bound_self)
+    } else {
+        quote!(let bound_self = Self::#init_ident(#fields_quote);
+           bound_self)
+    }
 }
 #[derive(Debug)]
 
- enum SecretSource {
+enum SecretSource {
     FakeSecret(Value),
     SecretManager(String),
- }
+}
 
 fn build_secret_bound_impl(
     ident: &syn::Ident,
@@ -140,6 +171,7 @@ fn build_secret_bound_impl(
     initializer_name: &str,
     fake_secret: Option<Value>,
     fields: &Vec<FieldDefinition>,
+    is_async: bool,
 ) -> TokenStream {
     let secret_source = match fake_secret {
         Some(fake_secret) => SecretSource::FakeSecret(fake_secret),
@@ -149,9 +181,15 @@ fn build_secret_bound_impl(
     //we would force our implimnetors to import the structures in their code.  It is bad enough
     //that we have make sure that they have the dependencies configured in their Cargo.toml
 
-    let secret_bound_trait =
-        build_secret_bound_trait(ident,error_ident, &secret_source, fields, initializer_name);
-    let singleton_trait = build_singleton_trait(ident, error_ident);
+    let secret_bound_trait = build_secret_bound_trait(
+        ident,
+        error_ident,
+        &secret_source,
+        fields,
+        initializer_name,
+        is_async,
+    );
+    let singleton_trait = build_singleton_trait(ident, error_ident, is_async);
 
     let output = quote!(
     use glyphx_core::traits::*;
@@ -162,29 +200,58 @@ fn build_secret_bound_impl(
     output.into()
 }
 
-fn build_singleton_trait(ident: &proc_macro2::Ident, error_ident: &proc_macro2::Ident) -> proc_macro2::TokenStream {
-    let output = quote!(
-        static mut INSTANCE: Option<#ident> = None; 
- 
-    #[glyphx_core::async_trait]
-    impl glyphx_core::traits::Singleton<#ident, #error_ident> for #ident  {
-        fn get_instance() -> &'static #ident {
-            unsafe { &INSTANCE.as_ref().unwrap() }
-        }
-        async fn build_singleton() -> Result<&'static #ident, #error_ident> {
-           let secret_bound_object = #ident::bind_secrets().await;
-           if secret_bound_object.is_err() {
-               return Err(secret_bound_object.err().unwrap());
-           }
-           unsafe {
-             INSTANCE = Some(secret_bound_object.ok().unwrap());
-             Ok(&INSTANCE.as_ref().unwrap())
-           }
-        }
-    }
+fn build_singleton_trait(
+    ident: &proc_macro2::Ident,
+    error_ident: &proc_macro2::Ident,
+    is_async: bool,
+) -> proc_macro2::TokenStream {
+    let output = if is_async {
+        quote!(
+            static mut INSTANCE: Option<#ident> = None;
 
-    impl glyphx_core::traits::SecretBoundSingleton<#ident, #error_ident> for #ident {}
-    );
+        #[glyphx_core::async_trait]
+        impl glyphx_core::traits::Singleton<#ident, #error_ident> for #ident  {
+            fn get_instance() -> &'static #ident {
+                unsafe { &INSTANCE.as_ref().unwrap() }
+            }
+            async fn build_singleton() -> Result<&'static #ident, #error_ident> {
+               let secret_bound_object = #ident::bind_secrets().await;
+               if secret_bound_object.is_err() {
+                   return Err(secret_bound_object.err().unwrap());
+               }
+               unsafe {
+                 INSTANCE = Some(secret_bound_object.ok().unwrap());
+                 Ok(&INSTANCE.as_ref().unwrap())
+               }
+            }
+        }
+
+        impl glyphx_core::traits::SecretBoundSingleton<#ident, #error_ident> for #ident {}
+        )
+    } else {
+        quote!(
+            static mut INSTANCE: Option<#ident> = None;
+
+        impl glyphx_core::traits::SyncSingleton<#ident, #error_ident> for #ident  {
+            fn get_instance() -> &'static #ident {
+                unsafe { &INSTANCE.as_ref().unwrap() }
+            }
+            fn build_singleton() -> Result<&'static #ident, #error_ident> {
+               let secret_bound_object = #ident::bind_secrets();
+               if secret_bound_object.is_err() {
+                   return Err(secret_bound_object.err().unwrap());
+               }
+               unsafe {
+                 INSTANCE = Some(secret_bound_object.ok().unwrap());
+                 Ok(&INSTANCE.as_ref().unwrap())
+               }
+            }
+        }
+
+        impl glyphx_core::traits::SyncSecretBoundSingleton<#ident, #error_ident> for #ident {}
+        )
+    };
+
     output
 }
 fn build_secret_bound_trait(
@@ -193,39 +260,68 @@ fn build_secret_bound_trait(
     secret_source: &SecretSource,
     fields: &Vec<FieldDefinition>,
     initializer_name: &str,
+    is_async: bool,
 ) -> proc_macro2::TokenStream {
     let field_quote = build_field_quote(fields);
-    let initializer_call = build_initializer_call( initializer_name, fields);
+    let initializer_call = build_initializer_call(initializer_name, fields, is_async);
     let secret_value = match secret_source {
         SecretSource::FakeSecret(fake_secret) => {
             let json_string = fake_secret.to_string();
             quote!(let secret_value: glyphx_core::serde_Value = glyphx_core::serde_from_str(#json_string).unwrap();)
         }
         SecretSource::SecretManager(secret_name) => {
-            quote!(
-            let secret_manager = glyphx_core::aws::SecretManager::new(#secret_name).await;
-            let secret_value = secret_manager.get_secret_value().await;
-            if secret_value.is_err() {
-                let err = secret_value.err().unwrap();
-                return Err(#error_ident::from(err));
+            if is_async {
+                quote!(
+                let secret_manager = glyphx_core::aws::SecretManager::new(#secret_name).await;
+                let secret_value = secret_manager.get_secret_value().await;
+                if secret_value.is_err() {
+                    let err = secret_value.err().unwrap();
+                    return Err(#error_ident::from(err));
+                }
+                let secret_value = secret_value.unwrap();
+                )
+            } else {
+                quote!(
+                let runtime = tokio::runtime::Runtime::new().unwrap();
+                let secret_manager = runtime.block_on(glyphx_core::aws::SecretManager::new(#secret_name));
+                let secret_value = runtime.block_on(secret_manager.get_secret_value());
+                if secret_value.is_err() {
+                    let err = secret_value.err().unwrap();
+                    return Err(#error_ident::from(err));
+                }
+                let secret_value = secret_value.unwrap();
+                )
             }
-            let secret_value = secret_value.unwrap();
-            )
         }
     };
-    let output = quote!(
-    #[glyphx_core::async_trait]
-    impl glyphx_core::traits::SecretBound<#ident, #error_ident> for #ident {
-        async fn bind_secrets() -> Result<#ident, #error_ident> {
-            #secret_value
-            #field_quote
-            #initializer_call
+    if is_async {
+        let output = quote!(
+        #[glyphx_core::async_trait]
+        impl glyphx_core::traits::SecretBound<#ident, #error_ident> for #ident {
+            async fn bind_secrets() -> Result<#ident, #error_ident> {
+                #secret_value
+                #field_quote
+                #initializer_call
 
 
+            }
         }
+        );
+        output
+    } else {
+        let output = quote!(
+        impl glyphx_core::traits::SyncSecretBound<#ident, #error_ident> for #ident {
+            fn bind_secrets() -> Result<#ident, #error_ident> {
+                #secret_value
+                #field_quote
+                #initializer_call
+
+
+            }
+        }
+        );
+        output
     }
-    );
-    output
 }
 
 fn get_optional_data_type(path_segment: &syn::PathSegment) -> ValidDataTypes {
@@ -290,8 +386,6 @@ fn process_fields(input: &DeriveInput) -> Vec<FieldDefinition> {
         }
 
         let field_name = field.ident.as_ref().unwrap().to_token_stream().to_string();
-        let (is_bound, secret_name) = process_field_attribute_meta(field, &field_name);
-
 
         match field.ty {
             syn::Type::Path(ref type_path) => {
@@ -365,7 +459,7 @@ fn get_arg_value_from_attribute(input: &syn::Attribute, arg_name: &str) -> Optio
         _ => Some(value.to_string()),
     }
 }
-fn parse_secret_binder(input: &DeriveInput) -> (String, String,String, Option<Value>) {
+fn parse_secret_binder(input: &DeriveInput) -> (String, String, String, Option<Value>) {
     let secret_name;
     let initializer;
     let initializer_error;

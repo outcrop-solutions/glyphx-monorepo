@@ -28,7 +28,7 @@ use super::result_set_converter::convert_to_json;
 use async_trait::async_trait;
 pub use crate::types::aws::athena_manager::athena_manager_errors::{
     ConstructorError, GetQueryPagerError, GetQueryResultsError as GlyphxGetQueryResultsError,
-    GetQueryStatusError, GetTableDescriptionError, RunQueryError, StartQueryError,
+    GetQueryStatusError, GetTableDescriptionError, RunQueryError, StartQueryError, AthenaStreamIteratorError
 };
 pub use crate::types::aws::athena_manager::query_status::AthenaQueryStatus;
 pub use crate::types::aws::athena_manager::table_description::*;
@@ -214,12 +214,14 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
         page_size: Option<i32>,
     ) -> Box<dyn Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin>
     {
+        //1st row is the header row, so we need to add 1 to the page size.
+        let page_size = page_size.unwrap_or(1000);
         Box::new(
             client
                 .get_query_results()
                 .query_execution_id(query_id)
                 .into_paginator()
-                .page_size(page_size.unwrap_or(1000))
+                .page_size(page_size)
                 .send(),
         )
     }
@@ -719,47 +721,13 @@ impl AthenaManager {
             .await;
         if res.is_err() {
             let service_error = res.err().unwrap().into_service_error();
-            match service_error {
-                GetQueryResultsError::InvalidRequestException(e) => {
-                    return Err(
-                        GlyphxGetQueryResultsError::QueryDoesNotExist(GlyphxErrorData::new(e.message().unwrap().to_string(), Some(
-                            json!({"catalog": self.catalog, "database": self.database, "query_id": query_id    }),
-                                    ), None) )
-                        )
-                },
-                GetQueryResultsError::TooManyRequestsException(e) => {
-                    return Err(
-                        GlyphxGetQueryResultsError::RequestWasThrottled(GlyphxErrorData::new(e.message().unwrap().to_string(), Some(
-                            json!({"catalog": self.catalog, "database": self.database, "query_id": query_id    }),
-                                    ), None) )
-                        )
-
-                },
-                GetQueryResultsError::InternalServerException(e) => {
-                    return Err(
-                        GlyphxGetQueryResultsError::UnexpectedError(GlyphxErrorData::new(e.message().unwrap().to_string(), Some(
-                            json!({"catalog": self.catalog, "database": self.database, "query_id": query_id    }),
-                                    ), None) )
-                        )
-
-                },
-                GetQueryResultsError::Unhandled(e) => {
-                    return Err(
-                        GlyphxGetQueryResultsError::UnexpectedError(GlyphxErrorData::new(e.meta().to_string(), Some(
-                            json!({"catalog": self.catalog, "database": self.database, "query_id": query_id    }),
-                                    ), None) )
-                        )
-
-                },
-                _ => {
-                    return Err(
-                        GlyphxGetQueryResultsError::UnexpectedError(GlyphxErrorData::new(String::from("An unexpected error has occurred.  Unfortunatly I have no other information to give."), Some(
-                            json!({"catalog": self.catalog, "database": self.database, "query_id": query_id    }),
-                                    ), None) )
-                        )
-                }
-            }
-        } else {
+            return Err(GlyphxGetQueryResultsError::from_aws_get_query_result_error(
+                service_error,
+                &self.catalog,
+                &self.database,
+                query_id,
+            ));
+        } 
             let res = res.unwrap();
             let result_set = res.result_set;
             if result_set.is_none() {
@@ -770,7 +738,7 @@ impl AthenaManager {
                 return Ok(Value::Null);
             }
             Ok(convert_to_json(&result_set, results_include_header_row))
-        }
+        
     }
 
     ///An internal helper method that will convert StartQueryErrors to RunQueryErrors.

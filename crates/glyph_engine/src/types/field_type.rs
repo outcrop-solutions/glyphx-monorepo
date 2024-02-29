@@ -1,11 +1,11 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum FieldType {
-   Number,
-   String,
-   Integer,
-   Date,
-   Unknown
+    Number,
+    String,
+    Integer,
+    Date,
+    Unknown,
 }
 
 impl FieldType {
@@ -22,7 +22,7 @@ impl FieldType {
 
 #[cfg(test)]
 mod from_numeric_value {
-    use super::*;   
+    use super::*;
     #[test]
     fn test_number() {
         let field_type = FieldType::from_numeric_value(0);
@@ -68,4 +68,3 @@ mod from_numeric_value {
         }
     }
 }
-

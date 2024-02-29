@@ -5,11 +5,22 @@
       "filetypes": ["rust"],
       "configuration": {
         "request": "launch",
-        "program": "${workspaceRoot}/../../target/debug/deps/glyphx_core-7250f5f26b4f0ea8",
+        "program": "${workspaceRoot}/../../target/debug/deps/glyphx_core-28e7ed6a3c9fdfab",
+	"args": ["aws::athena_stream_iterator::test::","--","--nocapture"],
+        "runInTerminal": true,
+        "preRunCommands": ["shell cargo test --no-run --features=test --package glyphx_core"]
+      }
+    },
+    "application": {
+      "adapter": "CodeLLDB",
+      "filetypes": ["rust"],
+      "configuration": {
+        "request": "launch",
+        "program": "${workspaceRoot}/../../target/debug/deps/aws-3025055b731b0a82",
+	"args": ["--test", "aws", "athena_manager::", "--", "--nocapture"],
         "runInTerminal": true,
         "preRunCommands": ["shell cargo test --no-run --features=test --package glyphx_core"]
       }
     }
   }
 }
-

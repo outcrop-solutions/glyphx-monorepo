@@ -52,19 +52,15 @@ impl FromJsonError {
             AccumulatorFieldDefinitionFromJsonError::InvalidFieldDefinitionType(data) => {
                 Self::reformat_accumlator_error(&input, data, "InvalidFieldDefinitionType")
             }
-            AccumulatorFieldDefinitionFromJsonError::StandardFieldDefinitionFromJsonError(
-                 data,
-            ) => Self::reformat_accumlator_error(
-                &input,
-                data,
-                "StandardFieldDefinitionFromJsonError",
-            ),
-            AccumulatorFieldDefinitionFromJsonError::DateFieldDefinitionFromJsonError(data) => {
+            AccumulatorFieldDefinitionFromJsonError::StandardFieldDefinitionFromJsonError(data) => {
                 Self::reformat_accumlator_error(
                     &input,
                     data,
-                    "DateFieldDefinitionFromJsonError",
+                    "StandardFieldDefinitionFromJsonError",
                 )
+            }
+            AccumulatorFieldDefinitionFromJsonError::DateFieldDefinitionFromJsonError(data) => {
+                Self::reformat_accumlator_error(&input, data, "DateFieldDefinitionFromJsonError")
             }
         }
     }
@@ -84,60 +80,60 @@ impl FromJsonError {
 }
 
 #[cfg(test)]
-mod  from_json_has_field_error {
+mod from_json_has_field_error {
     use super::*;
     use serde_json::json;
 
     #[test]
     fn is_ok() {
-       let message = "testMessage";
-       let data = json!({"field": "test"}); 
-       let inner_error = None;
+        let message = "testMessage";
+        let data = json!({"field": "test"});
+        let inner_error = None;
 
-       let data = GlyphxErrorData::new(message.to_string(), Some(data), inner_error); 
+        let data = GlyphxErrorData::new(message.to_string(), Some(data), inner_error);
 
-       let input = JsonHasFieldError::JsonValidationError(data);
+        let input = JsonHasFieldError::JsonValidationError(data);
 
-       let result = FromJsonError::from_json_has_field_error(input);
-       match result {
+        let result = FromJsonError::from_json_has_field_error(input);
+        match result {
             FromJsonError::FieldNotDefined(error_data) => {
                 assert_eq!(error_data.message, message);
                 let d = error_data.data.unwrap();
                 let field = d["field"].as_str().unwrap();
                 assert_eq!(field, "test");
                 assert!(error_data.inner_error.is_none());
-            },
+            }
             _ => panic!("Expected FieldNotDefined"),
-       }
+        }
     }
 }
 
 #[cfg(test)]
-mod  from_standard_field_from_json_error{
+mod from_standard_field_from_json_error {
     use super::*;
     use serde_json::json;
 
     #[test]
     fn is_ok() {
-       let message = "testMessage";
-       let data = json!({"field": "test"}); 
-       let inner_error = None;
+        let message = "testMessage";
+        let data = json!({"field": "test"});
+        let inner_error = None;
 
-       let data = GlyphxErrorData::new(message.to_string(), Some(data), inner_error); 
+        let data = GlyphxErrorData::new(message.to_string(), Some(data), inner_error);
 
-       let input = StandardFieldDefinitionFromJsonError::FieldNotDefined(data);
+        let input = StandardFieldDefinitionFromJsonError::FieldNotDefined(data);
 
-       let result = FromJsonError::from_standard_field_from_json_error(input);
-       match result {
+        let result = FromJsonError::from_standard_field_from_json_error(input);
+        match result {
             FromJsonError::StandardFieldDefinitionError(error_data) => {
                 assert_eq!(error_data.message, message);
                 let d = error_data.data.unwrap();
                 let field = d["field"].as_str().unwrap();
                 assert_eq!(field, "test");
                 assert!(error_data.inner_error.is_none());
-            },
+            }
             _ => panic!("Expected FieldNotDefined"),
-       }
+        }
     }
 }
 
@@ -148,45 +144,45 @@ mod from_date_field_from_json_error {
 
     #[test]
     fn is_ok() {
-       let message = "testMessage";
-       let data = json!({"field": "test"}); 
-       let inner_error = None;
+        let message = "testMessage";
+        let data = json!({"field": "test"});
+        let inner_error = None;
 
-       let data = GlyphxErrorData::new(message.to_string(), Some(data), inner_error); 
+        let data = GlyphxErrorData::new(message.to_string(), Some(data), inner_error);
 
-       let input = DateFieldDefinitionFromJsonError::FieldNotDefined(data);
+        let input = DateFieldDefinitionFromJsonError::FieldNotDefined(data);
 
-       let result = FromJsonError::from_date_field_from_json_error(input);
-       match result {
+        let result = FromJsonError::from_date_field_from_json_error(input);
+        match result {
             FromJsonError::DateFieldDefinitionError(error_data) => {
                 assert_eq!(error_data.message, message);
                 let d = error_data.data.unwrap();
                 let field = d["field"].as_str().unwrap();
                 assert_eq!(field, "test");
                 assert!(error_data.inner_error.is_none());
-            },
+            }
             _ => panic!("Expected FieldNotDefined"),
-       }
+        }
     }
 }
 
 #[cfg(test)]
-mod  from_accumulated_field_from_json_error{
+mod from_accumulated_field_from_json_error {
     use super::*;
     use serde_json::json;
 
     #[test]
     fn field_not_defined() {
-       let message = "testMessage";
-       let data = json!({"field": "test"}); 
-       let inner_error = None;
+        let message = "testMessage";
+        let data = json!({"field": "test"});
+        let inner_error = None;
 
-       let data = GlyphxErrorData::new(message.to_string(), Some(data), inner_error); 
+        let data = GlyphxErrorData::new(message.to_string(), Some(data), inner_error);
 
-       let input = AccumulatorFieldDefinitionFromJsonError::FieldNotDefined(data);
+        let input = AccumulatorFieldDefinitionFromJsonError::FieldNotDefined(data);
 
-       let result = FromJsonError::from_accumulated_field_from_json_error(input);
-       match result {
+        let result = FromJsonError::from_accumulated_field_from_json_error(input);
+        match result {
             FromJsonError::AccumulatorFieldDefinitionError(error_data) => {
                 assert_eq!(error_data.message, message);
                 let d = error_data.data.unwrap();
@@ -195,23 +191,23 @@ mod  from_accumulated_field_from_json_error{
                 let error_type = d["errorType"].as_str().unwrap();
                 assert_eq!(error_type, "FieldNotDefined");
                 assert!(error_data.inner_error.is_some());
-            },
+            }
             _ => panic!("Expected FieldNotDefined"),
-       }
+        }
     }
 
     #[test]
     fn invalid_field_definition_type() {
-       let message = "testMessage";
-       let data = json!({"field": "test"}); 
-       let inner_error = None;
+        let message = "testMessage";
+        let data = json!({"field": "test"});
+        let inner_error = None;
 
-       let data = GlyphxErrorData::new(message.to_string(), Some(data), inner_error); 
+        let data = GlyphxErrorData::new(message.to_string(), Some(data), inner_error);
 
-       let input = AccumulatorFieldDefinitionFromJsonError::InvalidFieldDefinitionType(data);
+        let input = AccumulatorFieldDefinitionFromJsonError::InvalidFieldDefinitionType(data);
 
-       let result = FromJsonError::from_accumulated_field_from_json_error(input);
-       match result {
+        let result = FromJsonError::from_accumulated_field_from_json_error(input);
+        match result {
             FromJsonError::AccumulatorFieldDefinitionError(error_data) => {
                 assert_eq!(error_data.message, message);
                 let d = error_data.data.unwrap();
@@ -220,23 +216,24 @@ mod  from_accumulated_field_from_json_error{
                 let error_type = d["errorType"].as_str().unwrap();
                 assert_eq!(error_type, "InvalidFieldDefinitionType");
                 assert!(error_data.inner_error.is_some());
-            },
+            }
             _ => panic!("Expected FieldNotDefined"),
-       }
+        }
     }
 
     #[test]
     fn standard_field_definition_from_json_error() {
-       let message = "testMessage";
-       let data = json!({"field": "test"}); 
-       let inner_error = None;
+        let message = "testMessage";
+        let data = json!({"field": "test"});
+        let inner_error = None;
 
-       let data = GlyphxErrorData::new(message.to_string(), Some(data), inner_error); 
+        let data = GlyphxErrorData::new(message.to_string(), Some(data), inner_error);
 
-       let input = AccumulatorFieldDefinitionFromJsonError::StandardFieldDefinitionFromJsonError(data);
+        let input =
+            AccumulatorFieldDefinitionFromJsonError::StandardFieldDefinitionFromJsonError(data);
 
-       let result = FromJsonError::from_accumulated_field_from_json_error(input);
-       match result {
+        let result = FromJsonError::from_accumulated_field_from_json_error(input);
+        match result {
             FromJsonError::AccumulatorFieldDefinitionError(error_data) => {
                 assert_eq!(error_data.message, message);
                 let d = error_data.data.unwrap();
@@ -245,23 +242,23 @@ mod  from_accumulated_field_from_json_error{
                 let error_type = d["errorType"].as_str().unwrap();
                 assert_eq!(error_type, "StandardFieldDefinitionFromJsonError");
                 assert!(error_data.inner_error.is_some());
-            },
+            }
             _ => panic!("Expected FieldNotDefined"),
-       }
+        }
     }
 
     #[test]
     fn date_field_definition_from_json_error() {
-       let message = "testMessage";
-       let data = json!({"field": "test"}); 
-       let inner_error = None;
+        let message = "testMessage";
+        let data = json!({"field": "test"});
+        let inner_error = None;
 
-       let data = GlyphxErrorData::new(message.to_string(), Some(data), inner_error); 
+        let data = GlyphxErrorData::new(message.to_string(), Some(data), inner_error);
 
-       let input = AccumulatorFieldDefinitionFromJsonError::DateFieldDefinitionFromJsonError(data);
+        let input = AccumulatorFieldDefinitionFromJsonError::DateFieldDefinitionFromJsonError(data);
 
-       let result = FromJsonError::from_accumulated_field_from_json_error(input);
-       match result {
+        let result = FromJsonError::from_accumulated_field_from_json_error(input);
+        match result {
             FromJsonError::AccumulatorFieldDefinitionError(error_data) => {
                 assert_eq!(error_data.message, message);
                 let d = error_data.data.unwrap();
@@ -270,8 +267,8 @@ mod  from_accumulated_field_from_json_error{
                 let error_type = d["errorType"].as_str().unwrap();
                 assert_eq!(error_type, "DateFieldDefinitionFromJsonError");
                 assert!(error_data.inner_error.is_some());
-            },
+            }
             _ => panic!("Expected FieldNotDefined"),
-       }
+        }
     }
 }

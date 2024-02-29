@@ -4,6 +4,7 @@ use aws_sdk_s3::error::SdkError;
 use glyphx_core::aws::athena_manager::AthenaManager;
 use glyphx_core::aws::athena_manager::AthenaQueryStatus;
 use glyphx_core::aws::athena_manager::ColumnDataType;
+use glyphx_core::aws::athena_stream_iterator::AthenaStreamIterator;
 use std::time::{Duration, Instant};
 
 use tokio_stream::{Stream, StreamExt};
@@ -85,7 +86,7 @@ async fn validate_table_definition(athena_manager: &AthenaManager, table_name: &
 async fn get_paged_results(
     athena_manager: &AthenaManager,
     table_name: &str,
-) -> Box<impl Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin>
+) -> Box<dyn Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin>
 {
     let query = format!("SELECT * FROM {}", &table_name);
     let query_id = athena_manager.start_query(&query, None).await;
@@ -122,8 +123,9 @@ async fn get_paged_results(
     };
     assert!(status.is_some());
 
+    //Page this at 1 so we can test the iterator
     let pager = athena_manager
-        .get_paged_query_results(&query_id, Some(1000))
+        .get_paged_query_results(&query_id, Some(1))
         .await;
     assert!(pager.is_ok());
     let pager = pager.unwrap();
@@ -157,16 +159,25 @@ async fn integration_test() {
     assert!(result.as_array().unwrap().len() >= 1);
 
     //5. Get a paged result set.
-    let mut pager = get_paged_results(&athena_manager, &table_name).await;
+    let pager = get_paged_results(&athena_manager, &table_name).await;
 
     //6. Enumerate it.
-    let result = pager.next().await;
-
-    assert!(result.is_some());
-    let result = result.unwrap();
-    assert!(result.is_ok());
-    let result = result.unwrap();
-    assert!(result.result_set().unwrap().rows().unwrap().len() >= 1);
+    let mut iterator = AthenaStreamIterator::new(pager, "12345", CATALOG, DATABASE);
+    let mut count = 0;
+    loop {
+        let result = iterator.next().await;
+        if result.is_err() {
+            break;
+        }
+        let result = result.unwrap();
+        if result.is_some() {
+        let result = result.unwrap();
+        count += 1;
+        } else {
+            break;
+        }
+    }
+    assert!(count >= 1);
 
     //7. Create a view for the table.
     let query = VIEW_CREATE_QUERY
