@@ -2,12 +2,11 @@
 import {isTeamOwner} from 'actions';
 import {useParams} from 'next/navigation';
 import {useEffect, useState} from 'react';
-import {databaseTypes} from 'types';
 
 const useIsTeamOwner = () => {
   const params = useParams();
   const {workspaceId} = params as {workspaceId: string};
-  const [data, setData] = useState<null | databaseTypes.IProject>(null);
+  const [data, setData] = useState<null | {isTeamOwner: boolean; inviteLink: string; error?: undefined}>(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {

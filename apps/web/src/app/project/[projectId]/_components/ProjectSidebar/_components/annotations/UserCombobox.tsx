@@ -1,7 +1,8 @@
+'use client';
 import {useState, useEffect, useRef} from 'react';
 import {Combobox} from '@headlessui/react';
 import produce from 'immer';
-import {getSuggestedMembers} from 'actions/src/annotation';
+// import {getSuggestedMembers} from 'actions/src/annotation';
 import {useParams} from 'next/navigation';
 import {CheckIcon, ChevronDownIcon} from '@heroicons/react/outline';
 
@@ -9,14 +10,8 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-const members = [
-  {name: 'jp', username: 'username'},
-  {name: 'james', username: 'username'},
-];
-
-const UserCombobox = ({setShowCombo, setValue}) => {
+const UserCombobox = ({setShowCombo, setValue, members, inputRef}) => {
   const [query, setQuery] = useState('');
-  // const [members, setMembers] = useState<{name: string; username: string}[]>([]);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const params = useParams();
 
@@ -27,8 +22,15 @@ const UserCombobox = ({setShowCombo, setValue}) => {
           return member.name.toLowerCase().includes(query.toLowerCase());
         });
 
-  const inputRef = useRef(null);
-
+  const handleChange = (val) => {
+    setSelectedPerson(val);
+    setShowCombo(false);
+    setValue(
+      produce((draft) => {
+        return `${draft}${val.name}`;
+      })
+    );
+  };
 
   useEffect(() => {
     if (inputRef.current) {
@@ -37,31 +39,6 @@ const UserCombobox = ({setShowCombo, setValue}) => {
     }
   }, []);
 
-  useEffect(() => {
-    const getUsers = async () => {
-      console.log('calling get users');
-      if (params?.projectId) {
-        const retval = await getSuggestedMembers(params?.projectId as string);
-        console.log({retval});
-        // @ts-ignore
-        if (!retval?.error) {
-          // @ts-ignore
-          // setMembers(retval);
-        }
-      }
-    };
-    getUsers();
-  }, [params?.projectId]);
-
-  const handleChange = (val) => {
-    setSelectedPerson(val);
-    setShowCombo((prev) => !prev);
-    setValue(
-      produce((draft) => {
-        return `${draft}${val.name}`;
-      })
-    );
-  };
   return (
     <Combobox as="div" value={selectedPerson} onChange={(val) => handleChange(val)}>
       <div className="relative mt-2">
@@ -69,7 +46,10 @@ const UserCombobox = ({setShowCombo, setValue}) => {
           ref={inputRef}
           style={{background: '#0D1321', fontSize: '14px'}}
           className="w-full rounded-md border-0 bg-white py-1.5 pl-3 text-xs text-white shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray sm:text-sm sm:leading-6"
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => {
+            // if empty and delete, blur and delete latest value from value
+            setQuery(event.target.value);
+          }}
           displayValue={(member) => member?.name}
         />
         <Combobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">

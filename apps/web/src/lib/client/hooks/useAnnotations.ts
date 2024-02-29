@@ -13,24 +13,28 @@ const useAnnotations = () => {
   useEffect(() => {
     const getAnnotations = async () => {
       if (type === databaseTypes.constants.ANNOTATION_TYPE.PROJECT) {
-        const pAnnotations = await getProjectAnnotations(id.toString());
-        // @ts-ignore
-        if (pAnnotations?.error) {
+        if (id) {
+          const pAnnotations = await getProjectAnnotations(id?.toString());
           // @ts-ignore
-          setError(pAnnotations?.error);
-        } else if (pAnnotations) {
-          // @ts-ignore
-          setData(pAnnotations);
+          if (pAnnotations?.error) {
+            // @ts-ignore
+            setError(pAnnotations?.error);
+          } else if (pAnnotations) {
+            // @ts-ignore
+            setData(pAnnotations);
+          }
         }
       } else {
-        const sAnnotations = await getStateAnnotations(id.toString());
-        // @ts-ignore
-        if (sAnnotations?.error) {
+        if (id) {
+          const sAnnotations = await getStateAnnotations(id?.toString());
           // @ts-ignore
-          setError(sAnnotations?.error);
-        } else {
-          // @ts-ignore
-          setData(sAnnotations);
+          if (sAnnotations?.error) {
+            // @ts-ignore
+            setError(sAnnotations?.error);
+          } else {
+            // @ts-ignore
+            setData(sAnnotations);
+          }
         }
       }
     };

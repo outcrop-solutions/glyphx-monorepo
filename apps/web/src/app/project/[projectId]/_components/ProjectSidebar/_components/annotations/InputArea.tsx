@@ -2,12 +2,16 @@
 import {ArrowRightIcon} from '@heroicons/react/outline';
 import {startTransition, useEffect, useRef, useState} from 'react';
 import UserCombobox from './UserCombobox';
-import {createProjectAnnotation, createStateAnnotation} from 'actions/src/annotation';
+import {createProjectAnnotation, createStateAnnotation, getSuggestedMembers} from 'actions/src/annotation';
+import {useParams} from 'next/navigation';
 
 export const InputArea = ({id, type}) => {
   const [value, setValue] = useState('');
   const [showCombo, setShowCombo] = useState(false);
   const textAreaRef = useRef(null);
+  const inputRef = useRef(null);
+  const params = useParams();
+  const [members, setMembers] = useState<{name: string; username: string}[]>([]);
 
   useEffect(() => {
     if (value.includes('@')) {
@@ -20,6 +24,21 @@ export const InputArea = ({id, type}) => {
       textAreaRef.current?.focus();
     }
   }, [value]);
+
+  useEffect(() => {
+    const getUsers = async () => {
+      console.log('calling get users');
+      if (params?.projectId) {
+        const retval = await getSuggestedMembers(params?.projectId as string);
+        // @ts-ignore
+        if (!retval?.error) {
+          // @ts-ignore
+          setMembers([...retval, {name: 'here', username: 'Everyone in the workspace'}]);
+        }
+      }
+    };
+    getUsers();
+  }, [params?.projectId]);
 
   return (
     <div className="w-full">
@@ -35,7 +54,9 @@ export const InputArea = ({id, type}) => {
           onChange={(e) => setValue(e.target.value)}
         />
         <div className="absolute bottom-0 inset-x-0 z-[9999]">
-          {showCombo && <UserCombobox setShowCombo={setShowCombo} setValue={setValue} />}
+          {showCombo && (
+            <UserCombobox inputRef={inputRef} setShowCombo={setShowCombo} setValue={setValue} members={members} />
+          )}
         </div>
         <div className="absolute bottom-0 right-0 flex justify-between py-2 pl-3 pr-2">
           <div className="flex-shrink-0">

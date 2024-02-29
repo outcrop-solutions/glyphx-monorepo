@@ -1,6 +1,6 @@
 'use client';
 import React, {useCallback, useState, useTransition} from 'react';
-import {useRouter, useParams} from 'next/navigation';
+import {useParams} from 'next/navigation';
 import TextareaAutosize from 'react-textarea-autosize';
 import ExitModalIcon from 'public/svg/exit-project-modal-icon.svg';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
@@ -9,14 +9,12 @@ import {useSession} from 'next-auth/react';
 import {createProject} from 'actions';
 
 export const NewProject = ({exit}) => {
-  const router = useRouter();
   const params = useParams();
-  const [_, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
   const session = useSession();
   const {workspaceId} = params as {workspaceId: string};
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const handleCreateProject = useCallback(async () => {
     const clientDoc = new ClientDocumentManager();
@@ -32,7 +30,7 @@ export const NewProject = ({exit}) => {
       return;
     }
     await createProject(name, workspaceId, description, data.id);
-  }, [description, exit, name, router, session, workspaceId]);
+  }, [description, name, session, workspaceId]);
 
   return (
     <div className="p-4 w-full">
@@ -68,7 +66,7 @@ export const NewProject = ({exit}) => {
           onClick={() => startTransition(() => handleCreateProject())}
           className="bg-primary-yellow py-2 px-2 font-roboto font-medium text-[14px] leading-[16px] text-secondary-space-blue"
         >
-          {loading ? <LoadingDots /> : <span>Create</span>}
+          {isPending ? <LoadingDots /> : <span>Create</span>}
         </button>
       </div>
     </div>

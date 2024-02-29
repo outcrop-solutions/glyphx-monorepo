@@ -139,6 +139,7 @@ export const Property = ({axis}) => {
           {prop.direction === webTypes.constants.DIRECTION_TYPE.ASC ? <SwapLeftIcon /> : <SwapRightIcon />}
         </div>
         {/* TODO: use the project docId to determine version */}
+        {/* FIXME: this is not rendering */}
         <div className="min-w-40">
           {(axis === 'X' || axis === 'Y') && prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE && (
             <DateGroupingListbox axis={axis} />
