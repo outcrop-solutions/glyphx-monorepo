@@ -132,6 +132,8 @@ pub trait VectorValueProcesser {
     fn start(&mut self);
     fn check_status(&mut self) -> TaskStatus;
     fn get_vector(&self, key: &VectorOrigionalValue) -> Option<Vector>;
+    fn get_statistics_vector(&self) -> Vec<f64>; 
+
 }
 
 impl VectorValueProcesser for VectorProcesser {
@@ -225,6 +227,11 @@ impl VectorValueProcesser for VectorProcesser {
         } else {
              Some(vector.unwrap().clone())
         }
+
+    }
+
+    fn get_statistics_vector(&self) -> Vec<f64> {
+        self.vectors.iter().map(|(_, v)| v.vector).collect()
 
     }
 }
@@ -1192,6 +1199,39 @@ mod tests {
                 TaskStatus::Errored(VectorCalculationError::WriteUploadError(_)) => assert!(true),
                 _ => assert!(false),
             }
+        }
+    }
+
+    mod get_statistics_vector {
+        use super::*;
+
+        #[test]
+        fn is_ok() {
+            let axis_name = "test_axis";
+            let table_name = "test_table";
+            let s3_file_name = "s3_file_name";
+            let field_definition =
+                helper_functions::get_standard_field_definition("Test", "field_name");
+            let mut vector_processer =
+                VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
+            assert_eq!(vector_processer.axis_name, axis_name);
+            assert_eq!(vector_processer.table_name, table_name);
+            assert!(vector_processer.field_definition.is_standard());
+            assert!(vector_processer.receiver.is_none());
+            assert!(vector_processer.vectors.is_empty());
+            assert!(vector_processer.join_handle.is_none());
+            assert_eq!(vector_processer.task_status, TaskStatus::Pending);
+            
+            for i in 0..10 {
+                let vector = Vector::new(VectorOrigionalValue::F64(i as f64), i as f64, i);
+                vector_processer.vectors.insert(vector.orig_value.clone(), vector);
+            }
+
+            let stats = vector_processer.get_statistics_vector();
+            assert_eq!(stats.len(), 10);
+            for i in 0..10 {
+                assert_eq!(stats[i], i as f64);
+            } 
         }
     }
 }
