@@ -1,9 +1,7 @@
 'use client';
-import {useState, useEffect, useRef} from 'react';
+import {useState, useEffect} from 'react';
 import {Combobox} from '@headlessui/react';
 import produce from 'immer';
-// import {getSuggestedMembers} from 'actions/src/annotation';
-import {useParams} from 'next/navigation';
 import {CheckIcon, ChevronDownIcon} from '@heroicons/react/outline';
 
 function classNames(...classes) {
@@ -11,16 +9,7 @@ function classNames(...classes) {
 }
 
 const UserCombobox = ({setShowCombo, setValue, members, inputRef}) => {
-  const [query, setQuery] = useState('');
   const [selectedPerson, setSelectedPerson] = useState(null);
-  const params = useParams();
-
-  const filteredMembers =
-    query === ''
-      ? members
-      : members.filter((member) => {
-          return member.name.toLowerCase().includes(query.toLowerCase());
-        });
 
   const handleChange = (val) => {
     setSelectedPerson(val);
@@ -46,9 +35,12 @@ const UserCombobox = ({setShowCombo, setValue, members, inputRef}) => {
           ref={inputRef}
           style={{background: '#0D1321', fontSize: '14px'}}
           className="w-full rounded-md border-0 bg-white py-1.5 pl-3 text-xs text-white shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray sm:text-sm sm:leading-6"
+          onBlur={() => {
+            setShowCombo(false);
+          }}
           onChange={(event) => {
             // if empty and delete, blur and delete latest value from value
-            setQuery(event.target.value);
+            setValue(event.target.value);
           }}
           displayValue={(member) => member?.name}
         />

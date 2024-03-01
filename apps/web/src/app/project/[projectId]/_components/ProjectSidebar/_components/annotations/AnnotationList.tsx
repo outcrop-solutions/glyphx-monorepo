@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import {Annotation} from './Annotation';
-import {InputArea} from './InputArea';
+import {InputArea} from './tiptap/InputArea';
 import {useAnnotations} from 'lib/client/hooks';
 
 export const AnnotationList = () => {
