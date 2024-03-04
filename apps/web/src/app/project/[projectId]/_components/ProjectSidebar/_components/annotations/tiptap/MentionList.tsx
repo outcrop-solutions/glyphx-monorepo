@@ -1,5 +1,5 @@
+'use client';
 import React, {forwardRef, useEffect, useImperativeHandle, useState} from 'react';
-
 // eslint-disable-next-line react/display-name
 const MentionList = forwardRef((props, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -8,7 +8,7 @@ const MentionList = forwardRef((props, ref) => {
     const item = props.items[index];
 
     if (item) {
-      props.command({id: item});
+      props.command({id: item.name ?? item.email});
     }
   };
 
@@ -53,13 +53,15 @@ const MentionList = forwardRef((props, ref) => {
       {props.items.length ? (
         // @ts-ignore
         props.items.map((item, index) => (
-          <button
-            className={`bg-transparent border-gray rounded text-xs px-2 text-white  ${index === selectedIndex ? 'opacity-95' : ''}`}
-            key={index}
-            onClick={() => selectItem(index)}
-          >
-            {item}
-          </button>
+          <div className="px-2">
+            <button
+              className={`bg-transparent border-gray rounded text-xs text-white  ${index === selectedIndex ? 'opacity-95' : ''}`}
+              key={index}
+              onClick={() => selectItem(index)}
+            >
+              {item.name ?? item.email}
+            </button>
+          </div>
         ))
       ) : (
         <div className="item">No result</div>

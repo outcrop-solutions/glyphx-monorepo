@@ -379,6 +379,7 @@ importers:
       eslint-config-custom: workspace:*
       express-validator: ^6.14.0
       fileingestion: workspace:*
+      fuse.js: ^6.6.2
       glyphengine: workspace:*
       lint-staged: ^13.0.3
       logsnag: ^0.1.6
@@ -421,9 +422,10 @@ importers:
       dotenv: 16.4.5
       express-validator: 6.15.0
       fileingestion: link:../ingestion
+      fuse.js: 6.6.2
       glyphengine: link:../glyphengine
       logsnag: 0.1.8
-      next: 13.5.4_biqbaboplfbrettd7655fr4n2y
+      next: 13.5.4_ogqwiwd4e24b5w6o4ksjhrnoye
       next-auth: 4.22.1_6gx5juxnwwb346c7numleuy7iy
       nodemailer: 6.9.10
       openai-edge: 1.2.2
@@ -2740,7 +2742,7 @@ packages:
       '@aws-sdk/client-s3': ^3.0.0
     dependencies:
       '@aws-sdk/abort-controller': 3.374.0
-      '@aws-sdk/client-s3': 3.292.0
+      '@aws-sdk/client-s3': 3.292.0_nbyvrjs3s34tof57zaon7hwa6y
       '@aws-sdk/middleware-endpoint': 3.292.0
       '@aws-sdk/smithy-client': 3.292.0
       buffer: 5.6.0
@@ -8731,7 +8733,7 @@ packages:
   /@types/whatwg-url/8.2.2:
     resolution: {integrity: sha512-FtQu10RWgn3D9U4aazdwIE2yzphmTJREDqNdODHrbrZmmMqI0vMheC/6NE/J1Yveaj8H+ela+YwWTjq5PGmuhA==}
     dependencies:
-      '@types/node': 18.19.18
+      '@types/node': 20.11.20
       '@types/webidl-conversions': 7.0.3
 
   /@types/ws/8.5.10:
@@ -14828,7 +14830,7 @@ packages:
       '@panva/hkdf': 1.1.1
       cookie: 0.5.0
       jose: 4.15.4
-      next: 13.5.4_biqbaboplfbrettd7655fr4n2y
+      next: 13.5.4_ogqwiwd4e24b5w6o4ksjhrnoye
       nodemailer: 6.9.10
       oauth: 0.9.15
       openid-client: 5.6.4
@@ -14895,7 +14897,7 @@ packages:
       react-dom: 18.2.0_react@18.2.0
     dev: false
 
-  /next/13.5.4_biqbaboplfbrettd7655fr4n2y:
+  /next/13.5.4_ogqwiwd4e24b5w6o4ksjhrnoye:
     resolution: {integrity: sha512-+93un5S779gho8y9ASQhb/bTkQF17FNQOtXLKAj3lsNgltEcF0C5PMLLncDmH+8X1EnJH1kbqAERa29nRXqhjA==}
     engines: {node: '>=16.14.0'}
     hasBin: true
@@ -14917,7 +14919,7 @@ packages:
       postcss: 8.4.31
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      styled-jsx: 5.1.1_react@18.2.0
+      styled-jsx: 5.1.1_yuysbons2omqckulondfno63sa
       watchpack: 2.4.0
     optionalDependencies:
       '@next/swc-darwin-arm64': 13.5.4
@@ -17709,23 +17711,6 @@ packages:
     resolution: {integrity: sha512-HYNoHZa2GorYNyqiCaBgsxvcJIn7OHq6inEga+E6Ke3m5JkoqpQbnFssk4jwe+K7AhGa2fcha4wSOf1Kn01dMg==}
     dependencies:
       inline-style-parser: 0.1.1
-    dev: false
-
-  /styled-jsx/5.1.1_react@18.2.0:
-    resolution: {integrity: sha512-pW7uC1l4mBZ8ugbiZrcIsiIvVx1UmTfw7UkC3Um2tmfUq9Bhk8IiyEIPl6F8agHgjzku6j0xQEZbfA5uSgSaCw==}
-    engines: {node: '>= 12.0.0'}
-    peerDependencies:
-      '@babel/core': '*'
-      babel-plugin-macros: '*'
-      react: '>= 16.8.0 || 17.x.x || ^18.0.0-0'
-    peerDependenciesMeta:
-      '@babel/core':
-        optional: true
-      babel-plugin-macros:
-        optional: true
-    dependencies:
-      client-only: 0.0.1
-      react: 18.2.0
     dev: false
 
   /styled-jsx/5.1.1_yuysbons2omqckulondfno63sa:

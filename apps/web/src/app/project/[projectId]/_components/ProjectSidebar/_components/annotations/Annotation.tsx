@@ -18,8 +18,8 @@ export const Annotation = ({item}) => {
         </div>
         <div className="text-center text-gray whitespace-nowrap truncate ml-2">{dayjs().to(dayjs(item.createdAt))}</div>
       </div>
-      <div className="transition duration-150 truncate grow ml-8">
-        <span className={`w-full text-left text-light-gray text-sm font-medium`}>{item.value}</span>
+      <div className="transition duration-150 grow ml-8">
+        <p className={`w-full text-left text-light-gray text-sm font-medium`}>{item.value}</p>
       </div>
     </li>
   );

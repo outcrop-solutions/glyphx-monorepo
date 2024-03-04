@@ -1,17 +1,23 @@
 'use client';
 import React from 'react';
+import {ReactRenderer} from '@tiptap/react';
+import tippy from 'tippy.js';
+import MentionList from './MentionList';
 import './tiptap.css';
 import {ArrowRightIcon} from '@heroicons/react/outline';
 import {startTransition, useState} from 'react';
-import {createProjectAnnotation, createStateAnnotation} from 'actions/src/annotation';
+import {createProjectAnnotation, createStateAnnotation, getSuggestedMembers} from 'actions/src/annotation';
 import Mention from '@tiptap/extension-mention';
 import {EditorContent, useEditor} from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+// import {suggestion} from './Suggestion';
+import {useParams} from 'next/navigation';
 import {suggestion} from './Suggestion';
 
 export const InputArea = ({id, type}) => {
   const [members, setMembers] = useState<{name: string; username: string}[]>([]);
-
+  const params = useParams();
+  const projectId = params?.projectId as string;
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -19,13 +25,10 @@ export const InputArea = ({id, type}) => {
         HTMLAttributes: {
           class: 'mention',
         },
-        suggestion,
+        suggestion: suggestion(projectId),
       }),
     ],
-    content: `
-        <p>What is the velocity of an unladen swallow?</p>
-        <p><span data-type="mention" data-id="James Graham"></span></p>
-      `,
+    content: '',
   });
 
   const value = editor?.getText() ?? '';
@@ -48,8 +51,10 @@ export const InputArea = ({id, type}) => {
                 startTransition(() => {
                   if (type === 'PROJECT') {
                     createProjectAnnotation(id, value);
+                    editor.commands.setContent('');
                   } else {
                     createStateAnnotation(id, value);
+                    editor.commands.setContent('');
                   }
                 })
               }

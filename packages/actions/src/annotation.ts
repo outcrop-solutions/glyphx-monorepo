@@ -6,20 +6,48 @@ import {databaseTypes, emailTypes} from 'types';
 import {authOptions} from './auth';
 import {revalidatePath} from 'next/cache';
 import emailClient from './email';
+import Fuse from 'fuse.js';
+
 /**
  * Gets suggested members for combobox
  * @param projectId
  * @returns
  */
-export const getSuggestedMembers = async (projectId: string) => {
+export const getSuggestedMembers = async (projectId: string, query: string) => {
   try {
     const session = await getServerSession(authOptions);
     if (session && projectId) {
       const project = await projectService.getProject(projectId as string);
       if (project) {
         const members = await membershipService.getMembers({project: project.id});
+        const compOptions = {
+          // isCaseSensitive: false,
+          // includeScore: false,
+          // shouldSort: true,
+          // includeMatches: false,
+          // findAllMatches: false,
+          // minMatchCharLength: 1,
+          // location: 0,
+          // threshold: 0.6,
+          // distance: 100,
+          // useExtendedSearch: false,
+          // ignoreLocation: false,
+          // ignoreFieldNorm: false,
+          // fieldNormWeight: 1,
+          keys: ['email', 'member.name', 'member.username'],
+        };
         if (members) {
-          return members.map((mem) => ({name: mem?.member?.name, username: mem?.member?.username}));
+          const memberFuse = new Fuse(members, compOptions);
+          // pull relevant member fields
+          const retval = memberFuse.search(query);
+          const mentionList = retval.map((mem) => {
+            return {
+              email: mem.item.email,
+              name: mem.item.member.name,
+              username: mem.item.member.username,
+            };
+          });
+          return mentionList;
         }
       }
     }
@@ -95,7 +123,7 @@ export const createProjectAnnotation = async (projectId: string, value: string) 
         projectId: projectId as string,
         value,
       });
-      revalidatePath('/[workspaceId]');
+      revalidatePath('/project/[projectId]');
     }
   } catch (err) {
     const e = new error.ActionError(
@@ -142,7 +170,7 @@ export const createStateAnnotation = async (stateId: string, value: string) => {
           }
         }
       }
-      revalidatePath('/[workspaceId]');
+      revalidatePath('/project/[projectId]');
     }
   } catch (err) {
     const e = new error.ActionError(

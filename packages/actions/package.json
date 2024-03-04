@@ -67,6 +67,7 @@
     "dotenv": "^16.0.3",
     "express-validator": "^6.14.0",
     "fileingestion": "workspace:*",
+    "fuse.js": "^6.6.2",
     "glyphengine": "workspace:*",
     "logsnag": "^0.1.6",
     "next": "13.5.4",

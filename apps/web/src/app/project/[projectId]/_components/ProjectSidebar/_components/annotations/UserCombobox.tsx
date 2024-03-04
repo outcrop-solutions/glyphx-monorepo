@@ -39,7 +39,6 @@ const UserCombobox = ({setShowCombo, setValue, members, inputRef}) => {
             setShowCombo(false);
           }}
           onChange={(event) => {
-            // if empty and delete, blur and delete latest value from value
             setValue(event.target.value);
           }}
           displayValue={(member) => member?.name}
