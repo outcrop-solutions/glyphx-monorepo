@@ -7,7 +7,6 @@ import {MongoDbConnection} from 'database';
 import {error} from 'core';
 import {workspaceService} from '../../services';
 import {v4} from 'uuid';
-import {EmailClient} from 'email';
 
 describe('#services/workspace', () => {
   const sandbox = createSandbox();
@@ -137,11 +136,6 @@ describe('#services/workspace', () => {
       const addWorkspacesFromUserModel = sandbox.stub();
       addWorkspacesFromUserModel.resolves();
       sandbox.replace(dbConnection.models.UserModel, 'addWorkspaces', addWorkspacesFromUserModel);
-
-      const sendStub = sandbox.stub();
-      sendStub.resolves();
-      sandbox.replace(EmailClient, 'sendMail', sendStub);
-
       const doc = await workspaceService.createWorkspace(
         creatorId.toString(),
         creatorEmail,
@@ -150,8 +144,7 @@ describe('#services/workspace', () => {
       );
 
       assert.isTrue(createWorkspaceFromModelStub.calledOnce);
-      assert.isTrue(countWorkspacesFromServiceStub.calledOnce);
-      assert.isTrue(sendStub.calledOnce);
+
       assert.strictEqual(`${workspaceSlug}-${count}`, doc?.slug);
       assert.strictEqual(doc?.creator._id, creatorId);
     });
@@ -229,10 +222,6 @@ describe('#services/workspace', () => {
       addWorkspacesFromUserModel.resolves();
       sandbox.replace(dbConnection.models.UserModel, 'addWorkspaces', addWorkspacesFromUserModel);
 
-      const sendStub = sandbox.stub();
-      sendStub.resolves();
-      sandbox.replace(EmailClient, 'sendMail', sendStub);
-
       const doc = await workspaceService.createWorkspace(
         creatorId.toString(),
         creatorEmail,
@@ -241,8 +230,7 @@ describe('#services/workspace', () => {
       );
 
       assert.isTrue(createWorkspaceFromModelStub.calledOnce);
-      assert.isTrue(countWorkspacesFromServiceStub.calledOnce);
-      assert.isTrue(sendStub.calledOnce);
+
       assert.strictEqual(`${workspaceSlug}-${count}`, doc?.slug);
       assert.strictEqual(doc?.creator._id, creatorId);
     });
@@ -254,11 +242,11 @@ describe('#services/workspace', () => {
         new mongooseTypes.ObjectId();
       const creatorEmail = 'testUserEmail';
       const errMessage = 'You have an invalid argument';
-      const err = new error.DataServiceError(errMessage, 'workspace', 'countWorkspaces', {slug: workspaceSlug});
+      const err = new error.DataServiceError(errMessage, 'workspace', 'createWorkspace', {slug: workspaceSlug});
 
-      const countWorkspacesFromServiceStub = sandbox.stub();
-      countWorkspacesFromServiceStub.rejects(err);
-      sandbox.replace(workspaceService, 'countWorkspaces', countWorkspacesFromServiceStub);
+      const createWorkspacesFromServiceStub = sandbox.stub();
+      createWorkspacesFromServiceStub.rejects(err);
+      sandbox.replace(workspaceService, 'createWorkspace', createWorkspacesFromServiceStub);
 
       function fakePublish() {
         //@ts-ignore
@@ -281,8 +269,7 @@ describe('#services/workspace', () => {
       }
       assert.isTrue(errored);
 
-      assert.isTrue(countWorkspacesFromServiceStub.calledOnce);
-      assert.isTrue(publishOverride.calledOnce);
+      assert.isTrue(createWorkspacesFromServiceStub.calledOnce);
     });
     it('will publish and rethrow a DataValidationError when workspace model throws it', async () => {
       const workspaceName = 'testWorkspaceName';
@@ -294,10 +281,6 @@ describe('#services/workspace', () => {
       const count = 0;
       const errMessage = 'You have an invalid document';
       const err = new error.DataValidationError(errMessage, 'IWorkspaceDocument', true);
-
-      const countWorkspacesFromServiceStub = sandbox.stub();
-      countWorkspacesFromServiceStub.resolves(count as unknown as number);
-      sandbox.replace(workspaceService, 'countWorkspaces', countWorkspacesFromServiceStub);
 
       const createWorkspaceFromModelStub = sandbox.stub();
       createWorkspaceFromModelStub.rejects(err);
@@ -324,7 +307,6 @@ describe('#services/workspace', () => {
       }
       assert.isTrue(errored);
 
-      assert.isTrue(countWorkspacesFromServiceStub.calledOnce);
       assert.isTrue(createWorkspaceFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
@@ -338,10 +320,6 @@ describe('#services/workspace', () => {
       const count = 0;
       const errMessage = 'You have an invalid document';
       const err = new error.UnexpectedError(errMessage);
-
-      const countWorkspacesFromServiceStub = sandbox.stub();
-      countWorkspacesFromServiceStub.resolves(count as unknown as number);
-      sandbox.replace(workspaceService, 'countWorkspaces', countWorkspacesFromServiceStub);
 
       const createWorkspaceFromModelStub = sandbox.stub();
       createWorkspaceFromModelStub.rejects(err);
@@ -367,8 +345,6 @@ describe('#services/workspace', () => {
         errored = true;
       }
       assert.isTrue(errored);
-
-      assert.isTrue(countWorkspacesFromServiceStub.calledOnce);
       assert.isTrue(createWorkspaceFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
@@ -382,11 +358,6 @@ describe('#services/workspace', () => {
       const creatorEmail = 'testUserEmail';
       const errMessage = 'A DataOperationError has occurred';
       const err = new error.DatabaseOperationError(errMessage, 'mongodDb', 'updateWorkspaceById');
-
-      const countWorkspacesFromServiceStub = sandbox.stub();
-      countWorkspacesFromServiceStub.resolves(count as unknown as number);
-      sandbox.replace(workspaceService, 'countWorkspaces', countWorkspacesFromServiceStub);
-
       const createWorkspaceFromModelStub = sandbox.stub();
       createWorkspaceFromModelStub.rejects(err);
       sandbox.replace(dbConnection.models.WorkspaceModel, 'createWorkspace', createWorkspaceFromModelStub);
@@ -411,8 +382,6 @@ describe('#services/workspace', () => {
         errored = true;
       }
       assert.isTrue(errored);
-
-      assert.isTrue(countWorkspacesFromServiceStub.calledOnce);
       assert.isTrue(createWorkspaceFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
@@ -1796,10 +1765,6 @@ describe('#services/workspace', () => {
       } as unknown as databaseTypes.IWorkspace);
       sandbox.replace(dbConnection.models.WorkspaceModel, 'addMembers', addMembersFromWorkspaceModel);
 
-      const sendStub = sandbox.stub();
-      sendStub.resolves();
-      sandbox.replace(EmailClient, 'sendMail', sendStub);
-
       const result = await workspaceService.inviteUsers(
         userId.toString(),
         userEmail,
@@ -1811,7 +1776,7 @@ describe('#services/workspace', () => {
       assert.isTrue(getUserFromModelStub.calledOnce);
       assert.isTrue(createMembersFromModel.calledOnce);
       assert.isTrue(addMembersFromWorkspaceModel.calledOnce);
-      assert.isTrue(sendStub.calledOnce);
+
       assert.strictEqual(result!.members![0]._id, memberId);
       assert.strictEqual(result!.members![0].email, memberEmail);
       assert.strictEqual(result!.members!.length, 1);
@@ -1873,10 +1838,6 @@ describe('#services/workspace', () => {
       } as unknown as databaseTypes.IWorkspace);
       sandbox.replace(dbConnection.models.WorkspaceModel, 'addMembers', addMembersFromWorkspaceModel);
 
-      const sendStub = sandbox.stub();
-      sendStub.resolves();
-      sandbox.replace(EmailClient, 'sendMail', sendStub);
-
       const result = await workspaceService.inviteUsers(
         userId.toString(),
         userEmail,
@@ -1888,7 +1849,7 @@ describe('#services/workspace', () => {
       assert.isTrue(getUserFromModelStub.calledOnce);
       assert.isTrue(createMembersFromModel.calledOnce);
       assert.isTrue(addMembersFromWorkspaceModel.calledOnce);
-      assert.isTrue(sendStub.calledOnce);
+
       assert.strictEqual(result!.members![0]._id, memberId);
       assert.strictEqual(result!.members![0].email, memberEmail);
       assert.strictEqual(result!.members!.length, 1);

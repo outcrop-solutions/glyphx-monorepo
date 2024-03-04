@@ -8,7 +8,7 @@ const MentionList = forwardRef((props, ref) => {
     const item = props.items[index];
 
     if (item) {
-      props.command({id: item.name ?? item.email});
+      props.command({id: item.name});
     }
   };
 
@@ -55,16 +55,16 @@ const MentionList = forwardRef((props, ref) => {
         props.items.map((item, index) => (
           <div className="px-2">
             <button
-              className={`bg-transparent border-gray rounded text-xs text-white  ${index === selectedIndex ? 'opacity-95' : ''}`}
+              className={`bg-transparent border-gray rounded text-xs text-white  ${index === selectedIndex ? 'text-white' : ''}`}
               key={index}
               onClick={() => selectItem(index)}
             >
-              {item.name ?? item.email}
+              {item.name}
             </button>
           </div>
         ))
       ) : (
-        <div className="item">No result</div>
+        <div className="text-white text-xs">No result</div>
       )}
     </div>
   );

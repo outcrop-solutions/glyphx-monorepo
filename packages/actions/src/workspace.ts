@@ -79,28 +79,30 @@ export const createWorkspace = async (name: string) => {
         slug
       );
 
-      const emailData = {
-        type: emailTypes.EmailTypes.WORKSPACE_CREATED,
-        workspaceName: workspace!.name,
-        workspaceId: workspace!.id as string,
-        email: session?.user?.email,
-        workspaceCode: workspace!.workspaceCode,
-      } satisfies emailTypes.EmailData;
+      if (workspace) {
+        const emailData = {
+          type: emailTypes.EmailTypes.WORKSPACE_CREATED,
+          workspaceName: workspace!.name,
+          workspaceId: workspace!.id as string,
+          email: session?.user?.email,
+          workspaceCode: workspace!.workspaceCode,
+        } satisfies emailTypes.EmailData;
 
-      await emailClient.init();
-      await emailClient.sendEmail(emailData);
+        await emailClient.init();
+        await emailClient.sendEmail(emailData);
 
-      await activityLogService.createLog({
-        actorId: session?.user?.id,
-        resourceId: workspace?.id!,
-        workspaceId: workspace?.id,
-        location: '',
-        userAgent: {},
-        onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
-        action: databaseTypes.constants.ACTION_TYPE.CREATED,
-      });
+        await activityLogService.createLog({
+          actorId: session?.user?.id,
+          resourceId: workspace?.id!,
+          workspaceId: workspace?.id,
+          location: '',
+          userAgent: {},
+          onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
+          action: databaseTypes.constants.ACTION_TYPE.CREATED,
+        });
 
-      redirect(`/${workspace.id}`);
+        redirect(`/${workspace.id}`);
+      }
     }
   } catch (err) {
     const e = new error.ActionError('An unexpected error occurred creating the workspace', 'name', name, err);

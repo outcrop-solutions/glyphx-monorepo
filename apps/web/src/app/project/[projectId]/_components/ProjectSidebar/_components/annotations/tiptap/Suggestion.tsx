@@ -3,16 +3,11 @@ import {ReactRenderer} from '@tiptap/react';
 import tippy from 'tippy.js';
 import MentionList from './MentionList';
 import {getSuggestedMembers} from 'actions/src/annotation';
-import {debounce} from 'lodash';
 // passed as an option to mention.configure
 export const suggestion = (projectId: string) => {
   return {
     items: async ({query}) => {
-      const debouncedCallback = debounce(async (projectId, query) => {
-        await getSuggestedMembers(projectId, query);
-      }, 500);
-      const retval = await debouncedCallback(projectId as string, query);
-      return retval;
+      return await getSuggestedMembers(projectId, query);
     },
     render: () => {
       let component;
@@ -59,7 +54,7 @@ export const suggestion = (projectId: string) => {
             return true;
           }
 
-          return component.ref?.onKeyDown(props);
+          return component?.ref?.onKeyDown(props);
         },
 
         onExit() {
