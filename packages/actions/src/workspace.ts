@@ -209,12 +209,23 @@ export const inviteUsers = async (workspaceId: string, members: any[]) => {
   try {
     const session = await getServerSession(authOptions);
     if (session) {
-      await workspaceService.inviteUsers(
+      const retval = await workspaceService.inviteUsers(
         session?.user?.id,
         session?.user?.email as string,
         members,
         workspaceId as string
       );
+      if (retval?.workspace) {
+        const workspace = retval?.workspace;
+        const emailData = {
+          type: emailTypes.EmailTypes.WORKSPACE_INVITATION,
+          workspaceName: workspace.name,
+          emails: members.map((member) => member.email),
+          workspaceId: workspace.id!,
+          inviteCode: workspace.inviteCode!,
+        } satisfies emailTypes.EmailData;
+        emailClient.sendEmail(emailData);
+      }
       await activityLogService.createLog({
         actorId: session?.user?.id,
         resourceId: workspaceId,

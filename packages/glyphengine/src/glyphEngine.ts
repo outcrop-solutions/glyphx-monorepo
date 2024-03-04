@@ -403,7 +403,7 @@ export class GlyphEngine {
         return `(year(from_unixtime("${columnName}"/1000)) * 100) + month(from_unixtime("${columnName}"/1000))`;
 
       case glyphEngineTypes.constants.DATE_GROUPING.MONTH:
-        return `month(from_unixtime("${columnName}"/1000))  `;
+        return `month(from_unixtime("${columnName}"/1000))`;
 
       // DOM variants
       case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH:

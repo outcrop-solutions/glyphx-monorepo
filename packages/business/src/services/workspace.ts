@@ -423,10 +423,7 @@ export class WorkspaceService {
           inviteCode: workspace.inviteCode!,
         } satisfies emailTypes.EmailData;
 
-        await Promise.all([
-          mongoDbConnection.models.WorkspaceModel.addMembers(workspace.id!, [...memberIds]),
-          emailClient.sendEmail(emailData),
-        ]);
+        await Promise.all([mongoDbConnection.models.WorkspaceModel.addMembers(workspace.id!, [...memberIds])]);
 
         return {members: createdMembers, workspace: workspace};
       } else {
