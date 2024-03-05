@@ -1,11 +1,33 @@
 'use client';
-import useSWR from 'swr';
+import {getProjectLogs} from 'actions';
+import {useParams} from 'next/navigation';
+import {useEffect, useState} from 'react';
 
-const useProjectLogs = (projectId) => {
-  const apiRoute = `/api/logs/project/${projectId}`;
-  const {data, error} = useSWR(projectId && `${apiRoute}`);
+const useProjectLogs = () => {
+  const params = useParams();
+  const {projectId} = params as {projectId: string};
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const getProjectLogData = async (id) => {
+      const retval = await getProjectLogs(id);
+      // @ts-ignore
+      if (retval?.error) {
+        // @ts-ignore
+        setError(retval?.error);
+      } else if (retval) {
+        // @ts-ignore
+        setData(retval);
+      }
+    };
+    if (projectId) {
+      getProjectLogData(projectId);
+    }
+  }, [projectId]);
+
   return {
-    ...data,
+    data,
     isLoading: !error && !data,
     isError: error,
   };

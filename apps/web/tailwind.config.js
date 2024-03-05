@@ -95,6 +95,11 @@ module.exports = {
         60: '60',
       },
       keyframes: {
+        progress: {
+          '0%': {transform: ' translateX(0) scaleX(0)'},
+          '40%': {transform: 'translateX(0) scaleX(0.4)'},
+          '100%': {transform: 'translateX(100%) scaleX(0.5)'},
+        },
         'accordion-down': {
           from: {height: 0},
           to: {height: 'var(--radix-accordion-content-height)'},
@@ -120,7 +125,11 @@ module.exports = {
           },
         },
       },
+      transformOrigin: {
+        'left-right': '0% 50%',
+      },
       animation: {
+        progress: 'progress 1s infinite linear',
         'slide-from-left': 'slide-from-left 0.3s cubic-bezier(0.82, 0.085, 0.395, 0.895)',
         'slide-to-left': 'slide-to-left 0.25s cubic-bezier(0.82, 0.085, 0.395, 0.895)',
         'accordion-down': 'accordion-down 0.2s ease-out',

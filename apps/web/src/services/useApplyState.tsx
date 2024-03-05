@@ -5,10 +5,11 @@ import {activeStateAtom, drawerOpenAtom, projectAtom, showLoadingAtom, splitPane
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
-import {_createOpenProject, _getSignedDataUrls, api} from 'lib';
+import {_createOpenProject} from 'lib';
 import {useUrl} from 'lib/client/hooks';
 import {isNullCamera} from 'lib/utils/isNullCamera';
 import {databaseTypes} from 'types';
+import {signDataUrls} from 'actions';
 
 const useApplyState = () => {
   const session = useSession();
@@ -23,6 +24,7 @@ const useApplyState = () => {
   const convertRowIds = (input: {[key: string]: number}[]) => {
     return input.map((obj) => Object.values(obj).join(''));
   };
+
   const applyState = useCallback(
     async (idx: number) => {
       if (activeState === idx) {
@@ -47,37 +49,40 @@ const useApplyState = () => {
         const rowIds = convertRowIds(ids);
 
         const isNullCam = isNullCamera(camera);
-
-        await api({
-          ..._getSignedDataUrls(project?.workspace.id, project?.id, payloadHash),
-          onSuccess: (data) => {
-            // replace project state
-            setProject(
-              produce((draft: any) => {
-                // set axes and filters
-                draft.state.properties = properties;
-              })
+        const signedUrls = await signDataUrls(project?.workspace.id, project?.id, payloadHash);
+        if (!signedUrls?.error) {
+          // replace project state
+          setProject(
+            produce((draft: any) => {
+              // set axes and filters
+              draft.state.properties = properties;
+            })
+          );
+          if (window?.core) {
+            setResize(150);
+            setDrawer(true);
+            window?.core?.OpenProject(
+              _createOpenProject(
+                signedUrls as {sdtUrl: any; sgcUrl: any; sgnUrl: any},
+                project,
+                session,
+                url,
+                false,
+                rowIds,
+                isNullCam ? undefined : camera
+              )
             );
-
-            if (window?.core) {
-              setResize(150);
-              setDrawer(true);
-              window?.core?.OpenProject(
-                _createOpenProject(data, project, session, url, false, rowIds, isNullCam ? undefined : camera)
-              );
-            }
-          },
-          onError: () => {
-            setLoading(
-              produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-                draft.processName = 'Failed to Open State Snapshot';
-                draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
-                draft.processEndTime = new Date();
-              })
-            );
-            setActiveState(-1);
-          },
-        });
+          }
+        } else {
+          setLoading(
+            produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
+              draft.processName = 'Failed to Open State Snapshot';
+              draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
+              draft.processEndTime = new Date();
+            })
+          );
+          setActiveState(-1);
+        }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,40 +1,12 @@
 'use client';
-import React, {useCallback, useState} from 'react';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
+import React, {useState} from 'react';
+import {useRecoilValue} from 'recoil';
 import {Axes} from './Axes';
-import {
-  doesStateExistSelector,
-  drawerOpenAtom,
-  projectAtom,
-  propertiesSelector,
-  showLoadingAtom,
-  splitPaneSizeAtom,
-} from 'state';
-import {callCreateModel} from 'lib/client/network/reqs/callCreateModel';
-import toast from 'react-hot-toast';
-import {useSession} from 'next-auth/react';
-import {useUrl} from 'lib/client/hooks';
-import {useSWRConfig} from 'swr';
-import {hashPayload} from 'lib/utils/hashPayload';
-import {hashFileSystem} from 'lib/utils/hashFileSystem';
-import {isValidPayload} from 'lib/utils/isValidPayload';
-import {callUpdateProject} from 'lib/client/network/reqs/callUpdateProject';
-import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
+import {propertiesSelector} from 'state';
 
 export const Filters = () => {
-  const {mutate} = useSWRConfig();
-  const session = useSession();
-  const url = useUrl();
-  const doesStateExist = useRecoilValue(doesStateExistSelector);
-  const project = useRecoilValue(projectAtom);
-  const setDrawer = useSetRecoilState(drawerOpenAtom);
-  const setResize = useSetRecoilState(splitPaneSizeAtom);
-  const setLoading = useSetRecoilState(showLoadingAtom);
   const properties = useRecoilValue(propertiesSelector);
-  const showLoading = useRecoilValue(showLoadingAtom);
   const [isCollapsed, setCollapsed] = useState(false);
-
-  const isLoading = Object.keys(showLoading).length > 0;
 
   return (
     properties && (
@@ -57,7 +29,6 @@ export const Filters = () => {
                   />
                 </svg>
               </span>
-
               <span
                 onClick={() => {
                   setCollapsed(!isCollapsed);

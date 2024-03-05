@@ -6,7 +6,6 @@ import {Types as mongooseTypes} from 'mongoose';
 import {MongoDbConnection} from 'database';
 import {error} from 'core';
 import {userService} from '../../services';
-import {EmailClient} from 'email';
 import * as mocks from 'database/src/mongoose/mocks';
 
 describe('#services/user', () => {
@@ -804,10 +803,6 @@ describe('#services/user', () => {
       } as unknown as databaseTypes.IUser);
       sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
-      const sendStub = sandbox.stub();
-      sendStub.resolves();
-      sandbox.replace(EmailClient, 'sendMail', sendStub);
-
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.resolves();
       sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
@@ -826,7 +821,6 @@ describe('#services/user', () => {
       assert.strictEqual(user.email, email);
 
       assert.isTrue(updateUserFromModelStub.calledOnce);
-      assert.isTrue(sendStub.calledOnce);
       assert.isTrue(updateMemberFromModelStub.calledTwice);
       assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
     });
@@ -842,10 +836,6 @@ describe('#services/user', () => {
       } as unknown as databaseTypes.IUser);
       sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
-      const sendStub = sandbox.stub();
-      sendStub.resolves();
-      sandbox.replace(EmailClient, 'sendMail', sendStub);
-
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.resolves();
       sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
@@ -864,7 +854,7 @@ describe('#services/user', () => {
       assert.strictEqual(user.email, email);
 
       assert.isTrue(updateUserFromModelStub.calledOnce);
-      assert.isTrue(sendStub.calledOnce);
+
       assert.isTrue(updateMemberFromModelStub.calledTwice);
       assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
     });
@@ -985,10 +975,6 @@ describe('#services/user', () => {
       } as unknown as databaseTypes.IUser);
       sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
-      const sendStub = sandbox.stub();
-      sendStub.resolves();
-      sandbox.replace(EmailClient, 'sendMail', sendStub);
-
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.rejects(err);
       sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
@@ -1015,7 +1001,7 @@ describe('#services/user', () => {
       assert.isTrue(errored);
 
       assert.isTrue(updateUserFromModelStub.calledOnce);
-      assert.isTrue(sendStub.calledOnce);
+
       assert.isTrue(updateMemberFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
@@ -1032,10 +1018,6 @@ describe('#services/user', () => {
         emailVerified: undefined,
       } as unknown as databaseTypes.IUser);
       sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
-
-      const sendStub = sandbox.stub();
-      sendStub.resolves();
-      sandbox.replace(EmailClient, 'sendMail', sendStub);
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.rejects(err);
@@ -1063,7 +1045,7 @@ describe('#services/user', () => {
       assert.isTrue(errored);
 
       assert.isTrue(updateUserFromModelStub.calledOnce);
-      assert.isTrue(sendStub.calledOnce);
+
       assert.isTrue(updateMemberFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
@@ -1080,10 +1062,6 @@ describe('#services/user', () => {
         emailVerified: undefined,
       } as unknown as databaseTypes.IUser);
       sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
-
-      const sendStub = sandbox.stub();
-      sendStub.resolves();
-      sandbox.replace(EmailClient, 'sendMail', sendStub);
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.rejects(err);
@@ -1111,7 +1089,7 @@ describe('#services/user', () => {
       assert.isTrue(errored);
 
       assert.isTrue(updateUserFromModelStub.calledOnce);
-      assert.isTrue(sendStub.calledOnce);
+
       assert.isTrue(updateMemberFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
     });
@@ -1128,10 +1106,6 @@ describe('#services/user', () => {
         emailVerified: undefined,
       } as unknown as databaseTypes.IUser);
       sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
-
-      const sendStub = sandbox.stub();
-      sendStub.resolves();
-      sandbox.replace(EmailClient, 'sendMail', sendStub);
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.resolves();
@@ -1167,7 +1141,7 @@ describe('#services/user', () => {
       assert.isTrue(errored);
 
       assert.isTrue(updateUserFromModelStub.calledOnce);
-      assert.isTrue(sendStub.calledOnce);
+
       assert.isTrue(updateMemberFromModelStub.calledTwice);
       assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
@@ -1186,10 +1160,6 @@ describe('#services/user', () => {
       } as unknown as databaseTypes.IUser);
       sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
 
-      const sendStub = sandbox.stub();
-      sendStub.resolves();
-      sandbox.replace(EmailClient, 'sendMail', sendStub);
-
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.resolves();
       sandbox.replace(dbConnection.models.MemberModel, 'updateMemberWithFilter', updateMemberFromModelStub);
@@ -1224,7 +1194,7 @@ describe('#services/user', () => {
       assert.isTrue(errored);
 
       assert.isTrue(updateUserFromModelStub.calledOnce);
-      assert.isTrue(sendStub.calledOnce);
+
       assert.isTrue(updateMemberFromModelStub.calledTwice);
       assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);
@@ -1242,10 +1212,6 @@ describe('#services/user', () => {
         emailVerified: undefined,
       } as unknown as databaseTypes.IUser);
       sandbox.replace(dbConnection.models.UserModel, 'updateUserById', updateUserFromModelStub);
-
-      const sendStub = sandbox.stub();
-      sendStub.resolves();
-      sandbox.replace(EmailClient, 'sendMail', sendStub);
 
       const updateMemberFromModelStub = sandbox.stub();
       updateMemberFromModelStub.resolves();
@@ -1281,7 +1247,6 @@ describe('#services/user', () => {
       assert.isTrue(errored);
 
       assert.isTrue(updateUserFromModelStub.calledOnce);
-      assert.isTrue(sendStub.calledOnce);
       assert.isTrue(updateMemberFromModelStub.calledTwice);
       assert.isTrue(updateCustomerPaymentFromModelStub.calledOnce);
       assert.isTrue(publishOverride.calledOnce);

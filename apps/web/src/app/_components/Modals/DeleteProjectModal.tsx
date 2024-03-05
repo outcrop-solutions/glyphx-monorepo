@@ -3,22 +3,16 @@ import React, {useState, useTransition} from 'react';
 import Button from 'app/_components/Button';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
-import {useSWRConfig} from 'swr';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import {DocumentDuplicateIcon} from '@heroicons/react/outline';
 import {webTypes} from 'types';
-import {_deleteProject, api} from 'lib';
 import {useSetRecoilState} from 'recoil';
 import {modalsAtom} from 'state';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
-import {useRouter, useParams} from 'next/navigation';
-import {deleteProject} from 'lib/actions/project';
+import {deactivateProject} from 'actions';
 
 export const DeleteProjectModal = ({modalContent}: webTypes.DeleteProjectModalProps) => {
-  const {mutate} = useSWRConfig();
-  const params = useParams();
-  const {workspaceId} = params as {workspaceId: string};
   const setModals = useSetRecoilState(modalsAtom);
   const [isPending, startTransition] = useTransition();
 
@@ -63,7 +57,7 @@ export const DeleteProjectModal = ({modalContent}: webTypes.DeleteProjectModalPr
           disabled={!verifiedProject || isPending}
           onClick={() => {
             startTransition(() => {
-              deleteProject(modalContent?.data?.projectId);
+              deactivateProject(modalContent?.data?.projectId);
               setModals(
                 produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
                   draft.modals.splice(0, 1);

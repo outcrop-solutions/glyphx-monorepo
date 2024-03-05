@@ -1,3 +1,4 @@
+'use client';
 import {useEffect} from 'react';
 import {useRecoilValue} from 'recoil';
 import {viewerPositionSelector} from 'state';

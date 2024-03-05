@@ -1,3 +1,4 @@
+'use client';
 import {webTypes} from 'types';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';

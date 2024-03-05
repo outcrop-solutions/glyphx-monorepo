@@ -24,6 +24,7 @@ module.exports = {
   //https://nextjs.org/blog/next-13-1#built-in-module-transpilation-stable
   transpilePackages: [
     'core',
+    'actions',
     'business',
     'database',
     'fileingestion',
@@ -41,8 +42,7 @@ module.exports = {
     },
   },
   experimental: {
-    serverActions: true,
-    serverComponentsExternalPackages: ['resend'],
+    serverComponentsExternalPackages: ['resend', 'csv'],
 
     // gives us statically types routes
     // typedRoutes: true,

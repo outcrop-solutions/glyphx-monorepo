@@ -1,26 +1,19 @@
 'use client';
-import React, {useCallback, useState} from 'react';
-import produce from 'immer';
+import React, {useTransition, useCallback, useState} from 'react';
 import {webTypes} from 'types';
-import {useSWRConfig} from 'swr';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import {DocumentDuplicateIcon} from '@heroicons/react/outline';
-
 import Button from 'app/_components/Button';
-
-import {_ingestFiles, api} from 'lib';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
-import {modalsAtom, projectAtom} from 'state';
+import {useRecoilValue} from 'recoil';
+import {projectAtom} from 'state';
 import {parseDeletePayload} from 'lib/client/files/transforms/parseDeletePayload';
-import {WritableDraft} from 'immer/dist/internal';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
+import {fileIngestion} from 'actions';
 
 export const DeleteFileModal = ({modalContent}: webTypes.DeleteFileModalProps) => {
-  const {mutate} = useSWRConfig();
   const project = useRecoilValue(projectAtom);
-  const setModals = useSetRecoilState(modalsAtom);
-
+  const [isPending, startTransition] = useTransition();
   const [verifyFile, setVerifyFile] = useState('');
   const verifiedFile = verifyFile === modalContent.data.fileName;
 
@@ -28,29 +21,10 @@ export const DeleteFileModal = ({modalContent}: webTypes.DeleteFileModalProps) =
   // local state
   const handleVerifyProjectChange = (event) => setVerifyFile(event.target.value);
 
-  const deleteFile = useCallback(() => {
+  const deleteFile = useCallback(async () => {
     const payload = parseDeletePayload(project?.workspace.id, project.id, project.files, modalContent.data.fileName);
-
-    api({
-      ..._ingestFiles(payload),
-      setLoading: (state) =>
-        setModals(
-          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals[0].isSubmitting = state as boolean;
-          })
-        ),
-      onSuccess: () => {
-        setModals(
-          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals.splice(0, 1);
-          })
-        );
-
-        // update project filesystem
-        mutate(`/api/project/${project.id}`);
-      },
-    });
-  }, [modalContent.data.fileName, project, setModals, mutate]);
+    await fileIngestion(payload);
+  }, [modalContent.data.fileName, project]);
 
   return (
     <div className="bg-secondary-midnight text-white px-4 py-8 flex flex-col space-y-8 rounded-md">
@@ -84,9 +58,13 @@ export const DeleteFileModal = ({modalContent}: webTypes.DeleteFileModalProps) =
         <Button
           className="text-white bg-red-600 hover:bg-red-500"
           disabled={!verifiedFile || modalContent.isSubmitting}
-          onClick={deleteFile}
+          onClick={() =>
+            startTransition(() => {
+              deleteFile();
+            })
+          }
         >
-          {modalContent.isSubmitting ? <LoadingDots /> : <span>Delete File</span>}
+          {isPending ? <LoadingDots /> : <span>Delete File</span>}
         </Button>
       </div>
     </div>

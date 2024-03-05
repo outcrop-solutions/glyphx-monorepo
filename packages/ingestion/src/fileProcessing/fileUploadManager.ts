@@ -3,18 +3,20 @@ import {error, streams, generalPurposeFunctions, aws} from 'core';
 import {BasicFileTransformer, BasicParquetProcessor, BasicColumnNameCleaner} from './';
 import {BasicFieldTypeCalculator} from '../fieldProcessing';
 import {Readable, PassThrough} from 'node:stream';
-import * as csv from 'csv';
+import {parse} from 'csv-parse/browser/esm';
+import {stringify} from 'csv-stringify/browser/esm';
+
 import {IFileInformation, IFileProcessingError} from '../interfaces/fileProcessing';
 import {tableService} from 'business';
 
 export class FileUploadManager {
   private static creatBaseStream(fileStream: Readable) {
-    const csvStream = csv.parse({columns: true, delimiter: ','});
+    const csvStream = parse({columns: true, delimiter: ','});
     const splitStream = new streams.ForkingStream(fileStream, csvStream);
     return splitStream;
   }
   private static createCsvStream(csvFileName: string, s3Manager: aws.S3Manager, splitStream: streams.ForkingStream) {
-    const csvStringify = csv.stringify({quoted: true});
+    const csvStringify = stringify({quoted: true});
     const passThrough = new PassThrough({objectMode: true});
     const upload = s3Manager.getUploadStream(csvFileName, passThrough);
     splitStream.fork('csvWriter', csvStringify, passThrough);

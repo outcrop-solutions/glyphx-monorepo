@@ -1,59 +1,25 @@
 'use client';
-import React, {useState} from 'react';
+import React, {startTransition, useState} from 'react';
 import Button from 'app/_components/Button';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
-import {api, _deleteState} from 'lib';
 import {webTypes} from 'types';
 import {useSetRecoilState} from 'recoil';
-import {modalsAtom, projectAtom} from 'state';
+import {modalsAtom} from 'state';
 import toast from 'react-hot-toast';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {DocumentDuplicateIcon} from '@heroicons/react/outline';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
+import {deleteState} from 'actions';
 
 export const DeleteStateModal = ({modalContent}: webTypes.DeleteStateModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);
-  const setProject = useSetRecoilState(projectAtom);
   const [name, setName] = useState('');
   const validName = name === modalContent.data.name;
 
   const copyToClipboard = () => toast.success('Copied to clipboard!');
   // local state
   const handleNameChange = (event) => setName(event.target.value);
-
-  // mutations
-  const deleteState = (event) => {
-    event.preventDefault();
-    api({
-      ..._deleteState(modalContent.data.id.toString()),
-      setLoading: (state) =>
-        setModals(
-          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals[0].isSubmitting = state as boolean;
-          })
-        ),
-      onError: () => {
-        setModals(
-          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals.splice(0, 1);
-          })
-        );
-      },
-      onSuccess: () => {
-        setModals(
-          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals.splice(0, 1);
-          })
-        );
-        setProject(
-          produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
-            draft.stateHistory.filter((state) => state.id !== modalContent.data.id);
-          })
-        );
-      },
-    });
-  };
 
   return (
     <div className="bg-secondary-midnight text-white px-4 py-8 flex flex-col space-y-8 rounded-md">
@@ -87,7 +53,16 @@ export const DeleteStateModal = ({modalContent}: webTypes.DeleteStateModalProps)
         <Button
           className="text-white bg-red-600 hover:bg-red-500"
           disabled={!validName || modalContent.isSubmitting}
-          onClick={deleteState}
+          onClick={() =>
+            startTransition(() => {
+              deleteState(modalContent.data.id.toString());
+              setModals(
+                produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+                  draft.modals.splice(0, 1);
+                })
+              );
+            })
+          }
         >
           {modalContent.isSubmitting ? <LoadingDots /> : <span>Delete State</span>}
         </Button>

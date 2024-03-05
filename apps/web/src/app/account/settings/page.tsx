@@ -1,55 +1,32 @@
 'use client';
-import {useState, Fragment, useEffect, SetStateAction} from 'react';
+import {useState, Fragment, useEffect, SetStateAction, startTransition} from 'react';
 import {DocumentDuplicateIcon} from '@heroicons/react/outline';
 import {useSession} from 'next-auth/react';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
-
 import {useSetRecoilState} from 'recoil';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
-
 import {webTypes} from 'types';
-
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
-
-import {_updateUserName, _updateUserEmail, api} from 'lib/client';
 import {modalsAtom} from 'state';
+import {updateUserEmail, updateUserName} from 'actions';
 
 export default function Settings() {
   const {data} = useSession();
-  const setModals = useSetRecoilState(modalsAtom);
-
   const [email, setEmail] = useState(' ');
   const [isSubmitting, setSubmittingState] = useState(false);
   const [name, setName] = useState('');
   const [userCode, setUserCode] = useState('');
+  const setModals = useSetRecoilState(modalsAtom);
   const validName = name?.length > 0 && name?.length <= 32;
   // local state
   const handleEmailChange = (event) => setEmail(event.target.value);
   const handleNameChange = (event) => setName(event.target.value);
 
   const copyToClipboard = () => toast.success('Copied to clipboard!');
-
-  // mutations
-  const changeName = (event) => {
-    event.preventDefault();
-    api({..._updateUserName(name), setLoading: (state) => setSubmittingState(state as boolean)});
-  };
-
-  const changeEmail = (event) => {
-    event.preventDefault();
-    const result = confirm('Are you sure you want to update your email address?');
-    if (result) {
-      api({
-        ..._updateUserEmail(email),
-        setLoading: (state) => setSubmittingState(state as boolean),
-        // onSuccess: () => signOut({ callbackUrl: '/auth/login' }),
-      });
-    }
-  };
 
   // open delete confirmation modal
   const toggleModal = () => {
@@ -93,7 +70,15 @@ export default function Settings() {
             </Card.Body>
             <Card.Footer>
               <small>Please use 32 characters at maximum</small>
-              <Button className="" disabled={!validName || isSubmitting} onClick={changeName}>
+              <Button
+                className=""
+                disabled={!validName || isSubmitting}
+                onClick={() =>
+                  startTransition(() => {
+                    updateUserName(name);
+                  })
+                }
+              >
                 Save
               </Button>
             </Card.Footer>
@@ -116,13 +101,20 @@ export default function Settings() {
             </Card.Body>
             <Card.Footer>
               <small>We will email you to verify the change</small>
-              <Button className="" disabled={isSubmitting} onClick={changeEmail}>
+              <Button
+                className=""
+                disabled={isSubmitting}
+                onClick={() =>
+                  startTransition(() => {
+                    updateUserEmail(email);
+                  })
+                }
+              >
                 Save
               </Button>
             </Card.Footer>
           </form>
         </Card>
-
         <Card>
           <Card.Body title="Personal Account ID" subtitle="Used when interacting with APIs">
             <div className="flex items-center justify-between px-3 py-2 space-x-5 font-mono text-sm border text-white rounded md:w-1/2">

@@ -1,3 +1,4 @@
+'use client';
 import {useEffect} from 'react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {drawerOpenAtom, modalsAtom} from 'state';

@@ -415,19 +415,7 @@ export class WorkspaceService {
           return mem._id.toString(); // FIXME: This should be added to the db layer as createMany()
         });
 
-        const emailData = {
-          type: emailTypes.EmailTypes.WORKSPACE_INVITATION,
-          workspaceName: workspace.name,
-          emails: members.map((member) => member.email),
-          workspaceId: workspace.id!,
-          inviteCode: workspace.inviteCode!,
-        } satisfies emailTypes.EmailData;
-
-        await Promise.all([
-          mongoDbConnection.models.WorkspaceModel.addMembers(workspace.id!, [...memberIds]),
-          emailClient.sendEmail(emailData),
-        ]);
-
+        await Promise.all([mongoDbConnection.models.WorkspaceModel.addMembers(workspace.id!, [...memberIds])]);
         return {members: createdMembers, workspace: workspace};
       } else {
         const errMsg = 'No workspace found';

@@ -1,5 +1,5 @@
 'use client';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {fileIngestionTypes, webTypes} from 'types';
@@ -28,7 +28,7 @@ export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc
   const {data: templateData, isLoading: templateLoading} = useTemplates();
 
   const {data, isLoading} = useProject();
-  const project = data?.project;
+  const project = data;
 
   const projectViewRef = useRef(null);
 
@@ -91,8 +91,12 @@ export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc
     setRowIds,
   ]);
 
-  return enabled ? (
-    <RoomProvider id={project.docId as string} initialPresence={{cursor: null}} initialStorage={{notes: new LiveMap()}}>
+  return enabled && project?.docId ? (
+    <RoomProvider
+      id={project?.docId as string}
+      initialPresence={{cursor: null}}
+      initialStorage={{notes: new LiveMap()}}
+    >
       <InitialDocumentProvider initialDocument={doc}>
         <div ref={projectViewRef} className="flex w-full h-full">
           {children}

@@ -70,9 +70,9 @@ export const Share = () => {
           <MemberList size="large" members={sidebarControl?.data?.members || null} />
         </div>
       </div>
-      <div className="absolute bottom-0 mt-5 pl-3 pr-3">
+      <div className="absolute bottom-0 mt-5 pl-3 pr-3 w-[250px]">
         <hr className="text-gray mb-2" />
-        <div className="flex flex-row justify-between items-center space-x-3 mb-3 mt-2">
+        <div className="flex flex-row justify-between items-center space-x-3 mb-3 mt-1">
           <div className="rounded-xl border border-transparent py-1 px-2 hover:bg-secondary-midnight hover:border-white hover:cursor-pointer">
             <p className="text-light-gray font-roboto font-medium leading-[16px] text-center text-[14px]">
               {!isOwnershipLoading && (
