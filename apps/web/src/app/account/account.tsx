@@ -1,33 +1,18 @@
 'use client';
-import {useState} from 'react';
+import {startTransition, useState} from 'react';
 import {useRouter} from 'next/navigation';
-
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
-import {_acceptInvitation, _declineInvitation, api, useInvitations, useWorkspaces} from 'lib/client';
+import {useInvitations, useWorkspaces} from 'lib/client';
 import {Route} from 'next';
+import {acceptInvitation, declineInvitation} from 'actions';
 
 export default function Welcome() {
   const router = useRouter();
   const {data: invitationsData, isLoading: isFetchingInvitations} = useInvitations();
   const {data: workspacesData, isLoading: isFetchingWorkspaces} = useWorkspaces();
   const [isSubmitting, setSubmittingState] = useState(false);
-
-  // mutatations
-  const accept = (memberId) => {
-    api({
-      ..._acceptInvitation(memberId),
-      setLoading: (state) => setSubmittingState(state as boolean),
-    });
-  };
-  const decline = (memberId) => {
-    api({
-      ..._declineInvitation(memberId),
-      setLoading: (state) => setSubmittingState(state as boolean),
-    });
-  };
-
   const navigate = (workspace) => {
     router.replace(`/${workspace.id}` as Route);
   };
@@ -82,13 +67,25 @@ export default function Welcome() {
                     subtitle={`You have been invited by ${invitation.invitedBy.name || invitation.invitedBy.email}`}
                   />
                   <Card.Footer>
-                    <Button className="" disabled={isSubmitting} onClick={() => accept(invitation.id)}>
+                    <Button
+                      className=""
+                      disabled={isSubmitting}
+                      onClick={() =>
+                        startTransition(() => {
+                          acceptInvitation(invitation.id);
+                        })
+                      }
+                    >
                       Accept
                     </Button>
                     <Button
                       className="text-red-600 border border-red-600 hover:bg-red-600 hover:text-white"
                       disabled={isSubmitting}
-                      onClick={() => decline(invitation.id)}
+                      onClick={() =>
+                        startTransition(() => {
+                          declineInvitation(invitation.id);
+                        })
+                      }
                     >
                       Decline
                     </Button>

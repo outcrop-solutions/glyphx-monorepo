@@ -1,0 +1,83 @@
+{
+  "name": "actions",
+  "version": "1.0.0",
+  "description": "The core server actions called within client and server components",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "lint": "eslint .",
+    "fix": "eslint . --fix",
+    "format:write": "prettier --write \"**/*.{js,json,jsx,ts,tsx}\"",
+    "format": "prettier \"**/*.{js,json,jsx,ts,tsx}\"",
+    "clean": "rimraf .turbo node_modules dist .nyc_output",
+    "coverage": "TS_NODE_FILES=true nyc mocha -r ts-node/register -r tsconfig-paths/register --timeout 999999 --exit --recursive \"src/__tests__/**/*.tests.ts\"",
+    "test": "TS_NODE_FILES=true EMAIL_SERVER=smtp://apikey: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@smtp.sendgrid.net:587 mocha -r ts-node/register -r dotenv/config -r tsconfig-paths/register --recursive  --timeout 999999 --exit \"src/__tests__/**/*.tests.ts\"",
+    "integrationTest": "DOTENV_CONFIG_PATH=src/__integrationTests__/.env.integration TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register  -r dotenv/config --recursive  --timeout 999999 --exit \"src/__integrationTests__/**/*.tests.ts\"",
+    "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "eslint . --fix"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "James M. Graham",
+  "devDependencies": {
+    "@aws-sdk/types": "3.292.0",
+    "@types/chai": "^4.3.3",
+    "@types/mocha": "^10.0.0",
+    "@types/node": "^18.11.7",
+    "@types/rewire": "^2.5.28",
+    "@types/sinon": "^10.0.13",
+    "@types/uuid": "^9.0.0",
+    "aws-sdk-client-mock": "^2.1.1",
+    "chai": "^4.3.6",
+    "eslint-config-custom": "workspace:*",
+    "lint-staged": "^13.0.3",
+    "mocha": "^10.1.0",
+    "nyc": "^15.1.0",
+    "rewire": "^6.0.0",
+    "rimraf": "^3.0.2",
+    "sinon": "^14.0.1",
+    "ts-node": "^10.9.1",
+    "tsconfig": "workspace:*",
+    "tsconfig-paths": "^4.1.0",
+    "tsup": "7.2.0",
+    "tsx": "^3.7.1",
+    "types": "workspace:*",
+    "typescript": "5.2.2",
+    "uuid": "^8.3.2"
+  },
+  "dependencies": {
+    "@aws-sdk/client-athena": "3.292.0",
+    "@aws-sdk/client-s3": "3.292.0",
+    "@aws-sdk/client-secrets-manager": "3.292.0",
+    "@aws-sdk/lib-storage": "3.292.0",
+    "@aws-sdk/signature-v4-crt": "3.292.0",
+    "@next-auth/mongodb-adapter": "^1.1.1",
+    "@stripe/stripe-js": "^1.23.0",
+    "business": "workspace:*",
+    "core": "workspace:*",
+    "crypto-js": "^4.1.1",
+    "currency-symbol-map": "^5.1.0",
+    "database": "workspace:*",
+    "date-fns": "^2.28.0",
+    "dotenv": "^16.0.3",
+    "express-validator": "^6.14.0",
+    "fileingestion": "workspace:*",
+    "fuse.js": "^6.6.2",
+    "glyphengine": "workspace:*",
+    "logsnag": "^0.1.6",
+    "next": "13.5.4",
+    "next-auth": "4.22.1",
+    "nodemailer": "^6.7.2",
+    "openai-edge": "^1.1.0",
+    "resend": "^3.1.0",
+    "server-only": "^0.0.1",
+    "slugify": "^1.6.5",
+    "stripe": "^8.203.0",
+    "validator": "^13.7.0"
+  }
+}

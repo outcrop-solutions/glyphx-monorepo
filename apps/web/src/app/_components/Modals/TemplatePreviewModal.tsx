@@ -1,21 +1,19 @@
 'use client';
-import React, {useCallback, useState} from 'react';
+import React, {startTransition, useState} from 'react';
 import Button from 'app/_components/Button';
-import {_createProjectFromTemplate, api} from 'lib';
 import {webTypes} from 'types';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
-import {modalsAtom, workspaceAtom} from 'state';
+import {useSetRecoilState} from 'recoil';
+import {modalsAtom} from 'state';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
-import {useRouter, useParams} from 'next/navigation';
+import {useParams} from 'next/navigation';
 import ColXIcon from 'public/svg/col-x-icon.svg';
 import ColYIcon from 'public/svg/col-y-icon.svg';
 import ColZIcon from 'public/svg/col-z-icon.svg';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
-import {Route} from 'next';
+import {createProjectFromTemplate} from 'actions';
 
 export const TemplatePreviewModal = ({modalContent}: webTypes.TemplatePreviewModalProps) => {
-  const router = useRouter();
   const params = useParams();
   const {workspaceId} = params as {workspaceId: string};
   const [loading, setLoading] = useState(false);
@@ -35,25 +33,6 @@ export const TemplatePreviewModal = ({modalContent}: webTypes.TemplatePreviewMod
         break;
     }
   };
-
-  // mutations
-  const getTemplate = useCallback(() => {
-    api({
-      ..._createProjectFromTemplate(workspaceId, data),
-      setLoading: (state) => {
-        setLoading(state as boolean);
-      },
-      onSuccess: (data: any) => {
-        setLoading(false);
-        setModals(
-          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals.splice(0, 1);
-          })
-        );
-        router.push(`/project/${data.id}` as Route);
-      },
-    });
-  }, [workspaceId, data, router, setModals]);
 
   return (
     <div className="flex flex-col items-stretch justify-center px-4 py-8 w-[500px] space-y-5 bg-secondary-midnight rounded-md text-white">
@@ -88,7 +67,20 @@ export const TemplatePreviewModal = ({modalContent}: webTypes.TemplatePreviewMod
         ))}
       </div>
       <div className="flex flex-col items-stretch">
-        <Button className="" disabled={loading} onClick={getTemplate}>
+        <Button
+          className=""
+          disabled={loading}
+          onClick={() =>
+            startTransition(() => {
+              createProjectFromTemplate(workspaceId, data);
+              setModals(
+                produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+                  draft.modals.splice(0, 1);
+                })
+              );
+            })
+          }
+        >
           {loading ? <LoadingDots /> : <span>Get Template</span>}
         </Button>
       </div>

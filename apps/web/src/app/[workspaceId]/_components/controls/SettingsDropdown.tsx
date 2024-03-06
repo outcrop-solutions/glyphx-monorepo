@@ -3,10 +3,8 @@ import React, {Fragment} from 'react';
 import {Menu, Transition} from '@headlessui/react';
 import {signOut} from 'next-auth/react';
 import Link from 'next/link';
-
 import {
   CogIcon,
-  CreditCardIcon,
   DesktopComputerIcon,
   ExclamationIcon,
   LogoutIcon,
@@ -16,11 +14,15 @@ import {
 import {useUrl} from 'lib/client/hooks';
 import {Route} from 'next';
 import {useParams} from 'next/navigation';
+import {projectAtom} from 'state';
+import {useRecoilValue} from 'recoil';
 
 export const SettingsDropdown = () => {
   const url = useUrl();
   const params = useParams();
-  const workspaceId = params?.workspaceId;
+  const project = useRecoilValue(projectAtom);
+  const workspaceId = params?.workspaceId ?? project?.workspace?.id;
+
   const logOut = () => {
     const result = confirm('Are you sure you want to logout?');
     if (result) {

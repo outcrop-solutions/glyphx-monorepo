@@ -3,7 +3,7 @@ import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 
 import {webTypes} from 'types';
-import {_getSignedUploadUrls, _ingestFiles, _uploadFile, api} from 'lib';
+import {_uploadFile, api} from 'lib';
 
 import {useRecoilState, useSetRecoilState} from 'recoil';
 import {modalsAtom, projectAtom} from 'state';
@@ -14,6 +14,7 @@ import {CollisionType} from './CollisionType';
 import {cleanNoOps} from 'lib/client/files/transforms/cleanNoOps';
 import {renameAppend} from 'lib/client/files/transforms/renameAppend';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
+import {fileIngestion, signUploadUrls} from 'actions';
 
 export const FileDecisionModal = ({modalContent}: webTypes.FileDecisionsModalProps) => {
   // @ts-ignore
@@ -52,32 +53,24 @@ export const FileDecisionModal = ({modalContent}: webTypes.FileDecisionsModalPro
     // get s3 keys for upload
     const keys = finalPayload.fileStats.map((stat) => `${stat.tableName}/${stat.fileName}`);
 
-    const {signedUrls} = await api({
-      ..._getSignedUploadUrls(project?.workspace.id, project.id, keys),
-      returnData: true,
-    });
+    const {signedUrls, error} = await signUploadUrls(keys, project?.workspace.id, project.id);
 
-    await Promise.all(
-      signedUrls.map(async (url, idx) => {
-        // upload raw file data to s3
-        await api({
-          ..._uploadFile(await cleanFiles[idx].arrayBuffer(), url),
-          upload: true,
-        });
-      })
-    );
-
+    if (!error && signedUrls) {
+      await Promise.all(
+        signedUrls.map(async (url, idx) => {
+          // upload raw file data to s3
+          await api({
+            ..._uploadFile(await cleanFiles[idx].arrayBuffer(), url),
+            upload: true,
+          });
+        })
+      );
+    }
     // only call ingest once
     if (finalPayload.fileInfo.length > 0) {
-      await api({
-        ..._ingestFiles(finalPayload),
-        onSuccess: () => {
-          closeModal();
-        },
-      });
-    } else {
-      closeModal();
+      await fileIngestion(finalPayload);
     }
+    closeModal();
   }, [closeModal, data, payload, project]);
 
   return (

@@ -27,10 +27,12 @@ export const authOptions: NextAuthOptions = {
         const newUser = {
           ...userInfo,
           id: userInfo.id as string,
-          // image: user.image as string | undefined,
-          // color: '#444444',
-          // projectIds: userInfo.projects?.map((proj) => proj.id as string) ?? [],
+          username: userInfo.email?.split('@')[0],
         };
+        // image: user.image as string | undefined,
+        // color: '#444444',
+        // projectIds: userInfo.projects?.map((proj) => proj.id as string) ?? [],
+
         session.user = newUser;
       }
 

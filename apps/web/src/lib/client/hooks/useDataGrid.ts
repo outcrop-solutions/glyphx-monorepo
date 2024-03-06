@@ -1,12 +1,11 @@
 'use client';
-import {useEffect, useMemo, useState} from 'react';
-import {api} from '../network';
-import {_getDataGrid, _getRowIds} from '../mutations';
+import {useEffect, useState} from 'react';
 import {dataGridAtom, dataGridPayloadSelector, pageNumberAtom, rowIdsAtom} from 'state';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {webTypes} from 'types';
+import {getDataByRowId, getDataByTableName} from 'actions';
 
 const useDataGrid = (ref) => {
   const [gridData, setGridData] = useRecoilState(dataGridAtom);
@@ -24,32 +23,27 @@ const useDataGrid = (ref) => {
     }
   };
 
-  const fetchRowIdsConfig = useMemo(
-    () => ({
-      ..._getRowIds(workspaceId, projectId, tableName, rowIds as string[], pageSize, pageNumber, true),
-      returnData: true,
-    }),
-    [workspaceId, projectId, tableName, rowIds, pageSize, pageNumber]
-  );
-
-  const fetchDataGridConfig = useMemo(
-    () => ({
-      ..._getDataGrid(workspaceId, projectId, tableName, pageSize, pageNumber),
-      returnData: true,
-    }),
-    [workspaceId, projectId, tableName, pageSize, pageNumber]
-  );
-
   const fetchDataWithRowIds = async (pageNumber: number) => {
     setIsLoadingRowIds(true);
-    const data: webTypes.IRenderableDataGrid = await api(fetchRowIdsConfig);
-    setGridData(
-      produce((draft: WritableDraft<webTypes.IRenderableDataGrid>) => {
-        return data;
-      })
+    const retval = await getDataByRowId(
+      workspaceId,
+      projectId,
+      tableName,
+      rowIds as unknown as number[],
+      true,
+      pageSize,
+      pageNumber
     );
-    resetScrollPosition();
-    setIsLoadingRowIds(false);
+
+    if (retval?.data) {
+      setGridData(
+        produce((draft: WritableDraft<webTypes.IRenderableDataGrid>) => {
+          return retval.data;
+        })
+      );
+      resetScrollPosition();
+      setIsLoadingRowIds(false);
+    }
   };
 
   useEffect(() => {
@@ -62,41 +56,38 @@ const useDataGrid = (ref) => {
 
   const fetchDataWithoutRowIds = async (pageNumber: number) => {
     setIsLoadingDataGrid(true);
-    const data = await api(fetchDataGridConfig);
-    setGridData(
-      produce((draft: WritableDraft<webTypes.IRenderableDataGrid>) => {
-        // if initial load, populate columns, otherwise skip
-
-        if (pageNumber === 0) {
-          // Get the set of existing columns
-          const existingKeys = new Set(draft.columns.map((col) => col.key));
-          // Filter out duplicate columns based on keys
-          const newCols = data.columns.filter((col) => !existingKeys.has(col.key));
-          draft.columns.push(...newCols);
-        }
-        // Get the set of existing glyphx_id__
-        const existingIds = new Set(draft.rows.map((row) => row.glyphx_id__));
-        // Filter out duplicate rows based on glyphx_id__
-        const newRows = data.rows.filter((row) => !existingIds.has(row.glyphx_id__));
-
-        if (pageNumber === 0) {
-          draft.rows = data.rows;
-        } else {
-          // Push only new, unique rows
-          draft.rows.push(...newRows);
-        }
-      })
-    );
-    resetScrollPosition();
-    setIsLoadingDataGrid(false);
+    const retval = await getDataByTableName(workspaceId, projectId, tableName, pageSize, pageNumber);
+    if (retval?.data) {
+      setGridData(
+        produce((draft: WritableDraft<webTypes.IRenderableDataGrid>) => {
+          if (pageNumber === 0) {
+            // Get the set of existing columns
+            const existingKeys = new Set(draft.columns.map((col) => col.key));
+            // Filter out duplicate columns based on keys
+            const newCols = retval.data.columns.filter((col) => !existingKeys.has(col.key));
+            draft.columns.push(...newCols);
+          }
+          // Get the set of existing glyphx_id__
+          const existingIds = new Set(draft.rows.map((row) => row.glyphx_id__));
+          // Filter out duplicate rows based on glyphx_id__
+          const newRows = retval.data.rows.filter((row) => !existingIds.has(row.glyphx_id__));
+          if (pageNumber === 0) {
+            draft.rows = retval.data.rows;
+          } else {
+            // Push only new, unique rows
+            draft.rows.push(...newRows);
+          }
+        })
+      );
+      resetScrollPosition();
+      setIsLoadingDataGrid(false);
+    }
   };
 
   useEffect(() => {
     if (!tableName || isLoadingDataGrid || rowIds) {
       return;
     }
-    console.log('fetch data without rowIds', {tableName, isLoadingDataGrid, rowIds});
-
     fetchDataWithoutRowIds(pageNumber);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rowIds, tableName, pageNumber]);

@@ -1,5 +1,4 @@
 'use client';
-/* eslint-disable no-lone-blocks */
 import React, {useCallback, useState} from 'react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {Property} from './Property';
@@ -11,7 +10,6 @@ import {
   showLoadingAtom,
   splitPaneSizeAtom,
 } from 'state';
-import {_updateProjectState} from 'lib';
 import {useSession} from 'next-auth/react';
 import {useSWRConfig} from 'swr';
 import {callCreateModel} from 'lib/client/network/reqs/callCreateModel';
@@ -20,8 +18,8 @@ import {hashPayload} from 'lib/utils/hashPayload';
 import {hashFileSystem} from 'lib/utils/hashFileSystem';
 import {useUrl} from 'lib/client/hooks';
 import {isValidPayload} from 'lib/utils/isValidPayload';
-import {callUpdateProject} from 'lib/client/network/reqs/callUpdateProject';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
+import {updateProjectState} from 'actions';
 
 export const Properties = () => {
   const session = useSession();
@@ -44,7 +42,7 @@ export const Properties = () => {
       if (!isValidPayload(properties)) {
         toast.success('Generate a model before applying filters!');
       } else if (doesStateExist) {
-        callUpdateProject(project, mutate);
+        await updateProjectState(project.id, project.state);
         await callDownloadModel({
           project,
           payloadHash,

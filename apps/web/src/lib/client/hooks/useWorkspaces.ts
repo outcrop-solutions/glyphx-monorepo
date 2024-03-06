@@ -1,11 +1,29 @@
 'use client';
-import useSWR from 'swr';
+import {getWorkspaces} from 'actions';
+import {useEffect, useState} from 'react';
+import {databaseTypes} from 'types';
 
 const useWorkspaces = () => {
-  const apiRoute = `/api/workspaces`;
-  const {data, error} = useSWR(`${apiRoute}`);
+  const [data, setData] = useState<null | databaseTypes.IProject>(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const getWorkspacesData = async () => {
+      const retval = await getWorkspaces();
+      // @ts-ignore
+      if (retval?.error) {
+        // @ts-ignore
+        setError(retval?.error);
+      } else if (retval) {
+        // @ts-ignore
+        setData(retval);
+      }
+    };
+    getWorkspacesData();
+  }, []);
+
   return {
-    ...data,
+    data,
     isLoading: !error && !data,
     isError: error,
   };

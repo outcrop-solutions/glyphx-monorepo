@@ -1,14 +1,20 @@
 'use client';
 import React from 'react';
 import {Annotation} from './Annotation';
-import {InputArea} from './InputArea';
+import {InputArea} from './tiptap/InputArea';
 import {useAnnotations} from 'lib/client/hooks';
 
 export const AnnotationList = () => {
   const {data, type, id} = useAnnotations();
   return (
-    <div className="lg:block border-b border-gray">
-      <ul className="overflow-auto grow">{data && data.map((item, idx) => <Annotation key={idx} item={item} />)}</ul>
+    <div className="lg:block border-b border-gray h-full">
+      {data && (
+        <ul className="overflow-auto grow">
+          {data.map((item, idx) => (
+            <Annotation key={idx} item={item} />
+          ))}
+        </ul>
+      )}
       <InputArea id={id} type={type} />
     </div>
   );

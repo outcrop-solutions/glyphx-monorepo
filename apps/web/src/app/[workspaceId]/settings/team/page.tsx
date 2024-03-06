@@ -1,5 +1,5 @@
 'use client';
-import {Fragment, SetStateAction, useState} from 'react';
+import {Fragment, startTransition, useState} from 'react';
 import {Menu, Transition} from '@headlessui/react';
 import {
   ChevronDownIcon,
@@ -11,17 +11,18 @@ import {
 import {databaseTypes} from 'types';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import {toast} from 'react-hot-toast';
-
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
-import {_createMember, _removeMember, _updateRole, api, useWorkspace} from 'lib/client';
 import useIsTeamOwner from 'lib/client/hooks/useIsOwner';
+import {inviteUsers, removeMember, updateRole} from 'actions';
+import {useRecoilValue} from 'recoil';
+import {workspaceAtom} from 'state';
 
 const MEMBERS_TEMPLATE = {email: '', teamRole: databaseTypes.constants.ROLE.MEMBER};
 
 const Team = () => {
-  const {data, isLoading: isWorkspaceLoading} = useWorkspace();
+  const workspace = useRecoilValue(workspaceAtom);
   const {data: ownership, isLoading: isOwnershipLoading} = useIsTeamOwner();
 
   const [isSubmitting, setSubmittingState] = useState(false);
@@ -48,26 +49,6 @@ const Team = () => {
   const remove = (index) => {
     members.splice(index, 1);
     setMembers([...members]);
-  };
-
-  // mutations
-  const changeRole = (memberId, role) => {
-    api({..._updateRole(memberId, role)});
-  };
-
-  const invite = () => {
-    api({
-      ..._createMember({workspaceId: data.workspace?.id!, members}),
-      setLoading: (value) => setSubmittingState(value as unknown as SetStateAction<boolean>),
-      onSuccess: () => {
-        const members = [{...MEMBERS_TEMPLATE}];
-        setMembers([...members]);
-      },
-    });
-  };
-
-  const removeMember = (memberId) => {
-    api({..._removeMember(memberId)});
   };
 
   return (
@@ -151,7 +132,15 @@ const Team = () => {
                 <small>
                   All invited team members will be set to <strong>Pending</strong>
                 </small>
-                <Button className="" disabled={isSubmitting} onClick={invite}>
+                <Button
+                  className=""
+                  disabled={isSubmitting}
+                  onClick={() =>
+                    startTransition(() => {
+                      inviteUsers(workspace.id as string, members);
+                    })
+                  }
+                >
                   Invite
                 </Button>
               </Card.Footer>
@@ -172,8 +161,8 @@ const Team = () => {
                   </tr>
                 </thead>
                 <tbody className="text-sm py-4">
-                  {!isWorkspaceLoading ? (
-                    data?.workspace?.members
+                  {workspace ? (
+                    workspace?.members
                       .filter((mem) => !mem.deletedAt)
                       .map((member, index) => (
                         <tr key={index}>
@@ -193,14 +182,14 @@ const Team = () => {
                                   member.status === databaseTypes.constants.INVITATION_STATUS.ACCEPTED
                                     ? 'bg-green-200 text-green-600'
                                     : member.status === databaseTypes.constants.INVITATION_STATUS.PENDING
-                                    ? 'bg-blue-200 text-blue-600'
-                                    : 'bg-red-200 text-red-600',
+                                      ? 'bg-blue-200 text-blue-600'
+                                      : 'bg-red-200 text-red-600',
                                 ].join(' ')}
                               >
                                 {member?.status.toLowerCase()}
                               </span>
                               <h4 className="capitalize">{member?.teamRole?.toLowerCase()}</h4>
-                              {data?.workspace?.creator?.email !== member?.email && ownership?.isTeamOwner && (
+                              {workspace?.creator?.email !== member?.email && ownership?.isTeamOwner && (
                                 <Menu as="div" className="relative inline-block text-left">
                                   <div>
                                     <Menu.Button className="flex items-center justify-center p-3 space-x-3 rounded hover:bg-secondary-midnight">
@@ -227,12 +216,15 @@ const Team = () => {
                                                   className="w-40 px-5 py-2 capitalize rounded appearance-none bg-transparent"
                                                   disabled={isSubmitting}
                                                   onChange={(event) =>
-                                                    changeRole(
-                                                      member.id,
-                                                      event.target.value as unknown as
-                                                        | databaseTypes.constants.ROLE
-                                                        | databaseTypes.constants.PROJECT_ROLE
-                                                    )
+                                                    startTransition(() => {
+                                                      // @ts-ignore
+                                                      updateRole(
+                                                        member.id as string,
+                                                        event.target.value as unknown as
+                                                          | databaseTypes.constants.ROLE
+                                                          | databaseTypes.constants.PROJECT_ROLE
+                                                      );
+                                                    })
                                                   }
                                                 >
                                                   <option key={index} value={databaseTypes.constants.ROLE.MEMBER}>
@@ -252,7 +244,12 @@ const Team = () => {
                                         <Menu.Item>
                                           <button
                                             className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-red-600 rounded hover:bg-red-600 hover:text-white"
-                                            onClick={() => removeMember(member?.id)}
+                                            onClick={() =>
+                                              startTransition(() => {
+                                                // @ts-ignore
+                                                removeMember(member.id);
+                                              })
+                                            }
                                           >
                                             <span>Remove Team Member</span>
                                           </button>

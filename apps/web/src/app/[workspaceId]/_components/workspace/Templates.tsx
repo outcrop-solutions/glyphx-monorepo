@@ -1,7 +1,6 @@
 'use client';
 import {ChevronRightIcon} from '@heroicons/react/solid';
 import {CalendarIcon, SpeakerphoneIcon, TerminalIcon} from '@heroicons/react/outline';
-import {_createDefaultProject} from 'lib/client';
 import {Route} from 'next';
 import {useSetRecoilState} from 'recoil';
 import {modalsAtom} from 'state';
