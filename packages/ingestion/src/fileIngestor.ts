@@ -313,6 +313,7 @@ export class FileIngestor {
   }
 
   public async process(): Promise<IFileProcessingResult> {
+    let info = {};
     await processTrackingService.updateProcessStatus(
       config.processId,
       databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
@@ -337,7 +338,9 @@ export class FileIngestor {
       processTrackingService.addProcessError(config.processId, err);
     } else {
       try {
+        console.log('processing files in try block');
         const needsViewUpdates = await this.processFiles();
+        info = {...info, needsViewUpdates};
         if (needsViewUpdates) {
           const reconFileInformation = FileReconciliator.reconcileFileInformation(
             this.clientId,
@@ -346,6 +349,8 @@ export class FileIngestor {
             this.processedFileInformation,
             this.fileStatistics
           );
+          info = {...info, reconFileInformation};
+
           fileInfoForReturn = reconFileInformation.allFiles;
           //If we delete all of the tables we will have nothing to create.
           if (fileInfoForReturn.length) {
@@ -354,6 +359,7 @@ export class FileIngestor {
               sharedFunctions.fileIngestion.getViewName(this.clientId, this.modelId),
               reconFileInformation.accumFiles
             )) as IJoinTableDefinition[];
+            info = {...info, joinInformation};
           }
         } else {
           fileInfoForReturn = this.fileStatistics;
@@ -361,11 +367,13 @@ export class FileIngestor {
         processingResults = this.processedFileErrorInformation.length
           ? FILE_PROCESSING_STATUS.WARNING
           : FILE_PROCESSING_STATUS.OK;
-        await projectService.updateProject(this.modelId, {
+        const project = await projectService.updateProject(this.modelId, {
           files: fileInfoForReturn,
           viewName: viewName,
         });
+        info = {...info, project};
       } catch (err) {
+        info = {...info, err};
         const message = `An unexpected error occurred while processing the files.  See the inner errors for additional information: ${err}`;
         this.processedFileErrorInformation.push({
           fileName: 'unknown',
@@ -390,6 +398,7 @@ export class FileIngestor {
       joinInformation: this.cleanJoinInformation(joinInformation),
       status: processingResults,
       viewName: viewName,
+      info,
     };
 
     const status =

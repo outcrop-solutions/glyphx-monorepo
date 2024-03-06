@@ -2,7 +2,8 @@ import type {NextApiRequest, NextApiResponse} from 'next';
 import type {Session} from 'next-auth';
 import {userService, activityLogService, validateUpdateName, validateUpdateEmail} from 'business';
 import {formatUserAgent} from 'lib/utils/formatUserAgent';
-import {databaseTypes} from 'types';
+import {databaseTypes, emailTypes} from 'types';
+import emailClient from '../../email';
 
 /**
  * Update Name
@@ -52,6 +53,16 @@ export const updateEmail = async (req: NextApiRequest, res: NextApiResponse, ses
   try {
     await validateUpdateEmail(req, res);
     const user = await userService.updateEmail(session?.user?.id, email, session?.user?.email as string);
+
+    const emailData = {
+      type: emailTypes.EmailTypes.EMAIL_UPDATED,
+      oldEmail: session?.user?.email,
+      newEmail: email,
+    } satisfies emailTypes.EmailData;
+
+    await emailClient.init();
+    await emailClient.sendEmail(emailData);
+
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({

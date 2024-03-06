@@ -312,6 +312,7 @@ export class BasicFileTransformer extends Transform {
       const dirtyValue = chunk[key];
       let value: unknown = null;
 
+      // console.log({fieldType: fieldTypeCalculator?.fieldTypeCalculator.fieldType});
       if (dirtyValue.length > fieldTypeCalculator.maxFieldLength)
         fieldTypeCalculator.maxFieldLength = dirtyValue.length;
       try {
@@ -329,15 +330,16 @@ export class BasicFileTransformer extends Transform {
         }
       } catch (err) {
         value = null;
-        this.errorCallback({
-          fileName: this.fileName,
-          errorType: FILE_PROCESSING_ERROR_TYPES.INVALID_FIELD_VALUE,
-          rowIndex: this.rowNumber,
-          columnIndex: columnIndex,
-          columnName: key,
-          columnValue: dirtyValue,
-          message: `The value of column ${key} does not appear to be a well formed number string`,
-        });
+        // FIXME: fix error reporting
+        // this.errorCallback({
+        //   fileName: this.fileName,
+        //   errorType: FILE_PROCESSING_ERROR_TYPES.INVALID_FIELD_VALUE,
+        //   rowIndex: this.rowNumber,
+        //   columnIndex: columnIndex,
+        //   columnName: key,
+        //   columnValue: dirtyValue,
+        //   message: `The value of column ${key} does not appear to be a well formed number string`,
+        // });
       }
 
       //the fieldTypeCalculator will always be defined, so we can't
