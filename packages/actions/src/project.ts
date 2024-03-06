@@ -15,9 +15,11 @@ import {redirect} from 'next/navigation';
  * @param docId
  */
 export const createProject = async (name: string, workspaceId: string, description: string, docId: string) => {
+  let projectId = '';
   try {
     const session = await getServerSession(authOptions);
     if (session?.user) {
+      console.log({session, name, workspaceId, description, docId});
       const project = await projectService.createProject(
         name,
         workspaceId,
@@ -39,8 +41,8 @@ export const createProject = async (name: string, workspaceId: string, descripti
         action: databaseTypes.constants.ACTION_TYPE.CREATED,
       });
 
-      revalidatePath('/[workspaceId]');
-      redirect(`/project/${project.id}`);
+      revalidatePath('/[workspaceId]', 'page');
+      projectId = project.id as string;
     }
   } catch (err) {
     const e = new error.ActionError(
@@ -52,6 +54,7 @@ export const createProject = async (name: string, workspaceId: string, descripti
     e.publish('project', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }
+  redirect(`/project/${projectId}`);
 };
 
 /**

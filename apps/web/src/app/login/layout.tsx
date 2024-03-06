@@ -2,7 +2,6 @@ import {getServerSession} from 'next-auth';
 import {authOptions} from 'app/api/auth/[...nextauth]/route';
 import {Metadata, Route} from 'next';
 import {redirect} from 'next/navigation';
-import {Initializer} from 'business';
 import {createWorkspace, getWorkspaces} from 'actions';
 
 export const metadata: Metadata = {
@@ -19,10 +18,7 @@ export default async function AuthLayout({children}) {
       if (workspaces && workspaces.length > 0) {
         redirect(`/${workspaces[0].id}` as Route);
       } else {
-        const workspace = await createWorkspace('Default Workspace');
-        if (workspace) {
-          redirect(`/${workspace.id}` as Route);
-        }
+        await createWorkspace('Default Workspace');
       }
   }
 
