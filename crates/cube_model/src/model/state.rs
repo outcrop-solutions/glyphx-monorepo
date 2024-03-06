@@ -690,7 +690,7 @@ impl State {
     }
     ///We call this wheniver the camera is moved so that we can recalulate
     ///the z order of the axis lines and glyphs in response.
-    //TODO: This is 100% hacked together and needs someone with a better
+    //HACK: This is 100% hacked together and needs someone with a better
     //grasp of the geometry to see if we can find the corerct algorithm
     //to calculate the Z order so that the grid lines do not overwrite the
     //glyphs and vice versa.
