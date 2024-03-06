@@ -7,10 +7,16 @@ import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {ClientDocumentManager} from 'collab/lib/client/ClientDocumentManager';
 import {useSession} from 'next-auth/react';
 import {createProject} from 'actions';
+import {useSetRecoilState} from 'recoil';
+import {modalsAtom} from 'state';
+import produce from 'immer';
+import {WritableDraft} from 'immer/dist/internal';
+import {webTypes} from 'types';
 
 export const NewProject = ({exit}) => {
   const params = useParams();
   const [isPending, startTransition] = useTransition();
+  const setModals = useSetRecoilState(modalsAtom);
   const session = useSession();
   const {workspaceId} = params as {workspaceId: string};
   const [name, setName] = useState('');
@@ -30,7 +36,7 @@ export const NewProject = ({exit}) => {
       return;
     }
     await createProject(name, workspaceId, description, data.id);
-  }, [description, name, session, workspaceId]);
+  }, [description, name, session.data?.user.id, workspaceId]);
 
   return (
     <div className="p-4 w-full">
@@ -63,7 +69,16 @@ export const NewProject = ({exit}) => {
       </div>
       <div className="mb-4 mt-4 flex flex-row justify-end items-center">
         <button
-          onClick={() => startTransition(() => handleCreateProject())}
+          onClick={() =>
+            startTransition(() => {
+              handleCreateProject();
+              setModals(
+                produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+                  draft.modals.splice(0, 1);
+                })
+              );
+            })
+          }
           className="bg-primary-yellow py-2 px-2 font-roboto font-medium text-[14px] leading-[16px] text-secondary-space-blue"
         >
           {isPending ? <LoadingDots /> : <span>Create</span>}

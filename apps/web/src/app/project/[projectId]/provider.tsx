@@ -2,7 +2,7 @@
 import React, {useEffect, useRef} from 'react';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
-import {fileIngestionTypes, webTypes} from 'types';
+import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
 import {useSetRecoilState} from 'recoil';
 import {projectAtom, rightSidebarControlAtom, rowIdsAtom, templatesAtom, workspaceAtom} from 'state';
 import {useSendPosition, useWindowSize} from 'services';
@@ -24,11 +24,18 @@ const openFirstFile = (projData) => {
   };
 };
 
-export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc: any}) => {
+export const ProjectProvider = ({
+  children,
+  doc,
+  project,
+}: {
+  children: React.ReactNode;
+  doc: any;
+  project: databaseTypes.IProject;
+}) => {
   const {data: templateData, isLoading: templateLoading} = useTemplates();
 
-  const {data, isLoading} = useProject();
-  const project = data;
+  // const {data, isLoading} = useProject();
 
   const projectViewRef = useRef(null);
 
@@ -49,7 +56,7 @@ export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc
 
   // hydrate recoil state
   useEffect(() => {
-    if (!templateLoading && !isLoading) {
+    if (!templateLoading) {
       const projectData = openFirstFile(project);
 
       let formattedProject = {...projectData};
@@ -87,7 +94,6 @@ export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc
     setTemplates,
     templateData,
     project,
-    isLoading,
     setRowIds,
   ]);
 

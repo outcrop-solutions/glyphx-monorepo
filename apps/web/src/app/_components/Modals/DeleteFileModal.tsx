@@ -5,14 +5,17 @@ import {CopyToClipboard} from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import {DocumentDuplicateIcon} from '@heroicons/react/outline';
 import Button from 'app/_components/Button';
-import {useRecoilValue} from 'recoil';
-import {projectAtom} from 'state';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {modalsAtom, projectAtom} from 'state';
 import {parseDeletePayload} from 'lib/client/files/transforms/parseDeletePayload';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {fileIngestion} from 'actions';
+import {WritableDraft} from 'immer/dist/internal';
+import produce from 'immer';
 
 export const DeleteFileModal = ({modalContent}: webTypes.DeleteFileModalProps) => {
   const project = useRecoilValue(projectAtom);
+  const setModals = useSetRecoilState(modalsAtom);
   const [isPending, startTransition] = useTransition();
   const [verifyFile, setVerifyFile] = useState('');
   const verifiedFile = verifyFile === modalContent.data.fileName;
@@ -24,7 +27,12 @@ export const DeleteFileModal = ({modalContent}: webTypes.DeleteFileModalProps) =
   const deleteFile = useCallback(async () => {
     const payload = parseDeletePayload(project?.workspace.id, project.id, project.files, modalContent.data.fileName);
     await fileIngestion(payload);
-  }, [modalContent.data.fileName, project]);
+    setModals(
+      produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+        draft.modals.splice(0, 1);
+      })
+    );
+  }, [modalContent.data.fileName, project.files, project.id, project?.workspace.id, setModals]);
 
   return (
     <div className="bg-secondary-midnight text-white px-4 py-8 flex flex-col space-y-8 rounded-md">

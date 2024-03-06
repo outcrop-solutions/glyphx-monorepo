@@ -74,6 +74,7 @@ export const removeMember = async (memberId: string) => {
  * @param workspaceCode
  */
 export const joinWorkspace = async (workspaceCode: string) => {
+  let workspaceId;
   try {
     const session = await getServerSession(authOptions);
     if (session) {
@@ -83,6 +84,7 @@ export const joinWorkspace = async (workspaceCode: string) => {
         session?.user?.id as string,
         session?.user?.id as string // This will need to be differentiated when we start to track inviteLinks
       );
+      workspaceId = workspace?.id;
       await activityLogService.createLog({
         actorId: session?.user?.id,
         resourceId: workspace?.id!,
@@ -94,13 +96,13 @@ export const joinWorkspace = async (workspaceCode: string) => {
       });
       // FIXME: redirect serverside here
       revalidatePath('/[workspaceId]');
-      redirect(`/${workspace.id}`);
     }
   } catch (err) {
     const e = new error.ActionError('An unexpected error joining the workspace', 'workspaceCode', workspaceCode, err);
     e.publish('team', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }
+  redirect(`/${workspaceId}`);
 };
 
 /**

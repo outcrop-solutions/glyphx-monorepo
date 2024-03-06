@@ -118,7 +118,7 @@ export const fileIngestion = async (payload) => {
       });
       //get the updated project
       const project = await projectService.getProject(newPayload.modelId);
-      revalidatePath('/project/[projectId]');
+      revalidatePath(`/project/${project?.id}`, 'layout');
       return {
         fileInformation,
         joinInformation,

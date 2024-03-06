@@ -29,7 +29,7 @@ export default async function ProjectLayout({children, params}) {
 
   return (
     <div className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
-      <ProjectProvider doc={data}>
+      <ProjectProvider project={project} doc={data}>
         <LeftSidebar />
         <CursorProvider>
           <ProjectHeader />

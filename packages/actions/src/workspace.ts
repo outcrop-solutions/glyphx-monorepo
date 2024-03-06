@@ -15,12 +15,13 @@ import emailClient from './email';
  * redirect to first workspace or create default workspace and redirect
  */
 export const getOrCreateWorkspace = async () => {
+  let workspaceId;
   try {
     const session = await getServerSession(authOptions);
     if (session?.user) {
       const workspaces = await workspaceService.getWorkspaces(session.user.id, session.user.email as string);
       if (workspaces) {
-        redirect(`/${workspaces[0].id}` as Route);
+        workspaceId = workspaces[0].id;
       } else {
         const workspace = await workspaceService.createWorkspace(
           session?.user?.id,
@@ -29,7 +30,7 @@ export const getOrCreateWorkspace = async () => {
           'default-workspace'
         );
         if (workspace) {
-          redirect(`/${workspace.id}` as Route);
+          workspaceId = workspace.id;
         }
       }
     }
@@ -38,6 +39,7 @@ export const getOrCreateWorkspace = async () => {
     e.publish('workspace', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }
+  redirect(`/${workspaceId}` as Route);
 };
 
 /**
@@ -68,6 +70,7 @@ export const getWorkspace = async (workspaceId: string) => {
  * @param name
  */
 export const createWorkspace = async (name: string) => {
+  let workspaceId;
   try {
     const session = await getServerSession(authOptions);
     if (session) {
@@ -80,6 +83,8 @@ export const createWorkspace = async (name: string) => {
       );
 
       if (workspace) {
+        workspaceId = workspace.id;
+
         const emailData = {
           type: emailTypes.EmailTypes.WORKSPACE_CREATED,
           workspaceName: workspace!.name,
@@ -100,8 +105,6 @@ export const createWorkspace = async (name: string) => {
           onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
           action: databaseTypes.constants.ACTION_TYPE.CREATED,
         });
-
-        redirect(`/${workspace.id}`);
       }
     }
   } catch (err) {
@@ -109,6 +112,7 @@ export const createWorkspace = async (name: string) => {
     e.publish('workspace', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }
+  redirect(`/${workspaceId}`);
 };
 
 /**
@@ -271,8 +275,6 @@ export const deleteWorkspace = async (workspaceId: string) => {
         onModel: databaseTypes.constants.RESOURCE_MODEL.WORKSPACE,
         action: databaseTypes.constants.ACTION_TYPE.DELETED,
       });
-
-      redirect('/login');
     }
   } catch (err) {
     const e = new error.ActionError(
@@ -284,6 +286,7 @@ export const deleteWorkspace = async (workspaceId: string) => {
     e.publish('workspace', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }
+  redirect('/login');
 };
 
 /**
