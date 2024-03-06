@@ -81,7 +81,7 @@ export const Property = ({axis}) => {
   return (
     <li
       ref={drop}
-      className="relative py-0 px-2 group-props last:mb-0 bg-transparent hover:bg-secondary-midnight flex flex-col space-y-1"
+      className="relative py-1 px-2 group-props last:mb-0 bg-transparent hover:bg-secondary-midnight flex flex-col space-y-1"
     >
       <div className="group/axes flex gap-x-2 items-center w-full">
         {/* AXES ICON */}
@@ -139,8 +139,7 @@ export const Property = ({axis}) => {
           {prop.direction === webTypes.constants.DIRECTION_TYPE.ASC ? <SwapLeftIcon /> : <SwapRightIcon />}
         </div>
         {/* TODO: use the project docId to determine version */}
-        {/* FIXME: this is not rendering */}
-        <div className="min-w-40">
+        <div className="">
           {(axis === 'X' || axis === 'Y') && prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE && (
             <DateGroupingListbox axis={axis} />
           )}
