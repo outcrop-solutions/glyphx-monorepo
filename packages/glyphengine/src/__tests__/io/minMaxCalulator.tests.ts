@@ -84,7 +84,6 @@ describe('#io/minMaxCalculator', () => {
       await minMaxCalculator.load();
 
       const minMax = minMaxCalculator.minMax;
-      console.log({minMax});
       assert.strictEqual(minMax.x.columnName, xColumn);
       assert.strictEqual(minMax.x.min, minMaxRow[`min_x_${xColumn}`]);
       assert.strictEqual(minMax.x.max, minMaxRow[`max_x_${xColumn}`]);

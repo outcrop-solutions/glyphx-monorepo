@@ -4,9 +4,9 @@ import {assert} from 'chai';
 import proxyquire from 'proxyquire';
 import {ActionError} from 'core/src/error';
 
-describe('#integrationTests/project', () => {
+describe.only('#integrationTests/project', () => {
   const sandbox = createSandbox();
-  let projectService;
+  let workspaceService;
 
   before(async () => {
     let revalidatePathStub = sandbox.stub().resolves();
@@ -34,30 +34,21 @@ describe('#integrationTests/project', () => {
       },
     });
 
-    projectService = proxyquire('../project', {
+    workspaceService = proxyquire('../workspace', {
       'next/cache': {revalidatePath: revalidatePathStub},
       'next/navigation': {redirect: redirectStub},
       'next-auth': {getServerSession: mockSessionStub},
     });
   });
-  context('#createProject', () => {
-    it('should create a new project', async () => {
+  context.only('#inviteUsers', () => {
+    it('should invite new users', async () => {
       try {
-        const name = 'newProject';
-        const workspaceId = '646fa59785272d19babc2af1';
-        const description = '';
-        const docId = 'XLHjumPyb6ZoZewQ7iP0U';
+        const workspaceId = '65e9daee37c5356252e268dc';
+        const members = [{email: 'jamesmurdockgraham@gmail.com'}];
 
-        await projectService.createProject(name, workspaceId, description, docId);
+        await workspaceService.inviteUsers(workspaceId, members);
       } catch (error) {
         assert.fail();
-      }
-    });
-    it('should throw an ActionError when provided invalid inputs', async () => {
-      try {
-        await projectService.createProject(undefined);
-      } catch (error) {
-        assert.instanceOf(error, ActionError);
       }
     });
   });

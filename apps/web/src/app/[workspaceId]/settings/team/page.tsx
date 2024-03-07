@@ -18,6 +18,7 @@ import useIsTeamOwner from 'lib/client/hooks/useIsOwner';
 import {inviteUsers, removeMember, updateRole} from 'actions';
 import {useRecoilValue} from 'recoil';
 import {workspaceAtom} from 'state';
+import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 
 const MEMBERS_TEMPLATE = {email: '', teamRole: databaseTypes.constants.ROLE.MEMBER};
 
@@ -141,7 +142,7 @@ const Team = () => {
                     })
                   }
                 >
-                  Invite
+                  {isPending ? <LoadingDots /> : <span>Invite</span>}
                 </Button>
               </Card.Footer>
             </Card>
