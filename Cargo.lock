@@ -1515,6 +1515,7 @@ dependencies = [
  "bson",
  "glyph_engine",
  "glyphx_common",
+ "glyphx_core",
  "neon",
  "once_cell",
  "serde_json",

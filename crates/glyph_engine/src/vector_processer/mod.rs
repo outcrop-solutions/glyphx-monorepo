@@ -127,7 +127,7 @@ pub struct VectorProcesser {
 ///Using a trait pattern will allow me to implemnet a mock for testing using a
 ///impl pattern in glyph_engine directly.
 #[automock]
-pub trait VectorValueProcesser {
+pub trait VectorValueProcesser : Send + Sync{
     fn get_axis_name(&self) -> &str;
     fn start(&mut self);
     fn check_status(&mut self) -> TaskStatus;
@@ -135,6 +135,7 @@ pub trait VectorValueProcesser {
     fn get_statistics_vector(&self) -> Vec<f64>;
 }
 
+unsafe impl Sync for VectorProcesser {}
 impl VectorValueProcesser for VectorProcesser {
     fn get_axis_name(&self) -> &str {
         &self.axis_name

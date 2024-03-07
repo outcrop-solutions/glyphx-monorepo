@@ -382,7 +382,6 @@ impl GlyphEngine {
     }
 
     fn get_vector_file_names(&self) -> (String, String) {
-        foo = "bar";
         let x_file_name = format!(
             "{}/{}",
             &self.parameters.output_file_prefix,
