@@ -9,10 +9,11 @@ import {useParams} from 'next/navigation';
 
 export const Logo = () => {
   const params = useParams();
+  const workspaceId = params?.workspaceId;
   const projectId = params?.projectId;
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   return (
-    <Link href="/account">
+    <Link href={`/${projectId ?? workspaceId ?? ''}`}>
       <div
         onClick={() => {
           setDrawer(false);

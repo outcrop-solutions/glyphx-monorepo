@@ -19,7 +19,6 @@ export const createProject = async (name: string, workspaceId: string, descripti
   try {
     const session = await getServerSession(authOptions);
     if (session?.user) {
-      console.log({session, name, workspaceId, description, docId});
       const project = await projectService.createProject(
         name,
         workspaceId,
@@ -55,6 +54,29 @@ export const createProject = async (name: string, workspaceId: string, descripti
     return {error: e.message};
   }
   redirect(`/project/${projectId}`);
+};
+
+/**
+ * Used in the project header to rename on "Enter"
+ * @param projectId
+ * @param name
+ * @returns
+ */
+export const updateProjectName = async (projectId: string, name: string) => {
+  try {
+    const session = await getServerSession(authOptions);
+    if (session?.user) {
+      const retval = await projectService.updateProject(projectId, {
+        name,
+      });
+      console.log({retval});
+      revalidatePath(`/project/${projectId}`, 'layout');
+    }
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred renaming the project', 'projectId', projectId, err);
+    e.publish('project', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
+  }
 };
 
 /**

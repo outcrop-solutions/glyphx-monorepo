@@ -230,10 +230,11 @@ export const inviteUsers = async (workspaceId: string, members: any[]) => {
           workspaceId: workspace.id!,
           inviteCode: workspace.inviteCode!,
         } satisfies emailTypes.EmailData;
+        await emailClient.init();
         emailClient.sendEmail(emailData);
       }
       await activityLogService.createLog({
-        actorId: session?.user?.id,
+        actorId: session?.user?.id ?? '',
         resourceId: workspaceId,
         workspaceId: workspaceId,
         location: '',

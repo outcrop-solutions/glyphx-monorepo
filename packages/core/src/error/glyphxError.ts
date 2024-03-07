@@ -113,7 +113,6 @@ export class GlyphxError extends Error {
   private getInnerError(err: any): any {
     //eslint-disable-next-line
     const res: any = {};
-    console.log({err});
     if (err instanceof GlyphxError) {
       res.message = err.message;
       res.data = err.data;

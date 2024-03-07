@@ -3,8 +3,8 @@ import {createSandbox} from 'sinon';
 import {assert} from 'chai';
 import proxyquire from 'proxyquire';
 import {ActionError} from 'core/src/error';
-import {v4} from 'uuid';
-describe.only('#integrationTests/project', () => {
+
+describe('#integrationTests/project', () => {
   const sandbox = createSandbox();
   let projectService;
 
@@ -41,7 +41,7 @@ describe.only('#integrationTests/project', () => {
     });
   });
   context('#createProject', () => {
-    it.only('should create a new project', async () => {
+    it('should create a new project', async () => {
       try {
         const name = 'newProject';
         const workspaceId = '646fa59785272d19babc2af1';

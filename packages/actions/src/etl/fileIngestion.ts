@@ -72,6 +72,7 @@ export const fileIngestion = async (payload) => {
       };
 
       // Add to S3
+      await s3Connection.init();
       const s3Manager = s3Connection.s3Manager;
       const newPayload = {...cleanPayload};
 

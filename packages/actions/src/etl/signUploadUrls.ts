@@ -24,6 +24,7 @@ export const signUploadUrls = async (keys, workspaceId, projectId) => {
     });
 
     // Add to S3
+    await s3Connection.init();
     const s3Manager = s3Connection.s3Manager;
     // Create an array of promises
     const promises = urls.map((url) => s3Manager.getSignedUploadUrlPromise(url));

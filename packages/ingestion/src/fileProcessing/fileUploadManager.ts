@@ -3,8 +3,8 @@ import {error, streams, generalPurposeFunctions, aws} from 'core';
 import {BasicFileTransformer, BasicParquetProcessor, BasicColumnNameCleaner} from './';
 import {BasicFieldTypeCalculator} from '../fieldProcessing';
 import {Readable, PassThrough} from 'node:stream';
-import {parse} from 'csv-parse/browser/esm';
-import {stringify} from 'csv-stringify/browser/esm';
+import {parse} from 'csv-parse';
+import {stringify} from 'csv-stringify';
 
 import {IFileInformation, IFileProcessingError} from '../interfaces/fileProcessing';
 import {tableService} from 'business';

@@ -58,7 +58,9 @@ export const suggestion = (projectId: string) => {
         },
 
         onExit() {
-          popup[0].destroy();
+          if (popup) {
+            popup[0].destroy();
+          }
           component.destroy();
         },
       };

@@ -81,7 +81,7 @@ export class ResendClient {
         return data;
       }
     } catch (error) {
-      throw new EmailError('An eror occured sending the email updated email', error);
+      throw new EmailError('An error occured sending the email updated email', error);
     }
   }
 
@@ -99,7 +99,7 @@ export class ResendClient {
         return data;
       }
     } catch (error) {
-      throw new EmailError('An eror occured sending the email verification email', error);
+      throw new EmailError('An error occured sending the email verification email', error);
     }
   }
 
@@ -117,7 +117,7 @@ export class ResendClient {
         return data;
       }
     } catch (error) {
-      throw new EmailError('An eror occured sending the state created email', error);
+      throw new EmailError('An error occured sending the state created email', error);
     }
   }
 
@@ -135,13 +135,12 @@ export class ResendClient {
         return data;
       }
     } catch (error) {
-      throw new EmailError('An eror occured sending the thread created email', error);
+      throw new EmailError('An error occured sending the thread created email', error);
     }
   }
 
   private async sendWorkspaceCreated(emailData: emailTypes.iWorkspaceCreatedData) {
     try {
-      console.log({emailData});
       const {data, error} = await this.client!.emails.send({
         from: this.fromField,
         to: [emailData.email],
@@ -154,16 +153,17 @@ export class ResendClient {
         return data;
       }
     } catch (error) {
-      console.log({error});
       throw new EmailError('An error occured sending the workspace created email', error);
     }
   }
 
   private async sendWorkspaceInvitation(emailData: emailTypes.iWorkspaceInvitationData) {
     try {
+      console.log({emails: emailData.emails, client: true});
+      const emails = emailData?.emails;
       const {data, error} = await this.client!.emails.send({
         from: this.fromField,
-        to: emailData.emails,
+        to: emails,
         subject: 'Glyphx: New Workspace Invitation',
         react: WorkspaceInvitationTemplate(emailData),
       });
@@ -173,7 +173,7 @@ export class ResendClient {
         return data;
       }
     } catch (error) {
-      throw new EmailError('An eror occured sending the workspace invitation email', error);
+      throw new EmailError('An error occured sending the workspace invitation email', error);
     }
   }
 

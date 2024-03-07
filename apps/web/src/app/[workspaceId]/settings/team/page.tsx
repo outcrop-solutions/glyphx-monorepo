@@ -1,5 +1,5 @@
 'use client';
-import {Fragment, startTransition, useState} from 'react';
+import {Fragment, useTransition, useState} from 'react';
 import {Menu, Transition} from '@headlessui/react';
 import {
   ChevronDownIcon,
@@ -18,10 +18,12 @@ import useIsTeamOwner from 'lib/client/hooks/useIsOwner';
 import {inviteUsers, removeMember, updateRole} from 'actions';
 import {useRecoilValue} from 'recoil';
 import {workspaceAtom} from 'state';
+import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 
 const MEMBERS_TEMPLATE = {email: '', teamRole: databaseTypes.constants.ROLE.MEMBER};
 
 const Team = () => {
+  const [isPending, startTransition] = useTransition();
   const workspace = useRecoilValue(workspaceAtom);
   const {data: ownership, isLoading: isOwnershipLoading} = useIsTeamOwner();
 
@@ -141,7 +143,7 @@ const Team = () => {
                     })
                   }
                 >
-                  Invite
+                  {isPending ? <LoadingDots /> : <span>Invite</span>}
                 </Button>
               </Card.Footer>
             </Card>

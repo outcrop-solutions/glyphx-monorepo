@@ -177,6 +177,7 @@ export const useFileSystem = () => {
 
         // only call ingest once
         const retval = await fileIngestion(payload);
+        console.log({retval});
 
         if (!retval?.error) {
           setLoading(
