@@ -123,7 +123,7 @@ export const createProjectAnnotation = async (projectId: string, value: string) 
         projectId: projectId as string,
         value,
       });
-      revalidatePath('/project/[projectId]');
+      revalidatePath(`/project/${projectId}`, 'layout');
     }
   } catch (err) {
     const e = new error.ActionError(

@@ -9,6 +9,9 @@ const useAnnotations = () => {
   const {type, id} = useRecoilValue(annotationResourceIdSelector);
   const [data, setData] = useState<null | databaseTypes.IAnnotation[]>(null);
   const [error, setError] = useState(null);
+  const [reval, setReval] = useState(false);
+
+  const revalidate = () => setReval((prev) => !prev);
 
   useEffect(() => {
     const getAnnotations = async () => {
@@ -39,7 +42,7 @@ const useAnnotations = () => {
       }
     };
     getAnnotations();
-  }, [id, type]);
+  }, [id, type, reval]);
 
   return {
     data,
@@ -47,6 +50,7 @@ const useAnnotations = () => {
     isError: error,
     type,
     id,
+    revalidate,
   };
 };
 

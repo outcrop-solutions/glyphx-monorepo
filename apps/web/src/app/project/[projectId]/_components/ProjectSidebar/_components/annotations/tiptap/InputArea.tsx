@@ -1,8 +1,5 @@
 'use client';
 import React from 'react';
-import {ReactRenderer} from '@tiptap/react';
-import tippy from 'tippy.js';
-import MentionList from './MentionList';
 import './tiptap.css';
 import {ArrowRightIcon} from '@heroicons/react/outline';
 import {startTransition, useState} from 'react';
@@ -13,9 +10,9 @@ import StarterKit from '@tiptap/starter-kit';
 // import {suggestion} from './Suggestion';
 import {useParams} from 'next/navigation';
 import {suggestion} from './Suggestion';
+import {SuggestionOptions} from '@tiptap/suggestion';
 
-export const InputArea = ({id, type}) => {
-  const [members, setMembers] = useState<{name: string; username: string}[]>([]);
+export const InputArea = ({id, type, revalidate}) => {
   const params = useParams();
   const projectId = params?.projectId as string;
   const editor = useEditor({
@@ -25,7 +22,7 @@ export const InputArea = ({id, type}) => {
         HTMLAttributes: {
           class: 'mention',
         },
-        suggestion: suggestion(projectId),
+        suggestion: suggestion(projectId) as unknown as Omit<SuggestionOptions<any>, 'editor'>,
       }),
     ],
     content: '',
@@ -56,6 +53,7 @@ export const InputArea = ({id, type}) => {
                     createStateAnnotation(id, value);
                     editor.commands.setContent('');
                   }
+                  revalidate();
                 })
               }
               className="inline-flex items-center rounded-md bg-gray px-3 py-1 text-sm font-semibold text-white shadow-sm hover:bg-yellow focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow"
