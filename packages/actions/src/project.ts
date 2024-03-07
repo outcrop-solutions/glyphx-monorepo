@@ -19,7 +19,6 @@ export const createProject = async (name: string, workspaceId: string, descripti
   try {
     const session = await getServerSession(authOptions);
     if (session?.user) {
-      console.log({session, name, workspaceId, description, docId});
       const project = await projectService.createProject(
         name,
         workspaceId,

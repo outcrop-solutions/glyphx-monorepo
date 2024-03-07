@@ -59,6 +59,7 @@ export const glyphEngine = async (project, payloadHash) => {
         await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
 
         // construct GlyphEngine
+        await s3Connection.init();
         const glyphEngine = new GlyphEngine(
           s3Connection.s3Manager,
           s3Connection.s3Manager,
