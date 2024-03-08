@@ -33,7 +33,7 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
 
   const debouncedStateCreate = useDebouncedCallback(
     // function
-    async (camera, image, modalContent, name, rowIds, viewerPosition) => {
+    async (camera, image, modalContent, rowIds, viewerPosition) => {
       if (Object.keys(camera).length > 0 && image.imageHash) {
         const cleanProject = {
           id: modalContent.data.id,
@@ -66,11 +66,11 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
   );
 
   useEffect(() => {
-    debouncedStateCreate(camera, image, modalContent, name, rowIds, viewerPosition);
+    debouncedStateCreate(camera, image, modalContent, rowIds, viewerPosition);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     camera,
     modalContent,
-    name,
     setCamera,
     setModals,
     setProject,
