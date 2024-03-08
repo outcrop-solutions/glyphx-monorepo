@@ -1,13 +1,13 @@
 'use client';
 import React, {useEffect, useState} from 'react';
 import Button from 'app/_components/Button';
+import {useDebouncedCallback} from 'use-debounce';
 import {useSWRConfig} from 'swr';
 import {databaseTypes, webTypes} from 'types';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {cameraAtom, imageHashAtom, modalsAtom, projectAtom, rowIdsAtom, viewerPositionSelector} from 'state';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {createState} from 'actions';
-
 export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps) => {
   const {mutate} = useSWRConfig();
   const setModals = useSetRecoilState(modalsAtom);
@@ -31,38 +31,56 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
     }
   };
 
-  const stateCreate = async (camera, image, modalContent, name, rowIds, viewerPosition) => {
-    if (Object.keys(camera).length > 0 && image.imageHash) {
-      const cleanProject = {
-        id: modalContent.data.id,
-        workspace: {
-          id: modalContent.data.workspace.id,
-        },
-        state: {
-          properties: {
-            ...modalContent.data.state.properties,
+  const debouncedStateCreate = useDebouncedCallback(
+    // function
+    async (camera, image, modalContent, name, rowIds, viewerPosition) => {
+      if (Object.keys(camera).length > 0 && image.imageHash) {
+        const cleanProject = {
+          id: modalContent.data.id,
+          workspace: {
+            id: modalContent.data.workspace.id,
           },
-        },
-        files: modalContent.data.files,
-      };
-      const rows = (rowIds ? rowIds : []) as unknown as number[];
-      await createState(
-        name,
-        camera as unknown as webTypes.Camera,
-        cleanProject as databaseTypes.IProject,
-        image.imageHash,
-        {
-          width: (viewerPosition as webTypes.IViewerPosition).w,
-          height: (viewerPosition as webTypes.IViewerPosition).h,
-        } as unknown as webTypes.Aspect,
-        rows
-      );
-    }
-  };
+          state: {
+            properties: {
+              ...modalContent.data.state.properties,
+            },
+          },
+          files: modalContent.data.files,
+        };
+        const rows = (rowIds ? rowIds : []) as unknown as number[];
+        await createState(
+          name,
+          camera as unknown as webTypes.Camera,
+          cleanProject as databaseTypes.IProject,
+          image.imageHash,
+          {
+            width: (viewerPosition as webTypes.IViewerPosition).w,
+            height: (viewerPosition as webTypes.IViewerPosition).h,
+          } as unknown as webTypes.Aspect,
+          rows
+        );
+      }
+    },
+    // delay in ms
+    2000
+  );
 
   useEffect(() => {
-    stateCreate(camera, image, modalContent, name, rowIds, viewerPosition);
-  }, [camera, modalContent, name, setCamera, setModals, setProject, mutate, image, setImage, viewerPosition, rowIds]);
+    debouncedStateCreate(camera, image, modalContent, name, rowIds, viewerPosition);
+  }, [
+    camera,
+    modalContent,
+    name,
+    setCamera,
+    setModals,
+    setProject,
+    mutate,
+    image,
+    setImage,
+    viewerPosition,
+    rowIds,
+    debouncedStateCreate,
+  ]);
 
   return (
     <div className="flex flex-col items-stretch justify-center px-4 py-8 space-y-5 bg-secondary-midnight rounded-md text-white">
