@@ -31,7 +31,7 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
     }
   };
 
-  useEffect(() => {
+  const stateCreate = async (camera, image, modalContent, name, rowIds, viewerPosition) => {
     if (Object.keys(camera).length > 0 && image.imageHash) {
       const cleanProject = {
         id: modalContent.data.id,
@@ -46,7 +46,7 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
         files: modalContent.data.files,
       };
       const rows = (rowIds ? rowIds : []) as unknown as number[];
-      createState(
+      await createState(
         name,
         camera as unknown as webTypes.Camera,
         cleanProject as databaseTypes.IProject,
@@ -58,19 +58,11 @@ export const CreateStateModal = ({modalContent}: webTypes.CreateStateModalProps)
         rows
       );
     }
-  }, [
-    camera,
-    modalContent.data.id,
-    name,
-    setCamera,
-    setModals,
-    setProject,
-    mutate,
-    image,
-    setImage,
-    viewerPosition,
-    rowIds,
-  ]);
+  };
+
+  useEffect(() => {
+    stateCreate(camera, image, modalContent, name, rowIds, viewerPosition);
+  }, [camera, modalContent, name, setCamera, setModals, setProject, mutate, image, setImage, viewerPosition, rowIds]);
 
   return (
     <div className="flex flex-col items-stretch justify-center px-4 py-8 space-y-5 bg-secondary-midnight rounded-md text-white">
