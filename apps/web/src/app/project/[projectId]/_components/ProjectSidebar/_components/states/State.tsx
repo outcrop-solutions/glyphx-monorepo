@@ -71,7 +71,7 @@ export const State = ({item, idx}) => {
         {activeState === idx ? <ActiveStateIcon /> : <StateIcon className="" />}
       </div>
       <div
-        onClick={() => applyState(idx)}
+        onClick={() => applyState(idx, undefined)}
         className="block group-states-hover:text-white transition duration-150 truncate grow ml-2"
       >
         <span

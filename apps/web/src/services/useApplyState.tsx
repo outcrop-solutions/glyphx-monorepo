@@ -55,7 +55,20 @@ const useApplyState = () => {
 
         const isNullCam = isNullCamera(camera);
         const signedUrls = await signDataUrls(project?.workspace.id, project?.id, payloadHash);
-        console.log({signedUrls});
+
+        console.log({
+          signedUrls,
+          isNullCam,
+          camera,
+          properties,
+          ids,
+          rowIds,
+          payload,
+          filteredStates,
+          newProject,
+          project,
+        });
+
         if (!signedUrls?.error) {
           // replace project state
           setProject(

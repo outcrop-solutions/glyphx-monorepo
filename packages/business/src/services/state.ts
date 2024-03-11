@@ -58,7 +58,6 @@ export class StateService {
         rowIds: rowIds,
       };
 
-
       const state = await mongoDbConnection.models.StateModel.createState(input);
 
       await mongoDbConnection.models.ProjectModel.updateProjectById(project.id as string, {

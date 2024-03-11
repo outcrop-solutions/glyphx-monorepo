@@ -34,11 +34,14 @@ export const States = () => {
       };
       const rows = (rowIds ? rowIds : []) as unknown as number[];
       const newProject = await createState(name, camera as webTypes.Camera, project, image.imageHash, aspect, rows);
+      console.log({newProject, project, rows, viewerPosition});
 
       if (newProject) {
         // @ts-ignore
         const filteredStates = newProject.stateHistory?.filter((state) => !state.deletedAt);
-        const idx = filteredStates.length - 1;
+        const idx = filteredStates.length;
+
+        console.log({filteredStates, idx});
 
         applyState(idx, newProject);
         setName('Initial State');
@@ -49,6 +52,7 @@ export const States = () => {
   };
 
   useEffect(() => {
+    console.log('within effect', project);
     callCreateState(camera, image, project);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [camera, setCamera, setProject, mutate, image, setImage, project?.id, setAddState]);
