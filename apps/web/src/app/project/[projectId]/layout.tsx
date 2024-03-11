@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   description: 'Glyphx Project',
 };
 
+// @ts-ignore
+export const maxDuration = 300;
+
 export default async function ProjectLayout({children, params}) {
   const projectId = params.projectId;
   const serverDoc = new ServerDocumentManager();
