@@ -58,6 +58,21 @@ macro_rules! handle_task_error {
     };
 }
 
+macro_rules! handle_sync_task_error {
+    //In this pattern, the error will be passed to the $function_name as the first argument.
+    //The $functions_arguments will be passed as the second argument.
+    (let $var_name:ident = $express : expr) => {
+        let $var_name = $express;
+        if $var_name.is_err() {
+            let error = $var_name.err().unwrap();
+            let error = VectorCalculationError::from(error);
+            error.error();
+            return TaskStatus::Errored(error);
+        }
+        let $var_name = $var_name.unwrap();
+    };
+}
+
 #[automock]
 #[async_trait]
 pub trait ThreadOperations {
@@ -127,15 +142,19 @@ pub struct VectorProcesser {
 ///Using a trait pattern will allow me to implemnet a mock for testing using a
 ///impl pattern in glyph_engine directly.
 #[automock]
-pub trait VectorValueProcesser : Send + Sync{
+#[async_trait]
+pub trait VectorValueProcesser: Send + Sync {
     fn get_axis_name(&self) -> &str;
     fn start(&mut self);
+    async fn run_sync(&mut self) -> TaskStatus;
     fn check_status(&mut self) -> TaskStatus;
     fn get_vector(&self, key: &VectorOrigionalValue) -> Option<Vector>;
     fn get_statistics_vector(&self) -> Vec<f64>;
 }
 
 unsafe impl Sync for VectorProcesser {}
+
+#[async_trait]
 impl VectorValueProcesser for VectorProcesser {
     fn get_axis_name(&self) -> &str {
         &self.axis_name
@@ -143,6 +162,10 @@ impl VectorValueProcesser for VectorProcesser {
 
     fn start(&mut self) {
         self.start_impl(&ThreadOperationsImpl)
+    }
+
+    async fn run_sync(&mut self) -> TaskStatus {
+        self.run_sync_impl(&ThreadOperationsImpl).await
     }
 
     fn check_status(&mut self) -> TaskStatus {
@@ -252,22 +275,43 @@ impl VectorProcesser {
             s3_file_name: s3_file_name.to_string(),
         }
     }
-    fn start_impl<T: ThreadOperations + Sync>(&mut self, thread_operations: &'static T) {
-        let field_definition = self.field_definition.clone();
+    async fn run_sync_impl<T: ThreadOperations>(&mut self, thread_operations: &T) -> TaskStatus {
+        let (field_name, query) = self.build_query();
         let s3_file_name = self.s3_file_name.clone();
-        let (field_name, field_value, _) = field_definition.get_query_parts();
-        let table_name = self.table_name.clone();
+        self.task_status = TaskStatus::Processing;
+        handle_sync_task_error!(let result = thread_operations.run_athena_query(&query).await);
+        handle_sync_task_error!(let upload_stream = thread_operations.get_upload_stream(&s3_file_name).await);
+        let mut upload_stream = upload_stream;
+        let mut rank = 0;
+        for row in result.as_array().unwrap() {
+            let vector = build_vector(row, &field_name, rank);
+            //Byte Serialize the vector
+            let ser_vector = serialize_vector(&vector);
 
+            handle_sync_task_error!(let _write_result = thread_operations.write_to_stream(&mut upload_stream, ser_vector).await);
+
+            self.vectors.insert(vector.orig_value.clone(), vector);
+            rank += 1;
+        }
+        handle_sync_task_error!(let _result = thread_operations.finish_stream(&mut upload_stream).await);
+        self.task_status = TaskStatus::Complete;
+        TaskStatus::Complete
+    }
+    fn build_query(&self) -> (String, String) {
+        let (field_name, field_value, _) = self.field_definition.get_query_parts();
+        let query = format!(
+            "SELECT DISTINCT {} FROM {} ORDER BY {}",
+            field_value, self.table_name, field_name
+        );
+        (field_name, query)
+    }
+    fn start_impl<T: ThreadOperations + Sync>(&mut self, thread_operations: &'static T) {
+        let ( field_name, query) = self.build_query();
+        let s3_file_name = self.s3_file_name.clone();
         let (sender, receiver) = channel::<Result<Vector, VectorCalculationError>>();
         self.receiver = Some(receiver);
-
         let thread_handle = spawn(async move {
-            let query = format!(
-                "SELECT DISTINCT {} FROM {} ORDER BY {}",
-                field_value, table_name, field_name
-            );
             handle_task_error!(let result = thread_operations.run_athena_query(&query).await, sender);
-
             let mut rank = 0;
             handle_task_error!(let upload_stream = thread_operations.get_upload_stream(&s3_file_name).await, sender);
             //handle_task_error does not unwrap as mut, we need to do that here

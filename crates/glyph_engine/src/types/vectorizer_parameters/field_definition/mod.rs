@@ -158,7 +158,15 @@ impl FieldDefinition {
 
     fn get_field_data_type(input: &Value) -> Result<FieldType, FromJsonError> {
         let field_name = input["fieldDisplayName"].as_str().unwrap().to_string();
-        let raw_field_data_type = input["fieldDataType"].as_u64().unwrap() as usize;
+        
+        let raw_field_data_type = &input["fieldDataType"];
+        let raw_field_data_type = if raw_field_data_type.is_i64() {
+            raw_field_data_type.as_i64().unwrap() as usize
+        } else if raw_field_data_type.is_f64() {
+            raw_field_data_type.as_f64().unwrap() as usize
+        } else {
+            raw_field_data_type.as_u64().unwrap() as usize
+        };
         let field_data_type = FieldType::from_numeric_value(raw_field_data_type);
         match field_data_type {
             FieldType::Unknown => {

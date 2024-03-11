@@ -3,7 +3,7 @@ use glyphx_common::{AthenaConnection, S3Connection};
 use glyphx_core::{traits::ErrorTypeParser, Singleton};
 use neon::prelude::*;
 use once_cell::sync::OnceCell;
-use serde_json::Value as JsonValue;
+use serde_json::{json, Value as JsonValue};
 use tokio::runtime::Runtime;
 
 fn convert_json_value_to_json_array<'a>(
@@ -89,12 +89,78 @@ fn convert_glyphx_error_to_js_error<'a>(
         .unwrap();
     retval
 }
+
+#[allow(non_snake_case)]
+fn convert_jsArray_to_JsonValue<'a>(cx: &mut impl Context<'a>, obj: Handle<JsArray>) -> JsonValue {
+    let mut retval: Vec<JsonValue> = Vec::new();
+    let len = obj.len(cx);
+    for i in 0..len {
+        let value = obj.get_value(cx, i).unwrap();
+        if value.is_a::<JsString, _>(cx) {
+            let str_value = value.downcast::<JsString, _>(cx).unwrap();
+            let str_value = str_value.value(cx);
+            retval.push(json! {str_value});
+        } else if value.is_a::<JsNumber, _>(cx) {
+            let num_value = value.downcast::<JsNumber, _>(cx).unwrap();
+            let num_value = num_value.value(cx);
+            retval.push(json! {num_value});
+        } else if value.is_a::<JsBoolean, _>(cx) {
+            let bool_value = value.downcast::<JsBoolean, _>(cx).unwrap();
+            let bool_value = bool_value.value(cx);
+            retval.push(json! {bool_value});
+        } else if value.is_a::<JsObject, _>(cx) {
+            let obj_value = value.downcast::<JsObject, _>(cx).unwrap();
+            let obj_value = convert_jsObject_to_JsonValue(cx, obj_value);
+            retval.push(obj_value);
+        } else if value.is_a::<JsArray, _>(cx) {
+            let arr_value = value.downcast::<JsArray, _>(cx).unwrap();
+            let arr_value = convert_jsArray_to_JsonValue(cx, arr_value);
+            retval.push(arr_value);
+        }
+    }
+    json! {retval}
+}
+#[allow(non_snake_case)]
+fn convert_jsObject_to_JsonValue<'a>(
+    cx: &mut impl Context<'a>,
+    obj: Handle<JsObject>,
+) -> JsonValue {
+    let mut retval = json!({});
+    let property_names = obj.get_own_property_names(cx).unwrap();
+    let len = property_names.len(cx);
+    for i in 0..len {
+        let property_name: Handle<JsString> = property_names.get(cx, i).unwrap();
+        let property_name = property_name.value(cx);
+        let value = obj.get_value(cx, property_name.as_str()).unwrap();
+        if value.is_a::<JsString, _>(cx) {
+            let str_value = value.downcast::<JsString, _>(cx).unwrap();
+            let str_value = str_value.value(cx);
+            retval[property_name] = json! {str_value};
+        } else if value.is_a::<JsNumber, _>(cx) {
+            let num_value = value.downcast::<JsNumber, _>(cx).unwrap();
+            let num_value = num_value.value(cx);
+            retval[property_name] = json! {num_value};
+        } else if value.is_a::<JsBoolean, _>(cx) {
+            let bool_value = value.downcast::<JsBoolean, _>(cx).unwrap();
+            let bool_value = bool_value.value(cx);
+            retval[property_name] = json! {bool_value};
+        } else if value.is_a::<JsObject, _>(cx) {
+            let obj_value = value.downcast::<JsObject, _>(cx).unwrap();
+            let obj_value = convert_jsObject_to_JsonValue(cx, obj_value);
+            retval[property_name] = obj_value;
+        } else if value.is_a::<JsArray, _>(cx) {
+            let arr_value = value.downcast::<JsArray, _>(cx).unwrap();
+            let arr_value = convert_jsArray_to_JsonValue(cx, arr_value);
+            retval[property_name] = arr_value;
+        }
+    }
+
+    retval
+}
 fn run(mut cx: FunctionContext) -> JsResult<JsPromise> {
     let args = cx.argument::<JsObject>(0)?;
-    let args = args.to_string(&mut cx)?;
-    let args = args.value(&mut cx);
-
-    let parameters = VectorizerParameters::from_json_string(&args);
+    let val = convert_jsObject_to_JsonValue(&mut cx, args);
+    let parameters = VectorizerParameters::from_json_value(&val);
     if parameters.is_err() {
         let error = parameters.as_ref().err().unwrap().clone();
         let error = convert_glyphx_error_to_js_error(error, &mut cx);
@@ -108,7 +174,7 @@ fn run(mut cx: FunctionContext) -> JsResult<JsPromise> {
     //tokio runtime.
     static RUNTIME: OnceCell<Runtime> = OnceCell::new();
     let rt = RUNTIME
-        .get_or_try_init(|| Runtime::new().or_else(|err| cx.throw_error(err.to_string())))?;
+        .get_or_try_init(|| tokio::runtime::Builder::new_multi_thread().worker_threads(8).enable_all().build().or_else(|err| cx.throw_error(err.to_string())))?;
 
     //Get a way to communicate with the JS runtime so we can schedule events, i.e. the completion
     //of the async function
@@ -173,3 +239,4 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("run", run)?;
     Ok(())
 }
+
