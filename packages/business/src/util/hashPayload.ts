@@ -19,7 +19,7 @@ export function hashPayload(fileHash: string, project: databaseTypes.IProject): 
 }
 
 const cleanProjectIds = (project) => {
-  const cleanProject = project;
+  const cleanProject = {...project};
   // clean ids
   delete cleanProject.state.properties['X'].id;
   delete cleanProject.state.properties['Y'].id;
