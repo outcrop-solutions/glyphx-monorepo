@@ -25,22 +25,33 @@ export const States = () => {
   const viewerPosition = useRecoilValue(viewerPositionSelector);
   const {applyState} = useApplyState();
 
-  useEffect(() => {
+  const callCreateState = async (camera, image, project) => {
     if (Object.keys(camera).length > 0 && image.imageHash) {
+      setIsSubmitting(true);
       const aspect = {
         width: (viewerPosition as webTypes.IViewerPosition).w || 300,
         height: (viewerPosition as webTypes.IViewerPosition).h || 200,
       };
       const rows = (rowIds ? rowIds : []) as unknown as number[];
+      const newProject = await createState(name, camera as webTypes.Camera, project, image.imageHash, aspect, rows);
 
-      createState(name, camera as webTypes.Camera, project, image.imageHash, aspect, rows);
+      if (newProject) {
+        // @ts-ignore
+        const filteredStates = newProject.stateHistory?.filter((state) => !state.deletedAt);
+        const idx = filteredStates.length - 1;
 
-      const filteredStates = project.stateHistory.filter((state) => !state.deletedAt);
-      const idx = filteredStates.length;
-      applyState(idx);
+        applyState(idx, newProject);
+        setName('Initial State');
+        setIsSubmitting(false);
+        setAddState(false);
+      }
     }
+  };
+
+  useEffect(() => {
+    callCreateState(camera, image, project);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [camera, name, setCamera, setProject, mutate, image, setImage, project?.id, setAddState]);
+  }, [camera, setCamera, setProject, mutate, image, setImage, project?.id, setAddState]);
 
   return (
     <div className="group flex flex-col grow">

@@ -96,9 +96,9 @@ module.exports = {
       },
       keyframes: {
         progress: {
-          '0%': {transform: ' translateX(0) scaleX(0)'},
-          '40%': {transform: 'translateX(0) scaleX(0.4)'},
-          '100%': {transform: 'translateX(100%) scaleX(0.5)'},
+          '0%': {transform: 'scaleX(0)', transformOrigin: 'left'},
+          '40%': {transform: 'scaleX(0.4)', transformOrigin: 'left'},
+          '100%': {transform: 'scaleX(1)', transformOrigin: 'left'},
         },
         'accordion-down': {
           from: {height: 0},

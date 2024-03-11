@@ -6,7 +6,6 @@ import {CameraIcon} from '@heroicons/react/outline';
 
 export const CreateStateInput = ({isSubmitting, name, setName}) => {
   const validName = name?.length > 0 && name?.length <= 75;
-
   // local state
   const handleNameChange = (event) => setName(event.target.value);
 

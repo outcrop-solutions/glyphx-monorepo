@@ -43,6 +43,9 @@ module.exports = {
   },
   experimental: {
     serverComponentsExternalPackages: ['resend', 'csv'],
+    serverActions: {
+      bodySizeLimit: '3mb',
+    },
 
     // gives us statically types routes
     // typedRoutes: true,
