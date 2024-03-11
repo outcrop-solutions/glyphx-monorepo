@@ -75,7 +75,7 @@ export const createState = async (
           action: databaseTypes.constants.ACTION_TYPE.CREATED,
         });
       }
-      revalidatePath('/project/[projectId]');
+      return retval;
     }
   } catch (err) {
     const e = new error.ActionError('An unexpected error occurred creating the state', 'project', project, err);
