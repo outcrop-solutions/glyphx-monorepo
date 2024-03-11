@@ -12,6 +12,11 @@ export function hashPayload(fileHash: string, project: databaseTypes.IProject): 
   const projectStateProperties = JSON.stringify(project.state.properties);
   const payload = `${fileHash}${projectStateProperties}`;
 
+  console.log({project});
+  console.log({projectStateProperties});
+  console.log({fileHash});
+  console.log({payload});
+
   console.dir({fileHash, project, projectStateProperties, payload}, {depth: null});
 
   return MD5(payload).toString();
