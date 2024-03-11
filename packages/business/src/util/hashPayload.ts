@@ -12,10 +12,10 @@ export function hashPayload(fileHash: string, project: databaseTypes.IProject): 
   const projectStateProperties = JSON.stringify(project.state.properties);
   const payload = `${fileHash}${projectStateProperties}`;
 
-  console.log({project});
-  console.log({projectStateProperties});
-  console.log({fileHash});
-  console.log({payload});
+  console.dir({project}, {depth: null});
+  console.dir({projectStateProperties}, {depth: null});
+  console.dir({fileHash}, {depth: null});
+  console.dir({payload}, {depth: null});
 
   console.dir({fileHash, project, projectStateProperties, payload}, {depth: null});
 
