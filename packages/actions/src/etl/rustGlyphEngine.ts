@@ -1,3 +1,4 @@
+'use server';
 import ModuleLoader from '../utils/moduleLoader';
 import {error, constants} from 'core';
 import {rustGlyphEngineTypes} from 'types';
@@ -5,6 +6,7 @@ import {rustGlyphEngineTypes} from 'types';
 interface IBindings {
   exports: {
     run: (args: rustGlyphEngineTypes.IGlyphEngineArgs) => Promise<rustGlyphEngineTypes.IGlyphEngineResults>;
+    hello: () => string;
   };
 }
 
@@ -33,7 +35,19 @@ class Bindings extends ModuleLoader<IBindings> {
     }
     return result;
   }
+  public hello(): string {
+    return internalModule.exports.hello();
+  }
 }
 
 const bindings: Bindings = new Bindings();
-export default bindings;
+
+export async function runGlyphEngine(
+  args: rustGlyphEngineTypes.IGlyphEngineArgs
+): Promise<rustGlyphEngineTypes.IGlyphEngineResults | error.ActionError> {
+  return bindings.runGlyphEngine(args);
+}
+
+export async function hello() {
+  return bindings.hello();
+}

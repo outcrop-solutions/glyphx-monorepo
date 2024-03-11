@@ -1,7 +1,7 @@
 import 'mocha';
 import {assert} from 'chai';
 
-import GlyphEngine from '../etl/rustGlyphEngine';
+import {runGlyphEngine} from '../etl/rustGlyphEngine';
 import {rustGlyphEngineTypes} from 'types';
 import {v4} from 'uuid';
 import {s3Connection} from '../../../business/src/lib';
@@ -54,7 +54,7 @@ describe('GlyphEngine', () => {
     supportingFields: [],
   } as unknown as unknown as rustGlyphEngineTypes.IGlyphEngineArgs;
   it('should run glyph engine', async () => {
-    const result = (await GlyphEngine.runGlyphEngine(params)) as rustGlyphEngineTypes.IGlyphEngineResults;
+    const result = (await runGlyphEngine(params)) as rustGlyphEngineTypes.IGlyphEngineResults;
     assert.isDefined(result);
     const s3_manager = s3Connection.s3Manager;
     assert(await s3_manager.fileExists(result.glyphs_file_name));

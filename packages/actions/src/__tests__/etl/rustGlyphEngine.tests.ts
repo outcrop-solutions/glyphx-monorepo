@@ -1,7 +1,6 @@
 import 'mocha';
 import {assert} from 'chai';
 import {createSandbox} from 'sinon';
-import bindings from '../../etl/rustGlyphEngine';
 import rewire from 'rewire';
 import {error, constants} from 'core';
 import {rustGlyphEngineTypes} from 'types';
