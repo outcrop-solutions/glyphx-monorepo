@@ -39,7 +39,7 @@ export const States = () => {
       if (newProject) {
         // @ts-ignore
         const filteredStates = newProject.stateHistory?.filter((state) => !state.deletedAt);
-        const idx = filteredStates.length;
+        const idx = filteredStates.length - 1;
 
         console.log({filteredStates, idx});
 
