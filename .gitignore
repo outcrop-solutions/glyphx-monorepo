@@ -63,3 +63,4 @@ output.log
 Foo.bar
 
 packages/codegen/src/output
+**/glyph_engine.node

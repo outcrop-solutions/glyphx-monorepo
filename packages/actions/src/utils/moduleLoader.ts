@@ -2,7 +2,7 @@
 //  .next/server/pkg localally
 //  or
 //  .next/serverless/chunks/server/pkg on vercel
-import {existsSync} from 'node:fs';
+import {existsSync, readdirSync} from 'node:fs';
 //@ts-ignore
 import {dlopen, cwd} from 'node:process';
 import {constants} from 'node:os';
@@ -15,14 +15,18 @@ export default abstract class ModuleLoader<T> {
     this.internalModule = module;
 
     let processDir = cwd();
+    console.log('processDir', processDir);
     let onServerDir = processDir + '/.next/server/chunks/server/pkg';
     let onLocalDir = processDir + '/.next/server/pkg';
     let onTestDir = processDir + '/pkg';
     let moduleDir = existsSync(onServerDir) ? onServerDir : existsSync(onLocalDir) ? onLocalDir : onTestDir;
+    console.log('moduleDir', moduleDir);
+    console.log('readdirSync', JSON.stringify(readdirSync(moduleDir)));
     let modulePath = moduleDir + '/' + moduleName;
     this.internalModulePath = modulePath;
     let moduleExists = existsSync(modulePath);
     if (!moduleExists) {
+      console.log('modulePath', modulePath);
       throw new Error(`Module ${moduleName} does not exist`);
     }
     this.internalModulePath = modulePath;
