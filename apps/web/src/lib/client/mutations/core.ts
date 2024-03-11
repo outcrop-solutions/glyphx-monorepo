@@ -64,6 +64,31 @@ export const _createOpenProject = (
 ) => {
   const cam = camera || {};
   const rows = rowIds || [];
+  console.log({
+    stringified: JSON.stringify({
+      camera: {...cam},
+      projectId: project?.id,
+      workspaceId: project?.workspace.id,
+      sdtUrl: data.sdtUrl,
+      sgnUrl: data.sgnUrl,
+      sgcUrl: data.sgcUrl,
+      viewName: project?.viewName,
+      isCreate,
+      rowIds: rows,
+      apiLocation: `${url}/api`,
+      sessionInformation:
+        session.status === 'unauthenticated'
+          ? {
+              user: {
+                name: 'James Graham',
+                email: 'james@glyphx.co',
+                userId: '645aa1458d6a87808abf59db',
+              },
+              expires: '2024-05-10T14:29:38.896Z',
+            }
+          : session,
+    }),
+  });
   return JSON.stringify({
     camera: {...cam},
     projectId: project?.id,

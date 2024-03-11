@@ -1,5 +1,8 @@
 {
   "functions": {
+    "app/**/*": {
+      "maxDuration": 300
+    },
     "pages/api/etl/*": {
       "memory": 3008,
       "maxDuration": 300

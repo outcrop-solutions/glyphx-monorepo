@@ -104,7 +104,7 @@ export const updateState = async (stateId: string, name: string) => {
         onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
         action: databaseTypes.constants.ACTION_TYPE.UPDATED,
       });
-      revalidatePath('/project/[projectId]');
+      revalidatePath(`/project/${state.project.id}`, 'layout');
     }
   } catch (err) {
     const e = new error.ActionError('An unexpected error occurred updating the state', 'stateId', stateId, err);
@@ -132,7 +132,7 @@ export const deleteState = async (stateId: string) => {
         onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
         action: databaseTypes.constants.ACTION_TYPE.DELETED,
       });
-      revalidatePath('/project/[projectId]');
+      revalidatePath(`/project/${state.project.id}`, 'layout');
     }
   } catch (err) {
     const e = new error.ActionError('An unexpected error occurred deleting the state', 'stateId', stateId, err);
