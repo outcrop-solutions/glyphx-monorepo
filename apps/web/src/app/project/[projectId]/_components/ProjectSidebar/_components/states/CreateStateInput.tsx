@@ -37,7 +37,13 @@ export const CreateStateInput = ({isSubmitting, name, setName}) => {
         disabled={!validName || isSubmitting}
         onClick={createState}
       >
-        {isSubmitting ? <LoadingDots /> : <CameraIcon className="h-4 w-4" />}
+        {isSubmitting ? (
+          <div className="h-4 w-4">
+            <LoadingDots />
+          </div>
+        ) : (
+          <CameraIcon className="h-4 w-4" />
+        )}
       </button>
     </div>
   );
