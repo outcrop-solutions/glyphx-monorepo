@@ -1,7 +1,7 @@
 import {NextResponse} from 'next/server';
 import fs from 'node:fs';
 
-export const runtime = 'server';
+export const runtime = 'nodejs';
 
 export async function GET(req: Request): Promise<Response | undefined> {
   const params = await req.text();
