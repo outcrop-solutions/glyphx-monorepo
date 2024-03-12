@@ -23,10 +23,7 @@ export default abstract class ModuleLoader<T> {
     this.internalModulePath = modulePath;
     let moduleExists = existsSync(modulePath);
     if (!moduleExists) {
-      let files = readdirSync(processDir);
-      throw new Error(
-        `Module ${modulePath} does not exist.  Files in directory are: ${files.join(', ')}, currentDir: ${processDir}`
-      );
+      throw new Error(`Module ${modulePath} does not exist.`);
     }
     this.internalModulePath = modulePath;
     //@ts-ignore
