@@ -136,7 +136,7 @@ module.exports = {
     );
     config.plugins.push(
       new CopyPlugin({
-        patterns: [{from: 'public/pkg/*.node', to: 'server/pkg/[name][ext]'}],
+        patterns: [{from: 'public/pkg/*.node', to: 'server/server/pkg/[name][ext]'}],
       })
     );
 
