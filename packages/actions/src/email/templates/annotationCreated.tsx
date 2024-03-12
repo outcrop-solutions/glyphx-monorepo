@@ -1,19 +1,84 @@
 /* eslint-disable @next/next/no-img-element */
 import React from 'react';
+import {
+  Body,
+  Button,
+  Container,
+  Column,
+  Head,
+  Heading,
+  Html,
+  Img,
+  Preview,
+  Row,
+  Section,
+  Text,
+} from '@react-email/components';
 import {emailTypes} from 'types';
 
 export const AnnotationCreatedTemplate = ({stateName, stateImage, annotation}: emailTypes.iAnnotationCreatedData) => (
-  <body className="bg-secondary-deep-blue h-screen w-screen flex flex-col justify-center items-center space-y-2">
-    <div className="flex flex-col justify-center items-center w-60">
-      <div className="text-white mb-2">A thread was created on your project state</div>
-      <div className="rounded border border-white h-72 w-full flex flex-col items-center mb-2 space-y-2 p-2">
-        <img width={240} height={169} src={stateImage} alt="Sample Project" />
-        <div className="text-white mb-2">{stateName}</div>
-        <div className="text-white mb-2">{annotation}</div>
-        <a className="bg-yellow px-2 py-1 font-semibold w-full text-center" href="https://app.glyphx.co/login">
-          View in Glyphx
-        </a>
-      </div>
-    </div>
-  </body>
+  <Html>
+    <Head />
+    <Body style={main}>
+      <Container
+        style={{
+          backgroundColor: 'rgb(25 32 51)',
+          width: '15rem',
+        }}
+      >
+        <Section style={logo}>
+          <Img style={{width: '240px', height: '169px'}} src={`https://dev-app.glyphx.co/small-logo.png`} />
+        </Section>
+        <Section style={content}>
+          <Row>
+            <Text style={{color: 'white', marginBottom: '8px'}}>A thread was created on your project state</Text>
+          </Row>
+          <Row>
+            <Img style={image} width={620} src={`https://dev-app.glyphx.co/project.png`} />
+          </Row>
+          <Row>
+            <Text style={{color: 'white', marginBottom: '8px'}}>{stateName}</Text>
+            <Text style={{color: 'white', marginBottom: '8px'}}>{annotation}</Text>
+          </Row>
+          <Row style={{padding: '20px', paddingTop: '0'}}>
+            <Column style={{display: 'flex', justifyContent: 'center', width: '100%'}} colSpan={2}>
+              <Button
+                style={{
+                  backgroundColor: 'rgb(235 181 0)',
+                  borderRadius: 3,
+                  color: '#FFF',
+                  fontWeight: 'bold',
+                  border: '1px solid rgb(0,0,0, 0.1)',
+                  cursor: 'pointer',
+                  padding: '12px 30px',
+                }}
+              >
+                View in Glyphx
+              </Button>
+            </Column>
+          </Row>
+        </Section>
+      </Container>
+    </Body>
+  </Html>
 );
+
+const main = {
+  backgroundColor: '#fff',
+  fontFamily:
+    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
+};
+
+const logo = {
+  padding: '30px 20px',
+};
+
+const content = {
+  border: '1px solid rgb(0,0,0, 0.1)',
+  borderRadius: '3px',
+  overflow: 'hidden',
+};
+
+const image = {
+  maxWidth: '100%',
+};
