@@ -15,19 +15,18 @@ export default abstract class ModuleLoader<T> {
     this.internalModule = module;
 
     let processDir = cwd();
-    console.log('processDir', processDir);
     let onServerDir = processDir + '/.next/server/chunks/server/pkg';
     let onLocalDir = processDir + '/.next/server/pkg';
     let onTestDir = processDir + '/pkg';
     let moduleDir = existsSync(onServerDir) ? onServerDir : existsSync(onLocalDir) ? onLocalDir : onTestDir;
-    console.log('moduleDir', moduleDir);
-    console.log('readdirSync', JSON.stringify(readdirSync(moduleDir)));
     let modulePath = moduleDir + '/' + moduleName;
     this.internalModulePath = modulePath;
     let moduleExists = existsSync(modulePath);
     if (!moduleExists) {
-      console.log('modulePath', modulePath);
-      throw new Error(`Module ${moduleName} does not exist`);
+      let files = readdirSync(processDir);
+      throw new Error(
+        `Module ${modulePath} does not exist.  Files in directory are: ${files.join(', ')}, currentDir: ${processDir}`
+      );
     }
     this.internalModulePath = modulePath;
     //@ts-ignore
