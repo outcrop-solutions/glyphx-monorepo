@@ -97,7 +97,7 @@ describe('#integrationTests/ResendClient', () => {
         assert.instanceOf(error, EmailError);
       }
     });
-    it.only('Will send the annotationCreated email', async () => {
+    it('Will send the annotationCreated email', async () => {
       try {
         const imagePath = `resendClientIntegrationTest`;
         const buffer = Buffer.from(imageHash, 'base64');
