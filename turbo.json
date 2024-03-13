@@ -41,7 +41,7 @@
       "outputs": ["./packages/examples/**", "./packages/sdks/**"]
     },
     "build": {
-      "outputs": [".next/**", "dist/**", "build/**"]
+      "outputs": [".next/**", "dist/**", "build/**", "**/*.node"]
     },
     "test": {
       "dependsOn": ["build"],
