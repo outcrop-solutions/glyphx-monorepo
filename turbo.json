@@ -107,7 +107,8 @@
     "NEXT_PUBLIC_GB_CLIENT_PROD",
     "NEXT_PUBLIC_GB_KEY",
     "NEXT_PUBLIC_GB_ENV",
-    "PROJECT_ID"
+    "PROJECT_ID",
+    "BLOB_READ_WRITE_TOKEN"
   ],
   "globalDependencies": ["tsconfig.json"]
 }

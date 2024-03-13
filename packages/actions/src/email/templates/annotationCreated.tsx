@@ -1,84 +1,59 @@
+'use client';
 /* eslint-disable @next/next/no-img-element */
 import React from 'react';
-import {
-  Body,
-  Button,
-  Container,
-  Column,
-  Head,
-  Heading,
-  Html,
-  Img,
-  Preview,
-  Row,
-  Section,
-  Text,
-} from '@react-email/components';
+import {Tailwind, Body, Button, Container, Head, Html, Img, Row, Section, Text} from '@react-email/components';
 import {emailTypes} from 'types';
 
 export const AnnotationCreatedTemplate = ({stateName, stateImage, annotation}: emailTypes.iAnnotationCreatedData) => (
-  <Html>
-    <Head />
-    <Body style={main}>
-      <Container
+  <Tailwind
+    config={{
+      theme: {
+        extend: {
+          colors: {
+            yellow: '#EBB500',
+            'secondary-dark-blue': '#192033',
+          },
+        },
+      },
+    }}
+  >
+    <Html>
+      <Head />
+      <Body
         style={{
-          backgroundColor: 'rgb(25 32 51)',
-          width: '15rem',
+          backgroundColor: '#fff',
+          fontFamily:
+            '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
         }}
       >
-        <Section style={logo}>
-          <Img style={{width: '240px', height: '169px'}} src={`https://dev-app.glyphx.co/small-logo.png`} />
-        </Section>
-        <Section style={content}>
-          <Row>
-            <Text style={{color: 'white', marginBottom: '8px'}}>A thread was created on your project state</Text>
-          </Row>
-          <Row>
-            <Img style={image} width={620} src={`https://dev-app.glyphx.co/project.png`} />
-          </Row>
-          <Row>
-            <Text style={{color: 'white', marginBottom: '8px'}}>{stateName}</Text>
-            <Text style={{color: 'white', marginBottom: '8px'}}>{annotation}</Text>
-          </Row>
-          <Row style={{padding: '20px', paddingTop: '0'}}>
-            <Column style={{display: 'flex', justifyContent: 'center', width: '100%'}} colSpan={2}>
-              <Button
-                style={{
-                  backgroundColor: 'rgb(235 181 0)',
-                  borderRadius: 3,
-                  color: '#FFF',
-                  fontWeight: 'bold',
-                  border: '1px solid rgb(0,0,0, 0.1)',
-                  cursor: 'pointer',
-                  padding: '12px 30px',
-                }}
-              >
-                View in Glyphx
-              </Button>
-            </Column>
-          </Row>
-        </Section>
-      </Container>
-    </Body>
-  </Html>
+        <Container className="bg-secondary-dark-blue h-screen px-4 flex flex-col justify-center items-center space-y-2 w-[380px]">
+          <Img
+            className="mx-auto mt-4"
+            src={`https://aqhswtcebhzai9us.public.blob.vercel-storage.com/email-logo-lMNRUtVWULQczrDDjf06zIeVxv34Fh.png`}
+          />
+          <Text className="text-white mb-2">A thread was created on your project</Text>
+          <Section
+            className="mx-auto"
+            style={{
+              border: '1px solid #fff',
+              borderRadius: '3px',
+              overflow: 'hidden',
+              padding: '20px',
+            }}
+          >
+            <Row>
+              <Img style={{height: '169px', width: '300px'}} src={stateImage} />
+            </Row>
+            <Row>
+              <Text className="text-white mb-2">{stateName}</Text>
+              <Text className="text-white mb-2">{`"${annotation}"`}</Text>
+            </Row>
+            <Row className="mb-2 flex">
+              <Button className="bg-yellow py-1 text-center rounded w-[300px]">View in Glyphx</Button>
+            </Row>
+          </Section>
+        </Container>
+      </Body>
+    </Html>
+  </Tailwind>
 );
-
-const main = {
-  backgroundColor: '#fff',
-  fontFamily:
-    '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
-};
-
-const logo = {
-  padding: '30px 20px',
-};
-
-const content = {
-  border: '1px solid rgb(0,0,0, 0.1)',
-  borderRadius: '3px',
-  overflow: 'hidden',
-};
-
-const image = {
-  maxWidth: '100%',
-};
