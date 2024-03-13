@@ -10,7 +10,7 @@ describe('#utils/moduleLoader', () => {
     sandbox.restore();
   });
   context('constructor', () => {
-    it('should load the module from our local .next/server/chunks/server/pkg directory ', () => {
+    it('should load the module from our local .next/server/server/pkg directory ', () => {
       let dlOpenStub = sandbox.stub();
       dlOpenStub.callsFake((module: any, modulePath: string) => {
         module.foo = () => 'bar';
@@ -51,7 +51,7 @@ describe('#utils/moduleLoader', () => {
       assert.equal(mod.foo(), 'bar');
       //we are running locally so this should default to our happy
       //server path
-      assert.strictEqual(t.modulePath, 'test/.next/server/chunks/server/pkg/test.node');
+      assert.strictEqual(t.modulePath, 'test/.next/server/server/pkg/test.node');
     });
 
     it('should load the module from our vercel .next/server/pkg directory ', () => {

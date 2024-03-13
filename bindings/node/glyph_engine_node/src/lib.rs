@@ -1,6 +1,12 @@
 use glyph_engine::{types::vectorizer_parameters::VectorizerParameters, GlyphEngine};
-use glyphx_common::{AthenaConnection, S3Connection};
-use glyphx_core::{traits::ErrorTypeParser, Singleton};
+use glyphx_common::{
+    types::{
+        athena_connection_errors::ConstructorError as AthenaConstructorError,
+        s3_connection_errors::ConstructorError as S3ConstructorError,
+    },
+    AthenaConnection, S3Connection,
+};
+use glyphx_core::{traits::ErrorTypeParser, GlyphxErrorData, Singleton};
 use neon::prelude::*;
 use once_cell::sync::OnceCell;
 use serde_json::{json, Value as JsonValue};
@@ -65,6 +71,7 @@ fn convert_json_value_to_json_object<'a>(
     }
     object
 }
+
 fn convert_glyphx_error_to_js_error<'a>(
     error: impl ErrorTypeParser,
     cx: &mut impl Context<'a>,
@@ -81,7 +88,7 @@ fn convert_glyphx_error_to_js_error<'a>(
     if data.inner_error.is_some() {
         let inner_error = data.inner_error.as_ref().unwrap().clone();
         let inner_error = convert_json_value_to_json_object(inner_error, cx);
-        js_error.set(cx, "inner_error", inner_error).unwrap();
+        js_error.set(cx, "innerError", inner_error).unwrap();
     }
     let retval = cx.empty_object();
     retval
@@ -144,14 +151,16 @@ fn convert_jsObject_to_JsonValue<'a>(
             let bool_value = value.downcast::<JsBoolean, _>(cx).unwrap();
             let bool_value = bool_value.value(cx);
             retval[property_name] = json! {bool_value};
-        } else if value.is_a::<JsObject, _>(cx) {
-            let obj_value = value.downcast::<JsObject, _>(cx).unwrap();
-            let obj_value = convert_jsObject_to_JsonValue(cx, obj_value);
-            retval[property_name] = obj_value;
         } else if value.is_a::<JsArray, _>(cx) {
             let arr_value = value.downcast::<JsArray, _>(cx).unwrap();
             let arr_value = convert_jsArray_to_JsonValue(cx, arr_value);
             retval[property_name] = arr_value;
+        } else if value.is_a::<JsObject, _>(cx) {
+            let obj_value = value.downcast::<JsObject, _>(cx).unwrap();
+            let obj_value = convert_jsObject_to_JsonValue(cx, obj_value);
+            retval[property_name] = obj_value;
+        } else if value.is_a::<JsNull, _>(cx) {
+            retval[property_name] = json! {null};
         }
     }
 
@@ -173,8 +182,13 @@ fn run(mut cx: FunctionContext) -> JsResult<JsPromise> {
     //called multiple times. Using OnceCell will ensure that we only create one
     //tokio runtime.
     static RUNTIME: OnceCell<Runtime> = OnceCell::new();
-    let rt = RUNTIME
-        .get_or_try_init(|| tokio::runtime::Builder::new_multi_thread().worker_threads(8).enable_all().build().or_else(|err| cx.throw_error(err.to_string())))?;
+    let rt = RUNTIME.get_or_try_init(|| {
+        tokio::runtime::Builder::new_multi_thread()
+            .worker_threads(8)
+            .enable_all()
+            .build()
+            .or_else(|err| cx.throw_error(err.to_string()))
+    })?;
 
     //Get a way to communicate with the JS runtime so we can schedule events, i.e. the completion
     //of the async function
@@ -234,13 +248,46 @@ fn run(mut cx: FunctionContext) -> JsResult<JsPromise> {
     Ok(promise)
 }
 
+fn convert_neon_value(mut cx: FunctionContext) -> JsResult<JsString> {
+    let args = cx.argument::<JsObject>(0)?;
+    let val = convert_jsObject_to_JsonValue(&mut cx, args);
+    Ok(cx.string(val.to_string()))
+}
+
+fn convert_json_value(mut cx: FunctionContext) -> JsResult<JsObject> {
+    let input = cx.argument::<JsString>(0)?;
+    let input = input.value(&mut cx);
+    let input: JsonValue = serde_json::from_str(&input).unwrap();
+    let val = convert_json_value_to_json_object(input, &mut cx);
+    Ok(val)
+}
+
+#[allow(non_snake_case)]
+fn convert_glyphx_error_to_jsonObject(mut cx: FunctionContext) -> JsResult<JsObject> {
+    let inner_error = S3ConstructorError::BucketDoesNotExist(GlyphxErrorData::new(
+        String::from("Bucket does not exist"),
+        Some(json!( {"bucket_name": "foo"})),
+        Some(json!( "James, what have you done now")),
+    ));
+    let outer_error = AthenaConstructorError::UnexpectedError(GlyphxErrorData::new(
+        String::from("Invalid region"),
+        Some(json! ({"region" : "us-west-2"})),
+        Some(serde_json::to_value(inner_error).unwrap()),
+    ));
+    let error = convert_glyphx_error_to_js_error(outer_error, &mut cx);
+    Ok(error)
+}
+
 fn hello(mut cx: FunctionContext) -> JsResult<JsString> {
     Ok(cx.string("hello node"))
 }
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("run", run)?;
+    //These function are here to support testing.
     cx.export_function("hello", hello)?;
+    cx.export_function("convertNeonValue", convert_neon_value)?;
+    cx.export_function("convertJsonValue", convert_json_value)?;
+    cx.export_function("convertGlyphxErrorToJsonObject", convert_glyphx_error_to_jsonObject)?;
     Ok(())
 }
-

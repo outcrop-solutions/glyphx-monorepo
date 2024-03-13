@@ -23,7 +23,7 @@ export default abstract class ModuleLoader<T> {
     this.internalModulePath = modulePath;
     let moduleExists = existsSync(modulePath);
     if (!moduleExists) {
-      throw new Error(`Module ${modulePath} does not exist.`);
+      throw new Error(`Module ${moduleName} does not exist.`);
     }
     this.internalModulePath = modulePath;
     //@ts-ignore

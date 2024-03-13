@@ -7,6 +7,9 @@ interface IBindings {
   exports: {
     run: (args: rustGlyphEngineTypes.IGlyphEngineArgs) => Promise<rustGlyphEngineTypes.IGlyphEngineResults>;
     hello: () => string;
+    convertNeonValue: (value: any) => string;
+    convertJsonValue: (value: string) => any;
+    convertGlyphxErrorToJsonObject: () => any;
   };
 }
 
@@ -38,10 +41,21 @@ class Bindings extends ModuleLoader<IBindings> {
   public hello(): string {
     return internalModule.exports.hello();
   }
+
+  public convertNeonValue(value: any): string {
+    return internalModule.exports.convertNeonValue(value);
+  }
+
+  public convertJsonValue(value: string): any {
+    return internalModule.exports.convertJsonValue(value);
+  }
+
+  public convertGlyphxErrorToJsonObject(): any {
+    return internalModule.exports.convertGlyphxErrorToJsonObject();
+  }
 }
 
 const bindings: Bindings = new Bindings();
-
 export async function runGlyphEngine(
   args: rustGlyphEngineTypes.IGlyphEngineArgs
 ): Promise<rustGlyphEngineTypes.IGlyphEngineResults | error.ActionError> {
@@ -50,4 +64,16 @@ export async function runGlyphEngine(
 
 export async function hello() {
   return bindings.hello();
+}
+
+export async function convertNeonValue(value: any): Promise<string> {
+  return bindings.convertNeonValue(value);
+}
+
+export async function convertJsonValue(value: string): Promise<any> {
+  return bindings.convertJsonValue(value);
+}
+
+export async function convertGlyphxError(): Promise<any> {
+  return bindings.convertGlyphxErrorToJsonObject();
 }
