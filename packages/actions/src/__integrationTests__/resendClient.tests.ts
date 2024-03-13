@@ -107,7 +107,6 @@ describe('#integrationTests/ResendClient', () => {
         // ⚠️ The below code is for App Router Route Handlers only
         const imageRetval = await put(imagePath, blob, {
           access: 'public',
-          token: 'vercel_blob_rw_AQhSwtceBhzAI9uS_zaTw4RUNQtIDUbNZec58dvZoVAJiFu',
           addRandomSuffix: false,
         });
         const emailData = {
