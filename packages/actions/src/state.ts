@@ -1,5 +1,6 @@
 'use server';
 import {error, constants} from 'core';
+import {put} from '@vercel/blob';
 import {getServerSession} from 'next-auth';
 import {stateService, activityLogService, projectService} from '../../business/src/services';
 import {databaseTypes, emailTypes, webTypes} from 'types';
@@ -50,13 +51,22 @@ export const createState = async (
         imageHash
       );
 
+      const buffer = Buffer.from(imageHash, 'base64');
+      const blob = new Blob([buffer], {type: 'image/png'});
+
+      // upload imageHash to Blob store
+      const imageRetval = await put(`${state?.id}`, blob, {
+        access: 'public',
+        addRandomSuffix: false,
+      });
+
       const retval = await projectService.getProject(project.id as string);
 
       if (retval?.members) {
         const emailData = {
           type: emailTypes.EmailTypes.STATE_CREATED,
           stateName: name,
-          stateImage: imageHash,
+          stateImage: imageRetval.url,
           emails: retval.members?.map((mem) => mem.email),
         } satisfies emailTypes.EmailData;
 

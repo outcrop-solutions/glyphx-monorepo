@@ -3,7 +3,7 @@ import {assert} from 'chai';
 import {DateFieldChecker} from '../../fieldProcessing/dateFieldChecker';
 import {error} from 'core';
 
-describe.only('#fieldProcessing/DateFieldChecker', () => {
+describe('#fieldProcessing/DateFieldChecker', () => {
   context('checkField', () => {
     it('05/15/1972 is a not a date within the accepted range', () => {
       const dateChecker = new DateFieldChecker();

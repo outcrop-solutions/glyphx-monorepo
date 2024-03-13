@@ -1,8 +1,10 @@
 import 'mocha';
 import {assert} from 'chai';
 import emailClient from '../email';
+import {del, put} from '@vercel/blob';
 import {emailTypes} from 'types';
 import {EmailError} from 'core/src/error';
+import {imageHash} from './constants/imageHash';
 
 describe('#integrationTests/ResendClient', () => {
   before(async () => {
@@ -97,15 +99,27 @@ describe('#integrationTests/ResendClient', () => {
     });
     it('Will send the annotationCreated email', async () => {
       try {
+        const imagePath = `resendClientIntegrationTest`;
+        const buffer = Buffer.from(imageHash, 'base64');
+        const blob = new Blob([buffer], {type: 'image/png'});
+
+        // upload imageHash to
+        // ⚠️ The below code is for App Router Route Handlers only
+        const imageRetval = await put(imagePath, blob, {
+          access: 'public',
+          addRandomSuffix: false,
+        });
         const emailData = {
           type: emailTypes.EmailTypes.ANNOTATION_CREATED,
           stateName: '',
-          stateImage: '',
+          stateImage: imageRetval.url,
           annotation: '',
           emails: ['james@glyphx.co'],
         } satisfies emailTypes.EmailData;
         const retval = await emailClient.sendEmail(emailData);
         assert.isOk(retval?.id);
+
+        await del(imagePath);
       } catch (error) {
         assert.fail();
       }
