@@ -2,7 +2,11 @@
 import React from 'react';
 import {emailTypes} from 'types';
 
-export const AnnotationCreatedTemplate = ({stateName, stateImage, annotation}: emailTypes.iAnnotationCreatedData) => (
+export const AnnotationCreatedTemplate = ({
+  stateName: stateName,
+  stateImage,
+  annotation,
+}: emailTypes.iAnnotationCreatedData) => (
   <body className="bg-secondary-deep-blue h-screen w-screen flex flex-col justify-center items-center space-y-2">
     <div className="flex flex-col justify-center items-center w-60">
       <div className="text-white mb-2">A thread was created on your project state</div>

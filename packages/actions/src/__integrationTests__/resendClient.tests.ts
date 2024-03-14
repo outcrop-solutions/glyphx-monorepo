@@ -6,7 +6,7 @@ import {emailTypes} from 'types';
 import {EmailError} from 'core/src/error';
 import {imageHash} from './constants/imageHash';
 
-describe('#integrationTests/ResendClient', () => {
+describe.only('#integrationTests/ResendClient', () => {
   before(async () => {
     await emailClient.init();
     assert.isTrue(emailClient.isInited);

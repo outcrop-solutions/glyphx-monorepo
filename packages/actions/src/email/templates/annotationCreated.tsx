@@ -31,7 +31,7 @@ export const AnnotationCreatedTemplate = ({stateName, stateImage, annotation}: e
             className="mx-auto mt-4"
             src={`https://aqhswtcebhzai9us.public.blob.vercel-storage.com/email-logo-lMNRUtVWULQczrDDjf06zIeVxv34Fh.png`}
           />
-          <Text className="text-white mb-2">A thread was created on your project</Text>
+          <Text className="text-white mb-2">A thread was created</Text>
           <Section
             className="mx-auto"
             style={{

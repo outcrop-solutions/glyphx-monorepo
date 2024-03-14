@@ -1,7 +1,7 @@
 'use server';
 import {error, constants} from 'core';
 import {membershipService, projectService, annotationService, stateService} from '../../business/src/services';
-import {put} from '@vercel/blob';
+import {list, put} from '@vercel/blob';
 import {getServerSession} from 'next-auth';
 import {databaseTypes, emailTypes} from 'types';
 import {authOptions} from './auth';
@@ -124,6 +124,36 @@ export const createProjectAnnotation = async (projectId: string, value: string) 
         projectId: projectId as string,
         value,
       });
+
+      // check if the image exists in the blob store
+      const retval = await list({prefix: `project/${projectId}`});
+      const project = await projectService.getProject(projectId);
+      const imageHash = project?.imageHash;
+
+      if (imageHash && retval.blobs.length === 0) {
+        // for backwards compatiblity, we need to put the state imageHash into the store if it does not already exist
+        const buffer = Buffer.from(imageHash, 'base64');
+        const blob = new Blob([buffer], {type: 'image/png'});
+
+        // upload imageHash to Blob store
+        const retval = await put(`project/${projectId}`, blob, {
+          access: 'public',
+          addRandomSuffix: false,
+        });
+      }
+
+      const members = await membershipService.getMembers({project: projectId});
+      if (members && project) {
+        const emailData = {
+          type: emailTypes.EmailTypes.ANNOTATION_CREATED,
+          stateName: project.name,
+          stateImage: `https://aqhswtcebhzai9us.public.blob.vercel-storage.com/project/${projectId}`,
+          annotation: value,
+          emails: [...members.map((mem) => mem.email)],
+        } satisfies emailTypes.EmailData;
+        await emailClient.init();
+        await emailClient.sendEmail(emailData);
+      }
       revalidatePath(`/project/${projectId}`, 'layout');
     }
   } catch (err) {
@@ -155,13 +185,30 @@ export const createStateAnnotation = async (stateId: string, value: string) => {
 
       if (stateId) {
         const state = await stateService.getState(stateId);
+
+        // check if the image exists in the blob store
+        const retval = await list({prefix: state?.id});
+        const imageHash = state?.imageHash;
+
+        if (imageHash && retval.blobs.length === 0) {
+          // for backwards compatiblity, we need to put the state imageHash into the store if it does not already exist
+          const buffer = Buffer.from(imageHash, 'base64');
+          const blob = new Blob([buffer], {type: 'image/png'});
+
+          // upload imageHash to Blob store
+          await put(`state/${state?.id}`, blob, {
+            access: 'public',
+            addRandomSuffix: false,
+          });
+        }
+
         if (state?.imageHash && annotation?.value) {
           const members = await membershipService.getMembers({project: state.project.id});
           if (members) {
             const emailData = {
               type: emailTypes.EmailTypes.ANNOTATION_CREATED,
               stateName: state.name,
-              stateImage: `https://aqhswtcebhzai9us.public.blob.vercel-storage.com/${state?.id}`,
+              stateImage: `https://aqhswtcebhzai9us.public.blob.vercel-storage.com/state/${state?.id}`,
               annotation: annotation.value,
               emails: [...members.map((mem) => mem.email)],
             } satisfies emailTypes.EmailData;
@@ -169,8 +216,9 @@ export const createStateAnnotation = async (stateId: string, value: string) => {
             await emailClient.sendEmail(emailData);
           }
         }
+
+        revalidatePath('/project/[projectId]');
       }
-      revalidatePath('/project/[projectId]');
     }
   } catch (err) {
     const e = new error.ActionError(
