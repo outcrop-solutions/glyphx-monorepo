@@ -3,36 +3,51 @@ import {createSandbox} from 'sinon';
 import {assert} from 'chai';
 import proxyquire from 'proxyquire';
 import {ActionError} from 'core/src/error';
+import {membershipService, workspaceService} from 'business';
+import {databaseTypes} from 'types';
 
 describe('#integrationTests/annotation', () => {
   const sandbox = createSandbox();
   let annotationAction;
+  let members;
+  let workspace;
+  const mockUser = {
+    name: 'James Graham',
+    email: 'james@glyphx.co',
+    image: 'https://lh3.googleusercontent.com/a/AGNmyxa1Uz7q5ojNKT4xGcnlVY3owT9cF0KFEfq4xT8S=s96-c',
+    emailVerified: '2023-11-16T23:00:50.985Z',
+    updatedAt: '2023-10-02T12:31:26.117Z',
+    userCode: 'ce907057fb3a4a9a9f805d8080f4576d',
+    customerPayment: [],
+    accounts: [],
+    createdAt: '2023-05-09T19:38:55.249Z',
+    createdWorkspaces: [],
+    invitedMembers: [],
+    isVerified: false,
+    membership: [],
+    projects: [],
+    sessions: [],
+    webhooks: [],
+    id: '645aa1458d6a87808abf59db',
+    username: 'james',
+  };
 
   before(async () => {
     let revalidatePathStub = sandbox.stub().resolves();
     let redirectStub = sandbox.stub().resolves();
     let mockSessionStub = sandbox.stub().resolves({
-      user: {
-        name: 'James Graham',
-        email: 'james@glyphx.co',
-        image: 'https://lh3.googleusercontent.com/a/AGNmyxa1Uz7q5ojNKT4xGcnlVY3owT9cF0KFEfq4xT8S=s96-c',
-        emailVerified: '2023-11-16T23:00:50.985Z',
-        updatedAt: '2023-10-02T12:31:26.117Z',
-        userCode: 'ce907057fb3a4a9a9f805d8080f4576d',
-        customerPayment: [],
-        accounts: [],
-        createdAt: '2023-05-09T19:38:55.249Z',
-        createdWorkspaces: [],
-        invitedMembers: [],
-        isVerified: false,
-        membership: [],
-        projects: [],
-        sessions: [],
-        webhooks: [],
-        id: '645aa1458d6a87808abf59db',
-        username: 'james',
-      },
+      user: mockUser,
     });
+
+    const newMembers = [{email: 'integrationtest@gmail.com', teamRole: databaseTypes.constants.ROLE.MEMBER}];
+
+    workspace = await workspaceService.createWorkspace(
+      mockUser?.id,
+      mockUser.email as string,
+      'Default Workspace',
+      'default-workspace'
+    );
+    await workspaceService.inviteUsers(mockUser.id, mockUser.email, newMembers, workspace.id);
 
     annotationAction = proxyquire('../annotation', {
       'next/cache': {revalidatePath: revalidatePathStub},
@@ -40,15 +55,20 @@ describe('#integrationTests/annotation', () => {
       'next-auth': {getServerSession: mockSessionStub},
     });
   });
+
+  after(async () => {
+    for (const member of members) {
+      await membershipService.remove(member.id);
+    }
+  });
+
   context('#getSuggestedMembers', () => {
     it('should get the suggested members for the mentions dropdown', async () => {
       try {
-        const name = 'newProject';
-        const workspaceId = '646fa59785272d19babc2af1';
-        const description = '';
-        const docId = 'XLHjumPyb6ZoZewQ7iP0U';
+        const projectId = '';
+        const query = '';
 
-        await annotationAction.getSuggestedMembers(name, workspaceId, description, docId);
+        await annotationAction.getSuggestedMembers(projectId, query);
       } catch (error) {
         assert.fail();
       }
@@ -64,12 +84,9 @@ describe('#integrationTests/annotation', () => {
   context('#getProjectAnnotations', () => {
     it('should get the suggested members for the mentions dropdown', async () => {
       try {
-        const name = 'newProject';
-        const workspaceId = '646fa59785272d19babc2af1';
-        const description = '';
-        const docId = 'XLHjumPyb6ZoZewQ7iP0U';
-
-        await annotationAction.getProjectAnnotations(name, workspaceId, description, docId);
+        const projectId = '';
+        const annotations = await annotationAction.getProjectAnnotations(projectId);
+        assert.isOk(annotations);
       } catch (error) {
         assert.fail();
       }
@@ -85,12 +102,9 @@ describe('#integrationTests/annotation', () => {
   context('#getStateAnnotations', () => {
     it('should get the suggested members for the mentions dropdown', async () => {
       try {
-        const name = 'newProject';
-        const workspaceId = '646fa59785272d19babc2af1';
-        const description = '';
-        const docId = 'XLHjumPyb6ZoZewQ7iP0U';
-
-        await annotationAction.getStateAnnotations(name, workspaceId, description, docId);
+        const stateId = '';
+        const annotations = await annotationAction.getStateAnnotations(stateId);
+        assert.isOk(annotations);
       } catch (error) {
         assert.fail();
       }
@@ -106,12 +120,10 @@ describe('#integrationTests/annotation', () => {
   context('#createProjectAnnotation', () => {
     it('should get the suggested members for the mentions dropdown', async () => {
       try {
-        const name = 'newProject';
-        const workspaceId = '646fa59785272d19babc2af1';
-        const description = '';
-        const docId = 'XLHjumPyb6ZoZewQ7iP0U';
+        const projectId = '';
+        const value = '';
 
-        await annotationAction.createProjectAnnotation(name, workspaceId, description, docId);
+        await annotationAction.createProjectAnnotation(projectId, value);
       } catch (error) {
         assert.fail();
       }
@@ -127,12 +139,10 @@ describe('#integrationTests/annotation', () => {
   context('#createStateAnnotation', () => {
     it('should get the suggested members for the mentions dropdown', async () => {
       try {
-        const name = 'newProject';
-        const workspaceId = '646fa59785272d19babc2af1';
-        const description = '';
-        const docId = 'XLHjumPyb6ZoZewQ7iP0U';
+        const stateId = '';
+        const value = '';
 
-        await annotationAction.createStateAnnotation(name, workspaceId, description, docId);
+        await annotationAction.createStateAnnotation(stateId, value);
       } catch (error) {
         assert.fail();
       }

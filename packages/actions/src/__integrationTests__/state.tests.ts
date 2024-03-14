@@ -7,6 +7,7 @@ import {ActionError} from 'core/src/error';
 describe('#integrationTests/state', () => {
   const sandbox = createSandbox();
   let stateActions;
+  let stateId;
 
   before(async () => {
     let revalidatePathStub = sandbox.stub().resolves();
@@ -40,36 +41,18 @@ describe('#integrationTests/state', () => {
       'next-auth': {getServerSession: mockSessionStub},
     });
   });
-  context('#getState', () => {
-    it('should create a new project', async () => {
-      try {
-        const name = 'newProject';
-        const workspaceId = '646fa59785272d19babc2af1';
-        const description = '';
-        const docId = 'XLHjumPyb6ZoZewQ7iP0U';
-
-        await stateActions.getState(name, workspaceId, description, docId);
-      } catch (error) {
-        assert.fail();
-      }
-    });
-    it('should throw an ActionError when provided invalid inputs', async () => {
-      try {
-        await stateActions.getState(undefined);
-      } catch (error) {
-        assert.instanceOf(error, ActionError);
-      }
-    });
-  });
   context('#createState', () => {
-    it('should create a new project', async () => {
+    it('should create a new state', async () => {
       try {
         const name = 'newProject';
-        const workspaceId = '646fa59785272d19babc2af1';
-        const description = '';
-        const docId = 'XLHjumPyb6ZoZewQ7iP0U';
+        const camera = {};
+        const project = {};
+        const imageHash = '';
+        const aspectRatio = {};
+        const rowIds = [];
 
-        await stateActions.createState(name, workspaceId, description, docId);
+        const state = await stateActions.createState(name, camera, project, imageHash, aspectRatio, rowIds);
+        stateId = state.id;
       } catch (error) {
         assert.fail();
       }
@@ -82,15 +65,30 @@ describe('#integrationTests/state', () => {
       }
     });
   });
-  context('#updateState', () => {
-    it('should create a new project', async () => {
+  context('#getState', () => {
+    it('should get a state', async () => {
       try {
-        const name = 'newProject';
-        const workspaceId = '646fa59785272d19babc2af1';
-        const description = '';
-        const docId = 'XLHjumPyb6ZoZewQ7iP0U';
-
-        await stateActions.updateState(name, workspaceId, description, docId);
+        const state = await stateActions.getState(stateId);
+        assert.isOk(state);
+      } catch (error) {
+        assert.fail();
+      }
+    });
+    it('should throw an ActionError when provided invalid inputs', async () => {
+      try {
+        await stateActions.getState(undefined);
+      } catch (error) {
+        assert.instanceOf(error, ActionError);
+      }
+    });
+  });
+  context('#updateState', () => {
+    it('should update a state', async () => {
+      try {
+        const name = 'newStateName';
+        await stateActions.updateState(stateId, name);
+        const state = stateActions.getState(stateId);
+        assert.strictEqual(state.name, name);
       } catch (error) {
         assert.fail();
       }
@@ -104,14 +102,11 @@ describe('#integrationTests/state', () => {
     });
   });
   context('#deleteState', () => {
-    it('should create a new project', async () => {
+    it('should delete a state', async () => {
       try {
-        const name = 'newProject';
-        const workspaceId = '646fa59785272d19babc2af1';
-        const description = '';
-        const docId = 'XLHjumPyb6ZoZewQ7iP0U';
-
-        await stateActions.deleteState(name, workspaceId, description, docId);
+        await stateActions.deleteState(stateId);
+        const state = stateActions.getState(stateId);
+        assert.isNull(state);
       } catch (error) {
         assert.fail();
       }
