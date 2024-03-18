@@ -2,7 +2,7 @@
 import {useDropzone} from 'react-dropzone';
 import {PlusIcon} from '@heroicons/react/solid';
 import {useFileSystem} from 'services/useFileSystem';
-import DropFileIcon from 'public/svg/drop-file-icon.svg';
+import DropFileIcon from 'svg/drop-file-icon.svg';
 export const MainDropzone = () => {
   const {onDrop} = useFileSystem();
   const {getRootProps, getInputProps, isDragActive} = useDropzone({

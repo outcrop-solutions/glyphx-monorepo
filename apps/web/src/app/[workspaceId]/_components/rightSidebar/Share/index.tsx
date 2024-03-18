@@ -10,10 +10,10 @@ import {MemberList} from './MemberList';
 import Link from 'next/link';
 import {drawerOpenAtom, projectAtom, rightSidebarControlAtom} from 'state';
 
-import CloseProjectInfoIcon from 'public/svg/close-project-info.svg';
-import CopyToClipboardIcon from 'public/svg/copy-to-clipboard.svg';
-import ShareIcon from 'public/svg/share-header-icon.svg';
-import GroupIcon from 'public/svg/group-icon.svg';
+import CloseProjectInfoIcon from 'svg/close-project-info.svg';
+import CopyToClipboardIcon from 'svg/copy-to-clipboard.svg';
+import ShareIcon from 'svg/share-header-icon.svg';
+import GroupIcon from 'svg/group-icon.svg';
 import {WritableDraft} from 'immer/dist/internal';
 import {Route} from 'next';
 import {useParams} from 'next/navigation';

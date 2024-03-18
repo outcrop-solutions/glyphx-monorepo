@@ -9,11 +9,11 @@ import {handleDataType} from 'lib/client/helpers/handleDataType';
 // state
 import {projectAtom, singlePropertySelectorFamily} from 'state/project';
 // icons
-import ClearIcon from 'public/svg/clear-icon.svg';
-import LinIcon from 'public/svg/lin-icon.svg';
-import LogIcon from 'public/svg/log-icon.svg';
-import SwapLeftIcon from 'public/svg/swap-left-icon.svg';
-import SwapRightIcon from 'public/svg/swap-right-icon.svg';
+import ClearIcon from 'svg/clear-icon.svg';
+import LinIcon from 'svg/lin-icon.svg';
+import LogIcon from 'svg/log-icon.svg';
+import SwapLeftIcon from 'svg/swap-left-icon.svg';
+import SwapRightIcon from 'svg/swap-right-icon.svg';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {showLoadingAtom} from 'state';

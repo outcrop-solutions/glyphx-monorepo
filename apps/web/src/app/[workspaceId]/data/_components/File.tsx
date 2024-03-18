@@ -1,9 +1,9 @@
 'use client';
 import React from 'react';
-import TableItemInfoIcon from 'public/svg/table-item-info.svg';
+import TableItemInfoIcon from 'svg/table-item-info.svg';
 import {CogIcon, DocumentIcon} from '@heroicons/react/outline';
 import {formatFileSize} from 'lib/utils/formatFileSize';
-import DragHandleIcon from 'public/svg/drag-handle.svg';
+import DragHandleIcon from 'svg/drag-handle.svg';
 import {useDrag} from 'react-dnd';
 const dateOptions = {
   weekday: 'short',

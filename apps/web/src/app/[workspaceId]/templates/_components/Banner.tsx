@@ -1,7 +1,7 @@
 import {UploadIcon} from '@heroicons/react/outline';
 import React from 'react';
-import BrainIcon from 'public/svg/brain-icon.svg';
-import BannerPattern from 'public/svg/banner-pattern.svg';
+import BrainIcon from 'svg/brain-icon.svg';
+import BannerPattern from 'svg/banner-pattern.svg';
 
 export const Banner = () => {
   const numberOfFiles = 10;

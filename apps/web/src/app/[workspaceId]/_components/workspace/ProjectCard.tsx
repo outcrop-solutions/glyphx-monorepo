@@ -11,10 +11,9 @@ import {modalsAtom, projectSegmentAtom, rightSidebarControlAtom} from 'state';
 import {webTypes} from 'types';
 // icons
 import {ProjectTemplateIcons} from '../../../project/[projectId]/_components/ProjectSidebar/_components/icons';
-import projectCard from 'public/images/project.png';
-import AddMemberIcon from 'public/svg/add-member-icon.svg';
-import ProjectInfoIcon from 'public/svg/project-info-icon.svg';
-import DeleteProjectIcon from 'public/svg/delete-project-icon.svg';
+import AddMemberIcon from 'svg/add-member-icon.svg';
+import ProjectInfoIcon from 'svg/project-info-icon.svg';
+import DeleteProjectIcon from 'svg/delete-project-icon.svg';
 import {WritableDraft} from 'immer/dist/internal';
 
 export const ProjectCard = ({project}) => {
@@ -69,7 +68,7 @@ export const ProjectCard = ({project}) => {
             width={project?.aspectRatio?.width || 300}
             height={project?.aspectRatio?.height || 200}
             className="object-cover h-full w-full rounded-md"
-            src={project.imageHash ? `data:image/png;base64,${project.imageHash}` : projectCard}
+            src={project.imageHash ? `data:image/png;base64,${project.imageHash}` : '/images/project.png'}
             alt=""
           />
         </div>

@@ -6,9 +6,9 @@ import {WritableDraft} from 'immer/dist/internal';
 import {webTypes} from 'types';
 import {useSetRecoilState} from 'recoil';
 import {modalsAtom} from 'state';
-import ColXIcon from 'public/svg/col-x-icon.svg';
-import ColYIcon from 'public/svg/col-y-icon.svg';
-import ColZIcon from 'public/svg/col-z-icon.svg';
+import ColXIcon from 'svg/col-x-icon.svg';
+import ColYIcon from 'svg/col-y-icon.svg';
+import ColZIcon from 'svg/col-z-icon.svg';
 import {LoadingDots} from '../Loaders/LoadingDots';
 import {createProjectTemplate} from 'actions';
 

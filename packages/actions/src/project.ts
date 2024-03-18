@@ -29,6 +29,8 @@ export const createProject = async (name: string, workspaceId: string, descripti
         docId
       );
 
+      console.log({project});
+
       await activityLogService.createLog({
         actorId: session?.user?.id,
         resourceId: project?.id!,
@@ -53,6 +55,7 @@ export const createProject = async (name: string, workspaceId: string, descripti
     e.publish('project', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }
+  console.log('redirect');
   redirect(`/project/${projectId}`);
 };
 

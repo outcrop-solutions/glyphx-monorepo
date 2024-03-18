@@ -1,9 +1,9 @@
 'use client';
 import React, {useState, useCallback} from 'react';
 import {produce} from 'immer';
-import SearchIcon from 'public/svg/search-icon.svg';
-import ShowIcon from 'public/svg/show-visibility.svg';
-import HideIcon from 'public/svg/hide-visibility.svg';
+import SearchIcon from 'svg/search-icon.svg';
+import ShowIcon from 'svg/show-visibility.svg';
+import HideIcon from 'svg/hide-visibility.svg';
 import {isFilterWritableSelector, projectAtom} from 'state';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {WritableDraft} from 'immer/dist/internal';

@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import NewProjectIcon from 'public/svg/new-project-icon.svg';
+import NewProjectIcon from 'svg/new-project-icon.svg';
 import {useSetRecoilState} from 'recoil';
 import {modalsAtom} from 'state';
 import produce from 'immer';

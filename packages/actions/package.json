@@ -73,7 +73,7 @@
     "fuse.js": "^6.6.2",
     "glyphengine": "workspace:*",
     "logsnag": "^0.1.6",
-    "next": "13.5.4",
+    "next": "14.1.0",
     "next-auth": "4.22.1",
     "nodemailer": "^6.7.2",
     "openai-edge": "^1.1.0",

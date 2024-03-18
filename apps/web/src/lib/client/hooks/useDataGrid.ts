@@ -64,8 +64,8 @@ const useDataGrid = (ref) => {
             // Get the set of existing columns
             const existingKeys = new Set(draft.columns.map((col) => col.key));
             // Filter out duplicate columns based on keys
-            const newCols = retval.data.columns.filter((col) => !existingKeys.has(col.key));
-            draft.columns.push(...newCols);
+            // const newCols = retval.data.columns.filter((col) => !existingKeys.has(col.key));
+            draft.columns = retval.data.columns;
           }
           // Get the set of existing glyphx_id__
           const existingIds = new Set(draft.rows.map((row) => row.glyphx_id__));

@@ -42,7 +42,7 @@ describe('#integrationTests/state', () => {
     });
   });
   context('#createState', () => {
-    it('should create a new state', async () => {
+    it.only('should create a new state', async () => {
       try {
         const name = 'newProject';
         const camera = {};

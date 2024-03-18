@@ -2,7 +2,7 @@
 import React, {useCallback, useState, useTransition} from 'react';
 import {useParams} from 'next/navigation';
 import TextareaAutosize from 'react-textarea-autosize';
-import ExitModalIcon from 'public/svg/exit-project-modal-icon.svg';
+import ExitModalIcon from 'svg/exit-project-modal-icon.svg';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {ClientDocumentManager} from 'collab/lib/client/ClientDocumentManager';
 import {useSession} from 'next-auth/react';

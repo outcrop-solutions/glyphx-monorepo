@@ -3,14 +3,17 @@ import {createSandbox} from 'sinon';
 import {assert} from 'chai';
 import proxyquire from 'proxyquire';
 import {ActionError} from 'core/src/error';
-import {membershipService, workspaceService} from 'business';
+import {Initializer, dbConnection, membershipService, projectService, stateService, workspaceService} from 'business';
 import {databaseTypes} from 'types';
+import {imageHash} from './constants/imageHash';
 
 describe('#integrationTests/annotation', () => {
   const sandbox = createSandbox();
   let annotationAction;
-  let members;
+  let members = [] as unknown as databaseTypes.IMember[];
   let workspace;
+  let project;
+  let state;
   const mockUser = {
     name: 'James Graham',
     email: 'james@glyphx.co',
@@ -39,7 +42,7 @@ describe('#integrationTests/annotation', () => {
       user: mockUser,
     });
 
-    const newMembers = [{email: 'integrationtest@gmail.com', teamRole: databaseTypes.constants.ROLE.MEMBER}];
+    await Initializer.init();
 
     workspace = await workspaceService.createWorkspace(
       mockUser?.id,
@@ -47,7 +50,51 @@ describe('#integrationTests/annotation', () => {
       'Default Workspace',
       'default-workspace'
     );
-    await workspaceService.inviteUsers(mockUser.id, mockUser.email, newMembers, workspace.id);
+
+    // create the project
+    const name = 'newProject';
+    const workspaceId = workspace.id;
+
+    project = await projectService.createProject(name, workspaceId, mockUser?.id, mockUser?.email);
+
+    // create a state
+    state = await stateService.createState(
+      'stateName',
+      {
+        pos: {
+          x: 0,
+          y: 0,
+          z: 0,
+        },
+        dir: {
+          x: 0,
+          y: 0,
+          z: 0,
+        },
+      },
+      project,
+      mockUser?.id,
+      {height: 400, width: 400},
+      [] as unknown as string[], // rowIds
+      imageHash
+    );
+
+    // set up membership to test suggestions
+    const newMembers = [{email: 'integrationtest@gmail.com', teamRole: databaseTypes.constants.ROLE.MEMBER}];
+    const retval = await workspaceService.inviteUsers(mockUser.id, mockUser.email, newMembers, workspace.id);
+    if (retval?.members) {
+      for (const member of retval?.members) {
+        if (member.id) {
+          const mem = await membershipService.updateStatus(
+            member.id,
+            databaseTypes.constants.INVITATION_STATUS.ACCEPTED
+          );
+          if (mem) {
+            members.push(mem);
+          }
+        }
+      }
+    }
 
     annotationAction = proxyquire('../annotation', {
       'next/cache': {revalidatePath: revalidatePathStub},
@@ -57,16 +104,19 @@ describe('#integrationTests/annotation', () => {
   });
 
   after(async () => {
+    await workspaceService.deleteWorkspace(mockUser.id, mockUser.email as string, workspace.id as string);
+    // we don't have a service method for this
+    await dbConnection.models.ProjectModel.deleteProjectById(project.id);
     for (const member of members) {
-      await membershipService.remove(member.id);
+      await membershipService.remove(member.id as string);
     }
   });
 
   context('#getSuggestedMembers', () => {
     it('should get the suggested members for the mentions dropdown', async () => {
       try {
-        const projectId = '';
-        const query = '';
+        const projectId = project.id;
+        const query = 'i';
 
         await annotationAction.getSuggestedMembers(projectId, query);
       } catch (error) {
@@ -84,7 +134,7 @@ describe('#integrationTests/annotation', () => {
   context('#getProjectAnnotations', () => {
     it('should get the suggested members for the mentions dropdown', async () => {
       try {
-        const projectId = '';
+        const projectId = project.id;
         const annotations = await annotationAction.getProjectAnnotations(projectId);
         assert.isOk(annotations);
       } catch (error) {
@@ -102,7 +152,7 @@ describe('#integrationTests/annotation', () => {
   context('#getStateAnnotations', () => {
     it('should get the suggested members for the mentions dropdown', async () => {
       try {
-        const stateId = '';
+        const stateId = state.id;
         const annotations = await annotationAction.getStateAnnotations(stateId);
         assert.isOk(annotations);
       } catch (error) {
@@ -118,10 +168,10 @@ describe('#integrationTests/annotation', () => {
     });
   });
   context('#createProjectAnnotation', () => {
-    it('should get the suggested members for the mentions dropdown', async () => {
+    it.only('should get the suggested members for the mentions dropdown', async () => {
       try {
-        const projectId = '';
-        const value = '';
+        const value = 'integration test annotation';
+        const projectId = project.id;
 
         await annotationAction.createProjectAnnotation(projectId, value);
       } catch (error) {
@@ -137,10 +187,10 @@ describe('#integrationTests/annotation', () => {
     });
   });
   context('#createStateAnnotation', () => {
-    it('should get the suggested members for the mentions dropdown', async () => {
+    it.only('should get the suggested members for the mentions dropdown', async () => {
       try {
-        const stateId = '';
-        const value = '';
+        const stateId = state.id;
+        const value = 'integrationTest state annotation';
 
         await annotationAction.createStateAnnotation(stateId, value);
       } catch (error) {

@@ -5,8 +5,8 @@ import {useRecoilState, useSetRecoilState} from 'recoil';
 import {showProjectsGridViewAtom} from 'state/ui';
 import {projectAtom} from 'state/project';
 
-import ToggleGridOnIcon from 'public/svg/toggle-grid-on.svg';
-import ToggleGridOffIcon from 'public/svg/toggle-grid-off.svg';
+import ToggleGridOnIcon from 'svg/toggle-grid-on.svg';
+import ToggleGridOffIcon from 'svg/toggle-grid-off.svg';
 
 const btnClass =
   'h-8 p-1 flex items-center justify-center bg-transparent border border-transparent hover:border-white transition duration-150 rounded-[2px]';

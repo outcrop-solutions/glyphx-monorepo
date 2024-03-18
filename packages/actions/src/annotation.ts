@@ -115,6 +115,15 @@ export const getStateAnnotations = async (stateId: string) => {
  * @param projectId
  * @param value
  */
+
+const getToken = () => {
+  // if (process.env.VERCEL_ENV === 'development') {
+  //   return process.env.DEV_BLOB_READ_WRITE_TOKEN;
+  // }
+  // if (process.env.VERCEL_ENV === 'preview') {
+  //   return process.env.DEV_BLOB_READ_WRITE_TOKEN
+  // }
+};
 export const createProjectAnnotation = async (projectId: string, value: string) => {
   try {
     const session = await getServerSession(authOptions);
@@ -126,6 +135,7 @@ export const createProjectAnnotation = async (projectId: string, value: string) 
       });
 
       // check if the image exists in the blob store
+      // const retval = await list({prefix: `project/${projectId}`, token: getToken()});
       const retval = await list({prefix: `project/${projectId}`});
       const project = await projectService.getProject(projectId);
       const imageHash = project?.imageHash;
@@ -136,7 +146,7 @@ export const createProjectAnnotation = async (projectId: string, value: string) 
         const blob = new Blob([buffer], {type: 'image/png'});
 
         // upload imageHash to Blob store
-        const retval = await put(`project/${projectId}`, blob, {
+        await put(`project/${projectId}`, blob, {
           access: 'public',
           addRandomSuffix: false,
         });

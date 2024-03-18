@@ -4,7 +4,7 @@ import {useParams, useRouter} from 'next/navigation';
 import React from 'react';
 import {useRecoilState, useSetRecoilState} from 'recoil';
 import {drawerOpenAtom, projectAtom} from 'state';
-import BackBtnIcon from 'public/svg/back-button-icon.svg';
+import BackBtnIcon from 'svg/back-button-icon.svg';
 
 export const BackBtn = () => {
   const router = useRouter();
