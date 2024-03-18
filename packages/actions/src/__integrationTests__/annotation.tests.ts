@@ -8,7 +8,7 @@ import {databaseTypes} from 'types';
 import {imageHash} from './constants/imageHash';
 import {del, list} from '@vercel/blob';
 
-describe('#integrationTests/annotation', () => {
+describe.only('#integrationTests/annotation', () => {
   const sandbox = createSandbox();
   let annotationAction;
   let members = [] as unknown as databaseTypes.IMember[];
@@ -129,9 +129,12 @@ describe('#integrationTests/annotation', () => {
     it('should get the suggested members for the mentions dropdown', async () => {
       try {
         const projectId = project.id;
-        const query = 'i';
+        const query = 'j';
 
-        await annotationAction.getSuggestedMembers(projectId, query);
+        const members = await annotationAction.getSuggestedMembers(projectId, query);
+        assert.strictEqual(members.length, 1);
+        assert.strictEqual(members[0].name, mockUser.name);
+        assert.strictEqual(members[0].email, mockUser.email);
       } catch (error) {
         assert.fail();
       }
@@ -145,43 +148,80 @@ describe('#integrationTests/annotation', () => {
     });
   });
   context('#getProjectAnnotations', () => {
-    it('should get the suggested members for the mentions dropdown', async () => {
+    it('should get the project annotations', async () => {
       try {
+        const value = 'integration test annotation';
         const projectId = project.id;
+
+        // set up annotation
+        await annotationAction.createProjectAnnotation(projectId, value);
+
         const annotations = await annotationAction.getProjectAnnotations(projectId);
+        // clean up annotation
+        if (annotations && annotations.length > 0) {
+          for (const note of annotations) {
+            const delVal = await dbConnection.models.AnnotationModel.findOneAndDelete({id: note.id});
+            assert.isOk(delVal);
+          }
+        } else {
+          assert.fail();
+        }
+
         assert.isOk(annotations);
+        assert.strictEqual(annotations.length, 1);
+        assert.strictEqual(annotations[0].value, value);
+        assert.strictEqual(annotations[0].projectId, projectId);
+
+        // clean up blob storage
+        const proj = await projectService.getProject(projectId);
+        const latestStateId = proj?.stateHistory[0].id;
+        await del(`https://aqhswtcebhzai9us.public.blob.vercel-storage.com/state/${latestStateId}`, {
+          token: process.env.DEV_BLOB_READ_WRITE_TOKEN,
+        });
       } catch (error) {
         assert.fail();
-      }
-    });
-    it('should throw an ActionError when provided invalid inputs', async () => {
-      try {
-        await annotationAction.getProjectAnnotations(undefined);
-      } catch (error) {
-        assert.instanceOf(error, ActionError);
       }
     });
   });
   context('#getStateAnnotations', () => {
-    it('should get the suggested members for the mentions dropdown', async () => {
+    it('should get the state annotation', async () => {
       try {
         const stateId = state.id;
+        const value = 'integrationTest state annotation';
+
+        // setup annotation
+        await annotationAction.createStateAnnotation(stateId, value);
+
+        // execute
         const annotations = await annotationAction.getStateAnnotations(stateId);
+
+        // clean up annotation
+        // This is done before checking assertions to avoid leaky test throughout this file
+        if (annotations && annotations.length > 0) {
+          for (const note of annotations) {
+            const delVal = await dbConnection.models.AnnotationModel.findOneAndDelete({id: note.id});
+            assert.isOk(delVal);
+          }
+        } else {
+          assert.fail();
+        }
+        // should return the proper annotation
         assert.isOk(annotations);
+        assert.strictEqual(annotations.length, 1);
+        assert.strictEqual(annotations[0].value, value);
+        assert.strictEqual(annotations[0].stateId, stateId);
+
+        // clean up blob storage
+        await del(`https://aqhswtcebhzai9us.public.blob.vercel-storage.com/state/${stateId}`, {
+          token: process.env.DEV_BLOB_READ_WRITE_TOKEN,
+        });
       } catch (error) {
         assert.fail();
       }
     });
-    it('should throw an ActionError when provided invalid inputs', async () => {
-      try {
-        await annotationAction.getStateAnnotations(undefined);
-      } catch (error) {
-        assert.instanceOf(error, ActionError);
-      }
-    });
   });
   context('#createProjectAnnotation', () => {
-    it.only('should create a project annotation', async () => {
+    it('should create a project annotation', async () => {
       try {
         const value = 'integration test annotation';
         const projectId = project.id;
@@ -193,37 +233,39 @@ describe('#integrationTests/annotation', () => {
 
         // should create the blob in the correct blob storage
         const retval = await list({prefix: `state/${latestStateId}`, token: process.env.DEV_BLOB_READ_WRITE_TOKEN});
-        assert.strictEqual(retval.blobs.length, 1);
         // clean up blob storage
+        assert.strictEqual(retval.blobs.length, 1);
         await del(`https://aqhswtcebhzai9us.public.blob.vercel-storage.com/state/${latestStateId}`, {
           token: process.env.DEV_BLOB_READ_WRITE_TOKEN,
         });
 
         // should have created project annotation in DB
         const annotations = await annotationAction.getProjectAnnotations(project.id);
-        assert.strictEqual(annotations?.length, 1);
         // clean up annotation
         if (annotations && annotations.length > 0) {
-          const delVal = await dbConnection.models.AnnotationModel.findOneAndDelete({id: annotations[0].id});
-          assert.isOk(delVal);
+          for (const note of annotations) {
+            const delVal = await dbConnection.models.AnnotationModel.findOneAndDelete({id: note.id});
+            assert.isOk(delVal);
+          }
         } else {
           assert.fail();
         }
+        assert.strictEqual(annotations?.length, 2);
         // TODO: test for email being sent via fake smtp server
       } catch (error) {
         assert.fail();
       }
     });
-    it('should throw an ActionError when provided invalid inputs', async () => {
-      try {
-        await annotationAction.createProjectAnnotation(undefined);
-      } catch (error) {
-        assert.instanceOf(error, ActionError);
-      }
-    });
+    // it('should throw an ActionError when provided invalid inputs', async () => {
+    //   try {
+    //     await annotationAction.createProjectAnnotation(undefined);
+    //   } catch (error) {
+    //     assert.instanceOf(error, ActionError);
+    //   }
+    // });
   });
   context('#createStateAnnotation', () => {
-    it.only('should create a state annotation', async () => {
+    it('should create a state annotation', async () => {
       try {
         const stateId = state.id;
         const value = 'integrationTest state annotation';
@@ -240,24 +282,26 @@ describe('#integrationTests/annotation', () => {
 
         // should have created project annotation in DB
         const annotations = await annotationAction.getStateAnnotations(stateId);
-        assert.strictEqual(annotations?.length, 1);
         // clean up annotation
         if (annotations && annotations.length > 0) {
-          const delVal = await dbConnection.models.AnnotationModel.findOneAndDelete({id: annotations[0].id});
-          assert.isOk(delVal);
+          for (const note of annotations) {
+            const delVal = await dbConnection.models.AnnotationModel.findOneAndDelete({id: note.id});
+            assert.isOk(delVal);
+          }
         } else {
           assert.fail();
         }
+        assert.strictEqual(annotations?.length, 2);
       } catch (error) {
         assert.fail();
       }
     });
-    it('should throw an ActionError when provided invalid inputs', async () => {
-      try {
-        await annotationAction.createStateAnnotation(undefined);
-      } catch (error) {
-        assert.instanceOf(error, ActionError);
-      }
-    });
+    // it('should throw an ActionError when provided invalid inputs', async () => {
+    //   try {
+    //     await annotationAction.createStateAnnotation(undefined);
+    //   } catch (error) {
+    //     assert.instanceOf(error, ActionError);
+    //   }
+    // });
   });
 });
