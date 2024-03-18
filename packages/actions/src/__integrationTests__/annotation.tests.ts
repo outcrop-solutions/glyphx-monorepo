@@ -6,6 +6,7 @@ import {ActionError} from 'core/src/error';
 import {Initializer, dbConnection, membershipService, projectService, stateService, workspaceService} from 'business';
 import {databaseTypes} from 'types';
 import {imageHash} from './constants/imageHash';
+import {del, list} from '@vercel/blob';
 
 describe('#integrationTests/annotation', () => {
   const sandbox = createSandbox();
@@ -50,12 +51,18 @@ describe('#integrationTests/annotation', () => {
       'Default Workspace',
       'default-workspace'
     );
+    if (!workspace) {
+      assert.fail();
+    }
 
     // create the project
     const name = 'newProject';
     const workspaceId = workspace.id;
 
     project = await projectService.createProject(name, workspaceId, mockUser?.id, mockUser?.email);
+    if (!project) {
+      assert.fail();
+    }
 
     // create a state
     state = await stateService.createState(
@@ -78,6 +85,9 @@ describe('#integrationTests/annotation', () => {
       [] as unknown as string[], // rowIds
       imageHash
     );
+    if (!state) {
+      assert.fail();
+    }
 
     // set up membership to test suggestions
     const newMembers = [{email: 'integrationtest@gmail.com', teamRole: databaseTypes.constants.ROLE.MEMBER}];
@@ -94,6 +104,8 @@ describe('#integrationTests/annotation', () => {
           }
         }
       }
+    } else {
+      assert.fail();
     }
 
     annotationAction = proxyquire('../annotation', {
@@ -108,8 +120,9 @@ describe('#integrationTests/annotation', () => {
     // we don't have a service method for this
     await dbConnection.models.ProjectModel.deleteProjectById(project.id);
     for (const member of members) {
-      await membershipService.remove(member.id as string);
+      await dbConnection.models.MemberModel.deleteMemberById(member.id as string);
     }
+    await dbConnection.models.StateModel.deleteStateById(state.id);
   });
 
   context('#getSuggestedMembers', () => {
@@ -168,12 +181,35 @@ describe('#integrationTests/annotation', () => {
     });
   });
   context('#createProjectAnnotation', () => {
-    it.only('should get the suggested members for the mentions dropdown', async () => {
+    it.only('should create a project annotation', async () => {
       try {
         const value = 'integration test annotation';
         const projectId = project.id;
 
+        const proj = await projectService.getProject(projectId);
+        const latestStateId = proj?.stateHistory[0].id;
+
         await annotationAction.createProjectAnnotation(projectId, value);
+
+        // should create the blob in the correct blob storage
+        const retval = await list({prefix: `state/${latestStateId}`, token: process.env.DEV_BLOB_READ_WRITE_TOKEN});
+        assert.strictEqual(retval.blobs.length, 1);
+        // clean up blob storage
+        await del(`https://aqhswtcebhzai9us.public.blob.vercel-storage.com/state/${latestStateId}`, {
+          token: process.env.DEV_BLOB_READ_WRITE_TOKEN,
+        });
+
+        // should have created project annotation in DB
+        const annotations = await annotationAction.getProjectAnnotations(project.id);
+        assert.strictEqual(annotations?.length, 1);
+        // clean up annotation
+        if (annotations && annotations.length > 0) {
+          const delVal = await dbConnection.models.AnnotationModel.findOneAndDelete({id: annotations[0].id});
+          assert.isOk(delVal);
+        } else {
+          assert.fail();
+        }
+        // TODO: test for email being sent via fake smtp server
       } catch (error) {
         assert.fail();
       }
@@ -187,12 +223,31 @@ describe('#integrationTests/annotation', () => {
     });
   });
   context('#createStateAnnotation', () => {
-    it.only('should get the suggested members for the mentions dropdown', async () => {
+    it.only('should create a state annotation', async () => {
       try {
         const stateId = state.id;
         const value = 'integrationTest state annotation';
 
         await annotationAction.createStateAnnotation(stateId, value);
+
+        // should create the blob in the correct blob storage
+        const retval = await list({prefix: `state/${stateId}`, token: process.env.DEV_BLOB_READ_WRITE_TOKEN});
+        assert.strictEqual(retval.blobs.length, 1);
+        // clean up blob storage
+        await del(`https://aqhswtcebhzai9us.public.blob.vercel-storage.com/state/${stateId}`, {
+          token: process.env.DEV_BLOB_READ_WRITE_TOKEN,
+        });
+
+        // should have created project annotation in DB
+        const annotations = await annotationAction.getStateAnnotations(stateId);
+        assert.strictEqual(annotations?.length, 1);
+        // clean up annotation
+        if (annotations && annotations.length > 0) {
+          const delVal = await dbConnection.models.AnnotationModel.findOneAndDelete({id: annotations[0].id});
+          assert.isOk(delVal);
+        } else {
+          assert.fail();
+        }
       } catch (error) {
         assert.fail();
       }

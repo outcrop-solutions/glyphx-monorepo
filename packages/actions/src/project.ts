@@ -72,7 +72,6 @@ export const updateProjectName = async (projectId: string, name: string) => {
       const retval = await projectService.updateProject(projectId, {
         name,
       });
-      console.log({retval});
       revalidatePath(`/project/${projectId}`, 'layout');
     }
   } catch (err) {

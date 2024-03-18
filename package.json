@@ -9,7 +9,7 @@
   "scripts": {
     "build": "rimraf apps/web/.next && dotenv -- turbo build --remote-only=false --summarize=false",
     "test": "rimraf apps/web/.next && dotenv -- turbo test",
-    "integrationTest": "rimraf apps/web/.next && turbo integrationTest",
+    "integrationTest": "rimraf apps/web/.next && dotenv -- turbo integrationTest --remote-only=false --summarize=false",
     "format": "turbo format",
     "format:write": "turbo format:write",
     "dev": "rimraf apps/web/.next && dotenv -- turbo dev --remote-only=false --summarize=false",

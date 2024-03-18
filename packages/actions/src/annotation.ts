@@ -1,3 +1,4 @@
+/* eslint-disable turbo/no-undeclared-env-vars */
 'use server';
 import {error, constants} from 'core';
 import {membershipService, projectService, annotationService, stateService} from '../../business/src/services';
@@ -111,19 +112,25 @@ export const getStateAnnotations = async (stateId: string) => {
 };
 
 /**
+ * Gives correct BLOB store based on VERCEL_ENV
+ * @returns
+ */
+const getToken = () => {
+  if (process.env.VERCEL_ENV === 'development') {
+    return process.env.DEV_BLOB_READ_WRITE_TOKEN;
+  }
+  if (process.env.VERCEL_ENV === 'preview') {
+    return process.env.DEMO_BLOB_READ_WRITE_TOKEN;
+  }
+  if (process.env.VERCEL_ENV === 'production') {
+    return process.env.PROD_BLOB_READ_WRITE_TOKEN;
+  }
+};
+/**
  * Create project annotation
  * @param projectId
  * @param value
  */
-
-const getToken = () => {
-  // if (process.env.VERCEL_ENV === 'development') {
-  //   return process.env.DEV_BLOB_READ_WRITE_TOKEN;
-  // }
-  // if (process.env.VERCEL_ENV === 'preview') {
-  //   return process.env.DEV_BLOB_READ_WRITE_TOKEN
-  // }
-};
 export const createProjectAnnotation = async (projectId: string, value: string) => {
   try {
     const session = await getServerSession(authOptions);
@@ -134,11 +141,12 @@ export const createProjectAnnotation = async (projectId: string, value: string) 
         value,
       });
 
-      // check if the image exists in the blob store
-      // const retval = await list({prefix: `project/${projectId}`, token: getToken()});
-      const retval = await list({prefix: `project/${projectId}`});
       const project = await projectService.getProject(projectId);
       const imageHash = project?.imageHash;
+      const latestStateId = project?.stateHistory[0].id;
+
+      // check if the image exists in the blob store
+      const retval = await list({prefix: `state/${latestStateId}`, token: getToken()});
 
       if (imageHash && retval.blobs.length === 0) {
         // for backwards compatiblity, we need to put the state imageHash into the store if it does not already exist
@@ -146,9 +154,10 @@ export const createProjectAnnotation = async (projectId: string, value: string) 
         const blob = new Blob([buffer], {type: 'image/png'});
 
         // upload imageHash to Blob store
-        await put(`project/${projectId}`, blob, {
+        await put(`state/${latestStateId}`, blob, {
           access: 'public',
           addRandomSuffix: false,
+          token: getToken(),
         });
       }
 
@@ -197,7 +206,7 @@ export const createStateAnnotation = async (stateId: string, value: string) => {
         const state = await stateService.getState(stateId);
 
         // check if the image exists in the blob store
-        const retval = await list({prefix: state?.id});
+        const retval = await list({prefix: `state/${state?.id}`, token: getToken()});
         const imageHash = state?.imageHash;
 
         if (imageHash && retval.blobs.length === 0) {
@@ -209,6 +218,7 @@ export const createStateAnnotation = async (stateId: string, value: string) => {
           await put(`state/${state?.id}`, blob, {
             access: 'public',
             addRandomSuffix: false,
+            token: getToken(),
           });
         }
 
