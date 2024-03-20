@@ -9,7 +9,7 @@ import {authOptions} from './auth';
 import {revalidatePath} from 'next/cache';
 import emailClient from './email';
 import Fuse from 'fuse.js';
-import {getToken} from 'utils/getToken';
+import {buildStateUrl, getToken} from './utils/blobStore';
 
 /**
  * Gets suggested members for combobox
@@ -152,7 +152,7 @@ export const createProjectAnnotation = async (projectId: string, value: string) 
         const emailData = {
           type: emailTypes.EmailTypes.ANNOTATION_CREATED,
           stateName: project.name,
-          stateImage: `https://aqhswtcebhzai9us.public.blob.vercel-storage.com/project/${projectId}`,
+          stateImage: buildStateUrl(latestStateId as string),
           annotation: value,
           emails: [...members.map((mem) => mem.email)],
         } satisfies emailTypes.EmailData;
@@ -214,7 +214,7 @@ export const createStateAnnotation = async (stateId: string, value: string) => {
             const emailData = {
               type: emailTypes.EmailTypes.ANNOTATION_CREATED,
               stateName: state.name,
-              stateImage: `https://aqhswtcebhzai9us.public.blob.vercel-storage.com/state/${state?.id}`,
+              stateImage: buildStateUrl(state?.id as string),
               annotation: annotation.value,
               emails: [...members.map((mem) => mem.email)],
             } satisfies emailTypes.EmailData;

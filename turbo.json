@@ -43,14 +43,50 @@
     "build": {
       "outputs": [".next/**", "dist/**", "build/**"]
     },
+    "dev:build": {
+      "outputs": [".next/**", "dist/**", "build/**"]
+    },
+    "demo:build": {
+      "outputs": [".next/**", "dist/**", "build/**"]
+    },
+    "prod:build": {
+      "outputs": [".next/**", "dist/**", "build/**"]
+    },
     "test": {
-      "dependsOn": ["build"],
+      "outputs": [],
+      "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
+    },
+    "dev:test": {
+      "dependsOn": ["dev:build"],
+      "outputs": [],
+      "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
+    },
+    "demo:test": {
+      "dependsOn": ["demo:build"],
+      "outputs": [],
+      "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
+    },
+    "prod:test": {
+      "dependsOn": ["prod:build"],
       "outputs": [],
       "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
     },
     "integrationTest": {
-      "cache": false,
-      "dependsOn": ["build"],
+      "outputs": [],
+      "inputs": ["src/**/*.tsx", "src/**/*.ts", "**/tests/**/*.ts", "**/tests/**/*.tsx"]
+    },
+    "dev:integrationTest": {
+      "dependsOn": ["dev:build"],
+      "outputs": [],
+      "inputs": ["src/**/*.tsx", "src/**/*.ts", "**/tests/**/*.ts", "**/tests/**/*.tsx"]
+    },
+    "demo:integrationTest": {
+      "dependsOn": ["demo:build"],
+      "outputs": [],
+      "inputs": ["src/**/*.tsx", "src/**/*.ts", "**/tests/**/*.ts", "**/tests/**/*.tsx"]
+    },
+    "prod:integrationTest": {
+      "dependsOn": ["prod:build"],
       "outputs": [],
       "inputs": ["src/**/*.tsx", "src/**/*.ts", "**/tests/**/*.ts", "**/tests/**/*.tsx"]
     },

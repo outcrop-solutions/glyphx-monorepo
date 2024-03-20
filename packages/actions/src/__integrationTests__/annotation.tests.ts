@@ -7,6 +7,7 @@ import {Initializer, dbConnection, membershipService, projectService, stateServi
 import {databaseTypes} from 'types';
 import {imageHash} from './constants/imageHash';
 import {del, list} from '@vercel/blob';
+import {buildStateUrl, getToken} from '../utils/blobStore';
 
 describe.only('#integrationTests/annotation', () => {
   const sandbox = createSandbox();
@@ -175,8 +176,8 @@ describe.only('#integrationTests/annotation', () => {
         // clean up blob storage
         const proj = await projectService.getProject(projectId);
         const latestStateId = proj?.stateHistory[0].id;
-        await del(`https://aqhswtcebhzai9us.public.blob.vercel-storage.com/state/${latestStateId}`, {
-          token: process.env.DEV_BLOB_READ_WRITE_TOKEN,
+        await del(buildStateUrl(latestStateId as string), {
+          token: getToken(),
         });
       } catch (error) {
         assert.fail();
@@ -212,8 +213,8 @@ describe.only('#integrationTests/annotation', () => {
         assert.strictEqual(annotations[0].stateId, stateId);
 
         // clean up blob storage
-        await del(`https://aqhswtcebhzai9us.public.blob.vercel-storage.com/state/${stateId}`, {
-          token: process.env.DEV_BLOB_READ_WRITE_TOKEN,
+        await del(buildStateUrl(stateId), {
+          token: getToken(),
         });
       } catch (error) {
         assert.fail();
@@ -232,11 +233,11 @@ describe.only('#integrationTests/annotation', () => {
         await annotationAction.createProjectAnnotation(projectId, value);
 
         // should create the blob in the correct blob storage
-        const retval = await list({prefix: `state/${latestStateId}`, token: process.env.DEV_BLOB_READ_WRITE_TOKEN});
+        const retval = await list({prefix: `state/${latestStateId}`, token: getToken()});
         // clean up blob storage
         assert.strictEqual(retval.blobs.length, 1);
-        await del(`https://aqhswtcebhzai9us.public.blob.vercel-storage.com/state/${latestStateId}`, {
-          token: process.env.DEV_BLOB_READ_WRITE_TOKEN,
+        await del(buildStateUrl(latestStateId as string), {
+          token: getToken(),
         });
 
         // should have created project annotation in DB
@@ -273,11 +274,11 @@ describe.only('#integrationTests/annotation', () => {
         await annotationAction.createStateAnnotation(stateId, value);
 
         // should create the blob in the correct blob storage
-        const retval = await list({prefix: `state/${stateId}`, token: process.env.DEV_BLOB_READ_WRITE_TOKEN});
+        const retval = await list({prefix: `state/${stateId}`, token: getToken()});
         assert.strictEqual(retval.blobs.length, 1);
         // clean up blob storage
-        await del(`https://aqhswtcebhzai9us.public.blob.vercel-storage.com/state/${stateId}`, {
-          token: process.env.DEV_BLOB_READ_WRITE_TOKEN,
+        await del(buildStateUrl(stateId), {
+          token: getToken(),
         });
 
         // should have created project annotation in DB

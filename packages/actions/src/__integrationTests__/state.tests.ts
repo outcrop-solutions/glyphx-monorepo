@@ -111,8 +111,6 @@ describe('#integrationTests/state', () => {
         const rowIds = [];
 
         const state = await stateActions.createState(name, camera, project, imageHash, aspectRatio, rowIds);
-
-        // s
       } catch (error) {
         assert.fail();
       }

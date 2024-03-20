@@ -7,9 +7,15 @@
     "packages/**"
   ],
   "scripts": {
-    "build": "rimraf apps/web/.next && dotenv -- turbo build --remote-only=false --summarize=false",
-    "test": "rimraf apps/web/.next && dotenv -- turbo test",
-    "integrationTest": "rimraf apps/web/.next && dotenv -- turbo integrationTest --remote-only=false --summarize=false",
+    "dev:build": "rimraf apps/web/.next && vercel env pull .env &&  dotenv -- turbo build --remote-only=false --summarize=false",
+    "demo:build": "rimraf apps/web/.next && vercel env pull --environment=preview --git-branch=demo .env && dotenv -- turbo build --remote-only=false --summarize=false",
+    "prod:build": "rimraf apps/web/.next && vercel env pull --environment=production .env && dotenv -- turbo build --remote-only=false --summarize=false",
+    "dev:test": "rimraf apps/web/.next && vercel env pull .env &&  dotenv -- turbo test --remote-only=false --summarize=false",
+    "demo:test": "rimraf apps/web/.next && vercel env pull --environment=preview --git-branch=demo .env && dotenv -- turbo test --remote-only=false --summarize=false",
+    "prod:test": "rimraf apps/web/.next && vercel env pull --environment=production .env && dotenv -- turbo test --remote-only=false --summarize=false",
+    "dev:integrationTest": "rimraf apps/web/.next && vercel env pull .env && dotenv -- turbo integrationTest --remote-only=false --summarize=false",
+    "demo:integrationTest": "rimraf apps/web/.next && vercel env pull --environment=preview --git-branch=demo .env && dotenv -- turbo integrationTest --remote-only=false --summarize=false",
+    "prod:integrationTest": "rimraf apps/web/.next && vercel env pull --environment=production .env && dotenv -- turbo integrationTest --remote-only=false --summarize=false",
     "format": "turbo format",
     "format:write": "turbo format:write",
     "dev": "rimraf apps/web/.next && dotenv -- turbo dev --remote-only=false --summarize=false",
