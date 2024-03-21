@@ -9,7 +9,7 @@ import {imageHash} from './constants/imageHash';
 import {del, list} from '@vercel/blob';
 import {buildStateUrl, getToken} from '../utils/blobStore';
 
-describe.only('#integrationTests/annotation', () => {
+describe('#integrationTests/annotation', () => {
   const sandbox = createSandbox();
   let annotationAction;
   let members = [] as unknown as databaseTypes.IMember[];

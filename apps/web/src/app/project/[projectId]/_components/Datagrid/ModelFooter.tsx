@@ -11,8 +11,7 @@ import {
   windowSizeAtom,
 } from 'state';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
-import {hashFileSystem} from 'lib/utils/hashFileSystem';
-import {hashPayload} from 'lib/utils/hashPayload';
+import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
 import {useSession} from 'next-auth/react';
 import {useUrl} from 'lib/client/hooks';
 

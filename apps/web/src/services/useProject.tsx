@@ -7,8 +7,7 @@ import {doesStateExistSelector, drawerOpenAtom, projectAtom, showLoadingAtom, sp
 import {useUrl} from 'lib/client/hooks';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
-import {hashFileSystem} from 'lib/utils/hashFileSystem';
-import {hashPayload} from 'lib/utils/hashPayload';
+import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
 import {isValidPayload} from 'lib/utils/isValidPayload';
 import {deepMergeProject} from 'lib/utils/deepMerge';
 import {useSWRConfig} from 'swr';
