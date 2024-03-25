@@ -1,13 +1,6 @@
 import {Transform, TransformCallback} from 'node:stream';
-
-// function getBufferDecoder(encoding: SupportedEncoding): BufferDecoder {
-//   switch (encoding) {
-//     case 'utf8':
-//       return new Utf8Decoder();
-//     default:
-//       throw new Error(`Unsupported encoding: ${encoding}`);
-//   }
-// }
+import {IBufferDecoder} from '../interfaces';
+import {getBufferDecoder} from '../util/conversion/bufferDecoderFactory';
 type Char =
   | '!'
   | '#'
@@ -49,7 +42,7 @@ export interface BasicCsvParserOptions {
   isQuoted?: boolean;
   rowsToProcess?: number;
   lineTerminator?: LineTerminator;
-  encoding: SupportedEncoding;
+  encoding?: string;
 }
 
 export class BasicCsvParser extends Transform {
@@ -61,14 +54,16 @@ export class BasicCsvParser extends Transform {
   private readonly delimiter: Char;
   private readonly isQuoted: boolean;
   private readonly lineTerminator: LineTerminator;
-  private readonly encoding: SupportedEncoding;
+  private encoding?: string;
+  private decoder?: IBufferDecoder;
+  private leftover?: Buffer;
 
   constructor({
     delimiter = ',',
     isQuoted = true,
     rowsToProcess = 100,
     lineTerminator = '\r\n',
-    encoding = 'utf8',
+    encoding = '',
   }: BasicCsvParserOptions) {
     super({objectMode: true});
 
@@ -79,30 +74,26 @@ export class BasicCsvParser extends Transform {
     this.encoding = encoding;
   }
 
-  convertChunkToString(chunk: Buffer | string | any, encoding: SupportedEncoding) {
-    if (typeof chunk === 'string') {
-      return chunk;
-    } else if (Buffer.isBuffer(chunk)) {
-      return chunk.toString(encoding);
-    } else {
+  _transform(chunk: Buffer, encoding: string, callback: TransformCallback) {
+    if (!this.decoder) {
+      let localEncoding = encoding || this.encoding || 'utf8';
+      this.decoder = getBufferDecoder(localEncoding);
+      this.encoding = localEncoding;
     }
-  }
-  _transform(chunk: Buffer, encoding: SupportedEncoding, callback: TransformCallback) {
-    // const strChunk = chunk.toString(encoding || this.encoding);
-    // const rows = chunk.split('\n');
-    // rows.forEach((row, index) => {
-    //   if (this.isHeaderRow) {
-    //     this.headers = row.split(',');
-    //     this.isHeaderRow = false;
-    //   } else {
-    //     const values = row.split(',');
-    //     const obj: Record<string, string> = {};
-    //     this.headers.forEach((header, index) => {
-    //       obj[header] = values[index];
-    //     });
-    //     this.push(obj);
-    //   }
-    // });
+
+    let buffer = this.leftover ? Buffer.concat([this.leftover, chunk]) : chunk;
+    const maxLen = chunk.length;
+    let bytesConsumed = 0;
+    let result: [string, number] | undefined;
+    while ((result = this.decoder.getChar(buffer, bytesConsumed)) && bytesConsumed < maxLen) {
+      let [char, charSize] = result;
+      bytesConsumed += charSize;
+      console.log(char);
+    }
+    if (bytesConsumed < maxLen)
+      //create a new buffer because subArrary points to the same memory location
+      //and I think will cause garbage collection to keep the original buffer around
+      this.leftover = Buffer.from(chunk.subarray(bytesConsumed));
     callback();
   }
 }

@@ -3,7 +3,7 @@ import {assert} from 'chai';
 import {conversion} from '../../../util';
 import {Buffer} from 'node:buffer';
 
-describe.only('#fileProcessing/Latin1Decoder', () => {
+describe('#fileProcessing/Latin1Decoder', () => {
   context('Converting Values', () => {
     it('will decode my ASCII string with', () => {
       const testString = 'a©£';

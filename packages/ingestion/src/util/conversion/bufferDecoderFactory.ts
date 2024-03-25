@@ -6,10 +6,13 @@ import {Latin1Decoder} from './latin1Decoder';
 
 export function getBufferDecoder(encoding: string): IBufferDecoder {
   let cleanEncoding = encoding.trim().toLowerCase().replaceAll('-', '');
-  switch (encoding) {
+  switch (cleanEncoding) {
     case 'utf8':
       return new Utf8Decoder();
-    case 'utf16' || 'utf16le' || 'utf16be' || 'ucs2':
+    case 'utf16le':
+    case 'utf16be':
+    case 'ucs2':
+    case 'utf16':
       return new Utf16Decoder();
     case 'ascii':
       return new AsciiDecoder();
