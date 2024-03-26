@@ -11,3 +11,4 @@ export {TableArchiver} from './tableArchiver';
 export {FileUploadManager} from './fileUploadManager';
 export {FileReconciliator} from './fileReconciliator';
 export {BasicCsvParser} from './basicCsvParser';
+export {BasicColumnNameProcessor} from './basicColumnNameProcesser';
