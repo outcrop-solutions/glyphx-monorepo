@@ -108,6 +108,11 @@ export class BasicColumnNameProcessor {
   public getColumnCount(): number {
     return this.columns.length;
   }
+
+  public getEnabledColumnsCount(): number {
+    return this.columns.filter((x) => x.isIncluded).length;
+  }
+
   public disableColumn(index: number) {
     this.columns[index].isIncluded = false;
   }

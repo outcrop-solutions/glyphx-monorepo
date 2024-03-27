@@ -1,4 +1,5 @@
 import {IBufferDecoder} from '../../interfaces';
+import {error} from 'core';
 
 export class Utf16Decoder implements IBufferDecoder {
   private hasBom = false; // Track if the BOM has been processed
@@ -65,7 +66,11 @@ export class Utf16Decoder implements IBufferDecoder {
   // Helper function (implementation omitted for brevity)
   private getCharFromSurrogatePair(high: number, low: number): string {
     if (high < 0xd800 || high > 0xdbff || low < 0xdc00 || low > 0xdfff) {
-      throw new Error('Invalid surrogate pair');
+      throw new error.InvalidArgumentError(
+        `The high : ${high.toString(16).padStart(4, '0')} and low : ${low.toString(16).padStart(4, '0')} are not a valid surrogate pair`,
+        ['high', 'low'],
+        {high: high.toString(16).padStart(4, '0'), low: low.toString(16).padStart(4, '0')}
+      );
     }
 
     // 2. Calculate the code point from the surrogate pair

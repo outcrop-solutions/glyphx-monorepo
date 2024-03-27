@@ -47,7 +47,7 @@ describe('#fileProcessing/AsciiDecoder', () => {
           output += char;
           usedBytes += size;
         }
-      }, 'Invalid ASCII character code');
+      }, 'The byteValue: 255 is not a valid ASCII character code');
       assert.equal(output, testString);
     });
   });

@@ -53,7 +53,6 @@ describe('#fieldProcessing/DateFieldChecker', () => {
       const dateChecker = new DateFieldChecker();
       assert.isFalse(dateChecker.checkField('7473600000'));
     });
-    // FIXME: this case is failing, isNaN returns false on the output of Number(1274736000000)
     it('1274736000000 is a date', () => {
       const dateChecker = new DateFieldChecker();
       assert.isTrue(dateChecker.checkField('1274736000000'));

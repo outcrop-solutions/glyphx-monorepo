@@ -1,5 +1,5 @@
 import {IBufferDecoder} from '../../interfaces';
-
+import {error} from 'core';
 export class Utf8Decoder implements IBufferDecoder {
   constructor() {}
   getChar(buffer: Buffer, offset: number): [string, number] | undefined {
@@ -32,7 +32,11 @@ export class Utf8Decoder implements IBufferDecoder {
         return 4;
       default:
         // Handle invalid sequence (throw error or replace with ?)
-        throw new Error('Invalid UTF-8 byte sequence');
+        throw new error.InvalidArgumentError(
+          `The UTF Sequence: 0b${firstByte.toString(2).padStart(8, '0')} is not a valid UTF-8 sequence`,
+          'firstByte',
+          firstByte.toString(2).padStart(8, '0')
+        );
     }
   }
 }

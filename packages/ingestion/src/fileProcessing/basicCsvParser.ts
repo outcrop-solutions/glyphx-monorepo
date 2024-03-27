@@ -2,6 +2,8 @@ import {Transform, TransformCallback} from 'node:stream';
 import {IBufferDecoder} from '../interfaces';
 import {getBufferDecoder} from '../util/conversion/bufferDecoderFactory';
 import {BasicColumnNameProcessor} from './basicColumnNameProcesser';
+import {error} from 'core';
+
 type Char =
   | '!'
   | '#'
@@ -103,7 +105,16 @@ export class BasicCsvParser extends Transform {
   cleanRow(row: string[]): Record<string, string> {
     let cleanedRow: Record<string, string> = {};
     //TODO: Do we have an appropriate number of columns
-    for (let i = 0; i < this.headers.getColumnCount(); i++) {
+    let numberOfColumns = this.headers.getColumnCount();
+    if (row.length !== numberOfColumns) {
+      throw new error.InvalidArgumentError(
+        `The number of columns in the row: ${row.length} does not match the number of columns in the header: ${numberOfColumns}`,
+        'row',
+        row
+      );
+    }
+
+    for (let i = 0; i < numberOfColumns; i++) {
       let columnDefinition = this.headers.getColumn(i);
       if (columnDefinition.isIncluded) {
         cleanedRow[columnDefinition.finalName] = row[i];
@@ -133,6 +144,15 @@ export class BasicCsvParser extends Transform {
       if (validityData[i].percentFilled === 0) {
         this.headers.disableColumn(i);
       }
+    }
+
+    let enabledColumns = this.headers.getEnabledColumnsCount();
+    if (enabledColumns < 2) {
+      throw new error.InvalidArgumentError(
+        `You need at least 2 columns in the first : ${this.bufferSize} with data.`,
+        'data',
+        this.data
+      );
     }
   }
   processBufferedRows() {
@@ -178,85 +198,98 @@ export class BasicCsvParser extends Transform {
   }
 
   _transform(chunk: Buffer, encoding: string, callback: TransformCallback) {
-    if (!this.decoder) {
-      let localEncoding = encoding || this.encoding || 'utf8';
-      this.decoder = getBufferDecoder(localEncoding);
-      this.encoding = localEncoding;
-    }
-
-    let buffer = this.leftover ? Buffer.concat([this.leftover, chunk]) : chunk;
-    const maxLen = chunk.length;
-    let bytesConsumed = 0;
-    let result: [string, number] | undefined;
-    while ((result = this.decoder.getChar(buffer, bytesConsumed)) && bytesConsumed < maxLen) {
-      let [char, charSize] = result;
-      bytesConsumed += charSize;
-      //is this a delimiter.
-      if (!this.isLiteral && char === this.literalChar) {
-        this.isLiteral = true;
-      } else if (!this.isLiteral && this.isQuoted && char === this.quoteChar) {
-        this.inLineTerminator = false;
-        this.inQuote = !this.inQuote;
-      } else if (!this.isLiteral && !this.inQuote && char === this.delimiter) {
-        this.isHeaderRow
-          ? this.headers.AddColumn(this.currentToken ?? '')
-          : this.currentRow.push(this.currentToken ?? '');
-        this.currentToken = undefined;
-      } else if (!this.isLiteral && !this.inQuote && this.lineTerminator.length === 1 && char === this.lineTerminator) {
-        if (this.currentToken !== undefined) {
-          this.isHeaderRow ? this.headers.AddColumn(this.currentToken) : this.currentRow.push(this.currentToken);
-        }
-        if (!this.isHeaderRow) {
-          if (this.currentRow.length > 0) this.processRow(this.currentRow);
-        }
-        this.isHeaderRow = false;
-        //this.processHeaders();
-        this.currentRow = [];
-        this.inLineTerminator = false;
-        this.currentToken = undefined;
-      } else if (
-        !this.isLiteral &&
-        !this.inQuote &&
-        this.lineTerminator.length === 2 &&
-        char === this.lineTerminator[0]
-      ) {
-        this.inLineTerminator = true;
-      } else if (!this.isLiteral && !this.inQuote && this.inLineTerminator && char === this.lineTerminator[1]) {
-        if (this.currentToken !== undefined) {
-          this.isHeaderRow ? this.headers.AddColumn(this.currentToken) : this.currentRow.push(this.currentToken);
-        }
-        if (!this.isHeaderRow) {
-          if (this.currentRow.length > 0) this.processRow(this.currentRow);
-        }
-
-        this.isHeaderRow = false;
-        this.currentRow = [];
-        this.inLineTerminator = false;
-        this.currentToken = undefined;
-      } else if (!this.isLiteral && this.inLineTerminator) {
-        if (this.currentToken === undefined) this.currentToken = '';
-        this.currentToken += this.lineTerminator[0] + char;
-        this.inLineTerminator = false;
-      } else {
-        //it is possible to fall through here with the first part
-        //of a \r\n line terminator.  Say a field has \r1 in it.
-        //This will cover that edge case.
-        if (this.currentToken === undefined) this.currentToken = '';
-        if (this.inLineTerminator) {
-          this.inLineTerminator = false;
-          this.currentToken += this.lineTerminator[0];
-        }
-
-        this.currentToken += char;
-        this.isLiteral = false;
-        //If we fall through to here, we cant't be in a line terminator anymore.
+    try {
+      if (!this.decoder) {
+        let localEncoding = encoding || this.encoding || 'utf8';
+        this.decoder = getBufferDecoder(localEncoding);
+        this.encoding = localEncoding;
       }
-    }
 
-    if (bytesConsumed < maxLen)
-      //create a new buffer because subArrary points to the same memory location
-      //and I think will cause garbage collection to keep the original buffer around
-      this.leftover = Buffer.from(chunk.subarray(bytesConsumed));
-    callback();
+      let buffer = this.leftover ? Buffer.concat([this.leftover, chunk]) : chunk;
+      const maxLen = chunk.length;
+      let bytesConsumed = 0;
+      let result: [string, number] | undefined;
+      while ((result = this.decoder.getChar(buffer, bytesConsumed)) && bytesConsumed < maxLen) {
+        let [char, charSize] = result;
+        bytesConsumed += charSize;
+        //is this a delimiter.
+        if (!this.isLiteral && char === this.literalChar) {
+          this.isLiteral = true;
+        } else if (!this.isLiteral && this.isQuoted && char === this.quoteChar) {
+          this.inLineTerminator = false;
+          this.inQuote = !this.inQuote;
+        } else if (!this.isLiteral && !this.inQuote && char === this.delimiter) {
+          this.isHeaderRow
+            ? this.headers.AddColumn(this.currentToken ?? '')
+            : this.currentRow.push(this.currentToken ?? '');
+          this.currentToken = undefined;
+        } else if (
+          !this.isLiteral &&
+          !this.inQuote &&
+          this.lineTerminator.length === 1 &&
+          char === this.lineTerminator
+        ) {
+          if (this.currentToken !== undefined) {
+            this.isHeaderRow ? this.headers.AddColumn(this.currentToken) : this.currentRow.push(this.currentToken);
+          }
+          if (!this.isHeaderRow) {
+            if (this.currentRow.length > 0) this.processRow(this.currentRow);
+          }
+          this.isHeaderRow = false;
+          //this.processHeaders();
+          this.currentRow = [];
+          this.inLineTerminator = false;
+          this.currentToken = undefined;
+        } else if (
+          !this.isLiteral &&
+          !this.inQuote &&
+          this.lineTerminator.length === 2 &&
+          char === this.lineTerminator[0]
+        ) {
+          this.inLineTerminator = true;
+        } else if (!this.isLiteral && !this.inQuote && this.inLineTerminator && char === this.lineTerminator[1]) {
+          if (this.currentToken !== undefined) {
+            this.isHeaderRow ? this.headers.AddColumn(this.currentToken) : this.currentRow.push(this.currentToken);
+          }
+          if (!this.isHeaderRow) {
+            if (this.currentRow.length > 0) this.processRow(this.currentRow);
+          }
+
+          this.isHeaderRow = false;
+          this.currentRow = [];
+          this.inLineTerminator = false;
+          this.currentToken = undefined;
+        } else if (!this.isLiteral && this.inLineTerminator) {
+          if (this.currentToken === undefined) this.currentToken = '';
+          this.currentToken += this.lineTerminator[0] + char;
+          this.inLineTerminator = false;
+        } else {
+          //it is possible to fall through here with the first part
+          //of a \r\n line terminator.  Say a field has \r1 in it.
+          //This will cover that edge case.
+          if (this.currentToken === undefined) this.currentToken = '';
+          if (this.inLineTerminator) {
+            this.inLineTerminator = false;
+            this.currentToken += this.lineTerminator[0];
+          }
+
+          this.currentToken += char;
+          this.isLiteral = false;
+          //If we fall through to here, we cant't be in a line terminator anymore.
+        }
+      }
+
+      if (bytesConsumed < maxLen)
+        //create a new buffer because subArrary points to the same memory location
+        //and I think will cause garbage collection to keep the original buffer around
+        this.leftover = Buffer.from(chunk.subarray(bytesConsumed));
+      callback();
+    } catch (err: any) {
+      let e = new error.FileParseError(
+        `An error occurred while parsing the file: ${err.message ?? err} See the inner error for additional information.`,
+        err
+      );
+      callback(e);
+    }
   }
 }

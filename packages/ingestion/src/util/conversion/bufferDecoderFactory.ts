@@ -3,6 +3,7 @@ import {Utf8Decoder} from './utf8Decoder';
 import {Utf16Decoder} from './utf16Decoder';
 import {AsciiDecoder} from './asciiDecoder';
 import {Latin1Decoder} from './latin1Decoder';
+import {error} from 'core';
 
 export function getBufferDecoder(encoding: string): IBufferDecoder {
   let cleanEncoding = encoding.trim().toLowerCase().replaceAll('-', '');
@@ -19,6 +20,6 @@ export function getBufferDecoder(encoding: string): IBufferDecoder {
     case 'latin1':
       return new Latin1Decoder();
     default:
-      throw new Error('Unsupported encoding');
+      throw new error.InvalidArgumentError(`The encoding ${encoding} is not supported.`, 'encoding', encoding);
   }
 }
