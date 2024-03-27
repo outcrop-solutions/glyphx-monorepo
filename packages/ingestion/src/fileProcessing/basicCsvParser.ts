@@ -47,12 +47,7 @@ export interface BasicCsvParserOptions {
   rowsToProcess?: number;
   lineTerminator?: LineTerminator;
   encoding?: string;
-}
-
-interface IColumnHeader {
-  origionalName: string;
-  cleanedName: string;
-  isUsed: boolean;
+  bufferSize?: number;
 }
 
 export class BasicCsvParser extends Transform {
@@ -71,10 +66,16 @@ export class BasicCsvParser extends Transform {
   private leftover?: Buffer;
   private inQuote = false;
   private nextIsLiteral = false;
-  private currentToken = '';
+  private currentToken?: string;
   private currentRow: string[] = [];
   private inLineTerminator = false;
   private isLiteral = false;
+  private bufferSize: number;
+  //These are strictly for testing the buffering.
+  //I need I need to make sure that the buffer is being run out
+  //as expected and not as a result of flush being called.
+  private processedBufferBeforeFlush = false;
+  private isFlushed = false;
 
   constructor({
     delimiter = ',',
@@ -84,6 +85,7 @@ export class BasicCsvParser extends Transform {
     rowsToProcess = 100,
     lineTerminator = '\r\n',
     encoding = '',
+    bufferSize = 100, //100 rows
   }: BasicCsvParserOptions) {
     super({objectMode: true});
 
@@ -95,6 +97,84 @@ export class BasicCsvParser extends Transform {
     this.quoteChar = quoteChar;
     this.literalChar = literalChar;
     this.headers = new BasicColumnNameProcessor();
+    this.bufferSize = bufferSize;
+  }
+
+  cleanRow(row: string[]): Record<string, string> {
+    let cleanedRow: Record<string, string> = {};
+    //TODO: Do we have an appropriate number of columns
+    for (let i = 0; i < this.headers.getColumnCount(); i++) {
+      let columnDefinition = this.headers.getColumn(i);
+      if (columnDefinition.isIncluded) {
+        cleanedRow[columnDefinition.finalName] = row[i];
+      }
+    }
+    return cleanedRow;
+  }
+  validateDataAgainstHeaders() {
+    let validityData: {index: number; rowCount: number; rowsWithValues: number; percentFilled: number}[] = [];
+    for (let i = 0; i < this.headers.getColumnCount(); i++) {
+      validityData.push({index: i, rowCount: 0, rowsWithValues: 0, percentFilled: 0});
+    }
+
+    this.data.forEach((row) => {
+      for (let i = 0; i < row.length; i++) {
+        validityData[i].rowCount++;
+        if (row[i].length > 0) {
+          validityData[i].rowsWithValues++;
+        }
+        validityData[i].percentFilled = validityData[i].rowsWithValues / validityData[i].rowCount;
+      }
+    });
+
+    for (let i = 0; i < validityData.length; i++) {
+      //If the first this.bufferSize rows are empty, disable the column.
+      //this will remove empty columns without coloumn headers from the output.
+      if (validityData[i].percentFilled === 0) {
+        this.headers.disableColumn(i);
+      }
+    }
+  }
+  processBufferedRows() {
+    //This is for testing purposes only. Please do not remove it.
+    this.processedBufferBeforeFlush = !this.isFlushed;
+    this.validateDataAgainstHeaders();
+    this.data.forEach((row) => {
+      let cleanedRow = this.cleanRow(row);
+      this.push(cleanedRow);
+    });
+    this.data = [];
+  }
+
+  processRow(row: string[]) {
+    if (this.rowsProcessed < this.bufferSize) {
+      this.rowsProcessed++;
+      this.data.push(row);
+    } else {
+      if (this.data.length > 0) {
+        this.processBufferedRows();
+      }
+      const formattedRow = this.cleanRow(row);
+      this.push(formattedRow);
+    }
+  }
+
+  _flush(callback: TransformCallback) {
+    //this is for testing purposes only. Please do not remove it.
+    if (this.data.length > 0) {
+      this.isFlushed = true;
+      this.processBufferedRows();
+    }
+    //We could have one last row that does not have a line terminator
+    if (this.currentToken !== undefined || this.currentRow.length > 0) {
+      if (this.currentToken !== undefined) {
+        this.currentRow.push(this.currentToken);
+      }
+      this.currentToken = undefined;
+      let cleanedRow = this.cleanRow(this.currentRow);
+      this.push(cleanedRow);
+    }
+    callback();
   }
 
   _transform(chunk: Buffer, encoding: string, callback: TransformCallback) {
@@ -118,20 +198,22 @@ export class BasicCsvParser extends Transform {
         this.inLineTerminator = false;
         this.inQuote = !this.inQuote;
       } else if (!this.isLiteral && !this.inQuote && char === this.delimiter) {
-        this.isHeaderRow ? this.headers.AddColumn(this.currentToken) : this.currentRow.push(this.currentToken);
-        this.currentToken = '';
+        this.isHeaderRow
+          ? this.headers.AddColumn(this.currentToken ?? '')
+          : this.currentRow.push(this.currentToken ?? '');
+        this.currentToken = undefined;
       } else if (!this.isLiteral && !this.inQuote && this.lineTerminator.length === 1 && char === this.lineTerminator) {
-        if (this.currentToken.length > 0) {
+        if (this.currentToken !== undefined) {
           this.isHeaderRow ? this.headers.AddColumn(this.currentToken) : this.currentRow.push(this.currentToken);
         }
         if (!this.isHeaderRow) {
-          this.data.push(this.currentRow);
+          if (this.currentRow.length > 0) this.processRow(this.currentRow);
         }
         this.isHeaderRow = false;
         //this.processHeaders();
         this.currentRow = [];
         this.inLineTerminator = false;
-        this.currentToken = '';
+        this.currentToken = undefined;
       } else if (
         !this.isLiteral &&
         !this.inQuote &&
@@ -140,33 +222,37 @@ export class BasicCsvParser extends Transform {
       ) {
         this.inLineTerminator = true;
       } else if (!this.isLiteral && !this.inQuote && this.inLineTerminator && char === this.lineTerminator[1]) {
-        if (this.currentToken.length > 0) {
+        if (this.currentToken !== undefined) {
           this.isHeaderRow ? this.headers.AddColumn(this.currentToken) : this.currentRow.push(this.currentToken);
         }
         if (!this.isHeaderRow) {
-          this.data.push(this.currentRow);
+          if (this.currentRow.length > 0) this.processRow(this.currentRow);
         }
 
         this.isHeaderRow = false;
         this.currentRow = [];
         this.inLineTerminator = false;
-        this.currentToken = '';
+        this.currentToken = undefined;
       } else if (!this.isLiteral && this.inLineTerminator) {
+        if (this.currentToken === undefined) this.currentToken = '';
         this.currentToken += this.lineTerminator[0] + char;
         this.inLineTerminator = false;
       } else {
         //it is possible to fall through here with the first part
         //of a \r\n line terminator.  Say a field has \r1 in it.
         //This will cover that edge case.
+        if (this.currentToken === undefined) this.currentToken = '';
         if (this.inLineTerminator) {
           this.inLineTerminator = false;
           this.currentToken += this.lineTerminator[0];
         }
+
         this.currentToken += char;
         this.isLiteral = false;
         //If we fall through to here, we cant't be in a line terminator anymore.
       }
     }
+
     if (bytesConsumed < maxLen)
       //create a new buffer because subArrary points to the same memory location
       //and I think will cause garbage collection to keep the original buffer around

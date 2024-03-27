@@ -75,5 +75,21 @@ describe('#fileProcessing/basicColumnNameProcesser', () => {
       result = processor.getColumn(2).finalName;
       assert.equal(result, `${expectedOutput}_2`);
     });
+
+    it('should handle empty column names', () => {
+      const columnName = '';
+      const expectedOutput = 'column';
+
+      const processor = new BasicColumnNameProcessor();
+      processor.AddColumn(columnName);
+      let result = processor.getColumn(0).finalName;
+      assert.equal(result, expectedOutput);
+      processor.AddColumn(columnName);
+      result = processor.getColumn(1).finalName;
+      assert.equal(result, `${expectedOutput}_1`);
+      processor.AddColumn(columnName);
+      result = processor.getColumn(2).finalName;
+      assert.equal(result, `${expectedOutput}_2`);
+    });
   });
 });

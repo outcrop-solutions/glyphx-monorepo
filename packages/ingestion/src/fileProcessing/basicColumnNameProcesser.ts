@@ -92,6 +92,10 @@ export class BasicColumnNameProcessor {
   }
   public AddColumn(name: string) {
     let cleanedName = this.cleanColumnName(name);
+    //We could very easily end up with a column name that is empty.
+    if (cleanedName.length === 0) {
+      cleanedName = 'column';
+    }
     let duplicateNames = this.columns.filter((x) => x.cleanedName === cleanedName);
     let finalName = duplicateNames.length === 0 ? cleanedName : `${cleanedName}_${duplicateNames.length}`;
     let index = this.columns.length;
@@ -101,6 +105,9 @@ export class BasicColumnNameProcessor {
     return this.columns[index];
   }
 
+  public getColumnCount(): number {
+    return this.columns.length;
+  }
   public disableColumn(index: number) {
     this.columns[index].isIncluded = false;
   }

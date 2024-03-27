@@ -1,7 +1,7 @@
 import 'mocha';
 import {assert} from 'chai';
 import {BasicCsvParser, BasicColumnNameProcessor} from '../../fileProcessing';
-
+import {Readable, Writable, promises} from 'node:stream';
 import iconv from 'iconv-lite';
 describe.only('#fileProcessing/BasicCsvParser', () => {
   context('Parsing Values', () => {
@@ -287,6 +287,202 @@ describe.only('#fileProcessing/BasicCsvParser', () => {
         }
         csvStream.write(input, 'utf16le', () => {});
       }
+    });
+  });
+
+  context('processing data', () => {
+    it('Will process our data in a pipeline and let flush get called to push the data out', async () => {
+      let readStream = new Readable({
+        read(size) {
+          this.push('field1,field2,field3,field4\n');
+          for (let i = 0; i < 10; i++) {
+            this.push(`This,is,pass : ${i},€\n`);
+          }
+          this.push(null);
+        },
+      });
+      let writeCount = 0;
+      let writeStream = new Writable({
+        objectMode: true,
+        write(chunk: any, encoding, callback) {
+          assert.equal(chunk.field1, 'This');
+          assert.equal(chunk.field2, 'is');
+          assert.equal(chunk.field3, `pass : ${writeCount}`);
+          assert.equal(chunk.field4, '€');
+          writeCount++;
+          callback();
+        },
+      });
+      //cast to any so we can get at the private properties
+      let csvStream = new BasicCsvParser({lineTerminator: '\n'}) as any;
+      await promises.pipeline(readStream, csvStream, writeStream);
+      assert.equal(writeCount, 10);
+      assert.isTrue(csvStream.isFlushed);
+      assert.isFalse(csvStream.processedBufferBeforeFlush);
+    });
+
+    it('Will process our data in a pipeline and overrun the buffer size', async () => {
+      let readStream = new Readable({
+        read(size) {
+          this.push('field1,field2,field3,field4\n');
+          for (let i = 0; i < 10; i++) {
+            this.push(`This,is,pass : ${i},€\n`);
+          }
+          this.push(null);
+        },
+      });
+      let writeCount = 0;
+      let writeStream = new Writable({
+        objectMode: true,
+        write(chunk: any, encoding, callback) {
+          assert.equal(chunk.field1, 'This');
+          assert.equal(chunk.field2, 'is');
+          assert.equal(chunk.field3, `pass : ${writeCount}`);
+          assert.equal(chunk.field4, '€');
+          writeCount++;
+          callback();
+        },
+      });
+      //cast to any so we can get at the private properties
+      let csvStream = new BasicCsvParser({lineTerminator: '\n', bufferSize: 1}) as any;
+      await promises.pipeline(readStream, csvStream, writeStream);
+      assert.equal(writeCount, 10);
+      assert.isFalse(csvStream.isFlushed);
+      assert.isTrue(csvStream.processedBufferBeforeFlush);
+    });
+
+    it('Will process our data in a pipeline with a last row that does not have a line terminator', async () => {
+      let readStream = new Readable({
+        read(size) {
+          this.push('field1,field2,field3,field4\n');
+          for (let i = 0; i < 10; i++) {
+            if (i < 9) {
+              this.push(`This,is,pass : ${i},€\n`);
+            } else {
+              this.push(`This,is,pass : ${i},€`);
+            }
+          }
+          this.push(null);
+        },
+      });
+      let writeCount = 0;
+      let writeStream = new Writable({
+        objectMode: true,
+        write(chunk: any, encoding, callback) {
+          assert.equal(chunk.field1, 'This');
+          assert.equal(chunk.field2, 'is');
+          assert.equal(chunk.field3, `pass : ${writeCount}`);
+          assert.equal(chunk.field4, '€');
+          writeCount++;
+          callback();
+        },
+      });
+      //cast to any so we can get at the private properties
+      let csvStream = new BasicCsvParser({lineTerminator: '\n', bufferSize: 1}) as any;
+      await promises.pipeline(readStream, csvStream, writeStream);
+      assert.equal(writeCount, 10);
+      assert.isFalse(csvStream.isFlushed);
+      assert.isTrue(csvStream.processedBufferBeforeFlush);
+    });
+
+    it('will process our data in a pipeline with duplicate column names', async () => {
+      let readStream = new Readable({
+        read(size) {
+          this.push('field1,field1,field3,field4\n');
+          for (let i = 0; i < 10; i++) {
+            if (i < 9) {
+              this.push(`This,is,pass : ${i},€\n`);
+            } else {
+              this.push(`This,is,pass : ${i},€`);
+            }
+          }
+          this.push(null);
+        },
+      });
+      let writeCount = 0;
+      let writeStream = new Writable({
+        objectMode: true,
+        write(chunk: any, encoding, callback) {
+          assert.equal(chunk.field1, 'This');
+          assert.equal(chunk.field1_1, 'is');
+          assert.equal(chunk.field3, `pass : ${writeCount}`);
+          assert.equal(chunk.field4, '€');
+          writeCount++;
+          callback();
+        },
+      });
+      //cast to any so we can get at the private properties
+      let csvStream = new BasicCsvParser({lineTerminator: '\n', bufferSize: 1}) as any;
+      await promises.pipeline(readStream, csvStream, writeStream);
+      assert.equal(writeCount, 10);
+      assert.isFalse(csvStream.isFlushed);
+      assert.isTrue(csvStream.processedBufferBeforeFlush);
+    });
+
+    it('will process our data in a pipeline with empty columns', async () => {
+      let readStream = new Readable({
+        read(size) {
+          this.push('field1,field1,,field3,,field4,\n');
+          for (let i = 0; i < 10; i++) {
+            if (i < 9) {
+              this.push(`This,is,,pass : ${i},,€,\n`);
+            } else {
+              this.push(`This,is,,pass : ${i},,€,`);
+            }
+          }
+          this.push(null);
+        },
+      });
+      let writeCount = 0;
+      let writeStream = new Writable({
+        objectMode: true,
+        write(chunk: any, encoding, callback) {
+          assert.equal(chunk.field1, 'This');
+          assert.equal(chunk.field1_1, 'is');
+          assert.equal(chunk.field3, `pass : ${writeCount}`);
+          assert.equal(chunk.field4, '€');
+          writeCount++;
+          callback();
+        },
+      });
+      //cast to any so we can get at the private properties
+      let csvStream = new BasicCsvParser({lineTerminator: '\n', bufferSize: 1}) as any;
+      await promises.pipeline(readStream, csvStream, writeStream);
+      assert.equal(writeCount, 10);
+      assert.isFalse(csvStream.isFlushed);
+      assert.isTrue(csvStream.processedBufferBeforeFlush);
+    });
+
+    it.only('Will discard emtpy rows', async () => {
+      let readStream = new Readable({
+        read(size) {
+          this.push('field1,field2,field3,field4\n');
+          this.push('\n');
+          for (let i = 0; i < 10; i++) {
+            this.push(`This,is,pass : ${i},€\n`);
+            this.push(`\n`);
+          }
+          this.push(null);
+        },
+      });
+      let writeCount = 0;
+      let writeStream = new Writable({
+        objectMode: true,
+        write(chunk: any, encoding, callback) {
+          assert.equal(chunk.field1, 'This');
+          assert.equal(chunk.field2, 'is');
+          assert.equal(chunk.field3, `pass : ${writeCount}`);
+          assert.equal(chunk.field4, '€');
+          writeCount++;
+          callback();
+        },
+      });
+      //cast to any so we can get at the private properties
+      let csvStream = new BasicCsvParser({lineTerminator: '\n', bufferSize: 1}) as any;
+      await promises.pipeline(readStream, csvStream, writeStream);
+      assert.equal(writeCount, 10);
+      assert.isFalse(csvStream.isFlushed);
+      assert.isTrue(csvStream.processedBufferBeforeFlush);
     });
   });
 });
