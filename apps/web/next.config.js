@@ -35,6 +35,9 @@ module.exports = {
     '@liveblocks/client',
     'tailwind-merge',
     'resend',
+    'mongodb',
+    'mongoose',
+    '@next-auth/mongodb-adapter',
   ],
   modularizeImports: {
     lodash: {

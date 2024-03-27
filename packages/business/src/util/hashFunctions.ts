@@ -14,7 +14,7 @@ import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
  * @returns
  */
 export function hashPayload(fileHash: string, project: databaseTypes.IProject): string {
-  const relevantProps = ['X', 'Y', 'Z'];
+  const relevantProps = ['X', 'Y', 'Z', 'A', 'B', 'C'];
   const relevantKeys = ['key', 'dataType', 'interpolation', 'direction', 'filter', 'keywords'];
   const propRetvals = [] as string[];
 
@@ -26,7 +26,7 @@ export function hashPayload(fileHash: string, project: databaseTypes.IProject): 
       if (key === 'filter' && dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER) {
         keyRetvals.push(String((prop[key] as webTypes.INumbericFilter).min) ?? '');
         keyRetvals.push(String((prop[key] as webTypes.INumbericFilter).max) ?? '');
-      } else if (key === 'keywords') {
+      } else if (key === 'keywords' && Array.isArray(prop[key])) {
         for (const word of prop[key]) {
           keyRetvals.push(String(word));
         }
@@ -38,7 +38,7 @@ export function hashPayload(fileHash: string, project: databaseTypes.IProject): 
   }
 
   const stateHash = MD5(propRetvals.join('')).toString();
-  const payloadHash = MD5(`${fileHash}${stateHash}`);
+  const payloadHash = MD5(`${fileHash}${stateHash}`).toString();
   return payloadHash;
 }
 
@@ -84,7 +84,7 @@ export const hashFileStats = (
   });
 
 // handles rowId prefix
-function removePrefix(str: string, prefix: string): string {
+export function removePrefix(str: string, prefix: string): string {
   if (!str.startsWith(prefix)) {
     return str;
   }

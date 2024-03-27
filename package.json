@@ -7,7 +7,7 @@
     "packages/**"
   ],
   "scripts": {
-    "dev:build": "vercel env pull .env &&  dotenv -- turbo build --remote-only=false --summarize=false",
+    "dev:build": "dotenv -- turbo build --remote-only=false --summarize=false",
     "demo:build": "vercel env pull --environment=preview --git-branch=demo .env && dotenv -- turbo build --remote-only=false --summarize=false",
     "prod:build": "vercel env pull --environment=production .env && dotenv -- turbo build --remote-only=false --summarize=false",
     "dev:test": "vercel env pull .env &&  dotenv -- turbo test --remote-only=false --summarize=false",
@@ -20,7 +20,7 @@
     "format:write": "turbo format:write",
     "dev": "dotenv -- turbo dev --remote-only=false --summarize=false",
     "plop": "plop",
-    "start": "dotenv -- turbo start",
+    "start": "dotenv -- turbo start --remote-only=false --summarize=false",
     "lint": "dotenv -- turbo lint",
     "fix": "dotenv -- turbo fix",
     "type-check": "dotenv -- turbo type-check",

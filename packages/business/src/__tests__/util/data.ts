@@ -1,4 +1,4 @@
-import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
+import {fileIngestionTypes, webTypes} from 'types';
 
 export const defaultState = {
   properties: {
@@ -143,40 +143,51 @@ export const file3Clean = {
   fileSize: 0,
 };
 
-// THESE ISOLATE FILESYSTEM DIFFERENCES
-// all clean files
+export const filesCleanVariant = [file1Clean, file2Clean];
+export const filesDirtyVariant = [file1Dirty, file2Dirty];
+export const filesVariant1 = [file1Clean, file2Dirty];
+export const filesVariant2 = [file1Dirty, file2Clean];
+
+// THESE VARIANTS ISOLATE FILESYSTEM DIFFERENCES
+//
+/**
+ *  All clean files
+ * [clean, clean]
+ */
 export const project1 = {
-  files: [file1Clean, file2Clean],
+  files: filesCleanVariant,
   state: defaultState,
-} as unknown as databaseTypes.IProject;
+};
 
-// all dirty files
+/**
+ *  All dirty files
+ * [dirty, dirty]
+ */
 export const project2 = {
-  files: [file1Dirty, file2Dirty],
+  files: filesDirtyVariant,
   state: defaultState,
-} as unknown as databaseTypes.IProject;
+};
 
-// mix 1 files
 export const project3 = {
-  files: [file1Clean, file2Dirty],
+  files: filesVariant1, // [clean, dirty]
   state: defaultState,
-} as unknown as databaseTypes.IProject;
+};
 
-// mix 2 files
 export const project4 = {
-  files: [file2Clean, file1Dirty],
+  files: filesVariant2, // [dirty, clean]
   state: defaultState,
-} as unknown as databaseTypes.IProject;
+};
 
 // THESE ISOLATE STATE PROPERTY DIFFERENCES
 // all clean files
 export const project5 = {
-  files: [file1Clean, file2Clean],
+  files: filesCleanVariant,
   state: defaultState,
-} as unknown as databaseTypes.IProject;
+};
+
 // key changes, should produce different hash
 export const project6 = {
-  files: [file1Clean, file2Clean],
+  files: filesCleanVariant,
   state: {
     ...defaultState,
     properties: {
@@ -187,22 +198,19 @@ export const project6 = {
       },
     },
   },
-} as unknown as databaseTypes.IProject;
+};
 
 // all dirty files
 export const project7 = {
   files: [file1Dirty, file2Dirty],
-  state: defaultState,
-} as unknown as databaseTypes.IProject;
-
-// mix 1 files
-export const project8 = {
-  files: [file1Clean, file2Dirty],
-  state: defaultState,
-} as unknown as databaseTypes.IProject;
-
-// mix 2 files
-export const project9 = {
-  files: [file2Clean, file1Dirty],
-  state: defaultState,
-} as unknown as databaseTypes.IProject;
+  state: {
+    ...defaultState,
+    properties: {
+      ...defaultState.properties,
+      X: {
+        ...defaultState.properties['X'],
+        erroneous: 'new key',
+      },
+    },
+  },
+};
