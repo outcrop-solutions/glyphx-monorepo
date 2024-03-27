@@ -36,7 +36,6 @@ module.exports = {
     'tailwind-merge',
     'resend',
     'mongodb',
-    'mongoose',
     '@next-auth/mongodb-adapter',
   ],
   modularizeImports: {
