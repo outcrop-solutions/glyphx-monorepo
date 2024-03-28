@@ -39,17 +39,16 @@ type Char =
 type QuoteChar = '"' | "'" | '`';
 type LiteralChar = '\\' | '/';
 type LineTerminator = '\n' | '\r' | '\r\n';
-type SupportedEncoding = 'utf8' | 'ascii' | 'utf16le' | 'utf16be' | 'utf16' | 'ucs2' | 'latin1';
 
 export interface BasicCsvParserOptions {
   delimiter?: Char;
   isQuoted?: boolean;
   quoteChar?: QuoteChar;
   literalChar?: LiteralChar;
-  rowsToProcess?: number;
   lineTerminator?: LineTerminator;
   encoding?: string;
   bufferSize?: number;
+  trimWhitespace?: boolean;
 }
 
 export class BasicCsvParser extends Transform {
@@ -57,7 +56,6 @@ export class BasicCsvParser extends Transform {
   private headers: BasicColumnNameProcessor;
   private data: Array<string[]> = [];
   private rowsProcessed = 0;
-  private readonly rowsToProcess: number;
   private readonly delimiter: Char;
   private readonly isQuoted: boolean;
   private readonly lineTerminator: LineTerminator;
@@ -67,39 +65,40 @@ export class BasicCsvParser extends Transform {
   private decoder?: IBufferDecoder;
   private leftover?: Buffer;
   private inQuote = false;
-  private nextIsLiteral = false;
   private currentToken?: string;
   private currentRow: string[] = [];
   private inLineTerminator = false;
   private isLiteral = false;
   private bufferSize: number;
+  private smartLineTerminator: boolean;
+  private trimWhitespace: boolean;
   //These are strictly for testing the buffering.
   //I need I need to make sure that the buffer is being run out
   //as expected and not as a result of flush being called.
   private processedBufferBeforeFlush = false;
   private isFlushed = false;
-
   constructor({
     delimiter = ',',
     isQuoted = true,
     quoteChar = '"',
     literalChar = '\\',
-    rowsToProcess = 100,
-    lineTerminator = '\r\n',
     encoding = '',
     bufferSize = 100, //100 rows
+    lineTerminator = undefined,
+    trimWhitespace = true,
   }: BasicCsvParserOptions) {
     super({objectMode: true});
 
     this.delimiter = delimiter;
     this.isQuoted = isQuoted;
-    this.rowsToProcess = rowsToProcess;
-    this.lineTerminator = lineTerminator;
     this.encoding = encoding;
     this.quoteChar = quoteChar;
     this.literalChar = literalChar;
     this.headers = new BasicColumnNameProcessor();
     this.bufferSize = bufferSize;
+    this.lineTerminator = lineTerminator ?? '\n';
+    this.smartLineTerminator = !lineTerminator;
+    this.trimWhitespace = trimWhitespace;
   }
 
   cleanRow(row: string[]): Record<string, string> {
@@ -188,7 +187,7 @@ export class BasicCsvParser extends Transform {
     //We could have one last row that does not have a line terminator
     if (this.currentToken !== undefined || this.currentRow.length > 0) {
       if (this.currentToken !== undefined) {
-        this.currentRow.push(this.currentToken);
+        this.currentRow.push(this.trimWhitespace ? this.currentToken.trim() : this.currentToken);
       }
       this.currentToken = undefined;
       let cleanedRow = this.cleanRow(this.currentRow);
@@ -221,16 +220,21 @@ export class BasicCsvParser extends Transform {
         } else if (!this.isLiteral && !this.inQuote && char === this.delimiter) {
           this.isHeaderRow
             ? this.headers.AddColumn(this.currentToken ?? '')
-            : this.currentRow.push(this.currentToken ?? '');
+            : this.currentRow.push(this.trimWhitespace ? this.currentToken?.trim() ?? '' : this.currentToken ?? '');
           this.currentToken = undefined;
         } else if (
           !this.isLiteral &&
           !this.inQuote &&
-          this.lineTerminator.length === 1 &&
-          char === this.lineTerminator
+          //smart terminator will push a new row if anytime it sees a unuoted \r or \n.  Since we have
+          //logic to swallow empty rows this will not add extra data.
+          ((this.smartLineTerminator && (char === '\r' || char === '\n')) ||
+            //if we are not using smart terminator, process this as normal.
+            (this.smartLineTerminator == false && this.lineTerminator.length === 1 && char === this.lineTerminator))
         ) {
           if (this.currentToken !== undefined) {
-            this.isHeaderRow ? this.headers.AddColumn(this.currentToken) : this.currentRow.push(this.currentToken);
+            this.isHeaderRow
+              ? this.headers.AddColumn(this.currentToken)
+              : this.currentRow.push(this.trimWhitespace ? this.currentToken?.trim() ?? '' : this.currentToken ?? '');
           }
           if (!this.isHeaderRow) {
             if (this.currentRow.length > 0) this.processRow(this.currentRow);
@@ -243,13 +247,17 @@ export class BasicCsvParser extends Transform {
         } else if (
           !this.isLiteral &&
           !this.inQuote &&
+          //when using smart terminator, lineTerminator will never be 2 characters long. We set it the default of \n
+          //which is not actually ever used
           this.lineTerminator.length === 2 &&
           char === this.lineTerminator[0]
         ) {
           this.inLineTerminator = true;
         } else if (!this.isLiteral && !this.inQuote && this.inLineTerminator && char === this.lineTerminator[1]) {
           if (this.currentToken !== undefined) {
-            this.isHeaderRow ? this.headers.AddColumn(this.currentToken) : this.currentRow.push(this.currentToken);
+            this.isHeaderRow
+              ? this.headers.AddColumn(this.currentToken)
+              : this.currentRow.push(this.trimWhitespace ? this.currentToken?.trim() ?? '' : this.currentToken ?? '');
           }
           if (!this.isHeaderRow) {
             if (this.currentRow.length > 0) this.processRow(this.currentRow);
