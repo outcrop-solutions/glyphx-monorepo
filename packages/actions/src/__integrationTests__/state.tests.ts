@@ -6,7 +6,7 @@ import {ActionError} from 'core/src/error';
 import {Initializer, dbConnection, projectService, stateService, workspaceService} from 'business';
 import {imageHash} from './constants/imageHash';
 
-describe('#integrationTests/state', () => {
+describe.only('#integrationTests/state', () => {
   const sandbox = createSandbox();
   let stateActions;
   let stateId;
@@ -102,15 +102,32 @@ describe('#integrationTests/state', () => {
   });
 
   context('#createState', () => {
-    it('should create a new state', async () => {
+    it.only('should create a new state', async () => {
       try {
-        const name = 'newProject';
-        const camera = {};
-        const imageHash = '';
-        const aspectRatio = {};
+        const name = 'newStateIntegrationTestName';
+        const camera = {
+          pos: {
+            x: 160.984,
+            y: -427.69,
+            z: -39.3156,
+          },
+          dir: {
+            x: -0.347585,
+            y: 0.923439,
+            z: 0.162616,
+          },
+        };
+        const imageHash = 'integrationTestImageHash';
+        const aspectRatio = {
+          height: 400,
+          width: 400,
+        };
         const rowIds = [];
 
-        const state = await stateActions.createState(name, camera, project, imageHash, aspectRatio, rowIds);
+        //retval is necessary for frontend effect
+        const newProject = await stateActions.createState(name, camera, project, imageHash, aspectRatio, rowIds);
+
+        assert.isOk(newProject);
       } catch (error) {
         assert.fail();
       }
