@@ -7,6 +7,7 @@ import {databaseTypes, emailTypes, webTypes} from 'types';
 import {authOptions} from './auth';
 import {revalidatePath} from 'next/cache';
 import emailClient from './email';
+import {getToken} from './utils/blobStore';
 /**
  * Gets a state by id
  * @param stateId
@@ -64,6 +65,7 @@ export const createState = async (
       await put(`project/${project?.id}`, blob, {
         access: 'public',
         addRandomSuffix: false,
+        token: getToken(),
       });
 
       const retval = await projectService.getProject(project.id as string);
