@@ -213,6 +213,9 @@ importers:
       fuse.js:
         specifier: ^6.6.2
         version: 6.6.2
+      glyph_engine_node:
+        specifier: workspace:*
+        version: link:../../bindings/node/glyph_engine_node
       glyphengine:
         specifier: workspace:*
         version: link:../../packages/glyphengine
