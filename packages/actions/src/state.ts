@@ -56,13 +56,7 @@ export const createState = async (
       const blob = new Blob([buffer], {type: 'image/png'});
 
       // upload state imageHash to Blob store
-      const imageRetval = await put(`state/${state?.id}`, blob, {
-        access: 'public',
-        addRandomSuffix: false,
-      });
-
-      // upload project imageHash to blob store
-      await put(`project/${project?.id}`, blob, {
+      const imageRetval = await put(`s${state?.id}`, blob, {
         access: 'public',
         addRandomSuffix: false,
         token: getToken(),

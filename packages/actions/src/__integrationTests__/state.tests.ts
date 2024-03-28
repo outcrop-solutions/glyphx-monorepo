@@ -5,6 +5,8 @@ import proxyquire from 'proxyquire';
 import {ActionError} from 'core/src/error';
 import {Initializer, dbConnection, projectService, stateService, workspaceService} from 'business';
 import {imageHash} from './constants/imageHash';
+import {buildStateUrl, getToken} from '../utils/blobStore';
+import {del} from '@vercel/blob';
 
 describe.only('#integrationTests/state', () => {
   const sandbox = createSandbox();
@@ -57,10 +59,7 @@ describe.only('#integrationTests/state', () => {
     const name = 'newProject';
     const workspaceId = workspace.id;
 
-    project = await projectService.createProject(name, workspaceId, mockUser?.id, mockUser?.email);
-    if (!project) {
-      assert.fail();
-    }
+    const initialProject = await projectService.createProject(name, workspaceId, mockUser?.id, mockUser?.email);
 
     // create a state
     state = await stateService.createState(
@@ -77,12 +76,19 @@ describe.only('#integrationTests/state', () => {
           z: 0,
         },
       },
-      project,
+      initialProject,
       mockUser?.id,
       {height: 400, width: 400},
       [] as unknown as string[], // rowIds
       imageHash
     );
+
+    // we do this because stateService.createState has added to stateHistory
+    project = await projectService.getProject(state.project.id);
+    if (!project) {
+      assert.fail();
+    }
+
     if (!state) {
       assert.fail();
     }
@@ -128,6 +134,18 @@ describe.only('#integrationTests/state', () => {
         const newProject = await stateActions.createState(name, camera, project, imageHash, aspectRatio, rowIds);
 
         assert.isOk(newProject);
+        // initial state in the before hook, + the one we just crreated
+        assert.strictEqual(newProject.stateHistory.length, 2);
+
+        // clean up blob storage
+        const proj = await projectService.getProject(project.id);
+        if (proj) {
+          for (const s of proj?.stateHistory) {
+            await del(buildStateUrl(s.id as string), {
+              token: getToken(),
+            });
+          }
+        }
       } catch (error) {
         assert.fail();
       }
