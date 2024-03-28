@@ -4,12 +4,19 @@ import {CURRENCY_TO_SYMBOL_MAP} from './numberFieldChecker';
 export class DateFieldChecker implements fieldProcessingInterfaces.IFieldChecker<Date> {
   checkField(input: string): boolean {
     const trimmedInput = input.trim();
-    if (isNaN(Number(trimmedInput))) {
+    let numInput = Number(trimmedInput);
+    if (isNaN(numInput)) {
       const date = new Date(trimmedInput);
       const year = date.getFullYear();
       return !isNaN(date.getTime()) && year >= 1980 && year <= 2030;
     } else {
-      return false;
+      if (trimmedInput.length === 10 || trimmedInput.length === 13) {
+        const date = new Date(numInput);
+        const year = date.getFullYear();
+        return !isNaN(date.getTime()) && year >= 1980 && year <= 2030;
+      } else {
+        return false;
+      }
     }
   }
 

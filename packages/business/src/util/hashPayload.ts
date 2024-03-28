@@ -18,7 +18,7 @@ export function hashPayload(fileHash: string, project: databaseTypes.IProject): 
   return MD5(payload).toString();
 }
 
-const cleanProjectIds = (project) => {
+const cleanProjectIds = (project: any) => {
   let cleanProject = {...project};
   // clean ids
   delete cleanProject.state.properties['X'].id;
