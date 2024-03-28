@@ -17,7 +17,7 @@ let internalModule: IBindings = {exports: {}} as IBindings;
 
 class Bindings extends ModuleLoader<IBindings> {
   constructor() {
-    super('glyph_engine.node', internalModule);
+    super('index.node', internalModule);
   }
 
   public async runGlyphEngine(
