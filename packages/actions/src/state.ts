@@ -1,5 +1,6 @@
 'use server';
 import {error, constants} from 'core';
+import {put} from '@vercel/blob';
 import {getServerSession} from 'next-auth';
 import {stateService, activityLogService, projectService} from '../../business/src/services';
 import {databaseTypes, emailTypes, webTypes} from 'types';
@@ -50,13 +51,22 @@ export const createState = async (
         imageHash
       );
 
+      const buffer = Buffer.from(imageHash, 'base64');
+      const blob = new Blob([buffer], {type: 'image/png'});
+
+      // upload imageHash to Blob store
+      const imageRetval = await put(`${state?.id}`, blob, {
+        access: 'public',
+        addRandomSuffix: false,
+      });
+
       const retval = await projectService.getProject(project.id as string);
 
       if (retval?.members) {
         const emailData = {
           type: emailTypes.EmailTypes.STATE_CREATED,
           stateName: name,
-          stateImage: imageHash,
+          stateImage: imageRetval.url,
           emails: retval.members?.map((mem) => mem.email),
         } satisfies emailTypes.EmailData;
 
@@ -75,7 +85,7 @@ export const createState = async (
           action: databaseTypes.constants.ACTION_TYPE.CREATED,
         });
       }
-      revalidatePath('/project/[projectId]');
+      return retval;
     }
   } catch (err) {
     const e = new error.ActionError('An unexpected error occurred creating the state', 'project', project, err);
@@ -104,7 +114,7 @@ export const updateState = async (stateId: string, name: string) => {
         onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
         action: databaseTypes.constants.ACTION_TYPE.UPDATED,
       });
-      revalidatePath('/project/[projectId]');
+      revalidatePath(`/project/${state.project.id}`, 'layout');
     }
   } catch (err) {
     const e = new error.ActionError('An unexpected error occurred updating the state', 'stateId', stateId, err);
@@ -132,7 +142,7 @@ export const deleteState = async (stateId: string) => {
         onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
         action: databaseTypes.constants.ACTION_TYPE.DELETED,
       });
-      revalidatePath('/project/[projectId]');
+      revalidatePath(`/project/${state.project.id}`, 'layout');
     }
   } catch (err) {
     const e = new error.ActionError('An unexpected error occurred deleting the state', 'stateId', stateId, err);

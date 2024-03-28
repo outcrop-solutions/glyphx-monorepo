@@ -5,7 +5,7 @@ import {InputArea} from './tiptap/InputArea';
 import {useAnnotations} from 'lib/client/hooks';
 
 export const AnnotationList = () => {
-  const {data, type, id} = useAnnotations();
+  const {data, type, id, revalidate} = useAnnotations();
   return (
     <div className="lg:block border-b border-gray h-full">
       {data && (
@@ -15,7 +15,7 @@ export const AnnotationList = () => {
           ))}
         </ul>
       )}
-      <InputArea id={id} type={type} />
+      <InputArea id={id} type={type} revalidate={revalidate} />
     </div>
   );
 };

@@ -35,6 +35,7 @@ module.exports = {
     '@liveblocks/core',
     '@liveblocks/client',
     'tailwind-merge',
+    'resend',
   ],
   modularizeImports: {
     lodash: {
@@ -43,7 +44,10 @@ module.exports = {
     },
   },
   experimental: {
-    serverComponentsExternalPackages: ['resend', 'csv'],
+    serverComponentsExternalPackages: ['csv'],
+    serverActions: {
+      bodySizeLimit: '3mb',
+    },
 
     // gives us statically types routes
     // typedRoutes: true,

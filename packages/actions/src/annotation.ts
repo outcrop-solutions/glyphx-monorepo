@@ -1,6 +1,7 @@
 'use server';
 import {error, constants} from 'core';
 import {membershipService, projectService, annotationService, stateService} from '../../business/src/services';
+import {put} from '@vercel/blob';
 import {getServerSession} from 'next-auth';
 import {databaseTypes, emailTypes} from 'types';
 import {authOptions} from './auth';
@@ -123,7 +124,7 @@ export const createProjectAnnotation = async (projectId: string, value: string) 
         projectId: projectId as string,
         value,
       });
-      revalidatePath('/project/[projectId]');
+      revalidatePath(`/project/${projectId}`, 'layout');
     }
   } catch (err) {
     const e = new error.ActionError(
@@ -160,11 +161,10 @@ export const createStateAnnotation = async (stateId: string, value: string) => {
             const emailData = {
               type: emailTypes.EmailTypes.ANNOTATION_CREATED,
               stateName: state.name,
-              stateImage: state.imageHash,
+              stateImage: `https://aqhswtcebhzai9us.public.blob.vercel-storage.com/${state?.id}`,
               annotation: annotation.value,
               emails: [...members.map((mem) => mem.email)],
             } satisfies emailTypes.EmailData;
-
             await emailClient.init();
             await emailClient.sendEmail(emailData);
           }

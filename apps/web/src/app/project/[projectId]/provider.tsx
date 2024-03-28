@@ -2,8 +2,8 @@
 import React, {useEffect, useRef} from 'react';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
-import {fileIngestionTypes, webTypes} from 'types';
-import {useSetRecoilState} from 'recoil';
+import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {projectAtom, rightSidebarControlAtom, rowIdsAtom, templatesAtom, workspaceAtom} from 'state';
 import {useSendPosition, useWindowSize} from 'services';
 import {useCloseViewerOnModalOpen} from 'services/useCloseViewerOnModalOpen';
@@ -15,6 +15,7 @@ import {LiveMap} from '@liveblocks/client';
 import {InitialDocumentProvider} from 'collab/lib/client';
 import {RoomProvider} from 'liveblocks.config';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
+import {annotationResourceIdSelector} from 'state/annotations';
 
 const openFirstFile = (projData) => {
   const newFiles = projData?.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
@@ -24,11 +25,18 @@ const openFirstFile = (projData) => {
   };
 };
 
-export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc: any}) => {
+export const ProjectProvider = ({
+  children,
+  doc,
+  project,
+}: {
+  children: React.ReactNode;
+  doc: any;
+  project: databaseTypes.IProject;
+}) => {
   const {data: templateData, isLoading: templateLoading} = useTemplates();
 
-  const {data, isLoading} = useProject();
-  const project = data;
+  // const {data, isLoading} = useProject();
 
   const projectViewRef = useRef(null);
 
@@ -49,7 +57,7 @@ export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc
 
   // hydrate recoil state
   useEffect(() => {
-    if (!templateLoading && !isLoading) {
+    if (!templateLoading) {
       const projectData = openFirstFile(project);
 
       let formattedProject = {...projectData};
@@ -87,7 +95,6 @@ export const ProjectProvider = ({children, doc}: {children: React.ReactNode; doc
     setTemplates,
     templateData,
     project,
-    isLoading,
     setRowIds,
   ]);
 

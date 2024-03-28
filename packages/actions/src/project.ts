@@ -15,6 +15,7 @@ import {redirect} from 'next/navigation';
  * @param docId
  */
 export const createProject = async (name: string, workspaceId: string, description: string, docId: string) => {
+  let projectId = '';
   try {
     const session = await getServerSession(authOptions);
     if (session?.user) {
@@ -39,8 +40,8 @@ export const createProject = async (name: string, workspaceId: string, descripti
         action: databaseTypes.constants.ACTION_TYPE.CREATED,
       });
 
-      revalidatePath('/[workspaceId]');
-      redirect(`/project/${project.id}`);
+      revalidatePath('/[workspaceId]', 'page');
+      projectId = project.id as string;
     }
   } catch (err) {
     const e = new error.ActionError(
@@ -49,6 +50,30 @@ export const createProject = async (name: string, workspaceId: string, descripti
       workspaceId,
       err
     );
+    e.publish('project', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
+  }
+  redirect(`/project/${projectId}`);
+};
+
+/**
+ * Used in the project header to rename on "Enter"
+ * @param projectId
+ * @param name
+ * @returns
+ */
+export const updateProjectName = async (projectId: string, name: string) => {
+  try {
+    const session = await getServerSession(authOptions);
+    if (session?.user) {
+      const retval = await projectService.updateProject(projectId, {
+        name,
+      });
+      console.log({retval});
+      revalidatePath(`/project/${projectId}`, 'layout');
+    }
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred renaming the project', 'projectId', projectId, err);
     e.publish('project', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }

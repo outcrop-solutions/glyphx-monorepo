@@ -83,7 +83,7 @@ export class WorkspaceService {
   ): Promise<databaseTypes.IWorkspace | null> {
     try {
       const workspace = await WorkspaceService.getSiteWorkspace(id);
-
+      // console.dir({workspace, userId, email, id}, {depth: null});
       if (workspace) {
         // delete workspace
         await mongoDbConnection.models.WorkspaceModel.updateWorkspaceByFilter(
@@ -93,9 +93,12 @@ export class WorkspaceService {
           }
         );
 
-        // remove workspace and membership from user
+        // remove workspace and membe,rship from user
         await mongoDbConnection.models.UserModel.removeWorkspaces(userId, [workspace.id!]);
-        const userMember = workspace.members.filter((mem: any) => mem.member.toString() === userId);
+        const userMember = workspace.members.filter((mem: any) => {
+          console.log({mem, userId});
+          return mem?.member?.id?.toString() === userId;
+        });
 
         if (userMember?.length > 0) {
           await mongoDbConnection.models.UserModel.removeMembership(userId, [...userMember]);

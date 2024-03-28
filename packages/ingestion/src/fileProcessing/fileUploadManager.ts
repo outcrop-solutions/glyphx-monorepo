@@ -1,17 +1,16 @@
 import {fileIngestionTypes} from 'types';
 import {error, streams, generalPurposeFunctions, aws} from 'core';
-import {BasicFileTransformer, BasicParquetProcessor, BasicColumnNameCleaner} from './';
+import {BasicCsvParser, BasicFileTransformer, BasicParquetProcessor, BasicColumnNameCleaner} from './';
 import {BasicFieldTypeCalculator} from '../fieldProcessing';
 import {Readable, PassThrough} from 'node:stream';
-import {parse} from 'csv-parse/browser/esm';
-import {stringify} from 'csv-stringify/browser/esm';
+import {stringify} from 'csv-stringify';
 
 import {IFileInformation, IFileProcessingError} from '../interfaces/fileProcessing';
 import {tableService} from 'business';
 
 export class FileUploadManager {
   private static creatBaseStream(fileStream: Readable) {
-    const csvStream = parse({columns: true, delimiter: ','});
+    const csvStream = new BasicCsvParser({lineTerminator: '\n'});
     const splitStream = new streams.ForkingStream(fileStream, csvStream);
     return splitStream;
   }

@@ -1,7 +1,7 @@
 'use client';
 import {useCallback} from 'react';
 import {useSession} from 'next-auth/react';
-import {activeStateAtom, drawerOpenAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom} from 'state';
+import {activeStateAtom, cameraAtom, drawerOpenAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom} from 'state';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
@@ -16,6 +16,7 @@ const useApplyState = () => {
   const url = useUrl();
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setResize = useSetRecoilState(splitPaneSizeAtom);
+  const setCamera = useSetRecoilState(cameraAtom);
   const [project, setProject] = useRecoilState(projectAtom);
   const loading = useRecoilValue(showLoadingAtom);
   const [activeState, setActiveState] = useRecoilState(activeStateAtom);
@@ -26,7 +27,7 @@ const useApplyState = () => {
   };
 
   const applyState = useCallback(
-    async (idx: number) => {
+    async (idx: number, newProject: any) => {
       if (activeState === idx) {
         setActiveState(-1);
         return;
@@ -41,21 +42,40 @@ const useApplyState = () => {
 
       // only apply state if not loading
       if (!(Object.keys(loading).length > 0)) {
-        const filteredStates = project.stateHistory.filter((state) => !state.deletedAt);
-        const payloadHash = filteredStates[idx].payloadHash;
-        const properties = filteredStates[idx].properties;
-        const camera = filteredStates[idx].camera;
-        const ids = filteredStates[idx].rowIds ?? [];
+        const filteredStates = newProject
+          ? newProject.stateHistory?.filter((state) => !state.deletedAt)
+          : project.stateHistory.filter((state) => !state.deletedAt);
+
+        const payload = filteredStates[idx];
+        const payloadHash = payload.payloadHash;
+        const properties = payload.properties;
+        const camera = payload.camera;
+        const ids = payload.rowIds ?? [];
         const rowIds = convertRowIds(ids);
 
         const isNullCam = isNullCamera(camera);
         const signedUrls = await signDataUrls(project?.workspace.id, project?.id, payloadHash);
+
+        console.log({
+          signedUrls,
+          isNullCam,
+          camera,
+          properties,
+          ids,
+          rowIds,
+          payload,
+          filteredStates,
+          newProject,
+          project,
+        });
+
         if (!signedUrls?.error) {
           // replace project state
           setProject(
             produce((draft: any) => {
               // set axes and filters
               draft.state.properties = properties;
+              draft.stateHistory = filteredStates;
             })
           );
           if (window?.core) {
@@ -73,6 +93,7 @@ const useApplyState = () => {
               )
             );
           }
+          setCamera({});
         } else {
           setLoading(
             produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
@@ -82,6 +103,7 @@ const useApplyState = () => {
             })
           );
           setActiveState(-1);
+          setCamera({});
         }
       }
     },
