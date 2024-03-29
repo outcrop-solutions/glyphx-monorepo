@@ -13,6 +13,7 @@ export const signDataUrls = async (workspaceId: string, projectId: string, paylo
   try {
     // init S3 client
     const s3Manager = s3Connection.s3Manager;
+    await s3Manager.init();
     const urls = [
       `client/${workspaceId}/${projectId}/output/${payloadHash}.sdt`,
       `client/${workspaceId}/${projectId}/output/${payloadHash}.sgn`,
