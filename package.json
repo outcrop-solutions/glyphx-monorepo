@@ -7,7 +7,7 @@
     "packages/**"
   ],
   "scripts": {
-    "build": "rimraf apps/web/.next && dotenv -- turbo build",
+    "build": "rimraf apps/web/.next && dotenv -- turbo build --remote-only=false --summarize=false",
     "test": "rimraf apps/web/.next && dotenv -- turbo test",
     "integrationTest": "rimraf apps/web/.next && turbo integrationTest",
     "format": "turbo format",
