@@ -38,10 +38,22 @@ export const Properties = () => {
       event.stopPropagation();
       // project already contains filter state, no deepMerge necessary
       const payloadHash = hashPayload(hashFileSystem(project.files), project);
+      console.log({payloadHash});
       if (!isValidPayload(properties)) {
+        console.log('not a valid payload', {value: !isValidPayload(properties), properties});
         toast.success('Generate a model before applying filters!');
       } else if (doesStateExist) {
+        console.log('called updateProjectState');
         await updateProjectState(project.id, project.state);
+        console.log('called callDownloadModel', {
+          project,
+          payloadHash,
+          session,
+          url,
+          setLoading,
+          setDrawer,
+          setResize,
+        });
         await callDownloadModel({
           project,
           payloadHash,
@@ -52,6 +64,17 @@ export const Properties = () => {
           setResize,
         });
       } else {
+        console.log('called create model', {
+          isFilter: true,
+          project,
+          payloadHash,
+          session,
+          url,
+          setLoading,
+          setDrawer,
+          setResize,
+          mutate,
+        });
         await callCreateModel({
           isFilter: true,
           project,
