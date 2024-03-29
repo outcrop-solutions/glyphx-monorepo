@@ -140,7 +140,7 @@ module.exports = {
     );
     config.plugins.push(
       new CopyPlugin({
-        patterns: [{from: 'public/pkg/index.node', to: 'server/pkg/index.node'}],
+        patterns: [{from: 'pkg/index.node', to: 'server/pkg/index.node'}],
       })
     );
 
