@@ -30,6 +30,7 @@ export const signDataUrls = async (workspaceId: string, projectId: string, paylo
 
     return {sdtUrl, sgcUrl, sgnUrl};
   } catch (err) {
+    console.log({err});
     const e = new error.ActionError(
       'An unexpected error occurred runningsign data urls',
       'etl',
