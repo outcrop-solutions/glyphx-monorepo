@@ -365,7 +365,9 @@ impl GlyphEngine {
             mongo_db_connection,
         ))
     }
-    fn check_axis_task_status(
+    //NOTE: This function is not used anymore because of the limitations of neon.  However I 
+    //am keeping it here for future reference. 
+    fn _check_axis_task_status(
         field_processer: &mut Box<dyn VectorValueProcesser>,
     ) -> Result<bool, GlyphEngineProcessError> {
         let status = field_processer.check_status();
@@ -406,7 +408,7 @@ impl GlyphEngine {
         (x_file_name, y_file_name)
     }
     ///Will create our vector tables for the given field definition.
-    fn process_vectors<T: GlyphEngineOperations>(
+    async fn process_vectors<T: GlyphEngineOperations>(
         &self,
         x_field_definition: &FieldDefinition,
         x_file_name: &str,
@@ -432,20 +434,25 @@ impl GlyphEngine {
             &y_file_name,
         );
 
-        x_field_processor.start();
-        y_field_processor.start();
-        let mut x_is_done = false;
-        let mut y_is_done = false;
-        loop {
-            if !x_is_done {
-                x_is_done = Self::check_axis_task_status(&mut x_field_processor)?;
+        let task_status = x_field_processor.run_sync().await;
+        match task_status {
+            TaskStatus::Errored(_) => {
+                return Err(GlyphEngineProcessError::from_task_status_error(
+                    task_status,
+                    x_field_processor.get_axis_name(),
+                ));
             }
-            if !y_is_done {
-                y_is_done = Self::check_axis_task_status(&mut y_field_processor)?;
+            _ => {}
+        }
+        let task_status = y_field_processor.run_sync().await;
+        match task_status {
+            TaskStatus::Errored(_) => {
+                return Err(GlyphEngineProcessError::from_task_status_error(
+                    task_status,
+                    y_field_processor.get_axis_name(),
+                ));
             }
-            if x_is_done && y_is_done {
-                break;
-            }
+            _ => {}
         }
         Ok((x_field_processor, y_field_processor))
     }
@@ -834,7 +841,7 @@ impl GlyphEngine {
         let (x_file_name, y_file_name) = self.get_vector_file_names();
 
         let mut status: AthenaQueryStatus;
-        process_error!( let vectors = self.process_vectors(&x_field_definition, &x_file_name, &y_field_definition, &y_file_name, operations);operations;self);
+        process_error!( let vectors = self.process_vectors(&x_field_definition, &x_file_name, &y_field_definition, &y_file_name, operations).await;operations;self);
         let (x_field_processor, y_field_processor) = vectors;
 
         loop {
@@ -1390,7 +1397,7 @@ pub mod glyph_engine {
                         let mut vector_processer_mock1 = MockVectorValueProcesser::new();
                         vector_processer_mock1
                             .expect_start()
-                            .times(1)
+                            .times(0)
                             .return_const(());
                         vector_processer_mock1
                             .expect_get_axis_name()
@@ -1398,6 +1405,10 @@ pub mod glyph_engine {
                             .return_const("x".to_string());
                         vector_processer_mock1
                             .expect_check_status()
+                            .times(0)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock1
+                            .expect_run_sync()
                             .times(1)
                             .return_const(TaskStatus::Complete);
                         Box::new(vector_processer_mock1)
@@ -1405,7 +1416,7 @@ pub mod glyph_engine {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
                         vector_processer_mock2
                             .expect_start()
-                            .times(1)
+                            .times(0)
                             .return_const(());
                         vector_processer_mock2
                             .expect_get_axis_name()
@@ -1413,6 +1424,10 @@ pub mod glyph_engine {
                             .return_const("y".to_string());
                         vector_processer_mock2
                             .expect_check_status()
+                            .times(0)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock2
+                            .expect_run_sync()
                             .times(1)
                             .return_const(TaskStatus::Complete);
                         Box::new(vector_processer_mock2)
@@ -1426,13 +1441,15 @@ pub mod glyph_engine {
             let y_field_definition = parameters.get_field_definition("yaxis").unwrap();
             let y_file_name = "test_y_file";
             let glyph_engine = GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
-            let result = glyph_engine.process_vectors(
-                &x_field_definition,
-                x_file_name,
-                &y_field_definition,
-                y_file_name,
-                &mocks,
-            );
+            let result = glyph_engine
+                .process_vectors(
+                    &x_field_definition,
+                    x_file_name,
+                    &y_field_definition,
+                    y_file_name,
+                    &mocks,
+                )
+                .await;
             assert!(result.is_ok());
         }
 
@@ -1464,14 +1481,14 @@ pub mod glyph_engine {
                         let mut vector_processer_mock1 = MockVectorValueProcesser::new();
                         vector_processer_mock1
                             .expect_start()
-                            .times(1)
+                            .times(0)
                             .return_const(());
                         vector_processer_mock1
                             .expect_get_axis_name()
                             .times(1)
                             .return_const("x".to_string());
                         vector_processer_mock1
-                            .expect_check_status()
+                            .expect_run_sync()
                             .times(1)
                             .return_const(TaskStatus::Errored(VectorCalculationError::AthenaQueryError(
                                 GlyphxErrorData::new("An unexpected error occurred while running the vector query.  See the inner error for additional information".to_string(),None, None)
@@ -1481,7 +1498,7 @@ pub mod glyph_engine {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
                         vector_processer_mock2
                             .expect_start()
-                            .times(1)
+                            .times(0)
                             .return_const(());
                         vector_processer_mock2
                             .expect_get_axis_name()
@@ -1489,6 +1506,7 @@ pub mod glyph_engine {
                             .return_const("y".to_string());
                         vector_processer_mock2
                             .expect_check_status()
+                            .times(0)
                             .return_const(TaskStatus::Complete);
                         Box::new(vector_processer_mock2)
                     }
@@ -1502,13 +1520,15 @@ pub mod glyph_engine {
             let y_file_name = "test_y_file";
             let glyph_engine = GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
 
-            let result = glyph_engine.process_vectors(
-                &x_field_definition,
-                x_file_name,
-                &y_field_definition,
-                y_file_name,
-                &mocks,
-            );
+            let result = glyph_engine
+                .process_vectors(
+                    &x_field_definition,
+                    x_file_name,
+                    &y_field_definition,
+                    y_file_name,
+                    &mocks,
+                )
+                .await;
 
             assert!(result.is_err());
             let error = result.err().unwrap();
@@ -1548,14 +1568,14 @@ pub mod glyph_engine {
                         let mut vector_processer_mock1 = MockVectorValueProcesser::new();
                         vector_processer_mock1
                             .expect_start()
-                            .times(1)
+                            .times(0)
                             .return_const(());
                         vector_processer_mock1
                             .expect_get_axis_name()
                             .times(0)
                             .return_const("x".to_string());
                         vector_processer_mock1
-                            .expect_check_status()
+                            .expect_run_sync()
                             .return_const(TaskStatus::Complete)
                             .times(1);
                         Box::new(vector_processer_mock1)
@@ -1563,14 +1583,14 @@ pub mod glyph_engine {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
                         vector_processer_mock2
                             .expect_start()
-                            .times(1)
+                            .times(0)
                             .return_const(());
                         vector_processer_mock2
                             .expect_get_axis_name()
                             .times(1)
                             .return_const("y".to_string());
                         vector_processer_mock2
-                            .expect_check_status()
+                            .expect_run_sync()
                             .return_const(TaskStatus::Errored(VectorCalculationError::AthenaQueryError(
                                 GlyphxErrorData::new("An unexpected error occurred while running the vector query.  See the inner error for additional information".to_string(),None, None))))
                                 .times(1);
@@ -1586,13 +1606,15 @@ pub mod glyph_engine {
             let y_file_name = "test_y_file";
             let glyph_engine = GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
 
-            let result = glyph_engine.process_vectors(
-                &x_field_definition,
-                x_file_name,
-                &y_field_definition,
-                y_file_name,
-                &mocks,
-            );
+            let result = glyph_engine
+                .process_vectors(
+                    &x_field_definition,
+                    x_file_name,
+                    &y_field_definition,
+                    y_file_name,
+                    &mocks,
+                )
+                .await;
 
             assert!(result.is_err());
             let error = result.err().unwrap();
@@ -2951,7 +2973,7 @@ pub mod glyph_engine {
                         let mut vector_processer_mock1 = MockVectorValueProcesser::new();
                         vector_processer_mock1
                             .expect_start()
-                            .times(1)
+                            .times(0)
                             .return_const(());
                         vector_processer_mock1
                             .expect_get_axis_name()
@@ -2959,6 +2981,10 @@ pub mod glyph_engine {
                             .return_const("x".to_string());
                         vector_processer_mock1
                             .expect_check_status()
+                            .times(0)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock1
+                            .expect_run_sync()
                             .times(1)
                             .return_const(TaskStatus::Complete);
                         vector_processer_mock1
@@ -2978,7 +3004,7 @@ pub mod glyph_engine {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
                         vector_processer_mock2
                             .expect_start()
-                            .times(1)
+                            .times(0)
                             .return_const(());
                         vector_processer_mock2
                             .expect_get_axis_name()
@@ -2986,6 +3012,10 @@ pub mod glyph_engine {
                             .return_const("y".to_string());
                         vector_processer_mock2
                             .expect_check_status()
+                            .times(0)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock2
+                            .expect_run_sync()
                             .times(1)
                             .return_const(TaskStatus::Complete);
                         vector_processer_mock2
@@ -3263,7 +3293,7 @@ pub mod glyph_engine {
                         let mut vector_processer_mock1 = MockVectorValueProcesser::new();
                         vector_processer_mock1
                             .expect_start()
-                            .times(1)
+                            .times(0)
                             .return_const(());
                         vector_processer_mock1
                             .expect_get_axis_name()
@@ -3271,7 +3301,7 @@ pub mod glyph_engine {
                             .return_const("x".to_string());
                         vector_processer_mock1
                             .expect_check_status()
-                            .times(1)
+                            .times(0)
                             .returning(|| {
                                 TaskStatus::Errored(VectorCalculationError::AthenaQueryError(
                                     GlyphxErrorData::new(
@@ -3281,17 +3311,33 @@ pub mod glyph_engine {
                                     ),
                                 ))
                             });
+                        vector_processer_mock1
+                            .expect_run_sync()
+                            .times(1)
+                            .return_const(
+                        TaskStatus::Errored(VectorCalculationError::AthenaQueryError(
+                            GlyphxErrorData::new(
+                                "An Unexpected Error Occurred".to_string(),
+                                None,
+                                None,
+                            )
+                        )));
                         Box::new(vector_processer_mock1)
                     } else {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
                         vector_processer_mock2
                             .expect_start()
-                            .times(1)
+                            .times(0)
                             .return_const(());
                         vector_processer_mock2
                             .expect_get_axis_name()
                             .times(0)
                             .return_const("y".to_string());
+
+                        vector_processer_mock2
+                            .expect_run_sync()
+                            .times(0)
+                            .return_const(TaskStatus::Complete);
                         Box::new(vector_processer_mock2)
                     }
                 });
@@ -3347,7 +3393,7 @@ pub mod glyph_engine {
                         let mut vector_processer_mock1 = MockVectorValueProcesser::new();
                         vector_processer_mock1
                             .expect_start()
-                            .times(1)
+                            .times(0)
                             .return_const(());
                         vector_processer_mock1
                             .expect_get_axis_name()
@@ -3355,6 +3401,10 @@ pub mod glyph_engine {
                             .return_const("x".to_string());
                         vector_processer_mock1
                             .expect_check_status()
+                            .times(0)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock1
+                            .expect_run_sync()
                             .times(1)
                             .return_const(TaskStatus::Complete);
                         vector_processer_mock1
@@ -3368,7 +3418,7 @@ pub mod glyph_engine {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
                         vector_processer_mock2
                             .expect_start()
-                            .times(1)
+                            .times(0)
                             .return_const(());
                         vector_processer_mock2
                             .expect_get_axis_name()
@@ -3376,6 +3426,10 @@ pub mod glyph_engine {
                             .return_const("y".to_string());
                         vector_processer_mock2
                             .expect_check_status()
+                            .times(0)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock2
+                            .expect_run_sync()
                             .times(1)
                             .return_const(TaskStatus::Complete);
                         vector_processer_mock2
@@ -3454,7 +3508,7 @@ pub mod glyph_engine {
                         let mut vector_processer_mock1 = MockVectorValueProcesser::new();
                         vector_processer_mock1
                             .expect_start()
-                            .times(1)
+                            .times(0)
                             .return_const(());
                         vector_processer_mock1
                             .expect_get_axis_name()
@@ -3462,6 +3516,10 @@ pub mod glyph_engine {
                             .return_const("x".to_string());
                         vector_processer_mock1
                             .expect_check_status()
+                            .times(0)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock1
+                            .expect_run_sync()
                             .times(1)
                             .return_const(TaskStatus::Complete);
                         vector_processer_mock1
@@ -3475,7 +3533,7 @@ pub mod glyph_engine {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
                         vector_processer_mock2
                             .expect_start()
-                            .times(1)
+                            .times(0)
                             .return_const(());
                         vector_processer_mock2
                             .expect_get_axis_name()
@@ -3483,6 +3541,10 @@ pub mod glyph_engine {
                             .return_const("y".to_string());
                         vector_processer_mock2
                             .expect_check_status()
+                            .times(0)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock2
+                            .expect_run_sync()
                             .times(1)
                             .return_const(TaskStatus::Complete);
                         vector_processer_mock2
@@ -3584,7 +3646,7 @@ pub mod glyph_engine {
                         let mut vector_processer_mock1 = MockVectorValueProcesser::new();
                         vector_processer_mock1
                             .expect_start()
-                            .times(1)
+                            .times(0)
                             .return_const(());
                         vector_processer_mock1
                             .expect_get_axis_name()
@@ -3592,6 +3654,10 @@ pub mod glyph_engine {
                             .return_const("x".to_string());
                         vector_processer_mock1
                             .expect_check_status()
+                            .times(0)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock1
+                            .expect_run_sync()
                             .times(1)
                             .return_const(TaskStatus::Complete);
                         vector_processer_mock1
@@ -3611,7 +3677,7 @@ pub mod glyph_engine {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
                         vector_processer_mock2
                             .expect_start()
-                            .times(1)
+                            .times(0)
                             .return_const(());
                         vector_processer_mock2
                             .expect_get_axis_name()
@@ -3619,6 +3685,10 @@ pub mod glyph_engine {
                             .return_const("y".to_string());
                         vector_processer_mock2
                             .expect_check_status()
+                            .times(0)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock2
+                            .expect_run_sync()
                             .times(1)
                             .return_const(TaskStatus::Complete);
                         vector_processer_mock2
@@ -3691,7 +3761,6 @@ pub mod glyph_engine {
             //2. Get our glyph_engine
             let mut glyph_engine = get_glyph_engine().await; //  GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
             let result = glyph_engine.process_impl(&mocks).await;
-            eprintln!("Result: {:?}", result);
             assert!(result.is_err());
             let error = result.err().unwrap();
             match error {
@@ -3724,7 +3793,7 @@ pub mod glyph_engine {
                         let mut vector_processer_mock1 = MockVectorValueProcesser::new();
                         vector_processer_mock1
                             .expect_start()
-                            .times(1)
+                            .times(0)
                             .return_const(());
                         vector_processer_mock1
                             .expect_get_axis_name()
@@ -3732,6 +3801,10 @@ pub mod glyph_engine {
                             .return_const("x".to_string());
                         vector_processer_mock1
                             .expect_check_status()
+                            .times(0)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock1
+                            .expect_run_sync()
                             .times(1)
                             .return_const(TaskStatus::Complete);
                         vector_processer_mock1
@@ -3751,7 +3824,7 @@ pub mod glyph_engine {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
                         vector_processer_mock2
                             .expect_start()
-                            .times(1)
+                            .times(0)
                             .return_const(());
                         vector_processer_mock2
                             .expect_get_axis_name()
@@ -3759,6 +3832,10 @@ pub mod glyph_engine {
                             .return_const("y".to_string());
                         vector_processer_mock2
                             .expect_check_status()
+                            .times(0)
+                            .return_const(TaskStatus::Complete);
+                        vector_processer_mock2
+                            .expect_run_sync()
                             .times(1)
                             .return_const(TaskStatus::Complete);
                         vector_processer_mock2
@@ -4140,11 +4217,12 @@ pub mod glyph_engine {
                 }
                 _ => panic!("Expected UploadError"),
             }
+        }
 
             mod get_stats_for_axis {
                 use super::*;
 
-                #[tokio::test] 
+                #[tokio::test]
                 async fn is_ok() {
                     let axis_name = "x";
                     let vectors = vec![1.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0];
@@ -4162,7 +4240,7 @@ pub mod glyph_engine {
                     assert_ne!(result.pct_0, f64::NAN);
                     assert_ne!(result.pct_5, f64::NAN);
                     assert_ne!(result.pct_10, f64::NAN);
-                    assert_ne!(result.pct_15, f64::NAN);  
+                    assert_ne!(result.pct_15, f64::NAN);
                     assert_ne!(result.pct_20, f64::NAN);
                     assert_ne!(result.pct_25, f64::NAN);
                     assert_ne!(result.pct_30, f64::NAN);
@@ -4182,10 +4260,8 @@ pub mod glyph_engine {
                     assert_ne!(result.pct_90, f64::NAN);
                     assert_ne!(result.pct_95, f64::NAN);
                     assert_ne!(result.pct_99, f64::NAN);
-
                 }
             }
-        }
+        
     }
 }
-

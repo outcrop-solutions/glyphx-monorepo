@@ -1,4 +1,5 @@
 const intercept = require('intercept-stdout');
+const CopyPlugin = require('copy-webpack-plugin');
 
 // safely ignore recoil stdout warning messages
 // Detailed here : https://github.com/facebookexperimental/Recoil/issues/733
@@ -136,6 +137,11 @@ module.exports = {
         resourceQuery: {not: [...fileLoaderRule.resourceQuery.not, /url/]}, // exclude if *.svg?url
         use: ['@svgr/webpack'],
       }
+    );
+    config.plugins.push(
+      new CopyPlugin({
+        patterns: [{from: 'pkg/index.node', to: 'server/pkg/index.node'}],
+      })
     );
 
     // Modify the file loader rule to ignore *.svg, since we have it handled now.

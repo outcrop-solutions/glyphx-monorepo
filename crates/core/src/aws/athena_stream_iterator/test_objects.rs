@@ -159,3 +159,4 @@ impl Stream for MockStream {
         Poll::Ready(result)
     }
 }
+ unsafe impl Send for MockStream {}

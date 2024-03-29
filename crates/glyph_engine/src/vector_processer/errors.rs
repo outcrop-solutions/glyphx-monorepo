@@ -18,7 +18,7 @@ pub enum VectorCalculationError {
     GetS3UploadStreamError(GlyphxErrorData),
     WriteUploadError(GlyphxErrorData),
 }
-
+unsafe impl Sync for VectorCalculationError {}
 impl From<RunQueryError> for VectorCalculationError {
     fn from(error: RunQueryError) -> Self {
         let inner_error = to_value(error).unwrap();

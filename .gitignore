@@ -44,6 +44,7 @@ yarn-error.log*
 # test data for integration tests
 testData
 
+
 #code coverage output
 .nyc_output
 .nyc_output/processinfo
@@ -62,4 +63,7 @@ output.log
 #artifacts from logging tests
 Foo.bar
 
+# exclude rust binary
+**/index.node
 packages/codegen/src/output
+**/glyph_engine.node
