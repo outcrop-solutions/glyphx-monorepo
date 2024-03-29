@@ -50,6 +50,11 @@ export const callCreateModel = async ({
           setResize(150);
           setDrawer(true);
           console.log('calling open project');
+          console.log(signedUrls);
+          console.log(project);
+          console.log(session);
+          console.log(url);
+
           window?.core?.OpenProject(
             _createOpenProject(signedUrls as {sdtUrl: any; sgcUrl: any; sgnUrl: any}, project, session, url, true, [])
           );

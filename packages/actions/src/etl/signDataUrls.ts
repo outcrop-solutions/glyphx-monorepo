@@ -23,6 +23,7 @@ export const signDataUrls = async (workspaceId: string, projectId: string, paylo
     const promises = urls.map((url) => s3Manager.getSignedDataUrlPromise(url));
     // Use Promise.all to fetch all URLs concurrently
     const signedUrls = await Promise.all(promises);
+    console.log({signedUrls});
     const sdtUrl = signedUrls.find((u: string) => u.includes('.sdt'));
     const sgcUrl = signedUrls.find((u: string) => u.includes('.sgc'));
     const sgnUrl = signedUrls.find((u: string) => u.includes('.sgn'));
