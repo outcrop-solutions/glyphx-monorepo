@@ -5,8 +5,7 @@ import {rustGlyphEngineTypes} from 'types';
 
 interface IBindings {
   exports: {
-    run: (args: rustGlyphEngineTypes.IGlyphEngineArgs) => Promise<rustGlyphEngineTypes.IGlyphEngineResults>;
-    hello: () => string;
+    glyph_engine: (args: rustGlyphEngineTypes.IGlyphEngineArgs) => Promise<rustGlyphEngineTypes.IGlyphEngineResults>;
     convertNeonValue: (value: any) => string;
     convertJsonValue: (value: string) => any;
     convertGlyphxErrorToJsonObject: () => any;
@@ -25,7 +24,7 @@ class Bindings extends ModuleLoader<IBindings> {
   ): Promise<rustGlyphEngineTypes.IGlyphEngineResults | error.ActionError> {
     let result: rustGlyphEngineTypes.IGlyphEngineResults;
     try {
-      result = await internalModule.exports.run(args);
+      result = await internalModule.exports.glyph_engine(args);
     } catch (e) {
       let er = new error.ActionError(
         'An error occurred while running the glyph_engine.  See the inner error for additional information',
