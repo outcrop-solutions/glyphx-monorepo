@@ -30,6 +30,7 @@ export const callCreateModel = async ({
   };
   // create model
   const retval = await glyphEngine(cleanProject, payloadHash);
+  console.log({glyphengineRetval: retval});
 
   if (!retval?.error) {
     setLoading(
@@ -38,12 +39,15 @@ export const callCreateModel = async ({
       })
     );
     // sign data urls
+    console.log({projectInput: project, payloadHash});
     const signedUrls = await signDataUrls(project?.workspace.id, project?.id, payloadHash);
+    console.log({signedUrls});
     if (!signedUrls?.error) {
       setLoading({});
       if (window?.core) {
         setResize(150);
         setDrawer(true);
+        console.log('calling open project');
         window?.core?.OpenProject(
           _createOpenProject(signedUrls as {sdtUrl: any; sgcUrl: any; sgnUrl: any}, project, session, url, true, [])
         );
