@@ -66,6 +66,9 @@ describe('#integrationTests/annotation', () => {
     }
 
     // create a state
+    const initialProject = await projectService.createProject(name, workspaceId, mockUser?.id, mockUser?.email);
+
+    // create a state
     state = await stateService.createState(
       'stateName',
       {
@@ -80,12 +83,18 @@ describe('#integrationTests/annotation', () => {
           z: 0,
         },
       },
-      project,
+      initialProject,
       mockUser?.id,
       {height: 400, width: 400},
       [] as unknown as string[], // rowIds
       imageHash
     );
+    // we do this because stateService.createState has added to stateHistory
+    project = await projectService.getProject(state.project.id);
+    if (!project) {
+      assert.fail();
+    }
+
     if (!state) {
       assert.fail();
     }
