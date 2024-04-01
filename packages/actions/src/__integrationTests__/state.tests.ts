@@ -83,6 +83,8 @@ describe('#integrationTests/state', () => {
       imageHash
     );
 
+    stateId = state.id;
+
     // we do this because stateService.createState has added to stateHistory
     project = await projectService.getProject(state.project.id);
     if (!project) {
@@ -180,7 +182,7 @@ describe('#integrationTests/state', () => {
       try {
         const name = 'newStateName';
         await stateActions.updateState(stateId, name);
-        const state = stateActions.getState(stateId);
+        const state = await stateActions.getState(stateId);
         assert.strictEqual(state.name, name);
       } catch (error) {
         assert.fail();
@@ -198,8 +200,8 @@ describe('#integrationTests/state', () => {
     it('should delete a state', async () => {
       try {
         await stateActions.deleteState(stateId);
-        const state = stateActions.getState(stateId);
-        assert.isNull(state);
+        const state = await stateActions.getState(stateId);
+        assert.isOk(state.deletedAt);
       } catch (error) {
         assert.fail();
       }
