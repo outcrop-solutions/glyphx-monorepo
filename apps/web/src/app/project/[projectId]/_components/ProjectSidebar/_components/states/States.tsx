@@ -60,7 +60,7 @@ export const States = () => {
     console.log('within effect', {project, camera, image});
     callCreateState(camera, image, project);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [camera, setCamera, setProject, mutate, image, setImage, project?.id, setAddState]);
+  }, [camera, setCamera, setProject, mutate, image, setImage, setAddState]);
 
   return (
     <div className="group flex flex-col grow">

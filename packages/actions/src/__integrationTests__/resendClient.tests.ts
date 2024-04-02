@@ -7,7 +7,7 @@ import {EmailError} from 'core/src/error';
 import {imageHash} from './constants/imageHash';
 import {getToken} from 'utils/blobStore';
 
-describe('#integrationTests/ResendClient', () => {
+describe.only('#integrationTests/ResendClient', () => {
   before(async () => {
     await emailClient.init();
     assert.isTrue(emailClient.isInited);
@@ -78,6 +78,7 @@ describe('#integrationTests/ResendClient', () => {
           stateName: '',
           stateImage: '',
           emails: ['james@glyphx.co', 'jp@glyphx.co'],
+          projectId: 'projectId',
         } satisfies emailTypes.EmailData;
         const retval = await emailClient.sendEmail(emailData);
         assert.isOk(retval?.id);
@@ -92,6 +93,7 @@ describe('#integrationTests/ResendClient', () => {
           stateName: undefined as unknown as string,
           stateImage: undefined as unknown as string,
           emails: [],
+          projectId: 'projectId',
         } satisfies emailTypes.EmailData;
         await emailClient.sendEmail(emailData);
       } catch (error) {
@@ -117,6 +119,7 @@ describe('#integrationTests/ResendClient', () => {
           stateImage: imageRetval.url,
           annotation: '',
           emails: ['james@glyphx.co'],
+          projectId: 'projectId',
         } satisfies emailTypes.EmailData;
         const retval = await emailClient.sendEmail(emailData);
         assert.isOk(retval?.id);
@@ -136,6 +139,7 @@ describe('#integrationTests/ResendClient', () => {
           stateImage: undefined as unknown as string,
           annotation: undefined as unknown as string,
           emails: [],
+          projectId: 'projectId',
         } satisfies emailTypes.EmailData;
         await emailClient.sendEmail(emailData);
       } catch (error) {

@@ -33,7 +33,7 @@ export const SettingsDropdown = () => {
   return (
     <Menu as="div" className="relative inline-block text-left z-30">
       <div>
-        <Menu.Button className="flex items-center justify-center p-1 space-x-3 border rounded hover:bg-secondary-midnight">
+        <Menu.Button className="flex items-center justify-center bg-transparent p-1 space-x-3 border rounded hover:bg-secondary-midnight">
           <CogIcon aria-hidden="true" className="w-5 h-5" />
         </Menu.Button>
       </div>

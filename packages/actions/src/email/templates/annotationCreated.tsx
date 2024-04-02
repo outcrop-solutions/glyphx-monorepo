@@ -1,10 +1,16 @@
 'use client';
 /* eslint-disable @next/next/no-img-element */
 import React from 'react';
-import {Tailwind, Body, Button, Container, Head, Html, Img, Row, Section, Text} from '@react-email/components';
+import {Tailwind, Body, Container, Head, Html, Img, Row, Section, Text, Button} from '@react-email/components';
 import {emailTypes} from 'types';
+import {getEnvSpecificStateUrl} from '../../utils/getUrls';
 
-export const AnnotationCreatedTemplate = ({stateName, stateImage, annotation}: emailTypes.iAnnotationCreatedData) => (
+export const AnnotationCreatedTemplate = ({
+  projectId,
+  stateName,
+  stateImage,
+  annotation,
+}: emailTypes.iAnnotationCreatedData) => (
   <Tailwind
     config={{
       theme: {
@@ -49,7 +55,12 @@ export const AnnotationCreatedTemplate = ({stateName, stateImage, annotation}: e
               <Text className="text-white mb-2">{`"${annotation}"`}</Text>
             </Row>
             <Row className="mb-2 flex">
-              <Button className="bg-yellow py-1 text-center rounded w-[300px]">View in Glyphx</Button>
+              <Button
+                href={`${getEnvSpecificStateUrl(projectId)}`}
+                className="bg-yellow py-1 text-center rounded w-[300px]"
+              >
+                View in Glyphx
+              </Button>
             </Row>
           </Section>
         </Container>

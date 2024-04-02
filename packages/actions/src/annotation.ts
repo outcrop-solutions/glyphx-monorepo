@@ -148,13 +148,14 @@ export const createProjectAnnotation = async (projectId: string, value: string) 
       }
 
       const members = await membershipService.getMembers({project: projectId});
-      if (members && project) {
+      if (members && project?.id && project?.name) {
         const emailData = {
           type: emailTypes.EmailTypes.ANNOTATION_CREATED,
           stateName: project.name,
           stateImage: buildStateUrl(latestStateId as string),
           annotation: value,
           emails: [...members.map((mem) => mem.email)],
+          projectId: project.id,
         } satisfies emailTypes.EmailData;
         await emailClient.init();
         await emailClient.sendEmail(emailData);
@@ -217,6 +218,7 @@ export const createStateAnnotation = async (stateId: string, value: string) => {
               stateImage: buildStateUrl(state?.id as string),
               annotation: annotation.value,
               emails: [...members.map((mem) => mem.email)],
+              projectId: state.project.id as string,
             } satisfies emailTypes.EmailData;
             await emailClient.init();
             await emailClient.sendEmail(emailData);

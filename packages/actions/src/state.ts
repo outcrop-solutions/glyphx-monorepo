@@ -70,6 +70,7 @@ export const createState = async (
           stateName: name,
           stateImage: imageRetval.url,
           emails: retval.members?.map((mem) => mem.email),
+          projectId: project.id as string,
         } satisfies emailTypes.EmailData;
 
         await emailClient.init();

@@ -1,36 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
-// import React from 'react';
+import * as React from 'react';
 import {emailTypes} from 'types';
-
-// export const EmailVerificationTemplate = ({url}: emailTypes.iEmailVerificationData) => {
-//   return (
-//     <div className="mx-auto max-w-lg rounded-lg">
-//       <div className="text-center py-2.5 text-xl font-sans text-text">
-//         Sign in to <strong>Glyphx</strong>
-//       </div>
-//       <div className="text-center py-2.5">
-//         {/* Glyphx Full Logo */}
-//         <img alt="logo" src="https://app.glyphx.co/icon" className="h-40" />
-//       </div>
-//       <div className="text-center py-5">
-//         <div className="rounded-md bg-buttonBackground">
-//           <a
-//             href={url}
-//             target="_blank"
-//             className="text-lg font-sans text-buttonText no-underline rounded-md py-2.5 px-5 inline-block font-bold border border-buttonBorder"
-//           >
-//             Sign in to your Workspace
-//           </a>
-//         </div>
-//       </div>
-
-//       <div className="text-center py-0 text-base leading-6 font-sans text-text">
-//         If you did not request this email you can safely ignore it.
-//       </div>
-//     </div>
-//   );
-// };
-
 import {
   Tailwind,
   Body,
@@ -45,7 +15,7 @@ import {
   Section,
   Text,
 } from '@react-email/components';
-import * as React from 'react';
+import {getUrlKey} from '../../utils';
 
 export const EmailVerificationTemplate = ({url}: emailTypes.iEmailVerificationData) => (
   <Tailwind
@@ -65,7 +35,12 @@ export const EmailVerificationTemplate = ({url}: emailTypes.iEmailVerificationDa
       <Preview>Log in with this magic link.</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Img src="https://app.glyphx.co/icon" width={48} height={48} alt="Glyphx" />
+          <Img
+            src={`https://${getUrlKey()}.public.blob.vercel-storage.com/logo.png`}
+            width={48}
+            height={48}
+            alt="Glyphx"
+          />
           <Heading style={heading}>🪄 Your magic link</Heading>
           <Section style={body}>
             <Text style={paragraph}>
@@ -82,7 +57,7 @@ export const EmailVerificationTemplate = ({url}: emailTypes.iEmailVerificationDa
           </Text>
           <Hr style={hr} />
           <Img
-            src="https://app.glyphx.co/icon"
+            src={`https://${getUrlKey()}.public.blob.vercel-storage.com/logo.png`}
             width={32}
             height={32}
             // style={{

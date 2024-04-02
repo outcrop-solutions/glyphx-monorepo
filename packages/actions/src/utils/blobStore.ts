@@ -15,12 +15,7 @@ export const getToken = () => {
   }
 };
 
-/**
- * Formats blob store url based on the environment
- * @param stateId
- * @returns
- */
-export const buildStateUrl = (stateId: string) => {
+export const getUrlKey = () => {
   let urlKey = `${process.env.DEV_BLOB_URL}`;
 
   if (process.env.VERCEL_ENV === 'preview') {
@@ -28,6 +23,14 @@ export const buildStateUrl = (stateId: string) => {
   } else if (process.env.VERCEL_ENV === 'production') {
     urlKey = `${process.env.PROD_BLOB_URL}`;
   }
+  return urlKey;
+};
 
-  return `https://${urlKey}.public.blob.vercel-storage.com/state/${stateId}`;
+/**
+ * Formats blob store url based on the environment
+ * @param stateId
+ * @returns
+ */
+export const buildStateUrl = (stateId: string) => {
+  return `https://${getUrlKey()}.public.blob.vercel-storage.com/state/${stateId}`;
 };
