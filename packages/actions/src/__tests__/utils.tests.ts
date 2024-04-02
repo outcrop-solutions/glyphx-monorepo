@@ -7,7 +7,7 @@ import {dbConnection, Initializer, projectService, stateService, workspaceServic
 import {databaseTypes, fileIngestionTypes, glyphEngineTypes} from 'types';
 import {buildStateUrl, formatGridData, generateFilter, generateFilterQuery, generateSegment, getToken} from 'utils';
 
-describe('#tests/utils', () => {
+describe.only('#tests/utils', () => {
   const sandbox = createSandbox();
 
   context('#getToken', () => {
@@ -15,13 +15,13 @@ describe('#tests/utils', () => {
       try {
         // Note: if running "[dev|demo|prod]:test", the token will be defined (due to dotenv pulling in correct env variables). If running "test", they will both be undefined as the env variables will not be in the test context
         const token = getToken();
-        if (process.env.GLYPHX_ENV === 'dev') {
+        if (process.env.VERCEL_ENV === 'development') {
           assert.strictEqual(token, process.env.DEV_BLOB_READ_WRITE_TOKEN);
         }
-        if (process.env.GLYPHX_ENV === 'demo') {
+        if (process.env.VERCEL_ENV === 'preview') {
           assert.strictEqual(token, process.env.DEMO_BLOB_READ_WRITE_TOKEN);
         }
-        if (process.env.GLYPHX_ENV === 'prod') {
+        if (process.env.VERCEL_ENV === 'production') {
           // eslint-disable-next-line turbo/no-undeclared-env-vars
           assert.strictEqual(token, process.env.PROD_BLOB_READ_WRITE_TOKEN);
         }
@@ -37,13 +37,13 @@ describe('#tests/utils', () => {
         const stateId = 'testId';
         const stateUrl = buildStateUrl(stateId);
 
-        if (process.env.GLYPHX_ENV === 'dev') {
+        if (process.env.VERCEL_ENV === 'development') {
           assert.isTrue(stateUrl.includes(`${process.env.DEV_BLOB_URL}`) && stateUrl.includes(stateId));
         }
-        if (process.env.GLYPHX_ENV === 'demo') {
+        if (process.env.VERCEL_ENV === 'preview') {
           assert.isTrue(stateUrl.includes(`${process.env.DEMO_BLOB_URL}`) && stateUrl.includes(stateId));
         }
-        if (process.env.GLYPHX_ENV === 'prod') {
+        if (process.env.VERCEL_ENV === 'production') {
           assert.isTrue(stateUrl.includes(`${process.env.PROD_BLOB_URL}`) && stateUrl.includes(stateId));
         }
         // is it a valid URL
