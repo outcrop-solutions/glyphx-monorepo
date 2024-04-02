@@ -16,6 +16,7 @@ import {
   project5,
   project6,
   project7,
+  project8,
 } from './data';
 
 describe('#lib/hashFunctions', () => {
@@ -143,6 +144,17 @@ describe('#lib/hashFunctions', () => {
         // @ts-ignore
         const hash2 = hashPayload(hashFileSystem(project7.files), project7);
         assert.strictEqual(hash1, hash2);
+      } catch (error) {
+        assert.fail();
+      }
+    });
+    it('will create a different hash based on a change in projectId', async () => {
+      try {
+        // @ts-ignore
+        const hash1 = hashPayload(hashFileSystem(project1.files), project5);
+        // @ts-ignore
+        const hash2 = hashPayload(hashFileSystem(project2.files), project8);
+        assert.notEqual(hash1, hash2);
       } catch (error) {
         assert.fail();
       }

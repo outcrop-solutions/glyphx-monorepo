@@ -37,6 +37,10 @@ export function hashPayload(fileHash: string, project: databaseTypes.IProject): 
     propRetvals.push(keyRetvals.join(''));
   }
 
+  if (project.id) {
+    propRetvals.push(project.id);
+  }
+
   const stateHash = MD5(propRetvals.join('')).toString();
   const payloadHash = MD5(`${fileHash}${stateHash}`).toString();
   return payloadHash;

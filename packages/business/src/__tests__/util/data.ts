@@ -155,6 +155,7 @@ export const filesVariant2 = [file1Dirty, file2Clean];
  * [clean, clean]
  */
 export const project1 = {
+  id: 'project1',
   files: filesCleanVariant,
   state: defaultState,
 };
@@ -164,16 +165,19 @@ export const project1 = {
  * [dirty, dirty]
  */
 export const project2 = {
+  id: 'project1',
   files: filesDirtyVariant,
   state: defaultState,
 };
 
 export const project3 = {
+  id: 'project1',
   files: filesVariant1, // [clean, dirty]
   state: defaultState,
 };
 
 export const project4 = {
+  id: 'project1',
   files: filesVariant2, // [dirty, clean]
   state: defaultState,
 };
@@ -181,12 +185,14 @@ export const project4 = {
 // THESE ISOLATE STATE PROPERTY DIFFERENCES
 // all clean files
 export const project5 = {
+  id: 'project1',
   files: filesCleanVariant,
   state: defaultState,
 };
 
 // key changes, should produce different hash
 export const project6 = {
+  id: 'project1',
   files: filesCleanVariant,
   state: {
     ...defaultState,
@@ -202,6 +208,7 @@ export const project6 = {
 
 // all dirty files
 export const project7 = {
+  id: 'project1',
   files: [file1Dirty, file2Dirty],
   state: {
     ...defaultState,
@@ -213,4 +220,11 @@ export const project7 = {
       },
     },
   },
+};
+
+// projectid difference
+export const project8 = {
+  id: 'project8',
+  files: filesCleanVariant,
+  state: defaultState,
 };
