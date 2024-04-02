@@ -4,23 +4,26 @@
  * @returns
  */
 export const getToken = () => {
-  if (process.env.VERCEL_ENV === 'development') {
+  if (process.env.GLYPHX_ENV === 'dev') {
     return process.env.DEV_BLOB_READ_WRITE_TOKEN;
   }
-  if (process.env.VERCEL_ENV === 'preview') {
+  if (process.env.GLYPHX_ENV === 'demo') {
     return process.env.DEMO_BLOB_READ_WRITE_TOKEN;
   }
-  if (process.env.VERCEL_ENV === 'production') {
+  if (process.env.GLYPHX_ENV === 'prod') {
     return process.env.PROD_BLOB_READ_WRITE_TOKEN;
   }
 };
 
 export const getUrlKey = () => {
-  let urlKey = `${process.env.DEV_BLOB_URL}`;
-
-  if (process.env.VERCEL_ENV === 'preview') {
+  let urlKey;
+  if (process.env.GLYPHX_ENV === 'dev') {
+    urlKey = `${process.env.DEV_BLOB_URL}`;
+  }
+  if (process.env.GLYPHX_ENV === 'demo') {
     urlKey = `${process.env.DEMO_BLOB_URL}`;
-  } else if (process.env.VERCEL_ENV === 'production') {
+  }
+  if (process.env.GLYPHX_ENV === 'prod') {
     urlKey = `${process.env.PROD_BLOB_URL}`;
   }
   return urlKey;

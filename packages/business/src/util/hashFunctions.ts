@@ -15,7 +15,7 @@ import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
  */
 export function hashPayload(fileHash: string, project: databaseTypes.IProject): string {
   const relevantProps = ['X', 'Y', 'Z', 'A', 'B', 'C'];
-  const relevantKeys = ['key', 'dataType', 'interpolation', 'direction', 'filter', 'keywords'];
+  const relevantKeys = ['key', 'dataType', 'interpolation', 'direction', 'filter', 'accumulatorType', 'dateGrouping'];
   const propRetvals = [] as string[];
 
   for (const propKey of relevantProps) {
@@ -26,8 +26,8 @@ export function hashPayload(fileHash: string, project: databaseTypes.IProject): 
       if (key === 'filter' && dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER) {
         keyRetvals.push(String((prop[key] as webTypes.INumbericFilter).min) ?? '');
         keyRetvals.push(String((prop[key] as webTypes.INumbericFilter).max) ?? '');
-      } else if (key === 'keywords' && Array.isArray(prop[key])) {
-        for (const word of prop[key]) {
+      } else if (key === 'filter' && dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING) {
+        for (const word of (prop[key] as webTypes.IStringFilter).keywords) {
           keyRetvals.push(String(word));
         }
       } else {

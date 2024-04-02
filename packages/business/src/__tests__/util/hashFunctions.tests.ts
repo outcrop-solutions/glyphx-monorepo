@@ -136,7 +136,7 @@ describe('#lib/hashFunctions', () => {
         assert.fail();
       }
     });
-    it.only('will create the same hash because change is an erroneous property', async () => {
+    it('will create the same hash because change is an erroneous property', async () => {
       try {
         // @ts-ignore
         const hash1 = hashPayload(hashFileSystem(project5.files), project5);

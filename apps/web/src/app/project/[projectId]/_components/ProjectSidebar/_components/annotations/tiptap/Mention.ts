@@ -166,7 +166,7 @@ export const Mention = Node.create<MentionOptions>({
           }
 
           state.doc.nodesBetween(anchor - 1, anchor, (node, pos) => {
-            if (node.type.name === this.name) {
+            if (node.type.name === this.name || node.text === 'here') {
               isMention = true;
               tr.insertText(this.options.suggestion.char || '', pos, pos + node.nodeSize);
 

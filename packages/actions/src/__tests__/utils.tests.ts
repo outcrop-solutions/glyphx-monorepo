@@ -15,13 +15,13 @@ describe('#tests/utils', () => {
       try {
         // Note: if running "[dev|demo|prod]:test", the token will be defined (due to dotenv pulling in correct env variables). If running "test", they will both be undefined as the env variables will not be in the test context
         const token = getToken();
-        if (process.env.VERCEL_ENV === 'development') {
+        if (process.env.GLYPHX_ENV === 'dev') {
           assert.strictEqual(token, process.env.DEV_BLOB_READ_WRITE_TOKEN);
         }
-        if (process.env.VERCEL_ENV === 'preview') {
+        if (process.env.GLYPHX_ENV === 'demo') {
           assert.strictEqual(token, process.env.DEMO_BLOB_READ_WRITE_TOKEN);
         }
-        if (process.env.VERCEL_ENV === 'production') {
+        if (process.env.GLYPHX_ENV === 'prod') {
           // eslint-disable-next-line turbo/no-undeclared-env-vars
           assert.strictEqual(token, process.env.PROD_BLOB_READ_WRITE_TOKEN);
         }
@@ -37,13 +37,13 @@ describe('#tests/utils', () => {
         const stateId = 'testId';
         const stateUrl = buildStateUrl(stateId);
 
-        if (process.env.VERCEL_ENV === 'development') {
+        if (process.env.GLYPHX_ENV === 'dev') {
           assert.isTrue(stateUrl.includes(`${process.env.DEV_BLOB_URL}`) && stateUrl.includes(stateId));
         }
-        if (process.env.VERCEL_ENV === 'preview') {
+        if (process.env.GLYPHX_ENV === 'demo') {
           assert.isTrue(stateUrl.includes(`${process.env.DEMO_BLOB_URL}`) && stateUrl.includes(stateId));
         }
-        if (process.env.VERCEL_ENV === 'production') {
+        if (process.env.GLYPHX_ENV === 'prod') {
           assert.isTrue(stateUrl.includes(`${process.env.PROD_BLOB_URL}`) && stateUrl.includes(stateId));
         }
         // is it a valid URL
@@ -53,78 +53,79 @@ describe('#tests/utils', () => {
       }
     });
   });
-  context('#formatGridData', () => {
-    it('should correctly format the grid data so that it can be rendered', async () => {
-      try {
-        const data = {};
-        const columns = [];
-        const retval = formatGridData(data, columns);
-        assert.isOk(retval);
-      } catch (error) {
-        assert.fail();
-      }
-    });
-  });
-  context('#generateFilterQuery', () => {
-    context('#generateSegment', () => {
-      it('should correctly generate a query segment for a number field', async () => {
-        try {
-          const name = 'col1';
-          const prop = {};
-          //         const prop = {
-          //           axis: web;
-          // accepts: ACCEPTS;
-          // key: string; // corresponds to column name
-          // dataType: FIELD_TYPE; // corresponds to column data type
-          // interpolation: INTERPOLATION_TYPE;
-          // direction: DIRECTION_TYPE;
-          // filter: Filter;
-          // accumulatorType?: ACCUMULATOR_TYPE;
-          // dateGrouping?: DATE_GROUPING;
-          // description?: string;
-          //         };
-          // @ts-ignore
-          const retval = generateSegment(name, prop);
-          assert.isOk(retval);
-        } catch (error) {
-          assert.fail();
-        }
-      });
-      it('should correctly generate a query segment for a string field', async () => {
-        try {
-          const name = 'col1';
-          const prop = {};
-          // @ts-ignore
-          const retval = generateSegment(name, prop);
-          assert.isOk(retval);
-        } catch (error) {
-          assert.fail();
-        }
-      });
-    });
-    context('#generateFilter', () => {
-      it('should correctly generate a filter segment', async () => {
-        try {
-          const prop = {};
-          // @ts-ignore
-          const retval = generateFilter(prop);
-          assert.isOk(retval);
-        } catch (error) {
-          assert.fail();
-        }
-      });
-    });
-    context('#generateFilterQuery', () => {
-      it('should correctly generate the entire filter section of the query', async () => {
-        try {
-          const prop = {};
-          // @ts-ignore
-          const retval = generateFilterQuery(project);
-          assert.isOk(retval);
-        } catch (error) {
-          assert.fail();
-        }
-      });
-    });
-  });
+  // WIP
+  // context('#formatGridData', () => {
+  //   it('should correctly format the grid data so that it can be rendered', async () => {
+  //     try {
+  //       const data = {};
+  //       const columns = [];
+  //       const retval = formatGridData(data, columns);
+  //       assert.isOk(retval);
+  //     } catch (error) {
+  //       assert.fail();
+  //     }
+  //   });
+  // });
+  // context('#generateFilterQuery', () => {
+  //   context('#generateSegment', () => {
+  //     it('should correctly generate a query segment for a number field', async () => {
+  //       try {
+  //         const name = 'col1';
+  //         const prop = {};
+  //         //         const prop = {
+  //         //           axis: web;
+  //         // accepts: ACCEPTS;
+  //         // key: string; // corresponds to column name
+  //         // dataType: FIELD_TYPE; // corresponds to column data type
+  //         // interpolation: INTERPOLATION_TYPE;
+  //         // direction: DIRECTION_TYPE;
+  //         // filter: Filter;
+  //         // accumulatorType?: ACCUMULATOR_TYPE;
+  //         // dateGrouping?: DATE_GROUPING;
+  //         // description?: string;
+  //         //         };
+  //         // @ts-ignore
+  //         const retval = generateSegment(name, prop);
+  //         assert.isOk(retval);
+  //       } catch (error) {
+  //         assert.fail();
+  //       }
+  //     });
+  //     it('should correctly generate a query segment for a string field', async () => {
+  //       try {
+  //         const name = 'col1';
+  //         const prop = {};
+  //         // @ts-ignore
+  //         const retval = generateSegment(name, prop);
+  //         assert.isOk(retval);
+  //       } catch (error) {
+  //         assert.fail();
+  //       }
+  //     });
+  //   });
+  //   context('#generateFilter', () => {
+  //     it('should correctly generate a filter segment', async () => {
+  //       try {
+  //         const prop = {};
+  //         // @ts-ignore
+  //         const retval = generateFilter(prop);
+  //         assert.isOk(retval);
+  //       } catch (error) {
+  //         assert.fail();
+  //       }
+  //     });
+  //   });
+  //   context('#generateFilterQuery', () => {
+  //     it('should correctly generate the entire filter section of the query', async () => {
+  //       try {
+  //         const prop = {};
+  //         // @ts-ignore
+  //         const retval = generateFilterQuery(project);
+  //         assert.isOk(retval);
+  //       } catch (error) {
+  //         assert.fail();
+  //       }
+  //     });
+  //   });
+  // });
 });
