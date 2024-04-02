@@ -225,7 +225,7 @@ export const createStateAnnotation = async (stateId: string, value: string) => {
           }
         }
 
-        revalidatePath('/project/[projectId]');
+        revalidatePath(`/project/${state?.project.id}`, 'layout');
       }
     }
   } catch (err) {

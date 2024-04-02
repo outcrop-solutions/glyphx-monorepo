@@ -88,6 +88,7 @@ export const createState = async (
           action: databaseTypes.constants.ACTION_TYPE.CREATED,
         });
       }
+      revalidatePath(`/project/${project.id}`, 'layout');
       return retval;
     }
   } catch (err) {

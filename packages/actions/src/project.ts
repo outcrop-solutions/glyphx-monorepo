@@ -122,7 +122,7 @@ export const updateProjectState = async (projectId: string, state: databaseTypes
         onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
         action: databaseTypes.constants.ACTION_TYPE.UPDATED,
       });
-      revalidatePath('/project/[projectId]');
+      revalidatePath(`/project/${project.id}`, 'layout');
     }
   } catch (err) {
     const e = new error.ActionError(
