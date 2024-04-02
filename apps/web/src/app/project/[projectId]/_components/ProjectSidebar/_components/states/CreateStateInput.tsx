@@ -38,9 +38,7 @@ export const CreateStateInput = ({isSubmitting, name, setName}) => {
         onClick={createState}
       >
         {isSubmitting ? (
-          <div className="h-4 w-4 flex items-center justify-center">
-            <LoadingDots />
-          </div>
+          <LoadingDots className="h-4 w-4 flex items-center justify-center" />
         ) : (
           <CameraIcon className="h-4 w-4" />
         )}

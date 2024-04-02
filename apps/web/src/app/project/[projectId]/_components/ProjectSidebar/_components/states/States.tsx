@@ -45,7 +45,7 @@ export const States = () => {
 
           console.log({filteredStates, idx});
 
-          applyState(idx, newProject);
+          await applyState(idx, newProject);
           setName('Initial State');
           setIsSubmitting(false);
           setAddState(false);
