@@ -7,7 +7,7 @@ import {EmailError} from 'core/src/error';
 import {imageHash} from './constants/imageHash';
 import {getToken} from 'utils/blobStore';
 
-describe.only('#integrationTests/ResendClient', () => {
+describe('#integrationTests/ResendClient', () => {
   before(async () => {
     await emailClient.init();
     assert.isTrue(emailClient.isInited);

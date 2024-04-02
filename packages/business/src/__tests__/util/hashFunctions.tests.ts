@@ -18,7 +18,7 @@ import {
   project7,
 } from './data';
 
-describe.only('#lib/hashFunctions', () => {
+describe('#lib/hashFunctions', () => {
   // ModelFooter needs to have a valid payloadHash
   context('hashFileSystem', () => {
     const sandbox = createSandbox();
