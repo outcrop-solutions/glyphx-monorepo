@@ -12,8 +12,8 @@ import {s3Connection} from '../../../business/src/lib';
 export const signDataUrls = async (workspaceId: string, projectId: string, payloadHash: string) => {
   try {
     // init S3 client
+    await s3Connection.init();
     const s3Manager = s3Connection.s3Manager;
-    await s3Manager.init();
     const urls = [
       `client/${workspaceId}/${projectId}/output/${payloadHash}.sdt`,
       `client/${workspaceId}/${projectId}/output/${payloadHash}.sgn`,
