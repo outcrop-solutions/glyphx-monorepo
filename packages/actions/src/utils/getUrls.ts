@@ -3,7 +3,7 @@
  * For now, we omit this step to test the fix to the state creation logic in isolation
  */
 export const getEnvSpecificStateUrl = (projectId: string) => {
-  let projectUrl;
+  let projectUrl = `https://dev-app.glyphx.co/project/${projectId}`;
 
   if (process.env.GLYPHX_ENV === 'dev') {
     projectUrl = `https://dev-app.glyphx.co/project/${projectId}`;
