@@ -24,7 +24,8 @@ use glyphx_database::{
     GlyphxDataModel, MongoDbConnection, ProcessStatus, ProcessTrackingModel, UpdateDocumentError,
     UpdateProcessTrackingModelBuilder,
 };
-
+ 
+use model_common::vectors::{Vector, VectorOrigionalValue};
 use async_trait::async_trait;
 use bincode::serialize;
 use bson::{doc, DateTime};
@@ -38,7 +39,7 @@ use types::vectorizer_parameters::{FieldDefinition, VectorizerParameters};
 pub use types::*;
 
 use vector_processer::{
-    TaskStatus, Vector, VectorOrigionalValue, VectorProcesser, VectorValueProcesser,
+    TaskStatus, VectorProcesser, VectorValueProcesser,
 };
 
 macro_rules! process_error {

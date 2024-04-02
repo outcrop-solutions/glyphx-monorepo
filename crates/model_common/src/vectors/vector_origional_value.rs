@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum VectorOrigionalValue {
     String(String),

@@ -1499,6 +1499,7 @@ dependencies = [
  "lazy_static",
  "log",
  "mockall",
+ "model_common",
  "once_cell",
  "rand",
  "serde",
@@ -2339,6 +2340,14 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "model_common"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

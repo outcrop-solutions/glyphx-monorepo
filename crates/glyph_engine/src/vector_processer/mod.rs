@@ -1,12 +1,8 @@
 mod errors;
 mod task_status;
-mod vector;
-mod vector_origional_value;
 
 pub use errors::*;
 pub use task_status::*;
-pub use vector::*;
-pub use vector_origional_value::*;
 
 use crate::types::vectorizer_parameters::FieldDefinition;
 use glyphx_common::{AthenaConnection, S3Connection};
@@ -18,6 +14,7 @@ use glyphx_core::{
     },
     ErrorTypeParser, GlyphxErrorData, Singleton,
 };
+use model_common::vectors::{Vector, VectorOrigionalValue};
 
 use async_trait::async_trait;
 use bincode::serialize;
