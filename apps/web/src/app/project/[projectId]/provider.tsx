@@ -4,7 +4,15 @@ import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
-import {projectAtom, rightSidebarControlAtom, rowIdsAtom, templatesAtom, workspaceAtom} from 'state';
+import {
+  cameraAtom,
+  imageHashAtom,
+  projectAtom,
+  rightSidebarControlAtom,
+  rowIdsAtom,
+  templatesAtom,
+  workspaceAtom,
+} from 'state';
 import {useSendPosition, useWindowSize} from 'services';
 import {useCloseViewerOnModalOpen} from 'services/useCloseViewerOnModalOpen';
 import {useCloseViewerOnLoading} from 'services/useCloseViewerOnLoading';
@@ -54,6 +62,8 @@ export const ProjectProvider = ({
   const setProject = useSetRecoilState(projectAtom);
   const setTemplates = useSetRecoilState(templatesAtom);
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
+  const setCamera = useSetRecoilState(cameraAtom);
+  const setImageHash = useSetRecoilState(imageHashAtom);
 
   // hydrate recoil state
   useEffect(() => {
@@ -79,6 +89,17 @@ export const ProjectProvider = ({
       });
       setProject(formattedProject);
 
+      // open latest state if it exists
+      if (project.stateHistory.length > 0) {
+        const latestState = project.stateHistory[project.stateHistory.length - 1];
+        const camera = latestState.camera || {};
+        const imageHash = latestState.imageHash || false;
+        setCamera(camera);
+        setImageHash({
+          imageHash: imageHash,
+        });
+      }
+
       setRowIds(false);
       setTemplates(templateData);
       setRightSidebarControl(
@@ -96,6 +117,8 @@ export const ProjectProvider = ({
     templateData,
     project,
     setRowIds,
+    setCamera,
+    setImageHash,
   ]);
 
   return enabled && project?.docId ? (
