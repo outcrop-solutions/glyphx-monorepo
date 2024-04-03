@@ -1,4 +1,4 @@
-use crate::types::error::GlyphxErrorData;
+use crate::GlyphxErrorData;
 
 pub trait ErrorTypeParser {
     fn parse_error_type(&self) -> String;

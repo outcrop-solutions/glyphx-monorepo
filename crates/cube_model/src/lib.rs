@@ -3,10 +3,12 @@ mod camera;
 mod light;
 mod model;
 mod model_event;
+mod data;
 
 use model::model_configuration::ModelConfiguration;
 use model::state::State;
 use model_event::{ModelEvent, ModelMoveDirection};
+use data::ModelVectors;
 use std::rc::Rc;
 use winit::event::*;
 use winit::event_loop::{ControlFlow, EventLoopBuilder, EventLoopProxy};
