@@ -8,7 +8,7 @@ import {imageHash} from './constants/imageHash';
 import {buildStateUrl, getToken} from '../utils/blobStore';
 import {del} from '@vercel/blob';
 
-describe.only('#integrationTests/state', () => {
+describe('#integrationTests/state', () => {
   const sandbox = createSandbox();
   let stateActions;
   let stateId;

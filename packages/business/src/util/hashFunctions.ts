@@ -31,6 +31,7 @@ export function hashPayload(fileHash: string, project: databaseTypes.IProject): 
           keyRetvals.push(String(word));
         }
       } else {
+        // @ts-ignore
         keyRetvals.push(String(prop[key]));
       }
     }
