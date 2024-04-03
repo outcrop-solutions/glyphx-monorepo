@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 glyphx_error = {path = "../macros/glyphx_error"}
+log = "0.4.17"
 mockall = "0.11.4"
 serde = { version = "1.0.163", features = ["derive"] }
 serde_derive = "1.0.163"

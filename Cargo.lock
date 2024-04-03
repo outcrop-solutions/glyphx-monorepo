@@ -1577,6 +1577,7 @@ name = "glyphx_core_error"
 version = "0.1.0"
 dependencies = [
  "glyphx_error",
+ "log",
  "mockall",
  "serde",
  "serde_derive",
@@ -1595,6 +1596,7 @@ dependencies = [
  "env_logger",
  "getrandom",
  "glam",
+ "glyphx_core_error",
  "im",
  "log",
  "model_common",
