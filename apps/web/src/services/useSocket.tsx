@@ -81,6 +81,7 @@ export const useSocket = () => {
               });
               window.core.OpenProjectComplete.connect((json: string) => {
                 const msg = JSON.parse(json);
+                console.log('open project complete', {msg});
                 if (!payload.current.isSent && msg.isCreate) {
                   payload.current.isSent = true;
                   window?.core?.GetCameraPosition(true);

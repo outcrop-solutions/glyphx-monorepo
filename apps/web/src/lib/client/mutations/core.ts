@@ -64,7 +64,7 @@ export const _createOpenProject = (
 ) => {
   const cam = camera || {};
   const rows = rowIds || [];
-  console.log({
+  console.log('open project call', {
     camera: {...cam},
     projectId: project?.id,
     workspaceId: project?.workspace.id,
