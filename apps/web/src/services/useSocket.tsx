@@ -44,6 +44,7 @@ export const useSocket = () => {
               window.core.SendCameraPosition.connect((json: string) => {
                 const jsonCamera = `{${json}}`;
                 const {camera} = JSON.parse(jsonCamera);
+                console.log('camera in socket', {camera});
                 const newCamera: webTypes.Camera = {
                   pos: {
                     x: camera.position[0],
@@ -71,6 +72,7 @@ export const useSocket = () => {
               });
               window.core.SendScreenShot.connect((json: string) => {
                 const imageHash = JSON.parse(json);
+                console.log('send screenshot in socket', {imageHash});
                 setImage(
                   produce((draft: WritableDraft<webTypes.ImageHash>) => {
                     draft.imageHash = imageHash.imageData;
