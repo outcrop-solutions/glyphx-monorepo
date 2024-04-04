@@ -90,15 +90,15 @@ export const ProjectProvider = ({
       setProject(formattedProject);
 
       // open latest state if it exists
-      if (project.stateHistory.length > 0) {
-        const latestState = project.stateHistory[project.stateHistory.length - 1];
-        const camera = latestState.camera || {};
-        const imageHash = latestState.imageHash || false;
-        setCamera(camera);
-        setImageHash({
-          imageHash: imageHash,
-        });
-      }
+      // if (project.stateHistory.length > 0) {
+      //   const latestState = project.stateHistory[project.stateHistory.length - 1];
+      //   const camera = latestState.camera || {};
+      //   const imageHash = latestState.imageHash || false;
+      //   setCamera(camera);
+      //   setImageHash({
+      //     imageHash: imageHash,
+      //   });
+      // }
 
       setRowIds(false);
       setTemplates(templateData);
