@@ -83,9 +83,13 @@ export const useSocket = () => {
                 const msg = JSON.parse(json);
                 console.log('open project complete', {msg});
                 if (!payload.current.isSent && msg.isCreate) {
+                  console.log('set isSet to true');
                   payload.current.isSent = true;
                   window?.core?.GetCameraPosition(true);
                   window?.core?.TakeScreenShot('');
+                } else if (payload.current.isSent) {
+                  console.log('set isSet to false');
+                  payload.current.isSent = false;
                 }
               });
             });
