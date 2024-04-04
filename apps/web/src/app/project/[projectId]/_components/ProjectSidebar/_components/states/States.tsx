@@ -27,7 +27,8 @@ export const States = () => {
 
   const callCreateState = async (camera, image, project) => {
     try {
-      console.log({camera, image, project});
+      console.log('checking to call create state', {camera, image});
+
       if (Object.keys(camera).length > 0 && image.imageHash) {
         setIsSubmitting(true);
         const aspect = {
@@ -36,7 +37,7 @@ export const States = () => {
         };
         const rows = (rowIds ? rowIds : []) as unknown as number[];
         const newProject = await createState(name, camera as webTypes.Camera, project, image.imageHash, aspect, rows);
-        console.log({newProject, project, rows, viewerPosition});
+        console.log('createState retval', {newProject});
 
         if (newProject) {
           // @ts-ignore
@@ -52,7 +53,7 @@ export const States = () => {
         }
       }
     } catch (error) {
-      console.log({error});
+      console.log('call create state error', {error});
     }
   };
 
