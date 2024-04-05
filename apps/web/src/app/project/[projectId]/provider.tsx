@@ -162,7 +162,7 @@ export const ProjectProvider = ({
     // This effect should only run once on mount, hence the empty dependency array.
     // Make sure to not include variables that change on update unless you intentionally want to trigger the effect.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [project.id]);
 
   return enabled && project?.docId ? (
     <RoomProvider
