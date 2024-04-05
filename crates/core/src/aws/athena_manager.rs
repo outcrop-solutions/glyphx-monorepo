@@ -78,7 +78,7 @@ trait AthenaManagerOps {
         client: &AthenaClient,
         query_id: &str,
         page_size: Option<i32>,
-    ) -> Box<dyn Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin>;
+    ) -> Box<dyn Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin + Send>;
 
     async fn start_query_impl(
         &self,
@@ -212,7 +212,7 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
         client: &AthenaClient,
         query_id: &str,
         page_size: Option<i32>,
-    ) -> Box<dyn Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin>
+    ) -> Box<dyn Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin + Send>
     {
         //1st row is the header row, so we need to add 1 to the page size.
         let page_size = page_size.unwrap_or(1000);
@@ -410,7 +410,7 @@ impl AthenaManager {
         query_id: &str,
         page_size: Option<i32>,
     ) -> Result<
-        impl Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin,
+        impl Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin + Send,
         GetQueryPagerError,
     > {
         self.get_paged_query_results_impl(query_id, page_size, &AthenaManagerOpsImpl)
@@ -1084,7 +1084,7 @@ impl AthenaManager {
         page_size: Option<i32>,
         aws_operations: &T,
     ) -> Result<
-        impl Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin,
+        impl Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin + Send,
         GetQueryPagerError,
     > {
         let status = aws_operations.get_query_status_impl(self, query_id).await;

@@ -1,18 +1,16 @@
 {
   "name": "glyph_engine_node",
   "version": "0.1.0",
-  "description": "Binds our glyph_engine crate to node using neon.",
+  "description": "Neon Bindings for acessing the rust built glyph_engine in node",
   "main": "index.node",
   "scripts": {
-    "build": "cargo-cp-artifact -nc index.node -- cargo build --message-format=json-render-diagnostics",
-    "build-debug": "npm run build --",
-    "build-release": "npm run build -- --release",
-    "install": "npm run build-release",
-    "test": "cargo test"
+    "build": "cargo-cp-artifact -nc index.node -- cargo build --release --message-format=json-render-diagnostics && cp index.node ../../../apps/web/pkg/index.node && cp index.node ../../../packages/actions/pkg/index.node",
+    "install": "pnpm run build",
+    "test": "mocha"
   },
-  "author": "JP Burford",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
-    "cargo-cp-artifact": "^0.1"
+    "cargo-cp-artifact": "^0.1",
+    "mocha": "^10.0.0"
   }
 }

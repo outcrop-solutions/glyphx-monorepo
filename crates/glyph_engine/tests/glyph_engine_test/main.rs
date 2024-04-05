@@ -1,7 +1,7 @@
 use bson::Uuid;
 use glyph_engine::types::vectorizer_parameters::VectorizerParameters;
 use glyphx_common::{AthenaConnection, S3Connection};
-use glyphx_core::{Singleton, utility_functions::file_functions::*};
+use glyphx_core::Singleton;
 use glyph_engine::GlyphEngine;
 use serde_json::json;
 

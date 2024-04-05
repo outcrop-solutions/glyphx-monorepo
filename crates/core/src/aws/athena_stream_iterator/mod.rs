@@ -23,7 +23,7 @@ use serde_json::Value;
 
 pub struct AthenaStreamIterator {
     results: Box<
-        dyn Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin,
+        dyn Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin + Send,
     >,
     query_output_results: Option<Vec<Value>>,
     query_output_size: usize,
@@ -39,7 +39,7 @@ impl AthenaStreamIterator {
     pub fn new(
         results: Box<
             dyn Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>>
-                + Unpin,
+                + Unpin + Send,
         >,
         query_id: &str,
         catalog: &str,

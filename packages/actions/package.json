@@ -12,7 +12,7 @@
     "clean": "rimraf .turbo node_modules dist .nyc_output",
     "coverage": "TS_NODE_FILES=true nyc mocha -r ts-node/register -r tsconfig-paths/register --timeout 999999 --exit --recursive \"src/__tests__/**/*.tests.ts\"",
     "test": "TS_NODE_FILES=true EMAIL_SERVER=smtp://apikey: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@smtp.sendgrid.net:587 mocha -r ts-node/register -r dotenv/config -r tsconfig-paths/register --recursive  --timeout 999999 --exit \"src/__tests__/**/*.tests.ts\"",
-    "integrationTest": "DOTENV_CONFIG_PATH=src/__integrationTests__/.env.integration TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register  -r dotenv/config --recursive  --timeout 999999 --exit \"src/__integrationTests__/**/*.tests.ts\"",
+    "integrationTest": "DOTENV_CONFIG_PATH=src/__integrationTests__/.env.integration TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register  -r dotenv/config --recursive  --timeout 999999 --exit \"src/__integrationTests__/**/glyphEngine.tests.ts\"",
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist"
   },
   "lint-staged": {
@@ -71,12 +71,14 @@
     "express-validator": "^6.14.0",
     "fileingestion": "workspace:*",
     "fuse.js": "^6.6.2",
+    "glyph_engine_node": "workspace:*",
     "glyphengine": "workspace:*",
     "logsnag": "^0.1.6",
     "next": "14.1.0",
     "next-auth": "4.22.1",
     "nodemailer": "^6.7.2",
     "openai-edge": "^1.1.0",
+    "proxyquire": "^2.1.3",
     "react": "18.2.0",
     "react-email": "2.1.0",
     "resend": "^3.1.0",
