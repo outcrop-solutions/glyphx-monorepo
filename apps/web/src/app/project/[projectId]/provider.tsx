@@ -76,9 +76,9 @@ export const ProjectProvider = ({
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
   const setCamera = useSetRecoilState(cameraAtom);
   const setImageHash = useSetRecoilState(imageHashAtom);
-  const setLoading = useSetRecoilState(showLoadingAtom);
-  const setResize = useSetRecoilState(splitPaneSizeAtom);
-  const setDrawer = useSetRecoilState(drawerOpenAtom);
+  // const setLoading = useSetRecoilState(showLoadingAtom);
+  // const setResize = useSetRecoilState(splitPaneSizeAtom);
+  // const setDrawer = useSetRecoilState(drawerOpenAtom);
 
   // hydrate recoil state
   useEffect(() => {
@@ -136,34 +136,34 @@ export const ProjectProvider = ({
     setImageHash,
   ]);
 
-  const openLastState = useCallback(async () => {
-    if (project.stateHistory?.length > 0) {
-      const payloadHash = project.stateHistory[project.stateHistory.length - 1].payloadHash;
+  // const openLastState = useCallback(async () => {
+  //   if (project.stateHistory?.length > 0) {
+  //     const payloadHash = project.stateHistory[project.stateHistory.length - 1].payloadHash;
 
-      await callDownloadModel({
-        project,
-        payloadHash,
-        session,
-        url,
-        setLoading,
-        setDrawer,
-        setResize,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [project.id]);
+  //     await callDownloadModel({
+  //       project,
+  //       payloadHash,
+  //       session,
+  //       url,
+  //       setLoading,
+  //       setDrawer,
+  //       setResize,
+  //     });
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [project.id]);
 
-  useEffect(() => {
-    if (!hasDrawerBeenShown) {
-      // Logic to show the drawer
-      openLastState();
-      // Then update the state to reflect that the drawer has been shown
-      setHasDrawerBeenShown(true);
-    }
-    // This effect should only run once on mount, hence the empty dependency array.
-    // Make sure to not include variables that change on update unless you intentionally want to trigger the effect.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [project.id]);
+  // useEffect(() => {
+  //   if (!hasDrawerBeenShown) {
+  //     // Logic to show the drawer
+  //     openLastState();
+  //     // Then update the state to reflect that the drawer has been shown
+  //     setHasDrawerBeenShown(true);
+  //   }
+  //   // This effect should only run once on mount, hence the empty dependency array.
+  //   // Make sure to not include variables that change on update unless you intentionally want to trigger the effect.
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [project.id]);
 
   return enabled && project?.docId ? (
     <RoomProvider
