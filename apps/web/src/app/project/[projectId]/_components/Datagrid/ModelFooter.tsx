@@ -3,6 +3,7 @@ import {useCallback, useEffect, useState} from 'react';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {
   drawerOpenAtom,
+  hasDrawerBeenShownAtom,
   orientationAtom,
   projectAtom,
   showLoadingAtom,
@@ -19,6 +20,7 @@ export const ModelFooter = () => {
   // const { mutate } = useSWRConfig();
   // ensures we don't pre-render the server
   const [isClient, setIsClient] = useState(false);
+  const [hasDrawerBeenShown, setHasDrawerBeenShown] = useRecoilState(hasDrawerBeenShownAtom);
 
   useEffect(() => {
     setIsClient(true);

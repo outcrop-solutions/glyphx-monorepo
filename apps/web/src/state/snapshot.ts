@@ -51,6 +51,11 @@ export const doesStateExistSelector = selector<boolean>({
   },
 });
 
+export const hasDrawerBeenShownAtom = atom({
+  key: 'hasDrawerBeenShownAtom',
+  default: false,
+});
+
 // is active state fileHash the same as project fileHash
 export const isFilterWritableSelector = selector<boolean>({
   key: 'isFilterWritableSelector',

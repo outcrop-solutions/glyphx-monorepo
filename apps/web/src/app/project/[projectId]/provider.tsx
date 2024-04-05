@@ -3,13 +3,17 @@ import React, {useEffect, useRef} from 'react';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {
   cameraAtom,
+  drawerOpenAtom,
+  hasDrawerBeenShownAtom,
   imageHashAtom,
   projectAtom,
   rightSidebarControlAtom,
   rowIdsAtom,
+  showLoadingAtom,
+  splitPaneSizeAtom,
   templatesAtom,
   workspaceAtom,
 } from 'state';
@@ -24,6 +28,9 @@ import {InitialDocumentProvider} from 'collab/lib/client';
 import {RoomProvider} from 'liveblocks.config';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
 import {annotationResourceIdSelector} from 'state/annotations';
+import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
+import {useSession} from 'next-auth/react';
+import {useUrl} from 'lib/client/hooks';
 
 const openFirstFile = (projData) => {
   const newFiles = projData?.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
@@ -46,7 +53,12 @@ export const ProjectProvider = ({
 
   // const {data, isLoading} = useProject();
 
+  const session = useSession();
+  const url = useUrl();
   const projectViewRef = useRef(null);
+
+  // keeps track of whether we have opened the first state
+  const [hasDrawerBeenShown, setHasDrawerBeenShown] = useRecoilState(hasDrawerBeenShownAtom);
 
   // check if collab is enabled from growthbook endpoint
   const enabled = useFeatureIsOn('collaboration');
@@ -64,6 +76,9 @@ export const ProjectProvider = ({
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
   const setCamera = useSetRecoilState(cameraAtom);
   const setImageHash = useSetRecoilState(imageHashAtom);
+  const setLoading = useSetRecoilState(showLoadingAtom);
+  const setResize = useSetRecoilState(splitPaneSizeAtom);
+  const setDrawer = useSetRecoilState(drawerOpenAtom);
 
   // hydrate recoil state
   useEffect(() => {
@@ -120,6 +135,34 @@ export const ProjectProvider = ({
     setCamera,
     setImageHash,
   ]);
+
+  const openLastState = async () => {
+    if (project.stateHistory?.length > 0) {
+      const payloadHash = project.stateHistory[project.stateHistory.length - 1].payloadHash;
+
+      await callDownloadModel({
+        project,
+        payloadHash,
+        session,
+        url,
+        setLoading,
+        setDrawer,
+        setResize,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (!hasDrawerBeenShown) {
+      // Logic to show the drawer
+      openLastState();
+      // Then update the state to reflect that the drawer has been shown
+      setHasDrawerBeenShown(true);
+    }
+    // This effect should only run once on mount, hence the empty dependency array.
+    // Make sure to not include variables that change on update unless you intentionally want to trigger the effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return enabled && project?.docId ? (
     <RoomProvider
