@@ -5,6 +5,7 @@ import {WritableDraft} from 'immer/dist/internal';
 import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {
+  activeStateAtom,
   cameraAtom,
   drawerOpenAtom,
   hasDrawerBeenShownAtom,
@@ -79,6 +80,7 @@ export const ProjectProvider = ({
   const setLoading = useSetRecoilState(showLoadingAtom);
   const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
+  const setActiveState = useSetRecoilState(activeStateAtom);
 
   // hydrate recoil state
   useEffect(() => {
@@ -137,8 +139,12 @@ export const ProjectProvider = ({
   ]);
 
   const openLastState = useCallback(async () => {
-    if (project.stateHistory?.length > 0) {
-      const payloadHash = project.stateHistory[project.stateHistory.length - 1].payloadHash;
+    if (Array.isArray(project.stateHistory) && project.stateHistory?.length > 0) {
+      const idx = project.stateHistory.length - 1;
+
+      console.log('openLastState', {project, idx});
+
+      const payloadHash = project.stateHistory[idx].payloadHash;
 
       await callDownloadModel({
         project,
@@ -149,6 +155,7 @@ export const ProjectProvider = ({
         setDrawer,
         setResize,
       });
+      setActiveState(idx);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project.id]);
