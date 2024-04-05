@@ -1,5 +1,5 @@
 'use client';
-import React, {useEffect, useRef} from 'react';
+import React, {useCallback, useEffect, useRef} from 'react';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
@@ -136,7 +136,7 @@ export const ProjectProvider = ({
     setImageHash,
   ]);
 
-  const openLastState = async () => {
+  const openLastState = useCallback(async () => {
     if (project.stateHistory?.length > 0) {
       const payloadHash = project.stateHistory[project.stateHistory.length - 1].payloadHash;
 
@@ -150,7 +150,8 @@ export const ProjectProvider = ({
         setResize,
       });
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [project.id]);
 
   useEffect(() => {
     if (!hasDrawerBeenShown) {
