@@ -7,7 +7,7 @@
     "build": "next build",
     "coverage": "nyc mocha",
     "start": "next start",
-    "clean": "rimraf .turbo node_modules .next",
+    "clean": "rimraf .turbo node_modules .next .vercel",
     "format:write": "prettier --write \"**/*.{js,json,jsx,ts,tsx}\"",
     "format": "prettier \"**/*.{js,json,jsx,ts,tsx}\"",
     "lint": "eslint .",

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import {EmailBtn} from './_components/EmailBtn';
 import {Providers} from './_components/Providers';
 import {CredentialsBtn} from './_components/CredentialsBtn';
+
 export default function Login() {
   return (
     <>

@@ -37,9 +37,9 @@ class Bindings extends ModuleLoader<IBindings> {
     }
     return result;
   }
-  public hello(): string {
-    return internalModule.exports.hello();
-  }
+  // public hello(): string {
+  //   return internalModule.exports.hello();
+  // }
 
   public convertNeonValue(value: any): string {
     return internalModule.exports.convertNeonValue(value);
@@ -61,9 +61,9 @@ export async function runGlyphEngine(
   return bindings.runGlyphEngine(args);
 }
 
-export async function hello() {
-  return bindings.hello();
-}
+// export async function hello() {
+//   return bindings.hello();
+// }
 
 export async function convertNeonValue(value: any): Promise<string> {
   return bindings.convertNeonValue(value);

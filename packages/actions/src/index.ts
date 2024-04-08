@@ -2,7 +2,7 @@ export * from './etl/glyphEngine';
 export * from './etl/fileIngestion';
 export * from './etl/signDataUrls';
 export * from './etl/signUploadUrls';
-export * from './etl/rustGlyphEngine';
+// export * from './etl/rustGlyphEngine';
 export * from './state';
 export * from './project';
 export * from './team';
