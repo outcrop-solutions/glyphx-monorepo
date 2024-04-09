@@ -1,25 +1,22 @@
 'use client';
+import {useCallback} from 'react';
 import {useDrop} from 'react-dnd';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {webTypes, fileIngestionTypes, glyphEngineTypes} from 'types';
 import {AxesIcons} from '../icons/AxesIcons';
-
 import {useProject} from 'services';
 import {handleDataType} from 'lib/client/helpers/handleDataType';
-
 // state
 import {projectAtom, singlePropertySelectorFamily} from 'state/project';
-
-import ClearIcon from 'public/svg/clear-icon.svg';
-import LinIcon from 'public/svg/lin-icon.svg';
-import LogIcon from 'public/svg/log-icon.svg';
-import SwapLeftIcon from 'public/svg/swap-left-icon.svg';
-import SwapRightIcon from 'public/svg/swap-right-icon.svg';
+// icons
+import ClearIcon from 'svg/clear-icon.svg';
+import LinIcon from 'svg/lin-icon.svg';
+import LogIcon from 'svg/log-icon.svg';
+import SwapLeftIcon from 'svg/swap-left-icon.svg';
+import SwapRightIcon from 'svg/swap-right-icon.svg';
 import produce from 'immer';
-import {useCallback} from 'react';
 import {WritableDraft} from 'immer/dist/internal';
 import {showLoadingAtom} from 'state';
-import {_updateProjectState} from 'lib';
 import AccumulatorType from './AccumulatorListbox';
 import DateGroupingListbox from './DateGroupListbox';
 
@@ -84,7 +81,7 @@ export const Property = ({axis}) => {
   return (
     <li
       ref={drop}
-      className="relative py-0 px-2 group-props last:mb-0 bg-transparent hover:bg-secondary-midnight flex flex-col space-y-1"
+      className="relative py-1 px-2 group-props last:mb-0 bg-transparent hover:bg-secondary-midnight flex flex-col space-y-1"
     >
       <div className="group/axes flex gap-x-2 items-center w-full">
         {/* AXES ICON */}
@@ -142,7 +139,7 @@ export const Property = ({axis}) => {
           {prop.direction === webTypes.constants.DIRECTION_TYPE.ASC ? <SwapLeftIcon /> : <SwapRightIcon />}
         </div>
         {/* TODO: use the project docId to determine version */}
-        <div className="min-w-40">
+        <div className="">
           {(axis === 'X' || axis === 'Y') && prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE && (
             <DateGroupingListbox axis={axis} />
           )}

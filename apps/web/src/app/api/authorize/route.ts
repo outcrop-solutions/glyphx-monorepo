@@ -11,7 +11,6 @@ const authorize = async (req: Request) => {
     const body = await req.json();
     const users = await userService.getUsers({email: body.email});
     const user = users ? users[0] : null;
-
     // format user to next-auth shape
     // TODO: remove this when db formatter goes into production
     const newUser = {...user, id: user?.id};

@@ -6,11 +6,11 @@ import {fileIngestionTypes, webTypes} from 'types';
 import {WritableDraft} from 'immer/dist/internal';
 import {RangeFilter} from './actions/RangeFilter';
 import {SearchFilter} from './actions/SearchFilter';
-import ClearIcon from 'public/svg/clear-icon.svg';
+import ClearIcon from 'svg/clear-icon.svg';
 
 import {AxesIcons} from '../icons/AxesIcons';
-import PlusIcon from 'public/svg/plus-icon.svg';
-import GarbageIcon from 'public/svg/garbage-can-icon.svg';
+import PlusIcon from 'svg/plus-icon.svg';
+import GarbageIcon from 'svg/garbage-can-icon.svg';
 
 import {projectAtom, singlePropertySelectorFamily} from 'state';
 import {useProject} from 'services';

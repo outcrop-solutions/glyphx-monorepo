@@ -5,9 +5,9 @@ import {webTypes} from 'types';
 import {SortableHeaderCell} from './SortableHeaderCell';
 import {useCombinedRefs} from 'services/useCombinedRefs';
 import {droppedPropertiesSelector} from 'state/project';
-import ColXIcon from 'public/svg/col-x-icon.svg';
-import ColYIcon from 'public/svg/col-y-icon.svg';
-import ColZIcon from 'public/svg/col-z-icon.svg';
+import ColXIcon from 'svg/col-x-icon.svg';
+import ColYIcon from 'svg/col-y-icon.svg';
+import ColZIcon from 'svg/col-z-icon.svg';
 
 export function DraggableHeaderRenderer({column, sortDirection, priority, isCellSelected}) {
   const droppedProps = useRecoilValue(droppedPropertiesSelector);

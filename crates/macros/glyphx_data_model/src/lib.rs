@@ -21,7 +21,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
         build_glyphx_data_model(&struct_ident, &model_definition, &field_definitions);
     let database_operations_trait = build_database_operations_trait(&struct_ident);
      
-    let database_operations_impl = build_database_operations_impl(&struct_ident, &model_definition, &field_definitions);
+    let database_operations_impl = build_database_operations_impl(&struct_ident, &model_definition);
 
 
     let model_impl = build_model_impl(&struct_ident, &model_definition, &field_definitions);
@@ -296,7 +296,7 @@ fn parse_pass_through_attributes(field: &syn::Field) -> (Vec<String>, String) {
                 }
                 let inner_meta = inner_meta.unwrap();
                 let inner_meta = inner_meta.to_string();
-                let (ser, der) = parse_rename_attribute(&inner_meta);
+                let (ser, _der) = parse_rename_attribute(&inner_meta);
                 if ser.is_some() {
                     database_name = ser.unwrap();   
                 }

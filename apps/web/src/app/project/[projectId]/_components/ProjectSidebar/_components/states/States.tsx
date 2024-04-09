@@ -1,15 +1,15 @@
 'use client';
-import React, {SetStateAction, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StateList} from './StateList';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {projectAtom, rowIdsAtom} from 'state/project';
 import {PlusIcon} from '@heroicons/react/outline';
-import {_createState, api} from 'lib';
 import {CreateStateInput} from './CreateStateInput';
 import {cameraAtom, imageHashAtom, viewerPositionSelector} from 'state';
 import {useSWRConfig} from 'swr';
 import {webTypes} from 'types';
 import useApplyState from 'services/useApplyState';
+import {createState} from 'actions';
 
 export const States = () => {
   const {mutate} = useSWRConfig();
@@ -25,50 +25,43 @@ export const States = () => {
   const viewerPosition = useRecoilValue(viewerPositionSelector);
   const {applyState} = useApplyState();
 
-  useEffect(() => {
-    if (Object.keys(camera).length > 0 && image.imageHash) {
-      api({
-        ..._createState(
-          name,
-          project,
-          camera as unknown as webTypes.Camera,
-          {
-            width: (viewerPosition as webTypes.IViewerPosition).w || 300,
-            height: (viewerPosition as webTypes.IViewerPosition).h || 200,
-          },
-          image.imageHash,
-          rowIds ? rowIds : []
-        ),
-        setLoading: (state) => setIsSubmitting(state as SetStateAction<boolean>),
-        onError: () => {
-          setCamera({});
-          setImage({imageHash: false});
-          setAddState(false);
-        },
-        onSuccess: (data) => {
-          // @jp-burford needs to be validated in dev for state application to be uncommented
-          // reset camera
-          setCamera({});
-          // reset imageHash
-          setImage({imageHash: false});
-          // mutate the project swr cache
-          (async () => {
-            await mutate(`/api/project/${project.id}`);
-            // close create state input
-            setAddState(false);
-            // TODO: need to set state based on updated project.stateHistory length
-            const filteredStates = project.stateHistory.filter((state) => !state.deletedAt);
-            // apply new state
-            const idx = filteredStates.length;
-            applyState(idx);
-          })();
-        },
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [camera, name, setCamera, setProject, mutate, image, setImage, project?.id, setAddState]);
+  const callCreateState = async (camera, image, project) => {
+    try {
+      console.log('checking to call create state', {camera, image});
 
-  const createState = () => setAddState(true);
+      if (Object.keys(camera).length > 0 && image.imageHash) {
+        setIsSubmitting(true);
+        const aspect = {
+          width: (viewerPosition as webTypes.IViewerPosition).w || 300,
+          height: (viewerPosition as webTypes.IViewerPosition).h || 200,
+        };
+        const rows = (rowIds ? rowIds : []) as unknown as number[];
+        const newProject = await createState(name, camera as webTypes.Camera, project, image.imageHash, aspect, rows);
+        console.log('createState retval', {newProject});
+
+        if (newProject) {
+          // @ts-ignore
+          const filteredStates = newProject.stateHistory?.filter((state) => !state.deletedAt);
+          const idx = filteredStates.length - 1;
+
+          console.log({filteredStates, idx});
+
+          applyState(idx, newProject);
+          setName('Initial State');
+          setIsSubmitting(false);
+          setAddState(false);
+        }
+      }
+    } catch (error) {
+      console.log('call create state error', {error});
+    }
+  };
+
+  useEffect(() => {
+    console.log('within effect', {project, camera, image});
+    callCreateState(camera, image, project);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [camera, setCamera, setProject, mutate, image, setImage, setAddState]);
 
   return (
     <div className="group flex flex-col grow">
@@ -103,7 +96,7 @@ export const States = () => {
         <PlusIcon
           color="#CECECE"
           className="w-5 h-5 opacity-100 mr-2 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white"
-          onClick={createState}
+          onClick={() => setAddState(true)}
         />
       </summary>
       {!isCollapsed && <StateList />}

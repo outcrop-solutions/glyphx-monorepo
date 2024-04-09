@@ -18,7 +18,6 @@ export const EmailBtn = () => {
     setSubmittingState(true);
     const response = await signIn('email', {email, redirect: true});
 
-    console.log({response});
     if (response?.error === null) {
       toast.success(`Please check your email (${email}) for the login link.`, {
         duration: 5000,

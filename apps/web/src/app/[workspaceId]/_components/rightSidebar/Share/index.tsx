@@ -10,10 +10,10 @@ import {MemberList} from './MemberList';
 import Link from 'next/link';
 import {drawerOpenAtom, projectAtom, rightSidebarControlAtom} from 'state';
 
-import CloseProjectInfoIcon from 'public/svg/close-project-info.svg';
-import CopyToClipboardIcon from 'public/svg/copy-to-clipboard.svg';
-import ShareIcon from 'public/svg/share-header-icon.svg';
-import GroupIcon from 'public/svg/group-icon.svg';
+import CloseProjectInfoIcon from 'svg/close-project-info.svg';
+import CopyToClipboardIcon from 'svg/copy-to-clipboard.svg';
+import ShareIcon from 'svg/share-header-icon.svg';
+import GroupIcon from 'svg/group-icon.svg';
 import {WritableDraft} from 'immer/dist/internal';
 import {Route} from 'next';
 import {useParams} from 'next/navigation';
@@ -70,9 +70,9 @@ export const Share = () => {
           <MemberList size="large" members={sidebarControl?.data?.members || null} />
         </div>
       </div>
-      <div className="absolute bottom-0 mt-5 pl-3 pr-3">
+      <div className="absolute bottom-0 mt-5 pl-3 pr-3 w-[250px]">
         <hr className="text-gray mb-2" />
-        <div className="flex flex-row justify-between items-center space-x-3 mb-3 mt-2">
+        <div className="flex flex-row justify-between items-center space-x-3 mb-3 mt-1">
           <div className="rounded-xl border border-transparent py-1 px-2 hover:bg-secondary-midnight hover:border-white hover:cursor-pointer">
             <p className="text-light-gray font-roboto font-medium leading-[16px] text-center text-[14px]">
               {!isOwnershipLoading && (

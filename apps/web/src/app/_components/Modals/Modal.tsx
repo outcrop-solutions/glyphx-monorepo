@@ -14,7 +14,6 @@ import {FileErrorsModal} from './FileErrorsModal';
 import {FileDecisionModal} from './FileDecisionModal';
 import {WritableDraft} from 'immer/dist/internal';
 import {DeleteFileModal} from './DeleteFileModal';
-import {CreateStateModal} from './CreateStateModal';
 import {DeleteStateModal} from './DeleteStateModal';
 import {UpdateStateModal} from './UpdateStateModal';
 import {AIRecommendationsModal} from './AIRecommendationsModal';
@@ -76,17 +75,6 @@ export const Modal = ({modalContent}: {modalContent: webTypes.ModalState}) => {
                     );
                   case webTypes.constants.MODAL_CONTENT_TYPE.CREATE_PROJECT:
                     return <CreateProjectModal />;
-                  case webTypes.constants.MODAL_CONTENT_TYPE.CREATE_STATE:
-                    return (
-                      <CreateStateModal
-                        modalContent={
-                          modalContent as Extract<
-                            webTypes.ModalState,
-                            {type: typeof webTypes.constants.MODAL_CONTENT_TYPE.CREATE_STATE}
-                          >
-                        }
-                      />
-                    );
                   case webTypes.constants.MODAL_CONTENT_TYPE.UPDATE_STATE:
                     return (
                       <UpdateStateModal

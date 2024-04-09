@@ -338,7 +338,6 @@ export class FileIngestor {
       processTrackingService.addProcessError(config.processId, err);
     } else {
       try {
-        console.log('processing files in try block');
         const needsViewUpdates = await this.processFiles();
         info = {...info, needsViewUpdates};
         if (needsViewUpdates) {

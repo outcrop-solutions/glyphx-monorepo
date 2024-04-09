@@ -3,7 +3,6 @@ use crate::errors::{
     UpdateDocumentError, QueryDocumentsError,
 };
 use crate::models::QueryResults;
-use async_trait::async_trait;
 use mongodb::bson::Document;
 use serde_json::Value;
 

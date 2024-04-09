@@ -1,3 +1,4 @@
+'use client';
 import React, {useEffect} from 'react';
 import {ClientSafeProvider, getProviders} from 'next-auth/react';
 import {useSetRecoilState} from 'recoil';

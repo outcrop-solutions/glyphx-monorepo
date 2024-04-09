@@ -83,7 +83,7 @@ export class WorkspaceService {
   ): Promise<databaseTypes.IWorkspace | null> {
     try {
       const workspace = await WorkspaceService.getSiteWorkspace(id);
-
+      // console.dir({workspace, userId, email, id}, {depth: null});
       if (workspace) {
         // delete workspace
         await mongoDbConnection.models.WorkspaceModel.updateWorkspaceByFilter(
@@ -93,9 +93,11 @@ export class WorkspaceService {
           }
         );
 
-        // remove workspace and membership from user
+        // remove workspace and membe,rship from user
         await mongoDbConnection.models.UserModel.removeWorkspaces(userId, [workspace.id!]);
-        const userMember = workspace.members.filter((mem: any) => mem.member.toString() === userId);
+        const userMember = workspace.members.filter((mem: any) => {
+          return mem?.member?.id?.toString() === userId;
+        });
 
         if (userMember?.length > 0) {
           await mongoDbConnection.models.UserModel.removeMembership(userId, [...userMember]);
@@ -415,19 +417,7 @@ export class WorkspaceService {
           return mem._id.toString(); // FIXME: This should be added to the db layer as createMany()
         });
 
-        const emailData = {
-          type: emailTypes.EmailTypes.WORKSPACE_INVITATION,
-          workspaceName: workspace.name,
-          emails: members.map((member) => member.email),
-          workspaceId: workspace.id!,
-          inviteCode: workspace.inviteCode!,
-        } satisfies emailTypes.EmailData;
-
-        await Promise.all([
-          mongoDbConnection.models.WorkspaceModel.addMembers(workspace.id!, [...memberIds]),
-          emailClient.sendEmail(emailData),
-        ]);
-
+        await Promise.all([mongoDbConnection.models.WorkspaceModel.addMembers(workspace.id!, [...memberIds])]);
         return {members: createdMembers, workspace: workspace};
       } else {
         const errMsg = 'No workspace found';

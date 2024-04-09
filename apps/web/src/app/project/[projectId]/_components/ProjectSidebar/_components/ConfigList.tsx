@@ -1,9 +1,8 @@
-import React, {useCallback, useState} from 'react';
+import React, {useState, useTransition} from 'react';
 import {ConfigName} from './ConfigName';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {configsAtom, currentConfigAtom} from 'state';
-import {PlusCircleIcon, PlusIcon} from '@heroicons/react/outline';
-import {api, _createConfig} from 'lib';
+import {PlusIcon} from '@heroicons/react/outline';
 
 const DEFAULT_CONFIG = {
   name: 'Default Config',
@@ -28,12 +27,9 @@ const DEFAULT_CONFIG = {
 
 export const ConfigList = () => {
   const configs = useRecoilValue(configsAtom);
+  const [isPending, startTransition] = useTransition();
   const setCurrentConfig = useSetRecoilState(currentConfigAtom);
   const [isCollapsed, setCollapsed] = useState(true);
-
-  const addConfig = useCallback(async () => {
-    await api({..._createConfig(DEFAULT_CONFIG)});
-  }, []);
 
   return (
     <div className="group flex flex-col grow">
@@ -68,7 +64,11 @@ export const ConfigList = () => {
         <PlusIcon
           color="#CECECE"
           className="w-5 h-5 opacity-100 mr-2 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white"
-          onClick={addConfig}
+          onClick={() =>
+            startTransition(async () => {
+              await createConfig(DEFAULT_CONFIG);
+            })
+          }
         />
       </summary>
       {!isCollapsed && configs?.length > 0 && (

@@ -11,7 +11,7 @@ pub struct FieldDefinitionCollectionIterator<'a> {
     index: usize,
 }
 
-impl <'a> Iterator for FieldDefinitionCollectionIterator<'a> {
+impl<'a> Iterator for FieldDefinitionCollectionIterator<'a> {
     type Item = &'a NamedFieldDefinition;
     fn next(&mut self) -> Option<Self::Item> {
         if self.index >= self.field_definitions.len() {
@@ -113,7 +113,10 @@ mod add_field_definition {
         let json = json["fieldDefinitions"].as_array().unwrap();
         let mut field_definition_collection = FieldDefinitionCollection::new();
         for field_definition in json.iter() {
-            let name = field_definition["fieldDisplayName"].as_str().unwrap().to_string();
+            let name = field_definition["fieldDisplayName"]
+                .as_str()
+                .unwrap()
+                .to_string();
             let field_definition = FieldDefinition::from_json(&field_definition).unwrap();
             field_definition_collection.add_field_definition(name, field_definition);
         }
@@ -122,15 +125,13 @@ mod add_field_definition {
         assert_eq!(first_field.name, "test1");
         let first_field_definition = &first_field.field_definition;
         match first_field_definition {
-            FieldDefinition::Standard{field_display_name: _, field_data_type: _, field_definition:_ }  => {
+            FieldDefinition::Standard { .. } => {
                 assert!(true);
-            },
+            }
             _ => {
                 panic!("Unexpected field definition");
             }
         }
-
-
     }
 }
 
@@ -144,7 +145,10 @@ mod get_field_definition {
         let json = json["fieldDefinitions"].as_array().unwrap();
         let mut field_definition_collection = FieldDefinitionCollection::new();
         for field_definition in json.iter() {
-            let name = field_definition["fieldDisplayName"].as_str().unwrap().to_string();
+            let name = field_definition["fieldDisplayName"]
+                .as_str()
+                .unwrap()
+                .to_string();
             let field_definition = FieldDefinition::from_json(&field_definition).unwrap();
             field_definition_collection.add_field_definition(name, field_definition);
         }
@@ -153,9 +157,9 @@ mod get_field_definition {
         assert!(first_field.is_some());
         let first_field = first_field.unwrap();
         match first_field {
-            FieldDefinition::Standard{field_display_name: _, field_data_type: _, field_definition:_ }  => {
+            FieldDefinition::Standard { .. } => {
                 assert!(true);
-            },
+            }
             _ => {
                 panic!("Unexpected field definition");
             }
@@ -168,7 +172,10 @@ mod get_field_definition {
         let json = json["fieldDefinitions"].as_array().unwrap();
         let mut field_definition_collection = FieldDefinitionCollection::new();
         for field_definition in json.iter() {
-            let name = field_definition["fieldDisplayName"].as_str().unwrap().to_string();
+            let name = field_definition["fieldDisplayName"]
+                .as_str()
+                .unwrap()
+                .to_string();
             let field_definition = FieldDefinition::from_json(&field_definition).unwrap();
             field_definition_collection.add_field_definition(name, field_definition);
         }
@@ -188,7 +195,10 @@ mod iter {
         let json = json["fieldDefinitions"].as_array().unwrap();
         let mut field_definition_collection = FieldDefinitionCollection::new();
         for field_definition in json.iter() {
-            let name = field_definition["fieldDisplayName"].as_str().unwrap().to_string();
+            let name = field_definition["fieldDisplayName"]
+                .as_str()
+                .unwrap()
+                .to_string();
             let field_definition = FieldDefinition::from_json(&field_definition).unwrap();
             field_definition_collection.add_field_definition(name, field_definition);
         }
@@ -200,15 +210,14 @@ mod iter {
             assert_eq!(field_definition.name, field_name);
             let field_definition = &field_definition.field_definition;
             match field_definition {
-                FieldDefinition::Standard{field_display_name: _, field_data_type: _, field_definition:_ }  => {
+                FieldDefinition::Standard { .. } => {
                     assert!(true);
-                },
+                }
                 _ => {
                     panic!("Unexpected field definition");
                 }
             }
         }
         assert_eq!(count, 3);
-
     }
 }

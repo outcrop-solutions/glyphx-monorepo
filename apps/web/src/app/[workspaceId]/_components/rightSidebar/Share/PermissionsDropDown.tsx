@@ -1,19 +1,12 @@
-import {useState, Fragment} from 'react';
+import {useState, Fragment, useTransition} from 'react';
 import {Menu, Transition} from '@headlessui/react';
 import {ChevronDownIcon, DotsVerticalIcon} from '@heroicons/react/outline';
 import {databaseTypes} from 'types';
-import {_createMember, _removeMember, _updateRole, api} from 'lib/client';
+import {removeMember, updateRole} from 'actions';
 
 export function PermissionsDropDown({member}) {
   const [isSubmitting] = useState(false);
-
-  // mutations
-  const changeRole = (memberId, role) => {
-    api({..._updateRole(memberId, role)});
-  };
-  const removeMember = (memberId) => {
-    api({..._removeMember(memberId)});
-  };
+  const [isPending, startTransition] = useTransition();
 
   return (
     <Menu as="div" className="relative inline-block text-left">
@@ -41,11 +34,14 @@ export function PermissionsDropDown({member}) {
                       className="w-full px-5 py-2 capitalize rounded appearance-none bg-transparent"
                       disabled={isSubmitting}
                       onChange={(event) =>
-                        changeRole(
-                          member.id,
-                          event.target.value as unknown as
-                            | databaseTypes.constants.ROLE
-                            | databaseTypes.constants.PROJECT_ROLE
+                        startTransition(() =>
+                          // @ts-ignore
+                          updateRole(
+                            member.id,
+                            event.target.value as unknown as
+                              | databaseTypes.constants.ROLE
+                              | databaseTypes.constants.PROJECT_ROLE
+                          )
                         )
                       }
                     >
@@ -66,7 +62,12 @@ export function PermissionsDropDown({member}) {
             <Menu.Item>
               <button
                 className="flex items-center w-full px-2 py-2 space-x-2 text-sm text-red-600 rounded hover:bg-red-600 hover:text-white"
-                onClick={() => removeMember(member?.id)}
+                onClick={() =>
+                  startTransition(() => {
+                    // @ts-ignore
+                    removeMember(member?.id);
+                  })
+                }
               >
                 <span>Remove Team Member</span>
               </button>

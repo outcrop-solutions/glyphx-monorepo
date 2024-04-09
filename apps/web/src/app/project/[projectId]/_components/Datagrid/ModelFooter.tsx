@@ -3,6 +3,7 @@ import {useCallback, useEffect, useState} from 'react';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {
   drawerOpenAtom,
+  hasDrawerBeenShownAtom,
   orientationAtom,
   projectAtom,
   showLoadingAtom,
@@ -11,8 +12,7 @@ import {
   windowSizeAtom,
 } from 'state';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
-import {hashFileSystem} from 'lib/utils/hashFileSystem';
-import {hashPayload} from 'lib/utils/hashPayload';
+import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
 import {useSession} from 'next-auth/react';
 import {useUrl} from 'lib/client/hooks';
 
@@ -20,6 +20,7 @@ export const ModelFooter = () => {
   // const { mutate } = useSWRConfig();
   // ensures we don't pre-render the server
   const [isClient, setIsClient] = useState(false);
+  const [hasDrawerBeenShown, setHasDrawerBeenShown] = useRecoilState(hasDrawerBeenShownAtom);
 
   useEffect(() => {
     setIsClient(true);

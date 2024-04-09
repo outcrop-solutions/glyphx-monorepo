@@ -139,11 +139,26 @@ impl Heartbeat {
 
     pub fn stop(&mut self) {
         let handle = self.join_handle.as_ref();
-        let handle = handle.as_ref().unwrap();
-        if !handle.is_finished() {
-            handle.abort();
+        if handle.is_some() {
+            let handle = handle.as_ref().unwrap();
+            if !handle.is_finished() {
+                handle.abort();
+            }
         }
         self.join_handle = Arc::new(None);
+    }
+}
+
+impl Default for Heartbeat {
+    fn default() -> Self {
+        let process_id = Self::get_new_process_id();
+        Heartbeat {
+            process_name: "Default".to_string(),
+            process_id,
+            interval: 60000,
+            in_error: false,
+            join_handle: Arc::new(None),
+        }
     }
 }
 
@@ -197,6 +212,7 @@ mod start {
         let result = result.err().unwrap();
         match result {
             HeartbeatError::CreateProcessTrackingError(_) => assert!(true),
+            #[allow(unreachable_patterns)]
             _ => panic!("Expected HeartbeatError::CreateProcessTracingError"),
         }
     }

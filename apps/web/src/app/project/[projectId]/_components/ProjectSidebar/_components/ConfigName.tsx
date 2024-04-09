@@ -1,9 +1,8 @@
 import produce from 'immer';
-import React, {useCallback, useRef, useState} from 'react';
+import React, {startTransition, useCallback, useRef, useState} from 'react';
 import ClickAwayListener from 'react-click-away-listener';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {configNameDirtyFamily, configsAtom, currentConfigAtom} from 'state';
-import {_updateConfig, _deleteConfig, api} from 'lib';
 import {CheckCircleIcon, TrashIcon} from '@heroicons/react/outline';
 import {databaseTypes} from 'types';
 
@@ -16,15 +15,6 @@ export const ConfigName = ({config, idx}) => {
   const setConfigs = useSetRecoilState(configsAtom);
   const [configDirty, setConfigDirty] = useRecoilState(configNameDirtyFamily(idx));
   const currentConfig = useRecoilValue(currentConfigAtom);
-  const ref = useRef(null);
-
-  const saveChanges = useCallback(async () => {
-    await api({
-      ..._updateConfig(config?.id, config as databaseTypes.IModelConfig),
-      setLoading: (loading) => setConfigDirty(loading as boolean),
-      onSuccess: () => setSelected(false),
-    });
-  }, [config, setConfigDirty]);
 
   const handleChange = useCallback(
     (idx: number, prop: string, value) => {
@@ -37,12 +27,6 @@ export const ConfigName = ({config, idx}) => {
     },
     [setConfigDirty, setConfigs]
   );
-
-  const handleDelete = useCallback(async () => {
-    await api({
-      ..._deleteConfig(config.id),
-    });
-  }, [config.id]);
 
   return (
     <ClickAwayListener onClickAway={() => setSelected(false)}>
@@ -57,7 +41,17 @@ export const ConfigName = ({config, idx}) => {
             onChange={(ev) => handleChange(currentConfig, 'name', ev.target.value)}
             className="bg-transparent text-white text-xs"
           />
-          {configDirty && <CheckCircleIcon onClick={saveChanges} className="h-6 w-6 text-white hover:text-gray" />}
+          {configDirty && (
+            <CheckCircleIcon
+              onClick={() =>
+                startTransition(() =>
+                  // @ts-ignore
+                  updateConfig(config?.id, config as databaseTypes.IModelConfig)
+                )
+              }
+              className="h-6 w-6 text-white hover:text-gray"
+            />
+          )}
         </div>
       ) : (
         <div
@@ -83,7 +77,15 @@ export const ConfigName = ({config, idx}) => {
             {config?.name}
           </span>
           <div className="grow flex items-center justify-end">
-            <TrashIcon onClick={handleDelete} className="w-4 h-4 text-white cursor-pointer" />
+            <TrashIcon
+              onClick={() =>
+                startTransition(() =>
+                  // @ts-ignore
+                  deleteConfig(config?.id)
+                )
+              }
+              className="w-4 h-4 text-white cursor-pointer"
+            />
           </div>
         </div>
       )}

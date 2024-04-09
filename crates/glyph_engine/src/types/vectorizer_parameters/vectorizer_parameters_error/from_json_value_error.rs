@@ -1,5 +1,5 @@
-use glyphx_core::GlyphxErrorData;
 use glyphx_core::GlyphxError;
+use glyphx_core::GlyphxErrorData;
 
 use serde_json::json;
 
@@ -10,9 +10,9 @@ pub enum FromJsonValueError {
 }
 
 impl FromJsonValueError {
-    pub fn new(field_name: &str ) -> Self {
+    pub fn new(field_name: &str) -> Self {
         let message = format!("{} is null", field_name).to_string();
-        let data = json!({"fieldName" : field_name});
+        let data = json!({ "fieldName": field_name });
         let error_data = GlyphxErrorData::new(message, Some(data), None);
         Self::JsonValidationError(error_data)
     }

@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import ThresholdIcon from 'public/svg/state.svg';
+import ThresholdIcon from 'svg/state.svg';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {CameraIcon} from '@heroicons/react/outline';
 

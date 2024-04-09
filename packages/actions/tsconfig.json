@@ -1,0 +1,12 @@
+{
+  "extends": "tsconfig/node18.json",
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "tsup.config.ts"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "noImplicitAny": false,
+    "experimentalDecorators": true, // required for correct next transpilation
+    "emitDecoratorMetadata": true,
+    "jsx": "react"
+  }
+}

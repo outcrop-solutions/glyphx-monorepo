@@ -1,12 +1,12 @@
 import produce from 'immer';
-import React, {useCallback} from 'react';
+import React, {startTransition, useCallback} from 'react';
 import {SketchPicker} from 'react-color';
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {configSelector, configsAtom, currentConfigAtom, colorsConfigDirtyAtom} from 'state';
 import {toSnakeCase} from './toSnakeCase';
-import {_updateConfig, api} from 'lib';
 import {databaseTypes} from 'types';
+import {updateConfig} from 'actions';
 const fields = ['Max Color', 'Min Color', 'Background Color', 'X Axis Color', 'Y Axis Color', 'Z Axis Color'];
 
 export const Colors = () => {
@@ -27,13 +27,6 @@ export const Colors = () => {
     [setConfigDirty, setConfigs]
   );
 
-  const saveChanges = useCallback(async () => {
-    await api({
-      ..._updateConfig(config?.id!, config as databaseTypes.IModelConfig),
-      setLoading: (loading) => setConfigDirty(loading as boolean),
-    });
-  }, [config, setConfigDirty]);
-
   return (
     config && (
       <details className="py-2">
@@ -41,7 +34,12 @@ export const Colors = () => {
           Colors
           {configDirty && (
             <div
-              onClick={saveChanges}
+              onClick={() =>
+                startTransition(() =>
+                  // @ts-ignore
+                  updateConfig(config.id, currentConfig)
+                )
+              }
               className="bg-yellow hover:bg-primary-yellow rounded px-1 text-secondary-midnight"
             >
               save

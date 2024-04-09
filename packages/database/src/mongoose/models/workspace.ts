@@ -455,7 +455,12 @@ SCHEMA.static('getWorkspaceById', async (workspaceId: string): Promise<databaseT
   try {
     const workspaceDocument = (await WORKSPACE_MODEL.findById(workspaceId)
       .populate('creator')
-      .populate('members')
+      .populate({
+        path: 'members',
+        populate: {
+          path: 'member',
+        },
+      })
       .populate({
         path: 'projects',
         populate: {

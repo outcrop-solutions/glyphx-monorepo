@@ -2,7 +2,7 @@
 import React, {useState} from 'react';
 import {Files} from './Files';
 import {fileIngestionTypes} from 'types';
-import TableItemInfoIcon from 'public/svg/table-item-info.svg';
+import TableItemInfoIcon from 'svg/table-item-info.svg';
 import {CogIcon, TableIcon} from '@heroicons/react/outline';
 import {formatFileSize} from 'lib/utils/formatFileSize';
 

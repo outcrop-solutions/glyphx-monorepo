@@ -4,23 +4,12 @@ import Card from 'app/_components/Card';
 import Content from 'app/_components/Content';
 import {webTypes} from 'types';
 import useIsTeamOwner from 'lib/client/hooks/useIsOwner';
-import {modalsAtom, workspaceAtom} from 'state';
-import {useRecoilState, useSetRecoilState} from 'recoil';
+import {modalsAtom} from 'state';
+import {useRecoilState} from 'recoil';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
-import {useWorkspace} from 'lib/client';
-import {useEffect} from 'react';
 
 const Advanced = () => {
-  const {data, isLoading} = useWorkspace();
-  const setWorkspace = useSetRecoilState(workspaceAtom);
-
-  useEffect(() => {
-    if (!isLoading && data) {
-      setWorkspace(data?.workspace);
-    }
-  }, [data, isLoading, setWorkspace]);
-
   const isCreator = useIsTeamOwner();
   const [modals, setModals] = useRecoilState(modalsAtom);
 

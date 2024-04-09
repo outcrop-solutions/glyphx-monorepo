@@ -1,11 +1,31 @@
 'use client';
-import useSWR from 'swr';
+import {getProjectTemplates} from 'actions';
+import {useParams} from 'next/navigation';
+import {useEffect, useState} from 'react';
 
 const useTemplates = () => {
-  const apiRoute = `/api/template/get`;
-  const {data, error} = useSWR(`${apiRoute}`);
+  const params = useParams();
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const getTemplatesData = async () => {
+      const retval = await getProjectTemplates();
+      // @ts-ignore
+      if (retval?.error) {
+        // @ts-ignore
+        setError(retval?.error);
+      } else if (retval) {
+        // @ts-ignore
+        setData(retval);
+      }
+    };
+
+    getTemplatesData();
+  }, []);
+
   return {
-    ...data,
+    data,
     isLoading: !error && !data,
     isError: error,
   };

@@ -1,16 +1,16 @@
 'use client';
-import React, {useState} from 'react';
+import React, {startTransition, useState} from 'react';
 import Button from '../Button';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
-import {_createProjectTemplate, api} from 'lib';
 import {webTypes} from 'types';
 import {useSetRecoilState} from 'recoil';
 import {modalsAtom} from 'state';
-import ColXIcon from 'public/svg/col-x-icon.svg';
-import ColYIcon from 'public/svg/col-y-icon.svg';
-import ColZIcon from 'public/svg/col-z-icon.svg';
+import ColXIcon from 'svg/col-x-icon.svg';
+import ColYIcon from 'svg/col-y-icon.svg';
+import ColZIcon from 'svg/col-z-icon.svg';
 import {LoadingDots} from '../Loaders/LoadingDots';
+import {createProjectTemplate} from 'actions';
 
 export const CreateProjectTemplateModal = ({modalContent}: webTypes.CreateProjectTemplateModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);
@@ -50,34 +50,6 @@ export const CreateProjectTemplateModal = ({modalContent}: webTypes.CreateProjec
       default:
         break;
     }
-  };
-
-  // mutations
-  const createProjectTemplate = (event) => {
-    event.preventDefault();
-    api({
-      ..._createProjectTemplate(modalContent.data.id!, name, desc, properties),
-      setLoading: (state) =>
-        setModals(
-          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals[0].isSubmitting = state as boolean;
-          })
-        ),
-      onError: () => {
-        setModals(
-          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals.splice(0, 1);
-          })
-        );
-      },
-      onSuccess: () => {
-        setModals(
-          produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
-            draft.modals.splice(0, 1);
-          })
-        );
-      },
-    });
   };
 
   return (
@@ -144,7 +116,20 @@ export const CreateProjectTemplateModal = ({modalContent}: webTypes.CreateProjec
         ))}
       </div>
       <div className="flex flex-col items-stretch">
-        <Button className="" disabled={!validName || modalContent.isSubmitting} onClick={createProjectTemplate}>
+        <Button
+          className=""
+          disabled={!validName || modalContent.isSubmitting}
+          onClick={() =>
+            startTransition(() => {
+              createProjectTemplate(modalContent.data.id!, name, desc, properties);
+              setModals(
+                produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
+                  draft.modals.splice(0, 1);
+                })
+              );
+            })
+          }
+        >
           {modalContent.isSubmitting ? <LoadingDots /> : <span>Save as template</span>}
         </Button>
       </div>

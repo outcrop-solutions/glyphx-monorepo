@@ -1,7 +1,7 @@
 use glyphx_core::GlyphxError;
 use glyphx_core::GlyphxErrorData;
 use glyphx_database::errors::InsertDocumentError;
-use serde_json::{Value, to_value };
+use serde_json::to_value;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, GlyphxError, Serialize, Deserialize)]
@@ -37,13 +37,13 @@ mod from_insert_document_error {
                 assert_eq!(glyphx_error_data.data, None);
                 let inner_error = glyphx_error_data.inner_error.unwrap();
                 let inner_error = inner_error["AuthenticationError"].as_object().unwrap();
-                println!("inner_error: {:?}", inner_error);
                 let inner_data = &inner_error["data"];
                 let inner = &inner_data["inner"].as_str().unwrap();
                 assert_eq!(inner, &"data");
                 let inner_msg = &inner_error["message"].as_str().unwrap();
                 assert_eq!(inner_msg, inner_msg);
             },
+            #[allow(unreachable_patterns)]
             _ => panic!("Expected HeartbeatError::CreateProcessTracingError")
         }
     }

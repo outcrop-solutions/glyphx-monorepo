@@ -3,7 +3,7 @@ import {rightSidebarControlAtom} from 'state';
 import {useRecoilState} from 'recoil';
 import produce from 'immer';
 import {webTypes} from 'types';
-import CloseNotificationsIcon from 'public/svg/close-project-info.svg';
+import CloseNotificationsIcon from 'svg/close-project-info.svg';
 import {WritableDraft} from 'immer/dist/internal';
 
 export const Notifications = () => {

@@ -39,7 +39,6 @@ export async function fetchApiEndpoint<T = unknown>(
 
     return {data: body};
   } catch (err: any) {
-    console.log({err});
     if (err?.code && err?.message && err?.suggestion) {
       console.warn(err);
       return {error: err as ErrorData};
