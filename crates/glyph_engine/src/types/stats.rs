@@ -34,12 +34,13 @@ pub struct Stats {
     pub pct_90: f64,
     pub pct_95: f64,
     pub pct_99: f64,
+    pub max_rank: u64,
 }
 
 impl Stats {
     pub fn get_binary_size(&self) -> usize {
-        //31 stat fields + the size of axis plus 1 byte per character
-         (8 * 31) + 8 + self.axis.len()
+        //32 stat fields + the size of axis plus 1 byte per character
+         (8 * 32) + 8 + self.axis.len()
     }
 }
 
@@ -83,6 +84,7 @@ mod get_binary_size {
             pct_90: 0.9,
             pct_95: 0.95,
             pct_99: 0.99,
+            max_rank: 100,
         };
         let result = stats.get_binary_size();
         let ser = serialize(&stats).unwrap();
