@@ -7,6 +7,10 @@ use crate::model::model_configuration::ModelConfiguration;
 use crate::model::pipeline::glyphs::glyph_instance_data::GlyphInstanceData;
 use crate::model::pipeline::glyphs::ranked_glyph_data::{Rank, RankDirection, RankedGlyphData};
 use crate::model::pipeline::{axis_lines, glyphs, PipelineRunner};
+use crate::data::{ModelVectors, DeserializeVectorError};
+
+
+
 use smaa::*;
 use std::rc::Rc;
 use wgpu::util::DeviceExt;
@@ -55,6 +59,8 @@ pub struct State {
     rank_direction: RankDirection,
     pipelines: Pipelines,
     z_order: usize,
+    x_vectors: ModelVectors,
+    y_vectors: ModelVectors,
 }
 
 impl State {
@@ -135,6 +141,7 @@ impl State {
             config.format,
             SmaaMode::Smaa1X,
         );
+
         Self {
             window,
             surface,
@@ -159,7 +166,26 @@ impl State {
             light_buffer,
             light_uniform,
             z_order: 0,
+            x_vectors: ModelVectors::new(),
+            y_vectors: ModelVectors::new(),
         }
+    }
+
+    pub fn add_x_vector(&mut self, vector_bytes: Vec<u8>) -> Result<(), DeserializeVectorError> {
+        let res = self.x_vectors.deserialize(vector_bytes);
+        if res.is_err() {
+            return Err(res.err().unwrap());
+        }
+        Ok(())
+    }
+
+    pub fn add_y_vector(&mut self, vector_bytes: Vec<u8>)-> Result<(), DeserializeVectorError> {
+        let res = self.y_vectors.deserialize(vector_bytes);
+        if res.is_err() {
+            return Err(res.err().unwrap());
+        }
+
+        Ok(())
     }
 
     pub fn window(&self) -> &Window {

@@ -2,18 +2,19 @@ mod error;
 
 pub use error::*;
 
-use model_common::vectors::Vector;
 use glyphx_core_error::GlyphxErrorData;
+use model_common::vectors::Vector;
 
+use bincode::deserialize;
 use im::OrdMap;
 use ordered_float::OrderedFloat;
 use serde_json::json;
 
 ///This is similar to the vector objects creted in the glyph_engine crate except, this struct
-///provides a reverse lookup converting the vector to an origional value. 
-#[derive(Debug, Clone )]
+///provides a reverse lookup converting the vector to an origional value.
+#[derive(Debug, Clone)]
 pub struct ModelVectors {
-    vectors : OrdMap<OrderedFloat<f64>, Vector>,
+    vectors: OrdMap<OrderedFloat<f64>, Vector>,
 }
 
 impl ModelVectors {
@@ -23,9 +24,25 @@ impl ModelVectors {
         }
     }
 
+    ///Expects data to be all of the bytes representing a vector.
+    pub fn deserialize(&mut self, mut data: Vec<u8>) -> Result<(), DeserializeVectorError> {
+        let vector = deserialize::<Vector>(&data);
+        if vector.is_err() {
+            let error = vector.err().unwrap();
+            return Err(DeserializeVectorError::from(error));
+        }
+
+        let vector = vector.unwrap();
+        let insert_result = self.insert_vector(vector);
+        if insert_result.is_err() {
+            let error = insert_result.err().unwrap();
+            return Err(DeserializeVectorError::from(error));
+        }
+        Ok(())
+    }
     pub fn insert_vector(&mut self, vector: Vector) -> Result<(), InsertVectorError> {
         let ordered_vector = OrderedFloat(vector.vector);
-        let v = self.vectors.get(&ordered_vector); 
+        let v = self.vectors.get(&ordered_vector);
         //we do not want duplicate vectors
         if v.is_some() {
             let data = json!({"vector": vector.vector});
@@ -36,12 +53,13 @@ impl ModelVectors {
         Ok(())
     }
 
-   pub fn get_value(&self, vector: f64) -> Result<Vector, GetVectorError> {
-       let ordered_vector = OrderedFloat(vector);
+    pub fn get_value(&self, vector: f64) -> Result<Vector, GetVectorError> {
+        let ordered_vector = OrderedFloat(vector);
         let v = self.vectors.get(&ordered_vector);
         if v.is_none() {
-            let data = json!({"vector": vector});
-            let error = GlyphxErrorData::new("Vector does not exists".to_string(), Some(data), None);
+            let data = json!({ "vector": vector });
+            let error =
+                GlyphxErrorData::new("Vector does not exists".to_string(), Some(data), None);
             return Err(GetVectorError::VectorDoesNotExists(error));
         }
         let v = v.unwrap();
@@ -131,6 +149,88 @@ mod unit_tests {
                 GetVectorError::VectorDoesNotExists(_) => (),
                 _ => panic!("Expected VectorDoesNotExists error"),
             }
+        }
+    }
+
+    mod deserialize_vector {
+        use super::*;
+        use bincode::serialize;
+
+        #[test]
+        fn is_ok() {
+            let vector = Vector::new(VectorOrigionalValue::F64(1.0), 1.0, 0);
+            let vector2 = Vector::new(VectorOrigionalValue::F64(2.0), 2.0, 1);
+
+            let ser_vector = serialize(&vector).unwrap();
+            let ser_vector2 = serialize(&vector2).unwrap();
+
+            let mut model_vectors = ModelVectors::new();
+            let result = model_vectors.deserialize(ser_vector);
+            assert!(result.is_ok());
+            let result = model_vectors.deserialize(ser_vector2);
+            assert!(result.is_ok());
+            assert_eq!(model_vectors.vectors.len(), 2);
+
+            let result = model_vectors.get_value(1.0);
+            assert!(result.is_ok());
+            let v = result.unwrap();
+            assert_eq!(v.vector, 1.0);
+            assert_eq!(v.rank, 0);
+            match v.orig_value {
+                VectorOrigionalValue::F64(value) => assert_eq!(value, 1.0),
+                _ => panic!("Expected F64"),
+            };
+
+        
+        }
+
+        #[test]
+        fn duplicate_vectors() {
+            let vector = Vector::new(VectorOrigionalValue::F64(1.0), 1.0, 0);
+            let vector2 = Vector::new(VectorOrigionalValue::F64(2.0), 2.0, 1);
+
+            let ser_vector = serialize(&vector).unwrap();
+            let ser_vector2 = serialize(&vector2).unwrap();
+            let ser_vector3 = serialize(&vector2).unwrap();
+
+            let mut model_vectors = ModelVectors::new();
+            let result = model_vectors.deserialize(ser_vector);
+            assert!(result.is_ok());
+            let result = model_vectors.deserialize(ser_vector2);
+            assert!(result.is_ok());
+            let result = model_vectors.deserialize(ser_vector3);
+            assert!(result.is_err());
+            let error = result.err().unwrap();
+            match error {
+                DeserializeVectorError::VectorAlreadyExists(_) => (),
+                _ => panic!("Expected VectorAlreadyExists error"),
+            };
+            assert_eq!(model_vectors.vectors.len(), 2);
+
+        }
+
+        #[test]
+        fn deserialization_fails() {
+            let vector = Vector::new(VectorOrigionalValue::F64(1.0), 1.0, 0);
+
+            let mut ser_vector = serialize(&vector).unwrap();
+            //Remove the last byte to cause an error
+            ser_vector.pop();
+
+            let mut model_vectors = ModelVectors::new();
+            let result = model_vectors.deserialize(ser_vector);
+            assert!(result.is_err());
+            let error = result.err().unwrap();
+            match error {
+                DeserializeVectorError::DeserializeError(data) => {
+                    let d = data.data.unwrap();
+                    let error_kind = d["ErrorKind"].as_str().unwrap();
+                    assert_eq!(error_kind, "Io");
+                },
+                _ => panic!("Expected DeserializeError error"),
+            };
+
+
         }
     }
 }

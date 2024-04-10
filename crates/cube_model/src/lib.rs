@@ -7,8 +7,7 @@ mod data;
 
 use model::model_configuration::ModelConfiguration;
 use model::state::State;
-use model_event::{ModelEvent, ModelMoveDirection};
-use data::ModelVectors;
+use model_event::{ModelEvent, ModelMoveDirection, AddVectorData};
 use std::rc::Rc;
 use winit::event::*;
 use winit::event_loop::{ControlFlow, EventLoopBuilder, EventLoopProxy};
@@ -99,6 +98,24 @@ impl ModelRunner {
         }
     }
 
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn add_vector(&self, axis: &str, data: Vec<u8>) {
+        unsafe {
+            let event = if axis == "x" { 
+                ModelEvent::AddVector(AddVectorData::XAxis(data))
+            } else {
+                ModelEvent::AddVector(AddVectorData::YAxis(data))
+            };
+            self.emit_event(&event);
+            if EVENT_LOOP_PROXY.is_some() {
+                EVENT_LOOP_PROXY
+                    .as_ref()
+                    .unwrap()
+                    .send_event(event)
+                    .unwrap();
+            }
+        }
+    }
     fn init_logger(&self) {
         cfg_if::cfg_if! {
         if #[cfg(target_arch = "wasm32")] {
@@ -184,6 +201,20 @@ impl ModelRunner {
                 }
                 Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Distance(amount))) => {
                     state.move_camera("distance", amount);
+                }
+                Event::UserEvent(ModelEvent::AddVector(AddVectorData::XAxis(vector))) => {
+                    let result = state.add_x_vector(vector);
+                    //WE need to do something with the result
+                    if result.is_err() {
+                        eprintln!("{:?}", result.err().unwrap());
+                    }
+                }
+                Event::UserEvent(ModelEvent::AddVector(AddVectorData::YAxis(vector))) => {
+                    let result = state.add_y_vector(vector);
+                    //We need to do something with the result
+                    if result.is_err() {
+                        eprintln!("{:?}", result.err().unwrap());
+                    }
                 }
                 Event::DeviceEvent { device_id, event } => {
                     state.input(&event);
