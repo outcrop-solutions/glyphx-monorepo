@@ -6,6 +6,7 @@ pub mod vector_processer;
 
 use crate::GlyphEngineResults;
 use glyphx_common::{AthenaConnection, Heartbeat, S3Connection};
+use model_common::Stats;
 
 use glyphx_core::{
     aws::{
