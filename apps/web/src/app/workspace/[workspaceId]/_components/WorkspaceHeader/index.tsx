@@ -1,5 +1,5 @@
 'use client';
-import {Controls} from 'app/[workspaceId]/_components/controls';
+import {Controls} from 'app/workspace/[workspaceId]/_components/controls';
 import {WorkspaceControls} from './WorkspaceControls';
 
 const WorkspaceHeader = () => {

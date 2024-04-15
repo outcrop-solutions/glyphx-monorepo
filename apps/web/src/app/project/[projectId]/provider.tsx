@@ -142,8 +142,6 @@ export const ProjectProvider = ({
     if (Array.isArray(project.stateHistory) && project.stateHistory?.length > 0) {
       const idx = project.stateHistory.length - 1;
       const lastState = project.stateHistory[idx];
-      console.log('openLastState', {project, idx});
-
       const payloadHash = lastState.payloadHash;
       const camera = lastState.camera;
 

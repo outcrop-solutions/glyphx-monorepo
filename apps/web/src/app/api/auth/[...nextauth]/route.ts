@@ -58,7 +58,7 @@ export const authOptions: NextAuthOptions = {
           },
           theme: 'light',
         } satisfies emailTypes.iEmailVerificationData;
-        console.log({emailData});
+
         await emailClient.init();
         await emailClient.sendEmail(emailData);
       },

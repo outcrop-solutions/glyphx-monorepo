@@ -7,7 +7,7 @@ import {databaseTypes} from 'types';
 const useConfigs = () => {
   const params = useParams();
   const {workspaceId} = params as {workspaceId: string};
-  const [data, setData] = useState<null | databaseTypes.IProject>(null);
+  const [data, setData] = useState<null | databaseTypes.IModelConfig[]>(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {

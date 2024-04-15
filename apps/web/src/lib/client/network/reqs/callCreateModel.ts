@@ -40,27 +40,19 @@ export const callCreateModel = async ({
         })
       );
       // sign data urls
-      console.log({projectInput: project, payloadHash});
       const signedUrls = await signDataUrls(project?.workspace.id, project?.id, payloadHash);
-      console.dir(signedUrls, {depth: 2});
 
       if (!signedUrls?.error) {
         setLoading({});
         if (window?.core) {
           setResize(150);
           setDrawer(true);
-          console.log('calling open project');
-          console.log(signedUrls);
-          console.log(project);
-          console.log(session);
-          console.log(url);
 
           window?.core?.OpenProject(
             _createOpenProject(signedUrls as {sdtUrl: any; sgcUrl: any; sgnUrl: any}, project, session, url, true, [])
           );
         }
       } else {
-        console.log('failed to open model');
         setLoading(
           produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
             draft.processName = 'Failed to Open Model';
@@ -70,7 +62,6 @@ export const callCreateModel = async ({
         );
       }
     } else {
-      console.log('failed to generate model');
       setLoading(
         produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
           draft.processName = 'Failed to Generate Model';

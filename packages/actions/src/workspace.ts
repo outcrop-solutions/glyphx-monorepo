@@ -39,7 +39,7 @@ export const getOrCreateWorkspace = async () => {
     e.publish('workspace', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }
-  redirect(`/${workspaceId}` as Route);
+  redirect(`/workspace/${workspaceId}` as Route);
 };
 
 /**
@@ -112,7 +112,7 @@ export const createWorkspace = async (name: string) => {
     e.publish('workspace', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }
-  redirect(`/${workspaceId}`);
+  redirect(`/workspace/${workspaceId}`);
 };
 
 /**

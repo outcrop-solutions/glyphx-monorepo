@@ -9,6 +9,7 @@ import {Toggles} from './_components/Toggles';
 import {Colors} from './_components/Colors';
 import {usePosition} from 'services/usePosition';
 import {useConfigs} from 'lib';
+import {Properties as Axes} from './_components/properties';
 
 const Controls = dynamic(() => import('./_components/Controls').then((mod) => mod.Controls));
 
@@ -32,8 +33,8 @@ export const ModelConfigSidebar = () => {
   }, [setCoords, pos]);
 
   useEffect(() => {
-    if (!isLoading) {
-      setConfigs(data.configs);
+    if (!isLoading && data) {
+      setConfigs(data);
     }
   }, [isLoading, data, setConfigs]);
   return (
@@ -48,6 +49,7 @@ export const ModelConfigSidebar = () => {
         }}
         className={`overflow-y-auto w-full scrollbar-none`}
       >
+        <Axes />
         <Controls />
         <ConfigList />
         <RadiusLengths />

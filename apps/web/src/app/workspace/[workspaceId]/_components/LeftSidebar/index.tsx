@@ -3,7 +3,7 @@ import Link from 'next/link';
 import {useParams, usePathname} from 'next/navigation';
 import {CubeIcon, FolderIcon, TableIcon, UserGroupIcon} from '@heroicons/react/outline';
 import {Logo} from './Logo';
-import {CreateWorkspace} from 'app/[workspaceId]/_components/controls/CreateWorkspace';
+import {CreateWorkspace} from 'app/workspace/[workspaceId]/_components/controls/CreateWorkspace';
 
 const Sidebar = ({workspaces}) => {
   const params = useParams();

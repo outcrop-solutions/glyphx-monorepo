@@ -6,13 +6,14 @@ import DownloadIcon from 'svg/download-icon.svg';
 import SmallLogo from 'svg/small-logo.svg';
 import {ArrowLeftIcon, CubeIcon, EyeIcon, FolderIcon} from '@heroicons/react/outline';
 import {useParams} from 'next/navigation';
-import {useRecoilState, useSetRecoilState} from 'recoil';
-import {drawerOpenAtom, projectSegmentAtom} from 'state';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+import {drawerOpenAtom, projectAtom, projectSegmentAtom} from 'state';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
 
 const LeftSidebar = () => {
   const params = useParams();
   const projectId = params?.projectId;
+  const project = useRecoilValue(projectAtom);
   const [segment, setSegment] = useRecoilState(projectSegmentAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   // check if feature is enabled from growthbook endpoint
@@ -24,7 +25,7 @@ const LeftSidebar = () => {
       className={`sticky z-[9999] flex flex-col px-4 space-y-2 pb-4 border-r border-gray text-white bg-secondary-deep-blue md:h-screen`}
     >
       <div className="relative flex items-center justify-center py-3 text-center border-b border-b-gray">
-        <Link href="/">
+        <Link href={`/workspace/${project?.workspace?.id}`}>
           <div
             onClick={() => {
               setDrawer(false);

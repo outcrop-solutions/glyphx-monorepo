@@ -1,11 +1,11 @@
-import WorkspaceHeader from 'app/[workspaceId]/_components/WorkspaceHeader';
+import WorkspaceHeader from 'app/workspace/[workspaceId]/_components/WorkspaceHeader';
 import {authOptions} from 'app/api/auth/[...nextauth]/route';
 import {Initializer, workspaceService} from 'business';
 import {Metadata} from 'next';
 import {getServerSession} from 'next-auth/next';
 import {redirect} from 'next/navigation';
 import {RightSidebar} from './_components/rightSidebar';
-import LeftSidebar from 'app/[workspaceId]/_components/LeftSidebar';
+import LeftSidebar from 'app/workspace/[workspaceId]/_components/LeftSidebar';
 import WorkspaceProvider from './workspace-provider';
 
 export const metadata: Metadata = {

@@ -6,6 +6,7 @@ import {
   doesStateExistSelector,
   drawerOpenAtom,
   projectAtom,
+  projectSegmentAtom,
   propertiesSelector,
   showLoadingAtom,
   splitPaneSizeAtom,
@@ -18,7 +19,10 @@ import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
 import {useUrl} from 'lib/client/hooks';
 import {isValidPayload} from 'lib/utils/isValidPayload';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
-import {updateProjectState} from 'actions';
+import {buildRustPayload, getFieldType, runGlyphEngine, updateProjectState} from 'actions';
+import {useFeatureIsOn} from '@growthbook/growthbook-react';
+import {fileIngestionTypes, glyphEngineTypes, rustGlyphEngineTypes, webTypes} from 'types';
+import {FieldDataType} from 'types/src/rustGlyphEngine/constants';
 
 export const Properties = () => {
   const session = useSession();
@@ -27,6 +31,11 @@ export const Properties = () => {
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
   const doesStateExist = useRecoilValue(doesStateExistSelector);
+
+  // used to condition the call to rust glyphengine
+  const isWebGPUEnabled = useFeatureIsOn('webgpu');
+  const segment = useRecoilValue(projectSegmentAtom);
+
   const url = useUrl();
   const properties = useRecoilValue(propertiesSelector);
   const [isCollapsed, setCollapsed] = useState(false);
@@ -38,22 +47,11 @@ export const Properties = () => {
       event.stopPropagation();
       // project already contains filter state, no deepMerge necessary
       const payloadHash = hashPayload(hashFileSystem(project.files), project);
-      console.log({payloadHash});
+
       if (!isValidPayload(properties)) {
-        console.log('not a valid payload', {value: !isValidPayload(properties), properties});
         toast.success('Generate a model before applying filters!');
       } else if (doesStateExist) {
-        console.log('called updateProjectState');
         await updateProjectState(project.id, project.state);
-        console.log('called callDownloadModel', {
-          project,
-          payloadHash,
-          session,
-          url,
-          setLoading,
-          setDrawer,
-          setResize,
-        });
         await callDownloadModel({
           project,
           payloadHash,
@@ -64,17 +62,6 @@ export const Properties = () => {
           setResize,
         });
       } else {
-        console.log('called create model', {
-          isFilter: true,
-          project,
-          payloadHash,
-          session,
-          url,
-          setLoading,
-          setDrawer,
-          setResize,
-          mutate,
-        });
         await callCreateModel({
           isFilter: true,
           project,
@@ -91,6 +78,21 @@ export const Properties = () => {
     },
     [doesStateExist, mutate, project, properties, session, setDrawer, setLoading, setResize, url]
   );
+
+  const runRustGlyphEngine = useCallback(
+    async (event) => {
+      event.stopPropagation();
+      const payload = buildRustPayload(project, properties);
+      // @ts-ignore
+      if (!payload?.error) {
+        // @ts-expect-error
+        await runGlyphEngine(payload);
+      }
+    },
+    [project, properties]
+  );
+
+  const runRust = isWebGPUEnabled && segment === 'CONFIG';
 
   return (
     properties && (
@@ -124,7 +126,7 @@ export const Properties = () => {
               </span>
             </div>
             <button
-              onClick={handleApply}
+              onClick={runRust ? runRustGlyphEngine : handleApply}
               className={`flex items-center bg-gray hover:bg-yellow justify-around px-3 text-xs mr-2 my-2 text-center rounded disabled:opacity-75 text-white`}
             >
               <span>Apply</span>

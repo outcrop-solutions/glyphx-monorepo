@@ -10,7 +10,7 @@ import {useSetRecoilState} from 'recoil';
 import {modalsAtom, projectSegmentAtom, rightSidebarControlAtom} from 'state';
 import {webTypes} from 'types';
 // icons
-import {ProjectTemplateIcons} from '../../../project/[projectId]/_components/ProjectSidebar/_components/icons';
+import {ProjectTemplateIcons} from '../../../../project/[projectId]/_components/ProjectSidebar/_components/icons';
 import AddMemberIcon from 'svg/add-member-icon.svg';
 import ProjectInfoIcon from 'svg/project-info-icon.svg';
 import DeleteProjectIcon from 'svg/delete-project-icon.svg';
