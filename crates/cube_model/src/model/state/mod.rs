@@ -57,7 +57,6 @@ pub struct State {
     smaa_target: SmaaTarget,
     glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData,
     glyph_uniform_buffer: wgpu::Buffer,
-    ranked_glyph_data: Option<RankedGlyphData>,
     rank: Rank,
     rank_direction: RankDirection,
     pipelines: Pipelines,
@@ -161,7 +160,6 @@ impl State {
             glyph_uniform_buffer,
             glyph_uniform_data,
             smaa_target,
-            ranked_glyph_data: None,
             rank: Rank::Z,
             rank_direction: RankDirection::Ascending,
             pipelines,
@@ -307,8 +305,7 @@ impl State {
             //Glyphs has it's own logic to render in rank order so we can't really use the pipeline
             //manager trait to render it.  So, we will handle it directly.
             if name == "glyphs" {
-                //TODO: we need to check that self.ranked_glyph_data is not None
-                let ranked_glyph_data = self.ranked_glyph_data.as_ref().unwrap();
+                let ranked_glyph_data = self.data_manager.get_glyphs();
                 Self::run_glyphs_pipeline(
                     &self.device,
                     &smaa_frame,

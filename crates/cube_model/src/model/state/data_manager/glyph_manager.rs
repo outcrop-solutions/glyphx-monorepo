@@ -71,4 +71,12 @@ impl  GlyphManager {
     pub fn get_x_vector_len(&self) -> usize {
         self.x_model_vectors.as_ref().borrow().len()
     }
+
+    pub fn get_z_vector_len(&self) -> usize {
+        self.z_model_vectors.as_ref().borrow().len()
+    }
+
+    pub fn get_glyphs(&self) -> &RankedGlyphData {
+        self.ranked_glyph_data.as_ref().unwrap()
+    }
 }

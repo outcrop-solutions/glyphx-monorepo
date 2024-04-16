@@ -2,10 +2,7 @@ mod glyph_manager;
 mod stats_manager;
 
 
-use super::DeserializeVectorError;
-use super::AddStatsError;
-use super::ModelVectors;
-use super::AddGlyphError;
+use super::{AddGlyphError, AddStatsError, DeserializeVectorError, ModelVectors, RankedGlyphData};
 
 pub use glyph_manager::GlyphManager;
 pub use stats_manager::StatsManager;
@@ -63,6 +60,11 @@ impl DataManager {
      pub fn add_glyph(&mut self, glyph_bytes: Vec<u8>) -> Result<(), AddGlyphError> {
         self.glyph_manager.add_glyph(glyph_bytes)
      }
+
+     pub fn get_glyphs(&self) -> &RankedGlyphData {
+         self.glyph_manager.get_glyphs()
+     }
+
 }
 
 #[cfg(test)]
