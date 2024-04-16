@@ -65,6 +65,9 @@ impl ModelVectors {
         let v = v.unwrap();
         Ok(v.clone())
     }
+    pub fn len(&self) -> usize {
+        self.vectors.len()
+    }
 }
 
 #[cfg(test)]

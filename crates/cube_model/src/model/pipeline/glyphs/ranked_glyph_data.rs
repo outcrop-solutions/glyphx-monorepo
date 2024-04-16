@@ -1,7 +1,8 @@
 use crate::model::pipeline::glyphs::glyph_instance_data::GlyphInstanceData;
 use std::rc::Rc;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum RankedGlyphDataError {
     InvalidXRank(usize),
     InvalidZRank(usize),

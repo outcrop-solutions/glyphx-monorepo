@@ -7,7 +7,7 @@ mod data;
 
 use model::model_configuration::ModelConfiguration;
 use model::state::State;
-use model_event::{ModelEvent, ModelMoveDirection, AddVectorData};
+use model_event::{ModelEvent, ModelMoveDirection, AddVectorData, AddStatisticData, AddGlyphData};
 use std::rc::Rc;
 use winit::event::*;
 use winit::event_loop::{ControlFlow, EventLoopBuilder, EventLoopProxy};
@@ -116,6 +116,37 @@ impl ModelRunner {
             }
         }
     }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn add_statstics(&self, data: Vec<u8>) {
+        unsafe {
+            let event = ModelEvent::AddStatistic(AddStatisticData::AddStatistic(data));
+            self.emit_event(&event);
+            if EVENT_LOOP_PROXY.is_some() {
+                EVENT_LOOP_PROXY
+                    .as_ref()
+                    .unwrap()
+                    .send_event(event)
+                    .unwrap();
+            }
+        }
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn add_glyph(&self, data: Vec<u8>) {
+        unsafe {
+            let event = ModelEvent::AddGlyph(AddGlyphData::AddGlyph(data));
+            self.emit_event(&event);
+            if EVENT_LOOP_PROXY.is_some() {
+                EVENT_LOOP_PROXY
+                    .as_ref()
+                    .unwrap()
+                    .send_event(event)
+                    .unwrap();
+            }
+        }
+    }
+
     fn init_logger(&self) {
         cfg_if::cfg_if! {
         if #[cfg(target_arch = "wasm32")] {
@@ -209,8 +240,22 @@ impl ModelRunner {
                         eprintln!("{:?}", result.err().unwrap());
                     }
                 }
+                Event::UserEvent(ModelEvent::AddGlyph(AddGlyphData::AddGlyph(glyph))) => {
+                    let result = state.add_glyph(glyph);
+                    //WE need to do something with the result
+                    if result.is_err() {
+                        eprintln!("{:?}", result.err().unwrap());
+                    }
+                }
+                Event::UserEvent(ModelEvent::AddStatistic(AddStatisticData::AddStatistic(stats))) => {
+                    let result = state.add_stats(stats);
+                    //WE need to do something with the result
+                    if result.is_err() {
+                        eprintln!("{:?}", result.err().unwrap());
+                    }
+                }
                 Event::UserEvent(ModelEvent::AddVector(AddVectorData::YAxis(vector))) => {
-                    let result = state.add_y_vector(vector);
+                    let result = state.add_z_vector(vector);
                     //We need to do something with the result
                     if result.is_err() {
                         eprintln!("{:?}", result.err().unwrap());

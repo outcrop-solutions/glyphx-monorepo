@@ -1603,6 +1603,7 @@ dependencies = [
  "model_common",
  "nalgebra 0.32.3",
  "num-traits",
+ "once_cell",
  "ordered-float 4.2.0",
  "pollster",
  "rand",

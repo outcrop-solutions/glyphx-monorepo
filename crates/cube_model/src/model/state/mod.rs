@@ -1,15 +1,19 @@
+mod data_manager;
+
+mod errors;
 use crate::camera::{
     camera_controller::CameraController, orbit_camera::OrbitCamera, uniform_buffer::CameraUniform,
 };
+use crate::data::{DeserializeVectorError, ModelVectors};
 use crate::light::light_uniform::LightUniform;
 use crate::model::color_table_uniform::ColorTableUniform;
 use crate::model::model_configuration::ModelConfiguration;
 use crate::model::pipeline::glyphs::glyph_instance_data::GlyphInstanceData;
 use crate::model::pipeline::glyphs::ranked_glyph_data::{Rank, RankDirection, RankedGlyphData};
 use crate::model::pipeline::{axis_lines, glyphs, PipelineRunner};
-use crate::data::{ModelVectors, DeserializeVectorError};
-
-
+use data_manager::DataManager;
+pub use errors::*;
+use model_common::{Glyph, Stats};
 
 use smaa::*;
 use std::rc::Rc;
@@ -34,7 +38,6 @@ struct Pipelines {
     z_axis_line: axis_lines::AxisLines,
     glyphs: glyphs::Glyphs,
 }
-
 pub struct State {
     surface: wgpu::Surface,
     device: wgpu::Device,
@@ -54,17 +57,16 @@ pub struct State {
     smaa_target: SmaaTarget,
     glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData,
     glyph_uniform_buffer: wgpu::Buffer,
-    ranked_glyph_data: Rc<RankedGlyphData>,
+    ranked_glyph_data: Option<RankedGlyphData>,
     rank: Rank,
     rank_direction: RankDirection,
     pipelines: Pipelines,
     z_order: usize,
-    x_vectors: ModelVectors,
-    y_vectors: ModelVectors,
+    data_manager: DataManager,
 }
 
 impl State {
-    pub async fn new(window: Window, model_configuration: Rc<ModelConfiguration>) -> Self {
+    pub async fn new(window: Window, model_configuration: Rc<ModelConfiguration>) -> State {
         let size = window.inner_size();
 
         let (surface, adapter) = Self::init_wgpu(&window).await;
@@ -111,7 +113,7 @@ impl State {
 
         let glyph_uniform_data = Self::build_glyph_uniform_data(&model_configuration);
 
-        let ranked_glyph_data = Self::build_instance_data();
+        //let ranked_glyph_data = Self::build_instance_data();
 
         let glyph_uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Glyph Uniform Buffer"),
@@ -141,7 +143,7 @@ impl State {
             config.format,
             SmaaMode::Smaa1X,
         );
-
+        let data_manager = DataManager::new();
         Self {
             window,
             surface,
@@ -159,33 +161,33 @@ impl State {
             glyph_uniform_buffer,
             glyph_uniform_data,
             smaa_target,
-            ranked_glyph_data,
+            ranked_glyph_data: None,
             rank: Rank::Z,
             rank_direction: RankDirection::Ascending,
             pipelines,
             light_buffer,
             light_uniform,
             z_order: 0,
-            x_vectors: ModelVectors::new(),
-            y_vectors: ModelVectors::new(),
+            data_manager,
         }
+    }
+
+
+    pub fn add_stats(&mut self, stats_bytes: Vec<u8>) -> Result<(), AddStatsError> {
+        self.data_manager.add_stats(stats_bytes)
     }
 
     pub fn add_x_vector(&mut self, vector_bytes: Vec<u8>) -> Result<(), DeserializeVectorError> {
-        let res = self.x_vectors.deserialize(vector_bytes);
-        if res.is_err() {
-            return Err(res.err().unwrap());
-        }
-        Ok(())
+        self.data_manager.add_x_vector(vector_bytes)
     }
 
-    pub fn add_y_vector(&mut self, vector_bytes: Vec<u8>)-> Result<(), DeserializeVectorError> {
-        let res = self.y_vectors.deserialize(vector_bytes);
-        if res.is_err() {
-            return Err(res.err().unwrap());
-        }
+    //Here we are flipping the name to match the downstream rending order
+    pub fn add_z_vector(&mut self, vector_bytes: Vec<u8>) -> Result<(), DeserializeVectorError> {
+        self.data_manager.add_z_vector(vector_bytes)
+    }
 
-        Ok(())
+    pub fn add_glyph(&mut self, glyph_bytes: Vec<u8>) -> Result<(), AddGlyphError> {
+        self.data_manager.add_glyph(glyph_bytes)
     }
 
     pub fn window(&self) -> &Window {
@@ -305,13 +307,15 @@ impl State {
             //Glyphs has it's own logic to render in rank order so we can't really use the pipeline
             //manager trait to render it.  So, we will handle it directly.
             if name == "glyphs" {
+                //TODO: we need to check that self.ranked_glyph_data is not None
+                let ranked_glyph_data = self.ranked_glyph_data.as_ref().unwrap();
                 Self::run_glyphs_pipeline(
                     &self.device,
                     &smaa_frame,
                     &self.pipelines.glyphs,
                     self.rank,
                     self.rank_direction,
-                    &self.ranked_glyph_data,
+                    ranked_glyph_data,
                     &name,
                     &mut commands,
                 );
@@ -368,7 +372,12 @@ impl State {
                 contents: bytemuck::cast_slice(&clean_rank),
                 usage: wgpu::BufferUsages::VERTEX,
             });
-            pipeline.run_pipeline(&mut encoder, smaa_frame, &instance_buffer, rank.len() as u32);
+            pipeline.run_pipeline(
+                &mut encoder,
+                smaa_frame,
+                &instance_buffer,
+                rank.len() as u32,
+            );
             commands.push(encoder.finish());
         }
     }
@@ -471,7 +480,7 @@ impl State {
         (surface, adapter)
     }
 
-    fn build_instance_data() -> Rc<RankedGlyphData> {
+    fn build_instance_data() -> RankedGlyphData {
         // Rc::new (vec![
         //     glyphs::glyph_instance_data::GlyphInstanceData {
         //         glyph_id: 0,
@@ -569,7 +578,7 @@ impl State {
             z = 0.0;
             x += 1.0;
         }
-        Rc::new(ranked_glyph_data)
+        ranked_glyph_data
     }
 
     fn build_pipelines(
@@ -764,10 +773,8 @@ impl State {
             1 //-- right or back, z(green) is covered.
         } else if rotation_angle >= 3.6219294 && rotation_angle < 4.2965374 {
             2 //-- back all three axis lines are visible.
-
         } else if rotation_angle >= 4.2965374 && rotation_angle < 5.997787 {
             3 //-- left or back, x(red) is covered.
-
         } else {
             0 //-- normal glyphs last
         };
@@ -778,14 +785,14 @@ impl State {
         } else if rotation_angle >= 0.846 && rotation_angle < 2.221 {
             self.rank = Rank::X;
             self.rank_direction = RankDirection::Ascending;
-
         } else if rotation_angle >= 3.646 && rotation_angle < 5.800 {
             self.rank = Rank::X;
             self.rank_direction = RankDirection::Descending;
-
-        } else { //5.800 -- 0.846
+        } else {
+            //5.800 -- 0.846
             self.rank = Rank::Z;
             self.rank_direction = RankDirection::Ascending;
         };
     }
 }
+

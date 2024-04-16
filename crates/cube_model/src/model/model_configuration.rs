@@ -30,3 +30,28 @@ pub struct ModelConfiguration {
     pub glyph_size: f32,
     pub model_origin: [f32; 3],
 }
+
+impl Default for ModelConfiguration {
+    fn default() -> Self {
+        ModelConfiguration {
+            min_color: [0.0, 0.0, 0.0, 1.0],
+            max_color: [1.0, 1.0, 1.0, 1.0],
+            background_color: [0.0, 0.0, 0.0, 1.0],
+            x_axis_color: [1.0, 0.0, 0.0, 1.0],
+            y_axis_color: [0.0, 1.0, 0.0, 1.0],
+            z_axis_color: [0.0, 0.0, 1.0, 1.0],
+            grid_cylinder_radius: 0.01,
+            grid_cylinder_length: 1.0,
+            grid_cone_length: 0.1,
+            grid_cone_radius: 0.05,
+            glyph_offset: 0.1,
+            z_height_ratio: 0.1,
+            min_glyph_height: 0.01,
+            light_location: [0.0, 0.0, 1.0],
+            light_color: [1.0, 1.0, 1.0, 1.0],
+            light_intensity: 1.0,
+            glyph_size: 0.1,
+            model_origin: [0.0, 0.0, 0.0],
+        }
+    }
+}
