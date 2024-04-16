@@ -80,6 +80,27 @@ impl StatsManager {
         Ok(())
     }
 
+    pub fn swap_stats(&mut self, stats_bytes: Vec<u8>) -> Result<(), AddStatsError> {
+        let stats = deserialize::<Stats>(&stats_bytes)?;
+        //Ok pay attention to this, it is super important.  In WebGPU Y is up and Z is depth.  So
+        //we will need to flip the Y and Z values.  We keep them in application order in the
+        //glyph_engine but we need to flip them here so everything makes sense downstream.
+        match stats.axis.as_str() {
+            "x" => {
+                self.x_axis_stats = Some(stats);
+            }
+            "y" => {
+                self.z_axis_stats = Some(stats);
+            }
+            "z" => {
+                self.y_axis_stats = Some(stats);
+            }
+            invalid => {
+                return Err(AddStatsError::invalid_axis_name(invalid));
+            }
+        };
+        Ok(())
+    }
 }
 
 impl Default for StatsManager {

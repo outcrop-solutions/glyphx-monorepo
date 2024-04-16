@@ -141,6 +141,14 @@ impl RankedGlyphData {
 
         RankedGlyphIterator::new(rank, rank_direction, data)
     }
+
+    pub fn get_x_rank_size(&self) -> usize {
+        self.x_rank_size
+    }
+
+    pub fn get_z_rank_size(&self) -> usize {
+        self.z_rank_size
+    }
 }
 
 #[cfg(test)]
