@@ -84,8 +84,8 @@ impl GlyphManager {
         self.z_model_vectors.as_ref().borrow().len()
     }
 
-    pub fn get_glyphs(&self) -> &RankedGlyphData {
-        self.ranked_glyph_data.as_ref().unwrap()
+    pub fn get_glyphs(&self) -> Option<&RankedGlyphData> {
+        self.ranked_glyph_data.as_ref()
     }
 }
 
@@ -335,7 +335,7 @@ mod unit_tests {
             assert!(result.is_ok());
 
             let mut count = 0;
-            gm.get_glyphs()
+            gm.get_glyphs().unwrap()
                 .iter(Rank::X, RankDirection::Ascending)
                 .for_each(|r| count += r.len());
             assert_eq!(count, 2);
@@ -411,7 +411,7 @@ mod unit_tests {
             let mut bad_stats = Stats::default();
             bad_stats.max_rank = 1;
             bad_stats.axis = "x".to_string();
-            gm.stats_manager.borrow_mut().swap_stats(serialize(&bad_stats).unwrap());
+           let _  = gm.stats_manager.borrow_mut().swap_stats(serialize(&bad_stats).unwrap());
 
             let glyph = Glyph {
                 x_value: 2.0,

@@ -170,7 +170,6 @@ impl State {
         }
     }
 
-
     pub fn add_stats(&mut self, stats_bytes: Vec<u8>) -> Result<(), AddStatsError> {
         self.data_manager.add_stats(stats_bytes)
     }
@@ -306,16 +305,19 @@ impl State {
             //manager trait to render it.  So, we will handle it directly.
             if name == "glyphs" {
                 let ranked_glyph_data = self.data_manager.get_glyphs();
-                Self::run_glyphs_pipeline(
-                    &self.device,
-                    &smaa_frame,
-                    &self.pipelines.glyphs,
-                    self.rank,
-                    self.rank_direction,
-                    ranked_glyph_data,
-                    &name,
-                    &mut commands,
-                );
+                if ranked_glyph_data.is_some() {
+                    let ranked_glyph_data = ranked_glyph_data.unwrap();
+                    Self::run_glyphs_pipeline(
+                        &self.device,
+                        &smaa_frame,
+                        &self.pipelines.glyphs,
+                        self.rank,
+                        self.rank_direction,
+                        ranked_glyph_data,
+                        &name,
+                        &mut commands,
+                    );
+                }
             } else {
                 let pipeline = match name {
                     "x-axis-line" => &self.pipelines.x_axis_line,
@@ -792,4 +794,3 @@ impl State {
         };
     }
 }
-
