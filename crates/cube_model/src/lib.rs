@@ -198,26 +198,7 @@ impl ModelRunner {
         }
 
         let this_window_id = window.id();
-        let model_config = Rc::new(ModelConfiguration {
-            max_color: [255.0, 0.0, 0.0, 1.0],
-            min_color: [0.0, 255.0, 255.0, 1.0],
-            background_color: [13.0, 19.0, 33.0, 1.0],
-            x_axis_color: [255.0, 0.0, 0.0, 1.0],
-            y_axis_color: [0.0, 255.0, 0.0, 1.0],
-            z_axis_color: [0.0, 0.0, 255.0, 1.0],
-            grid_cylinder_length: 10.80,
-            grid_cylinder_radius: 0.05,
-            grid_cone_length: 0.2,
-            grid_cone_radius: 0.10,
-            z_height_ratio: 1.0,
-            glyph_offset: 0.15,
-            min_glyph_height: 0.2,
-            light_color: [255.0, 255.0, 255.0, 1.0],
-            light_location: [-30.0, -30.0, -30.0],
-            light_intensity: 0.02,
-            glyph_size: 0.15,
-            model_origin: [-5.0, -5.0, -5.0],
-        });
+        let model_config = Rc::new(ModelConfiguration::default());
         let mut state = State::new(window, model_config.clone()).await;
         unsafe {
             EVENT_LOOP_PROXY = Some(el.create_proxy());
