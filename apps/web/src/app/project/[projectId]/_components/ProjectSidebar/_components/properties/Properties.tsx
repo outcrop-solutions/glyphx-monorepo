@@ -3,6 +3,7 @@ import React, {useCallback, useState} from 'react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {Property} from './Property';
 import {
+  dataGridPayloadSelector,
   doesStateExistSelector,
   drawerOpenAtom,
   projectAtom,
@@ -19,10 +20,12 @@ import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
 import {useUrl} from 'lib/client/hooks';
 import {isValidPayload} from 'lib/utils/isValidPayload';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
-import {buildRustPayload, getFieldType, runGlyphEngine, updateProjectState} from 'actions';
+import {buildRustPayload, getFieldType, runGlyphEngine, runGlyphEngineAction, updateProjectState} from 'actions';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
-import {fileIngestionTypes, glyphEngineTypes, rustGlyphEngineTypes, webTypes} from 'types';
+import {databaseTypes, fileIngestionTypes, glyphEngineTypes, rustGlyphEngineTypes, webTypes} from 'types';
 import {FieldDataType} from 'types/src/rustGlyphEngine/constants';
+import produce from 'immer';
+import {WritableDraft} from 'immer/dist/internal';
 
 export const Properties = () => {
   const session = useSession();
@@ -31,6 +34,7 @@ export const Properties = () => {
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
   const doesStateExist = useRecoilValue(doesStateExistSelector);
+  const {workspaceId, projectId, tableName} = useRecoilValue(dataGridPayloadSelector);
 
   // used to condition the call to rust glyphengine
   const isWebGPUEnabled = useFeatureIsOn('webgpu');
@@ -82,14 +86,30 @@ export const Properties = () => {
   const runRustGlyphEngine = useCallback(
     async (event) => {
       event.stopPropagation();
-      const payload = buildRustPayload(project, properties);
-      // @ts-ignore
-      if (!payload?.error) {
-        // @ts-expect-error
-        await runGlyphEngine(payload);
+      // set initial loading state
+      setLoading(
+        produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
+          draft.processName = 'Generating Data Model...';
+          draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+          draft.processStartTime = new Date();
+        })
+      );
+      try {
+        // run glyph engine
+        const result = await runGlyphEngineAction(project, properties);
+        console.log({result});
+      } catch (error) {
+        console.log({error});
       }
+      // if (!result?.error) {
+      //   setLoading(
+      //     produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
+      //       draft.processName = 'Fetching Data...';
+      //     })
+      //   );
+      // }
     },
-    [project, properties]
+    [project, properties, setLoading]
   );
 
   const runRust = isWebGPUEnabled && segment === 'CONFIG';

@@ -5,17 +5,7 @@ import {WritableDraft} from 'immer/dist/internal';
 import {_createOpenProject} from 'lib/client/mutations';
 import {glyphEngine, signDataUrls} from 'actions';
 
-export const callCreateModel = async ({
-  isFilter,
-  project,
-  payloadHash,
-  session,
-  url,
-  setLoading,
-  setDrawer,
-  setResize,
-  mutate,
-}) => {
+export const callCreateModel = async ({project, payloadHash, setLoading, setDrawer, setResize}) => {
   try {
     // set initial loading state
     setLoading(
@@ -46,10 +36,7 @@ export const callCreateModel = async ({
         if (window?.core) {
           setResize(150);
           setDrawer(true);
-
-          window?.core?.OpenProject(
-            _createOpenProject(signedUrls as {sdtUrl: any; sgcUrl: any; sgnUrl: any}, project, session, url, true, [])
-          );
+          // TODO: pass in complete vectors to the model
         }
       } else {
         setLoading(
