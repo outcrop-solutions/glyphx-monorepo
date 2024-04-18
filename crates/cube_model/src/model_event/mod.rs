@@ -13,4 +13,5 @@ pub enum ModelEvent {
     AddVector(AddVectorData),
     AddStatistic(AddStatisticData),
     AddGlyph(AddGlyphData),
+    Redraw,
 }

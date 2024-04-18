@@ -1,4 +1,7 @@
 mod errors;
+mod color_wheel;
+
+pub use color_wheel::ColorWheel;
 use crate::assets::color::Color;
 pub use errors::*;
 use glyphx_core_error::GlyphxErrorData;
@@ -245,7 +248,7 @@ impl ModelConfiguration {
         })
     }
 
-    fn partial_update(&mut self, json: &Value) -> Result<&Self, PartialUpdateError> {
+    pub fn partial_update(&mut self, json: &Value) -> Result<&Self, PartialUpdateError> {
         if !json.is_object() {
             let message =
                 "The json is not an object and cannot be used to update the model configuration"
@@ -358,23 +361,41 @@ impl ModelConfiguration {
 impl Default for ModelConfiguration {
     fn default() -> Self {
         ModelConfiguration {
+            //M -- Done
             max_color: [255.0, 0.0, 0.0, 1.0],
+            //N -- Done
             min_color: [0.0, 255.0, 255.0, 1.0],
+            //B -- Done
             background_color: [13.0, 19.0, 33.0, 1.0],
+            //X -- done
             x_axis_color: [255.0, 0.0, 0.0, 1.0],
+            //Y -- done
             y_axis_color: [0.0, 255.0, 0.0, 1.0],
+            //Z -- done
             z_axis_color: [0.0, 0.0, 255.0, 1.0],
+            //A -- done
             grid_cylinder_length: 10.80,
+            //R -- done
             grid_cylinder_radius: 0.05,
+            //C -- done
             grid_cone_length: 0.2,
+            //K -- done
             grid_cone_radius: 0.10,
+            //H -- done
             z_height_ratio: 1.0,
+            //O -- done
             glyph_offset: 0.15,
+            //E -- Done
             min_glyph_height: 0.2,
+            //W -- Done
             light_color: [255.0, 255.0, 255.0, 1.0],
+            //L -- Done
             light_location: [-30.0, -30.0, -30.0],
+            //I -- Done
             light_intensity: 0.02,
+            //S -- Done
             glyph_size: 0.15,
+            //G
             model_origin: [-5.0, -5.0, -5.0],
         }
     }

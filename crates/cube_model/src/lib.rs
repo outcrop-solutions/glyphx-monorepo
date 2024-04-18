@@ -1,13 +1,16 @@
 mod assets;
 mod camera;
+mod data;
 mod light;
 mod model;
 mod model_event;
-mod data;
 
-use model::model_configuration::ModelConfiguration;
+use model::model_configuration::{ColorWheel, ModelConfiguration};
+use model::state::DataManager;
 use model::state::State;
-use model_event::{ModelEvent, ModelMoveDirection, AddVectorData, AddStatisticData, AddGlyphData};
+use model_event::{ModelEvent, ModelMoveDirection};
+use serde_json::{from_str, json, Value};
+use std::cell::RefCell;
 use std::rc::Rc;
 use winit::event::*;
 use winit::event_loop::{ControlFlow, EventLoopBuilder, EventLoopProxy};
@@ -16,7 +19,7 @@ use winit::window::WindowBuilder;
 cfg_if::cfg_if! {
     if #[cfg(target_arch="wasm32")] {
         use wasm_bindgen::prelude::*;
-        use winit::window::Window;
+        use winit::window::{Window, WindowId};
 
         #[wasm_bindgen]
         extern "C" {
@@ -30,13 +33,35 @@ const WEB_ELEMENT_NAME: &str = "glyphx-cube-model";
 static mut EVENT_LOOP_PROXY: Option<EventLoopProxy<ModelEvent>> = None;
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-pub struct ModelRunner {}
+pub struct ModelRunner {
+    configuration: Rc<RefCell<ModelConfiguration>>,
+    data_manager: Rc<RefCell<DataManager>>,
+    is_running: bool,
+    color_wheel: ColorWheel,
+    default_x: u8,
+    default_y: u8,
+    default_z: u8,
+    default_min: u8,
+    default_max: u8,
+    default_background: u8,
+}
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 impl ModelRunner {
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen(constructor))]
     pub fn new() -> Self {
-        ModelRunner {}
+        ModelRunner {
+            configuration: Rc::new(RefCell::new(ModelConfiguration::default())),
+            data_manager: Rc::new(RefCell::new(DataManager::new())),
+            is_running: false,
+            color_wheel: ColorWheel::new(),
+            default_x: 0,
+            default_y: 9,
+            default_z: 17,
+            default_min: 0,
+            default_max: 17,
+            default_background: 0,
+        }
     }
 
     fn emit_event(&self, event: &ModelEvent) {
@@ -54,6 +79,29 @@ impl ModelRunner {
             }
         }
     }
+
+    ///Will force a redraw of the model, if the model is running.
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn update_configuration(&self, config: &str) {
+        let value: Value = from_str(config).unwrap();
+        let mut configuration = self.configuration.borrow_mut();
+        //TODO: Handle errors
+        let _ = configuration.partial_update(&value);
+        unsafe {
+            if self.is_running {
+                let event = ModelEvent::Redraw;
+                self.emit_event(&event);
+                if EVENT_LOOP_PROXY.is_some() {
+                    EVENT_LOOP_PROXY
+                        .as_ref()
+                        .unwrap()
+                        .send_event(event)
+                        .unwrap();
+                }
+            }
+        }
+    }
+
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn add_yaw(&self, amount: f32) {
         unsafe {
@@ -98,53 +146,35 @@ impl ModelRunner {
         }
     }
 
+    ///Adding a vector will update internal state but it
+    ///will not emit any redraw events.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn add_vector(&self, axis: &str, data: Vec<u8>) {
-        unsafe {
-            let event = if axis == "x" { 
-                ModelEvent::AddVector(AddVectorData::XAxis(data))
-            } else {
-                ModelEvent::AddVector(AddVectorData::YAxis(data))
-            };
-            self.emit_event(&event);
-            if EVENT_LOOP_PROXY.is_some() {
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
-            }
+        let mut dm = self.data_manager.borrow_mut();
+        if axis == "x" {
+            //TODO: Handle errors
+            let _ = dm.add_x_vector(data);
+        } else {
+            //TODO: Handle errors
+            let _ = dm.add_z_vector(data);
         }
     }
-
+    //Adding statistics will update internal state but it
+    //will not emit any redraw events.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn add_statstics(&self, data: Vec<u8>) {
-        unsafe {
-            let event = ModelEvent::AddStatistic(AddStatisticData::AddStatistic(data));
-            self.emit_event(&event);
-            if EVENT_LOOP_PROXY.is_some() {
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
-            }
-        }
+        let mut dm = self.data_manager.borrow_mut();
+        //TODO: Handle errors
+        let _ = dm.add_stats(data);
     }
 
+    ///Adding a glyph will update internal state but it
+    ///will not emit any redraw events.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn add_glyph(&self, data: Vec<u8>) {
-        unsafe {
-            let event = ModelEvent::AddGlyph(AddGlyphData::AddGlyph(data));
-            self.emit_event(&event);
-            if EVENT_LOOP_PROXY.is_some() {
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
-            }
-        }
+        let mut dm = self.data_manager.borrow_mut();
+        //TODO: Handle errors
+        let _ = dm.add_glyph(data);
     }
 
     fn init_logger(&self) {
@@ -178,7 +208,7 @@ impl ModelRunner {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub async fn run(&self) {
+    pub async fn run(&mut self) {
         self.init_logger();
 
         let el = EventLoopBuilder::<ModelEvent>::with_user_event().build();
@@ -198,13 +228,43 @@ impl ModelRunner {
         }
 
         let this_window_id = window.id();
-        let model_config = Rc::new(ModelConfiguration::default());
-        let mut state = State::new(window, model_config.clone()).await;
+        self.is_running = true;
+
+        let config = self.configuration.clone();
+
+        let mut state = State::new(
+            window,
+            self.configuration.clone(),
+            self.data_manager.clone(),
+        )
+        .await;
+        let mut x_color_index = self.default_x as isize;
+        let mut y_color_index = self.default_y as isize;
+        let mut z_color_index = self.default_z as isize;
+        let mut min_color_index = self.default_min as isize;
+        let mut max_color_index = self.default_min as isize;
+        let mut background_color_index = self.default_background as isize;
+        let color_wheel = self.color_wheel.clone();
         unsafe {
             EVENT_LOOP_PROXY = Some(el.create_proxy());
         }
         el.run(move |event, _, control_flow| {
             match event {
+                Event::UserEvent(ModelEvent::Redraw) => {
+                    state.update_config();
+                    match state.render() {
+                        Ok(_) => {}
+                        // Reconfigure the surface if lost
+                        Err(wgpu::SurfaceError::Lost) => {
+                            let size = state.size().clone();
+                            state.resize(size)
+                        }
+                        // The system is out of memory, we should probably quit
+                        Err(wgpu::SurfaceError::OutOfMemory) => *control_flow = ControlFlow::Exit,
+                        // All other errors (Outdated, Timeout) should be resolved by the next frame
+                        Err(e) => eprintln!("{:?}", e),
+                    }
+                }
                 Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Pitch(amount))) => {
                     state.move_camera("pitch", amount);
                 }
@@ -213,34 +273,6 @@ impl ModelRunner {
                 }
                 Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Distance(amount))) => {
                     state.move_camera("distance", amount);
-                }
-                Event::UserEvent(ModelEvent::AddVector(AddVectorData::XAxis(vector))) => {
-                    let result = state.add_x_vector(vector);
-                    //WE need to do something with the result
-                    if result.is_err() {
-                        eprintln!("{:?}", result.err().unwrap());
-                    }
-                }
-                Event::UserEvent(ModelEvent::AddGlyph(AddGlyphData::AddGlyph(glyph))) => {
-                    let result = state.add_glyph(glyph);
-                    //WE need to do something with the result
-                    if result.is_err() {
-                        eprintln!("{:?}", result.err().unwrap());
-                    }
-                }
-                Event::UserEvent(ModelEvent::AddStatistic(AddStatisticData::AddStatistic(stats))) => {
-                    let result = state.add_stats(stats);
-                    //WE need to do something with the result
-                    if result.is_err() {
-                        eprintln!("{:?}", result.err().unwrap());
-                    }
-                }
-                Event::UserEvent(ModelEvent::AddVector(AddVectorData::YAxis(vector))) => {
-                    let result = state.add_z_vector(vector);
-                    //We need to do something with the result
-                    if result.is_err() {
-                        eprintln!("{:?}", result.err().unwrap());
-                    }
                 }
                 Event::DeviceEvent { device_id, event } => {
                     state.input(&event);
@@ -260,6 +292,589 @@ impl ModelRunner {
                                 },
                             ..
                         } => *control_flow = ControlFlow::Exit,
+
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::R),
+                                    modifiers,
+                                    ..
+                                },
+                            ..
+                        } => {
+                            let mut cf = config.borrow_mut();
+                            let modifier = if modifiers.shift() {
+                                if modifiers.alt() {
+                                    0.99
+                                } else {
+                                    0.9
+                                }
+                            } else {
+                                if modifiers.alt() {
+                                    1.01
+                                } else {
+                                    1.1
+                                }
+                            };
+                            cf.grid_cylinder_radius = cf.grid_cylinder_radius * modifier;
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::A),
+                                    modifiers,
+                                    ..
+                                },
+                            ..
+                        } => {
+                            let mut cf = config.borrow_mut();
+                            let modifier = if modifiers.shift() {
+                                if modifiers.alt() {
+                                    0.99
+                                } else {
+                                    0.9
+                                }
+                            } else {
+                                if modifiers.alt() {
+                                    1.01
+                                } else {
+                                    1.1
+                                }
+                            };
+                            cf.grid_cylinder_length = cf.grid_cylinder_length * modifier;
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::C),
+                                    modifiers,
+                                    ..
+                                },
+                            ..
+                        } => {
+                            let mut cf = config.borrow_mut();
+                            let modifier = if modifiers.shift() {
+                                if modifiers.alt() {
+                                    0.99
+                                } else {
+                                    0.9
+                                }
+                            } else {
+                                if modifiers.alt() {
+                                    1.01
+                                } else {
+                                    1.1
+                                }
+                            };
+                            cf.grid_cone_length = cf.grid_cone_length * modifier;
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::K),
+                                    modifiers,
+                                    ..
+                                },
+                            ..
+                        } => {
+                            let mut cf = config.borrow_mut();
+                            let modifier = if modifiers.shift() {
+                                if modifiers.alt() {
+                                    0.99
+                                } else {
+                                    0.9
+                                }
+                            } else {
+                                if modifiers.alt() {
+                                    1.01
+                                } else {
+                                    1.1
+                                }
+                            };
+                            cf.grid_cone_radius = cf.grid_cone_radius * modifier;
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::H),
+                                    modifiers,
+                                    ..
+                                },
+                            ..
+                        } => {
+                            let mut cf = config.borrow_mut();
+                            let modifier = if modifiers.shift() {
+                                if modifiers.alt() {
+                                    0.99
+                                } else {
+                                    0.9
+                                }
+                            } else {
+                                if modifiers.alt() {
+                                    1.01
+                                } else {
+                                    1.1
+                                }
+                            };
+                            cf.z_height_ratio = cf.z_height_ratio * modifier;
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::O),
+                                    modifiers,
+                                    ..
+                                },
+                            ..
+                        } => {
+                            let mut cf = config.borrow_mut();
+                            let modifier = if modifiers.shift() {
+                                if modifiers.alt() {
+                                    0.99
+                                } else {
+                                    0.9
+                                }
+                            } else {
+                                if modifiers.alt() {
+                                    1.01
+                                } else {
+                                    1.1
+                                }
+                            };
+                            cf.glyph_offset = cf.glyph_offset * modifier;
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::E),
+                                    modifiers,
+                                    ..
+                                },
+                            ..
+                        } => {
+                            let mut cf = config.borrow_mut();
+                            let modifier = if modifiers.shift() {
+                                if modifiers.alt() {
+                                    0.99
+                                } else {
+                                    0.9
+                                }
+                            } else {
+                                if modifiers.alt() {
+                                    1.01
+                                } else {
+                                    1.1
+                                }
+                            };
+                            cf.min_glyph_height = cf.min_glyph_height * modifier;
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::S),
+                                    modifiers,
+                                    ..
+                                },
+                            ..
+                        } => {
+                            let mut cf = config.borrow_mut();
+                            let modifier = if modifiers.shift() {
+                                if modifiers.alt() {
+                                    0.99
+                                } else {
+                                    0.9
+                                }
+                            } else {
+                                if modifiers.alt() {
+                                    1.01
+                                } else {
+                                    1.1
+                                }
+                            };
+                            cf.glyph_size = cf.glyph_size * modifier;
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::W),
+                                    modifiers,
+                                    ..
+                                },
+                            ..
+                        } => {
+                            let mut cf = config.borrow_mut();
+                            if modifiers.shift() {
+                                cf.light_color = [255.0, 255.0, 255.0, 1.0];
+                            } else {
+                                cf.light_color = [255.0, 0.0, 0.0, 1.0];
+                            }
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::L),
+                                    modifiers,
+                                    ..
+                                },
+                            ..
+                        } => {
+                            let mut cf = config.borrow_mut();
+                            let modifier = if modifiers.shift() {
+                                if modifiers.alt() {
+                                    0.99
+                                } else {
+                                    0.9
+                                }
+                            } else {
+                                if modifiers.alt() {
+                                    1.01
+                                } else {
+                                    1.1
+                                }
+                            };
+                            cf.light_location = [
+                                cf.light_location[0] * modifier,
+                                cf.light_location[1] * modifier,
+                                cf.light_location[2] * modifier,
+                            ];
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::I),
+                                    modifiers,
+                                    ..
+                                },
+                            ..
+                        } => {
+                            let mut cf = config.borrow_mut();
+                            let modifier = if modifiers.shift() {
+                                if modifiers.alt() {
+                                    0.99
+                                } else {
+                                    0.9
+                                }
+                            } else {
+                                if modifiers.alt() {
+                                    1.01
+                                } else {
+                                    1.1
+                                }
+                            };
+                            cf.light_intensity = cf.light_intensity * modifier;
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::X),
+                                    modifiers,
+                                    ..
+                                },
+                            ..
+                        } => {
+                            let mut cf = config.borrow_mut();
+                            if modifiers.shift() {
+                                x_color_index -= 1;
+                            } else {
+                                x_color_index += 1;
+                            }
+                            let x_color = color_wheel.get_color(x_color_index);
+                            cf.x_axis_color = x_color;
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::Y),
+                                    modifiers,
+                                    ..
+                                },
+                            ..
+                        } => {
+                            let mut cf = config.borrow_mut();
+                            if modifiers.shift() {
+                                y_color_index -= 1;
+                            } else {
+                                y_color_index += 1;
+                            }
+                            let y_color = color_wheel.get_color(y_color_index);
+                            cf.y_axis_color = y_color;
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::Z),
+                                    modifiers,
+                                    ..
+                                },
+                            ..
+                        } => {
+                            let mut cf = config.borrow_mut();
+                            if modifiers.shift() {
+                                z_color_index -= 1;
+                            } else {
+                                z_color_index += 1;
+                            }
+                            let z_color = color_wheel.get_color(z_color_index);
+                            cf.z_axis_color = z_color;
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::M),
+                                    modifiers,
+                                    ..
+                                },
+                            ..
+                        } => {
+                            let mut cf = config.borrow_mut();
+                            if modifiers.shift() {
+                                max_color_index -= 1;
+                            } else {
+                                max_color_index += 1;
+                            }
+                            let color = color_wheel.get_color(max_color_index);
+                            cf.max_color = color;
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::N),
+                                    modifiers,
+                                    ..
+                                },
+                            ..
+                        } => {
+                            let mut cf = config.borrow_mut();
+                            if modifiers.shift() {
+                                min_color_index -= 1;
+                            } else {
+                                min_color_index += 1;
+                            }
+                            let color = color_wheel.get_color(min_color_index);
+                            cf.min_color = color;
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::B),
+                                    modifiers,
+                                    ..
+                                },
+                            ..
+                        } => {
+                            let mut cf = config.borrow_mut();
+                            if modifiers.shift() {
+                                background_color_index -= 1;
+                            } else {
+                                background_color_index += 1;
+                            }
+                            let color = color_wheel.get_color(background_color_index);
+                            cf.background_color = color;
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::G),
+                                    modifiers,
+                                    ..
+                                },
+                            ..
+                        } => {
+                            let mut cf = config.borrow_mut();
+                            let modifier = if modifiers.shift() {
+                                if modifiers.alt() {
+                                    0.99
+                                } else {
+                                    0.9
+                                }
+                            } else {
+                                if modifiers.alt() {
+                                    1.01
+                                } else {
+                                    1.1
+                                }
+                            };
+                            cf.model_origin = [
+                                cf.model_origin[0] * modifier,
+                                cf.model_origin[1] * modifier,
+                                cf.model_origin[2] * modifier,
+                            ];
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+
+
 
                         WindowEvent::Resized(physical_size) => {
                             state.resize(*physical_size);
