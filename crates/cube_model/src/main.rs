@@ -13,8 +13,8 @@ fn main() {
     let mut glyphs: Vec<Glyph> = Vec::new();
     //Build some vectors
     for i in 0..100 {
-        x_vectors.push(Vector::new(VectorOrigionalValue::U64(i), i as f64, 1));
-        y_vectors.push(Vector::new(VectorOrigionalValue::U64(i), i as f64, 1));
+        x_vectors.push(Vector::new(VectorOrigionalValue::U64(i), i as f64, i));
+        y_vectors.push(Vector::new(VectorOrigionalValue::U64(i), i as f64, i));
     }
 
     //Build some glyphs

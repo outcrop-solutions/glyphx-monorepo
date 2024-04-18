@@ -82,11 +82,13 @@ impl ModelRunner {
 
     ///Will force a redraw of the model, if the model is running.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn update_configuration(&self, config: &str) {
+    pub fn update_configuration(&self, config: &str) -> Result<(), String >{
         let value: Value = from_str(config).unwrap();
         let mut configuration = self.configuration.borrow_mut();
-        //TODO: Handle errors
-        let _ = configuration.partial_update(&value);
+        let result  = configuration.partial_update(&value);
+        if result.is_err() {
+            return Err(serde_json::to_string(&result.unwrap_err()).unwrap());
+        }
         unsafe {
             if self.is_running {
                 let event = ModelEvent::Redraw;
@@ -100,6 +102,7 @@ impl ModelRunner {
                 }
             }
         }
+        Ok(())
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
@@ -149,32 +152,41 @@ impl ModelRunner {
     ///Adding a vector will update internal state but it
     ///will not emit any redraw events.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn add_vector(&self, axis: &str, data: Vec<u8>) {
+    pub fn add_vector(&self, axis: &str, data: Vec<u8>) -> Result<(), String>{
         let mut dm = self.data_manager.borrow_mut();
+        let result = 
         if axis == "x" {
-            //TODO: Handle errors
-            let _ = dm.add_x_vector(data);
+            dm.add_x_vector(data)
         } else {
-            //TODO: Handle errors
-            let _ = dm.add_z_vector(data);
+            dm.add_z_vector(data)
+        };
+        match result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(serde_json::to_string(&e).unwrap()),
         }
     }
     //Adding statistics will update internal state but it
     //will not emit any redraw events.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn add_statstics(&self, data: Vec<u8>) {
+    pub fn add_statstics(&self, data: Vec<u8>) -> Result<(), String>{
         let mut dm = self.data_manager.borrow_mut();
-        //TODO: Handle errors
-        let _ = dm.add_stats(data);
+        let result = dm.add_stats(data);
+        match result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(serde_json::to_string(&e).unwrap()),
+        }
     }
 
     ///Adding a glyph will update internal state but it
     ///will not emit any redraw events.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn add_glyph(&self, data: Vec<u8>) {
+    pub fn add_glyph(&self, data: Vec<u8>)-> Result<(), String> {
         let mut dm = self.data_manager.borrow_mut();
-        //TODO: Handle errors
-        let _ = dm.add_glyph(data);
+        let result = dm.add_glyph(data);
+        match result {
+            Ok(_) => Ok(()),
+            Err(e) => Err(serde_json::to_string(&e).unwrap()),
+        }
     }
 
     fn init_logger(&self) {
@@ -873,8 +885,6 @@ impl ModelRunner {
                                     .unwrap();
                             }
                         }
-
-
 
                         WindowEvent::Resized(physical_size) => {
                             state.resize(*physical_size);
