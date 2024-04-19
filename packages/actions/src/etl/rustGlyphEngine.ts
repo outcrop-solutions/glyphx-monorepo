@@ -5,6 +5,7 @@ import {databaseTypes, fileIngestionTypes, glyphEngineTypes, rustGlyphEngineType
 import {generateFilterQuery} from '../utils';
 import {generalPurposeFunctions as sharedFunctions} from 'core';
 import {hashFileSystem, hashPayload} from 'business/src/util/hashFunctions';
+import {s3Connection} from '../../../business/src/lib';
 
 // WASM BINDINGS SETUP
 interface IBindings {
@@ -30,6 +31,7 @@ class Bindings extends ModuleLoader<IBindings> {
     try {
       result = await internalModule.exports.glyph_engine(args);
     } catch (e) {
+      // TODO: parse error as JSON?
       let er = new error.ActionError(
         'An error occurred while running the glyph_engine.  See the inner error for additional information',
         'glyph_engine',
@@ -90,11 +92,27 @@ export async function runGlyphEngineAction(
   properties: databaseTypes.IProject['state']['properties']
 ): Promise<any> {
   try {
+    // validate input
+    if (typeof project?.workspace?.id !== 'string' || project?.workspace?.id?.length === 0) {
+      throw new error.InvalidArgumentError('No workspace id provided', 'project.workspace.id', project);
+    }
+    if (typeof project?.id !== 'string' || project?.workspace?.id?.length === 0) {
+      throw new error.InvalidArgumentError('No project id provided', 'project.id', project);
+    }
+    if (project.files.length > 0) {
+      throw new error.InvalidArgumentError(
+        'No files present, upload a file and drop columns before running glyph engine',
+        'project',
+        project
+      );
+    }
+
     const payload = buildRustPayload(project, properties);
     // @ts-ignore
     if (!payload?.error) {
       // @ts-expect-error
       const result = await runGlyphEngine(payload);
+      await signRustFiles(project.workspace.id, project.id);
       console.log({result});
       return result;
     } else {
@@ -121,6 +139,7 @@ export async function runGlyphEngineAction(
 
 /**
  * Builds the payload sent to the rust glyphengine
+ * (we check the params in the calling function once)
  * @param project
  * @param properties
  */
@@ -129,109 +148,94 @@ export const buildRustPayload = (
   properties: databaseTypes.IProject['state']['properties']
 ): rustGlyphEngineTypes.IGlyphEngineArgs | {error: string} => {
   try {
-    if (typeof project?.workspace?.id !== 'string' || project?.workspace?.id?.length === 0) {
-      throw new error.InvalidArgumentError('No workspace id provided', 'project.workspace.id', project);
-    }
-    if (typeof project?.id !== 'string' || project?.workspace?.id?.length === 0) {
-      throw new error.InvalidArgumentError('No project id provided', 'project.id', project);
-    }
+    // we assume that the values exist and then check the payload once it's formed
+    // we could also do the reverse and consolidate the above conditional into the check performed before submitting the payload to the wasm module
+    const fullTableName = sharedFunctions.fileIngestion.getFullTableName(
+      project?.workspace?.id as string,
+      project?.id as string,
+      project?.files[0].tableName as string
+    );
+    const payloadHash = hashPayload(hashFileSystem(project.files), project);
 
-    if (project.files.length > 0) {
-      // we assume that the values exist and then check the payload once it's formed
-      // we could also do the reverse and consolidate the above conditional into the check performed before submitting the payload to the wasm module
-      const fullTableName = sharedFunctions.fileIngestion.getFullTableName(
-        project?.workspace?.id as string,
-        project?.id as string,
-        project?.files[0].tableName as string
-      );
-      const payloadHash = hashPayload(hashFileSystem(project.files), project);
+    // This is done so that we don't erroneously include undefined dateGrouping members in non date field definitions
+    const xDateGrouping =
+      properties[webTypes.constants.AXIS.X]['dataType'] === fileIngestionTypes.constants.FIELD_TYPE.DATE
+        ? {
+            dateGrouping:
+              properties[webTypes.constants.AXIS.X]['dateGrouping'] ||
+              glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR, // defaults to day of year if not present
+          }
+        : {};
+    const yDateGrouping =
+      properties[webTypes.constants.AXIS.Y]['dataType'] === fileIngestionTypes.constants.FIELD_TYPE.DATE
+        ? {
+            dateGrouping:
+              properties[webTypes.constants.AXIS.Y]['dateGrouping'] ||
+              glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR, // defaults to day of year if not present
+          }
+        : {};
+    const zDateGrouping =
+      properties[webTypes.constants.AXIS.Z]['dataType'] === fileIngestionTypes.constants.FIELD_TYPE.DATE
+        ? {
+            dateGrouping:
+              properties[webTypes.constants.AXIS.Z]['dateGrouping'] ||
+              glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR, // defaults to day of year if not present
+          }
+        : {};
 
-      // This is done so that we don't erroneously include undefined dateGrouping members in non date field definitions
-      const xDateGrouping =
-        properties[webTypes.constants.AXIS.X]['dataType'] === fileIngestionTypes.constants.FIELD_TYPE.DATE
-          ? {
-              dateGrouping:
-                properties[webTypes.constants.AXIS.X]['dateGrouping'] ||
-                glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR, // defaults to day of year if not present
-            }
-          : {};
-      const yDateGrouping =
-        properties[webTypes.constants.AXIS.Y]['dataType'] === fileIngestionTypes.constants.FIELD_TYPE.DATE
-          ? {
-              dateGrouping:
-                properties[webTypes.constants.AXIS.Y]['dateGrouping'] ||
-                glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR, // defaults to day of year if not present
-            }
-          : {};
-      const zDateGrouping =
-        properties[webTypes.constants.AXIS.Z]['dataType'] === fileIngestionTypes.constants.FIELD_TYPE.DATE
-          ? {
-              dateGrouping:
-                properties[webTypes.constants.AXIS.Z]['dateGrouping'] ||
-                glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR, // defaults to day of year if not present
-            }
-          : {};
-
-      // build payload
-      const retval = {
-        workspace_id: project.workspace.id as string,
-        project_id: project.id as string,
-        //Should be 'client' for non testing workloads
-        output_file_prefix: 'client',
-        data_table_name: fullTableName,
-        model_hash: payloadHash,
-        xAxis: {
-          fieldDisplayName: properties[webTypes.constants.AXIS.X]['key'],
-          fieldDataType: properties[webTypes.constants.AXIS.X][
-            'dataType'
-          ] as unknown as rustGlyphEngineTypes.constants.FieldDataType, //
-          fieldDefinition: {
-            fieldName: properties[webTypes.constants.AXIS.X]['key'],
-            fieldType: getFieldType(webTypes.constants.AXIS.X, properties),
-            ...xDateGrouping,
-          },
+    // build payload
+    const retval = {
+      workspace_id: project.workspace.id as string,
+      project_id: project.id as string,
+      //Should be 'client' for non testing workloads
+      output_file_prefix: 'client',
+      data_table_name: fullTableName,
+      model_hash: payloadHash,
+      xAxis: {
+        fieldDisplayName: properties[webTypes.constants.AXIS.X]['key'],
+        fieldDataType: properties[webTypes.constants.AXIS.X][
+          'dataType'
+        ] as unknown as rustGlyphEngineTypes.constants.FieldDataType, //
+        fieldDefinition: {
+          fieldName: properties[webTypes.constants.AXIS.X]['key'],
+          fieldType: getFieldType(webTypes.constants.AXIS.X, properties),
+          ...xDateGrouping,
         },
-        yAxis: {
-          fieldDisplayName: properties[webTypes.constants.AXIS.Y]['key'],
-          fieldDataType: properties[webTypes.constants.AXIS.Y]['dataType'],
-          fieldDefinition: {
-            fieldName: properties[webTypes.constants.AXIS.Y]['key'],
-            fieldType: getFieldType(webTypes.constants.AXIS.Y, properties),
-            ...yDateGrouping,
-          },
+      },
+      yAxis: {
+        fieldDisplayName: properties[webTypes.constants.AXIS.Y]['key'],
+        fieldDataType: properties[webTypes.constants.AXIS.Y]['dataType'],
+        fieldDefinition: {
+          fieldName: properties[webTypes.constants.AXIS.Y]['key'],
+          fieldType: getFieldType(webTypes.constants.AXIS.Y, properties),
+          ...yDateGrouping,
         },
-        zAxis: {
-          fieldDisplayName: properties[webTypes.constants.AXIS.Z]['key'],
-          fieldDataType: properties[webTypes.constants.AXIS.Z]['dataType'],
-          fieldDefinition: {
-            fieldName: properties[webTypes.constants.AXIS.Z]['key'],
-            fieldType: 'accumulated',
-            accumulatedField: {
-              fieldName: properties[webTypes.constants.AXIS.Z]['key'], // TODO: @jp-burford do accumulated field definitions not ahve field names?
-              fieldType: getFieldType(webTypes.constants.AXIS.Z, properties),
-              // should this be included in the  IAccumulatedFieldDefinition interface
-              ...zDateGrouping,
-            },
-            accumulatorType: properties[webTypes.constants.AXIS.Z]['accumulatorType']?.toLowerCase(), // convert between accumulatorType casing in rust glyphengine
+      },
+      zAxis: {
+        fieldDisplayName: properties[webTypes.constants.AXIS.Z]['key'],
+        fieldDataType: properties[webTypes.constants.AXIS.Z]['dataType'],
+        fieldDefinition: {
+          fieldName: properties[webTypes.constants.AXIS.Z]['key'],
+          fieldType: 'accumulated',
+          accumulatedField: {
+            fieldName: properties[webTypes.constants.AXIS.Z]['key'], // TODO: @jp-burford do accumulated field definitions not ahve field names?
+            fieldType: getFieldType(webTypes.constants.AXIS.Z, properties),
+            // should this be included in the  IAccumulatedFieldDefinition interface
+            ...zDateGrouping,
           },
+          accumulatorType: properties[webTypes.constants.AXIS.Z]['accumulatorType']?.toLowerCase(), // convert between accumulatorType casing in rust glyphengine
         },
-        filter: generateFilterQuery(project),
-      };
+      },
+      filter: generateFilterQuery(project),
+    };
 
-      // checks for validity of naively created payload before returning
-      const isValid = checkRustGlyphEnginePayload(retval as unknown as rustGlyphEngineTypes.IGlyphEngineArgs);
+    // checks for validity of naively created payload before returning
+    const isValid = checkRustGlyphEnginePayload(retval as unknown as rustGlyphEngineTypes.IGlyphEngineArgs);
 
-      if (isValid) {
-        return retval as unknown as rustGlyphEngineTypes.IGlyphEngineArgs;
-      } else {
-        throw new error.ActionError('Rust glyphengine payload is invalid', 'etl', {project, properties}, {});
-      }
+    if (isValid) {
+      return retval as unknown as rustGlyphEngineTypes.IGlyphEngineArgs;
     } else {
-      throw new error.InvalidArgumentError(
-        'No files present, upload a file and drop columns before running glyph engine',
-        'project',
-        project
-      );
+      throw new error.ActionError('Rust glyphengine payload is invalid', 'etl', {project, properties}, {});
     }
   } catch (err) {
     const e = new error.ActionError(
@@ -331,6 +335,56 @@ export const checkRustGlyphEnginePayload = (payload: rustGlyphEngineTypes.IGlyph
       'An unexpected error occurred checking the rust GlyphEngine payload',
       'etl',
       {payload},
+      err
+    );
+    e.publish('etl', constants.ERROR_SEVERITY.ERROR);
+    return {error: e.message};
+  }
+};
+
+/**
+ * Gets the signed urls to download from s3
+ * @param workspaceId
+ * @param projectId
+ * @param payloadHash
+ * @returns
+ */
+export const signRustFiles = async (workspaceId: string, projectId: string, payloadHash: string) => {
+  try {
+    // init S3 client
+    await s3Connection.init();
+    const s3Manager = s3Connection.s3Manager;
+
+    const vectors = Object.values(webTypes.constants.AXIS)
+      .map((ax) => ax.toLowerCase())
+      .map((axis) => {
+        return `client/${workspaceId}/${projectId}/output/${payloadHash}-${axis}-axis.vec`;
+      });
+
+    const urls = [
+      ...vectors,
+      `client/${workspaceId}/${projectId}/output/${payloadHash}.gly`,
+      `client/${workspaceId}/${projectId}/output/${payloadHash}.sts`,
+    ];
+    // Create an array of promises
+    const promises = urls.map((url) => s3Manager.getSignedDataUrlPromise(url));
+    // Use Promise.all to fetch all URLs concurrently
+    const signedUrls = await Promise.all(promises);
+
+    const stsUrl = signedUrls.find((u: string) => u.includes('.sts'));
+    const glyUrl = signedUrls.find((u: string) => u.includes('.gly'));
+    const vectorUrls = signedUrls.filter((u: string) => u.includes('.vec'));
+
+    return {
+      stsUrl,
+      glyUrl,
+      vectorUrls,
+    };
+  } catch (err) {
+    const e = new error.ActionError(
+      'An unexpected error occurred signing rust vector urls',
+      'etl',
+      {workspaceId, projectId, payloadHash},
       err
     );
     e.publish('etl', constants.ERROR_SEVERITY.ERROR);

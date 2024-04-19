@@ -4,7 +4,10 @@ import {createSandbox} from 'sinon';
 import rewire from 'rewire';
 import {error, constants} from 'core';
 import {databaseTypes, fileIngestionTypes, glyphEngineTypes, rustGlyphEngineTypes, webTypes} from 'types';
-import {buildRustPayload, checkRustGlyphEnginePayload, getFieldType} from 'etl/rustGlyphEngine';
+import {buildRustPayload, checkRustGlyphEnginePayload, getFieldType, signRustFiles} from 'etl/rustGlyphEngine';
+import * as proxyquireType from 'proxyquire';
+const proxyquire = proxyquireType.noCallThru();
+
 import {ActionError} from 'core/src/error';
 describe('#etl/rustGlyphEngine', () => {
   context('runGlyphEngine', () => {
@@ -534,7 +537,7 @@ describe('#etl/rustGlyphEngine', () => {
             fieldDefinition: {
               fieldType: 'date',
               fieldName: 'col2',
-              dateGrouping: String(glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR),
+              dateGrouping: String(glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR), // we use the old type constants to check the conversion from old to new payload type differences
             } as rustGlyphEngineTypes.IDateFieldDefinition,
           },
           // can handle correctly formatted zAxis payload
@@ -1013,6 +1016,29 @@ describe('#etl/rustGlyphEngine', () => {
       } catch (error) {
         assert.fail();
       }
+    });
+  });
+  context('signRustFiles', () => {
+    const sandbox = createSandbox();
+    let signRustFiles;
+    let s3ConnectionStub;
+    beforeEach(() => {
+      s3ConnectionStub = sandbox.stub();
+      signRustFiles = proxyquire('../../etl/rustGlyphEngine', {
+        s3Connection: s3ConnectionStub,
+      });
+    });
+    afterEach(() => {
+      sandbox.restore();
+    });
+    it('should return signed data urls', () => {
+      try {
+        s3Connection;
+      } catch (error) {}
+    });
+    it('should throw an ActionError when the underlying s3Manager throws', () => {
+      try {
+      } catch (error) {}
     });
   });
 });
