@@ -6,6 +6,7 @@ import {
   dataGridPayloadSelector,
   doesStateExistSelector,
   drawerOpenAtom,
+  modelRunnerAtom,
   projectAtom,
   projectSegmentAtom,
   propertiesSelector,
@@ -20,7 +21,17 @@ import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
 import {useUrl} from 'lib/client/hooks';
 import {isValidPayload} from 'lib/utils/isValidPayload';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
-import {buildRustPayload, getFieldType, runGlyphEngine, runGlyphEngineAction, updateProjectState} from 'actions';
+import {
+  buildRustPayload,
+  getFieldType,
+  handleStream,
+  processGlyphData,
+  processStatsData,
+  processVectorData,
+  runGlyphEngine,
+  runGlyphEngineAction,
+  updateProjectState,
+} from 'actions';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
 import {databaseTypes, fileIngestionTypes, glyphEngineTypes, rustGlyphEngineTypes, webTypes} from 'types';
 import {FieldDataType} from 'types/src/rustGlyphEngine/constants';
@@ -30,6 +41,7 @@ import {WritableDraft} from 'immer/dist/internal';
 export const Properties = () => {
   const session = useSession();
   const {mutate} = useSWRConfig();
+  const modelRunner = useRecoilValue(modelRunnerAtom);
   const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
@@ -96,20 +108,24 @@ export const Properties = () => {
       );
       try {
         // run glyph engine
-        const result = await runGlyphEngineAction(project, properties);
-        console.log({result});
+        const {stsUrl, glyUrl, xVec, yVec} = await runGlyphEngineAction(project, properties);
+
+        // First, handle statistics and vectors concurrently
+        // process stats and vectors before glyphs
+        await Promise.all([
+          handleStream(stsUrl, processStatsData),
+          handleStream(xVec, processVectorData('x', modelRunner)),
+          handleStream(yVec, processVectorData('y', modelRunner)),
+        ]);
+
+        await handleStream(glyUrl, processGlyphData);
+
+        // load glyphs
       } catch (error) {
         console.log({error});
       }
-      // if (!result?.error) {
-      //   setLoading(
-      //     produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-      //       draft.processName = 'Fetching Data...';
-      //     })
-      //   );
-      // }
     },
-    [project, properties, setLoading]
+    [modelRunner, project, properties, setLoading]
   );
 
   const runRust = isWebGPUEnabled && segment === 'CONFIG';

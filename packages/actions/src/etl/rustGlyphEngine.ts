@@ -2,10 +2,10 @@
 import ModuleLoader from '../utils/moduleLoader';
 import {error, constants} from 'core';
 import {databaseTypes, fileIngestionTypes, glyphEngineTypes, rustGlyphEngineTypes, webTypes} from 'types';
-import {generateFilterQuery} from '../utils';
 import {generalPurposeFunctions as sharedFunctions} from 'core';
 import {hashFileSystem, hashPayload} from 'business/src/util/hashFunctions';
 import {s3Connection} from '../../../business/src/lib';
+import {generateFilterQuery} from '../utils/generateFilterQuery';
 
 // WASM BINDINGS SETUP
 interface IBindings {
@@ -33,7 +33,25 @@ class Bindings extends ModuleLoader<IBindings> {
     } catch (e) {
       // TODO: parse error as JSON?
       let er = new error.ActionError(
-        'An error occurred while running the glyph_engine.  See the inner error for additional information',
+        'An error occurred while running the glyph_engine. See the inner error for additional information',
+        'glyph_engine',
+        args,
+        e
+      );
+      er.publish(constants.ERROR_SEVERITY.ERROR);
+      return er;
+    }
+    return result;
+  }
+
+  public async addVector(args: rustGlyphEngineTypes.IGlyphEngineArgs): Promise<any | error.ActionError> {
+    let result: rustGlyphEngineTypes.IGlyphEngineResults;
+    try {
+      result = await internalModule.exports.glyph_engine(args);
+    } catch (e) {
+      // TODO: parse error as JSON?
+      let er = new error.ActionError(
+        'An error occurred while adding vectors. See the inner error for additional information',
         'glyph_engine',
         args,
         e
@@ -106,15 +124,22 @@ export async function runGlyphEngineAction(
         project
       );
     }
+    const workspaceId = project.workspace.id;
+    const projectId = project.id;
+    const payloadHash = hashPayload(hashFileSystem(project.files), project);
 
     const payload = buildRustPayload(project, properties);
     // @ts-ignore
     if (!payload?.error) {
       // @ts-expect-error
       const result = await runGlyphEngine(payload);
-      await signRustFiles(project.workspace.id, project.id);
-      console.log({result});
-      return result;
+
+      if (result) {
+        // TODO: handle error here
+        const {stsUrl, glyUrl, xVec, yVec} = await signRustFiles(workspaceId, projectId, payloadHash);
+        console.log({stsUrl, glyUrl, xVec, yVec});
+        return {stsUrl, glyUrl, xVec, yVec};
+      }
     } else {
       const e = new error.ActionError(
         'An unexpected error occurred running the rust glyphengine',
@@ -355,14 +380,9 @@ export const signRustFiles = async (workspaceId: string, projectId: string, payl
     await s3Connection.init();
     const s3Manager = s3Connection.s3Manager;
 
-    const vectors = Object.values(webTypes.constants.AXIS)
-      .map((ax) => ax.toLowerCase())
-      .map((axis) => {
-        return `client/${workspaceId}/${projectId}/output/${payloadHash}-${axis}-axis.vec`;
-      });
-
     const urls = [
-      ...vectors,
+      `client/${workspaceId}/${projectId}/output/${payloadHash}-x-axis.vec`,
+      `client/${workspaceId}/${projectId}/output/${payloadHash}-y-axis.vec`,
       `client/${workspaceId}/${projectId}/output/${payloadHash}.gly`,
       `client/${workspaceId}/${projectId}/output/${payloadHash}.sts`,
     ];
@@ -373,12 +393,14 @@ export const signRustFiles = async (workspaceId: string, projectId: string, payl
 
     const stsUrl = signedUrls.find((u: string) => u.includes('.sts'));
     const glyUrl = signedUrls.find((u: string) => u.includes('.gly'));
-    const vectorUrls = signedUrls.filter((u: string) => u.includes('.vec'));
+    const xVec = signedUrls.filter((u: string) => u.includes('x-axis.vec'));
+    const yVec = signedUrls.filter((u: string) => u.includes('y-axis.vec'));
 
     return {
       stsUrl,
       glyUrl,
-      vectorUrls,
+      xVec,
+      yVec,
     };
   } catch (err) {
     const e = new error.ActionError(
@@ -391,3 +413,107 @@ export const signRustFiles = async (workspaceId: string, projectId: string, payl
     return {error: e.message};
   }
 };
+
+/**
+ * Generic stream handler
+ * @param url
+ * @param processData
+ */
+export const handleStream = async (url, processData) => {
+  const response = await fetch(url);
+  if (response.body) {
+    const reader = response.body.getReader();
+    let buffer = new Uint8Array();
+
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+
+      buffer = new Uint8Array([...buffer, ...value]);
+
+      // Call processData which is expected to process and modify buffer
+      buffer = processData(buffer);
+    }
+
+    // Handle any remaining buffer data
+    if (buffer.length > 0) {
+      console.error('Unhandled remaining data:', buffer);
+    }
+  }
+};
+
+/**
+ * Specialized buffer processor for vector stream
+ * @param buffer
+ * @returns
+ */
+export const processVectorData = (axis, modelRunner) => (buffer) => {
+  while (buffer.length >= 8) {
+    const length = new DataView(buffer.buffer).getUint32(0, true);
+    if (buffer.length >= 8 + length) {
+      const vectorData = buffer.slice(8, 8 + length);
+      modelRunner.addVector(axis, vectorData); // Assuming axis handling is integrated
+      buffer = buffer.slice(8 + length);
+    } else {
+      break;
+    }
+  }
+  return buffer;
+};
+
+/**
+ * Not built out yet
+ * @param buffer
+ * @returns
+ */
+export const processStatsData = (buffer) => {
+  return buffer;
+};
+// /**
+//  * Ensures that when we add vectors that the data is complete and in correct format
+//  * @param url
+//  * @param axis
+//  * @param modelRunner // dependency injected, not sure if this will work the way we want to
+//  */
+// export const handleVectorStream = async (url, axis, modelRunner) => {
+//   try {
+//     const response = await fetch(url);
+//     if (response.body) {
+//       const reader = response.body.getReader();
+//       let buffer = new Uint8Array();
+
+//       while (true) {
+//         const {done, value} = await reader.read();
+//         if (done) break;
+
+//         // Concatenate new chunk to the buffer
+//         buffer = new Uint8Array([...buffer, ...value]);
+
+//         while (buffer.length >= 8) {
+//           // Read the length of the next vector
+//           const length = new DataView(buffer.buffer).getUint32(0, true);
+
+//           // Check if we have the full vector in the buffer
+//           if (buffer.length >= 8 + length) {
+//             const vectorData = buffer.slice(8, 8 + length);
+
+//             // Process the complete vector
+//             await modelRunner.addVector(axis, vectorData);
+
+//             // Remove processed vector from buffer
+//             buffer = buffer.slice(8 + length);
+//           } else {
+//             // Not enough data to form the next vector, wait for more data
+//             break;
+//           }
+//         }
+//       }
+
+//       // Final cleanup: process any remaining data if applicable
+//       if (buffer.length > 0) {
+//         // Handle any remaining bytes according to your application's needs
+//         console.log('Unhandled remaining data:', buffer);
+//       }
+//     }
+//   } catch (error) {}
+// };

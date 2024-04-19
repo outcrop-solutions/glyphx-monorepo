@@ -9,6 +9,7 @@ import * as proxyquireType from 'proxyquire';
 const proxyquire = proxyquireType.noCallThru();
 
 import {ActionError} from 'core/src/error';
+import {s3Connection} from 'business';
 describe('#etl/rustGlyphEngine', () => {
   context('runGlyphEngine', () => {
     const sandbox = createSandbox();
@@ -1020,20 +1021,13 @@ describe('#etl/rustGlyphEngine', () => {
   });
   context('signRustFiles', () => {
     const sandbox = createSandbox();
-    let signRustFiles;
-    let s3ConnectionStub;
-    beforeEach(() => {
-      s3ConnectionStub = sandbox.stub();
-      signRustFiles = proxyquire('../../etl/rustGlyphEngine', {
-        s3Connection: s3ConnectionStub,
-      });
-    });
+
     afterEach(() => {
       sandbox.restore();
     });
     it('should return signed data urls', () => {
       try {
-        s3Connection;
+        // const workspaceId =
       } catch (error) {}
     });
     it('should throw an ActionError when the underlying s3Manager throws', () => {
