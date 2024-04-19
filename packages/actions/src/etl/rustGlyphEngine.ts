@@ -43,24 +43,6 @@ class Bindings extends ModuleLoader<IBindings> {
     }
     return result;
   }
-
-  public async addVector(args: rustGlyphEngineTypes.IGlyphEngineArgs): Promise<any | error.ActionError> {
-    let result: rustGlyphEngineTypes.IGlyphEngineResults;
-    try {
-      result = await internalModule.exports.glyph_engine(args);
-    } catch (e) {
-      // TODO: parse error as JSON?
-      let er = new error.ActionError(
-        'An error occurred while adding vectors. See the inner error for additional information',
-        'glyph_engine',
-        args,
-        e
-      );
-      er.publish(constants.ERROR_SEVERITY.ERROR);
-      return er;
-    }
-    return result;
-  }
   // public hello(): string {
   //   return internalModule.exports.hello();
   // }
@@ -108,7 +90,7 @@ export async function convertGlyphxError(): Promise<any> {
 export async function runGlyphEngineAction(
   project: databaseTypes.IProject,
   properties: databaseTypes.IProject['state']['properties']
-): Promise<any> {
+) {
   try {
     // validate input
     if (typeof project?.workspace?.id !== 'string' || project?.workspace?.id?.length === 0) {
@@ -117,38 +99,24 @@ export async function runGlyphEngineAction(
     if (typeof project?.id !== 'string' || project?.workspace?.id?.length === 0) {
       throw new error.InvalidArgumentError('No project id provided', 'project.id', project);
     }
-    if (project.files.length > 0) {
+    if (project.files.length === 0) {
+      console.log('3');
       throw new error.InvalidArgumentError(
         'No files present, upload a file and drop columns before running glyph engine',
         'project',
         project
       );
     }
+
     const workspaceId = project.workspace.id;
     const projectId = project.id;
     const payloadHash = hashPayload(hashFileSystem(project.files), project);
-
     const payload = buildRustPayload(project, properties);
-    // @ts-ignore
-    if (!payload?.error) {
-      // @ts-expect-error
-      const result = await runGlyphEngine(payload);
 
-      if (result) {
-        // TODO: handle error here
-        const {stsUrl, glyUrl, xVec, yVec} = await signRustFiles(workspaceId, projectId, payloadHash);
-        console.log({stsUrl, glyUrl, xVec, yVec});
-        return {stsUrl, glyUrl, xVec, yVec};
-      }
-    } else {
-      const e = new error.ActionError(
-        'An unexpected error occurred running the rust glyphengine',
-        'etl',
-        {project, properties},
-        (payload as {error: string}).error
-      );
-      e.publish('etl', constants.ERROR_SEVERITY.ERROR);
-      return {error: (payload as {error: string}).error};
+    const result = await runGlyphEngine(payload);
+    if (result) {
+      // TODO: handle error here
+      return await signRustFiles(workspaceId, projectId, payloadHash);
     }
   } catch (err) {
     const e = new error.ActionError(
@@ -171,7 +139,7 @@ export async function runGlyphEngineAction(
 export const buildRustPayload = (
   project: databaseTypes.IProject,
   properties: databaseTypes.IProject['state']['properties']
-): rustGlyphEngineTypes.IGlyphEngineArgs | {error: string} => {
+): rustGlyphEngineTypes.IGlyphEngineArgs => {
   try {
     // we assume that the values exist and then check the payload once it's formed
     // we could also do the reverse and consolidate the above conditional into the check performed before submitting the payload to the wasm module
@@ -218,9 +186,7 @@ export const buildRustPayload = (
       model_hash: payloadHash,
       xAxis: {
         fieldDisplayName: properties[webTypes.constants.AXIS.X]['key'],
-        fieldDataType: properties[webTypes.constants.AXIS.X][
-          'dataType'
-        ] as unknown as rustGlyphEngineTypes.constants.FieldDataType, //
+        fieldDataType: getModelDataType(properties[webTypes.constants.AXIS.X]['dataType']), //
         fieldDefinition: {
           fieldName: properties[webTypes.constants.AXIS.X]['key'],
           fieldType: getFieldType(webTypes.constants.AXIS.X, properties),
@@ -229,7 +195,7 @@ export const buildRustPayload = (
       },
       yAxis: {
         fieldDisplayName: properties[webTypes.constants.AXIS.Y]['key'],
-        fieldDataType: properties[webTypes.constants.AXIS.Y]['dataType'],
+        fieldDataType: getModelDataType(properties[webTypes.constants.AXIS.Y]['dataType']),
         fieldDefinition: {
           fieldName: properties[webTypes.constants.AXIS.Y]['key'],
           fieldType: getFieldType(webTypes.constants.AXIS.Y, properties),
@@ -238,20 +204,22 @@ export const buildRustPayload = (
       },
       zAxis: {
         fieldDisplayName: properties[webTypes.constants.AXIS.Z]['key'],
-        fieldDataType: properties[webTypes.constants.AXIS.Z]['dataType'],
+        fieldDataType: getModelDataType(properties[webTypes.constants.AXIS.Z]['dataType']),
         fieldDefinition: {
-          fieldName: properties[webTypes.constants.AXIS.Z]['key'],
+          // fieldName: properties[webTypes.constants.AXIS.Z]['key'],
           fieldType: 'accumulated',
-          accumulatedField: {
+          accumulatedFieldDefinition: {
+            // this is different in the types!
             fieldName: properties[webTypes.constants.AXIS.Z]['key'], // TODO: @jp-burford do accumulated field definitions not ahve field names?
             fieldType: getFieldType(webTypes.constants.AXIS.Z, properties),
             // should this be included in the  IAccumulatedFieldDefinition interface
             ...zDateGrouping,
           },
-          accumulatorType: properties[webTypes.constants.AXIS.Z]['accumulatorType']?.toLowerCase(), // convert between accumulatorType casing in rust glyphengine
+          accumulator: properties[webTypes.constants.AXIS.Z]['accumulatorType']?.toLowerCase() || 'sum', // convert between accumulatorType casing in rust glyphengine
+          // accumulatorType: properties[webTypes.constants.AXIS.Z]['accumulatorType']?.toLowerCase() || 'sum', // convert between accumulatorType casing in rust glyphengine
         },
       },
-      filter: generateFilterQuery(project),
+      // filter: generateFilterQuery(project),
     };
 
     // checks for validity of naively created payload before returning
@@ -263,14 +231,12 @@ export const buildRustPayload = (
       throw new error.ActionError('Rust glyphengine payload is invalid', 'etl', {project, properties}, {});
     }
   } catch (err) {
-    const e = new error.ActionError(
+    throw new error.ActionError(
       'An unexpected error occurred building the rust glyphengine payload',
       'etl',
       {project, properties},
       err
     );
-    e.publish('etl', constants.ERROR_SEVERITY.ERROR);
-    return {error: e.message};
   }
 };
 
@@ -286,6 +252,20 @@ export const getFieldType = (
     return 'date';
   } else {
     return 'standard';
+  }
+};
+
+/**
+ * Converts dates to numbers for model
+ * Model casts date fields to a numeric value
+ * @param ogType
+ * @returns
+ */
+export const getModelDataType = (ogType: fileIngestionTypes.constants.FIELD_TYPE) => {
+  if (ogType === fileIngestionTypes.constants.FIELD_TYPE.DATE) {
+    return 0;
+  } else {
+    return ogType;
   }
 };
 
@@ -374,7 +354,11 @@ export const checkRustGlyphEnginePayload = (payload: rustGlyphEngineTypes.IGlyph
  * @param payloadHash
  * @returns
  */
-export const signRustFiles = async (workspaceId: string, projectId: string, payloadHash: string) => {
+export const signRustFiles = async (
+  workspaceId: string,
+  projectId: string,
+  payloadHash: string
+): Promise<{STS_URL: string; GLY_URL: string; X_VEC: string; Y_VEC: string}> => {
   try {
     // init S3 client
     await s3Connection.init();
@@ -393,14 +377,14 @@ export const signRustFiles = async (workspaceId: string, projectId: string, payl
 
     const stsUrl = signedUrls.find((u: string) => u.includes('.sts'));
     const glyUrl = signedUrls.find((u: string) => u.includes('.gly'));
-    const xVec = signedUrls.filter((u: string) => u.includes('x-axis.vec'));
-    const yVec = signedUrls.filter((u: string) => u.includes('y-axis.vec'));
+    const xVec = signedUrls.filter((u: string) => u.includes('x-axis.vec'))[0];
+    const yVec = signedUrls.filter((u: string) => u.includes('y-axis.vec'))[0];
 
     return {
-      stsUrl,
-      glyUrl,
-      xVec,
-      yVec,
+      STS_URL: stsUrl,
+      GLY_URL: glyUrl,
+      X_VEC: xVec,
+      Y_VEC: yVec,
     };
   } catch (err) {
     const e = new error.ActionError(
@@ -412,62 +396,6 @@ export const signRustFiles = async (workspaceId: string, projectId: string, payl
     e.publish('etl', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }
-};
-
-/**
- * Generic stream handler
- * @param url
- * @param processData
- */
-export const handleStream = async (url, processData) => {
-  const response = await fetch(url);
-  if (response.body) {
-    const reader = response.body.getReader();
-    let buffer = new Uint8Array();
-
-    while (true) {
-      const {done, value} = await reader.read();
-      if (done) break;
-
-      buffer = new Uint8Array([...buffer, ...value]);
-
-      // Call processData which is expected to process and modify buffer
-      buffer = processData(buffer);
-    }
-
-    // Handle any remaining buffer data
-    if (buffer.length > 0) {
-      console.error('Unhandled remaining data:', buffer);
-    }
-  }
-};
-
-/**
- * Specialized buffer processor for vector stream
- * @param buffer
- * @returns
- */
-export const processVectorData = (axis, modelRunner) => (buffer) => {
-  while (buffer.length >= 8) {
-    const length = new DataView(buffer.buffer).getUint32(0, true);
-    if (buffer.length >= 8 + length) {
-      const vectorData = buffer.slice(8, 8 + length);
-      modelRunner.addVector(axis, vectorData); // Assuming axis handling is integrated
-      buffer = buffer.slice(8 + length);
-    } else {
-      break;
-    }
-  }
-  return buffer;
-};
-
-/**
- * Not built out yet
- * @param buffer
- * @returns
- */
-export const processStatsData = (buffer) => {
-  return buffer;
 };
 // /**
 //  * Ensures that when we add vectors that the data is complete and in correct format

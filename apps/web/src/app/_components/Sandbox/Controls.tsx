@@ -3,6 +3,7 @@ import React from 'react';
 import {useRecoilValue} from 'recoil';
 import {modelRunnerAtom} from 'state';
 
+// OLD COMPONENT
 export const Controls = () => {
   const modelRunner = useRecoilValue(modelRunnerAtom);
 

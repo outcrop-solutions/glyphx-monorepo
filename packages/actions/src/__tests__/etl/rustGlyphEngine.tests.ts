@@ -4,7 +4,13 @@ import {createSandbox} from 'sinon';
 import rewire from 'rewire';
 import {error, constants} from 'core';
 import {databaseTypes, fileIngestionTypes, glyphEngineTypes, rustGlyphEngineTypes, webTypes} from 'types';
-import {buildRustPayload, checkRustGlyphEnginePayload, getFieldType, signRustFiles} from 'etl/rustGlyphEngine';
+import {
+  buildRustPayload,
+  checkRustGlyphEnginePayload,
+  getFieldType,
+  runGlyphEngineAction,
+  signRustFiles,
+} from 'etl/rustGlyphEngine';
 import * as proxyquireType from 'proxyquire';
 const proxyquire = proxyquireType.noCallThru();
 
@@ -549,11 +555,11 @@ describe('#etl/rustGlyphEngine', () => {
               fieldType: 'accumulated',
               fieldName: 'col3',
               accumulatorType: 'sum',
-              accumulatedField: {
+              accumulatedFieldDefinition: {
                 fieldType: 'standard',
                 fieldName: 'col3',
               },
-            } as rustGlyphEngineTypes.IAccumulatedFieldDefinition,
+            } as unknown as rustGlyphEngineTypes.IAccumulatedFieldDefinition,
           },
           filter: '',
         };
@@ -1028,6 +1034,144 @@ describe('#etl/rustGlyphEngine', () => {
     it('should return signed data urls', () => {
       try {
         // const workspaceId =
+      } catch (error) {}
+    });
+    it('should throw an ActionError when the underlying s3Manager throws', () => {
+      try {
+      } catch (error) {}
+    });
+  });
+  context('runGlyphEngineAction', () => {
+    const sandbox = createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+    it.only('should return signed data urls', async () => {
+      try {
+        //
+        const project = {
+          name: 'testing',
+          docId: '7LBAd8nbt0bFj9DqJbQy_',
+          description: '',
+          currentVersion: 0,
+          workspace: {
+            workspaceCode: '3885117a1932455db65175dd2b883693',
+            inviteCode: '055bdf05e9b04b3485340722931423a7',
+            name: 'Account',
+            slug: 'accounting',
+            creator: '645aa1458d6a87808abf59db',
+
+            tags: [],
+            id: '646fa59785272d19babc2af1',
+          },
+          state: {
+            properties: {
+              X: {
+                axis: 'X',
+                accepts: 'COLUMN_DRAG',
+                key: 'col1',
+                dataType: 0,
+                interpolation: 'LIN',
+                direction: 'ASC',
+                filter: {min: 0, max: 0},
+              },
+              Y: {
+                axis: 'Y',
+                accepts: 'COLUMN_DRAG',
+                key: 'col2',
+                dataType: 1,
+                interpolation: 'LIN',
+                direction: 'ASC',
+                filter: {keywords: []},
+              },
+              Z: {
+                axis: 'Z',
+                accepts: 'COLUMN_DRAG',
+                key: 'col3',
+                dataType: 0,
+                interpolation: 'LIN',
+                direction: 'ASC',
+                filter: {min: 0, max: 0},
+              },
+              A: {
+                axis: 'A',
+                accepts: 'COLUMN_DRAG',
+                key: 'Column 1',
+                dataType: 0,
+                interpolation: 'LIN',
+                direction: 'ASC',
+                filter: {min: 0, max: 0},
+              },
+              B: {
+                axis: 'B',
+                accepts: 'COLUMN_DRAG',
+                key: 'Column 2',
+                dataType: 0,
+                interpolation: 'LIN',
+                direction: 'ASC',
+                filter: {min: 0, max: 0},
+              },
+              C: {
+                axis: 'C',
+                accepts: 'COLUMN_DRAG',
+                key: 'Column 3',
+                dataType: 0,
+                interpolation: 'LIN',
+                direction: 'ASC',
+                filter: {min: 0, max: 0},
+              },
+            },
+            id: '6622a797d7aeffcd949e9633',
+          },
+          stateHistory: [],
+          files: [
+            {
+              fileName: 'high_z_small_range_test_case.csv',
+              tableName: 'high_z_small_range_test_case',
+              numberOfRows: 5,
+              numberOfColumns: 3,
+              columns: [
+                {
+                  name: 'glyphx_id__',
+                  fieldType: 2,
+                  id: '6622a846d7aeffcd949e96bc',
+                },
+                {
+                  name: 'col1',
+                  fieldType: 0,
+                  id: '6622a846d7aeffcd949e96bd',
+                },
+                {
+                  name: 'col2',
+                  fieldType: 1,
+                  longestString: 5,
+                  id: '6622a846d7aeffcd949e96be',
+                },
+                {
+                  name: 'col3',
+                  fieldType: 0,
+                  id: '6622a846d7aeffcd949e96bf',
+                },
+              ],
+              fileSize: 186,
+              id: '6622a846d7aeffcd949e96bb',
+              selected: true,
+              open: true,
+            },
+          ],
+          viewName: 'glyphx_646fa59785272d19babc2af1_6622a797d7aeffcd949e9635_view',
+          id: '6622a797d7aeffcd949e9635',
+        };
+
+        const properties = project.state.properties;
+
+        const retval = await runGlyphEngineAction(
+          project as unknown as databaseTypes.IProject,
+          properties as unknown as databaseTypes.IProject['state']['properties']
+        );
+
+        assert.isOk(retval);
       } catch (error) {}
     });
     it('should throw an ActionError when the underlying s3Manager throws', () => {

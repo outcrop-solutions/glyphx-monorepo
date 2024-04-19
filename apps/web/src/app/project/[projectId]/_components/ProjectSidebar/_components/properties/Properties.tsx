@@ -21,22 +21,9 @@ import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
 import {useUrl} from 'lib/client/hooks';
 import {isValidPayload} from 'lib/utils/isValidPayload';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
-import {
-  buildRustPayload,
-  getFieldType,
-  handleStream,
-  processGlyphData,
-  processStatsData,
-  processVectorData,
-  runGlyphEngine,
-  runGlyphEngineAction,
-  updateProjectState,
-} from 'actions';
+import {runGlyphEngineAction, updateProjectState} from 'actions';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
-import {databaseTypes, fileIngestionTypes, glyphEngineTypes, rustGlyphEngineTypes, webTypes} from 'types';
-import {FieldDataType} from 'types/src/rustGlyphEngine/constants';
-import produce from 'immer';
-import {WritableDraft} from 'immer/dist/internal';
+import {webTypes} from 'types';
 
 export const Properties = () => {
   const session = useSession();
@@ -95,37 +82,112 @@ export const Properties = () => {
     [doesStateExist, mutate, project, properties, session, setDrawer, setLoading, setResize, url]
   );
 
+  /**
+   * Generic stream handler
+   * @param url
+   * @param processData
+   */
+  const handleStream = useCallback(async (url: string, processData) => {
+    const response = await fetch(url);
+    if (response.body) {
+      const reader = response.body.getReader();
+      let buffer = new Uint8Array();
+
+      while (true) {
+        const {done, value} = await reader.read();
+        if (done) break;
+
+        buffer = new Uint8Array([...buffer, ...value]);
+
+        // Call processData which is expected to process and modify buffer
+        buffer = processData(buffer);
+      }
+
+      // Handle any remaining buffer data
+      if (buffer.length > 0) {
+        console.error('Unhandled remaining data:', buffer);
+      }
+    }
+  }, []);
+
+  /**
+   * Specialized buffer processor for vector stream
+   * @param buffer
+   * @returns
+   */
+  const processVectorData = useCallback(
+    (axis: webTypes.constants.AXIS, modelRunner) => (buffer) => {
+      while (buffer.length >= 8) {
+        const length = new DataView(buffer.buffer).getUint32(0, true);
+        if (buffer.length >= 8 + length) {
+          const vectorData = buffer.slice(8, 8 + length);
+          modelRunner.addVector(axis, vectorData); // Assuming axis handling is integrated
+          buffer = buffer.slice(8 + length);
+        } else {
+          break;
+        }
+      }
+      return buffer;
+    },
+    []
+  );
+
+  /**
+   * Not built out yet
+   * @param buffer
+   * @returns
+   */
+  const processStatsData = (buffer) => {
+    return buffer;
+  };
+  /**
+   * Not built out yet
+   * @param buffer
+   * @returns
+   */
+  const processGlyphData = (buffer) => {
+    return buffer;
+  };
+
   const runRustGlyphEngine = useCallback(
     async (event) => {
       event.stopPropagation();
       // set initial loading state
-      setLoading(
-        produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-          draft.processName = 'Generating Data Model...';
-          draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
-          draft.processStartTime = new Date();
-        })
-      );
+      // setLoading(
+      //   produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
+      //     draft.processName = 'Generating Data Model...';
+      //     draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+      //     draft.processStartTime = new Date();
+      //   })
+      // );
       try {
         // run glyph engine
-        const {stsUrl, glyUrl, xVec, yVec} = await runGlyphEngineAction(project, properties);
-
-        // First, handle statistics and vectors concurrently
-        // process stats and vectors before glyphs
-        await Promise.all([
-          handleStream(stsUrl, processStatsData),
-          handleStream(xVec, processVectorData('x', modelRunner)),
-          handleStream(yVec, processVectorData('y', modelRunner)),
-        ]);
-
-        await handleStream(glyUrl, processGlyphData);
+        const retval = await runGlyphEngineAction(project, properties);
+        console.log({retval});
+        // TODO: need a discriminated union to remove @ts ignore comments
+        // @ts-ignore
+        if (retval && !retval?.error) {
+          // First, handle statistics and vectors concurrently
+          // process stats and vectors before glyphs
+          await Promise.all([
+            // @ts-ignore
+            handleStream(retval?.STS_URL, processStatsData),
+            // @ts-ignore
+            handleStream(retval?.X_VEC, processVectorData('x', modelRunner)),
+            // @ts-ignore
+            handleStream(retval?.Y_VEC, processVectorData('y', modelRunner)),
+          ]);
+          // @ts-ignore
+          await handleStream(retval?.GLY_URL, processGlyphData);
+        }
 
         // load glyphs
       } catch (error) {
         console.log({error});
       }
     },
-    [modelRunner, project, properties, setLoading]
+    [handleStream, modelRunner, processVectorData, project, properties]
+    // [modelRunner, project, properties, setLoading]
   );
 
   const runRust = isWebGPUEnabled && segment === 'CONFIG';
