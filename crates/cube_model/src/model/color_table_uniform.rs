@@ -18,6 +18,13 @@ impl ColorTableUniform {
         z_axis_color: Color,
         background_color: Color,
     ) -> Self {
+        let color_table_array = Self::configure_color_table(min_color, max_color, x_axis_color, y_axis_color, z_axis_color, background_color);
+        Self {
+            color_table: color_table_array,
+        }
+    }
+
+    fn configure_color_table(min_color: Color, max_color: Color, x_axis_color: Color, y_axis_color: Color, z_axis_color: Color, background_color: Color) -> [Color; 64] {
         //indexes 0-59 are the colors of the glyphs.
         //60 is the x axis
         //61 is the y axis
@@ -32,25 +39,40 @@ impl ColorTableUniform {
         color_table.push([background_color[0] / 255.0, background_color[1] / 255.0, background_color[2] / 255.0, background_color[3]] );
         let mut color_table_array: [Color; 64] = [Color::default(); 64];
         color_table_array.copy_from_slice(&color_table);
-        Self {
-            color_table: color_table_array,
-        }
+        color_table_array
     }
-
     pub fn background_color(&self) -> Color {
         self.color_table[self.color_table.len() - 1]
+    }
+
+    pub fn set_background_color(&mut self, color: Color) {
+        self.color_table[self.color_table.len() - 1] = color;
     }
 
     pub fn x_axis_color(&self) -> Color {
         self.color_table[self.color_table.len() - 4]
     }
+     
+    pub fn set_x_axis_color(&mut self, color: Color) {
+        self.color_table[self.color_table.len() - 4] = color;
+    }
 
     pub fn y_axis_color(&self) -> Color {
         self.color_table[self.color_table.len() - 3]
     }
-
+    pub fn set_y_axis_color(&mut self, color: Color) {
+        self.color_table[self.color_table.len() - 3] = color;
+    }
     pub fn z_axis_color(&self) -> Color {
         self.color_table[self.color_table.len() - 2]
+    }
+    pub fn set_z_axis_color(&mut self, color: Color) {
+        self.color_table[self.color_table.len() - 2] = color;
+    }
+
+    pub fn update_colors(&mut self, min_color: Color, max_color: Color) {
+        let color_table_array = Self::configure_color_table(min_color, max_color, self.x_axis_color(), self.y_axis_color(), self.z_axis_color(), self.background_color());
+        self.color_table = color_table_array;
     }
 
 pub fn configure_color_table_uniform(

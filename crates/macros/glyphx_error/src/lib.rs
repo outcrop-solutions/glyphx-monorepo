@@ -2,31 +2,63 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, Data, DataEnum, DeriveInput, Ident};
 #[proc_macro_derive(GlyphxError, attributes(error_definition))]
-pub fn derive(input: TokenStream) -> TokenStream {
+pub fn derive_glyphx_error(input: TokenStream) -> TokenStream {
+    derive(input, true)
+}
+
+#[proc_macro_derive(GlyphxCoreError, attributes(error_definition))]
+pub fn derive_glyphx_core_error(input: TokenStream) -> TokenStream {
+    derive(input, false)
+}
+
+fn derive(input: TokenStream, is_core: bool) -> TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);
     let error_ident = ast.ident.clone();
     let data = get_enum_data(&ast);
     let module = get_module(&ast);
-    let error_type_parser_trait = generate_error_type_parser_trait(&ast.ident, &data);
-    let q = quote!(
-    use glyphx_core::traits::ErrorTypeParser;
-    #error_type_parser_trait
-    impl std::fmt::Display for #error_ident {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            let json = glyphx_core::json!({
-                "module": #module,
-                "errorType" : stringify!(#error_ident),
-                "error": self.parse_error_type(),
-                "glyphxErrorData": self.get_glyphx_error_data().to_json(),
-            });
-            write!(f, "{}", json)
+    let error_type_parser_trait = generate_error_type_parser_trait(&ast.ident, &data, &is_core);
+    let q = if is_core == true {
+        quote!(
+        use glyphx_core::traits::ErrorTypeParser;
+        #error_type_parser_trait
+        impl std::fmt::Display for #error_ident {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                let json = glyphx_core::json!({
+                    "module": #module,
+                    "errorType" : stringify!(#error_ident),
+                    "error": self.parse_error_type(),
+                    "glyphxErrorData": self.get_glyphx_error_data().to_json(),
+                });
+                write!(f, "{}", json)
+            }
         }
-    }
-    );
+        )
+    } else {
+        quote!(
+        use glyphx_core_error::ErrorTypeParser;
+        #error_type_parser_trait
+        impl std::fmt::Display for #error_ident {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                let json = glyphx_core_error::json!({
+                    "module": #module,
+                    "errorType" : stringify!(#error_ident),
+                    "error": self.parse_error_type(),
+                    "glyphxErrorData": self.get_glyphx_error_data().to_json(),
+                });
+                write!(f, "{}", json)
+            }
+        }
+        )
+    };
     q.into()
 }
 
-fn generate_from_str(idents: &Vec<Ident>) -> proc_macro2::TokenStream {
+fn generate_from_str(idents: &Vec<Ident>, is_core: &bool) -> proc_macro2::TokenStream {
+    let loc_indent = if is_core == &true {
+        Ident::new("glyphx_core", proc_macro2::Span::call_site())
+    } else {
+        Ident::new("glyphx_core_error", proc_macro2::Span::call_site())
+    };
     let mut from_str_match_arms = quote!();
     for ident in idents {
         from_str_match_arms = quote!(
@@ -36,7 +68,7 @@ fn generate_from_str(idents: &Vec<Ident>) -> proc_macro2::TokenStream {
     }
 
     quote!(
-    fn from_str(variant_name: &str, error_data: glyphx_core::GlyphxErrorData) -> Self {
+    fn from_str(variant_name: &str, error_data: #loc_indent::GlyphxErrorData) -> Self {
     let error_variant = match variant_name {
         #from_str_match_arms
         _ => panic!("unknown error type"),
@@ -85,25 +117,30 @@ fn generate_get_glyphx_error_data(idents: &Vec<Ident>) -> proc_macro2::TokenStre
     )
 }
 
-fn generate_logging_functions() -> proc_macro2::TokenStream {
+fn generate_logging_functions(is_core: &bool) -> proc_macro2::TokenStream {
+    let loc_ident = if is_core == &true {
+        Ident::new("glyphx_core", proc_macro2::Span::call_site())
+    } else {
+        Ident::new("glyphx_core_error", proc_macro2::Span::call_site())
+    };
     quote!(
         fn trace(&self) {
-            glyphx_core::trace!("{}", self);
+            #loc_ident::trace!("{}", self);
         }
         fn debug(&self) {
-            glyphx_core::debug!("{}", self);
+            #loc_ident::debug!("{}", self);
         }
         fn info(&self) {
-            glyphx_core::info!("{}", self);
+            #loc_ident::info!("{}", self);
         }
         fn warn(&self) {
-            glyphx_core::warn!("{}", self);
+            #loc_ident::warn!("{}", self);
         }
         fn error(&self) {
-            glyphx_core::error!("{}", self);
+            #loc_ident::error!("{}", self);
         }
         fn fatal(&self) {
-            glyphx_core::error!("{}", self);
+            #loc_ident::error!("{}", self);
             panic!("A Fatal Error has Occurred : error : {}", self);
         }
     )
@@ -112,12 +149,13 @@ fn generate_logging_functions() -> proc_macro2::TokenStream {
 fn generate_error_type_parser_trait(
     struct_ident: &Ident,
     enum_data: &DataEnum,
+    is_core: &bool,
 ) -> proc_macro2::TokenStream {
     let variant_idents = get_variant_idents(enum_data);
     let parse_errors = generate_parse_error_type(&variant_idents);
-    let from_str = generate_from_str(&variant_idents);
+    let from_str = generate_from_str(&variant_idents, is_core);
     let get_data = generate_get_glyphx_error_data(&variant_idents);
-    let logging_functions = generate_logging_functions();
+    let logging_functions = generate_logging_functions(is_core);    
     quote!(
         impl ErrorTypeParser for #struct_ident {
             #parse_errors
@@ -325,6 +363,6 @@ mod generate_error_type_parser_trait {
             Data::Enum(data) => data,
             _ => panic!("not an enum"),
         };
-        let result = generate_error_type_parser_trait(&ast.ident, &enum_data);
+        let result = generate_error_type_parser_trait(&ast.ident, &enum_data, &true);
     }
 }

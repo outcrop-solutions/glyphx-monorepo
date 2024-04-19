@@ -27,6 +27,10 @@ impl LightUniform {
     pub fn upate_color(&mut self, color: [f32; 3]) {
         self.color = color;
     }
+
+    pub fn upate_intensity(&mut self, intensity: f32) {
+        self.intensity = intensity;
+    }
     pub fn configure_light_uniform( 
         &self,
         light_buffer: &Buffer,

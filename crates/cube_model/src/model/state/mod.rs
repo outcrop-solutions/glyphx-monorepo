@@ -1,13 +1,22 @@
+mod data_manager;
+
+mod errors;
 use crate::camera::{
     camera_controller::CameraController, orbit_camera::OrbitCamera, uniform_buffer::CameraUniform,
 };
+use crate::data::{DeserializeVectorError, ModelVectors};
 use crate::light::light_uniform::LightUniform;
 use crate::model::color_table_uniform::ColorTableUniform;
 use crate::model::model_configuration::ModelConfiguration;
 use crate::model::pipeline::glyphs::glyph_instance_data::GlyphInstanceData;
 use crate::model::pipeline::glyphs::ranked_glyph_data::{Rank, RankDirection, RankedGlyphData};
 use crate::model::pipeline::{axis_lines, glyphs, PipelineRunner};
+pub use data_manager::DataManager;
+pub use errors::*;
+use model_common::{Glyph, Stats};
+
 use smaa::*;
+use std::cell::RefCell;
 use std::rc::Rc;
 use wgpu::util::DeviceExt;
 use wgpu::{CommandBuffer, Device, Queue, Surface, SurfaceConfiguration, TextureViewDescriptor};
@@ -30,10 +39,9 @@ struct Pipelines {
     z_axis_line: axis_lines::AxisLines,
     glyphs: glyphs::Glyphs,
 }
-
 pub struct State {
     surface: wgpu::Surface,
-    device: wgpu::Device,
+    device: Rc<RefCell<wgpu::Device>>,
     queue: wgpu::Queue,
     config: wgpu::SurfaceConfiguration,
     size: winit::dpi::PhysicalSize<u32>,
@@ -46,75 +54,84 @@ pub struct State {
     color_table_buffer: wgpu::Buffer,
     light_uniform: LightUniform,
     light_buffer: wgpu::Buffer,
-    model_configuration: Rc<ModelConfiguration>,
+    model_configuration: Rc<RefCell<ModelConfiguration>>,
     smaa_target: SmaaTarget,
     glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData,
     glyph_uniform_buffer: wgpu::Buffer,
-    ranked_glyph_data: Rc<RankedGlyphData>,
     rank: Rank,
     rank_direction: RankDirection,
     pipelines: Pipelines,
     z_order: usize,
+    data_manager: Rc<RefCell<DataManager>>,
 }
 
 impl State {
-    pub async fn new(window: Window, model_configuration: Rc<ModelConfiguration>) -> Self {
+    pub async fn new(
+        window: Window,
+        model_configuration: Rc<RefCell<ModelConfiguration>>,
+        data_manager: Rc<RefCell<DataManager>>,
+    ) -> State {
         let size = window.inner_size();
 
         let (surface, adapter) = Self::init_wgpu(&window).await;
 
         let (device, queue) = Self::init_device(&adapter).await;
-
-        let config = Self::configure_surface(&surface, adapter, size, &device);
+        let device = Rc::new(RefCell::new(device));
+        let d_clone = device.clone();
+        let d = d_clone.as_ref().borrow();
+        let config = Self::configure_surface(&surface, adapter, size, &d);
 
         let (camera, camera_buffer, camera_uniform, camera_controller) =
-            Self::configure_camera(&config, &device);
+            Self::configure_camera(&config, &d);
+
+        let mc = model_configuration.clone();
+        let mc = mc.borrow();
 
         let color_table_uniform = ColorTableUniform::new(
-            model_configuration.min_color,
-            model_configuration.max_color,
-            model_configuration.x_axis_color,
-            model_configuration.y_axis_color,
-            model_configuration.z_axis_color,
-            model_configuration.background_color,
+            mc.min_color,
+            mc.max_color,
+            mc.x_axis_color,
+            mc.y_axis_color,
+            mc.z_axis_color,
+            mc.background_color,
         );
 
-        let color_table_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        let color_table_buffer = d.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Color Table Buffer"),
             contents: bytemuck::cast_slice(&[color_table_uniform]),
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
 
         let light_uniform = LightUniform::new(
-            model_configuration.light_location,
+            mc.light_location,
             [
-                model_configuration.light_color[0] / 255.0,
-                model_configuration.light_color[1] / 255.0,
-                model_configuration.light_color[2] / 255.0,
+                mc.light_color[0] / 255.0,
+                mc.light_color[1] / 255.0,
+                mc.light_color[2] / 255.0,
             ],
-            model_configuration.light_intensity,
+            mc.light_intensity,
         );
 
-        let light_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        let light_buffer = d.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Light Buffer"),
             contents: bytemuck::cast_slice(&[light_uniform]),
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
 
-        let model_configuration = model_configuration.clone();
+        let glyph_uniform_data = Self::build_glyph_uniform_data(&mc);
 
-        let glyph_uniform_data = Self::build_glyph_uniform_data(&model_configuration);
+        //let ranked_glyph_data = Self::build_instance_data();
 
-        let ranked_glyph_data = Self::build_instance_data();
-
-        let glyph_uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        let glyph_uniform_buffer = d.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Glyph Uniform Buffer"),
             contents: bytemuck::cast_slice(&[glyph_uniform_data]),
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
 
+        //We are cloning device here, because we are storing it in the
+        //axis pipelines to handle config updates
         let pipelines = Self::build_pipelines(
-            &device,
+            device.clone(),
             &config,
             &camera_buffer,
             &camera_uniform,
@@ -122,13 +139,13 @@ impl State {
             &color_table_uniform,
             &light_buffer,
             &light_uniform,
-            &model_configuration,
+            model_configuration.clone(),
             &glyph_uniform_data,
             &glyph_uniform_buffer,
         );
 
         let smaa_target = SmaaTarget::new(
-            &device,
+            &d,
             &queue,
             window.inner_size().width,
             window.inner_size().height,
@@ -152,13 +169,13 @@ impl State {
             glyph_uniform_buffer,
             glyph_uniform_data,
             smaa_target,
-            ranked_glyph_data,
             rank: Rank::Z,
             rank_direction: RankDirection::Ascending,
             pipelines,
             light_buffer,
             light_uniform,
             z_order: 0,
+            data_manager,
         }
     }
 
@@ -175,7 +192,8 @@ impl State {
             self.size = new_size;
             self.config.width = new_size.width;
             self.config.height = new_size.height;
-            self.surface.configure(&self.device, &self.config);
+            let d = self.device.as_ref().borrow();
+            self.surface.configure(&d, &self.config);
         }
     }
 
@@ -213,6 +231,34 @@ impl State {
         self.camera_uniform.update_view_proj(&self.camera);
     }
 
+    pub fn update_config(&mut self) {
+        let config = self.model_configuration.borrow();
+        let color_table_uniform = &mut self.color_table_uniform;
+        color_table_uniform.set_x_axis_color(config.x_axis_color);
+        color_table_uniform.set_y_axis_color(config.y_axis_color);
+        color_table_uniform.set_z_axis_color(config.z_axis_color);
+        color_table_uniform.set_background_color(config.background_color);
+        color_table_uniform.update_colors(config.min_color, config.max_color);
+        self.pipelines.x_axis_line.set_axis_start(config.model_origin[0]);
+        self.pipelines.x_axis_line.update_vertex_buffer();
+        self.pipelines.y_axis_line.set_axis_start(config.model_origin[1]);
+        self.pipelines.y_axis_line.update_vertex_buffer();
+        self.pipelines.z_axis_line.set_axis_start(config.model_origin[2]);
+        self.pipelines.z_axis_line.update_vertex_buffer();
+        self.pipelines
+            .glyphs
+            .update_vertex_buffer(&self.glyph_uniform_data);
+        self.light_uniform
+            .upate_position(config.light_location.clone());
+        self.light_uniform.upate_color([
+            config.light_color[0] / 255.0,
+            config.light_color[1] / 255.0,
+            config.light_color[2] / 255.0,
+        ]);
+        self.light_uniform
+            .upate_intensity(config.light_intensity.clone());
+    }
+
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
         let background_color = self.color_table_uniform.background_color();
         self.queue.write_buffer(
@@ -242,15 +288,12 @@ impl State {
             .texture
             .create_view(&TextureViewDescriptor::default());
 
-        let smaa_frame = self
-            .smaa_target
-            .start_frame(&self.device, &self.queue, &view);
+        let d = self.device.as_ref().borrow();
+        let smaa_frame = self.smaa_target.start_frame(&d, &self.queue, &view);
 
-        let mut encoder = self
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("ScreenClear Encoder"),
-            });
+        let mut encoder = d.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("ScreenClear Encoder"),
+        });
 
         let screen_clear_render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("Render Pass"),
@@ -275,20 +318,26 @@ impl State {
         commands.push(encoder.finish());
         let mut i: usize = 0;
         let string_order = Z_ORDERS[self.z_order];
+        let d = self.device.as_ref().borrow();
         for name in string_order {
             //Glyphs has it's own logic to render in rank order so we can't really use the pipeline
             //manager trait to render it.  So, we will handle it directly.
             if name == "glyphs" {
-                Self::run_glyphs_pipeline(
-                    &self.device,
-                    &smaa_frame,
-                    &self.pipelines.glyphs,
-                    self.rank,
-                    self.rank_direction,
-                    &self.ranked_glyph_data,
-                    &name,
-                    &mut commands,
-                );
+                let dm = self.data_manager.borrow();
+                let ranked_glyph_data = dm.get_glyphs();
+                if ranked_glyph_data.is_some() {
+                    let ranked_glyph_data = ranked_glyph_data.unwrap();
+                    Self::run_glyphs_pipeline(
+                        &d,
+                        &smaa_frame,
+                        &self.pipelines.glyphs,
+                        self.rank,
+                        self.rank_direction,
+                        ranked_glyph_data,
+                        &name,
+                        &mut commands,
+                    );
+                }
             } else {
                 let pipeline = match name {
                     "x-axis-line" => &self.pipelines.x_axis_line,
@@ -296,12 +345,7 @@ impl State {
                     "z-axis-line" => &self.pipelines.z_axis_line,
                     _ => panic!("Unknown pipeline name"),
                 };
-                commands.push(Self::run_axis_pipeline(
-                    &self.device,
-                    &smaa_frame,
-                    pipeline,
-                    &name,
-                ));
+                commands.push(Self::run_axis_pipeline(&d, &smaa_frame, pipeline, &name));
             }
             i += 1;
         }
@@ -312,6 +356,7 @@ impl State {
 
         Ok(())
     }
+
     fn run_glyphs_pipeline(
         device: &Device,
         smaa_frame: &SmaaFrame,
@@ -342,7 +387,12 @@ impl State {
                 contents: bytemuck::cast_slice(&clean_rank),
                 usage: wgpu::BufferUsages::VERTEX,
             });
-            pipeline.run_pipeline(&mut encoder, smaa_frame, &instance_buffer, rank.len() as u32);
+            pipeline.run_pipeline(
+                &mut encoder,
+                smaa_frame,
+                &instance_buffer,
+                rank.len() as u32,
+            );
             commands.push(encoder.finish());
         }
     }
@@ -389,7 +439,7 @@ impl State {
             alpha_mode: surface_caps.alpha_modes[0],
             view_formats: vec![],
         };
-        //an apply it to our surface
+        //and apply it to our surface
         surface.configure(device, &config);
         config
     }
@@ -445,7 +495,7 @@ impl State {
         (surface, adapter)
     }
 
-    fn build_instance_data() -> Rc<RankedGlyphData> {
+    fn build_instance_data() -> RankedGlyphData {
         // Rc::new (vec![
         //     glyphs::glyph_instance_data::GlyphInstanceData {
         //         glyph_id: 0,
@@ -543,11 +593,11 @@ impl State {
             z = 0.0;
             x += 1.0;
         }
-        Rc::new(ranked_glyph_data)
+        ranked_glyph_data
     }
 
     fn build_pipelines(
-        device: &Device,
+        device: Rc<RefCell<Device>>,
         config: &SurfaceConfiguration,
         camera_buffer: &wgpu::Buffer,
         camera_uniform: &CameraUniform,
@@ -555,12 +605,13 @@ impl State {
         color_table_uniform: &ColorTableUniform,
         light_buffer: &wgpu::Buffer,
         light_uniform: &LightUniform,
-        model_configuration: &Rc<ModelConfiguration>,
+        model_configuration: Rc<RefCell<ModelConfiguration>>,
         glyph_uniform_data: &glyphs::glyph_instance_data::GlyphUniformData,
         glyph_uniform_buffer: &wgpu::Buffer,
     ) -> Pipelines {
+        let mc = model_configuration.borrow();
         let x_axis_line = axis_lines::AxisLines::new(
-            device,
+            device.clone(),
             config,
             camera_buffer,
             camera_uniform,
@@ -570,11 +621,11 @@ impl State {
             light_uniform,
             model_configuration.clone(),
             axis_lines::AxisLineDirection::X,
-            model_configuration.model_origin[0],
+            mc.model_origin[0],
         );
 
         let y_axis_line = axis_lines::AxisLines::new(
-            device,
+            device.clone(),
             config,
             camera_buffer,
             camera_uniform,
@@ -584,11 +635,11 @@ impl State {
             light_uniform,
             model_configuration.clone(),
             axis_lines::AxisLineDirection::Y,
-            model_configuration.model_origin[1],
+            mc.model_origin[1],
         );
 
         let z_axis_line = axis_lines::AxisLines::new(
-            device,
+            device.clone(),
             config,
             camera_buffer,
             camera_uniform,
@@ -598,13 +649,13 @@ impl State {
             light_uniform,
             model_configuration.clone(),
             axis_lines::AxisLineDirection::Z,
-            model_configuration.model_origin[2],
+            mc.model_origin[2],
         );
-
+        let d = device.as_ref().borrow();
         let glyphs = glyphs::Glyphs::new(
             glyph_uniform_data,
             glyph_uniform_buffer,
-            device,
+            device.clone(),
             config,
             camera_buffer,
             camera_uniform,
@@ -655,7 +706,7 @@ impl State {
     }
 
     fn build_glyph_uniform_data(
-        model_configuration: &Rc<ModelConfiguration>,
+        model_configuration: &ModelConfiguration,
     ) -> glyphs::glyph_instance_data::GlyphUniformData {
         let radius =
             if model_configuration.grid_cylinder_radius > model_configuration.grid_cone_radius {
@@ -722,8 +773,8 @@ impl State {
 
     pub fn update_z_order_and_rank(&mut self) {
         //TODO: This may need to be cleaned up a bit since cubes may not be square in the future.
-        let cube_diameter = self.model_configuration.grid_cylinder_length
-            + self.model_configuration.grid_cone_length;
+        let mc = self.model_configuration.borrow();
+        let cube_diameter = mc.grid_cylinder_length + mc.grid_cone_length;
         let rotation_angle = Self::calculate_rotation_change(
             cube_diameter, //self.config.width as f32,
             cube_diameter, //self.config.height as f32,
@@ -738,10 +789,8 @@ impl State {
             1 //-- right or back, z(green) is covered.
         } else if rotation_angle >= 3.6219294 && rotation_angle < 4.2965374 {
             2 //-- back all three axis lines are visible.
-
         } else if rotation_angle >= 4.2965374 && rotation_angle < 5.997787 {
             3 //-- left or back, x(red) is covered.
-
         } else {
             0 //-- normal glyphs last
         };
@@ -752,12 +801,11 @@ impl State {
         } else if rotation_angle >= 0.846 && rotation_angle < 2.221 {
             self.rank = Rank::X;
             self.rank_direction = RankDirection::Ascending;
-
         } else if rotation_angle >= 3.646 && rotation_angle < 5.800 {
             self.rank = Rank::X;
             self.rank_direction = RankDirection::Descending;
-
-        } else { //5.800 -- 0.846
+        } else {
+            //5.800 -- 0.846
             self.rank = Rank::Z;
             self.rank_direction = RankDirection::Ascending;
         };

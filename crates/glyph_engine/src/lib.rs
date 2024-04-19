@@ -5,7 +5,9 @@ pub mod types;
 pub mod vector_processer;
 
 use crate::GlyphEngineResults;
+
 use glyphx_common::{AthenaConnection, Heartbeat, S3Connection};
+use model_common::{Stats, Glyph};
 
 use glyphx_core::{
     aws::{
@@ -30,6 +32,7 @@ use bincode::serialize;
 use bson::{doc, DateTime};
 use im::OrdSet;
 use mockall::automock;
+use model_common::vectors::{Vector, VectorOrigionalValue};
 use serde_json::{to_value, Value};
 use statrs::statistics::*;
 
@@ -37,9 +40,7 @@ pub use errors::*;
 use types::vectorizer_parameters::{FieldDefinition, VectorizerParameters};
 pub use types::*;
 
-use vector_processer::{
-    TaskStatus, Vector, VectorOrigionalValue, VectorProcesser, VectorValueProcesser,
-};
+use vector_processer::{TaskStatus, VectorProcesser, VectorValueProcesser};
 
 macro_rules! process_error {
     //In this pattern, the error will be passed to the $function_name as the first argument.
@@ -365,8 +366,8 @@ impl GlyphEngine {
             mongo_db_connection,
         ))
     }
-    //NOTE: This function is not used anymore because of the limitations of neon.  However I 
-    //am keeping it here for future reference. 
+    //NOTE: This function is not used anymore because of the limitations of neon.  However I
+    //am keeping it here for future reference.
     fn _check_axis_task_status(
         field_processer: &mut Box<dyn VectorValueProcesser>,
     ) -> Result<bool, GlyphEngineProcessError> {
@@ -708,7 +709,7 @@ impl GlyphEngine {
             .collect();
         Ok(vector_for_statistics)
     }
-    fn get_stats_for_axis(&self, axis_name: &str, data: Vec<f64>) -> Stats {
+    fn get_stats_for_axis(&self, axis_name: &str, max_rank: u64, data: Vec<f64>) -> Stats {
         let mut stats_generator = statrs::statistics::Data::new(data);
         Stats {
             axis: axis_name.to_string(),
@@ -743,6 +744,7 @@ impl GlyphEngine {
             pct_90: stats_generator.percentile(90),
             pct_95: stats_generator.percentile(95),
             pct_99: stats_generator.percentile(99),
+            max_rank,
         }
     }
 
@@ -769,9 +771,27 @@ impl GlyphEngine {
         z_stats_vector: Vec<f64>,
         operations: &T,
     ) -> Result<String, GlyphEngineProcessError> {
-        let x_stats = self.get_stats_for_axis("x", x_field_processor.get_statistics_vector());
-        let y_stats = self.get_stats_for_axis("y", y_field_processor.get_statistics_vector());
-        let z_stats = self.get_stats_for_axis("z", z_stats_vector);
+        let max_x_rank = {
+            let vec = x_field_processor.get_max_vector();
+            if vec.is_none() {
+                0
+            } else {
+                vec.unwrap().rank
+            }
+        };
+        let x_stats =
+            self.get_stats_for_axis("x", max_x_rank, x_field_processor.get_statistics_vector());
+        let max_y_rank = {
+            let vec = y_field_processor.get_max_vector();
+            if vec.is_none() {
+                0
+            } else {
+                vec.unwrap().rank
+            }
+        };
+        let y_stats =
+            self.get_stats_for_axis("y", max_y_rank, y_field_processor.get_statistics_vector());
+        let z_stats = self.get_stats_for_axis("z", 0, z_stats_vector);
 
         let stats_file_name = format!(
             "{}/{}",
@@ -2999,6 +3019,10 @@ pub mod glyph_engine {
                             .returning(|| {
                                 vec![1.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0]
                             });
+                        vector_processer_mock1
+                            .expect_get_max_vector()
+                            .times(1)
+                            .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
                         Box::new(vector_processer_mock1)
                     } else {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
@@ -3030,6 +3054,10 @@ pub mod glyph_engine {
                             .returning(|| {
                                 vec![2.0, 5.0, 8.0, 11.0, 14.0, 17.0, 20.0, 23.0, 26.0, 29.0]
                             });
+                        vector_processer_mock2
+                            .expect_get_max_vector()
+                            .times(1)
+                            .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
                         Box::new(vector_processer_mock2)
                     }
                 });
@@ -3314,14 +3342,13 @@ pub mod glyph_engine {
                         vector_processer_mock1
                             .expect_run_sync()
                             .times(1)
-                            .return_const(
-                        TaskStatus::Errored(VectorCalculationError::AthenaQueryError(
-                            GlyphxErrorData::new(
-                                "An Unexpected Error Occurred".to_string(),
-                                None,
-                                None,
-                            )
-                        )));
+                            .return_const(TaskStatus::Errored(
+                                VectorCalculationError::AthenaQueryError(GlyphxErrorData::new(
+                                    "An Unexpected Error Occurred".to_string(),
+                                    None,
+                                    None,
+                                )),
+                            ));
                         Box::new(vector_processer_mock1)
                     } else {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
@@ -3667,6 +3694,10 @@ pub mod glyph_engine {
                                 Some(Vector::new(VectorOrigionalValue::F64(1.0), 1.0, 1))
                             });
                         vector_processer_mock1
+                            .expect_get_max_vector()
+                            .times(1)
+                            .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
+                        vector_processer_mock1
                             .expect_get_statistics_vector()
                             .times(1)
                             .returning(|| {
@@ -3703,6 +3734,10 @@ pub mod glyph_engine {
                             .returning(|| {
                                 vec![2.0, 5.0, 8.0, 11.0, 14.0, 17.0, 20.0, 23.0, 26.0, 29.0]
                             });
+                        vector_processer_mock2
+                            .expect_get_max_vector()
+                            .times(1)
+                            .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
                         Box::new(vector_processer_mock2)
                     }
                 });
@@ -3819,6 +3854,10 @@ pub mod glyph_engine {
                             .returning(|| {
                                 vec![1.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0]
                             });
+                        vector_processer_mock1
+                            .expect_get_max_vector()
+                            .times(1)
+                            .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
                         Box::new(vector_processer_mock1)
                     } else {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
@@ -3850,6 +3889,10 @@ pub mod glyph_engine {
                             .returning(|| {
                                 vec![2.0, 5.0, 8.0, 11.0, 14.0, 17.0, 20.0, 23.0, 26.0, 29.0]
                             });
+                        vector_processer_mock2
+                            .expect_get_max_vector()
+                            .times(1)
+                            .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
                         Box::new(vector_processer_mock2)
                     }
                 });
@@ -4219,49 +4262,49 @@ pub mod glyph_engine {
             }
         }
 
-            mod get_stats_for_axis {
-                use super::*;
+        mod get_stats_for_axis {
+            use super::*;
 
-                #[tokio::test]
-                async fn is_ok() {
-                    let axis_name = "x";
-                    let vectors = vec![1.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0];
-                    let glyph_engine = get_glyph_engine().await;
-                    let result = glyph_engine.get_stats_for_axis(axis_name, vectors);
-                    assert_eq!(result.axis, axis_name);
-                    assert_ne!(result.min, f64::NAN);
-                    assert_ne!(result.max, f64::NAN);
-                    assert_ne!(result.mean, f64::NAN);
-                    assert_ne!(result.median, f64::NAN);
-                    assert_ne!(result.variance, f64::NAN);
-                    assert_ne!(result.standard_deviation, f64::NAN);
-                    assert_ne!(result.entropy, f64::NAN);
-                    assert_ne!(result.skewness, f64::NAN);
-                    assert_ne!(result.pct_0, f64::NAN);
-                    assert_ne!(result.pct_5, f64::NAN);
-                    assert_ne!(result.pct_10, f64::NAN);
-                    assert_ne!(result.pct_15, f64::NAN);
-                    assert_ne!(result.pct_20, f64::NAN);
-                    assert_ne!(result.pct_25, f64::NAN);
-                    assert_ne!(result.pct_30, f64::NAN);
-                    assert_ne!(result.pct_33, f64::NAN);
-                    assert_ne!(result.pct_35, f64::NAN);
-                    assert_ne!(result.pct_40, f64::NAN);
-                    assert_ne!(result.pct_45, f64::NAN);
-                    assert_ne!(result.pct_50, f64::NAN);
-                    assert_ne!(result.pct_55, f64::NAN);
-                    assert_ne!(result.pct_60, f64::NAN);
-                    assert_ne!(result.pct_65, f64::NAN);
-                    assert_ne!(result.pct_67, f64::NAN);
-                    assert_ne!(result.pct_70, f64::NAN);
-                    assert_ne!(result.pct_75, f64::NAN);
-                    assert_ne!(result.pct_80, f64::NAN);
-                    assert_ne!(result.pct_85, f64::NAN);
-                    assert_ne!(result.pct_90, f64::NAN);
-                    assert_ne!(result.pct_95, f64::NAN);
-                    assert_ne!(result.pct_99, f64::NAN);
-                }
+            #[tokio::test]
+            async fn is_ok() {
+                let axis_name = "x";
+                let vectors = vec![1.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0];
+                let glyph_engine = get_glyph_engine().await;
+                let result = glyph_engine.get_stats_for_axis(axis_name, 9, vectors);
+                assert_eq!(result.axis, axis_name);
+                assert_ne!(result.min, f64::NAN);
+                assert_ne!(result.max, f64::NAN);
+                assert_ne!(result.mean, f64::NAN);
+                assert_ne!(result.median, f64::NAN);
+                assert_ne!(result.variance, f64::NAN);
+                assert_ne!(result.standard_deviation, f64::NAN);
+                assert_ne!(result.entropy, f64::NAN);
+                assert_ne!(result.skewness, f64::NAN);
+                assert_ne!(result.pct_0, f64::NAN);
+                assert_ne!(result.pct_5, f64::NAN);
+                assert_ne!(result.pct_10, f64::NAN);
+                assert_ne!(result.pct_15, f64::NAN);
+                assert_ne!(result.pct_20, f64::NAN);
+                assert_ne!(result.pct_25, f64::NAN);
+                assert_ne!(result.pct_30, f64::NAN);
+                assert_ne!(result.pct_33, f64::NAN);
+                assert_ne!(result.pct_35, f64::NAN);
+                assert_ne!(result.pct_40, f64::NAN);
+                assert_ne!(result.pct_45, f64::NAN);
+                assert_ne!(result.pct_50, f64::NAN);
+                assert_ne!(result.pct_55, f64::NAN);
+                assert_ne!(result.pct_60, f64::NAN);
+                assert_ne!(result.pct_65, f64::NAN);
+                assert_ne!(result.pct_67, f64::NAN);
+                assert_ne!(result.pct_70, f64::NAN);
+                assert_ne!(result.pct_75, f64::NAN);
+                assert_ne!(result.pct_80, f64::NAN);
+                assert_ne!(result.pct_85, f64::NAN);
+                assert_ne!(result.pct_90, f64::NAN);
+                assert_ne!(result.pct_95, f64::NAN);
+                assert_ne!(result.pct_99, f64::NAN);
+                assert_eq!(result.max_rank, 9);
             }
-        
+        }
     }
 }

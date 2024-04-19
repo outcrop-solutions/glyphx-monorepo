@@ -5,3 +5,4 @@ export type {IFieldDefinition} from './iFieldDefinition';
 export type {IGlyphEngineArgs} from './iGlyphEngineArgs';
 export type {IGlyphEngineResults} from './iGlyphEngineResults';
 export type {IStandardFieldDefinition} from './iStandardFieldDefinition';
+export type {IModelConfiguration, IUpdateModelConfiguration} from './iModelConfiguration';

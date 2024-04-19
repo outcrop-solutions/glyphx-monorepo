@@ -1499,6 +1499,7 @@ dependencies = [
  "lazy_static",
  "log",
  "mockall",
+ "model_common",
  "once_cell",
  "rand",
  "serde",
@@ -1554,7 +1555,7 @@ dependencies = [
  "backtrace",
  "bytes",
  "chrono",
- "glyphx_error",
+ "glyphx_core_error",
  "http",
  "json5",
  "log",
@@ -1572,9 +1573,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "glyphx_core_error"
+version = "0.1.0"
+dependencies = [
+ "glyphx_error",
+ "log",
+ "mockall",
+ "serde",
+ "serde_derive",
+ "serde_json",
+]
+
+[[package]]
 name = "glyphx_cube_model"
 version = "0.1.0"
 dependencies = [
+ "bincode",
  "bytemuck",
  "cfg-if",
  "cgmath",
@@ -1583,13 +1597,19 @@ dependencies = [
  "env_logger",
  "getrandom",
  "glam",
+ "glyphx_core_error",
+ "im",
  "log",
+ "model_common",
  "nalgebra 0.32.3",
  "num-traits",
+ "once_cell",
+ "ordered-float 4.2.0",
  "pollster",
  "rand",
  "serde",
  "serde-wasm-bindgen",
+ "serde_json",
  "smaa",
  "wasm-bindgen",
  "wasm-bindgen-futures",
@@ -2342,6 +2362,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "model_common"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "mongodb"
 version = "2.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2804,6 +2832,15 @@ name = "ordered-float"
 version = "2.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68f19d67e5a2795c94e73e0bb1cc1a7edeb2e28efd39e2e1c9b7a40c1108b11c"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
+name = "ordered-float"
+version = "4.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a76df7075c7d4d01fdcb46c912dd17fba5b60c78ea480b475f2b6ab6f666584e"
 dependencies = [
  "num-traits",
 ]
@@ -3488,15 +3525,15 @@ version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f3a1a3341211875ef120e117ea7fd5228530ae7e7036a779fdc9117be6b3282c"
 dependencies = [
- "ordered-float",
+ "ordered-float 2.10.1",
  "serde",
 ]
 
 [[package]]
 name = "serde-wasm-bindgen"
-version = "0.4.5"
+version = "0.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e3b4c031cd0d9014307d82b8abf653c0290fbdaeb4c02d00c63cf52f728628bf"
+checksum = "8302e169f0eddcc139c70f139d19d6467353af16f9fce27e8c30158036a1e16b"
 dependencies = [
  "js-sys",
  "serde",
