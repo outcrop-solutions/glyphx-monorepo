@@ -15,6 +15,7 @@ pub struct GlyphManager {
     ranked_glyph_data: Option<RankedGlyphData>,
     x_model_vectors: Rc<RefCell<ModelVectors>>,
     z_model_vectors: Rc<RefCell<ModelVectors>>,
+    total_glyphs: usize,
 }
 
 impl GlyphManager {
@@ -28,6 +29,7 @@ impl GlyphManager {
             ranked_glyph_data: None,
             x_model_vectors,
             z_model_vectors,
+            total_glyphs: 0,
         }
     }
     fn get_ranked_glyph_data(&mut self) -> Result<&mut RankedGlyphData, AddGlyphError> {
@@ -72,7 +74,7 @@ impl GlyphManager {
                 glyph_selected: 0,
             },
         )?;
-
+        self.total_glyphs += 1;
         Ok(())
     }
 
@@ -86,6 +88,10 @@ impl GlyphManager {
 
     pub fn get_glyphs(&self) -> Option<&RankedGlyphData> {
         self.ranked_glyph_data.as_ref()
+    }
+
+    pub fn len(&self) -> usize {
+        self.total_glyphs
     }
 }
 

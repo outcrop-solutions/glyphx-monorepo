@@ -34,9 +34,9 @@ export class ModelRunner {
   add_vector(axis: string, data: Uint8Array): Promise<void>;
 /**
 * @param {Uint8Array} data
-* @returns {Promise<void>}
+* @returns {string}
 */
-  add_statstics(data: Uint8Array): Promise<void>;
+  add_statistics(data: Uint8Array): string;
 /**
 *Adding a glyph will update internal state but it
 *will not emit any redraw events.
@@ -44,6 +44,22 @@ export class ModelRunner {
 * @returns {Promise<void>}
 */
   add_glyph(data: Uint8Array): Promise<void>;
+/**
+* @returns {number}
+*/
+  get_glyph_count(): number;
+/**
+* @returns {number}
+*/
+  get_stats_count(): number;
+/**
+* @returns {number}
+*/
+  get_x_vector_count(): number;
+/**
+* @returns {number}
+*/
+  get_y_vector_count(): number;
 /**
 * @returns {Promise<void>}
 */
@@ -155,8 +171,12 @@ export interface InitOutput {
   readonly modelrunner_add_pitch: (a: number, b: number) => void;
   readonly modelrunner_add_distance: (a: number, b: number) => void;
   readonly modelrunner_add_vector: (a: number, b: number, c: number, d: number, e: number) => number;
-  readonly modelrunner_add_statstics: (a: number, b: number, c: number) => number;
+  readonly modelrunner_add_statistics: (a: number, b: number, c: number, d: number) => void;
   readonly modelrunner_add_glyph: (a: number, b: number, c: number) => number;
+  readonly modelrunner_get_glyph_count: (a: number) => number;
+  readonly modelrunner_get_stats_count: (a: number) => number;
+  readonly modelrunner_get_x_vector_count: (a: number) => number;
+  readonly modelrunner_get_y_vector_count: (a: number) => number;
   readonly modelrunner_run: (a: number) => number;
   readonly __wbg_modelrunner_free: (a: number) => void;
   readonly __wbg_vector3_free: (a: number) => void;
@@ -250,8 +270,8 @@ export interface InitOutput {
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
   readonly __wbindgen_export_2: WebAssembly.Table;
-  readonly wasm_bindgen__convert__closures__invoke1_mut__h169e5ad4347bbc8a: (a: number, b: number, c: number) => void;
-  readonly wasm_bindgen__convert__closures__invoke0_mut__hffbbf8347af7c425: (a: number, b: number) => void;
+  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h09b783a575b776ea: (a: number, b: number, c: number) => void;
+  readonly _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h1de89293a3ec74d4: (a: number, b: number) => void;
   readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h3d6d3fc07f7e74af: (a: number, b: number, c: number) => void;
   readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h437d5ad93a62fa19: (a: number, b: number, c: number) => void;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;

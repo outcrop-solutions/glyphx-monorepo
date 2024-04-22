@@ -152,7 +152,8 @@ export const Properties = () => {
             break;
           case 'stats':
             console.log('Processing stats data', {modelRunner, dataToProcess});
-            await modelRunner.add_statistics(dataToProcess);
+            const retval = await modelRunner.add_statistics(dataToProcess);
+            console.log('stats', retval);
             break;
           case 'glyph':
             console.log('Processing glyph data', {modelRunner, dataToProcess});

@@ -1,6 +1,6 @@
 use crate::model::pipeline::glyphs::glyph_instance_data::GlyphInstanceData;
-use std::rc::Rc;
 use serde::{Deserialize, Serialize};
+use std::rc::Rc;
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum RankedGlyphDataError {
@@ -47,7 +47,7 @@ impl<'a> RankedGlyphIterator<'a> {
     }
 }
 
-impl <'a> Iterator for RankedGlyphIterator<'a> {
+impl<'a> Iterator for RankedGlyphIterator<'a> {
     type Item = &'a Vec<Rc<GlyphInstanceData>>;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -64,7 +64,7 @@ impl <'a> Iterator for RankedGlyphIterator<'a> {
                 if self.index == 0 {
                     return None;
                 }
-                let result = &self.data[self.index -1];
+                let result = &self.data[self.index - 1];
                 self.index -= 1;
                 Some(result)
             }
@@ -81,13 +81,13 @@ pub struct RankedGlyphData {
 }
 impl RankedGlyphData {
     pub fn new(x_rank_size: usize, z_rank_size: usize) -> RankedGlyphData {
-        let x_rank = Self::build_index(x_rank_size);
-        let z_rank = Self::build_index(z_rank_size);
+        let x_rank = Self::build_index(x_rank_size + 1);
+        let z_rank = Self::build_index(z_rank_size + 1);
 
         let core_data = Vec::new();
         RankedGlyphData {
-            x_rank_size,
-            z_rank_size,
+            x_rank_size: x_rank_size + 1,
+            z_rank_size: z_rank_size + 1,
             core_data,
             x_rank,
             z_rank,
@@ -124,19 +124,14 @@ impl RankedGlyphData {
 
         let z_rank = &mut self.z_rank[z_rank];
         z_rank.push(Rc::clone(&rc));
-       // core_data.push(rc);
+        // core_data.push(rc);
         Ok(())
     }
 
     pub fn iter(&self, rank: Rank, rank_direction: RankDirection) -> RankedGlyphIterator {
         let data = match rank {
-            Rank::X => { 
-            &self.x_rank
-
-            }
-            Rank::Z => { 
-                &self.z_rank
-            }
+            Rank::X => &self.x_rank,
+            Rank::Z => &self.z_rank,
         };
 
         RankedGlyphIterator::new(rank, rank_direction, data)

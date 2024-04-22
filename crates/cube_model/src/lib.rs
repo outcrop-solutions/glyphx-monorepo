@@ -8,6 +8,7 @@ mod model_event;
 use model::model_configuration::{ColorWheel, ModelConfiguration};
 use model::state::DataManager;
 use model::state::State;
+use model_common::Stats;
 use model_event::{ModelEvent, ModelMoveDirection};
 use serde_json::{from_str, json, Value};
 use std::cell::RefCell;
@@ -15,7 +16,6 @@ use std::rc::Rc;
 use winit::event::*;
 use winit::event_loop::{ControlFlow, EventLoopBuilder, EventLoopProxy};
 use winit::window::WindowBuilder;
-
 cfg_if::cfg_if! {
     if #[cfg(target_arch="wasm32")] {
         use wasm_bindgen::prelude::*;
@@ -82,7 +82,7 @@ impl ModelRunner {
 
     ///Will force a redraw of the model, if the model is running.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn update_configuration(&self, config: &str) -> Result<(), String> {
+    pub fn update_configuration(&self, config: &str, is_running: bool) -> Result<(), String> {
         let value: Value = from_str(config).unwrap();
         let mut configuration = self.configuration.borrow_mut();
         let result = configuration.partial_update(&value);
@@ -90,7 +90,7 @@ impl ModelRunner {
             return Err(serde_json::to_string(&result.unwrap_err()).unwrap());
         }
         unsafe {
-            if self.is_running {
+            if is_running {
                 let event = ModelEvent::Redraw;
                 self.emit_event(&event);
                 if EVENT_LOOP_PROXY.is_some() {
@@ -104,7 +104,6 @@ impl ModelRunner {
         }
         Ok(())
     }
-
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn add_yaw(&self, amount: f32) {
         unsafe {
@@ -167,11 +166,11 @@ impl ModelRunner {
     //Adding statistics will update internal state but it
     //will not emit any redraw events.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub async fn add_statistics(&self, data: Vec<u8>) -> Result<(), String> {
+    pub fn add_statistics(&self, data: Vec<u8>) -> Result<String, String> {
         let mut dm = self.data_manager.borrow_mut();
         let result = dm.add_stats(data);
         match result {
-            Ok(_) => Ok(()),
+            Ok(stats) => Ok(format!("{:?}", stats)),
             Err(e) => Err(serde_json::to_string(&e).unwrap()),
         }
     }
@@ -186,6 +185,30 @@ impl ModelRunner {
             Ok(_) => Ok(()),
             Err(e) => Err(serde_json::to_string(&e).unwrap()),
         }
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn get_glyph_count(&self) -> usize {
+        let dm = self.data_manager.borrow();
+        dm.get_glyph_len()
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn get_stats_count(&self) -> usize {
+        let dm = self.data_manager.borrow();
+        dm.get_stats_len()
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn get_x_vector_count(&self) -> usize {
+        let dm = self.data_manager.borrow();
+        dm.get_vector_len("x")
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn get_y_vector_count(&self) -> usize {
+        let dm = self.data_manager.borrow();
+        dm.get_vector_len("z")
     }
 
     fn init_logger(&self) {
@@ -219,7 +242,7 @@ impl ModelRunner {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub async fn run(&mut self) {
+    pub async fn run(&self) {
         self.init_logger();
 
         let el = EventLoopBuilder::<ModelEvent>::with_user_event().build();
@@ -239,7 +262,7 @@ impl ModelRunner {
         }
 
         let this_window_id = window.id();
-        self.is_running = true;
+        // self.is_running = true;
 
         let config = self.configuration.clone();
 

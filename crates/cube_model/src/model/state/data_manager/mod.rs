@@ -1,11 +1,11 @@
 mod glyph_manager;
 mod stats_manager;
 
-use super::{AddGlyphError, AddStatsError, DeserializeVectorError, ModelVectors, RankedGlyphData};
+use super::{AddGlyphError, AddStatsError, DeserializeVectorError, ModelVectors, RankedGlyphData, GetStatsError};
 
 pub use glyph_manager::GlyphManager;
 pub use stats_manager::StatsManager;
-
+use model_common::Stats;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -43,8 +43,12 @@ impl DataManager {
         self.z_vectors.borrow_mut().deserialize(vector_bytes)
     }
 
-    pub fn add_stats(&mut self, stats_bytes: Vec<u8>) -> Result<(), AddStatsError> {
+    pub fn add_stats(&mut self, stats_bytes: Vec<u8>) -> Result<Stats, AddStatsError> {
         self.stats_manager.borrow_mut().add_stats(stats_bytes)
+    }
+
+    pub fn get_stats(&self, axis: &str) -> Result<Stats, GetStatsError> {
+        self.stats_manager.borrow().get_stats(axis)
     }
 
     pub fn add_glyph(&mut self, glyph_bytes: Vec<u8>) -> Result<(), AddGlyphError> {
@@ -53,6 +57,24 @@ impl DataManager {
 
     pub fn get_glyphs(&self) -> Option<&RankedGlyphData> {
         self.glyph_manager.get_glyphs()
+    }
+     
+    pub fn get_vector_len( &self, axis: &str) -> usize {
+        match axis {
+            "x" => self.x_vectors.borrow().len(),
+            "z" => self.z_vectors.borrow().len(),
+            _ => 0,
+        }
+    }
+
+    pub fn get_stats_len(&self) -> usize {
+        self.stats_manager.borrow().len()
+    }
+
+
+
+    pub fn get_glyph_len(&self) -> usize {
+        self.glyph_manager.len()
     }
 }
 

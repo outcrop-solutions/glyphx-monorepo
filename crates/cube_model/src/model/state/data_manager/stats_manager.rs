@@ -49,7 +49,7 @@ impl StatsManager {
             }
         }
     }
-    pub fn add_stats(&mut self, stats_bytes: Vec<u8>) -> Result<(), AddStatsError> {
+    pub fn add_stats(&mut self, stats_bytes: Vec<u8>) -> Result<Stats, AddStatsError> {
         let stats = deserialize::<Stats>(&stats_bytes)?;
         //Ok pay attention to this, it is super important.  In WebGPU Y is up and Z is depth.  So
         //we will need to flip the Y and Z values.  We keep them in application order in the
@@ -59,25 +59,25 @@ impl StatsManager {
                 if self.x_axis_stats.is_some() {
                     return Err(AddStatsError::axis_exists("x"));
                 }
-                self.x_axis_stats = Some(stats);
+                self.x_axis_stats = Some(stats.clone());
             }
             "y" => {
                 if self.z_axis_stats.is_some() {
                     return Err(AddStatsError::axis_exists("y"));
                 }
-                self.z_axis_stats = Some(stats);
+                self.z_axis_stats = Some(stats.clone());
             }
             "z" => {
                 if self.y_axis_stats.is_some() {
                     return Err(AddStatsError::axis_exists("z"));
                 }
-                self.y_axis_stats = Some(stats);
+                self.y_axis_stats = Some(stats.clone());
             }
             invalid => {
                 return Err(AddStatsError::invalid_axis_name(invalid));
             }
         };
-        Ok(())
+        Ok(stats)
     }
 
     pub fn swap_stats(&mut self, stats_bytes: Vec<u8>) -> Result<(), AddStatsError> {
@@ -100,6 +100,20 @@ impl StatsManager {
             }
         };
         Ok(())
+    }
+
+    pub fn len(&self) -> usize {
+        let mut count = 0;
+        if self.x_axis_stats.is_some() {
+            count += 1;
+        }
+        if self.y_axis_stats.is_some() {
+            count += 1;
+        }
+        if self.z_axis_stats.is_some() {
+            count += 1;
+        }
+        count
     }
 }
 

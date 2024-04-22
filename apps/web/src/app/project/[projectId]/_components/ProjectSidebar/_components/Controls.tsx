@@ -5,10 +5,10 @@ import {modelRunnerAtom} from 'state';
 
 export const Controls = () => {
   const [isCollapsed, setCollapsed] = useState(false);
-  const modelRunner = useRecoilValue(modelRunnerAtom);
+  const {modelRunner, initialized} = useRecoilValue(modelRunnerAtom);
 
   return (
-    modelRunner && (
+    initialized && (
       <div className="group flex flex-col grow">
         <summary className="flex h-8 items-center cursor-pointer justify-between w-full text-gray hover:text-white hover:border-b-white hover:bg-secondary-midnight truncate border-b border-gray z-10">
           <div
