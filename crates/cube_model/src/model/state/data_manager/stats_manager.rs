@@ -101,6 +101,20 @@ impl StatsManager {
         };
         Ok(())
     }
+
+    pub fn len(&self) -> usize {
+        let mut count = 0;
+        if self.x_axis_stats.is_some() {
+            count += 1;
+        }
+        if self.y_axis_stats.is_some() {
+            count += 1;
+        }
+        if self.z_axis_stats.is_some() {
+            count += 1;
+        }
+        count
+    }
 }
 
 impl Default for StatsManager {

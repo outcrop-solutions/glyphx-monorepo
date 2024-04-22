@@ -104,7 +104,6 @@ impl ModelRunner {
         }
         Ok(())
     }
-
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn add_yaw(&self, amount: f32) {
         unsafe {
@@ -168,7 +167,7 @@ impl ModelRunner {
     //Adding statistics will update internal state but it
     //will not emit any redraw events.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn add_statstics(&self, data: Vec<u8>) -> Result<(), String>{
+    pub fn add_statistics(&self, data: Vec<u8>) -> Result<(), String>{
         let mut dm = self.data_manager.borrow_mut();
         let result = dm.add_stats(data);
         match result {
@@ -187,6 +186,30 @@ impl ModelRunner {
             Ok(_) => Ok(()),
             Err(e) => Err(serde_json::to_string(&e).unwrap()),
         }
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn get_glyph_count(&self)-> usize {
+        let dm = self.data_manager.borrow();
+        dm.get_glyph_len()
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn get_stats_count(&self)-> usize {
+        let dm = self.data_manager.borrow();
+        dm.get_stats_len()
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn get_x_vector_count(&self)-> usize {
+        let dm = self.data_manager.borrow();
+        dm.get_vector_len("x")
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn get_y_vector_count(&self)-> usize {
+        let dm = self.data_manager.borrow();
+        dm.get_vector_len("z")
     }
 
     fn init_logger(&self) {
