@@ -167,7 +167,7 @@ impl ModelRunner {
     //Adding statistics will update internal state but it
     //will not emit any redraw events.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub async fn add_statstics(&self, data: Vec<u8>) -> Result<(), String> {
+    pub async fn add_statistics(&self, data: Vec<u8>) -> Result<(), String> {
         let mut dm = self.data_manager.borrow_mut();
         let result = dm.add_stats(data);
         match result {

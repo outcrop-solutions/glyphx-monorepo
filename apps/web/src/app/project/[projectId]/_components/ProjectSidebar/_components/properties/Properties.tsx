@@ -1,5 +1,5 @@
 'use client';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {Property} from './Property';
 import {
@@ -32,6 +32,7 @@ export const Properties = () => {
   const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
+  const urlRef = useRef('');
   const doesStateExist = useRecoilValue(doesStateExistSelector);
   const {workspaceId, projectId, tableName} = useRecoilValue(dataGridPayloadSelector);
 
@@ -119,6 +120,7 @@ export const Properties = () => {
    * @param buffer
    * @returns
    */
+
   const processData = useCallback(
     (axis: webTypes.constants.AXIS, processor: string) => async (buffer: Buffer) => {
       let offset = 0;
@@ -146,12 +148,11 @@ export const Properties = () => {
         switch (processor) {
           case 'vector':
             console.log(`Processing ${axis} vector data`, {modelRunner, dataToProcess});
-            const retval = await modelRunner.add_vector(axis, dataToProcess);
-            console.log({retval});
+            await modelRunner.add_vector(axis, dataToProcess);
             break;
           case 'stats':
             console.log('Processing stats data', {modelRunner, dataToProcess});
-            await modelRunner.add_statstics(dataToProcess);
+            await modelRunner.add_statistics(dataToProcess);
             break;
           case 'glyph':
             console.log('Processing glyph data', {modelRunner, dataToProcess});
@@ -165,8 +166,8 @@ export const Properties = () => {
 
         // Update the offset to move past the processed data
         offset += Number(totalDataLength);
+        return buffer.subarray(offset); // Return the unprocessed remainder
       }
-      return buffer.subarray(offset); // Return the unprocessed remainder
     },
     [modelRunner]
   );
@@ -192,32 +193,32 @@ export const Properties = () => {
           // First, handle statistics and vectors concurrently
           // process stats and vectors before glyphs
           // await Promise.all([
-          try {
-            // @ts-ignore
-            await handleStream(retval?.STS_URL, processData(undefined, 'stats'));
-          } catch (error) {}
+          // @ts-ignore
+          urlRef.current = retval.GLY_URL;
+          // @ts-ignore
+          await handleStream(retval?.STS_URL, processData(undefined, 'stats'));
 
           // @ts-ignore
           await handleStream(retval?.X_VEC, processData('x', 'vector'));
           // @ts-ignore
           await handleStream(retval?.Y_VEC, processData('y', 'vector'));
           // ]);
-          setTimeout(async () => {
-            try {
-              // @ts-ignore
-              await handleStream(retval?.GLY_URL, processData(undefined, 'glyph'));
-            } catch (error) {
-              console.log({error});
-            }
-          }, 2000);
+          // setTimeout(async () => {
+          //   try {
+          // @ts-ignore
+          // await handleStream(retval?.GLY_URL, processData(undefined, 'glyph'));
+          //   } catch (error) {
+          //     console.log({error});
+          //   }
+          // }, 2000);
 
-          setTimeout(async () => {
-            try {
-              await modelRunner.run();
-            } catch (error) {
-              console.log('model run error', {error});
-            }
-          }, 5000);
+          // setTimeout(async () => {
+          // try {
+          //   await modelRunner.run();
+          // } catch (error) {
+          //   console.log('model run error', {error});
+          // }
+          // }, 5000);
         }
 
         //
@@ -227,10 +228,40 @@ export const Properties = () => {
         console.log({error});
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [handleStream, processData, project, properties]
     // [modelRunner, project, properties, setLoading]
   );
+
+  const streamGlyph = useCallback(async () => {
+    try {
+      const x_vec_count = modelRunner.get_x_vector_count();
+      const y_vec_count = modelRunner.get_y_vector_count();
+      const stats_count = modelRunner.get_stats_count();
+      const glyph_count = modelRunner.get_glyph_count();
+      console.log({
+        x_vec_count,
+        y_vec_count,
+        stats_count,
+        glyph_count,
+      });
+      // @ts-ignore
+      await handleStream(urlRef.current, processData(undefined, 'glyph'));
+    } catch (error) {
+      console.log({error});
+    }
+  }, [handleStream, modelRunner, processData]);
+
+  const modelRun = useCallback(async () => {
+    try {
+      await modelRunner.run();
+      // } catch (error) {
+      //   console.log('model run error', {error});
+      // }
+    } catch (error) {
+      console.log({error});
+    }
+  }, [modelRunner]);
 
   const runRust = isWebGPUEnabled && segment === 'CONFIG';
 
@@ -246,7 +277,7 @@ export const Properties = () => {
           >
             <div className="flex mx-2 items-center w-full">
               <span className="">
-                {/* @jp-burford it's sinful but it's functional for now so*/}
+                {/* @JP Burford it's sinful but it's functional for now so*/}
                 <svg
                   className={`w-5 h-5 ${isCollapsed ? '-rotate-90' : 'rotate-180'}`}
                   viewBox="0 0 20 20"
@@ -270,6 +301,18 @@ export const Properties = () => {
               className={`flex items-center bg-gray hover:bg-yellow justify-around px-3 text-xs mr-2 my-2 text-center rounded disabled:opacity-75 text-white`}
             >
               <span>Apply</span>
+            </button>
+            <button
+              onClick={streamGlyph}
+              className={`flex items-center bg-gray hover:bg-yellow justify-around px-3 text-xs mr-2 my-2 text-center rounded disabled:opacity-75 text-white`}
+            >
+              <span>stream</span>
+            </button>
+            <button
+              onClick={modelRun}
+              className={`flex items-center bg-gray hover:bg-yellow justify-around px-3 text-xs mr-2 my-2 text-center rounded disabled:opacity-75 text-white`}
+            >
+              <span>run</span>
             </button>
             {/* <PlusIcon className="w-5 h-5 opacity-75 mr-1" /> */}
           </summary>
