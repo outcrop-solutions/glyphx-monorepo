@@ -5,6 +5,7 @@ import {revalidatePath} from 'next/cache';
 import {projectTemplateService, activityLogService, projectService} from '../../business/src/services';
 import {databaseTypes} from 'types';
 import {authOptions} from './auth';
+import {redirect} from 'next/navigation';
 
 /**
  * Create Default ProjectTemplate
@@ -24,7 +25,7 @@ export const createProjectTemplate = async (
     const session = await getServerSession(authOptions);
     if (session) {
       await projectTemplateService.createProjectTemplate(projectId, projectName, projectDesc, properties);
-      revalidatePath('/[workspaceId]');
+      revalidatePath('/[workspaceId]', 'page');
     }
   } catch (err) {
     const e = new error.ActionError(
@@ -50,10 +51,11 @@ export const createProjectTemplate = async (
  */
 
 export const createProjectFromTemplate = async (workspaceId: string, template: databaseTypes.IProjectTemplate) => {
+  let projectId = '';
   try {
     const session = await getServerSession(authOptions);
     if (session) {
-      await projectService.createProject(
+      const project = await projectService.createProject(
         `${template.name}`,
         workspaceId,
         session?.user?.id,
@@ -61,7 +63,7 @@ export const createProjectFromTemplate = async (workspaceId: string, template: d
         template,
         template.description
       );
-      revalidatePath('/[workspaceId]');
+      projectId = project.id || '';
     }
   } catch (err) {
     const e = new error.ActionError(
@@ -73,6 +75,7 @@ export const createProjectFromTemplate = async (workspaceId: string, template: d
     e.publish('template', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }
+  redirect(`/project/${projectId}`);
 };
 
 /**

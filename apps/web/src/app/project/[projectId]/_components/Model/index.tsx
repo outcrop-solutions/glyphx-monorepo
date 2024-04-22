@@ -42,8 +42,8 @@ export const Model = () => {
       // Function to handle mouse move events on the canvas.
       const handleMouseMove = (e) => {
         if (isDragRotate) {
-          modelRunner.add_yaw(-e.movementX);
-          modelRunner.add_pitch(e.movementY);
+          modelRunnerState.modelRunner.add_yaw(-e.movementX);
+          modelRunnerState.modelRunner.add_pitch(e.movementY);
         }
       };
 
@@ -57,7 +57,7 @@ export const Model = () => {
       // Function to handle wheel events on the canvas.
       const handleWheel = (e) => {
         e.preventDefault();
-        modelRunner.add_distance(-e.deltaY);
+        modelRunnerState.modelRunner.add_distance(-e.deltaY);
       };
 
       // Update the canvas size to maintain the aspect ratio and fit its container

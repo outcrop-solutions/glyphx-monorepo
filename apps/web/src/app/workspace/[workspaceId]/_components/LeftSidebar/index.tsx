@@ -22,7 +22,7 @@ const Sidebar = ({workspaces}) => {
         }
       >
         <div className="flex-col space-y-1 md:flex border-b border-white pb-2">
-          <Link href={`/${workspaceId}/templates`}>
+          <Link href={`/workspace/${workspaceId}/templates`}>
             <div
               className={`flex items-center space-x-2 hover:bg-nav ${
                 pathname?.includes('templates') && 'bg-nav'
@@ -32,7 +32,7 @@ const Sidebar = ({workspaces}) => {
               <div className="text-gray-300 hover:text-white text-sm">Templates</div>
             </div>
           </Link>
-          <Link href={`/${workspaceId}/data`}>
+          <Link href={`/workspace/${workspaceId}/data`}>
             <div
               className={`flex items-center space-x-2 hover:bg-nav ${
                 pathname?.includes('data') && 'bg-nav'
@@ -42,7 +42,7 @@ const Sidebar = ({workspaces}) => {
               <div className="text-gray-300 hover:text-white text-sm">Data</div>
             </div>
           </Link>
-          <Link href={`/${workspaceId}`}>
+          <Link href={`/workspace/${workspaceId}`}>
             <div
               className={`flex items-center space-x-2 hover:bg-nav ${
                 !pathname?.includes('templates') && !pathname?.includes('data') && 'bg-nav'
@@ -63,7 +63,7 @@ const Sidebar = ({workspaces}) => {
                 } rounded p-1`}
               >
                 <UserGroupIcon className="h-4 w-4" />
-                <Link href={`/${space.id}`}>
+                <Link href={`/workspace/${space.id}`}>
                   <span className="text-gray-300 hover:text-white text-sm">{space.name}</span>
                 </Link>
               </li>

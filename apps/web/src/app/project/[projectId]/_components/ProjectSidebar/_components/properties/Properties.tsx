@@ -28,7 +28,7 @@ import {webTypes} from 'types';
 export const Properties = () => {
   const session = useSession();
   const {mutate} = useSWRConfig();
-  const modelRunner = useRecoilValue(modelRunnerAtom);
+  const {modelRunner} = useRecoilValue(modelRunnerAtom);
   const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
@@ -83,12 +83,14 @@ export const Properties = () => {
   );
 
   /**
-   * Generic stream handler
+   * Generic stream handler.
+   * Provides continuity across chunks for data processData
    * @param url
    * @param processData
    */
   const handleStream = useCallback(async (url: string, processData) => {
     const response = await fetch(url);
+
     if (response.body) {
       const reader = response.body.getReader();
       let buffer = new Uint8Array();
@@ -116,38 +118,133 @@ export const Properties = () => {
    * @returns
    */
   const processVectorData = useCallback(
-    (axis: webTypes.constants.AXIS, modelRunner) => (buffer) => {
-      while (buffer.length >= 8) {
-        const length = new DataView(buffer.buffer).getUint32(0, true);
-        if (buffer.length >= 8 + length) {
-          const vectorData = buffer.slice(8, 8 + length);
-          modelRunner.addVector(axis, vectorData); // Assuming axis handling is integrated
-          buffer = buffer.slice(8 + length);
-        } else {
-          break;
+    (axis: webTypes.constants.AXIS) => (buffer) => {
+      let offset = 0;
+
+      while (offset < buffer.length) {
+        if (offset + 1 > buffer.length) break; // Ensure there's enough buffer to read the discriminator
+
+        const discriminator = buffer[offset]; // Read the enum variant discriminator
+        offset += 1; // Move past the discriminator
+
+        let origValueLength = 0;
+
+        switch (discriminator) {
+          case 0: // String
+            if (offset + 4 > buffer.length) return buffer.slice(offset - 1); // Not enough buffer to read the length
+            const stringLength = new DataView(buffer.buffer, buffer.byteOffset + offset).getUint32(0, true);
+            origValueLength = 4 + stringLength; // Length field plus string data
+            break;
+          case 1: // F64
+          case 2: // U64
+            origValueLength = 8; // Direct 8 bytes for f64 or u64
+            break;
+          case 3: // Empty
+            origValueLength = 0; // No additional bytes
+            break;
+          default:
+            console.error('Unknown discriminator value');
+            return buffer.slice(offset - 1); // Revert to before discriminator if unknown
         }
+
+        offset += origValueLength;
+
+        if (offset + 16 > buffer.length) break; // Ensure there's enough buffer to read vector and rank
+
+        const vectorData = buffer.slice(offset - origValueLength - 1, offset + 16);
+        console.log({vectorData});
+        modelRunner.addVector(axis, Array.from(vectorData));
+        offset += 16; // Move past vector and rank data
       }
-      return buffer;
+
+      return buffer.slice(offset); // Return the unprocessed remainder
     },
-    []
+    [modelRunner]
   );
 
   /**
-   * Not built out yet
+   * Parses and streams statistics binary data
    * @param buffer
    * @returns
    */
-  const processStatsData = (buffer) => {
-    return buffer;
-  };
+  const processStatsData = useCallback(
+    (buffer) => {
+      let offset = 0;
+
+      while (offset < buffer.length) {
+        // Read the length of the axis string
+        if (offset + 4 > buffer.length) break; // Ensure there's enough buffer to read the length
+        const axisLength = new DataView(buffer.buffer, buffer.byteOffset + offset).getUint32(0, true);
+        offset += 4;
+
+        // Check if the whole axis string is available in the buffer
+        if (offset + axisLength + 8 * 32 + 8 > buffer.length) break; // Ensure all data after the axis is available
+
+        // Extract the axis string
+        const axis = new TextDecoder('utf-8').decode(buffer.slice(offset, offset + axisLength));
+        offset += axisLength;
+
+        // Extract all floating point values and the max_rank
+        const statsValues = new Float64Array(
+          buffer.buffer.slice(buffer.byteOffset + offset, buffer.byteOffset + offset + 8 * 32)
+        );
+        offset += 8 * 32;
+
+        // Extract max_rank
+        const maxRank = new DataView(buffer.buffer, buffer.byteOffset + offset).getUint32(0, true);
+        offset += 8;
+
+        console.log('Parsed Stats:', {axis, statsValues, maxRank});
+        modelRunner.add_statstics(Array.from(new Uint8Array(buffer.slice(offset - (axisLength + 8 * 32 + 8), offset))));
+      }
+
+      return buffer.slice(offset); // Return the unprocessed remainder for further processing
+    },
+    [modelRunner]
+  );
+
   /**
-   * Not built out yet
+   * Parses and streams glyph data
    * @param buffer
    * @returns
    */
-  const processGlyphData = (buffer) => {
-    return buffer;
-  };
+  const processGlyphData = useCallback(
+    (buffer) => {
+      let offset = 0;
+
+      while (offset < buffer.length) {
+        // Ensure there's enough buffer to read the three f64 values and the length of the vector
+        if (offset + 24 + 8 > buffer.length) break;
+
+        // Read three f64 values
+        const xValue = new DataView(buffer.buffer, buffer.byteOffset + offset).getFloat64(0, true);
+        const yValue = new DataView(buffer.buffer, buffer.byteOffset + offset + 8).getFloat64(0, true);
+        const zValue = new DataView(buffer.buffer, buffer.byteOffset + offset + 16).getFloat64(0, true);
+        offset += 24;
+
+        // Read the length of the vector
+        const numRowIds = new DataView(buffer.buffer, buffer.byteOffset + offset).getUint32(0, true);
+        offset += 8;
+
+        // Check if the whole row_ids array is available in the buffer
+        if (offset + numRowIds * 8 > buffer.length) break;
+
+        // Extract the row_ids
+        const rowIds = new Uint32Array(
+          buffer.buffer.slice(buffer.byteOffset + offset, buffer.byteOffset + offset + numRowIds * 8)
+        );
+        offset += numRowIds * 8;
+
+        console.log('Parsed Glyph:', {xValue, yValue, zValue, rowIds});
+
+        const glyphData = new Uint8Array(buffer.slice(offset - (24 + 8 + numRowIds * 8), offset));
+        modelRunner.add_glyph(Array.from(glyphData));
+      }
+
+      return buffer.slice(offset); // Return the unprocessed remainder for further processing
+    },
+    [modelRunner]
+  );
 
   const runRustGlyphEngine = useCallback(
     async (event) => {
@@ -163,7 +260,7 @@ export const Properties = () => {
       try {
         // run glyph engine
         const retval = await runGlyphEngineAction(project, properties);
-        console.log({retval});
+
         // TODO: need a discriminated union to remove @ts ignore comments
         // @ts-ignore
         if (retval && !retval?.error) {
@@ -173,9 +270,9 @@ export const Properties = () => {
             // @ts-ignore
             handleStream(retval?.STS_URL, processStatsData),
             // @ts-ignore
-            handleStream(retval?.X_VEC, processVectorData('x', modelRunner)),
+            handleStream(retval?.X_VEC, processVectorData('x')),
             // @ts-ignore
-            handleStream(retval?.Y_VEC, processVectorData('y', modelRunner)),
+            handleStream(retval?.Y_VEC, processVectorData('y')),
           ]);
           // @ts-ignore
           await handleStream(retval?.GLY_URL, processGlyphData);
@@ -186,7 +283,7 @@ export const Properties = () => {
         console.log({error});
       }
     },
-    [handleStream, modelRunner, processVectorData, project, properties]
+    [handleStream, processGlyphData, processVectorData, project, properties]
     // [modelRunner, project, properties, setLoading]
   );
 
