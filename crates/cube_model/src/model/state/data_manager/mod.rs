@@ -43,7 +43,7 @@ impl DataManager {
         self.z_vectors.borrow_mut().deserialize(vector_bytes)
     }
 
-    pub fn add_stats(&mut self, stats_bytes: Vec<u8>) -> Result<(), AddStatsError> {
+    pub fn add_stats(&mut self, stats_bytes: Vec<u8>) -> Result<Stats, AddStatsError> {
         self.stats_manager.borrow_mut().add_stats(stats_bytes)
     }
 
@@ -70,6 +70,8 @@ impl DataManager {
     pub fn get_stats_len(&self) -> usize {
         self.stats_manager.borrow().len()
     }
+
+
 
     pub fn get_glyph_len(&self) -> usize {
         self.glyph_manager.len()

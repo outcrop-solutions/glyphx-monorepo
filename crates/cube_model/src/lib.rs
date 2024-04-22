@@ -15,7 +15,7 @@ use std::rc::Rc;
 use winit::event::*;
 use winit::event_loop::{ControlFlow, EventLoopBuilder, EventLoopProxy};
 use winit::window::WindowBuilder;
-
+use model_common::Stats;
 cfg_if::cfg_if! {
     if #[cfg(target_arch="wasm32")] {
         use wasm_bindgen::prelude::*;
@@ -167,11 +167,11 @@ impl ModelRunner {
     //Adding statistics will update internal state but it
     //will not emit any redraw events.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn add_statistics(&self, data: Vec<u8>) -> Result<(), String>{
+    pub fn add_statistics(&self, data: Vec<u8>) -> Result<Stats, String>{
         let mut dm = self.data_manager.borrow_mut();
         let result = dm.add_stats(data);
         match result {
-            Ok(_) => Ok(()),
+            Ok(stats) => Ok(stats),
             Err(e) => Err(serde_json::to_string(&e).unwrap()),
         }
     }
