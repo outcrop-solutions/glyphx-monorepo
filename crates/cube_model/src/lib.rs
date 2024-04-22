@@ -82,10 +82,10 @@ impl ModelRunner {
 
     ///Will force a redraw of the model, if the model is running.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn update_configuration(&self, config: &str) -> Result<(), String >{
+    pub fn update_configuration(&self, config: &str) -> Result<(), String> {
         let value: Value = from_str(config).unwrap();
         let mut configuration = self.configuration.borrow_mut();
-        let result  = configuration.partial_update(&value);
+        let result = configuration.partial_update(&value);
         if result.is_err() {
             return Err(serde_json::to_string(&result.unwrap_err()).unwrap());
         }
@@ -152,10 +152,9 @@ impl ModelRunner {
     ///Adding a vector will update internal state but it
     ///will not emit any redraw events.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn add_vector(&self, axis: &str, data: Vec<u8>) -> Result<(), String>{
+    pub async fn add_vector(&self, axis: &str, data: Vec<u8>) -> Result<(), String> {
         let mut dm = self.data_manager.borrow_mut();
-        let result = 
-        if axis == "x" {
+        let result = if axis == "x" {
             dm.add_x_vector(data)
         } else {
             dm.add_z_vector(data)
@@ -168,7 +167,7 @@ impl ModelRunner {
     //Adding statistics will update internal state but it
     //will not emit any redraw events.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn add_statstics(&self, data: Vec<u8>) -> Result<(), String>{
+    pub async fn add_statstics(&self, data: Vec<u8>) -> Result<(), String> {
         let mut dm = self.data_manager.borrow_mut();
         let result = dm.add_stats(data);
         match result {
@@ -180,7 +179,7 @@ impl ModelRunner {
     ///Adding a glyph will update internal state but it
     ///will not emit any redraw events.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn add_glyph(&self, data: Vec<u8>)-> Result<(), String> {
+    pub async fn add_glyph(&self, data: Vec<u8>) -> Result<(), String> {
         let mut dm = self.data_manager.borrow_mut();
         let result = dm.add_glyph(data);
         match result {

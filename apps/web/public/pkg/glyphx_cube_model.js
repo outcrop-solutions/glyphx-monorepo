@@ -214,11 +214,11 @@ function makeMutClosure(arg0, arg1, dtor, f) {
     return real;
 }
 function __wbg_adapter_28(arg0, arg1, arg2) {
-    wasm._dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h09b783a575b776ea(arg0, arg1, addHeapObject(arg2));
+    wasm.wasm_bindgen__convert__closures__invoke1_mut__h169e5ad4347bbc8a(arg0, arg1, addHeapObject(arg2));
 }
 
 function __wbg_adapter_37(arg0, arg1) {
-    wasm._dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h1de89293a3ec74d4(arg0, arg1);
+    wasm.wasm_bindgen__convert__closures__invoke0_mut__hffbbf8347af7c425(arg0, arg1);
 }
 
 function __wbg_adapter_48(arg0, arg1, arg2) {
@@ -283,7 +283,7 @@ function handleError(f, args) {
         wasm.__wbindgen_exn_store(addHeapObject(e));
     }
 }
-function __wbg_adapter_739(arg0, arg1, arg2, arg3) {
+function __wbg_adapter_741(arg0, arg1, arg2, arg3) {
     wasm.wasm_bindgen__convert__closures__invoke2_mut__hb26d06dc0e08560c(arg0, arg1, addHeapObject(arg2), addHeapObject(arg3));
 }
 
@@ -358,61 +358,37 @@ export class ModelRunner {
     *will not emit any redraw events.
     * @param {string} axis
     * @param {Uint8Array} data
+    * @returns {Promise<void>}
     */
     add_vector(axis, data) {
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            const ptr0 = passStringToWasm0(axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-            const len0 = WASM_VECTOR_LEN;
-            const ptr1 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
-            const len1 = WASM_VECTOR_LEN;
-            wasm.modelrunner_add_vector(retptr, this.__wbg_ptr, ptr0, len0, ptr1, len1);
-            var r0 = getInt32Memory0()[retptr / 4 + 0];
-            var r1 = getInt32Memory0()[retptr / 4 + 1];
-            if (r1) {
-                throw takeObject(r0);
-            }
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
+        const ptr0 = passStringToWasm0(axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.modelrunner_add_vector(this.__wbg_ptr, ptr0, len0, ptr1, len1);
+        return takeObject(ret);
     }
     /**
     * @param {Uint8Array} data
+    * @returns {Promise<void>}
     */
     add_statstics(data) {
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            const ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
-            const len0 = WASM_VECTOR_LEN;
-            wasm.modelrunner_add_statstics(retptr, this.__wbg_ptr, ptr0, len0);
-            var r0 = getInt32Memory0()[retptr / 4 + 0];
-            var r1 = getInt32Memory0()[retptr / 4 + 1];
-            if (r1) {
-                throw takeObject(r0);
-            }
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
+        const ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.modelrunner_add_statstics(this.__wbg_ptr, ptr0, len0);
+        return takeObject(ret);
     }
     /**
     *Adding a glyph will update internal state but it
     *will not emit any redraw events.
     * @param {Uint8Array} data
+    * @returns {Promise<void>}
     */
     add_glyph(data) {
-        try {
-            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            const ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
-            const len0 = WASM_VECTOR_LEN;
-            wasm.modelrunner_add_glyph(retptr, this.__wbg_ptr, ptr0, len0);
-            var r0 = getInt32Memory0()[retptr / 4 + 0];
-            var r1 = getInt32Memory0()[retptr / 4 + 1];
-            if (r1) {
-                throw takeObject(r0);
-            }
-        } finally {
-            wasm.__wbindgen_add_to_stack_pointer(16);
-        }
+        const ptr0 = passArray8ToWasm0(data, wasm.__wbindgen_malloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ret = wasm.modelrunner_add_glyph(this.__wbg_ptr, ptr0, len0);
+        return takeObject(ret);
     }
     /**
     * @returns {Promise<void>}
@@ -862,13 +838,13 @@ function __wbg_get_imports() {
         const ret = getObject(arg0);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_as_number = function(arg0) {
-        const ret = +getObject(arg0);
-        return ret;
-    };
     imports.wbg.__wbindgen_string_new = function(arg0, arg1) {
         const ret = getStringFromWasm0(arg0, arg1);
         return addHeapObject(ret);
+    };
+    imports.wbg.__wbindgen_as_number = function(arg0) {
+        const ret = +getObject(arg0);
+        return ret;
     };
     imports.wbg.__wbg_new_abda76e883ba8a5f = function() {
         const ret = new Error();
@@ -2041,6 +2017,10 @@ function __wbg_get_imports() {
         const ret = getObject(arg0).push(getObject(arg1));
         return ret;
     };
+    imports.wbg.__wbg_call_01734de55d61e11d = function() { return handleError(function (arg0, arg1, arg2) {
+        const ret = getObject(arg0).call(getObject(arg1), getObject(arg2));
+        return addHeapObject(ret);
+    }, arguments) };
     imports.wbg.__wbg_is_205d914af04a8faa = function(arg0, arg1) {
         const ret = Object.is(getObject(arg0), getObject(arg1));
         return ret;
@@ -2052,7 +2032,7 @@ function __wbg_get_imports() {
                 const a = state0.a;
                 state0.a = 0;
                 try {
-                    return __wbg_adapter_739(a, state0.b, arg0, arg1);
+                    return __wbg_adapter_741(a, state0.b, arg0, arg1);
                 } finally {
                     state0.a = a;
                 }
@@ -2121,48 +2101,48 @@ function __wbg_get_imports() {
         const ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper613 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 95, __wbg_adapter_28);
+    imports.wbg.__wbindgen_closure_wrapper535 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 67, __wbg_adapter_28);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper615 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 95, __wbg_adapter_28);
+    imports.wbg.__wbindgen_closure_wrapper537 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 67, __wbg_adapter_28);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper617 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 95, __wbg_adapter_28);
+    imports.wbg.__wbindgen_closure_wrapper539 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 67, __wbg_adapter_28);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper619 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 95, __wbg_adapter_28);
+    imports.wbg.__wbindgen_closure_wrapper541 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 67, __wbg_adapter_28);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper621 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 95, __wbg_adapter_37);
+    imports.wbg.__wbindgen_closure_wrapper543 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 67, __wbg_adapter_37);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper623 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 95, __wbg_adapter_28);
+    imports.wbg.__wbindgen_closure_wrapper545 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 67, __wbg_adapter_28);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper625 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 95, __wbg_adapter_28);
+    imports.wbg.__wbindgen_closure_wrapper547 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 67, __wbg_adapter_28);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper627 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 95, __wbg_adapter_28);
+    imports.wbg.__wbindgen_closure_wrapper549 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 67, __wbg_adapter_28);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper629 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 95, __wbg_adapter_28);
+    imports.wbg.__wbindgen_closure_wrapper551 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 67, __wbg_adapter_28);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper831 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 200, __wbg_adapter_48);
+    imports.wbg.__wbindgen_closure_wrapper861 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 227, __wbg_adapter_48);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper1003 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 267, __wbg_adapter_51);
+    imports.wbg.__wbindgen_closure_wrapper1014 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 279, __wbg_adapter_51);
         return addHeapObject(ret);
     };
 

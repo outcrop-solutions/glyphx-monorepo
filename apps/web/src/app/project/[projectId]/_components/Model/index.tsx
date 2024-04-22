@@ -34,32 +34,6 @@ export const Model = () => {
       let isDragRotate = false;
       console.log('within conditional', {modelRunnerState});
 
-      // Function to handle mouse down events on the canvas.
-      const handleMouseDown = () => {
-        isDragRotate = true;
-      };
-
-      // Function to handle mouse move events on the canvas.
-      const handleMouseMove = (e) => {
-        if (isDragRotate) {
-          modelRunnerState.modelRunner.add_yaw(-e.movementX);
-          modelRunnerState.modelRunner.add_pitch(e.movementY);
-        }
-      };
-
-      // Function to handle mouse up events on the canvas.
-      const handleMouseUp = () => {
-        if (isDragRotate === true) {
-          isDragRotate = false;
-        }
-      };
-
-      // Function to handle wheel events on the canvas.
-      const handleWheel = (e) => {
-        e.preventDefault();
-        modelRunnerState.modelRunner.add_distance(-e.deltaY);
-      };
-
       // Update the canvas size to maintain the aspect ratio and fit its container
       const resizeCanvas = () => {
         const canvas = document.getElementById('cube_model') as HTMLCanvasElement;
@@ -88,6 +62,11 @@ export const Model = () => {
         }
       };
 
+      let handleMouseMove;
+      let handleMouseUp;
+      let handleMouseDown;
+      let handleWheel;
+
       const run = async () => {
         try {
           // Load the WASM module and create a new ModelRunner instance.
@@ -109,12 +88,39 @@ export const Model = () => {
           // Initial resize on load
           resizeCanvas();
 
+          // Function to handle mouse down events on the canvas.
+          handleMouseDown = () => {
+            isDragRotate = true;
+          };
+
+          // Function to handle mouse move events on the canvas.
+          handleMouseMove = (e) => {
+            if (isDragRotate) {
+              console.log('mouse move', e);
+              modelRunner.add_yaw(-e.movementX);
+              modelRunner.add_pitch(e.movementY);
+            }
+          };
+
+          // Function to handle mouse up events on the canvas.
+          handleMouseUp = () => {
+            if (isDragRotate === true) {
+              isDragRotate = false;
+            }
+          };
+
+          // Function to handle wheel events on the canvas.
+          handleWheel = (e) => {
+            e.preventDefault();
+            modelRunner.add_distance(-e.deltaY);
+          };
+
           canvas.addEventListener('mousedown', handleMouseDown);
           canvas.addEventListener('mousemove', handleMouseMove);
           canvas.addEventListener('mouseup', handleMouseUp);
           canvas.addEventListener('wheel', handleWheel, {passive: false});
 
-          await modelRunner.run();
+          // await modelRunner.run();
         } catch (error) {
           console.error('Failed to initialize or run modelRunner:', error);
         }

@@ -1031,9 +1031,18 @@ describe('#etl/rustGlyphEngine', () => {
     afterEach(() => {
       sandbox.restore();
     });
-    it('should return signed data urls', () => {
+    it('should return signed data urls', async () => {
       try {
-        // const workspaceId =
+        const workspaceId = '646fa59785272d19babc2af1';
+        const projectId = '6622a797d7aeffcd949e9635';
+        const modelHash = '7594f1436b9d53df280f4f94ecf02b83';
+
+        const retval = await signRustFiles(workspaceId, projectId, modelHash);
+
+        assert.isOk(retval.STS_URL);
+        assert.isOk(retval.GLY_URL);
+        assert.isOk(retval.X_VEC);
+        assert.isOk(retval.Y_VEC);
       } catch (error) {}
     });
     it('should throw an ActionError when the underlying s3Manager throws', () => {

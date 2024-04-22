@@ -324,7 +324,7 @@ export const checkRustGlyphEnginePayload = (payload: rustGlyphEngineTypes.IGlyph
       // if its an accumulator (Z) it has the accumulatorType and field
       if (
         axisDefinition.fieldDefinition.fieldType === 'accumulated' &&
-        (!axisDefinition.fieldDefinition.accumulatorType || !axisDefinition.fieldDefinition.accumulatedField)
+        (!axisDefinition.fieldDefinition.accumulator || !axisDefinition.fieldDefinition.accumulatedField)
       ) {
         throw new error.InvalidArgumentError(
           'Accumulated field has invalid accumulator type or field',

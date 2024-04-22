@@ -5,11 +5,11 @@ import {modelRunnerAtom} from 'state';
 
 // OLD COMPONENT
 export const Controls = () => {
-  const modelRunner = useRecoilValue(modelRunnerAtom);
+  const {modelRunner, initialized} = useRecoilValue(modelRunnerAtom);
 
   // TODO:
   return (
-    modelRunner && (
+    initialized && (
       <div className="space-y-2 mb-4">
         <div className="text-white">Controls</div>
         <div className="flex items-center space-x-2">
