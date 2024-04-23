@@ -82,7 +82,7 @@ impl ModelRunner {
 
     ///Will force a redraw of the model, if the model is running.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn update_configuration(&self, config: &str) -> Result<(), String >{
+    pub fn update_configuration(&self, config: &str, is_running: bool) -> Result<(), String >{
         let value: Value = from_str(config).unwrap();
         let mut configuration = self.configuration.borrow_mut();
         let result  = configuration.partial_update(&value);
@@ -90,7 +90,7 @@ impl ModelRunner {
             return Err(serde_json::to_string(&result.unwrap_err()).unwrap());
         }
         unsafe {
-            if self.is_running {
+            if is_running {
                 let event = ModelEvent::Redraw;
                 self.emit_event(&event);
                 if EVENT_LOOP_PROXY.is_some() {
@@ -243,7 +243,7 @@ impl ModelRunner {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub async fn run(&mut self) {
+    pub async fn run(&self) {
         self.init_logger();
 
         let el = EventLoopBuilder::<ModelEvent>::with_user_event().build();
@@ -263,7 +263,7 @@ impl ModelRunner {
         }
 
         let this_window_id = window.id();
-        self.is_running = true;
+        //self.is_running = true;
 
         let config = self.configuration.clone();
 
