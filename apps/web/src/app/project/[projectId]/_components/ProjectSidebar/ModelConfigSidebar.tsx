@@ -3,15 +3,15 @@ import {useRef, useEffect} from 'react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {configsAtom, leftCoordinatesAtom, windowSizeAtom} from 'state';
 import dynamic from 'next/dynamic';
-import {ConfigList} from './_components/ConfigList';
-import {RadiusLengths} from './_components/RadiusLengths';
-import {Toggles} from './_components/Toggles';
-import {Colors} from './_components/Colors';
+import {ConfigList} from './_components/config/ConfigList';
+import {RadiusLengths} from './_components/config/RadiusLengths';
+import {Toggles} from './_components/config/Toggles';
+import {Colors} from './_components/config/Colors';
 import {usePosition} from 'services/usePosition';
 import {useConfigs} from 'lib';
 import {Properties as Axes} from './_components/properties';
 
-const Controls = dynamic(() => import('./_components/Controls').then((mod) => mod.Controls));
+const Controls = dynamic(() => import('./_components/config/Controls').then((mod) => mod.Controls));
 
 export const ModelConfigSidebar = () => {
   //utilities

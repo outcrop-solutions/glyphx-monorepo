@@ -5,6 +5,7 @@ import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {configNameDirtyFamily, configsAtom, currentConfigAtom} from 'state';
 import {CheckCircleIcon, TrashIcon} from '@heroicons/react/outline';
 import {databaseTypes} from 'types';
+import {deleteConfig, updateConfig} from 'actions';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');

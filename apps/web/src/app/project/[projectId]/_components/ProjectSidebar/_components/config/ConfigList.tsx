@@ -3,6 +3,7 @@ import {ConfigName} from './ConfigName';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {configsAtom, currentConfigAtom} from 'state';
 import {PlusIcon} from '@heroicons/react/outline';
+import {createConfig} from 'actions';
 
 const DEFAULT_CONFIG = {
   name: 'Default Config',

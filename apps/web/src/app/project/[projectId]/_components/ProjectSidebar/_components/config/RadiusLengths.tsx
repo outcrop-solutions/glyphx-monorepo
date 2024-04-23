@@ -1,7 +1,7 @@
 import produce from 'immer';
 import React, {startTransition, useCallback, useState} from 'react';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {configSelector, configsAtom, currentConfigAtom, radiusConfigDirtyAtom} from 'state';
+import {configSelector, configsAtom, currentConfigAtom, modelRunnerAtom, radiusConfigDirtyAtom} from 'state';
 import {databaseTypes} from 'types';
 import {toSnakeCase} from './toSnakeCase';
 import {CheckIcon} from '@heroicons/react/outline';
@@ -20,6 +20,7 @@ const fields = [
 export const RadiusLengths = () => {
   const config = useRecoilValue(configSelector);
   const setConfigs = useSetRecoilState(configsAtom);
+  const {initialized, modelRunner} = useRecoilValue(modelRunnerAtom);
   const [isCollapsed, setCollapsed] = useState(true);
   const [configDirty, setConfigDirty] = useRecoilState(radiusConfigDirtyAtom);
   const currentConfig = useRecoilValue(currentConfigAtom);
@@ -28,7 +29,7 @@ export const RadiusLengths = () => {
     (idx: number, prop: string, value) => {
       setConfigs(
         produce((draft) => {
-          draft[idx][prop] = value;
+          draft[idx][prop] = Number(value);
         })
       );
       setConfigDirty(true);
@@ -37,7 +38,8 @@ export const RadiusLengths = () => {
   );
 
   return (
-    config && (
+    config &&
+    initialized && (
       <div className="group flex flex-col grow">
         <summary className="flex h-8 items-center cursor-pointer justify-between w-full text-gray hover:text-white hover:border-b-white hover:bg-secondary-midnight truncate border-b border-gray z-10">
           <div
@@ -72,10 +74,12 @@ export const RadiusLengths = () => {
               color="#CECECE"
               className="w-5 h-5 opacity-100 mr-2 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white"
               onClick={() =>
-                startTransition(() =>
+                startTransition(() => {
+                  console.log({config});
+                  modelRunner.update_configuration(JSON.stringify(config), true);
                   // @ts-ignore
-                  updateConfig(config?.id, config as databaseTypes.IModelConfig)
-                )
+                  updateConfig(config?.id, config as databaseTypes.IModelConfig);
+                })
               }
             />
           )}

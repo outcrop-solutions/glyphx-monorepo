@@ -207,7 +207,7 @@ export const Properties = () => {
           // setTimeout(async () => {
           //   try {
           // @ts-ignore
-          // await handleStream(retval?.GLY_URL, processData(undefined, 'glyph'));
+          await handleStream(retval?.GLY_URL, processData(undefined, 'glyph'));
           //   } catch (error) {
           //     console.log({error});
           //   }
@@ -215,7 +215,7 @@ export const Properties = () => {
 
           // setTimeout(async () => {
           // try {
-          //   await modelRunner.run();
+          await modelRunner.run();
           // } catch (error) {
           //   console.log('model run error', {error});
           // }
@@ -230,7 +230,7 @@ export const Properties = () => {
       }
     },
 
-    [handleStream, processData, project, properties]
+    [handleStream, modelRunner, processData, project, properties]
     // [modelRunner, project, properties, setLoading]
   );
 
@@ -303,18 +303,7 @@ export const Properties = () => {
             >
               <span>Apply</span>
             </button>
-            <button
-              onClick={streamGlyph}
-              className={`flex items-center bg-gray hover:bg-yellow justify-around px-3 text-xs mr-2 my-2 text-center rounded disabled:opacity-75 text-white`}
-            >
-              <span>stream</span>
-            </button>
-            <button
-              onClick={modelRun}
-              className={`flex items-center bg-gray hover:bg-yellow justify-around px-3 text-xs mr-2 my-2 text-center rounded disabled:opacity-75 text-white`}
-            >
-              <span>run</span>
-            </button>
+
             {/* <PlusIcon className="w-5 h-5 opacity-75 mr-1" /> */}
           </summary>
           {!isCollapsed && (
