@@ -262,7 +262,7 @@ impl ModelRunner {
         }
 
         let this_window_id = window.id();
-        // self.is_running = true;
+        //self.is_running = true;
 
         let config = self.configuration.clone();
 
