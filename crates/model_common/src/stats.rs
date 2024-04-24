@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Stats {
     pub axis: String,
     pub min: f64,
@@ -34,12 +34,53 @@ pub struct Stats {
     pub pct_90: f64,
     pub pct_95: f64,
     pub pct_99: f64,
+    pub max_rank: u64,
 }
 
 impl Stats {
     pub fn get_binary_size(&self) -> usize {
-        //31 stat fields + the size of axis plus 1 byte per character
-         (8 * 31) + 8 + self.axis.len()
+        //32 stat fields + the size of axis plus 1 byte per character
+        (8 * 32) + 8 + self.axis.len()
+    }
+}
+
+impl Default for Stats {
+    fn default() -> Self {
+        Stats {
+            axis: "".to_string(),
+            min: 0.0,
+            max: 0.0,
+            mean: 0.0,
+            median: 0.0,
+            variance: 0.0,
+            standard_deviation: 0.0,
+            entropy: 0.0,
+            skewness: 0.0,
+            pct_0: 0.0,
+            pct_5: 0.0,
+            pct_10: 0.0,
+            pct_15: 0.0,
+            pct_20: 0.0,
+            pct_25: 0.0,
+            pct_30: 0.0,
+            pct_33: 0.0,
+            pct_35: 0.0,
+            pct_40: 0.0,
+            pct_45: 0.0,
+            pct_50: 0.0,
+            pct_55: 0.0,
+            pct_60: 0.0,
+            pct_65: 0.0,
+            pct_67: 0.0,
+            pct_70: 0.0,
+            pct_75: 0.0,
+            pct_80: 0.0,
+            pct_85: 0.0,
+            pct_90: 0.0,
+            pct_95: 0.0,
+            pct_99: 0.0,
+            max_rank: 0,
+        }
     }
 }
 
@@ -83,10 +124,10 @@ mod get_binary_size {
             pct_90: 0.9,
             pct_95: 0.95,
             pct_99: 0.99,
+            max_rank: 100,
         };
         let result = stats.get_binary_size();
         let ser = serialize(&stats).unwrap();
         assert_eq!(result, ser.len());
-
     }
 }

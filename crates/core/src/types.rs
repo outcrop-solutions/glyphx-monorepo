@@ -1,3 +1,6 @@
 pub mod aws;
-pub mod error;
 pub mod common;
+
+pub mod error {
+    pub use glyphx_core_error::GlyphxErrorData;
+}
