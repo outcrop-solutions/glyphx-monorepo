@@ -3,6 +3,8 @@
 struct CameraUniform {
     view_pos: vec4<f32>,
     view_proj: mat4x4<f32>,
+    y_offset: f32,
+    x_offset: f32,
 };
 
 struct LightUniform {
@@ -137,7 +139,7 @@ fn vs_main(
             max_y,
         );
         let distance = max_y - interp_value;
-        y_vec = y_vec - distance + glyph_uniform_data.min_glyph_height;
+        y_vec = interp_value; //y_vec - distance + glyph_uniform_data.min_glyph_height;
         y_offset = distance;
     }
 
@@ -149,11 +151,15 @@ fn vs_main(
         f32(60.0),
     ));
     var out: VertexOutput;
-    out.world_position = vec3<f32>(x_pos, y_vec, z_pos);
+    out.world_position = vec3<f32>(x_pos + camera.x_offset, y_vec + camera.y_offset, z_pos);
 //move the normals based on instance buffer
     out.world_normal = vec3<f32>(model.normal);
     out.color_code = u32(floor(color));
     out.clip_position = camera.view_proj * vec4<f32>(out.world_position[0], out.world_position[1], out.world_position[2], 1.0);
+//    var clip_position = camera.view_proj * vec4<f32>(x_pos, y_vec, z_pos, 1.0);
+  //  clip_position[0] = clip_position[0] + x_offset;
+   // clip_position[2] = clip_position[2] + z_offset;
+   // out.clip_position = clip_position;
     return out;
 }
 

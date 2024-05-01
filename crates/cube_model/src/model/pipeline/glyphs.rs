@@ -113,9 +113,7 @@ impl Glyphs {
 
         //Our z size is based on the height of the grid with a little bit of padding so that
         //the top does not but up against the z axis line
-        let length = (model_configuration.grid_cylinder_length
-            + model_configuration.grid_cone_length)
-            * model_configuration.z_height_ratio;
+        let length = (model_configuration.grid_cylinder_length * model_configuration.z_height_ratio) + model_configuration.grid_cone_length;
 
         let shape_vertices = create_rectangular_prism(glyph_size, length);
         //now we want to move this to the model origin from it's current position at 0,0,0.

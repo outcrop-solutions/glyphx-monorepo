@@ -81,6 +81,8 @@ pub struct RankedGlyphData {
 }
 impl RankedGlyphData {
     pub fn new(x_rank_size: usize, z_rank_size: usize) -> RankedGlyphData {
+        //TODO:Hopefully this will trigger a merge conflict and I will remeber to remove the
+        //adjustments to the rank sizes.
         let x_rank = Self::build_index(x_rank_size);
         let z_rank = Self::build_index(z_rank_size);
 

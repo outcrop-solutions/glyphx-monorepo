@@ -13,7 +13,7 @@ use crate::model::pipeline::glyphs::ranked_glyph_data::{Rank, RankDirection, Ran
 use crate::model::pipeline::{axis_lines, glyphs, PipelineRunner};
 pub use data_manager::DataManager;
 pub use errors::*;
-use model_common::{Glyph, Stats};
+use model_common::Stats;
 
 use smaa::*;
 use std::cell::RefCell;
@@ -81,11 +81,17 @@ impl State {
         let d = d_clone.as_ref().borrow();
         let config = Self::configure_surface(&surface, adapter, size, &d);
 
-        let (camera, camera_buffer, camera_uniform, camera_controller) =
-            Self::configure_camera(&config, &d);
-
         let mc = model_configuration.clone();
+
+        let dm = data_manager.clone();
+        let dm = dm.borrow();
+
+        let glyph_uniform_data = Self::build_glyph_uniform_data(&mc, &dm);
+
         let mc = mc.borrow();
+        let (camera, camera_buffer, camera_uniform, camera_controller) =
+            Self::configure_camera(&config, &d, &glyph_uniform_data);
+
 
         let color_table_uniform = ColorTableUniform::new(
             mc.min_color,
@@ -118,7 +124,6 @@ impl State {
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
 
-        let glyph_uniform_data = Self::build_glyph_uniform_data(&mc);
 
         //let ranked_glyph_data = Self::build_instance_data();
 
@@ -224,6 +229,18 @@ impl State {
                     .add_pitch(amount * self.camera_controller.rotate_speed);
                 self.update();
             }
+            "up" => {
+                self.camera_uniform.updtae_y_offset(amount);
+            }
+            "down" => {
+                self.camera_uniform.updtae_y_offset(-1.0 * amount);
+            }
+            "left" => {
+                self.camera_uniform.updtae_x_offset(-1.0 * amount);
+            }
+            "right" => {
+                self.camera_uniform.updtae_x_offset(amount);
+            }
             _ => (),
         };
     }
@@ -257,6 +274,7 @@ impl State {
         ]);
         self.light_uniform
             .upate_intensity(config.light_intensity.clone());
+        self.glyph_uniform_data.y_offset = config.min_glyph_height;
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
@@ -495,107 +513,6 @@ impl State {
         (surface, adapter)
     }
 
-    fn build_instance_data() -> RankedGlyphData {
-        // Rc::new (vec![
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 0,
-        //         x_value: 0.0,
-        //         y_value: 0.0,
-        //         z_value: 0.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 1,
-        //         x_value: 1.0,
-        //         y_value: 1.0,
-        //         z_value: 1.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 2,
-        //         x_value: 2.0,
-        //         y_value: 2.0,
-        //         z_value: 2.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 3,
-        //         x_value: 3.0,
-        //         y_value: 3.0,
-        //         z_value: 3.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 4,
-        //         x_value: 4.0,
-        //         y_value: 4.0,
-        //         z_value: 4.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 5,
-        //         x_value: 5.0,
-        //         y_value: 5.0,
-        //         z_value: 5.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 6,
-        //         x_value: 6.0,
-        //         y_value: 6.0,
-        //         z_value: 6.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 7,
-        //         x_value: 7.0,
-        //         y_value: 7.0,
-        //         z_value: 7.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 8,
-        //         x_value: 8.0,
-        //         y_value: 8.0,
-        //         z_value: 8.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 9,
-        //         x_value: 9.0,
-        //         y_value: 9.0,
-        //         z_value: 9.0,
-        //         glyph_selected: 0,
-        //     },
-        // ])
-        let mut ranked_glyph_data = RankedGlyphData::new(17, 12);
-        let mut rng = rand::thread_rng();
-        let mut x = 0.0;
-        let mut z = 0.0;
-        let mut count = 0;
-        while x < 17.0 {
-            while z < 12.0 {
-                let random_number: f32 = rng.gen_range(0.0..=9.0);
-                let _ = ranked_glyph_data.add(
-                    x as usize,
-                    z as usize,
-                    GlyphInstanceData {
-                        glyph_id: count,
-                        x_value: x,
-                        y_value: random_number,
-                        z_value: z,
-                        glyph_selected: 0,
-                    },
-                );
-                z += 1.0;
-                count += 1;
-            }
-            z = 0.0;
-            x += 1.0;
-        }
-        ranked_glyph_data
-    }
-
     fn build_pipelines(
         device: Rc<RefCell<Device>>,
         config: &SurfaceConfiguration,
@@ -622,6 +539,8 @@ impl State {
             model_configuration.clone(),
             axis_lines::AxisLineDirection::X,
             mc.model_origin[0],
+            glyph_uniform_data.min_interp_x,
+            glyph_uniform_data.max_interp_x,
         );
 
         let y_axis_line = axis_lines::AxisLines::new(
@@ -636,6 +555,8 @@ impl State {
             model_configuration.clone(),
             axis_lines::AxisLineDirection::Y,
             mc.model_origin[1],
+            glyph_uniform_data.min_interp_y,
+            glyph_uniform_data.max_interp_y,
         );
 
         let z_axis_line = axis_lines::AxisLines::new(
@@ -650,6 +571,8 @@ impl State {
             model_configuration.clone(),
             axis_lines::AxisLineDirection::Z,
             mc.model_origin[2],
+            glyph_uniform_data.min_interp_z,
+            glyph_uniform_data.max_interp_z,
         );
         let d = device.as_ref().borrow();
         let glyphs = glyphs::Glyphs::new(
@@ -675,6 +598,7 @@ impl State {
     fn configure_camera(
         config: &SurfaceConfiguration,
         device: &Device,
+        glyph_uniform_data: &glyphs::glyph_instance_data::GlyphUniformData,
     ) -> (OrbitCamera, wgpu::Buffer, CameraUniform, CameraController) {
         //{ distance: 4.079997, pitch: 0.420797, yaw: -39.125065, eye: Vector3 { x: -3.6850765, y: 1.66663, z: 0.537523 }, target: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, up: Vector3 { x: 0.0, y: 1.0, z: 0.0 }, bounds: OrbitCameraBounds { min_distance: Some(1.1), max_distance: None, min_pitch: -1.5707963, max_pitch: 1.5707963, min_yaw: None, max_yaw: None }, aspect: 1.5, fovy: 1.5707964, znear: 0.1, zfar: 1000.0 }
         // let mut camera = OrbitCamera::new(
@@ -684,8 +608,11 @@ impl State {
         //     Vec3::new(0.0, 0.0, 0.0),
         //     config.width as f32 / config.height as f32,
         // );
+        let distance = (glyph_uniform_data.max_interp_x - glyph_uniform_data.min_interp_x) * 0.9;
+        let y_offset = (glyph_uniform_data.max_interp_y - glyph_uniform_data.min_interp_y) / 2.0;
+        let y_offset = (glyph_uniform_data.min_interp_y + y_offset) * -1.0;
         let mut camera = OrbitCamera::new(
-            11.0,
+            distance,
             0.0,
             0.0,
             Vec3::new(0.0, 0.0, 0.0),
@@ -694,6 +621,7 @@ impl State {
         //let mut camera = OrbitCamera::new(2.0, 1.5, 1.25, Vec3::new(0.0, 0.0, 0.0), config.width as f32 / config.height as f32);
         camera.bounds.min_distance = Some(1.1);
         let mut camera_uniform = CameraUniform::default();
+        camera_uniform.y_offset = y_offset;
         camera_uniform.update_view_proj(&camera);
 
         let camera_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -706,35 +634,69 @@ impl State {
     }
 
     fn build_glyph_uniform_data(
-        model_configuration: &ModelConfiguration,
+        model_configuration: &Rc<RefCell<ModelConfiguration>>,
+        data_manager: &DataManager,
     ) -> glyphs::glyph_instance_data::GlyphUniformData {
+        let mc = model_configuration.clone();
+        let mut mc = mc.borrow_mut();
         let radius =
-            if model_configuration.grid_cylinder_radius > model_configuration.grid_cone_radius {
-                model_configuration.grid_cylinder_radius
+            if mc.grid_cylinder_radius > mc.grid_cone_radius {
+                mc.grid_cylinder_radius
             } else {
-                model_configuration.grid_cone_radius
+                mc.grid_cone_radius
             };
+        
+        let x_stats = data_manager.get_stats("x").unwrap();
+        let min_x = x_stats.min;
+        let max_x = x_stats.max;
+        let x_rank_count = x_stats.max_rank;
 
-        let x_z_offset = radius + model_configuration.glyph_offset;
+        let y_stats = data_manager.get_stats("y").unwrap();
+        let min_y = y_stats.min;
+        let max_y = y_stats.max;
+        let y_rank_count = y_stats.max_rank;
+
+        let z_stats = data_manager.get_stats("z").unwrap();
+        let min_z = z_stats.min;
+        let max_z = z_stats.max;
+        let z_rank_count = z_stats.max_rank;
+
+        let x_z_offset = radius + mc.glyph_offset;
+        let glyph_size = mc.glyph_size;
+
+        //How much space will our glyphs take up?
+        let x_size = x_rank_count as f32 * glyph_size + x_z_offset;
+        let z_size = z_rank_count as f32 * glyph_size + x_z_offset;
+
+        let y_size = (if x_size > z_size { x_size } else { z_size }) * mc.z_height_ratio;
+
+        let x_half = (x_size / 2.0) as u32 + 1;
+    
+        let z_half = (z_size / 2.0) as u32 + 1;
+        let y_half = (y_size / 2.0) as u32 + 1;
+        let x_z_half = if x_half > z_half { x_half } else { z_half };
+        let model_origin = (x_z_half as f32 + mc.glyph_offset/2.0 + mc.grid_cone_radius/2.0) * -1.0;
+        mc.model_origin = [model_origin, model_origin, model_origin];
         let glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData =
             glyphs::glyph_instance_data::GlyphUniformData {
-                min_x: 0.0,
-                max_x: 17.0,
-                min_interp_x: -5.0,
-                max_interp_x: 5.0,
+                min_x: min_x as f32,
+                max_x: max_x as f32,
+                min_interp_x: -1.0 * x_z_half as f32,
+                max_interp_x: x_z_half as f32,
 
-                min_y: 0.0,
-                max_y: 9.0,
-                min_interp_y: -5.0,
-                max_interp_y: 6.0,
+                min_y: min_y as f32,
+                max_y: max_y as f32,
+                //TODO: Why is this tied to model origin but the other axis are not?
+                min_interp_y: model_origin, // * y_half as f32,
+                max_interp_y: model_origin + y_size as f32,
 
-                min_z: 0.0,
-                max_z: 12.0,
-                min_interp_z: -5.0,
-                max_interp_z: 5.0,
+                min_z: min_z as f32,
+                max_z: max_z as f32,
+                min_interp_z: -1.0 * x_z_half as f32,
+                max_interp_z: x_z_half as f32,
 
                 x_z_offset,
-                y_offset: model_configuration.min_glyph_height,
+                y_offset: mc.min_glyph_height,
                 _padding: [0u32; 2],
             };
         glyph_uniform_data

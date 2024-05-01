@@ -120,6 +120,36 @@ impl ModelRunner {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn raise_model(&self, amount: f32) {
+        unsafe {
+            let event = if amount > 0.0 { ModelEvent::ModelMove(ModelMoveDirection::Up(amount)) } else { ModelEvent::ModelMove(ModelMoveDirection::Down(amount * -1.0)) };
+            self.emit_event(&event);
+            if EVENT_LOOP_PROXY.is_some() {
+                EVENT_LOOP_PROXY
+                    .as_ref()
+                    .unwrap()
+                    .send_event(event)
+                    .unwrap();
+            }
+        }
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn shift_model(&self, amount: f32) {
+        unsafe {
+            let event = if amount > 0.0 { ModelEvent::ModelMove(ModelMoveDirection::Right(amount)) } else { ModelEvent::ModelMove(ModelMoveDirection::Left(amount * -1.0)) };
+            self.emit_event(&event);
+            if EVENT_LOOP_PROXY.is_some() {
+                EVENT_LOOP_PROXY
+                    .as_ref()
+                    .unwrap()
+                    .send_event(event)
+                    .unwrap();
+            }
+        }
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn add_pitch(&self, amount: f32) {
         unsafe {
             let event = ModelEvent::ModelMove(ModelMoveDirection::Pitch(amount));
@@ -308,6 +338,18 @@ impl ModelRunner {
                 }
                 Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Distance(amount))) => {
                     state.move_camera("distance", amount);
+                }
+                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Up(amount))) => {
+                    state.move_camera("up", amount);
+                }
+                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Down(amount))) => {
+                    state.move_camera("down", amount);
+                }
+                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Left(amount))) => {
+                    state.move_camera("left", amount);
+                }
+                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Right(amount))) => {
+                    state.move_camera("right", amount);
                 }
                 Event::DeviceEvent { device_id, event } => {
                     state.input(&event);
@@ -909,6 +951,81 @@ impl ModelRunner {
                             }
                         }
 
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::Up),
+                                    ..
+                                },
+                            ..
+                        } => {
+                            unsafe {
+                                let event = ModelEvent::ModelMove(ModelMoveDirection::Up(1.0));
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::Down),
+                                    ..
+                                },
+                            ..
+                        } => {
+                            unsafe {
+                                let event = ModelEvent::ModelMove(ModelMoveDirection::Down(1.0));
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::Left),
+                                    ..
+                                },
+                            ..
+                        } => {
+                            unsafe {
+                                let event = ModelEvent::ModelMove(ModelMoveDirection::Left(1.0));
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::Right),
+                                    ..
+                                },
+                            ..
+                        } => {
+                            unsafe {
+                                let event = ModelEvent::ModelMove(ModelMoveDirection::Right(1.0));
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
                         WindowEvent::Resized(physical_size) => {
                             state.resize(*physical_size);
                         }

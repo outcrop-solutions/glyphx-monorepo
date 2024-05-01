@@ -3,6 +3,8 @@
 struct CameraUniform {
     view_pos: vec4<f32>,
     view_proj: mat4x4<f32>,
+    y_offset: f32,
+    x_offset: f32,
 };
 
 struct LightUniform {
@@ -42,11 +44,13 @@ fn vs_main(
     model: VertexInput,
 ) -> VertexOutput {
     var out: VertexOutput;
+    let pos = vec3(model.position.x + camera.x_offset, model.position.y + camera.y_offset, model.position.z);
+    let normal = vec3(model.normal.x, model.normal.y, model.normal.z);
     out.color_code = model.color_code;
-    out.world_position = model.position;
-    out.world_normal = model.normal;
+    out.world_position = pos;
+    out.world_normal = normal;
 
-    out.clip_position = camera.view_proj * vec4<f32>(model.position, 1.0);
+    out.clip_position = camera.view_proj * vec4<f32>(pos, 1.0);
     return out;
 }
 
