@@ -32,7 +32,12 @@ const Z_ORDERS: [[&str; 4]; 4] = [
     ["glyphs", "x-axis-line", "z-axis-line", "y-axis-line"],
     ["x-axis-line", "glyphs", "z-axis-line", "y-axis-line"],
 ];
-
+ enum Face {
+    Front,
+    Right,
+    Back,
+    Left,
+ }
 struct Pipelines {
     x_axis_line: axis_lines::AxisLines,
     y_axis_line: axis_lines::AxisLines,
@@ -63,6 +68,7 @@ pub struct State {
     pipelines: Pipelines,
     z_order: usize,
     data_manager: Rc<RefCell<DataManager>>,
+    forward_face: Face,
 }
 
 impl State {
@@ -157,7 +163,7 @@ impl State {
             config.format,
             SmaaMode::Smaa1X,
         );
-        Self {
+        let mut model = Self {
             window,
             surface,
             device,
@@ -181,7 +187,11 @@ impl State {
             light_uniform,
             z_order: 0,
             data_manager,
-        }
+            forward_face: Face::Front,
+        };
+        //This allows us to initialize out camera with a pitch and yaw that is not 0
+        model.update_z_order_and_rank();
+        model
     }
 
     pub fn window(&self) -> &Window {
@@ -246,6 +256,7 @@ impl State {
     }
     pub fn update(&mut self) {
         self.camera_uniform.update_view_proj(&self.camera);
+        //eprintln!("Camera: {:?}, GlyphUniform: {:?}", self.camera, self.glyph_uniform_data);
     }
 
     pub fn update_config(&mut self) {
@@ -613,8 +624,11 @@ impl State {
         let y_offset = (glyph_uniform_data.min_interp_y + y_offset) * -1.0;
         let mut camera = OrbitCamera::new(
             distance,
-            0.0,
-            0.0,
+            0.3,
+            //0.0,
+            //rotate counter clockwise 90 degrees
+            -1.5708,
+            //0.0,
             Vec3::new(0.0, 0.0, 0.0),
             config.width as f32 / config.height as f32,
         );
@@ -701,75 +715,56 @@ impl State {
             };
         glyph_uniform_data
     }
-    ///We call this wheniver the camera is moved so that we can recalulate
-    ///the z order of the axis lines and glyphs in response.
-    //HACK: This is 100% hacked together and needs someone with a better
-    //grasp of the geometry to see if we can find the corerct algorithm
-    //to calculate the Z order so that the grid lines do not overwrite the
-    //glyphs and vice versa.
-    pub fn calculate_rotation_change(
-        width: f32,
-        height: f32,
-        cube_diameter: f32,
-        yaw: f32,
-        distance: f32,
-    ) -> f32 {
-        let afov_x = 2.0 * ((width as f32) / 2.0).atan2(distance);
-        let afov_y = 2.0 * ((height as f32) / 2.0).atan2(distance);
-        let max_yaw_change = afov_x / 2.0; // or use afov_y if you're considering vertical rotation
-        let max_distance = cube_diameter * 10.0; // Maximum distance from scene center
-                                                 // Calculate maximum yaw change for one full turn
-        let max_yaw_full_turn = 2.0 * std::f32::consts::PI;
-        let angle_per_distance = max_yaw_change / max_distance;
-
-        let angular_rotation = distance * angle_per_distance;
-        let calculated_angular_rotation = (yaw + angular_rotation) % max_yaw_full_turn;
-        let max_angular_rotation = max_yaw_full_turn + angular_rotation;
-
-        if calculated_angular_rotation < 0.0 {
-            calculated_angular_rotation + max_angular_rotation
+    fn cacluate_rotation_change(&self) -> f32 {
+        const RADS_PER_ROTATION: f32 = 6.283;
+        let rotation_rads = self.camera.yaw % RADS_PER_ROTATION;
+        let rotation_rads = if rotation_rads < 0.0 {
+            RADS_PER_ROTATION + rotation_rads
         } else {
-            calculated_angular_rotation
-        }
+            rotation_rads
+        };
+        let degrees_of_rotation = rotation_rads * 180.0 / std::f32::consts::PI;
+        eprintln!("Pitch: {} Yaw : {}, rotation_rads: {}: Degrees of rotation: {}, Model Width: {}, Distance : {}, %of Width {}", self.camera.pitch,  self.camera.yaw, rotation_rads, degrees_of_rotation, self.glyph_uniform_data.max_interp_x - self.glyph_uniform_data.min_interp_x, self.camera.distance, self.camera.distance / (self.glyph_uniform_data.max_interp_x - self.glyph_uniform_data.min_interp_x));
+        let distance_ratio = self.camera.distance / (self.glyph_uniform_data.max_interp_x - self.glyph_uniform_data.min_interp_x);
+        let distance_off_set = if distance_ratio > 1.0 {
+            0.0
+        } else if distance_ratio >= 0.9 {
+            1.0
+        } else if distance_ratio >= 0.8 {
+            7.0
+        } else if distance_ratio >= 0.7 {
+            13.0
+        } else {
+            23.0
+        };
+        degrees_of_rotation - distance_off_set
+
     }
-
+    //These cubes are square at least on the x/z axis
     pub fn update_z_order_and_rank(&mut self) {
-        //TODO: This may need to be cleaned up a bit since cubes may not be square in the future.
-        let mc = self.model_configuration.borrow();
-        let cube_diameter = mc.grid_cylinder_length + mc.grid_cone_length;
-        let rotation_angle = Self::calculate_rotation_change(
-            cube_diameter, //self.config.width as f32,
-            cube_diameter, //self.config.height as f32,
-            cube_diameter,
-            self.camera.yaw,
-            self.camera.distance,
-        );
+        let rotation_angle = self.cacluate_rotation_change();
 
-        let z_order_index = if self.camera.pitch <= -2.0 || self.camera.pitch >= 1.0 {
-            0
-        } else if rotation_angle >= 1.9727829 && rotation_angle < 3.6219294 {
-            1 //-- right or back, z(green) is covered.
-        } else if rotation_angle >= 3.6219294 && rotation_angle < 4.2965374 {
-            2 //-- back all three axis lines are visible.
-        } else if rotation_angle >= 4.2965374 && rotation_angle < 5.997787 {
-            3 //-- left or back, x(red) is covered.
+        let (z_order_index, rank, rank_direction, forward_face) = if rotation_angle >= 301.0 || rotation_angle < 31.0 {
+            //Front
+           (0, Rank::Z, RankDirection::Ascending, Face::Front)
+
+        } else if rotation_angle >= 31.0 && rotation_angle < 121.0 {
+            //Right
+            (0, Rank::X, RankDirection::Ascending, Face::Right)
+        } else if rotation_angle >= 121.0 && rotation_angle < 211.0 {
+            //Back
+            (1, Rank::Z, RankDirection::Descending, Face::Back)
+        } else if rotation_angle >= 211.0 && rotation_angle < 301.0 {
+            //Left
+            (3, Rank::X, RankDirection::Descending, Face::Left)
         } else {
-            0 //-- normal glyphs last
+            //This will never happen but rust was trying to be helpful
+            (0, Rank::Z, RankDirection::Ascending, Face::Front)
         };
         self.z_order = z_order_index;
-        if rotation_angle >= 2.221 && rotation_angle < 3.646 {
-            self.rank = Rank::Z;
-            self.rank_direction = RankDirection::Descending;
-        } else if rotation_angle >= 0.846 && rotation_angle < 2.221 {
-            self.rank = Rank::X;
-            self.rank_direction = RankDirection::Ascending;
-        } else if rotation_angle >= 3.646 && rotation_angle < 5.800 {
-            self.rank = Rank::X;
-            self.rank_direction = RankDirection::Descending;
-        } else {
-            //5.800 -- 0.846
-            self.rank = Rank::Z;
-            self.rank_direction = RankDirection::Ascending;
-        };
+        self.rank = rank;
+        self.rank_direction = rank_direction;
+        self.forward_face = forward_face;
+
     }
 }
