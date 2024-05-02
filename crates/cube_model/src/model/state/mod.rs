@@ -240,16 +240,42 @@ impl State {
                 self.update();
             }
             "up" => {
-                self.camera_uniform.updtae_y_offset(amount);
+                self.camera_uniform.update_y_offset(amount);
             }
             "down" => {
-                self.camera_uniform.updtae_y_offset(-1.0 * amount);
+                self.camera_uniform.update_y_offset(-1.0 * amount);
             }
             "left" => {
-                self.camera_uniform.updtae_x_offset(-1.0 * amount);
+                match self.forward_face {
+                    Face::Front => {
+                        self.camera_uniform.update_x_offset(-1.0 * amount);
+                    }
+                    Face::Right => {
+                        self.camera_uniform.update_z_offset(amount);
+                    }
+                    Face::Back => {
+                        self.camera_uniform.update_x_offset(amount);
+                    }
+                    Face::Left => {
+                        self.camera_uniform.update_z_offset(-1.0 * amount);
+                    }
+                }
             }
             "right" => {
-                self.camera_uniform.updtae_x_offset(amount);
+                match self.forward_face {
+                    Face::Front => {
+                        self.camera_uniform.update_x_offset( amount);
+                    }
+                    Face::Right => {
+                        self.camera_uniform.update_z_offset(-1.0 * amount);
+                    }
+                    Face::Back => {
+                        self.camera_uniform.update_x_offset(-1.0 * amount);
+                    }
+                    Face::Left => {
+                        self.camera_uniform.update_z_offset(amount);
+                    }
+                }
             }
             _ => (),
         };
@@ -724,7 +750,7 @@ impl State {
             rotation_rads
         };
         let degrees_of_rotation = rotation_rads * 180.0 / std::f32::consts::PI;
-        eprintln!("Pitch: {} Yaw : {}, rotation_rads: {}: Degrees of rotation: {}, Model Width: {}, Distance : {}, %of Width {}", self.camera.pitch,  self.camera.yaw, rotation_rads, degrees_of_rotation, self.glyph_uniform_data.max_interp_x - self.glyph_uniform_data.min_interp_x, self.camera.distance, self.camera.distance / (self.glyph_uniform_data.max_interp_x - self.glyph_uniform_data.min_interp_x));
+        //eprintln!("Pitch: {} Yaw : {}, rotation_rads: {}: Degrees of rotation: {}, Model Width: {}, Distance : {}, %of Width {}", self.camera.pitch,  self.camera.yaw, rotation_rads, degrees_of_rotation, self.glyph_uniform_data.max_interp_x - self.glyph_uniform_data.min_interp_x, self.camera.distance, self.camera.distance / (self.glyph_uniform_data.max_interp_x - self.glyph_uniform_data.min_interp_x));
         let distance_ratio = self.camera.distance / (self.glyph_uniform_data.max_interp_x - self.glyph_uniform_data.min_interp_x);
         let distance_off_set = if distance_ratio > 1.0 {
             0.0
@@ -744,22 +770,40 @@ impl State {
     pub fn update_z_order_and_rank(&mut self) {
         let rotation_angle = self.cacluate_rotation_change();
 
-        let (z_order_index, rank, rank_direction, forward_face) = if rotation_angle >= 301.0 || rotation_angle < 31.0 {
+        let (z_order_index, rank, rank_direction) = if rotation_angle >= 301.0 || rotation_angle < 31.0 {
             //Front
-           (0, Rank::Z, RankDirection::Ascending, Face::Front)
+           (0, Rank::Z, RankDirection::Ascending)
 
         } else if rotation_angle >= 31.0 && rotation_angle < 121.0 {
             //Right
-            (0, Rank::X, RankDirection::Ascending, Face::Right)
+            (0, Rank::X, RankDirection::Ascending)
         } else if rotation_angle >= 121.0 && rotation_angle < 211.0 {
             //Back
-            (1, Rank::Z, RankDirection::Descending, Face::Back)
+            (1, Rank::Z, RankDirection::Descending)
         } else if rotation_angle >= 211.0 && rotation_angle < 301.0 {
             //Left
-            (3, Rank::X, RankDirection::Descending, Face::Left)
+            (3, Rank::X, RankDirection::Descending)
         } else {
             //This will never happen but rust was trying to be helpful
-            (0, Rank::Z, RankDirection::Ascending, Face::Front)
+            (0, Rank::Z, RankDirection::Ascending)
+        };
+
+        let forward_face = if rotation_angle >= 316.0 || rotation_angle < 46.0 {
+            //Front
+            Face::Front
+
+        } else if rotation_angle >= 46.0 && rotation_angle < 136.0 {
+            //Right
+            Face::Right
+        } else if rotation_angle >= 136.0 && rotation_angle < 226.0 {
+            //Back
+            Face::Back
+        } else if rotation_angle >= 226.0 && rotation_angle < 316.0 {
+            //Left
+            Face::Left
+        } else {
+            //This will never happen but rust was trying to be helpful
+            Face::Front
         };
         self.z_order = z_order_index;
         self.rank = rank;

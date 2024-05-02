@@ -5,6 +5,7 @@ struct CameraUniform {
     view_proj: mat4x4<f32>,
     y_offset: f32,
     x_offset: f32,
+    z_offset: f32,
 };
 
 struct LightUniform {
@@ -151,7 +152,7 @@ fn vs_main(
         f32(60.0),
     ));
     var out: VertexOutput;
-    out.world_position = vec3<f32>(x_pos + camera.x_offset, y_vec + camera.y_offset, z_pos);
+    out.world_position = vec3<f32>(x_pos + camera.x_offset, y_vec + camera.y_offset, z_pos + camera.z_offset);
 //move the normals based on instance buffer
     out.world_normal = vec3<f32>(model.normal);
     out.color_code = u32(floor(color));

@@ -17,7 +17,8 @@ pub struct CameraUniform {
 
     pub y_offset: f32,
     pub x_offset: f32,
-    pub padding: [f32; 2],
+    pub z_offset: f32,
+    pub padding: f32,
 }
 const OFFSET_AMMOUNT: f32 = 0.1;
 impl CameraUniform {
@@ -30,14 +31,17 @@ impl CameraUniform {
         self.view_proj = camera.build_view_projection_matrix().to_cols_array_2d();
     }
 
-    pub fn updtae_y_offset(&mut self, y_offset: f32) {
+    pub fn update_y_offset(&mut self, y_offset: f32) {
         self.y_offset = self.y_offset + (y_offset * OFFSET_AMMOUNT);
     }
 
-    pub fn updtae_x_offset(&mut self, x_offset: f32) {
+    pub fn update_x_offset(&mut self, x_offset: f32) {
         self.x_offset = self.x_offset + (x_offset * OFFSET_AMMOUNT);
     }
 
+    pub fn update_z_offset(&mut self, z_offset: f32) {
+        self.z_offset = self.z_offset + (z_offset * OFFSET_AMMOUNT);
+    }
     pub fn configure_camera_uniform(
         &self,
         camera_buffer: &Buffer,
@@ -78,9 +82,10 @@ impl Default for CameraUniform {
         Self {
             view_position: [0.0; 4],
             view_proj: Mat4::IDENTITY.to_cols_array_2d(),
-            y_offset:10.0,
+            y_offset:0.0,
             x_offset: 0.0,
-            padding: [0.0; 2],
+            z_offset: 0.0,
+            padding: 0.0,
         }
     }
 
