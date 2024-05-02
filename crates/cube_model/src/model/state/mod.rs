@@ -69,6 +69,7 @@ pub struct State {
     z_order: usize,
     data_manager: Rc<RefCell<DataManager>>,
     forward_face: Face,
+    axis_visible: bool,
 }
 
 impl State {
@@ -186,6 +187,7 @@ impl State {
             z_order: 0,
             data_manager,
             forward_face: Face::Front,
+            axis_visible: true,
         };
         //This allows us to initialize out camera with a pitch and yaw that is not 0
         model.update_z_order_and_rank();
@@ -305,7 +307,9 @@ impl State {
         self.update_z_order_and_rank();
         self.update();
     }
-
+    pub fn toggle_axis_visibility(&mut self) {
+        self.axis_visible = !self.axis_visible;
+    }
     pub fn update(&mut self) {
         self.camera_uniform.update_view_proj(&self.camera);
         //eprintln!("Camera: {:?}, GlyphUniform: {:?}", self.camera, self.glyph_uniform_data);
@@ -425,7 +429,7 @@ impl State {
                         &mut commands,
                     );
                 }
-            } else {
+            } else if self.axis_visible{
                 let pipeline = match name {
                     "x-axis-line" => &self.pipelines.x_axis_line,
                     "y-axis-line" => &self.pipelines.y_axis_line,

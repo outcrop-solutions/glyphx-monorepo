@@ -105,6 +105,21 @@ impl ModelRunner {
         Ok(())
     }
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn toggle_axis_lines(&self) {
+        unsafe {
+            let event = ModelEvent::ToggleAxisLines;
+            self.emit_event(&event);
+            if EVENT_LOOP_PROXY.is_some() {
+                EVENT_LOOP_PROXY
+                    .as_ref()
+                    .unwrap()
+                    .send_event(event)
+                    .unwrap();
+            }
+        }
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn add_yaw(&self, amount: f32) {
         unsafe {
             let event = ModelEvent::ModelMove(ModelMoveDirection::Yaw(amount));
@@ -398,6 +413,9 @@ impl ModelRunner {
                         Err(e) => eprintln!("{:?}", e),
                     }
                 }
+                Event::UserEvent(ModelEvent::ToggleAxisLines) => {
+                    state.toggle_axis_visibility();
+                }
                 Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Pitch(amount))) => {
                     state.move_camera("pitch", amount);
                 }
@@ -497,28 +515,32 @@ impl ModelRunner {
                                 },
                             ..
                         } => {
-                            let mut cf = config.borrow_mut();
-                            let modifier = if modifiers.shift() {
-                                if modifiers.alt() {
-                                    0.99
-                                } else {
-                                    0.9
-                                }
+                            if modifiers.ctrl() {
+                                state.toggle_axis_visibility();
                             } else {
-                                if modifiers.alt() {
-                                    1.01
+                                let mut cf = config.borrow_mut();
+                                let modifier = if modifiers.shift() {
+                                    if modifiers.alt() {
+                                        0.99
+                                    } else {
+                                        0.9
+                                    }
                                 } else {
-                                    1.1
+                                    if modifiers.alt() {
+                                        1.01
+                                    } else {
+                                        1.1
+                                    }
+                                };
+                                cf.grid_cylinder_length = cf.grid_cylinder_length * modifier;
+                                unsafe {
+                                    let event = ModelEvent::Redraw;
+                                    EVENT_LOOP_PROXY
+                                        .as_ref()
+                                        .unwrap()
+                                        .send_event(event)
+                                        .unwrap();
                                 }
-                            };
-                            cf.grid_cylinder_length = cf.grid_cylinder_length * modifier;
-                            unsafe {
-                                let event = ModelEvent::Redraw;
-                                EVENT_LOOP_PROXY
-                                    .as_ref()
-                                    .unwrap()
-                                    .send_event(event)
-                                    .unwrap();
                             }
                         }
                         WindowEvent::KeyboardInput {
