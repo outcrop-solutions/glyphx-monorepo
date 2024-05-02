@@ -8,6 +8,7 @@ mod model_event;
 use model::model_configuration::{ColorWheel, ModelConfiguration};
 use model::state::DataManager;
 use model::state::State;
+use model_common::Stats;
 use model_event::{ModelEvent, ModelMoveDirection};
 use serde_json::{from_str, json, Value};
 use std::cell::RefCell;
@@ -15,7 +16,6 @@ use std::rc::Rc;
 use winit::event::*;
 use winit::event_loop::{ControlFlow, EventLoopBuilder, EventLoopProxy};
 use winit::window::WindowBuilder;
-use model_common::Stats;
 cfg_if::cfg_if! {
     if #[cfg(target_arch="wasm32")] {
         use wasm_bindgen::prelude::*;
@@ -82,10 +82,10 @@ impl ModelRunner {
 
     ///Will force a redraw of the model, if the model is running.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn update_configuration(&self, config: &str, is_running: bool) -> Result<(), String >{
+    pub fn update_configuration(&self, config: &str, is_running: bool) -> Result<(), String> {
         let value: Value = from_str(config).unwrap();
         let mut configuration = self.configuration.borrow_mut();
-        let result  = configuration.partial_update(&value);
+        let result = configuration.partial_update(&value);
         if result.is_err() {
             return Err(serde_json::to_string(&result.unwrap_err()).unwrap());
         }
@@ -122,7 +122,11 @@ impl ModelRunner {
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn raise_model(&self, amount: f32) {
         unsafe {
-            let event = if amount > 0.0 { ModelEvent::ModelMove(ModelMoveDirection::Up(amount)) } else { ModelEvent::ModelMove(ModelMoveDirection::Down(amount * -1.0)) };
+            let event = if amount > 0.0 {
+                ModelEvent::ModelMove(ModelMoveDirection::Up(amount))
+            } else {
+                ModelEvent::ModelMove(ModelMoveDirection::Down(amount * -1.0))
+            };
             self.emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
                 EVENT_LOOP_PROXY
@@ -135,9 +139,74 @@ impl ModelRunner {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn reset_camera(&self) {
+        unsafe {
+            let event = ModelEvent::ModelMove(ModelMoveDirection::Reset);
+            self.emit_event(&event);
+            if EVENT_LOOP_PROXY.is_some() {
+                EVENT_LOOP_PROXY
+                    .as_ref()
+                    .unwrap()
+                    .send_event(event)
+                    .unwrap();
+            }
+        }
+    }
+
+    ///These are user facing axis not internal
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn focus_on_x_axis(&self) {
+        unsafe {
+            let event = ModelEvent::ModelMove(ModelMoveDirection::X);
+            self.emit_event(&event);
+            if EVENT_LOOP_PROXY.is_some() {
+                EVENT_LOOP_PROXY
+                    .as_ref()
+                    .unwrap()
+                    .send_event(event)
+                    .unwrap();
+            }
+        }
+    }
+
+    ///These are user facing axis not internal
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn focus_on_y_axis(&self) {
+        unsafe {
+            let event = ModelEvent::ModelMove(ModelMoveDirection::Y);
+            self.emit_event(&event);
+            if EVENT_LOOP_PROXY.is_some() {
+                EVENT_LOOP_PROXY
+                    .as_ref()
+                    .unwrap()
+                    .send_event(event)
+                    .unwrap();
+            }
+        }
+    }
+    ///These are user facing axis not internal
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn focus_on_z_axis(&self) {
+        unsafe {
+            let event = ModelEvent::ModelMove(ModelMoveDirection::Z);
+            self.emit_event(&event);
+            if EVENT_LOOP_PROXY.is_some() {
+                EVENT_LOOP_PROXY
+                    .as_ref()
+                    .unwrap()
+                    .send_event(event)
+                    .unwrap();
+            }
+        }
+    }
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn shift_model(&self, amount: f32) {
         unsafe {
-            let event = if amount > 0.0 { ModelEvent::ModelMove(ModelMoveDirection::Right(amount)) } else { ModelEvent::ModelMove(ModelMoveDirection::Left(amount * -1.0)) };
+            let event = if amount > 0.0 {
+                ModelEvent::ModelMove(ModelMoveDirection::Right(amount))
+            } else {
+                ModelEvent::ModelMove(ModelMoveDirection::Left(amount * -1.0))
+            };
             self.emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
                 EVENT_LOOP_PROXY
@@ -181,10 +250,9 @@ impl ModelRunner {
     ///Adding a vector will update internal state but it
     ///will not emit any redraw events.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn add_vector(&self, axis: &str, data: Vec<u8>) -> Result<(), String>{
+    pub fn add_vector(&self, axis: &str, data: Vec<u8>) -> Result<(), String> {
         let mut dm = self.data_manager.borrow_mut();
-        let result = 
-        if axis == "x" {
+        let result = if axis == "x" {
             dm.add_x_vector(data)
         } else {
             dm.add_z_vector(data)
@@ -197,7 +265,7 @@ impl ModelRunner {
     //Adding statistics will update internal state but it
     //will not emit any redraw events.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn add_statistics(&self, data: Vec<u8>) -> Result<Stats, String>{
+    pub fn add_statistics(&self, data: Vec<u8>) -> Result<Stats, String> {
         let mut dm = self.data_manager.borrow_mut();
         let result = dm.add_stats(data);
         match result {
@@ -209,7 +277,7 @@ impl ModelRunner {
     ///Adding a glyph will update internal state but it
     ///will not emit any redraw events.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn add_glyph(&self, data: Vec<u8>)-> Result<(), String> {
+    pub fn add_glyph(&self, data: Vec<u8>) -> Result<(), String> {
         let mut dm = self.data_manager.borrow_mut();
         let result = dm.add_glyph(data);
         match result {
@@ -219,25 +287,25 @@ impl ModelRunner {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn get_glyph_count(&self)-> usize {
+    pub fn get_glyph_count(&self) -> usize {
         let dm = self.data_manager.borrow();
         dm.get_glyph_len()
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn get_stats_count(&self)-> usize {
+    pub fn get_stats_count(&self) -> usize {
         let dm = self.data_manager.borrow();
         dm.get_stats_len()
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn get_x_vector_count(&self)-> usize {
+    pub fn get_x_vector_count(&self) -> usize {
         let dm = self.data_manager.borrow();
         dm.get_vector_len("x")
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn get_y_vector_count(&self)-> usize {
+    pub fn get_y_vector_count(&self) -> usize {
         let dm = self.data_manager.borrow();
         dm.get_vector_len("z")
     }
@@ -351,7 +419,22 @@ impl ModelRunner {
                 Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Right(amount))) => {
                     state.move_camera("right", amount);
                 }
-                Event::DeviceEvent { device_id, event } => {
+                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::X)) => {
+                    state.move_camera("x_axis", 0.0);
+                }
+                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Z)) => {
+                    state.move_camera("z_axis", 0.0);
+                }
+                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Y)) => {
+                    state.move_camera("y_axis", 0.0);
+                }
+                Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Reset)) => {
+                    state.reset_camera();
+                }
+                Event::DeviceEvent {
+                    device_id: _,
+                    event,
+                } => {
                     state.input(&event);
                 }
                 Event::WindowEvent {
@@ -449,20 +532,24 @@ impl ModelRunner {
                             ..
                         } => {
                             let mut cf = config.borrow_mut();
-                            let modifier = if modifiers.shift() {
-                                if modifiers.alt() {
-                                    0.99
-                                } else {
-                                    0.9
-                                }
+                            if modifiers.ctrl() {
+                                state.reset_camera();
                             } else {
-                                if modifiers.alt() {
-                                    1.01
+                                let modifier = if modifiers.shift() {
+                                    if modifiers.alt() {
+                                        0.99
+                                    } else {
+                                        0.9
+                                    }
                                 } else {
-                                    1.1
-                                }
-                            };
-                            cf.grid_cone_length = cf.grid_cone_length * modifier;
+                                    if modifiers.alt() {
+                                        1.01
+                                    } else {
+                                        1.1
+                                    }
+                                };
+                                cf.grid_cone_length = cf.grid_cone_length * modifier;
+                            }
                             unsafe {
                                 let event = ModelEvent::Redraw;
                                 EVENT_LOOP_PROXY
@@ -756,21 +843,26 @@ impl ModelRunner {
                                 },
                             ..
                         } => {
-                            let mut cf = config.borrow_mut();
-                            if modifiers.shift() {
-                                x_color_index -= 1;
+                            if modifiers.ctrl() {
+                                state.move_camera("x_axis", 0.0);
                             } else {
-                                x_color_index += 1;
-                            }
-                            let x_color = color_wheel.get_color(x_color_index);
-                            cf.x_axis_color = x_color;
-                            unsafe {
-                                let event = ModelEvent::Redraw;
-                                EVENT_LOOP_PROXY
-                                    .as_ref()
-                                    .unwrap()
-                                    .send_event(event)
-                                    .unwrap();
+                                let mut cf = config.borrow_mut();
+                                if modifiers.shift() {
+                                    x_color_index -= 1;
+                                } else {
+                                    x_color_index += 1;
+                                }
+                                let x_color = color_wheel.get_color(x_color_index);
+                                cf.x_axis_color = x_color;
+
+                                unsafe {
+                                    let event = ModelEvent::Redraw;
+                                    EVENT_LOOP_PROXY
+                                        .as_ref()
+                                        .unwrap()
+                                        .send_event(event)
+                                        .unwrap();
+                                }
                             }
                         }
                         WindowEvent::KeyboardInput {
@@ -783,21 +875,25 @@ impl ModelRunner {
                                 },
                             ..
                         } => {
-                            let mut cf = config.borrow_mut();
-                            if modifiers.shift() {
-                                y_color_index -= 1;
+                            if modifiers.ctrl() {
+                                state.move_camera("y_axis", 0.0);
                             } else {
-                                y_color_index += 1;
-                            }
-                            let y_color = color_wheel.get_color(y_color_index);
-                            cf.y_axis_color = y_color;
-                            unsafe {
-                                let event = ModelEvent::Redraw;
-                                EVENT_LOOP_PROXY
-                                    .as_ref()
-                                    .unwrap()
-                                    .send_event(event)
-                                    .unwrap();
+                                let mut cf = config.borrow_mut();
+                                if modifiers.shift() {
+                                    y_color_index -= 1;
+                                } else {
+                                    y_color_index += 1;
+                                }
+                                let y_color = color_wheel.get_color(y_color_index);
+                                cf.y_axis_color = y_color;
+                                unsafe {
+                                    let event = ModelEvent::Redraw;
+                                    EVENT_LOOP_PROXY
+                                        .as_ref()
+                                        .unwrap()
+                                        .send_event(event)
+                                        .unwrap();
+                                }
                             }
                         }
                         WindowEvent::KeyboardInput {
@@ -810,21 +906,25 @@ impl ModelRunner {
                                 },
                             ..
                         } => {
-                            let mut cf = config.borrow_mut();
-                            if modifiers.shift() {
-                                z_color_index -= 1;
+                            if modifiers.ctrl() {
+                                state.move_camera("z_axis", 0.0);
                             } else {
-                                z_color_index += 1;
-                            }
-                            let z_color = color_wheel.get_color(z_color_index);
-                            cf.z_axis_color = z_color;
-                            unsafe {
-                                let event = ModelEvent::Redraw;
-                                EVENT_LOOP_PROXY
-                                    .as_ref()
-                                    .unwrap()
-                                    .send_event(event)
-                                    .unwrap();
+                                let mut cf = config.borrow_mut();
+                                if modifiers.shift() {
+                                    z_color_index -= 1;
+                                } else {
+                                    z_color_index += 1;
+                                }
+                                let z_color = color_wheel.get_color(z_color_index);
+                                cf.z_axis_color = z_color;
+                                unsafe {
+                                    let event = ModelEvent::Redraw;
+                                    EVENT_LOOP_PROXY
+                                        .as_ref()
+                                        .unwrap()
+                                        .send_event(event)
+                                        .unwrap();
+                                }
                             }
                         }
 
@@ -959,16 +1059,14 @@ impl ModelRunner {
                                     ..
                                 },
                             ..
-                        } => {
-                            unsafe {
-                                let event = ModelEvent::ModelMove(ModelMoveDirection::Up(1.0));
-                                EVENT_LOOP_PROXY
-                                    .as_ref()
-                                    .unwrap()
-                                    .send_event(event)
-                                    .unwrap();
-                            }
-                        }
+                        } => unsafe {
+                            let event = ModelEvent::ModelMove(ModelMoveDirection::Up(1.0));
+                            EVENT_LOOP_PROXY
+                                .as_ref()
+                                .unwrap()
+                                .send_event(event)
+                                .unwrap();
+                        },
 
                         WindowEvent::KeyboardInput {
                             input:
@@ -978,16 +1076,14 @@ impl ModelRunner {
                                     ..
                                 },
                             ..
-                        } => {
-                            unsafe {
-                                let event = ModelEvent::ModelMove(ModelMoveDirection::Down(1.0));
-                                EVENT_LOOP_PROXY
-                                    .as_ref()
-                                    .unwrap()
-                                    .send_event(event)
-                                    .unwrap();
-                            }
-                        }
+                        } => unsafe {
+                            let event = ModelEvent::ModelMove(ModelMoveDirection::Down(1.0));
+                            EVENT_LOOP_PROXY
+                                .as_ref()
+                                .unwrap()
+                                .send_event(event)
+                                .unwrap();
+                        },
 
                         WindowEvent::KeyboardInput {
                             input:
@@ -997,16 +1093,14 @@ impl ModelRunner {
                                     ..
                                 },
                             ..
-                        } => {
-                            unsafe {
-                                let event = ModelEvent::ModelMove(ModelMoveDirection::Left(1.0));
-                                EVENT_LOOP_PROXY
-                                    .as_ref()
-                                    .unwrap()
-                                    .send_event(event)
-                                    .unwrap();
-                            }
-                        }
+                        } => unsafe {
+                            let event = ModelEvent::ModelMove(ModelMoveDirection::Left(1.0));
+                            EVENT_LOOP_PROXY
+                                .as_ref()
+                                .unwrap()
+                                .send_event(event)
+                                .unwrap();
+                        },
 
                         WindowEvent::KeyboardInput {
                             input:
@@ -1016,16 +1110,14 @@ impl ModelRunner {
                                     ..
                                 },
                             ..
-                        } => {
-                            unsafe {
-                                let event = ModelEvent::ModelMove(ModelMoveDirection::Right(1.0));
-                                EVENT_LOOP_PROXY
-                                    .as_ref()
-                                    .unwrap()
-                                    .send_event(event)
-                                    .unwrap();
-                            }
-                        }
+                        } => unsafe {
+                            let event = ModelEvent::ModelMove(ModelMoveDirection::Right(1.0));
+                            EVENT_LOOP_PROXY
+                                .as_ref()
+                                .unwrap()
+                                .send_event(event)
+                                .unwrap();
+                        },
                         WindowEvent::Resized(physical_size) => {
                             state.resize(*physical_size);
                         }

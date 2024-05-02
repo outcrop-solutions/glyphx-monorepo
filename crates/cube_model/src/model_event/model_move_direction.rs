@@ -8,5 +8,9 @@ pub enum ModelMoveDirection {
     Down(f32),
     Left(f32),
     Right(f32),
+    Reset,
+    X,
+    Y,
+    Z,
 
 }
