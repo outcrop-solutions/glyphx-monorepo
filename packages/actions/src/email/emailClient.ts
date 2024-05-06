@@ -159,7 +159,6 @@ export class ResendClient {
 
   private async sendWorkspaceInvitation(emailData: emailTypes.iWorkspaceInvitationData) {
     try {
-      console.log({emails: emailData.emails, client: true});
       const emails = emailData?.emails;
       const {data, error} = await this.client!.emails.send({
         from: this.fromField,

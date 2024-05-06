@@ -6,6 +6,7 @@ import {EmailTypes} from './emailTypes';
 export interface iAnnotationCreatedData {
   type: EmailTypes.ANNOTATION_CREATED;
   emails: string[];
+  projectId: string;
   annotation: string;
   stateName: string;
   stateImage: string;

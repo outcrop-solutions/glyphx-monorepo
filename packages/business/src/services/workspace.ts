@@ -96,7 +96,6 @@ export class WorkspaceService {
         // remove workspace and membe,rship from user
         await mongoDbConnection.models.UserModel.removeWorkspaces(userId, [workspace.id!]);
         const userMember = workspace.members.filter((mem: any) => {
-          console.log({mem, userId});
           return mem?.member?.id?.toString() === userId;
         });
 

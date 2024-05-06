@@ -26,36 +26,36 @@ export const States = () => {
   const {applyState} = useApplyState();
 
   const callCreateState = async (camera, image, project) => {
-    if (Object.keys(camera).length > 0 && image.imageHash) {
-      setIsSubmitting(true);
-      const aspect = {
-        width: (viewerPosition as webTypes.IViewerPosition).w || 300,
-        height: (viewerPosition as webTypes.IViewerPosition).h || 200,
-      };
-      const rows = (rowIds ? rowIds : []) as unknown as number[];
-      const newProject = await createState(name, camera as webTypes.Camera, project, image.imageHash, aspect, rows);
-      console.log({newProject, project, rows, viewerPosition});
+    try {
+      if (Object.keys(camera).length > 0 && image.imageHash) {
+        setIsSubmitting(true);
+        const aspect = {
+          width: (viewerPosition as webTypes.IViewerPosition).w || 300,
+          height: (viewerPosition as webTypes.IViewerPosition).h || 200,
+        };
+        const rows = (rowIds ? rowIds : []) as unknown as number[];
+        const newProject = await createState(name, camera as webTypes.Camera, project, image.imageHash, aspect, rows);
 
-      if (newProject) {
-        // @ts-ignore
-        const filteredStates = newProject.stateHistory?.filter((state) => !state.deletedAt);
-        const idx = filteredStates.length - 1;
+        if (newProject) {
+          // @ts-ignore
+          const filteredStates = newProject.stateHistory?.filter((state) => !state.deletedAt);
+          const idx = filteredStates.length - 1;
 
-        console.log({filteredStates, idx});
-
-        applyState(idx, newProject);
-        setName('Initial State');
-        setIsSubmitting(false);
-        setAddState(false);
+          applyState(idx, newProject);
+          setName('Initial State');
+          setIsSubmitting(false);
+          setAddState(false);
+        }
       }
+    } catch (error) {
+      console.log({error});
     }
   };
 
   useEffect(() => {
-    console.log('within effect', project);
     callCreateState(camera, image, project);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [camera, setCamera, setProject, mutate, image, setImage, project?.id, setAddState]);
+  }, [camera, setCamera, setProject, mutate, image, setImage, setAddState]);
 
   return (
     <div className="group flex flex-col grow">

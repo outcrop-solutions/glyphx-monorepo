@@ -404,11 +404,13 @@ describe('#services/workspace', () => {
         name: 'workspace1',
         members: [
           {
-            _id: userId,
+            id: userId,
             email: userEmail,
             teamRole: databaseTypes.constants.ROLE.OWNER,
             deletedAt: null,
-            member: userId,
+            member: {
+              id: userId,
+            }, //
           } as unknown as databaseTypes.IMember,
         ],
       } as unknown as databaseTypes.IWorkspace);
@@ -453,7 +455,7 @@ describe('#services/workspace', () => {
       assert.isTrue(removeUserMembershipFromModelStub.calledOnce);
       assert.isTrue(updateMemberWithFilterStub.calledOnce);
     });
-    it('should update a workspace deletedAt wehn userId is a string', async () => {
+    it('should update a workspace deletedAt when userId is a string', async () => {
       const userId =
         // @ts-ignore
         new mongooseTypes.ObjectId();
@@ -470,11 +472,13 @@ describe('#services/workspace', () => {
         name: 'workspace1',
         members: [
           {
-            _id: userId,
+            id: userId,
             email: userEmail,
             teamRole: databaseTypes.constants.ROLE.OWNER,
             deletedAt: null,
-            member: userId,
+            member: {
+              id: userId,
+            },
           } as unknown as databaseTypes.IMember,
         ],
       } as unknown as databaseTypes.IWorkspace);

@@ -12,7 +12,6 @@ export const ProjectControls = () => {
     <div
       onKeyDown={(ev) => {
         if (ev.key === 'Enter') {
-          console.log('running rename');
           startTransition(() => {
             updateProjectName(project.id, name);
           });

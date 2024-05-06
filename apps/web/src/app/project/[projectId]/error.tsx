@@ -2,7 +2,7 @@
 import React from 'react';
 import {useRouter} from 'next/navigation';
 
-import ProjectErrorIcon from 'public/svg/project-error-icon.svg';
+import ProjectErrorIcon from 'svg/project-error-icon.svg';
 import {Route} from 'next';
 
 export default function ProjectErrorFallback() {

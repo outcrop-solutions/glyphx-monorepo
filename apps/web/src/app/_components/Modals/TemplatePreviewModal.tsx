@@ -1,22 +1,22 @@
 'use client';
-import React, {startTransition, useState} from 'react';
+import React, {useTransition} from 'react';
 import Button from 'app/_components/Button';
 import {webTypes} from 'types';
 import {useSetRecoilState} from 'recoil';
 import {modalsAtom} from 'state';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {useParams} from 'next/navigation';
-import ColXIcon from 'public/svg/col-x-icon.svg';
-import ColYIcon from 'public/svg/col-y-icon.svg';
-import ColZIcon from 'public/svg/col-z-icon.svg';
+import ColXIcon from 'svg/col-x-icon.svg';
+import ColYIcon from 'svg/col-y-icon.svg';
+import ColZIcon from 'svg/col-z-icon.svg';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {createProjectFromTemplate} from 'actions';
 
 export const TemplatePreviewModal = ({modalContent}: webTypes.TemplatePreviewModalProps) => {
   const params = useParams();
+  const [isPending, startTransition] = useTransition();
   const {workspaceId} = params as {workspaceId: string};
-  const [loading, setLoading] = useState(false);
   const setModals = useSetRecoilState(modalsAtom);
   const {data} = modalContent;
   const axes = ['X', 'Y', 'Z'];
@@ -69,10 +69,10 @@ export const TemplatePreviewModal = ({modalContent}: webTypes.TemplatePreviewMod
       <div className="flex flex-col items-stretch">
         <Button
           className=""
-          disabled={loading}
+          disabled={isPending}
           onClick={() =>
-            startTransition(() => {
-              createProjectFromTemplate(workspaceId, data);
+            startTransition(async () => {
+              await createProjectFromTemplate(workspaceId, data);
               setModals(
                 produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
                   draft.modals.splice(0, 1);
@@ -81,7 +81,7 @@ export const TemplatePreviewModal = ({modalContent}: webTypes.TemplatePreviewMod
             })
           }
         >
-          {loading ? <LoadingDots /> : <span>Get Template</span>}
+          {isPending ? <LoadingDots /> : <span>Get Template</span>}
         </Button>
       </div>
     </div>

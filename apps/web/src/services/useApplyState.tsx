@@ -1,7 +1,15 @@
 'use client';
 import {useCallback} from 'react';
 import {useSession} from 'next-auth/react';
-import {activeStateAtom, cameraAtom, drawerOpenAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom} from 'state';
+import {
+  activeStateAtom,
+  cameraAtom,
+  drawerOpenAtom,
+  imageHashAtom,
+  projectAtom,
+  showLoadingAtom,
+  splitPaneSizeAtom,
+} from 'state';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
@@ -17,6 +25,7 @@ const useApplyState = () => {
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setCamera = useSetRecoilState(cameraAtom);
+  const setImageHash = useSetRecoilState(imageHashAtom);
   const [project, setProject] = useRecoilState(projectAtom);
   const loading = useRecoilValue(showLoadingAtom);
   const [activeState, setActiveState] = useRecoilState(activeStateAtom);
@@ -56,19 +65,6 @@ const useApplyState = () => {
         const isNullCam = isNullCamera(camera);
         const signedUrls = await signDataUrls(project?.workspace.id, project?.id, payloadHash);
 
-        console.log({
-          signedUrls,
-          isNullCam,
-          camera,
-          properties,
-          ids,
-          rowIds,
-          payload,
-          filteredStates,
-          newProject,
-          project,
-        });
-
         if (!signedUrls?.error) {
           // replace project state
           setProject(
@@ -93,6 +89,10 @@ const useApplyState = () => {
               )
             );
           }
+          // flush state to avoid createState retriggering by passing our Object.keys(camera).length > 0 && image.imageHash condition on line 31 of States.tsx
+          setImageHash({
+            imageHash: false,
+          });
           setCamera({});
         } else {
           setLoading(
@@ -103,6 +103,10 @@ const useApplyState = () => {
             })
           );
           setActiveState(-1);
+          // flush state
+          setImageHash({
+            imageHash: false,
+          });
           setCamera({});
         }
       }

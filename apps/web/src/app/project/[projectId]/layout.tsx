@@ -4,7 +4,7 @@ import LeftSidebar from './_components/LeftSidebar';
 import ProjectHeader from './_components/ProjectHeader';
 import {ProjectProvider} from './provider';
 import {InnerSidebar} from './_components/InnerSidebar';
-import {RightSidebar} from 'app/[workspaceId]/_components/rightSidebar';
+import {RightSidebar} from 'app/workspace/[workspaceId]/_components/rightSidebar';
 import {ServerDocumentManager} from 'collab/lib/server/ServerDocumentManager';
 import {Initializer, projectService} from 'business';
 import {notFound} from 'next/navigation';

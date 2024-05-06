@@ -287,7 +287,7 @@ impl ModelRunner {
         let mut dm = self.data_manager.borrow_mut();
         let result = dm.add_stats(data);
         match result {
-            Ok(stats) => Ok(stats),
+            Ok(stats) => Ok(format!("{:?}", stats)),
             Err(e) => Err(serde_json::to_string(&e).unwrap()),
         }
     }

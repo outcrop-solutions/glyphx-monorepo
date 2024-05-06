@@ -102,7 +102,7 @@ export const joinWorkspace = async (workspaceCode: string) => {
     e.publish('team', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }
-  redirect(`/${workspaceId}`);
+  redirect(`/workspace/${workspaceId}`);
 };
 
 /**

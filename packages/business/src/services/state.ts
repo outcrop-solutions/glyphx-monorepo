@@ -1,8 +1,7 @@
 import {databaseTypes, webTypes} from 'types';
 import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
-import {hashFileSystem} from '../util/hashFileSystem';
-import {hashPayload} from '../util/hashPayload';
+import {hashFileSystem, hashPayload} from '../util/hashFunctions';
 
 export class StateService {
   public static async getState(stateId: string): Promise<databaseTypes.IState | null> {

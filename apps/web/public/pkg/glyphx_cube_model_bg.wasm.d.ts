@@ -1,11 +1,19 @@
 /* tslint:disable */
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
+export function modelrunner_new(): number;
+export function modelrunner_update_configuration(a: number, b: number, c: number, d: number): void;
 export function modelrunner_add_yaw(a: number, b: number): void;
 export function modelrunner_add_pitch(a: number, b: number): void;
 export function modelrunner_add_distance(a: number, b: number): void;
+export function modelrunner_add_vector(a: number, b: number, c: number, d: number, e: number): number;
+export function modelrunner_add_statistics(a: number, b: number, c: number, d: number): void;
+export function modelrunner_add_glyph(a: number, b: number, c: number): number;
+export function modelrunner_get_glyph_count(a: number): number;
+export function modelrunner_get_stats_count(a: number): number;
+export function modelrunner_get_x_vector_count(a: number): number;
+export function modelrunner_get_y_vector_count(a: number): number;
 export function modelrunner_run(a: number): number;
-export function modelrunner_new(): number;
 export function __wbg_modelrunner_free(a: number): void;
 export function __wbg_vector3_free(a: number): void;
 export function __wbg_get_vector3_x(a: number): number;
@@ -98,11 +106,11 @@ export function wgpu_render_pass_set_index_buffer(a: number, b: number, c: numbe
 export function __wbindgen_malloc(a: number, b: number): number;
 export function __wbindgen_realloc(a: number, b: number, c: number, d: number): number;
 export const __wbindgen_export_2: WebAssembly.Table;
-export function _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h654c6b7304bd8e72(a: number, b: number): void;
-export function _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h20980ec2c4de5810(a: number, b: number, c: number): void;
-export function _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__he51f81cd0d3447b0(a: number, b: number, c: number): void;
-export function _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__hb8bea407b97b0762(a: number, b: number, c: number): void;
+export function _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h09b783a575b776ea(a: number, b: number, c: number): void;
+export function _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h1de89293a3ec74d4(a: number, b: number): void;
+export function _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h3d6d3fc07f7e74af(a: number, b: number, c: number): void;
+export function _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h437d5ad93a62fa19(a: number, b: number, c: number): void;
 export function __wbindgen_add_to_stack_pointer(a: number): number;
 export function __wbindgen_free(a: number, b: number, c: number): void;
 export function __wbindgen_exn_store(a: number): void;
-export function wasm_bindgen__convert__closures__invoke2_mut__h74fa8e288a3a945e(a: number, b: number, c: number, d: number): void;
+export function wasm_bindgen__convert__closures__invoke2_mut__hb26d06dc0e08560c(a: number, b: number, c: number, d: number): void;

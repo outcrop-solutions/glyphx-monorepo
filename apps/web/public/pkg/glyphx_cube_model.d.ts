@@ -8,6 +8,11 @@ export class ModelRunner {
 */
   constructor();
 /**
+*Will force a redraw of the model, if the model is running.
+* @param {string} config
+*/
+  update_configuration(config: string): void;
+/**
 * @param {number} amount
 */
   add_yaw(amount: number): void;
@@ -19,6 +24,42 @@ export class ModelRunner {
 * @param {number} amount
 */
   add_distance(amount: number): void;
+/**
+*Adding a vector will update internal state but it
+*will not emit any redraw events.
+* @param {string} axis
+* @param {Uint8Array} data
+* @returns {Promise<void>}
+*/
+  add_vector(axis: string, data: Uint8Array): Promise<void>;
+/**
+* @param {Uint8Array} data
+* @returns {string}
+*/
+  add_statistics(data: Uint8Array): string;
+/**
+*Adding a glyph will update internal state but it
+*will not emit any redraw events.
+* @param {Uint8Array} data
+* @returns {Promise<void>}
+*/
+  add_glyph(data: Uint8Array): Promise<void>;
+/**
+* @returns {number}
+*/
+  get_glyph_count(): number;
+/**
+* @returns {number}
+*/
+  get_stats_count(): number;
+/**
+* @returns {number}
+*/
+  get_x_vector_count(): number;
+/**
+* @returns {number}
+*/
+  get_y_vector_count(): number;
 /**
 * @returns {Promise<void>}
 */
@@ -124,11 +165,19 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly modelrunner_new: () => number;
+  readonly modelrunner_update_configuration: (a: number, b: number, c: number, d: number) => void;
   readonly modelrunner_add_yaw: (a: number, b: number) => void;
   readonly modelrunner_add_pitch: (a: number, b: number) => void;
   readonly modelrunner_add_distance: (a: number, b: number) => void;
+  readonly modelrunner_add_vector: (a: number, b: number, c: number, d: number, e: number) => number;
+  readonly modelrunner_add_statistics: (a: number, b: number, c: number, d: number) => void;
+  readonly modelrunner_add_glyph: (a: number, b: number, c: number) => number;
+  readonly modelrunner_get_glyph_count: (a: number) => number;
+  readonly modelrunner_get_stats_count: (a: number) => number;
+  readonly modelrunner_get_x_vector_count: (a: number) => number;
+  readonly modelrunner_get_y_vector_count: (a: number) => number;
   readonly modelrunner_run: (a: number) => number;
-  readonly modelrunner_new: () => number;
   readonly __wbg_modelrunner_free: (a: number) => void;
   readonly __wbg_vector3_free: (a: number) => void;
   readonly __wbg_get_vector3_x: (a: number) => number;
@@ -221,14 +270,14 @@ export interface InitOutput {
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
   readonly __wbindgen_export_2: WebAssembly.Table;
-  readonly _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h654c6b7304bd8e72: (a: number, b: number) => void;
-  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h20980ec2c4de5810: (a: number, b: number, c: number) => void;
-  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__he51f81cd0d3447b0: (a: number, b: number, c: number) => void;
-  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__hb8bea407b97b0762: (a: number, b: number, c: number) => void;
+  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h09b783a575b776ea: (a: number, b: number, c: number) => void;
+  readonly _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h1de89293a3ec74d4: (a: number, b: number) => void;
+  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h3d6d3fc07f7e74af: (a: number, b: number, c: number) => void;
+  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h437d5ad93a62fa19: (a: number, b: number, c: number) => void;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_free: (a: number, b: number, c: number) => void;
   readonly __wbindgen_exn_store: (a: number) => void;
-  readonly wasm_bindgen__convert__closures__invoke2_mut__h74fa8e288a3a945e: (a: number, b: number, c: number, d: number) => void;
+  readonly wasm_bindgen__convert__closures__invoke2_mut__hb26d06dc0e08560c: (a: number, b: number, c: number, d: number) => void;
 }
 
 export type SyncInitInput = BufferSource | WebAssembly.Module;

@@ -1,5 +1,5 @@
 'use client';
-import React, {startTransition, useState} from 'react';
+import React, {useTransition, useState} from 'react';
 import Button from 'app/_components/Button';
 import {webTypes} from 'types';
 import {useRouter} from 'next/navigation';
@@ -11,7 +11,7 @@ import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 
 export const CreateWorkspaceModal = ({modalContent}: webTypes.CreateWorkspaceModalProps) => {
-  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const setModals = useSetRecoilState(modalsAtom);
   const [name, setName] = useState('');
   const validName = name.length > 0 && name.length <= 16;
@@ -29,7 +29,7 @@ export const CreateWorkspaceModal = ({modalContent}: webTypes.CreateWorkspaceMod
         <p className="text-sm text-gray-400">Name your workspace. Keep it simple.</p>
         <input
           className="w-full px-3 py-2 border rounded bg-transparent"
-          disabled={modalContent.isSubmitting}
+          disabled={isPending}
           onChange={handleNameChange}
           type="text"
           value={name}
@@ -38,10 +38,10 @@ export const CreateWorkspaceModal = ({modalContent}: webTypes.CreateWorkspaceMod
       <div className="flex flex-col items-stretch">
         <Button
           className=""
-          disabled={!validName || modalContent.isSubmitting}
+          disabled={!validName || isPending}
           onClick={() =>
-            startTransition(() => {
-              createWorkspace(name);
+            startTransition(async () => {
+              await createWorkspace(name);
               setModals(
                 produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
                   draft.modals.splice(0, 1);
@@ -50,7 +50,7 @@ export const CreateWorkspaceModal = ({modalContent}: webTypes.CreateWorkspaceMod
             })
           }
         >
-          {modalContent.isSubmitting ? <LoadingDots /> : <span>Create Workspace</span>}
+          {isPending ? <LoadingDots /> : <span>Create Workspace</span>}
         </Button>
       </div>
     </div>

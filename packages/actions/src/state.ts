@@ -7,6 +7,7 @@ import {databaseTypes, emailTypes, webTypes} from 'types';
 import {authOptions} from './auth';
 import {revalidatePath} from 'next/cache';
 import emailClient from './email';
+import {getToken} from './utils/blobStore';
 /**
  * Gets a state by id
  * @param stateId
@@ -54,10 +55,11 @@ export const createState = async (
       const buffer = Buffer.from(imageHash, 'base64');
       const blob = new Blob([buffer], {type: 'image/png'});
 
-      // upload imageHash to Blob store
-      const imageRetval = await put(`${state?.id}`, blob, {
+      // upload state imageHash to Blob store
+      const imageRetval = await put(`s${state?.id}`, blob, {
         access: 'public',
         addRandomSuffix: false,
+        token: getToken(),
       });
 
       const retval = await projectService.getProject(project.id as string);
@@ -68,6 +70,7 @@ export const createState = async (
           stateName: name,
           stateImage: imageRetval.url,
           emails: retval.members?.map((mem) => mem.email),
+          projectId: project.id as string,
         } satisfies emailTypes.EmailData;
 
         await emailClient.init();
@@ -85,6 +88,7 @@ export const createState = async (
           action: databaseTypes.constants.ACTION_TYPE.CREATED,
         });
       }
+      revalidatePath(`/project/${project.id}`, 'layout');
       return retval;
     }
   } catch (err) {

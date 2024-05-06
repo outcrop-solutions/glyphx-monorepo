@@ -10,8 +10,8 @@ import {acceptInvitation, declineInvitation} from 'actions';
 
 export default function Welcome() {
   const router = useRouter();
-  const {data: invitationsData, isLoading: isFetchingInvitations} = useInvitations();
-  const {data: workspacesData, isLoading: isFetchingWorkspaces} = useWorkspaces();
+  const {data: invitations, isLoading: isFetchingInvitations} = useInvitations();
+  const {data: workspaces, isLoading: isFetchingWorkspaces} = useWorkspaces();
   const [isSubmitting, setSubmittingState] = useState(false);
   const navigate = (workspace) => {
     router.replace(`/${workspace.id}` as Route);
@@ -29,8 +29,8 @@ export default function Welcome() {
                 <Card.Body />
                 <Card.Footer />
               </Card>
-            ) : workspacesData?.workspaces?.length > 0 ? (
-              workspacesData.workspaces.map((workspace, index) => (
+            ) : workspaces && workspaces?.length > 0 ? (
+              workspaces.map((workspace, index) => (
                 <Card key={index}>
                   <Card.Body title={workspace.name} />
                   <Card.Footer>
@@ -59,8 +59,8 @@ export default function Welcome() {
                 <Card.Body />
                 <Card.Footer />
               </Card>
-            ) : invitationsData?.invitations?.length > 0 ? (
-              invitationsData.invitations.map((invitation, index) => (
+            ) : invitations && invitations.length > 0 ? (
+              invitations.map((invitation, index) => (
                 <Card key={index}>
                   <Card.Body
                     title={invitation.workspace.name}
@@ -72,7 +72,7 @@ export default function Welcome() {
                       disabled={isSubmitting}
                       onClick={() =>
                         startTransition(() => {
-                          acceptInvitation(invitation.id);
+                          acceptInvitation(invitation.id as string);
                         })
                       }
                     >
@@ -83,7 +83,7 @@ export default function Welcome() {
                       disabled={isSubmitting}
                       onClick={() =>
                         startTransition(() => {
-                          declineInvitation(invitation.id);
+                          declineInvitation(invitation.id as string);
                         })
                       }
                     >

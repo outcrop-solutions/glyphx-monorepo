@@ -7,10 +7,10 @@ import TemplateLibrary from './TemplateLibrary';
 
 import {useSetRecoilState} from 'recoil';
 
-import BackBtnIcon from 'public/svg/back-btn-icon.svg';
-import ImportProjectIcon from 'public/svg/import-project-icon.svg';
-import BlankProjectIcon from 'public/svg/blank-project-icon.svg';
-import TemplateLibraryIcon from 'public/svg/template-lib-icon.svg';
+import BackBtnIcon from 'svg/back-btn-icon.svg';
+import ImportProjectIcon from 'svg/import-project-icon.svg';
+import BlankProjectIcon from 'svg/blank-project-icon.svg';
+import TemplateLibraryIcon from 'svg/template-lib-icon.svg';
 import {WritableDraft} from 'immer/dist/internal';
 import {modalsAtom} from 'state';
 

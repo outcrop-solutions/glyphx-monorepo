@@ -4,7 +4,7 @@ import {Initializer, dbConnection, userService} from 'business';
 import {MongoDBAdapter} from '@next-auth/mongodb-adapter';
 import GoogleProvider from 'next-auth/providers/google';
 import EmailProvider from 'next-auth/providers/email';
-import emailClient from '../../../../email';
+import emailClient from 'actions/src/email';
 import {emailTypes} from 'types';
 
 const getConnectionPromise = (async () => {
@@ -51,13 +51,14 @@ export const authOptions: NextAuthOptions = {
         const {host} = new URL(url);
         const emailData = {
           type: emailTypes.EmailTypes.EMAIL_VERFICATION,
-          url: host,
+          url: url,
           identifier,
           provider: {
             from: 'jp@glyphx.co',
           },
           theme: 'light',
-        } satisfies emailTypes.EmailData;
+        } satisfies emailTypes.iEmailVerificationData;
+
         await emailClient.init();
         await emailClient.sendEmail(emailData);
       },

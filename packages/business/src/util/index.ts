@@ -1,2 +1,2 @@
 export {Heartbeat} from './heartbeat';
-export {hashFileSystem} from './hashFileSystem';
+export {hashFileSystem} from './hashFunctions';

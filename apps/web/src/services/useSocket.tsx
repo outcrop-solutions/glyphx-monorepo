@@ -27,89 +27,99 @@ export const useSocket = () => {
       isMounted.current = true;
 
       if (!channel && !socket) {
-        const ws = new WebSocket('ws://localhost:63630');
+        try {
+          const ws = new WebSocket('ws://localhost:63630');
 
-        ws.onopen = () => {
-          try {
-            console.info('socket opened cleanly');
-            if (!isMounted.current) return;
-            const channel = new QWebChannel(ws, (channel) => {
-              window.core = channel.objects.core; // making it global
-              window.core.SendRowIds.connect((json: string) => {
-                const ids = JSON.parse(json)?.rowIds;
-                const rowIds = ids.length === 0 ? false : [...ids];
-                setPageNumber(0);
-                setRows(rowIds);
+          ws.onopen = () => {
+            try {
+              console.info('socket opened cleanly');
+              if (!isMounted.current) return;
+              const channel = new QWebChannel(ws, (channel) => {
+                window.core = channel.objects.core; // making it global
+                window.core.SendRowIds.connect((json: string) => {
+                  const ids = JSON.parse(json)?.rowIds;
+                  const rowIds = ids.length === 0 ? false : [...ids];
+                  setPageNumber(0);
+                  setRows(rowIds);
+                });
+                window.core.SendCameraPosition.connect((json: string) => {
+                  const jsonCamera = `{${json}}`;
+                  const {camera} = JSON.parse(jsonCamera);
+
+                  const newCamera: webTypes.Camera = {
+                    pos: {
+                      x: camera.position[0],
+                      y: camera.position[1],
+                      z: camera.position[2],
+                    },
+                    dir: {
+                      x: camera.direction[0],
+                      y: camera.direction[1],
+                      z: camera.direction[2],
+                    },
+                    center: {
+                      x: camera.center[0],
+                      y: camera.center[1],
+                      z: camera.center[2],
+                    },
+                  };
+                  setCamera(
+                    produce((draft: WritableDraft<webTypes.Camera>) => {
+                      draft.pos = {x: newCamera.pos.x, y: newCamera.pos.y, z: newCamera.pos.z};
+                      draft.dir = {x: newCamera.dir.x, y: newCamera.dir.y, z: newCamera.dir.z};
+                      draft.center = {x: newCamera.center!.x, y: newCamera.center!.y, z: newCamera.center!.z};
+                    })
+                  );
+                });
+                window.core.SendScreenShot.connect((json: string) => {
+                  const imageHash = JSON.parse(json);
+
+                  setImage(
+                    produce((draft: WritableDraft<webTypes.ImageHash>) => {
+                      draft.imageHash = imageHash.imageData;
+                    })
+                  );
+                });
+                window.core.OpenProjectComplete.connect((json: string) => {
+                  const msg = JSON.parse(json);
+
+                  if (!payload.current.isSent && msg.isCreate) {
+                    payload.current.isSent = true;
+                    window?.core?.GetCameraPosition(true);
+                    window?.core?.TakeScreenShot('');
+                  } else if (payload.current.isSent) {
+                    payload.current.isSent = false;
+                  }
+                });
               });
-              window.core.SendCameraPosition.connect((json: string) => {
-                const jsonCamera = `{${json}}`;
-                const {camera} = JSON.parse(jsonCamera);
-                const newCamera: webTypes.Camera = {
-                  pos: {
-                    x: camera.position[0],
-                    y: camera.position[1],
-                    z: camera.position[2],
-                  },
-                  dir: {
-                    x: camera.direction[0],
-                    y: camera.direction[1],
-                    z: camera.direction[2],
-                  },
-                  center: {
-                    x: camera.center[0],
-                    y: camera.center[1],
-                    z: camera.center[2],
-                  },
-                };
-                setCamera(
-                  produce((draft: WritableDraft<webTypes.Camera>) => {
-                    draft.pos = {x: newCamera.pos.x, y: newCamera.pos.y, z: newCamera.pos.z};
-                    draft.dir = {x: newCamera.dir.x, y: newCamera.dir.y, z: newCamera.dir.z};
-                    draft.center = {x: newCamera.center!.x, y: newCamera.center!.y, z: newCamera.center!.z};
-                  })
-                );
-              });
-              window.core.SendScreenShot.connect((json: string) => {
-                const imageHash = JSON.parse(json);
-                setImage(
-                  produce((draft: WritableDraft<webTypes.ImageHash>) => {
-                    draft.imageHash = imageHash.imageData;
-                  })
-                );
-              });
-              window.core.OpenProjectComplete.connect((json: string) => {
-                const msg = JSON.parse(json);
-                if (!payload.current.isSent && msg.isCreate) {
-                  payload.current.isSent = true;
-                  window?.core?.GetCameraPosition(true);
-                  window?.core?.TakeScreenShot('');
-                }
-              });
-            });
 
-            setChannel(channel);
-          } catch (error) {}
-        };
+              setChannel(channel);
+            } catch (error) {}
+          };
 
-        // ws.onerror = (error) => {};
+          // ws.onerror = (error) => {};
 
-        ws.onclose = (event) => {
-          try {
-            if (event.wasClean) {
-              console.info(`Connection closed cleanly, code=${event.code}, reason=${event.reason}`);
-            } else {
-              console.warn('Connection died');
-              // TODO: Implement a reconnect mechanism here if needed
-            }
-          } catch (error) {}
-        };
+          ws.onclose = (event) => {
+            try {
+              if (event.wasClean) {
+                console.info(`Connection closed cleanly, code=${event.code}, reason=${event.reason}`);
+              } else {
+                console.warn('Connection died');
+                // TODO: Implement a reconnect mechanism here if needed
+              }
+            } catch (error) {}
+          };
 
-        ws.onmessage = (event) => {
-          try {
-          } catch (error) {}
-        };
+          ws.onmessage = (event) => {
+            try {
+            } catch (error) {}
+          };
 
-        setSocket(ws);
+          setSocket(ws);
+        } catch (error) {
+          // added so we don't muck up the console with socket errors in the browser
+          console.log({socketError: error});
+        }
       }
 
       return () => {

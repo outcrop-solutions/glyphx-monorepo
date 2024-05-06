@@ -121,7 +121,8 @@ export const glyphEngine = async (project, payloadHash) => {
           onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
           action: databaseTypes.constants.ACTION_TYPE.MODEL_GENERATED,
         });
-        revalidatePath('/project/[projectId]');
+
+        revalidatePath(`/project/${updatedProject.id}`, 'layout');
 
         return {sdtFileName, sgnFileName, sgcFileName, updatedProject};
       }

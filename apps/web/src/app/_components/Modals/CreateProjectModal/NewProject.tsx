@@ -2,7 +2,7 @@
 import React, {useCallback, useState, useTransition} from 'react';
 import {useParams} from 'next/navigation';
 import TextareaAutosize from 'react-textarea-autosize';
-import ExitModalIcon from 'public/svg/exit-project-modal-icon.svg';
+import ExitModalIcon from 'svg/exit-project-modal-icon.svg';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {ClientDocumentManager} from 'collab/lib/client/ClientDocumentManager';
 import {useSession} from 'next-auth/react';
@@ -70,8 +70,8 @@ export const NewProject = ({exit}) => {
       <div className="mb-4 mt-4 flex flex-row justify-end items-center">
         <button
           onClick={() =>
-            startTransition(() => {
-              handleCreateProject();
+            startTransition(async () => {
+              await handleCreateProject();
               setModals(
                 produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
                   draft.modals.splice(0, 1);

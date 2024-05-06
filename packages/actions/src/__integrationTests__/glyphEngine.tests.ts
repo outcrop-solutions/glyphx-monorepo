@@ -53,7 +53,36 @@ describe('GlyphEngine', () => {
     },
     supportingFields: [],
   } as unknown as unknown as rustGlyphEngineTypes.IGlyphEngineArgs;
-  it('should run glyph engine', async () => {
+
+  // let params = {
+  //   workspace_id: '646fa59785272d19babc2af1',
+  //   project_id: '6622a797d7aeffcd949e9635',
+  //   output_file_prefix: 'client',
+  //   data_table_name: 'glyphx_646fa59785272d19babc2af1_6622a797d7aeffcd949e9635_high_z_small_range_test_case',
+  //   model_hash: '7594f1436b9d53df280f4f94ecf02b83',
+  //   xAxis: {
+  //     fieldDisplayName: 'col1',
+  //     fieldDataType: 0,
+  //     fieldDefinition: {fieldName: 'col1', fieldType: 'standard'},
+  //   },
+  //   yAxis: {
+  //     fieldDisplayName: 'col2',
+  //     fieldDataType: 1,
+  //     fieldDefinition: {fieldName: 'col2', fieldType: 'standard'},
+  //   },
+  //   zAxis: {
+  //     fieldDisplayName: 'col3',
+  //     fieldDataType: 0,
+  //     fieldDefinition: {
+  //       fieldType: 'accumulated',
+  //       accumulatedFieldDefinition: {fieldName: 'col3', fieldType: 'standard'},
+  //       accumulator: 'sum',
+  //     },
+  //   },
+  //   // filter: '',
+  // } as unknown as rustGlyphEngineTypes.IGlyphEngineArgs;
+
+  it.only('should run glyph engine', async () => {
     const result = (await runGlyphEngine(params)) as rustGlyphEngineTypes.IGlyphEngineResults;
     assert.isDefined(result);
     const s3_manager = s3Connection.s3Manager;

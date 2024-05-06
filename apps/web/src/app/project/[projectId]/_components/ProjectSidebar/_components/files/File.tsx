@@ -7,9 +7,9 @@ import {webTypes} from 'types';
 import {useFileSystem} from 'services/useFileSystem';
 import {modalsAtom} from 'state';
 
-import StackedDragHandleIcon from 'public/svg/stacked-drag-handle-icon.svg';
-import FileIcon from 'public/svg/file-icon.svg';
-import DeleteFileIcon from 'public/svg/delete-file-icon.svg';
+import StackedDragHandleIcon from 'svg/stacked-drag-handle-icon.svg';
+import FileIcon from 'svg/file-icon.svg';
+import DeleteFileIcon from 'svg/delete-file-icon.svg';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 

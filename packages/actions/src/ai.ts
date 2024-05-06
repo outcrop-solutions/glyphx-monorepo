@@ -2,7 +2,7 @@
 import {error, constants} from 'core';
 import {Configuration, OpenAIApi} from 'openai-edge';
 import {systemMessage} from './utils/systemMessages';
-import {projectService, projectTemplateService} from '../../business/src/services';
+import {projectTemplateService} from '../../business/src/services';
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -33,13 +33,8 @@ export const createCompletion = async (payload) => {
     });
 
     return await response.json();
-  } catch (error) {
-    const e = new error.ActionError(
-      'An unexpected error occurred getting the project logs',
-      'projectId',
-      projectId,
-      err
-    );
+  } catch (err) {
+    const e = new error.ActionError('An unexpected error occurred getting the project logs', 'projectId', '', err);
     e.publish('annotations', constants.ERROR_SEVERITY.ERROR);
     return {error: e};
   }

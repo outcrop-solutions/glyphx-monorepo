@@ -7,7 +7,11 @@ import {getSuggestedMembers} from 'actions/src/annotation';
 export const suggestion = (projectId: string) => {
   return {
     items: async ({query}) => {
-      return await getSuggestedMembers(projectId, query);
+      const mems = await getSuggestedMembers(projectId, query);
+      if (Array.isArray(mems)) {
+        const retval = [...mems, {username: 'here', name: 'here'}];
+        return retval;
+      }
     },
     render: () => {
       let component;

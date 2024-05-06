@@ -1,3 +1,4 @@
+import 'mocha';
 import {assert} from 'chai';
 import {GlyphxError} from '../../error';
 import {createSandbox} from 'sinon';
@@ -37,7 +38,7 @@ class Foo {
   }
 }
 
-describe('#util/error', () => {
+describe.only('#util/error', () => {
   context('serialize', () => {
     let glyphxError: GlyphxError;
     before(() => {

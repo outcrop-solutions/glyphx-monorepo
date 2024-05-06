@@ -4,7 +4,7 @@ import {useEffect, useState} from 'react';
 import {databaseTypes} from 'types';
 
 const useWorkspaces = () => {
-  const [data, setData] = useState<null | databaseTypes.IProject>(null);
+  const [data, setData] = useState<null | databaseTypes.IWorkspace[]>(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {

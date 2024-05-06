@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import StateIcon from 'public/svg/state.svg';
+import StateIcon from 'svg/state.svg';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {CameraIcon} from '@heroicons/react/outline';
 
@@ -38,9 +38,7 @@ export const CreateStateInput = ({isSubmitting, name, setName}) => {
         onClick={createState}
       >
         {isSubmitting ? (
-          <div className="h-4 w-4">
-            <LoadingDots />
-          </div>
+          <LoadingDots className="h-4 w-4 flex items-center justify-center" />
         ) : (
           <CameraIcon className="h-4 w-4" />
         )}

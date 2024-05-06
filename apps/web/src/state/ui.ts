@@ -5,6 +5,13 @@ import {databaseTypes, webTypes} from 'types';
 // HIDE = FALSE
 
 // Global
+
+// model runner!
+export const modelRunnerAtom = atom<any>({
+  key: 'modelRunnerAtom',
+  default: {initialized: false, modelRunner: {}},
+});
+
 // Right Sidebar Controls
 export const rightSidebarControlAtom = atom<webTypes.IRightSidebarAtom>({
   key: 'rightSidebarControlAtom',

@@ -1,5 +1,5 @@
 import {webTypes} from 'types';
-import {hashFileStats} from '../transforms/hashFileStats';
+import {hashFileStats} from 'business/src/util/hashFunctions';
 import {handleCollisionCase} from '../mappings/handleCollisionCase';
 import {handelOperations} from '../mappings/handleOperations';
 

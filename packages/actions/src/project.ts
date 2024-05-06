@@ -69,7 +69,6 @@ export const updateProjectName = async (projectId: string, name: string) => {
       const retval = await projectService.updateProject(projectId, {
         name,
       });
-      console.log({retval});
       revalidatePath(`/project/${projectId}`, 'layout');
     }
   } catch (err) {
@@ -123,7 +122,7 @@ export const updateProjectState = async (projectId: string, state: databaseTypes
         onModel: databaseTypes.constants.RESOURCE_MODEL.PROJECT,
         action: databaseTypes.constants.ACTION_TYPE.UPDATED,
       });
-      revalidatePath('/project/[projectId]');
+      revalidatePath(`/project/${project.id}`, 'layout');
     }
   } catch (err) {
     const e = new error.ActionError(

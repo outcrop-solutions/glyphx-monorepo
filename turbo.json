@@ -43,14 +43,50 @@
     "build": {
       "outputs": [".next/**", "dist/**", "build/**", "**/*.node"]
     },
+    "dev:build": {
+      "outputs": [".next/**", "dist/**", "build/**"]
+    },
+    "demo:build": {
+      "outputs": [".next/**", "dist/**", "build/**"]
+    },
+    "prod:build": {
+      "outputs": [".next/**", "dist/**", "build/**"]
+    },
     "test": {
-      "dependsOn": ["build"],
+      "outputs": [],
+      "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
+    },
+    "dev:test": {
+      "dependsOn": ["dev:build"],
+      "outputs": [],
+      "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
+    },
+    "demo:test": {
+      "dependsOn": ["demo:build"],
+      "outputs": [],
+      "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
+    },
+    "prod:test": {
+      "dependsOn": ["prod:build"],
       "outputs": [],
       "inputs": ["src/**/*.tsx", "src/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"]
     },
     "integrationTest": {
-      "cache": false,
-      "dependsOn": ["build"],
+      "outputs": [],
+      "inputs": ["src/**/*.tsx", "src/**/*.ts", "**/tests/**/*.ts", "**/tests/**/*.tsx"]
+    },
+    "dev:integrationTest": {
+      "dependsOn": ["dev:build"],
+      "outputs": [],
+      "inputs": ["src/**/*.tsx", "src/**/*.ts", "**/tests/**/*.ts", "**/tests/**/*.tsx"]
+    },
+    "demo:integrationTest": {
+      "dependsOn": ["demo:build"],
+      "outputs": [],
+      "inputs": ["src/**/*.tsx", "src/**/*.ts", "**/tests/**/*.ts", "**/tests/**/*.tsx"]
+    },
+    "prod:integrationTest": {
+      "dependsOn": ["prod:build"],
       "outputs": [],
       "inputs": ["src/**/*.tsx", "src/**/*.ts", "**/tests/**/*.ts", "**/tests/**/*.tsx"]
     },
@@ -97,10 +133,6 @@
     "NEXT_PUBLIC_POSTHOG_HOST",
     "LOG_LEVEL",
     "DATABASE_URL",
-    "KV_URL",
-    "KV_REST_API_URL",
-    "KV_REST_API_TOKEN",
-    "KV_REST_API_READ_ONLY_TOKEN",
     "LIVEBLOCKS_SECRET_KEY",
     "NEXT_PUBLIC_GB_CLIENT_DEV",
     "NEXT_PUBLIC_GB_CLIENT_DEMO",
@@ -108,7 +140,26 @@
     "NEXT_PUBLIC_GB_KEY",
     "NEXT_PUBLIC_GB_ENV",
     "PROJECT_ID",
-    "BLOB_READ_WRITE_TOKEN"
+    "DEV_BLOB_READ_WRITE_TOKEN",
+    "DEMO_BLOB_READ_WRITE_TOKEN",
+    "PROD_BLOB_READ_WRITE_TOKEN",
+    "DEV_BLOB_URL",
+    "DEMO_BLOB_URL",
+    "PROD_BLOB_URL",
+    "BLOB_READ_WRITE_TOKEN",
+    "DEV_CHAT_KV_REST_API_READ_ONLY_TOKEN",
+    "DEV_CHAT_KV_REST_API_TOKEN",
+    "DEV_CHAT_KV_REST_API_URL",
+    "DEV_CHAT_KV_URL",
+    "DEMO_CHAT_KV_REST_API_READ_ONLY_TOKEN",
+    "DEMO_CHAT_KV_REST_API_TOKEN",
+    "DEMO_CHAT_KV_REST_API_URL",
+    "DEMO_CHAT_KV_URL",
+    "KV_URL",
+    "KV_REST_API_URL",
+    "KV_REST_API_TOKEN",
+    "KV_REST_API_READ_ONLY_TOKEN",
+    "VERCEL_ENV"
   ],
   "globalDependencies": ["tsconfig.json"]
 }

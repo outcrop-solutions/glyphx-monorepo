@@ -16,7 +16,7 @@ export default async function AuthLayout({children}) {
     const workspaces = await getWorkspaces();
     if (workspaces && !workspaces?.error)
       if (workspaces && workspaces.length > 0) {
-        redirect(`/${workspaces[0].id}` as Route);
+        redirect(`/workspace/${workspaces[0].id}` as Route);
       } else {
         await createWorkspace('Default Workspace');
       }

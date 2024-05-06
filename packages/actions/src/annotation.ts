@@ -1,13 +1,15 @@
+/* eslint-disable turbo/no-undeclared-env-vars */
 'use server';
 import {error, constants} from 'core';
 import {membershipService, projectService, annotationService, stateService} from '../../business/src/services';
-import {put} from '@vercel/blob';
+import {list, put} from '@vercel/blob';
 import {getServerSession} from 'next-auth';
 import {databaseTypes, emailTypes} from 'types';
 import {authOptions} from './auth';
 import {revalidatePath} from 'next/cache';
 import emailClient from './email';
 import Fuse from 'fuse.js';
+import {buildStateUrl, getToken} from './utils/blobStore';
 
 /**
  * Gets suggested members for combobox
@@ -124,6 +126,40 @@ export const createProjectAnnotation = async (projectId: string, value: string) 
         projectId: projectId as string,
         value,
       });
+
+      const project = await projectService.getProject(projectId);
+      const imageHash = project?.imageHash;
+      const latestStateId = project?.stateHistory[0].id;
+
+      // check if the image exists in the blob store
+      const retval = await list({prefix: `state/${latestStateId}`, token: getToken()});
+
+      if (imageHash && retval.blobs.length === 0) {
+        // for backwards compatiblity, we need to put the state imageHash into the store if it does not already exist
+        const buffer = Buffer.from(imageHash, 'base64');
+        const blob = new Blob([buffer], {type: 'image/png'});
+
+        // upload imageHash to Blob store
+        await put(`state/${latestStateId}`, blob, {
+          access: 'public',
+          addRandomSuffix: false,
+          token: getToken(),
+        });
+      }
+
+      const members = await membershipService.getMembers({project: projectId});
+      if (members && project?.id && project?.name) {
+        const emailData = {
+          type: emailTypes.EmailTypes.ANNOTATION_CREATED,
+          stateName: project.name,
+          stateImage: buildStateUrl(latestStateId as string),
+          annotation: value,
+          emails: [...members.map((mem) => mem.email)],
+          projectId: project.id,
+        } satisfies emailTypes.EmailData;
+        await emailClient.init();
+        await emailClient.sendEmail(emailData);
+      }
       revalidatePath(`/project/${projectId}`, 'layout');
     }
   } catch (err) {
@@ -155,22 +191,42 @@ export const createStateAnnotation = async (stateId: string, value: string) => {
 
       if (stateId) {
         const state = await stateService.getState(stateId);
+
+        // check if the image exists in the blob store
+        const retval = await list({prefix: `state/${state?.id}`, token: getToken()});
+        const imageHash = state?.imageHash;
+
+        if (imageHash && retval.blobs.length === 0) {
+          // for backwards compatiblity, we need to put the state imageHash into the store if it does not already exist
+          const buffer = Buffer.from(imageHash, 'base64');
+          const blob = new Blob([buffer], {type: 'image/png'});
+
+          // upload imageHash to Blob store
+          await put(`state/${state?.id}`, blob, {
+            access: 'public',
+            addRandomSuffix: false,
+            token: getToken(),
+          });
+        }
+
         if (state?.imageHash && annotation?.value) {
           const members = await membershipService.getMembers({project: state.project.id});
           if (members) {
             const emailData = {
               type: emailTypes.EmailTypes.ANNOTATION_CREATED,
               stateName: state.name,
-              stateImage: `https://aqhswtcebhzai9us.public.blob.vercel-storage.com/${state?.id}`,
+              stateImage: buildStateUrl(state?.id as string),
               annotation: annotation.value,
               emails: [...members.map((mem) => mem.email)],
+              projectId: state.project.id as string,
             } satisfies emailTypes.EmailData;
             await emailClient.init();
             await emailClient.sendEmail(emailData);
           }
         }
+
+        revalidatePath(`/project/${state?.project.id}`, 'layout');
       }
-      revalidatePath('/project/[projectId]');
     }
   } catch (err) {
     const e = new error.ActionError(

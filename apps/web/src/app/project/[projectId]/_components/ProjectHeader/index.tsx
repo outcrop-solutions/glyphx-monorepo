@@ -1,6 +1,6 @@
 'use client';
 import {ClientSideSuspense} from '@liveblocks/react';
-import {Controls} from 'app/[workspaceId]/_components/controls';
+import {Controls} from 'app/workspace/[workspaceId]/_components/controls';
 import {ProjectControls} from './ProjectControls';
 import {DocumentHeaderAvatars} from 'collab/components/DocumentHeaderAvatars';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';

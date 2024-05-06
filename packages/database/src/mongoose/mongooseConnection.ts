@@ -51,6 +51,8 @@ export class MongoDbConnection {
     if (!this.isInitedField) {
       this.connectionStringField = `mongodb+srv://${this.user}:${this.password}@${this.database}.${this.endpoint}?retryWrites=true&w=majority`;
       try {
+        // this is set to false in mongoose v7. This gets rid of the deprecation warning in our logs
+        mongoose.set('strictQuery', true);
         await mongoose.connect(encodeURI(this.connectionString));
       } catch (err) {
         throw new DatabaseOperationError(

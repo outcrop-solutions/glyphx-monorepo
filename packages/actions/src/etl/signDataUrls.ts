@@ -12,6 +12,7 @@ import {s3Connection} from '../../../business/src/lib';
 export const signDataUrls = async (workspaceId: string, projectId: string, payloadHash: string) => {
   try {
     // init S3 client
+    await s3Connection.init();
     const s3Manager = s3Connection.s3Manager;
     const urls = [
       `client/${workspaceId}/${projectId}/output/${payloadHash}.sdt`,
@@ -22,6 +23,7 @@ export const signDataUrls = async (workspaceId: string, projectId: string, paylo
     const promises = urls.map((url) => s3Manager.getSignedDataUrlPromise(url));
     // Use Promise.all to fetch all URLs concurrently
     const signedUrls = await Promise.all(promises);
+
     const sdtUrl = signedUrls.find((u: string) => u.includes('.sdt'));
     const sgcUrl = signedUrls.find((u: string) => u.includes('.sgc'));
     const sgnUrl = signedUrls.find((u: string) => u.includes('.sgn'));
@@ -29,7 +31,7 @@ export const signDataUrls = async (workspaceId: string, projectId: string, paylo
     return {sdtUrl, sgcUrl, sgnUrl};
   } catch (err) {
     const e = new error.ActionError(
-      'An unexpected error occurred runningsign data urls',
+      'An unexpected error occurred running sign data urls',
       'etl',
       {workspaceId, projectId, payloadHash},
       err
