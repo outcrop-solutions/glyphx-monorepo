@@ -1,10 +1,11 @@
 mod glyph_manager;
 mod stats_manager;
+mod camera_manager;
 
-use super::{AddGlyphError, AddStatsError, DeserializeVectorError, ModelVectors, RankedGlyphData, GetStatsError};
-
+use super::{AddGlyphError, AddStatsError,  DeserializeVectorError, GetStatsError, ModelVectors, RankedGlyphData};
 pub use glyph_manager::GlyphManager;
 pub use stats_manager::StatsManager;
+pub use camera_manager::{CameraManager, CameraData};
 use model_common::Stats;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -76,6 +77,7 @@ impl DataManager {
     pub fn get_glyph_len(&self) -> usize {
         self.glyph_manager.len()
     }
+
 }
 
 #[cfg(test)]

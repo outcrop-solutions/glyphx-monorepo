@@ -81,13 +81,14 @@ pub struct RankedGlyphData {
 }
 impl RankedGlyphData {
     pub fn new(x_rank_size: usize, z_rank_size: usize) -> RankedGlyphData {
-        let x_rank = Self::build_index(x_rank_size + 1);
-        let z_rank = Self::build_index(z_rank_size + 1);
+        //adjustments to the rank sizes.
+        let x_rank = Self::build_index(x_rank_size);
+        let z_rank = Self::build_index(z_rank_size);
 
         let core_data = Vec::new();
         RankedGlyphData {
-            x_rank_size: x_rank_size + 1,
-            z_rank_size: z_rank_size + 1,
+            x_rank_size,
+            z_rank_size,
             core_data,
             x_rank,
             z_rank,

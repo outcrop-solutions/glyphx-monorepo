@@ -382,11 +382,11 @@ impl Default for ModelConfiguration {
             //K -- done
             grid_cone_radius: 0.10,
             //H -- done
-            z_height_ratio: 1.0,
+            z_height_ratio: 0.2,
             //O -- done
             glyph_offset: 0.15,
             //E -- Done
-            min_glyph_height: 0.2,
+            min_glyph_height: 0.0002,
             //W -- Done
             light_color: [255.0, 255.0, 255.0, 1.0],
             //L -- Done

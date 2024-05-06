@@ -14,4 +14,5 @@ pub enum ModelEvent {
     AddStatistic(AddStatisticData),
     AddGlyph(AddGlyphData),
     Redraw,
+    ToggleAxisLines,
 }

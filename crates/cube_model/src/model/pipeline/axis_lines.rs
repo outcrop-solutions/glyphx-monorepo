@@ -45,6 +45,10 @@ pub struct AxisLines {
     direction: AxisLineDirection,
     device: Rc<RefCell<Device>>,
     axis_start: f32,
+    min_axis_value: f32,
+    max_axis_value: f32,
+
+
 }
 
 impl AxisLines {
@@ -60,6 +64,8 @@ impl AxisLines {
         model_configuration: Rc<RefCell<ModelConfiguration>>,
         direction: AxisLineDirection,
         axis_start: f32,
+        min_axis_value: f32,
+        max_axis_value: f32,
 
     ) -> AxisLines {
 
@@ -67,6 +73,8 @@ impl AxisLines {
             &model_configuration,
             &direction,
             axis_start,
+            min_axis_value,
+            max_axis_value,
         );
         let d_clone = device.clone();
         let d = d_clone.as_ref().borrow();
@@ -105,7 +113,10 @@ impl AxisLines {
             model_configuration,
             direction,
             light_bind_group,
-            axis_start
+            axis_start,
+            min_axis_value,
+            max_axis_value,
+
         }
     }
     pub fn set_axis_start(&mut self, axis_start: f32){
@@ -115,18 +126,22 @@ impl AxisLines {
         model_configuration: &Rc<RefCell<ModelConfiguration>>,
         direction: &AxisLineDirection,
         axis_start: f32,
+        min_axis_value: f32,
+        max_axis_value: f32,
     ) -> Vec<ShapeVertex>{
         let mut vertex_data: Vec<ShapeVertex> = Vec::new();
         let mc = model_configuration.as_ref().borrow();
         let cylinder_radius = mc.grid_cylinder_radius;
-        let cylinder_height = mc.grid_cylinder_length;
+        //Make this the size of the axis based on the glyph data. 
+        //let cylinder_height = mc.grid_cylinder_length;
+        let cylinder_height =  max_axis_value - min_axis_value + mc.glyph_offset + mc.glyph_size;
         let cone_height = mc.grid_cone_length;
         let cone_radius = mc.grid_cone_radius;
         //To the outside world z is up.  To us y is up
         let y_height_ratio = mc.z_height_ratio;
         let (height, color, order) = match direction {
             AxisLineDirection::X => (cylinder_height , 60, [1,2,0]),
-            AxisLineDirection::Y => (cylinder_height* y_height_ratio , 62, [0,1,2]),
+            AxisLineDirection::Y => (cylinder_height , 62, [0,1,2]),
             AxisLineDirection::Z => (cylinder_height + cone_height, 61, [2,0,1]),
         };
 
@@ -156,6 +171,8 @@ impl AxisLines {
             &self.model_configuration,
             &self.direction,
             self.axis_start,
+            self.min_axis_value,
+            self.max_axis_value,
         );
 
         let d = self.device.as_ref().borrow();

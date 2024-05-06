@@ -1,19 +1,30 @@
 mod data_manager;
 
 mod errors;
-use crate::camera::{
-    camera_controller::CameraController, orbit_camera::OrbitCamera, uniform_buffer::CameraUniform,
+use crate::{
+    camera::{
+        camera_controller::CameraController, orbit_camera::OrbitCamera,
+        uniform_buffer::CameraUniform,
+    },
+    data::{DeserializeVectorError, ModelVectors},
+    light::light_uniform::LightUniform,
+    model::{
+        color_table_uniform::ColorTableUniform,
+        model_configuration::ModelConfiguration,
+        pipeline::{
+            axis_lines,
+            glyphs::{
+                self,
+                glyph_instance_data::GlyphInstanceData,
+                ranked_glyph_data::{Rank, RankDirection, RankedGlyphData},
+            },
+            PipelineRunner,
+        },
+    },
 };
-use crate::data::{DeserializeVectorError, ModelVectors};
-use crate::light::light_uniform::LightUniform;
-use crate::model::color_table_uniform::ColorTableUniform;
-use crate::model::model_configuration::ModelConfiguration;
-use crate::model::pipeline::glyphs::glyph_instance_data::GlyphInstanceData;
-use crate::model::pipeline::glyphs::ranked_glyph_data::{Rank, RankDirection, RankedGlyphData};
-use crate::model::pipeline::{axis_lines, glyphs, PipelineRunner};
-pub use data_manager::DataManager;
+pub use data_manager::{CameraData, CameraManager, DataManager};
 pub use errors::*;
-use model_common::{Glyph, Stats};
+use model_common::Stats;
 
 use smaa::*;
 use std::cell::RefCell;
@@ -26,13 +37,19 @@ use winit::window::Window;
 
 use glam::Vec3;
 use rand::Rng;
+
 const Z_ORDERS: [[&str; 4]; 4] = [
     ["x-axis-line", "z-axis-line", "y-axis-line", "glyphs"],
     ["z-axis-line", "glyphs", "x-axis-line", "y-axis-line"],
     ["glyphs", "x-axis-line", "z-axis-line", "y-axis-line"],
     ["x-axis-line", "glyphs", "z-axis-line", "y-axis-line"],
 ];
-
+enum Face {
+    Front,
+    Right,
+    Back,
+    Left,
+}
 struct Pipelines {
     x_axis_line: axis_lines::AxisLines,
     y_axis_line: axis_lines::AxisLines,
@@ -46,9 +63,8 @@ pub struct State {
     config: wgpu::SurfaceConfiguration,
     size: winit::dpi::PhysicalSize<u32>,
     window: Window,
-    camera: OrbitCamera,
+    camera_manager: Rc<RefCell<CameraManager>>,
     camera_buffer: wgpu::Buffer,
-    camera_uniform: CameraUniform,
     camera_controller: CameraController,
     color_table_uniform: ColorTableUniform,
     color_table_buffer: wgpu::Buffer,
@@ -63,6 +79,8 @@ pub struct State {
     pipelines: Pipelines,
     z_order: usize,
     data_manager: Rc<RefCell<DataManager>>,
+    forward_face: Face,
+    axis_visible: bool,
 }
 
 impl State {
@@ -70,6 +88,7 @@ impl State {
         window: Window,
         model_configuration: Rc<RefCell<ModelConfiguration>>,
         data_manager: Rc<RefCell<DataManager>>,
+        camera_manager: Rc<RefCell<CameraManager>>,
     ) -> State {
         let size = window.inner_size();
 
@@ -81,11 +100,20 @@ impl State {
         let d = d_clone.as_ref().borrow();
         let config = Self::configure_surface(&surface, adapter, size, &d);
 
-        let (camera, camera_buffer, camera_uniform, camera_controller) =
-            Self::configure_camera(&config, &d);
-
         let mc = model_configuration.clone();
+
+        let dm = data_manager.clone();
+        let dm = dm.borrow();
+
+        let glyph_uniform_data = Self::build_glyph_uniform_data(&mc, &dm);
+
         let mc = mc.borrow();
+
+        let cm_clone = camera_manager.clone();
+        let cm = &mut cm_clone.borrow_mut();
+
+        let (camera, camera_buffer, camera_uniform, camera_controller) =
+            Self::configure_camera(&config, &d, &glyph_uniform_data, cm);
 
         let color_table_uniform = ColorTableUniform::new(
             mc.min_color,
@@ -117,8 +145,6 @@ impl State {
             contents: bytemuck::cast_slice(&[light_uniform]),
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
-
-        let glyph_uniform_data = Self::build_glyph_uniform_data(&mc);
 
         //let ranked_glyph_data = Self::build_instance_data();
 
@@ -152,16 +178,15 @@ impl State {
             config.format,
             SmaaMode::Smaa1X,
         );
-        Self {
+        let mut model = Self {
             window,
             surface,
             device,
             queue,
             config,
             size,
-            camera,
+            camera_manager,
             camera_buffer,
-            camera_uniform,
             camera_controller,
             model_configuration,
             color_table_buffer,
@@ -176,7 +201,12 @@ impl State {
             light_uniform,
             z_order: 0,
             data_manager,
-        }
+            forward_face: Face::Front,
+            axis_visible: true,
+        };
+        //This allows us to initialize out camera with a pitch and yaw that is not 0
+        model.update_z_order_and_rank(cm);
+        model
     }
 
     pub fn window(&self) -> &Window {
@@ -198,37 +228,114 @@ impl State {
     }
 
     pub fn input(&mut self, event: &DeviceEvent) -> bool {
-        let camera_result = self
-            .camera_controller
-            .process_events(event, &mut self.camera);
+        let cm = self.camera_manager.clone();
+        let cm = &mut cm.borrow_mut();
+        let camera_result = self.camera_controller.process_events(event, cm);
         if camera_result {
-            self.update_z_order_and_rank();
+            self.update_z_order_and_rank(cm);
         };
         camera_result
     }
 
     pub fn move_camera(&mut self, direction: &str, amount: f32) {
+        let cm = self.camera_manager.clone();
+        let cm = &mut cm.borrow_mut();
         match direction {
             "distance" => {
-                self.camera
-                    .add_distance(amount * self.camera_controller.zoom_speed);
-                self.update();
+                cm.add_distance(amount * self.camera_controller.zoom_speed);
+                self.update(cm);
             }
             "yaw" => {
-                self.camera
-                    .add_yaw(amount * self.camera_controller.rotate_speed);
-                self.update();
+                cm.add_yaw(amount * self.camera_controller.rotate_speed);
+                self.update(cm);
             }
             "pitch" => {
-                self.camera
-                    .add_pitch(amount * self.camera_controller.rotate_speed);
-                self.update();
+                cm.add_pitch(amount * self.camera_controller.rotate_speed);
+                self.update(cm);
+            }
+            "up" => {
+                cm.add_y_offset(amount);
+            }
+            "down" => {
+                cm.add_y_offset(-1.0 * amount);
+            }
+            "left" => match self.forward_face {
+                Face::Front => {
+                    cm.add_x_offset(-1.0 * amount);
+                }
+                Face::Right => {
+                    cm.add_z_offset(amount);
+                }
+                Face::Back => {
+                    cm.add_x_offset(amount);
+                }
+                Face::Left => {
+                    cm.add_z_offset(-1.0 * amount);
+                }
+            },
+            "right" => match self.forward_face {
+                Face::Front => {
+                    cm.add_x_offset(amount);
+                }
+                Face::Right => {
+                    cm.add_z_offset(-1.0 * amount);
+                }
+                Face::Back => {
+                    cm.add_x_offset(-1.0 * amount);
+                }
+                Face::Left => {
+                    cm.add_z_offset(amount);
+                }
+            },
+            "x_axis" => {
+                self.reset_camera(cm);
+                cm.set_yaw(3.14159);
+                cm.set_pitch(0.0);
+                self.update_z_order_and_rank(cm);
+            }
+
+            "y_axis" => {
+                self.reset_camera(cm);
+                cm.set_yaw(4.71239);
+                cm.set_pitch(0.0);
+                self.update_z_order_and_rank(cm);
+            }
+
+            "z_axis" => {
+                self.reset_camera(cm);
+                cm.set_yaw(0.0);
+                cm.set_pitch(1.5708);
+                self.update_z_order_and_rank(cm);
             }
             _ => (),
         };
     }
-    pub fn update(&mut self) {
-        self.camera_uniform.update_view_proj(&self.camera);
+
+    pub fn reset_camera_from_client(&mut self) {
+        let cm = self.camera_manager.clone();
+        let cm = &mut cm.borrow_mut();
+        self.reset_camera(cm);
+    }
+
+    pub fn reset_camera(&mut self, camera_manager: &mut CameraManager) {
+        let (camera, camera_uniform) =
+            Self::build_camera_and_uniform(camera_manager, &self.glyph_uniform_data, &self.config);
+        self.update_z_order_and_rank(camera_manager);
+        self.update(camera_manager);
+    }
+    pub fn toggle_axis_visibility(&mut self) {
+        self.axis_visible = !self.axis_visible;
+    }
+
+    pub fn update_from_client(&mut self) {
+        let cm = self.camera_manager.clone();
+        let cm = &mut cm.borrow_mut();
+        self.update(cm);
+    }
+
+    pub fn update(&mut self, camera_manager: &mut CameraManager) {
+        camera_manager.update();
+        //eprintln!("Camera: {:?}, GlyphUniform: {:?}", self.camera, self.glyph_uniform_data);
     }
 
     pub fn update_config(&mut self) {
@@ -239,11 +346,17 @@ impl State {
         color_table_uniform.set_z_axis_color(config.z_axis_color);
         color_table_uniform.set_background_color(config.background_color);
         color_table_uniform.update_colors(config.min_color, config.max_color);
-        self.pipelines.x_axis_line.set_axis_start(config.model_origin[0]);
+        self.pipelines
+            .x_axis_line
+            .set_axis_start(config.model_origin[0]);
         self.pipelines.x_axis_line.update_vertex_buffer();
-        self.pipelines.y_axis_line.set_axis_start(config.model_origin[1]);
+        self.pipelines
+            .y_axis_line
+            .set_axis_start(config.model_origin[1]);
         self.pipelines.y_axis_line.update_vertex_buffer();
-        self.pipelines.z_axis_line.set_axis_start(config.model_origin[2]);
+        self.pipelines
+            .z_axis_line
+            .set_axis_start(config.model_origin[2]);
         self.pipelines.z_axis_line.update_vertex_buffer();
         self.pipelines
             .glyphs
@@ -257,14 +370,17 @@ impl State {
         ]);
         self.light_uniform
             .upate_intensity(config.light_intensity.clone());
+        self.glyph_uniform_data.y_offset = config.min_glyph_height;
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
         let background_color = self.color_table_uniform.background_color();
+        let cm = self.camera_manager.clone();
+        let cm = cm.borrow();
         self.queue.write_buffer(
             &self.camera_buffer,
             0,
-            bytemuck::cast_slice(&[self.camera_uniform]),
+            bytemuck::cast_slice(&[cm.get_camera_uniform()]),
         );
         self.queue.write_buffer(
             &self.color_table_buffer,
@@ -338,7 +454,7 @@ impl State {
                         &mut commands,
                     );
                 }
-            } else {
+            } else if self.axis_visible {
                 let pipeline = match name {
                     "x-axis-line" => &self.pipelines.x_axis_line,
                     "y-axis-line" => &self.pipelines.y_axis_line,
@@ -495,107 +611,6 @@ impl State {
         (surface, adapter)
     }
 
-    fn build_instance_data() -> RankedGlyphData {
-        // Rc::new (vec![
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 0,
-        //         x_value: 0.0,
-        //         y_value: 0.0,
-        //         z_value: 0.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 1,
-        //         x_value: 1.0,
-        //         y_value: 1.0,
-        //         z_value: 1.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 2,
-        //         x_value: 2.0,
-        //         y_value: 2.0,
-        //         z_value: 2.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 3,
-        //         x_value: 3.0,
-        //         y_value: 3.0,
-        //         z_value: 3.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 4,
-        //         x_value: 4.0,
-        //         y_value: 4.0,
-        //         z_value: 4.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 5,
-        //         x_value: 5.0,
-        //         y_value: 5.0,
-        //         z_value: 5.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 6,
-        //         x_value: 6.0,
-        //         y_value: 6.0,
-        //         z_value: 6.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 7,
-        //         x_value: 7.0,
-        //         y_value: 7.0,
-        //         z_value: 7.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 8,
-        //         x_value: 8.0,
-        //         y_value: 8.0,
-        //         z_value: 8.0,
-        //         glyph_selected: 0,
-        //     },
-        //     glyphs::glyph_instance_data::GlyphInstanceData {
-        //         glyph_id: 9,
-        //         x_value: 9.0,
-        //         y_value: 9.0,
-        //         z_value: 9.0,
-        //         glyph_selected: 0,
-        //     },
-        // ])
-        let mut ranked_glyph_data = RankedGlyphData::new(17, 12);
-        let mut rng = rand::thread_rng();
-        let mut x = 0.0;
-        let mut z = 0.0;
-        let mut count = 0;
-        while x < 17.0 {
-            while z < 12.0 {
-                let random_number: f32 = rng.gen_range(0.0..=9.0);
-                let _ = ranked_glyph_data.add(
-                    x as usize,
-                    z as usize,
-                    GlyphInstanceData {
-                        glyph_id: count,
-                        x_value: x,
-                        y_value: random_number,
-                        z_value: z,
-                        glyph_selected: 0,
-                    },
-                );
-                z += 1.0;
-                count += 1;
-            }
-            z = 0.0;
-            x += 1.0;
-        }
-        ranked_glyph_data
-    }
-
     fn build_pipelines(
         device: Rc<RefCell<Device>>,
         config: &SurfaceConfiguration,
@@ -622,6 +637,8 @@ impl State {
             model_configuration.clone(),
             axis_lines::AxisLineDirection::X,
             mc.model_origin[0],
+            glyph_uniform_data.min_interp_x,
+            glyph_uniform_data.max_interp_x,
         );
 
         let y_axis_line = axis_lines::AxisLines::new(
@@ -636,6 +653,8 @@ impl State {
             model_configuration.clone(),
             axis_lines::AxisLineDirection::Y,
             mc.model_origin[1],
+            glyph_uniform_data.min_interp_y,
+            glyph_uniform_data.max_interp_y,
         );
 
         let z_axis_line = axis_lines::AxisLines::new(
@@ -650,6 +669,8 @@ impl State {
             model_configuration.clone(),
             axis_lines::AxisLineDirection::Z,
             mc.model_origin[2],
+            glyph_uniform_data.min_interp_z,
+            glyph_uniform_data.max_interp_z,
         );
         let d = device.as_ref().borrow();
         let glyphs = glyphs::Glyphs::new(
@@ -675,6 +696,8 @@ impl State {
     fn configure_camera(
         config: &SurfaceConfiguration,
         device: &Device,
+        glyph_uniform_data: &glyphs::glyph_instance_data::GlyphUniformData,
+        camera_manager: &mut CameraManager,
     ) -> (OrbitCamera, wgpu::Buffer, CameraUniform, CameraController) {
         //{ distance: 4.079997, pitch: 0.420797, yaw: -39.125065, eye: Vector3 { x: -3.6850765, y: 1.66663, z: 0.537523 }, target: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, up: Vector3 { x: 0.0, y: 1.0, z: 0.0 }, bounds: OrbitCameraBounds { min_distance: Some(1.1), max_distance: None, min_pitch: -1.5707963, max_pitch: 1.5707963, min_yaw: None, max_yaw: None }, aspect: 1.5, fovy: 1.5707964, znear: 0.1, zfar: 1000.0 }
         // let mut camera = OrbitCamera::new(
@@ -684,17 +707,8 @@ impl State {
         //     Vec3::new(0.0, 0.0, 0.0),
         //     config.width as f32 / config.height as f32,
         // );
-        let mut camera = OrbitCamera::new(
-            11.0,
-            0.0,
-            0.0,
-            Vec3::new(0.0, 0.0, 0.0),
-            config.width as f32 / config.height as f32,
-        );
-        //let mut camera = OrbitCamera::new(2.0, 1.5, 1.25, Vec3::new(0.0, 0.0, 0.0), config.width as f32 / config.height as f32);
-        camera.bounds.min_distance = Some(1.1);
-        let mut camera_uniform = CameraUniform::default();
-        camera_uniform.update_view_proj(&camera);
+        let (camera, camera_uniform) =
+            Self::build_camera_and_uniform(camera_manager, glyph_uniform_data, config);
 
         let camera_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Camera Buffer"),
@@ -706,108 +720,159 @@ impl State {
     }
 
     fn build_glyph_uniform_data(
-        model_configuration: &ModelConfiguration,
+        model_configuration: &Rc<RefCell<ModelConfiguration>>,
+        data_manager: &DataManager,
     ) -> glyphs::glyph_instance_data::GlyphUniformData {
-        let radius =
-            if model_configuration.grid_cylinder_radius > model_configuration.grid_cone_radius {
-                model_configuration.grid_cylinder_radius
-            } else {
-                model_configuration.grid_cone_radius
-            };
+        let mc = model_configuration.clone();
+        let mut mc = mc.borrow_mut();
+        let radius = if mc.grid_cylinder_radius > mc.grid_cone_radius {
+            mc.grid_cylinder_radius
+        } else {
+            mc.grid_cone_radius
+        };
 
-        let x_z_offset = radius + model_configuration.glyph_offset;
+        let x_stats = data_manager.get_stats("x").unwrap();
+        let min_x = x_stats.min;
+        let max_x = x_stats.max;
+        let x_rank_count = x_stats.max_rank;
+
+        let y_stats = data_manager.get_stats("y").unwrap();
+        let min_y = y_stats.min;
+        let max_y = y_stats.max;
+        let y_rank_count = y_stats.max_rank;
+
+        let z_stats = data_manager.get_stats("z").unwrap();
+        let min_z = z_stats.min;
+        let max_z = z_stats.max;
+        let z_rank_count = z_stats.max_rank;
+
+        let x_z_offset = radius + mc.glyph_offset;
+        let glyph_size = mc.glyph_size;
+
+        //How much space will our glyphs take up?
+        let x_size = x_rank_count as f32 * glyph_size + x_z_offset;
+        let z_size = z_rank_count as f32 * glyph_size + x_z_offset;
+
+        let y_size = (if x_size > z_size { x_size } else { z_size }) * mc.z_height_ratio;
+
+        let x_half = (x_size / 2.0) as u32 + 1;
+
+        let z_half = (z_size / 2.0) as u32 + 1;
+        let y_half = (y_size / 2.0) as u32 + 1;
+        let x_z_half = if x_half > z_half { x_half } else { z_half };
+        let model_origin =
+            (x_z_half as f32 + mc.glyph_offset / 2.0 + mc.grid_cone_radius / 2.0) * -1.0;
+        mc.model_origin = [model_origin, model_origin, model_origin];
         let glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData =
             glyphs::glyph_instance_data::GlyphUniformData {
-                min_x: 0.0,
-                max_x: 17.0,
-                min_interp_x: -5.0,
-                max_interp_x: 5.0,
+                min_x: min_x as f32,
+                max_x: max_x as f32,
+                min_interp_x: -1.0 * x_z_half as f32,
+                max_interp_x: x_z_half as f32,
 
-                min_y: 0.0,
-                max_y: 9.0,
-                min_interp_y: -5.0,
-                max_interp_y: 6.0,
+                min_y: min_y as f32,
+                max_y: max_y as f32,
+                //TODO: Why is this tied to model origin but the other axis are not?
+                min_interp_y: model_origin, // * y_half as f32,
+                max_interp_y: model_origin + y_size as f32,
 
-                min_z: 0.0,
-                max_z: 12.0,
-                min_interp_z: -5.0,
-                max_interp_z: 5.0,
+                min_z: min_z as f32,
+                max_z: max_z as f32,
+                min_interp_z: -1.0 * x_z_half as f32,
+                max_interp_z: x_z_half as f32,
 
                 x_z_offset,
-                y_offset: model_configuration.min_glyph_height,
+                y_offset: mc.min_glyph_height,
                 _padding: [0u32; 2],
             };
         glyph_uniform_data
     }
-    ///We call this wheniver the camera is moved so that we can recalulate
-    ///the z order of the axis lines and glyphs in response.
-    //HACK: This is 100% hacked together and needs someone with a better
-    //grasp of the geometry to see if we can find the corerct algorithm
-    //to calculate the Z order so that the grid lines do not overwrite the
-    //glyphs and vice versa.
-    pub fn calculate_rotation_change(
-        width: f32,
-        height: f32,
-        cube_diameter: f32,
-        yaw: f32,
-        distance: f32,
-    ) -> f32 {
-        let afov_x = 2.0 * ((width as f32) / 2.0).atan2(distance);
-        let afov_y = 2.0 * ((height as f32) / 2.0).atan2(distance);
-        let max_yaw_change = afov_x / 2.0; // or use afov_y if you're considering vertical rotation
-        let max_distance = cube_diameter * 10.0; // Maximum distance from scene center
-                                                 // Calculate maximum yaw change for one full turn
-        let max_yaw_full_turn = 2.0 * std::f32::consts::PI;
-        let angle_per_distance = max_yaw_change / max_distance;
+    fn cacluate_rotation_change(&self, camera_manager: &CameraManager) -> f32 {
+        const RADS_PER_ROTATION: f32 = 6.283;
+        let yaw = camera_manager.get_yaw();
+        let distance = camera_manager.get_distance();
 
-        let angular_rotation = distance * angle_per_distance;
-        let calculated_angular_rotation = (yaw + angular_rotation) % max_yaw_full_turn;
-        let max_angular_rotation = max_yaw_full_turn + angular_rotation;
-
-        if calculated_angular_rotation < 0.0 {
-            calculated_angular_rotation + max_angular_rotation
+        let rotation_rads = yaw % RADS_PER_ROTATION;
+        let rotation_rads = if rotation_rads < 0.0 {
+            RADS_PER_ROTATION + rotation_rads
         } else {
-            calculated_angular_rotation
-        }
+            rotation_rads
+        };
+        let degrees_of_rotation = rotation_rads * 180.0 / std::f32::consts::PI;
+        //eprintln!("Pitch: {} Yaw : {}, rotation_rads: {}: Degrees of rotation: {}, Model Width: {}, Distance : {}, %of Width {}", self.camera.pitch,  self.camera.yaw, rotation_rads, degrees_of_rotation, self.glyph_uniform_data.max_interp_x - self.glyph_uniform_data.min_interp_x, self.camera.distance, self.camera.distance / (self.glyph_uniform_data.max_interp_x - self.glyph_uniform_data.min_interp_x));
+        let distance_ratio = distance
+            / (self.glyph_uniform_data.max_interp_x - self.glyph_uniform_data.min_interp_x);
+        let distance_off_set = if distance_ratio > 1.0 {
+            0.0
+        } else if distance_ratio >= 0.9 {
+            1.0
+        } else if distance_ratio >= 0.8 {
+            7.0
+        } else if distance_ratio >= 0.7 {
+            13.0
+        } else {
+            23.0
+        };
+        degrees_of_rotation - distance_off_set
     }
+    //These cubes are square at least on the x/z axis
+    pub fn update_z_order_and_rank(&mut self, camera_manager: &CameraManager) {
+        let rotation_angle = self.cacluate_rotation_change(camera_manager);
 
-    pub fn update_z_order_and_rank(&mut self) {
-        //TODO: This may need to be cleaned up a bit since cubes may not be square in the future.
-        let mc = self.model_configuration.borrow();
-        let cube_diameter = mc.grid_cylinder_length + mc.grid_cone_length;
-        let rotation_angle = Self::calculate_rotation_change(
-            cube_diameter, //self.config.width as f32,
-            cube_diameter, //self.config.height as f32,
-            cube_diameter,
-            self.camera.yaw,
-            self.camera.distance,
-        );
+        let (z_order_index, rank, rank_direction) =
+            if rotation_angle >= 301.0 || rotation_angle < 31.0 {
+                //Front
+                (0, Rank::Z, RankDirection::Ascending)
+            } else if rotation_angle >= 31.0 && rotation_angle < 121.0 {
+                //Right
+                (0, Rank::X, RankDirection::Ascending)
+            } else if rotation_angle >= 121.0 && rotation_angle < 211.0 {
+                //Back
+                (1, Rank::Z, RankDirection::Descending)
+            } else if rotation_angle >= 211.0 && rotation_angle < 301.0 {
+                //Left
+                (3, Rank::X, RankDirection::Descending)
+            } else {
+                //This will never happen but rust was trying to be helpful
+                (0, Rank::Z, RankDirection::Ascending)
+            };
 
-        let z_order_index = if self.camera.pitch <= -2.0 || self.camera.pitch >= 1.0 {
-            0
-        } else if rotation_angle >= 1.9727829 && rotation_angle < 3.6219294 {
-            1 //-- right or back, z(green) is covered.
-        } else if rotation_angle >= 3.6219294 && rotation_angle < 4.2965374 {
-            2 //-- back all three axis lines are visible.
-        } else if rotation_angle >= 4.2965374 && rotation_angle < 5.997787 {
-            3 //-- left or back, x(red) is covered.
+        let forward_face = if rotation_angle >= 316.0 || rotation_angle < 46.0 {
+            //Front
+            Face::Front
+        } else if rotation_angle >= 46.0 && rotation_angle < 136.0 {
+            //Right
+            Face::Right
+        } else if rotation_angle >= 136.0 && rotation_angle < 226.0 {
+            //Back
+            Face::Back
+        } else if rotation_angle >= 226.0 && rotation_angle < 316.0 {
+            //Left
+            Face::Left
         } else {
-            0 //-- normal glyphs last
+            //This will never happen but rust was trying to be helpful
+            Face::Front
         };
         self.z_order = z_order_index;
-        if rotation_angle >= 2.221 && rotation_angle < 3.646 {
-            self.rank = Rank::Z;
-            self.rank_direction = RankDirection::Descending;
-        } else if rotation_angle >= 0.846 && rotation_angle < 2.221 {
-            self.rank = Rank::X;
-            self.rank_direction = RankDirection::Ascending;
-        } else if rotation_angle >= 3.646 && rotation_angle < 5.800 {
-            self.rank = Rank::X;
-            self.rank_direction = RankDirection::Descending;
-        } else {
-            //5.800 -- 0.846
-            self.rank = Rank::Z;
-            self.rank_direction = RankDirection::Ascending;
-        };
+        self.rank = rank;
+        self.rank_direction = rank_direction;
+        self.forward_face = forward_face;
+    }
+
+    fn build_camera_and_uniform(
+        camera_manager: &mut CameraManager,
+        glyph_uniform_data: &glyphs::glyph_instance_data::GlyphUniformData,
+        config: &SurfaceConfiguration,
+    ) -> (OrbitCamera, CameraUniform) {
+        let distance = (glyph_uniform_data.max_interp_x - glyph_uniform_data.min_interp_x) * 0.9;
+        let y_offset = (glyph_uniform_data.max_interp_y - glyph_uniform_data.min_interp_y) / 2.0;
+        let y_offset = (glyph_uniform_data.min_interp_y + y_offset) * -1.0;
+        camera_manager.initialize(
+            0.3,
+            -1.5708,
+            distance,
+            config.width as f32 / config.height as f32,
+            y_offset,
+        )
     }
 }

@@ -771,24 +771,10 @@ impl GlyphEngine {
         z_stats_vector: Vec<f64>,
         operations: &T,
     ) -> Result<String, GlyphEngineProcessError> {
-        let max_x_rank = {
-            let vec = x_field_processor.get_max_vector();
-            if vec.is_none() {
-                0
-            } else {
-                vec.unwrap().rank
-            }
-        };
+        let max_x_rank = x_field_processor.get_max_rank() as u64;
         let x_stats =
-            self.get_stats_for_axis("x", max_x_rank, x_field_processor.get_statistics_vector());
-        let max_y_rank = {
-            let vec = y_field_processor.get_max_vector();
-            if vec.is_none() {
-                0
-            } else {
-                vec.unwrap().rank
-            }
-        };
+            self.get_stats_for_axis("x", max_x_rank , x_field_processor.get_statistics_vector());
+        let max_y_rank = y_field_processor.get_max_rank() as u64;
         let y_stats =
             self.get_stats_for_axis("y", max_y_rank, y_field_processor.get_statistics_vector());
         let z_stats = self.get_stats_for_axis("z", 0, z_stats_vector);
@@ -3021,8 +3007,9 @@ pub mod glyph_engine {
                             });
                         vector_processer_mock1
                             .expect_get_max_vector()
-                            .times(1)
+                            .times(0)
                             .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
+                        vector_processer_mock1.expect_get_max_rank().times(1).return_const(9 as usize);
                         Box::new(vector_processer_mock1)
                     } else {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
@@ -3056,8 +3043,9 @@ pub mod glyph_engine {
                             });
                         vector_processer_mock2
                             .expect_get_max_vector()
-                            .times(1)
+                            .times(0)
                             .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
+                        vector_processer_mock2.expect_get_max_rank().times(1).return_const(9 as usize);
                         Box::new(vector_processer_mock2)
                     }
                 });
@@ -3695,7 +3683,7 @@ pub mod glyph_engine {
                             });
                         vector_processer_mock1
                             .expect_get_max_vector()
-                            .times(1)
+                            .times(0)
                             .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
                         vector_processer_mock1
                             .expect_get_statistics_vector()
@@ -3703,6 +3691,7 @@ pub mod glyph_engine {
                             .returning(|| {
                                 vec![1.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0]
                             });
+                        vector_processer_mock1.expect_get_max_rank().times(1).return_const(9 as usize);
                         Box::new(vector_processer_mock1)
                     } else {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
@@ -3736,8 +3725,9 @@ pub mod glyph_engine {
                             });
                         vector_processer_mock2
                             .expect_get_max_vector()
-                            .times(1)
+                            .times(0)
                             .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
+                        vector_processer_mock2.expect_get_max_rank().times(1).return_const(9 as usize);
                         Box::new(vector_processer_mock2)
                     }
                 });
@@ -3856,8 +3846,9 @@ pub mod glyph_engine {
                             });
                         vector_processer_mock1
                             .expect_get_max_vector()
-                            .times(1)
+                            .times(0)
                             .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
+                        vector_processer_mock1.expect_get_max_rank().times(1).return_const(9 as usize);
                         Box::new(vector_processer_mock1)
                     } else {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
@@ -3891,8 +3882,9 @@ pub mod glyph_engine {
                             });
                         vector_processer_mock2
                             .expect_get_max_vector()
-                            .times(1)
+                            .times(0)
                             .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
+                        vector_processer_mock2.expect_get_max_rank().times(1).return_const(9 as usize);
                         Box::new(vector_processer_mock2)
                     }
                 });
