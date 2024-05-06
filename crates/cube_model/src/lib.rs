@@ -333,7 +333,7 @@ impl ModelRunner {
         cm.get_camera_data()
     }
 
-    //apspect ratio is canvas height / canvas width  
+    //apspect ratio is canvas width / canvas height  
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn set_camera_data(&self, camera_data: CameraData, aspect_ratio: f32) {
         let cm = &mut self.camera_manager.as_ref().borrow_mut();
