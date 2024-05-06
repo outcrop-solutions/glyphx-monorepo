@@ -5,7 +5,7 @@ use wgpu::{BindGroup, BindGroupLayout, Buffer, Device};
 use glam::Mat4;
 /// The camera uniform contains the data linked to the camera that is passed to the shader.
 #[repr(C)]
-#[derive(Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
+#[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct CameraUniform {
     /// The eye position of the camera in homogenous coordinates.
     ///

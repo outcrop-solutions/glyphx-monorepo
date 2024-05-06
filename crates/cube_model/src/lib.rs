@@ -5,9 +5,10 @@ mod light;
 mod model;
 mod model_event;
 
-use model::model_configuration::{ColorWheel, ModelConfiguration};
-use model::state::DataManager;
-use model::state::State;
+use model::{
+    model_configuration::{ColorWheel, ModelConfiguration},
+    state::{CameraData, CameraManager, DataManager, State},
+};
 use model_common::Stats;
 use model_event::{ModelEvent, ModelMoveDirection};
 use serde_json::{from_str, json, Value};
@@ -36,6 +37,7 @@ static mut EVENT_LOOP_PROXY: Option<EventLoopProxy<ModelEvent>> = None;
 pub struct ModelRunner {
     configuration: Rc<RefCell<ModelConfiguration>>,
     data_manager: Rc<RefCell<DataManager>>,
+    camera_manager: Rc<RefCell<CameraManager>>,
     is_running: bool,
     color_wheel: ColorWheel,
     default_x: u8,
@@ -53,6 +55,7 @@ impl ModelRunner {
         ModelRunner {
             configuration: Rc::new(RefCell::new(ModelConfiguration::default())),
             data_manager: Rc::new(RefCell::new(DataManager::new())),
+            camera_manager: Rc::new(RefCell::new(CameraManager::new())),
             is_running: false,
             color_wheel: ColorWheel::new(),
             default_x: 0,
@@ -324,6 +327,26 @@ impl ModelRunner {
         let dm = self.data_manager.borrow();
         dm.get_vector_len("z")
     }
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn get_camera_data(&self) -> CameraData {
+        let cm = self.camera_manager.as_ref().borrow();
+        cm.get_camera_data()
+    }
+
+    //apspect ratio is canvas height / canvas width  
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn set_camera_data(&self, camera_data: CameraData, aspect_ratio: f32) {
+        let cm = &mut self.camera_manager.as_ref().borrow_mut();
+        cm.set_camera_data(camera_data, aspect_ratio);
+        unsafe {
+            let event = ModelEvent::Redraw;
+            EVENT_LOOP_PROXY
+                .as_ref()
+                .unwrap()
+                .send_event(event)
+                .unwrap();
+        }
+    }
 
     fn init_logger(&self) {
         cfg_if::cfg_if! {
@@ -379,11 +402,12 @@ impl ModelRunner {
         //self.is_running = true;
 
         let config = self.configuration.clone();
-
+        let cm = self.camera_manager.clone();
         let mut state = State::new(
             window,
             self.configuration.clone(),
             self.data_manager.clone(),
+            cm,
         )
         .await;
         let mut x_color_index = self.default_x as isize;
@@ -447,7 +471,7 @@ impl ModelRunner {
                     state.move_camera("y_axis", 0.0);
                 }
                 Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Reset)) => {
-                    state.reset_camera();
+                    state.reset_camera_from_client();
                 }
                 Event::DeviceEvent {
                     device_id: _,
@@ -555,7 +579,7 @@ impl ModelRunner {
                         } => {
                             let mut cf = config.borrow_mut();
                             if modifiers.ctrl() {
-                                state.reset_camera();
+                                state.reset_camera_from_client();
                             } else {
                                 let modifier = if modifiers.shift() {
                                     if modifiers.alt() {
@@ -1152,7 +1176,7 @@ impl ModelRunner {
                     }
                 }
                 Event::RedrawRequested(window_id) if window_id == state.window().id() => {
-                    state.update();
+                    state.update_from_client();
                     match state.render() {
                         Ok(_) => {}
                         // Reconfigure the surface if lost

@@ -3,7 +3,7 @@ use winit::{
     event::{DeviceEvent, ElementState, MouseScrollDelta},
 };
 
-use crate::camera::orbit_camera::OrbitCamera;
+use crate::model::state::CameraManager;
 
 pub struct CameraController {
     pub rotate_speed: f32,
@@ -23,8 +23,8 @@ impl CameraController {
     pub fn process_events(
         &mut self,
         event: &DeviceEvent,
-        camera: &mut OrbitCamera,
-    )-> bool {
+        camera_manager: &mut CameraManager,
+    ) -> bool {
         match event {
             DeviceEvent::Button {
                 #[cfg(target_os = "macos")]
@@ -47,13 +47,15 @@ impl CameraController {
                         *scroll as f32
                     }
                 };
-                camera.add_distance(scroll_amount * self.zoom_speed);
-               true 
+                camera_manager.add_distance(scroll_amount * self.zoom_speed);
+                camera_manager.update();
+                true
             }
             DeviceEvent::MouseMotion { delta } => {
                 if self.is_drag_rotate {
-                    camera.add_yaw(-delta.0 as f32 * self.rotate_speed);
-                    camera.add_pitch(delta.1 as f32 * self.rotate_speed);
+                    camera_manager.add_yaw(-delta.0 as f32 * self.rotate_speed);
+                    camera_manager.add_pitch(delta.1 as f32 * self.rotate_speed);
+                    camera_manager.update();
                 }
                 true
             }
@@ -61,4 +63,3 @@ impl CameraController {
         }
     }
 }
-

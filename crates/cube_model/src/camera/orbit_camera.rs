@@ -1,5 +1,5 @@
 ///https://github.com/FrankenApps/wgpu_cube/blob/master/src/render/camera/orbit_camera.rs
-
+use serde::{Deserialize, Serialize};
 use glam::{Mat4, Vec3};
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
@@ -7,7 +7,7 @@ use wasm_bindgen::prelude::*;
 use crate::camera::Camera;
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct Vector3 {
     pub x: f32,
     pub y: f32,
