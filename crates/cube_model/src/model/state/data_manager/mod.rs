@@ -2,11 +2,11 @@ mod glyph_manager;
 mod stats_manager;
 mod camera_manager;
 
-use super::{AddGlyphError, AddStatsError,  DeserializeVectorError, GetStatsError, ModelVectors, RankedGlyphData};
+use super::{AddGlyphError, AddStatsError,  DeserializeVectorError, GetStatsError, ModelVectors, RankedGlyphData };
 pub use glyph_manager::GlyphManager;
 pub use stats_manager::StatsManager;
 pub use camera_manager::{CameraManager, CameraData};
-use model_common::Stats;
+use model_common::{Stats, Glyph};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -52,7 +52,7 @@ impl DataManager {
         self.stats_manager.borrow().get_stats(axis)
     }
 
-    pub fn add_glyph(&mut self, glyph_bytes: Vec<u8>) -> Result<(), AddGlyphError> {
+    pub fn add_glyph(&mut self, glyph_bytes: Vec<u8>) -> Result<Glyph, AddGlyphError> {
         self.glyph_manager.add_glyph(glyph_bytes)
     }
 

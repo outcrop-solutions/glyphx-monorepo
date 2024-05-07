@@ -283,7 +283,7 @@ impl ModelRunner {
     //Adding statistics will update internal state but it
     //will not emit any redraw events.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn add_statistics(&self, data: Vec<u8>) -> Result<Stats, String> {
+    pub fn add_statistics(&self, data: Vec<u8>) -> Result<String, String> {
         let mut dm = self.data_manager.borrow_mut();
         let result = dm.add_stats(data);
         match result {
@@ -295,11 +295,11 @@ impl ModelRunner {
     ///Adding a glyph will update internal state but it
     ///will not emit any redraw events.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn add_glyph(&self, data: Vec<u8>) -> Result<(), String> {
+    pub fn add_glyph(&self, data: Vec<u8>) -> Result<String, String> {
         let mut dm = self.data_manager.borrow_mut();
         let result = dm.add_glyph(data);
         match result {
-            Ok(_) => Ok(()),
+            Ok(result) => Ok(serde_json::to_string(&result).unwrap()),
             Err(e) => Err(serde_json::to_string(&e).unwrap()),
         }
     }
@@ -328,14 +328,14 @@ impl ModelRunner {
         dm.get_vector_len("z")
     }
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn get_camera_data(&self) -> CameraData {
+    pub fn get_camera_data(&self) -> String {
         let cm = self.camera_manager.as_ref().borrow();
         cm.get_camera_data()
     }
 
-    //apspect ratio is canvas width / canvas height  
+    //apspect ratio is canvas width / canvas height
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn set_camera_data(&self, camera_data: CameraData, aspect_ratio: f32) {
+    pub fn set_camera_data(&self, camera_data: String, aspect_ratio: f32) {
         let cm = &mut self.camera_manager.as_ref().borrow_mut();
         cm.set_camera_data(camera_data, aspect_ratio);
         unsafe {

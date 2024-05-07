@@ -139,7 +139,7 @@ export const Properties = () => {
         if (offset + Number(totalDataLength) > buffer.length) {
           console.error('Not enough data in buffer');
           // using subarray to avoid copying the buffer
-          return buffer.subarray(0, 8); // Return the buffer starting from the length value for reprocessing
+          return buffer.subarray(offset); // Return the buffer starting from the length value for reprocessing
         }
 
         // Extract the relevant data for processing

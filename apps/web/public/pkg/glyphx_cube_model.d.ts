@@ -10,12 +10,39 @@ export class ModelRunner {
 /**
 *Will force a redraw of the model, if the model is running.
 * @param {string} config
+* @param {boolean} is_running
 */
-  update_configuration(config: string): void;
+  update_configuration(config: string, is_running: boolean): void;
+/**
+*/
+  toggle_axis_lines(): void;
 /**
 * @param {number} amount
 */
   add_yaw(amount: number): void;
+/**
+* @param {number} amount
+*/
+  raise_model(amount: number): void;
+/**
+*/
+  reset_camera(): void;
+/**
+*These are user facing axis not internal
+*/
+  focus_on_x_axis(): void;
+/**
+*These are user facing axis not internal
+*/
+  focus_on_y_axis(): void;
+/**
+*These are user facing axis not internal
+*/
+  focus_on_z_axis(): void;
+/**
+* @param {number} amount
+*/
+  shift_model(amount: number): void;
 /**
 * @param {number} amount
 */
@@ -29,9 +56,8 @@ export class ModelRunner {
 *will not emit any redraw events.
 * @param {string} axis
 * @param {Uint8Array} data
-* @returns {Promise<void>}
 */
-  add_vector(axis: string, data: Uint8Array): Promise<void>;
+  add_vector(axis: string, data: Uint8Array): void;
 /**
 * @param {Uint8Array} data
 * @returns {string}
@@ -41,9 +67,9 @@ export class ModelRunner {
 *Adding a glyph will update internal state but it
 *will not emit any redraw events.
 * @param {Uint8Array} data
-* @returns {Promise<void>}
+* @returns {string}
 */
-  add_glyph(data: Uint8Array): Promise<void>;
+  add_glyph(data: Uint8Array): string;
 /**
 * @returns {number}
 */
@@ -60,6 +86,15 @@ export class ModelRunner {
 * @returns {number}
 */
   get_y_vector_count(): number;
+/**
+* @returns {string}
+*/
+  get_camera_data(): string;
+/**
+* @param {string} camera_data
+* @param {number} aspect_ratio
+*/
+  set_camera_data(camera_data: string, aspect_ratio: number): void;
 /**
 * @returns {Promise<void>}
 */
@@ -165,20 +200,6 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly modelrunner_new: () => number;
-  readonly modelrunner_update_configuration: (a: number, b: number, c: number, d: number) => void;
-  readonly modelrunner_add_yaw: (a: number, b: number) => void;
-  readonly modelrunner_add_pitch: (a: number, b: number) => void;
-  readonly modelrunner_add_distance: (a: number, b: number) => void;
-  readonly modelrunner_add_vector: (a: number, b: number, c: number, d: number, e: number) => number;
-  readonly modelrunner_add_statistics: (a: number, b: number, c: number, d: number) => void;
-  readonly modelrunner_add_glyph: (a: number, b: number, c: number) => number;
-  readonly modelrunner_get_glyph_count: (a: number) => number;
-  readonly modelrunner_get_stats_count: (a: number) => number;
-  readonly modelrunner_get_x_vector_count: (a: number) => number;
-  readonly modelrunner_get_y_vector_count: (a: number) => number;
-  readonly modelrunner_run: (a: number) => number;
-  readonly __wbg_modelrunner_free: (a: number) => void;
   readonly __wbg_vector3_free: (a: number) => void;
   readonly __wbg_get_vector3_x: (a: number) => number;
   readonly __wbg_set_vector3_x: (a: number, b: number) => void;
@@ -220,6 +241,29 @@ export interface InitOutput {
   readonly __wbg_set_orbitcamerabounds_min_yaw: (a: number, b: number, c: number) => void;
   readonly __wbg_get_orbitcamerabounds_max_yaw: (a: number, b: number) => void;
   readonly __wbg_set_orbitcamerabounds_max_yaw: (a: number, b: number, c: number) => void;
+  readonly modelrunner_new: () => number;
+  readonly modelrunner_update_configuration: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly modelrunner_toggle_axis_lines: (a: number) => void;
+  readonly modelrunner_add_yaw: (a: number, b: number) => void;
+  readonly modelrunner_raise_model: (a: number, b: number) => void;
+  readonly modelrunner_reset_camera: (a: number) => void;
+  readonly modelrunner_focus_on_x_axis: (a: number) => void;
+  readonly modelrunner_focus_on_y_axis: (a: number) => void;
+  readonly modelrunner_focus_on_z_axis: (a: number) => void;
+  readonly modelrunner_shift_model: (a: number, b: number) => void;
+  readonly modelrunner_add_pitch: (a: number, b: number) => void;
+  readonly modelrunner_add_distance: (a: number, b: number) => void;
+  readonly modelrunner_add_vector: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+  readonly modelrunner_add_statistics: (a: number, b: number, c: number, d: number) => void;
+  readonly modelrunner_add_glyph: (a: number, b: number, c: number, d: number) => void;
+  readonly modelrunner_get_glyph_count: (a: number) => number;
+  readonly modelrunner_get_stats_count: (a: number) => number;
+  readonly modelrunner_get_x_vector_count: (a: number) => number;
+  readonly modelrunner_get_y_vector_count: (a: number) => number;
+  readonly modelrunner_get_camera_data: (a: number, b: number) => void;
+  readonly modelrunner_set_camera_data: (a: number, b: number, c: number, d: number) => void;
+  readonly modelrunner_run: (a: number) => number;
+  readonly __wbg_modelrunner_free: (a: number) => void;
   readonly wgpu_compute_pass_set_pipeline: (a: number, b: number) => void;
   readonly wgpu_compute_pass_set_bind_group: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly wgpu_compute_pass_set_push_constant: (a: number, b: number, c: number, d: number) => void;
@@ -262,22 +306,22 @@ export interface InitOutput {
   readonly wgpu_render_pass_begin_pipeline_statistics_query: (a: number, b: number, c: number) => void;
   readonly wgpu_render_pass_end_pipeline_statistics_query: (a: number) => void;
   readonly wgpu_render_pass_execute_bundles: (a: number, b: number, c: number) => void;
-  readonly wgpu_render_bundle_set_index_buffer: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly wgpu_render_pass_set_index_buffer: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly wgpu_render_bundle_pop_debug_group: (a: number) => void;
   readonly wgpu_render_bundle_insert_debug_marker: (a: number, b: number) => void;
   readonly wgpu_render_bundle_push_debug_group: (a: number, b: number) => void;
-  readonly wgpu_render_pass_set_index_buffer: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly wgpu_render_bundle_set_index_buffer: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
   readonly __wbindgen_export_2: WebAssembly.Table;
-  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h09b783a575b776ea: (a: number, b: number, c: number) => void;
-  readonly _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h1de89293a3ec74d4: (a: number, b: number) => void;
-  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h3d6d3fc07f7e74af: (a: number, b: number, c: number) => void;
-  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h437d5ad93a62fa19: (a: number, b: number, c: number) => void;
+  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h01dfa812ae1b7722: (a: number, b: number, c: number) => void;
+  readonly _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__hf3c40421d9e60111: (a: number, b: number) => void;
+  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h324e789fe8942980: (a: number, b: number, c: number) => void;
+  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h4eeb3e3f5a56b4cf: (a: number, b: number, c: number) => void;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_free: (a: number, b: number, c: number) => void;
   readonly __wbindgen_exn_store: (a: number) => void;
-  readonly wasm_bindgen__convert__closures__invoke2_mut__hb26d06dc0e08560c: (a: number, b: number, c: number, d: number) => void;
+  readonly wasm_bindgen__convert__closures__invoke2_mut__h2c52d159116fbcc8: (a: number, b: number, c: number, d: number) => void;
 }
 
 export type SyncInitInput = BufferSource | WebAssembly.Module;
