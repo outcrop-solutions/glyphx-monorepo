@@ -44,8 +44,9 @@ impl GlyphManager {
         Ok(self.ranked_glyph_data.as_mut().unwrap())
     }
 
-    pub fn add_glyph(&mut self, glyph_bytes: Vec<u8>) -> Result<(), AddGlyphError> {
+    pub fn add_glyph(&mut self, glyph_bytes: Vec<u8>) -> Result<Glyph, AddGlyphError> {
         let glyph = deserialize::<Glyph>(&glyph_bytes)?;
+        let retval = glyph.clone();
         let x_vector = &self
             .x_model_vectors
             .as_ref()
@@ -75,7 +76,7 @@ impl GlyphManager {
             },
         )?;
         self.total_glyphs += 1;
-        Ok(())
+        Ok(retval)
     }
 
     pub fn get_x_vector_len(&self) -> usize {

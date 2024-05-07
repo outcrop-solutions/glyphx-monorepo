@@ -67,3 +67,4 @@ Foo.bar
 **/index.node
 packages/codegen/src/output
 **/glyph_engine.node
+**/test_data/*

@@ -1,20 +1,20 @@
 use crate::{
+    camera::orbit_camera::Vector3,
     camera::{orbit_camera::OrbitCamera, uniform_buffer::CameraUniform},
     model::state::Vec3,
-    camera::orbit_camera::Vector3,
 };
 use serde::{Deserialize, Serialize};
+use serde_json::{to_string, from_str};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CameraData {
-    pub yaw: f32, 
+    pub yaw: f32,
     pub pitch: f32,
     pub distance: f32,
     pub target: Vector3,
     pub y_offset: f32,
     pub x_offset: f32,
     pub z_offset: f32,
-
 }
 
 #[derive(Debug, Clone)]
@@ -56,9 +56,9 @@ impl CameraManager {
         (camera_clone, camera_uniform_clone)
     }
 
-    pub fn get_camera_data(&self) -> CameraData {
-        if self.camera.is_none() {
-            return CameraData {
+    pub fn get_camera_data(&self) -> String {
+        let camera_data = if self.camera.is_none() {
+            CameraData {
                 yaw: 0.0,
                 pitch: 0.0,
                 distance: 0.0,
@@ -66,21 +66,24 @@ impl CameraManager {
                 y_offset: 0.0,
                 x_offset: 0.0,
                 z_offset: 0.0,
-            };
-        }
-        let camera = self.camera.as_ref().unwrap();
-        CameraData {
-            yaw: camera.yaw,
-            pitch: camera.pitch,
-            distance: camera.distance,
-            target: camera.target,
-            y_offset: self.camera_uniform.as_ref().unwrap().y_offset,
-            x_offset: self.camera_uniform.as_ref().unwrap().x_offset,
-            z_offset: self.camera_uniform.as_ref().unwrap().z_offset,
-        }
+            }
+        } else {
+            let camera = self.camera.as_ref().unwrap();
+            CameraData {
+                yaw: camera.yaw,
+                pitch: camera.pitch,
+                distance: camera.distance,
+                target: camera.target,
+                y_offset: self.camera_uniform.as_ref().unwrap().y_offset,
+                x_offset: self.camera_uniform.as_ref().unwrap().x_offset,
+                z_offset: self.camera_uniform.as_ref().unwrap().z_offset,
+            }
+        };
+        to_string(&camera_data).unwrap()
     }
 
-    pub fn set_camera_data(&mut self, camera_data: CameraData, aspect_ratio: f32) {
+    pub fn set_camera_data(&mut self, camera_data: String, aspect_ratio: f32) {
+        let camera_data: CameraData = from_str(&camera_data).unwrap();
         let mut camera = OrbitCamera::new(
             camera_data.distance,
             camera_data.pitch,
@@ -164,7 +167,10 @@ impl CameraManager {
         if self.camera_uniform.is_none() {
             return;
         }
-        self.camera_uniform.as_mut().unwrap().update_y_offset(y_offset) ;
+        self.camera_uniform
+            .as_mut()
+            .unwrap()
+            .update_y_offset(y_offset);
     }
 
     pub fn get_x_offset(&self) -> f32 {
@@ -178,7 +184,10 @@ impl CameraManager {
         if self.camera_uniform.is_none() {
             return;
         }
-        self.camera_uniform.as_mut().unwrap().update_x_offset(x_offset);
+        self.camera_uniform
+            .as_mut()
+            .unwrap()
+            .update_x_offset(x_offset);
     }
 
     pub fn get_z_offset(&self) -> f32 {
@@ -192,11 +201,13 @@ impl CameraManager {
         if self.camera_uniform.is_none() {
             return;
         }
-        self.camera_uniform.as_mut().unwrap().update_z_offset(z_offset);
+        self.camera_uniform
+            .as_mut()
+            .unwrap()
+            .update_z_offset(z_offset);
     }
 
     pub fn update(&mut self) {
-
         if self.camera.is_none() {
             return;
         }
@@ -207,7 +218,7 @@ impl CameraManager {
     }
 
     pub fn get_camera_uniform(&self) -> CameraUniform {
-       let cm =  self.camera_uniform.clone().unwrap();
-       cm
+        let cm = self.camera_uniform.clone().unwrap();
+        cm
     }
 }
