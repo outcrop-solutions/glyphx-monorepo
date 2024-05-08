@@ -26,8 +26,13 @@ export function hashPayload(fileHash: string, project: databaseTypes.IProject): 
       if (key === 'filter' && dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER) {
         keyRetvals.push(String((prop[key] as webTypes.INumbericFilter).min) ?? '');
         keyRetvals.push(String((prop[key] as webTypes.INumbericFilter).max) ?? '');
-      } else if (key === 'filter' && dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING) {
-        for (const word of (prop[key] as webTypes.IStringFilter).keywords) {
+      } else if (
+        key === 'filter' &&
+        dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING &&
+        prop[key] &&
+        (prop[key] as webTypes.IStringFilter)?.keywords?.length > 0
+      ) {
+        for (const word of (prop[key] as webTypes.IStringFilter)?.keywords) {
           keyRetvals.push(String(word));
         }
       } else {

@@ -394,6 +394,7 @@ export const signRustFiles = async (
       err
     );
     e.publish('etl', constants.ERROR_SEVERITY.ERROR);
+    // @ts-ignore
     return {error: e.message};
   }
 };
