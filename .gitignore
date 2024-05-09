@@ -64,7 +64,7 @@ output.log
 Foo.bar
 
 # exclude rust binary
-**/index.node
+# **/index.node
 packages/codegen/src/output
 **/glyph_engine.node
 **/test_data/*
