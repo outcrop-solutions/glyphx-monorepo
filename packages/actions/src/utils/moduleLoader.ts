@@ -1,4 +1,4 @@
-//The module will be either:
+//The module will be either
 //  .next/server/pkg localally
 //  or
 //  .next/serverless/chunks/server/pkg on vercel
