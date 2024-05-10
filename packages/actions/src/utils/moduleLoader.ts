@@ -15,9 +15,9 @@ export default abstract class ModuleLoader<T> {
     this.internalModule = module;
 
     let processDir = cwd();
-    let onServerDir = processDir + './pkg';
+    let onServerDir = processDir + '/.next/server/server/pkg';
     let onLocalDir = processDir + '/.next/server/pkg';
-    let onTestDir = processDir + './pkg';
+    let onTestDir = processDir + '/pkg';
     let moduleDir = existsSync(onServerDir) ? onServerDir : existsSync(onLocalDir) ? onLocalDir : onTestDir;
     let modulePath = moduleDir + '/' + moduleName;
     this.internalModulePath = modulePath;
