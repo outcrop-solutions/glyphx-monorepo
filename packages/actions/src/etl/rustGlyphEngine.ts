@@ -10,6 +10,7 @@ import {generateFilterQuery} from '../utils/generateFilterQuery';
 // WASM BINDINGS SETUP
 interface IBindings {
   exports: {
+    hello: () => string;
     glyph_engine: (args: rustGlyphEngineTypes.IGlyphEngineArgs) => Promise<rustGlyphEngineTypes.IGlyphEngineResults>;
     convertNeonValue: (value: any) => string;
     convertJsonValue: (value: string) => any;
@@ -43,9 +44,9 @@ class Bindings extends ModuleLoader<IBindings> {
     }
     return result;
   }
-  // public hello(): string {
-  //   return internalModule.exports.hello();
-  // }
+  public hello(): string {
+    return internalModule.exports.hello();
+  }
 
   public convertNeonValue(value: any): string {
     return internalModule.exports.convertNeonValue(value);
@@ -66,6 +67,10 @@ export async function runGlyphEngine(
   args: rustGlyphEngineTypes.IGlyphEngineArgs
 ): Promise<rustGlyphEngineTypes.IGlyphEngineResults | error.ActionError> {
   return bindings.runGlyphEngine(args);
+}
+
+export async function hello() {
+  return bindings.hello();
 }
 
 export async function convertNeonValue(value: any): Promise<string> {

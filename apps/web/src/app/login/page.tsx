@@ -2,11 +2,13 @@ import Link from 'next/link';
 import {EmailBtn} from './_components/EmailBtn';
 import {Providers} from './_components/Providers';
 import {CredentialsBtn} from './_components/CredentialsBtn';
+import {hello} from 'actions';
 
 export default function Login() {
   return (
     <>
       <div className="flex flex-col bg-primary-dark-blue items-center justify-center p-5 m-auto space-y-5 rounded shadow-lg md:p-10 md:w-1/3">
+        <div>{(async () => await hello())()}</div>
         <div>
           <Link href="/" className="text-4xl text-white font-bold">
             Glyphx

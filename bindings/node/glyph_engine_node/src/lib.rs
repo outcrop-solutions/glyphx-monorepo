@@ -267,7 +267,7 @@ fn convert_glyphx_error_to_jsonObject(mut cx: FunctionContext) -> JsResult<JsObj
     let inner_error = S3ConstructorError::BucketDoesNotExist(GlyphxErrorData::new(
         String::from("Bucket does not exist"),
         Some(json!( {"bucket_name": "foo"})),
-        Some(json!( "James, what have you done now")),
+        Some(json!("James, what have you done now")),
     ));
     let outer_error = AthenaConstructorError::UnexpectedError(GlyphxErrorData::new(
         String::from("Invalid region"),
@@ -278,12 +278,20 @@ fn convert_glyphx_error_to_jsonObject(mut cx: FunctionContext) -> JsResult<JsObj
     Ok(error)
 }
 
+fn hello(mut cx: FunctionContext) -> JsResult<JsString> {
+    Ok(cx.string("hello node"))
+}
+
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
     cx.export_function("glyph_engine", run)?;
     //These function are here to support testing.
+    cx.export_function("hello", hello)?;
     cx.export_function("convertNeonValue", convert_neon_value)?;
     cx.export_function("convertJsonValue", convert_json_value)?;
-    cx.export_function("convertGlyphxErrorToJsonObject", convert_glyphx_error_to_jsonObject)?;
+    cx.export_function(
+        "convertGlyphxErrorToJsonObject",
+        convert_glyphx_error_to_jsonObject,
+    )?;
     Ok(())
 }
