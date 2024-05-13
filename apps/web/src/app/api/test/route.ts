@@ -1,5 +1,6 @@
 import {NextResponse} from 'next/server';
 import fs from 'node:fs';
+import * as actions from 'actions';
 export const runtime = 'nodejs';
 
 export async function POST(req: Request): Promise<Response | undefined> {
@@ -11,6 +12,6 @@ export async function POST(req: Request): Promise<Response | undefined> {
   const queryFiles = params ? fs.readdirSync(processDir + '/' + params) : [];
 
   if (env) {
-    return NextResponse.json({env, processDir, files, queryFiles});
+    return NextResponse.json({env, processDir, files, queryFiles, hello: actions.hello()});
   }
 }
