@@ -5,7 +5,6 @@ import {databaseTypes, fileIngestionTypes, glyphEngineTypes, rustGlyphEngineType
 import {generalPurposeFunctions as sharedFunctions} from 'core';
 import {hashFileSystem, hashPayload} from 'business/src/util/hashFunctions';
 import {s3Connection} from '../../../business/src/lib';
-import {generateFilterQuery} from '../utils/generateFilterQuery';
 
 // WASM BINDINGS SETUP
 interface IBindings {
@@ -92,10 +91,7 @@ export async function convertGlyphxError(): Promise<any> {
  * @param properties
  * @returns
  */
-export async function runGlyphEngineAction(
-  project: databaseTypes.IProject,
-  properties: databaseTypes.IProject['state']['properties']
-) {
+export async function runGlyphEngineAction(project: databaseTypes.IProject) {
   try {
     // validate input
     if (typeof project?.workspace?.id !== 'string' || project?.workspace?.id?.length === 0) {
@@ -116,7 +112,7 @@ export async function runGlyphEngineAction(
     const workspaceId = project.workspace.id;
     const projectId = project.id;
     const payloadHash = hashPayload(hashFileSystem(project.files), project);
-    const payload = buildRustPayload(project, properties);
+    const payload = buildRustPayload(project);
 
     const result = await runGlyphEngine(payload);
     if (result) {
@@ -124,12 +120,7 @@ export async function runGlyphEngineAction(
       return await signRustFiles(workspaceId, projectId, payloadHash);
     }
   } catch (err) {
-    const e = new error.ActionError(
-      'An unexpected error occurred running the rust glyphengine',
-      'etl',
-      {project, properties},
-      err
-    );
+    const e = new error.ActionError('An unexpected error occurred running the rust glyphengine', 'etl', {project}, err);
     e.publish('etl', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }
@@ -141,11 +132,9 @@ export async function runGlyphEngineAction(
  * @param project
  * @param properties
  */
-export const buildRustPayload = (
-  project: databaseTypes.IProject,
-  properties: databaseTypes.IProject['state']['properties']
-): rustGlyphEngineTypes.IGlyphEngineArgs => {
+export const buildRustPayload = (project: databaseTypes.IProject): rustGlyphEngineTypes.IGlyphEngineArgs => {
   try {
+    const properties = project?.state?.properties;
     // we assume that the values exist and then check the payload once it's formed
     // we could also do the reverse and consolidate the above conditional into the check performed before submitting the payload to the wasm module
     const fullTableName = sharedFunctions.fileIngestion.getFullTableName(
@@ -239,7 +228,7 @@ export const buildRustPayload = (
     throw new error.ActionError(
       'An unexpected error occurred building the rust glyphengine payload',
       'etl',
-      {project, properties},
+      {project},
       err
     );
   }

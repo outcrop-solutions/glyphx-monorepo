@@ -9,7 +9,7 @@ import TopBarProgress from 'react-topbar-progress-indicator';
 import {SWRConfig} from 'swr';
 import {DndProvider} from 'react-dnd';
 import {HTML5Backend} from 'react-dnd-html5-backend';
-import {RecoilRoot} from 'recoil';
+import {RecoilRoot, useRecoilValue} from 'recoil';
 import progressBarConfig from '../config/progress-bar';
 import swrConfig from '../config/swr';
 import {Toaster} from 'react-hot-toast';
@@ -18,7 +18,6 @@ import {Modals} from 'app/_components/Modals';
 import {Loading} from 'app/_components/Loaders/Loading';
 import {Session} from 'next-auth';
 import {AuthProviders} from 'app/_components/AuthProviders';
-import {SocketProvider} from './socketProvider';
 import {ThemeProvider as NextThemesProvider} from 'next-themes';
 import {TooltipProvider} from './chat/[id]/_components/ui/tooltip';
 import {GrowthbookWrapper} from './_components/GrowthbookWrapper';
@@ -62,27 +61,25 @@ export const Providers = ({children, session}: {children: React.ReactNode; sessi
       <SWRConfig value={swrOptions}>
         <RecoilRoot>
           <PostHogProvider client={posthog}>
-            <SocketProvider>
-              <AuthProviders>
-                {/*
-                 * Growthbook requires user info for attributes, must remain inside the AuthProvider
-                 */}
-                <GrowthbookWrapper>
-                  <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
-                    <TooltipProvider>
-                      {/* @ts-ignore */}
-                      <DndProvider backend={HTML5Backend}>
-                        <Toaster position="bottom-left" toastOptions={{duration: 2000}} />
-                        {progress && <TopBarProgress />}
-                        <Modals />
-                        <Loading />
-                        {children}
-                      </DndProvider>
-                    </TooltipProvider>
-                  </NextThemesProvider>
-                </GrowthbookWrapper>
-              </AuthProviders>
-            </SocketProvider>
+            <AuthProviders>
+              {/*
+               * Growthbook requires user info for attributes, must remain inside the AuthProvider
+               */}
+              <GrowthbookWrapper>
+                <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
+                  <TooltipProvider>
+                    {/* @ts-ignore */}
+                    <DndProvider backend={HTML5Backend}>
+                      <Toaster position="bottom-left" toastOptions={{duration: 2000}} />
+                      {progress && <TopBarProgress />}
+                      <Modals />
+                      <Loading />
+                      {children}
+                    </DndProvider>
+                  </TooltipProvider>
+                </NextThemesProvider>
+              </GrowthbookWrapper>
+            </AuthProviders>
           </PostHogProvider>
         </RecoilRoot>
       </SWRConfig>

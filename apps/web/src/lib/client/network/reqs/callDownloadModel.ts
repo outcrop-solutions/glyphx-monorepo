@@ -24,11 +24,6 @@ export const callDownloadModel = async ({
   setResize: any;
   camera?: any;
 }) => {
-  // setLoading(
-  //   produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-  //     draft.processName = 'Downloading model...';
-  //   })
-  // );
   const isNullCam = isNullCamera(camera);
   const retval = await signDataUrls(project?.workspace.id, project?.id, payloadHash);
   if (!retval?.error) {

@@ -1,14 +1,16 @@
 'use client';
 import React, {useCallback, useRef, useState} from 'react';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {Property} from './Property';
+import init, {ModelRunner} from '../../../../../../../../public/pkg/glyphx_cube_model';
 import {
   dataGridPayloadSelector,
   doesStateExistSelector,
   drawerOpenAtom,
+  modelDataAtom,
   modelRunnerAtom,
+  payloadHashSelector,
   projectAtom,
-  projectSegmentAtom,
   propertiesSelector,
   showLoadingAtom,
   splitPaneSizeAtom,
@@ -28,18 +30,15 @@ import {webTypes} from 'types';
 export const Properties = () => {
   const session = useSession();
   const {mutate} = useSWRConfig();
-  const {modelRunner} = useRecoilValue(modelRunnerAtom);
+  const [modelRunnerState, setModelRunnerState] = useRecoilState(modelRunnerAtom);
+  const [modelData, setModelData] = useRecoilState(modelDataAtom);
   const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
   const urlRef = useRef('');
+  const payloadHash = useRecoilValue(payloadHashSelector);
   const doesStateExist = useRecoilValue(doesStateExistSelector);
   const {workspaceId, projectId, tableName} = useRecoilValue(dataGridPayloadSelector);
-
-  // used to condition the call to rust glyphengine
-  const isWebGPUEnabled = useFeatureIsOn('webgpu');
-  const segment = useRecoilValue(projectSegmentAtom);
-
   const url = useUrl();
   const properties = useRecoilValue(propertiesSelector);
   const [isCollapsed, setCollapsed] = useState(false);
@@ -122,7 +121,7 @@ export const Properties = () => {
    */
 
   const processData = useCallback(
-    (axis: webTypes.constants.AXIS, processor: string) => async (buffer: Buffer) => {
+    (axis: webTypes.constants.AXIS, processor: string, modelRunner) => async (buffer: Buffer) => {
       let offset = 0;
       while (offset < buffer.length) {
         // Ensure the buffer is long enough to read the initial length value
@@ -170,101 +169,78 @@ export const Properties = () => {
         return buffer.subarray(offset); // Return the unprocessed remainder
       }
     },
-    [modelRunner]
+    []
   );
 
+  const downloadModel = useCallback(
+    async (modelData: {GLY_URL: string; STS_URL: string; X_VEC: string; Y_VEC: string}) => {
+      // Load the WASM module and create a new ModelRunner instance.
+      // We can't re-use the model runner because there is no way to clear the stats and glyphs and reuse the event loop
+      await init();
+      console.log('WASM Loaded');
+      const modelRunner = new ModelRunner();
+      console.log('ModelRunner created');
+      const {GLY_URL, STS_URL, X_VEC, Y_VEC} = modelData;
+      // First, handle statistics and vectors concurrently
+      // @ts-ignore
+      urlRef.current = GLY_URL;
+      // @ts-ignore
+      await handleStream(STS_URL, processData(undefined, 'stats', modelRunner));
+      // @ts-ignore
+      await handleStream(X_VEC, processData('x', 'vector', modelRunner));
+      // @ts-ignore
+      await handleStream(Y_VEC, processData('y', 'vector', modelRunner));
+      // @ts-ignore
+      await handleStream(GLY_URL, processData(undefined, 'glyph', modelRunner));
+
+      // creates a new state inside the model
+      // run can only instantiate one event loop per thread
+      setModelRunnerState({initialized: true, modelRunner, lastPayloadHash: payloadHash});
+
+      await modelRunner.run();
+      console.log('set lastPayloadHash');
+      console.log('set resize');
+      setResize(150);
+      console.log('set drawer');
+      setDrawer(true);
+    },
+    [handleStream, payloadHash, processData, setDrawer, setModelRunnerState, setResize]
+  );
+
+  /* Initializes and manages the WebGL model on the canvas.
+   * - Loads the WASM module and creates an instance of ModelRunner.
+   * - Sets the modelRunner into the Recoil state for global access.
+   */
   const runRustGlyphEngine = useCallback(
     async (event) => {
       event.stopPropagation();
-      // set initial loading state
-      // setLoading(
-      //   produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-      //     draft.processName = 'Generating Data Model...';
-      //     draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
-      //     draft.processStartTime = new Date();
-      //   })
-      // );
       try {
-        // run glyph engine
-        const retval = await runGlyphEngineAction(project, properties);
-
-        // TODO: need a discriminated union to remove @ts ignore comments
-        // @ts-ignore
-        if (retval && !retval?.error) {
-          // First, handle statistics and vectors concurrently
-          // process stats and vectors before glyphs
-          // await Promise.all([
+        const {lastPayloadHash} = modelRunnerState;
+        // only run if ppayload has changed
+        // if (lastPayloadHash !== payloadHash) {
+        if (!isValidPayload(properties)) {
+          toast.success('Generate a model before applying filters!');
+        } else if (doesStateExist) {
+          // restore project to state properties
+          await updateProjectState(project.id, project.state);
+          await downloadModel(modelData);
+        } else {
+          await updateProjectState(project.id, project.state);
+          // run Rust glyph engine to feed into ModelRunner
+          const retval = await runGlyphEngineAction(project);
+          // TODO: need a discriminated union to remove @ts ignore comments
           // @ts-ignore
-          urlRef.current = retval.GLY_URL;
-          // @ts-ignore
-          await handleStream(retval?.STS_URL, processData(undefined, 'stats'));
-
-          // @ts-ignore
-          await handleStream(retval?.X_VEC, processData('x', 'vector'));
-          // @ts-ignore
-          await handleStream(retval?.Y_VEC, processData('y', 'vector'));
-          // ]);
-          // setTimeout(async () => {
-          //   try {
-          // @ts-ignore
-          await handleStream(retval?.GLY_URL, processData(undefined, 'glyph'));
-          //   } catch (error) {
-          //     console.log({error});
-          //   }
-          // }, 2000);
-
-          // setTimeout(async () => {
-          // try {
-          await modelRunner.run();
-          // } catch (error) {
-          //   console.log('model run error', {error});
-          // }
-          // }, 5000);
+          if (retval && !retval?.error) {
+            // @ts-ignore
+            await downloadModel(retval);
+          }
         }
-
-        //
-
-        // load glyphs
       } catch (error) {
         console.log({error});
       }
     },
-
-    [handleStream, modelRunner, processData, project, properties]
-    // [modelRunner, project, properties, setLoading]
+    [doesStateExist, downloadModel, modelData, modelRunnerState, project, properties]
   );
-
-  const streamGlyph = useCallback(async () => {
-    try {
-      const x_vec_count = modelRunner.get_x_vector_count();
-      const y_vec_count = modelRunner.get_y_vector_count();
-      const stats_count = modelRunner.get_stats_count();
-      const glyph_count = modelRunner.get_glyph_count();
-      console.log({
-        x_vec_count,
-        y_vec_count,
-        stats_count,
-        glyph_count,
-      });
-      // @ts-ignore
-      await handleStream(urlRef.current, processData(undefined, 'glyph'));
-    } catch (error) {
-      console.log({error});
-    }
-  }, [handleStream, modelRunner, processData]);
-
-  const modelRun = useCallback(async () => {
-    try {
-      await modelRunner.run();
-      // } catch (error) {
-      //   console.log('model run error', {error});
-      // }
-    } catch (error) {
-      console.log({error});
-    }
-  }, [modelRunner]);
-
-  const runRust = isWebGPUEnabled && segment === 'CONFIG';
 
   return (
     properties && (
@@ -298,13 +274,11 @@ export const Properties = () => {
               </span>
             </div>
             <button
-              onClick={runRust ? runRustGlyphEngine : handleApply}
+              onClick={runRustGlyphEngine}
               className={`flex items-center bg-gray hover:bg-yellow justify-around px-3 text-xs mr-2 my-2 text-center rounded disabled:opacity-75 text-white`}
             >
               <span>Apply</span>
             </button>
-
-            {/* <PlusIcon className="w-5 h-5 opacity-75 mr-1" /> */}
           </summary>
           {!isCollapsed && (
             <div className={`block border-b border-gray`}>

@@ -22,3 +22,4 @@ export * from './template';
 export * from './sandbox';
 export * from './auth';
 export * from './thresholds';
+export * from './model';

@@ -1,35 +1,41 @@
 'use client';
-import React, {useEffect, useRef, useState} from 'react';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {isRenderedAtom, modelRunnerAtom} from 'state';
-import init, {ModelRunner} from '../../../../../../public/pkg/glyphx_cube_model';
+import React, {useEffect, useRef} from 'react';
+import {useRecoilState} from 'recoil';
+import {modelRunnerAtom} from 'state';
+import {useHotkeys} from 'react-hotkeys-hook';
 
 export const Model = () => {
   const [modelRunnerState, setModelRunnerState] = useRecoilState(modelRunnerAtom);
-  const initializingRef = useRef(false); // Reference to track initialization progress
-  const [style, _] = useState({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    border: 'solid 1px #595E68',
-    background: 'transparent',
-    height: '100%',
-    width: '100%',
-  });
+  const initializingRef = useRef(false); // Reference to track whether mouse events have been setup
 
   useEffect(() => {
     console.log('monitoring', {modelRunnerState});
   }, [modelRunnerState]);
 
+  // setup our keybindings
+  useHotkeys('up', () => {
+    console.log('move model up');
+    modelRunnerState.modelRunner.raise_model(10);
+  });
+  useHotkeys('down', () => {
+    console.log('move model up');
+    modelRunnerState.modelRunner.raise_model(-10);
+  });
+  useHotkeys('left', () => {
+    console.log('move model left');
+    modelRunnerState.modelRunner.shift_model(-10);
+  });
+  useHotkeys('right', () => {
+    console.log('move model right');
+    modelRunnerState.modelRunner.raise_model(10);
+  });
+
   /**
-   * Initializes and manages the WebGL model on the canvas.
-   * - Loads the WASM module and creates an instance of ModelRunner.
-   * - Sets the modelRunner into the Recoil state for global access.
    * - Attaches event listeners to the canvas for interactive model control.
    * - Ensures the model and event listeners are properly cleaned up.
    */
   useEffect(() => {
-    if (!modelRunnerState.initialized && !initializingRef.current) {
+    if (modelRunnerState.initialized && !initializingRef.current) {
       initializingRef.current = true;
       let isDragRotate = false;
       console.log('within conditional', {modelRunnerState});
@@ -69,13 +75,6 @@ export const Model = () => {
 
       const run = async () => {
         try {
-          // Load the WASM module and create a new ModelRunner instance.
-          await init();
-          console.log('WASM Loaded');
-          const modelRunner = new ModelRunner();
-          console.log('ModelRunner created');
-          setModelRunnerState({initialized: true, modelRunner});
-
           const canvas = document.getElementById('glyphx-cube-model');
           if (!canvas) {
             console.log('Canvas not found');
@@ -97,8 +96,8 @@ export const Model = () => {
           handleMouseMove = (e) => {
             if (isDragRotate) {
               console.log('mouse move', e);
-              modelRunner.add_yaw(-e.movementX);
-              modelRunner.add_pitch(e.movementY);
+              modelRunnerState.modelRunner.add_yaw(-e.movementX);
+              modelRunnerState.modelRunner.add_pitch(e.movementY);
             }
           };
 
@@ -112,7 +111,7 @@ export const Model = () => {
           // Function to handle wheel events on the canvas.
           handleWheel = (e) => {
             e.preventDefault();
-            modelRunner.add_distance(-e.deltaY);
+            modelRunnerState.modelRunner.add_distance(-e.deltaY);
           };
 
           canvas.addEventListener('mousedown', handleMouseDown);
@@ -122,13 +121,14 @@ export const Model = () => {
 
           // await modelRunner.run();
         } catch (error) {
-          console.error('Failed to initialize or run modelRunner:', error);
+          console.error('Failed to initialize mouse events:', error);
         }
       };
 
-      run().then(() => {
-        initializingRef.current = false; // Reset the flag once initialization is complete
-      });
+      run();
+      // run().then(() => {
+      //   initializingRef.current = false; // Reset the flag once initialization is complete
+      // });
 
       // Clean-up function to remove event listeners and other potential states.
       return () => {
@@ -139,25 +139,16 @@ export const Model = () => {
           canvas.removeEventListener('mouseup', handleMouseUp);
           canvas.removeEventListener('wheel', handleWheel);
         }
-
         // remove resize listener
         window.removeEventListener('resize', resizeCanvas);
-
-        //TODO: do we need to clean up th model?
-        // if (modelRunner && modelRunner.dispose) {
-        //   modelRunner.dispose();
-        // }
         console.log('Cleanup done');
       };
     }
-    // It's crucial to keep the dependency array empty to avoid re-running this effect unnecessarily.
   }, [modelRunnerState, setModelRunnerState]);
 
   return (
     <div className="relative h-full w-full flex items-center justify-center">
-      {/* <Resizable minHeight={600} style={style}> */}
       <div id="glyphx-cube-model" className="h-full w-full bg-[#414d66]"></div>
-      {/* </Resizable> */}
     </div>
   );
 };

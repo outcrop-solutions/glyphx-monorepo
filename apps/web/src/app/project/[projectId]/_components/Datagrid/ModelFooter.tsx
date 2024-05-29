@@ -4,6 +4,7 @@ import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {
   drawerOpenAtom,
   hasDrawerBeenShownAtom,
+  modelRunnerAtom,
   orientationAtom,
   projectAtom,
   showLoadingAtom,
@@ -15,12 +16,14 @@ import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
 import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
 import {useSession} from 'next-auth/react';
 import {useUrl} from 'lib/client/hooks';
+import {RefreshIcon} from '@heroicons/react/outline';
 
 export const ModelFooter = () => {
   // const { mutate } = useSWRConfig();
   // ensures we don't pre-render the server
   const [isClient, setIsClient] = useState(false);
   const [hasDrawerBeenShown, setHasDrawerBeenShown] = useRecoilState(hasDrawerBeenShownAtom);
+  const {modelRunner} = useRecoilValue(modelRunnerAtom);
 
   useEffect(() => {
     setIsClient(true);
@@ -82,6 +85,11 @@ export const ModelFooter = () => {
             Glyph Viewer
           </div>
         </div>
+        {/* <div className="flex items-center space-x-2">
+          <div onClick={() => modelRunner.reset_camera()} className="hover:bg-gray rounded mr-2">
+            <RefreshIcon className="h-4 w-4 m-2" />
+          </div>
+        </div> */}
       </div>
     )
   );
