@@ -3,7 +3,7 @@ import React, {useCallback, useEffect, useRef} from 'react';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+import {useRecoilState, useSetRecoilState} from 'recoil';
 import {
   activeStateAtom,
   cameraAtom,
@@ -14,21 +14,16 @@ import {
   rightSidebarControlAtom,
   rowIdsAtom,
   showLoadingAtom,
-  splitPaneSizeAtom,
   templatesAtom,
   workspaceAtom,
 } from 'state';
-import {useSendPosition, useWindowSize} from 'services';
-import {useCloseViewerOnModalOpen} from 'services/useCloseViewerOnModalOpen';
-import {useCloseViewerOnLoading} from 'services/useCloseViewerOnLoading';
+import {useWindowSize} from 'services';
 import useTemplates from 'lib/client/hooks/useTemplates';
-import useProject from 'lib/client/hooks/useProject';
 // Live Page Structure
 import {LiveMap} from '@liveblocks/client';
 import {InitialDocumentProvider} from 'collab/lib/client';
 import {RoomProvider} from 'liveblocks.config';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
-import {annotationResourceIdSelector} from 'state/annotations';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
 import {useSession} from 'next-auth/react';
 import {useUrl} from 'lib/client/hooks';
@@ -66,9 +61,6 @@ export const ProjectProvider = ({
 
   // resize setup
   useWindowSize();
-  useSendPosition();
-  useCloseViewerOnModalOpen();
-  useCloseViewerOnLoading();
 
   const setWorkspace = useSetRecoilState(workspaceAtom);
   const setRowIds = useSetRecoilState(rowIdsAtom);
@@ -78,7 +70,6 @@ export const ProjectProvider = ({
   const setCamera = useSetRecoilState(cameraAtom);
   const setImageHash = useSetRecoilState(imageHashAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
-  const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setActiveState = useSetRecoilState(activeStateAtom);
 
@@ -152,7 +143,6 @@ export const ProjectProvider = ({
         url,
         setLoading,
         setDrawer,
-        setResize,
         camera,
       });
       setActiveState(idx);

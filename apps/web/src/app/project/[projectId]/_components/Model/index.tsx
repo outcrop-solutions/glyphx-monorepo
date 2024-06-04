@@ -3,6 +3,7 @@ import React, {useEffect, useRef} from 'react';
 import {useRecoilState} from 'recoil';
 import {modelRunnerAtom} from 'state';
 import {useHotkeys} from 'react-hotkeys-hook';
+import {resizeCanvas} from './utils';
 
 export const Model = () => {
   const [modelRunnerState, setModelRunnerState] = useRecoilState(modelRunnerAtom);
@@ -41,32 +42,6 @@ export const Model = () => {
       console.log('within conditional', {modelRunnerState});
 
       // Update the canvas size to maintain the aspect ratio and fit its container
-      const resizeCanvas = () => {
-        const canvas = document.getElementById('cube_model') as HTMLCanvasElement;
-        const container = canvas?.parentElement;
-        if (container) {
-          // Use clientWidth and clientHeight for the container's size, which includes padding
-          const containerWidth = container.clientWidth;
-          const containerHeight = container.clientHeight;
-
-          // Calculate the aspect ratio of the canvas
-          const aspectRatio = canvas.width / canvas.height;
-
-          // Calculate the new dimensions while maintaining the aspect ratio
-          let newWidth, newHeight;
-          if (containerWidth / containerHeight > aspectRatio) {
-            newHeight = containerHeight;
-            newWidth = containerHeight * aspectRatio;
-          } else {
-            newWidth = containerWidth;
-            newHeight = containerWidth / aspectRatio;
-          }
-
-          // Set the canvas dimensions in CSS to scale it properly
-          canvas.style.width = `${newWidth}px`;
-          canvas.style.height = `${newHeight}px`;
-        }
-      };
 
       let handleMouseMove;
       let handleMouseUp;
@@ -75,7 +50,7 @@ export const Model = () => {
 
       const run = async () => {
         try {
-          const canvas = document.getElementById('glyphx-cube-model');
+          const canvas = document.getElementById('cube_model') as HTMLCanvasElement;
           if (!canvas) {
             console.log('Canvas not found');
             return;
@@ -83,9 +58,10 @@ export const Model = () => {
           console.log('Canvas obtained', canvas);
 
           // Call this function to resize the canvas whenever the window is resized
-          window.addEventListener('resize', resizeCanvas);
+          window.addEventListener('resize', resizeCanvas(canvas));
           // Initial resize on load
-          resizeCanvas();
+          resizeCanvas(canvas);
+          await modelRunnerState.modelRunner.run(1000, 1500);
 
           // Function to handle mouse down events on the canvas.
           handleMouseDown = () => {
@@ -132,7 +108,7 @@ export const Model = () => {
 
       // Clean-up function to remove event listeners and other potential states.
       return () => {
-        const canvas = document.getElementById('glyphx-cube-model');
+        const canvas = document.getElementById('cube_model') as HTMLCanvasElement;
         if (canvas) {
           canvas.removeEventListener('mousedown', handleMouseDown);
           canvas.removeEventListener('mousemove', handleMouseMove);
@@ -140,7 +116,7 @@ export const Model = () => {
           canvas.removeEventListener('wheel', handleWheel);
         }
         // remove resize listener
-        window.removeEventListener('resize', resizeCanvas);
+        window.removeEventListener('resize', resizeCanvas(canvas));
         console.log('Cleanup done');
       };
     }

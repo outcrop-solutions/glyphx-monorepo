@@ -19,7 +19,6 @@ export const OrientationToggle = () => {
   const handleOrientation = useCallback(() => {
     if (orientation === 'horizontal') {
       setDrawer(true);
-      window?.core?.ToggleDrawer(true);
       setPaneSize(400);
     }
     setOrientation(

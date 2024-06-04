@@ -17,7 +17,6 @@ export const Logo = () => {
       <div
         onClick={() => {
           setDrawer(false);
-          window?.core?.ToggleDrawer(false);
         }}
         className={`py-1 ${projectId ? 'justify-center' : ''}`}
       >

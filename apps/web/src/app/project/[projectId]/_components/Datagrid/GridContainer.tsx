@@ -1,18 +1,18 @@
 'use client';
-import React, {useEffect, useState} from 'react';
-import {useRecoilValue} from 'recoil';
+import React, {useCallback, useEffect, useState} from 'react';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {MainDropzone} from '../ProjectSidebar/_components/files';
 import {Datagrid} from './DataGrid';
 import {GridHeader} from './GridHeader';
 import {ModelFooter} from './ModelFooter';
-
 import {filesOpenSelector} from 'state/files';
-import {useResize} from 'services/useResize';
-import {modelRunnerAtom, orientationAtom, projectAtom, splitPaneSizeAtom, stateSelector, windowSizeAtom} from 'state';
+import {modelRunnerAtom, orientationAtom, splitPaneSizeAtom, windowSizeAtom} from 'state';
 import SplitPane from 'react-split-pane';
 import {Model} from '../Model';
 import {CameraIcon, HomeIcon, RefreshIcon} from '@heroicons/react/outline';
 import {Move3D} from 'lucide-react';
+import {screenshotModel} from '../Model/utils';
+import {debounce} from 'lodash';
 
 export const GridContainer = () => {
   // ensures we don't pre-render the server
@@ -22,14 +22,21 @@ export const GridContainer = () => {
   }, []);
 
   const modelRunnerState = useRecoilValue(modelRunnerAtom);
-
   const openFiles = useRecoilValue(filesOpenSelector);
-  const activeState = useRecoilValue(stateSelector);
-  const project = useRecoilValue(projectAtom);
   const orientation = useRecoilValue(orientationAtom);
   const {height} = useRecoilValue(windowSizeAtom);
-  const {handlePaneResize, defaultSize, maxSize, minSize, split} = useResize();
-  const resize = useRecoilValue(splitPaneSizeAtom);
+  const setResize = useSetRecoilState(splitPaneSizeAtom);
+
+  const debouncedOnChange = debounce((data) => {
+    setResize(data);
+  }, 50);
+
+  const handlePaneResize = useCallback(
+    (size) => {
+      debouncedOnChange(size);
+    },
+    [debouncedOnChange]
+  );
 
   const getPaneHeight = () => {
     if (height) {
@@ -41,57 +48,6 @@ export const GridContainer = () => {
     }
   };
 
-  const handleCapture = () => {
-    const canvas = document.getElementById('cube_model') as HTMLCanvasElement;
-    const gl = canvas.getContext('webgl2', {preserveDrawingBuffer: true});
-
-    if (!gl) {
-      console.error('Unable to obtain WebGL context');
-      return;
-    }
-
-    const width = canvas.width;
-    const height = canvas.height;
-    const pixels = new Uint8Array(width * height * 4);
-
-    requestAnimationFrame(() => {
-      gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-
-      if (pixels.some((byte) => byte !== 0)) {
-        console.log('Data captured!');
-
-        // WebGL's coordinate system starts from the bottom left corner, while the typical image and canvas coordinate systems start from the top left corner. To correct this, you need to flip the image data vertically after capturing it but before using it
-
-        // Flip the image data vertically
-        const flippedPixels = new Uint8Array(width * height * 4);
-        for (let y = 0; y < height; y++) {
-          for (let x = 0; x < width; x++) {
-            for (let c = 0; c < 4; c++) {
-              flippedPixels[(x + (height - 1 - y) * width) * 4 + c] = pixels[(x + y * width) * 4 + c];
-            }
-          }
-        }
-
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = width;
-        tempCanvas.height = height;
-        const tempContext = tempCanvas.getContext('2d');
-        const imageData = new ImageData(new Uint8ClampedArray(flippedPixels), width, height);
-        tempContext?.putImageData(imageData, 0, 0);
-
-        // Download or use the image data as needed
-        const dataUrl = tempCanvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.href = dataUrl;
-        link.download = 'canvas-screenshot.png';
-        link.click();
-      } else {
-        console.log('No data captured, trying again...');
-        requestAnimationFrame(handleCapture); // Try again
-      }
-    });
-  };
-
   return (
     isClient && (
       <div className="relative h-full w-full border-r border-gray">
@@ -99,12 +55,11 @@ export const GridContainer = () => {
         {/* @ts-ignore */}
         <SplitPane
           style={{overflow: 'scroll', height: `${getPaneHeight()}px`}}
-          key={resize}
-          split={split()}
+          split={orientation}
           allowResize={true}
-          defaultSize={defaultSize()}
-          maxSize={maxSize()} // window.innerHeght - headers
-          minSize={minSize()} // needed to always show col headers
+          defaultSize={100}
+          maxSize={7000}
+          minSize={70}
           onChange={handlePaneResize}
           primary={'first'}
         >
@@ -119,7 +74,6 @@ export const GridContainer = () => {
             )}
           </div>
 
-          {/* <div className={`${orientation === 'vertical' ? 'w-full' : 'h-2/3 w-2/3'} object-scale-down p-20 mx-auto`}> */}
           <div className="h-full w-full relative">
             <div className="absolute left-2 top-12 flex-col items-center space-y-2 z-[9999] pt-2">
               <div
@@ -135,7 +89,7 @@ export const GridContainer = () => {
                 <Move3D className="h-5 w-5" />
               </div>
               <div
-                onClick={handleCapture}
+                onClick={screenshotModel}
                 className="hover:bg-gray bg-secondary-blue rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
               >
                 <CameraIcon className="h-5 w-5" />
@@ -169,24 +123,6 @@ export const GridContainer = () => {
             </div>
             <Model />
           </div>
-
-          {/* <Image
-                src={
-                  activeState?.imageHash
-                    ? `data:image/png;base64,${activeState.imageHash}`
-                    : project.imageHash && `data:image/png;base64,${project.imageHash}`
-                }
-                width={
-                  activeState?.aspectRatio?.width ? activeState?.aspectRatio?.width : project?.aspectRatio?.width || 300
-                }
-                height={
-                  activeState?.aspectRatio?.height
-                    ? activeState?.aspectRatio?.height
-                    : project?.aspectRatio?.height || 200
-                }
-                alt="model"
-              /> */}
-          {/* </div> */}
         </SplitPane>
       </div>
     )

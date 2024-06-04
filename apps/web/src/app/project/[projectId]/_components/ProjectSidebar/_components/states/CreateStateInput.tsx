@@ -14,10 +14,7 @@ export const CreateStateInput = ({isSubmitting, name, setName}) => {
   // mutations
   const createState = async (event) => {
     event.preventDefault();
-    if (window?.core) {
-      window?.core?.GetCameraPosition(true);
-      window?.core?.TakeScreenShot('');
-    }
+    // TODO: add state creation logic here now that we don't need the useSocket loop of death
   };
 
   return (

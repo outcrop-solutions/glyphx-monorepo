@@ -197,12 +197,19 @@ export const Properties = () => {
       // run can only instantiate one event loop per thread
       setModelRunnerState({initialized: true, modelRunner, lastPayloadHash: payloadHash});
 
-      await modelRunner.run();
+      const canvasContainer = document.getElementById('glyphx-cube-model');
+
       console.log('set lastPayloadHash');
       console.log('set resize');
-      setResize(150);
+      // setResize(150);
       console.log('set drawer');
-      setDrawer(true);
+      // setDrawer(true);
+      const width = canvasContainer!.clientWidth;
+      const height = canvasContainer!.clientHeight;
+
+      await modelRunner.run(1000, 1500);
+
+      const canvas = document.getElementById('cube_model') as HTMLCanvasElement;
     },
     [handleStream, payloadHash, processData, setDrawer, setModelRunnerState, setResize]
   );

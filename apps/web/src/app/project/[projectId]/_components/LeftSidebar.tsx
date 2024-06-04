@@ -29,7 +29,6 @@ const LeftSidebar = () => {
           <div
             onClick={() => {
               setDrawer(false);
-              window?.core?.ToggleDrawer(false);
             }}
             className={`py-1 ${projectId ? 'justify-center' : ''}`}
           >
@@ -61,7 +60,6 @@ const LeftSidebar = () => {
             <>
               <div
                 onClick={() => {
-                  window?.core?.ToggleDrawer(false);
                   setSegment('CONFIG');
                 }}
                 className={`p-2 rounded ${segment === 'CONFIG' && 'bg-nav'}`}

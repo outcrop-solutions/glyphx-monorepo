@@ -2,7 +2,6 @@
 import produce from 'immer';
 import {databaseTypes} from 'types';
 import {WritableDraft} from 'immer/dist/internal';
-import {_createOpenProject} from 'lib/client/mutations';
 import {glyphEngine, signDataUrls} from 'actions';
 
 export const callCreateModel = async ({
@@ -43,14 +42,9 @@ export const callCreateModel = async ({
 
       if (!signedUrls?.error) {
         setLoading({});
-        if (window?.core) {
-          setResize(150);
-          setDrawer(true);
-
-          window?.core?.OpenProject(
-            _createOpenProject(signedUrls as {sdtUrl: any; sgcUrl: any; sgnUrl: any}, project, session, url, true, [])
-          );
-        }
+        // open project
+        setResize(150);
+        setDrawer(true);
       } else {
         setLoading(
           produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {

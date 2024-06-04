@@ -5,7 +5,7 @@ import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {projectAtom, rowIdsAtom} from 'state/project';
 import {PlusIcon} from '@heroicons/react/outline';
 import {CreateStateInput} from './CreateStateInput';
-import {cameraAtom, imageHashAtom, viewerPositionSelector} from 'state';
+import {cameraAtom, imageHashAtom} from 'state';
 import {useSWRConfig} from 'swr';
 import {webTypes} from 'types';
 import useApplyState from 'services/useApplyState';
@@ -22,7 +22,6 @@ export const States = () => {
   const setProject = useSetRecoilState(projectAtom);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState('Initial State');
-  const viewerPosition = useRecoilValue(viewerPositionSelector);
   const {applyState} = useApplyState();
 
   const callCreateState = async (camera, image, project) => {
@@ -30,8 +29,8 @@ export const States = () => {
       if (Object.keys(camera).length > 0 && image.imageHash) {
         setIsSubmitting(true);
         const aspect = {
-          width: (viewerPosition as webTypes.IViewerPosition).w || 300,
-          height: (viewerPosition as webTypes.IViewerPosition).h || 200,
+          width: 300,
+          height: 200,
         };
         const rows = (rowIds ? rowIds : []) as unknown as number[];
         const newProject = await createState(name, camera as webTypes.Camera, project, image.imageHash, aspect, rows);

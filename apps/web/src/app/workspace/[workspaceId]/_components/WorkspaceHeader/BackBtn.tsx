@@ -13,8 +13,7 @@ export const BackBtn = () => {
 
   const backPressed = () => {
     router.push(`/workspace/${project?.workspace.id}` as Route);
-    setDrawer(false);
-    window?.core?.ToggleDrawer(false);
+    setDrawer(false)
     setProject(null);
   };
 

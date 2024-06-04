@@ -2,7 +2,6 @@
 import produce from 'immer';
 import {databaseTypes} from 'types';
 import {WritableDraft} from 'immer/dist/internal';
-import {_createOpenProject} from 'lib/client/mutations';
 import {glyphEngine, signDataUrls} from 'actions';
 
 export const callCreateModel = async ({project, payloadHash, setLoading, setDrawer, setResize}) => {
@@ -33,11 +32,10 @@ export const callCreateModel = async ({project, payloadHash, setLoading, setDraw
 
       if (!signedUrls?.error) {
         setLoading({});
-        if (window?.core) {
-          setResize(150);
-          setDrawer(true);
-          // TODO: pass in complete vectors to the model
-        }
+
+        setResize(150);
+        setDrawer(true);
+        // TODO: pass in complete vectors to the model
       } else {
         setLoading(
           produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {

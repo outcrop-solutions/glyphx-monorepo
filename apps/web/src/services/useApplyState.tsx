@@ -13,7 +13,6 @@ import {
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
-import {_createOpenProject} from 'lib';
 import {useUrl} from 'lib/client/hooks';
 import {isNullCamera} from 'lib/utils/isNullCamera';
 import {databaseTypes} from 'types';
@@ -42,12 +41,8 @@ const useApplyState = () => {
         return;
       }
       setActiveState(idx);
-
-      if (window && window?.core) {
-        setResize(150);
-        setDrawer(true);
-        // return;
-      }
+      setResize(150);
+      setDrawer(true);
 
       // only apply state if not loading
       if (!(Object.keys(loading).length > 0)) {
@@ -55,14 +50,13 @@ const useApplyState = () => {
           ? newProject.stateHistory?.filter((state) => !state.deletedAt)
           : project.stateHistory.filter((state) => !state.deletedAt);
 
-        const payload = filteredStates[idx];
-        const payloadHash = payload.payloadHash;
-        const properties = payload.properties;
-        const camera = payload.camera;
-        const ids = payload.rowIds ?? [];
+        const state = filteredStates[idx];
+        const payloadHash = state.payloadHash;
+        const properties = state.properties;
+        const camera = state.camera;
+        const ids = state.rowIds ?? [];
         const rowIds = convertRowIds(ids);
 
-        const isNullCam = isNullCamera(camera);
         const signedUrls = await signDataUrls(project?.workspace.id, project?.id, payloadHash);
 
         if (!signedUrls?.error) {
@@ -74,21 +68,11 @@ const useApplyState = () => {
               draft.stateHistory = filteredStates;
             })
           );
-          if (window?.core) {
-            setResize(150);
-            setDrawer(true);
-            window?.core?.OpenProject(
-              _createOpenProject(
-                signedUrls as {sdtUrl: any; sgcUrl: any; sgnUrl: any},
-                project,
-                session,
-                url,
-                false,
-                rowIds,
-                isNullCam ? undefined : camera
-              )
-            );
-          }
+
+          //open project
+          setResize(150);
+          setDrawer(true);
+
           // flush state to avoid createState retriggering by passing our Object.keys(camera).length > 0 && image.imageHash condition on line 31 of States.tsx
           setImageHash({
             imageHash: false,
