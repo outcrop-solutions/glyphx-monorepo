@@ -3,7 +3,6 @@ import React, {useEffect, useRef} from 'react';
 import {useRecoilState} from 'recoil';
 import {modelRunnerAtom} from 'state';
 import {useHotkeys} from 'react-hotkeys-hook';
-import {resizeCanvas} from './utils';
 
 export const Model = () => {
   const [modelRunnerState, setModelRunnerState] = useRecoilState(modelRunnerAtom);
@@ -48,20 +47,51 @@ export const Model = () => {
       let handleMouseDown;
       let handleWheel;
 
+      // const resizeCanvas = () => () => {
+      //   const canvas = document.getElementById('cube_model') as HTMLCanvasElement;
+      //   const container = canvas?.parentElement;
+      //   if (container) {
+      //     // Use clientWidth and clientHeight for the container's size, which includes padding
+      //     const containerWidth = container.clientWidth;
+      //     const containerHeight = container.clientHeight;
+
+      //     // Calculate the aspect ratio of the canvas
+      //     const aspectRatio = canvas.width / canvas.height;
+
+      //     // Calculate the new dimensions while maintaining the aspect ratio
+      //     let newWidth, newHeight;
+      //     if (containerWidth / containerHeight > aspectRatio) {
+      //       newHeight = containerHeight;
+      //       newWidth = containerHeight * aspectRatio;
+      //     } else {
+      //       newWidth = containerWidth;
+      //       newHeight = containerWidth / aspectRatio;
+      //     }
+
+      //     // Set the canvas dimensions in CSS to scale it properly
+      //     canvas.style.width = `100%`;
+      //     canvas.style.height = `100%`;
+      //   }
+      // };
+
       const run = async () => {
         try {
-          const canvas = document.getElementById('cube_model') as HTMLCanvasElement;
-          if (!canvas) {
+          const canvasParent = document.getElementById('glyphx-cube-model');
+          if (!canvasParent) {
             console.log('Canvas not found');
             return;
           }
-          console.log('Canvas obtained', canvas);
+          console.log('Canvas obtained', canvasParent);
 
-          // Call this function to resize the canvas whenever the window is resized
-          window.addEventListener('resize', resizeCanvas(canvas));
-          // Initial resize on load
-          resizeCanvas(canvas);
-          await modelRunnerState.modelRunner.run(1000, 1500);
+          const canvas = document.getElementById('cube-model') as HTMLCanvasElement;
+          // Set the canvas dimensions in CSS to scale it properly
+          canvas.style.width = `100%`;
+          canvas.style.height = `100%`;
+          // // Call this function to resize the canvas whenever the window is resized
+          // window.addEventListener('resize', resizeCanvas);
+          // // Initial resize on load
+          // resizeCanvas();
+          // await modelRunnerState.modelRunner.run(1000, 1500);
 
           // Function to handle mouse down events on the canvas.
           handleMouseDown = () => {
@@ -90,10 +120,10 @@ export const Model = () => {
             modelRunnerState.modelRunner.add_distance(-e.deltaY);
           };
 
-          canvas.addEventListener('mousedown', handleMouseDown);
-          canvas.addEventListener('mousemove', handleMouseMove);
-          canvas.addEventListener('mouseup', handleMouseUp);
-          canvas.addEventListener('wheel', handleWheel, {passive: false});
+          canvasParent.addEventListener('mousedown', handleMouseDown);
+          canvasParent.addEventListener('mousemove', handleMouseMove);
+          canvasParent.addEventListener('mouseup', handleMouseUp);
+          canvasParent.addEventListener('wheel', handleWheel, {passive: false});
 
           // await modelRunner.run();
         } catch (error) {
@@ -116,7 +146,7 @@ export const Model = () => {
           canvas.removeEventListener('wheel', handleWheel);
         }
         // remove resize listener
-        window.removeEventListener('resize', resizeCanvas(canvas));
+        // window.removeEventListener('resize', resizeCanvas);
         console.log('Cleanup done');
       };
     }

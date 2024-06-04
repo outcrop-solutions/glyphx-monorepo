@@ -7,6 +7,7 @@ import {useRecoilValue} from 'recoil';
 import {rowIdsAtom} from 'state';
 import useDataGrid from 'lib/client/hooks/useDataGrid';
 import LoadingBar from 'app/_components/Loaders/LoadingBar';
+import 'react-data-grid/lib/styles.css';
 
 const ReactDataGrid = dynamic(() => import('react-data-grid'), {
   ssr: false,
@@ -62,7 +63,12 @@ export const Datagrid = () => {
     return data
       ? data.columns?.map((c) => {
           if (c.key === 'id') return c;
-          return {...c, headerRenderer: HeaderRenderer};
+          return {
+            ...c,
+            // width: 35,
+            renderHeaderCell: HeaderRenderer, // Ensure name is defined and is a string or React element
+            name: (c.name || 'Unnamed Column') as string,
+          };
         })
       : [];
   }, [data]);
@@ -89,15 +95,15 @@ export const Datagrid = () => {
     }
   }, 100);
 
-  return data.rows.length > 0 ? (
-    <div className="h-full w-full" ref={ref}>
+  return data.rows?.length > 0 ? (
+    <div className="h-full w-full bg-primary-dark-blue" ref={ref}>
       <ReactDataGrid
-        //@ts-ignore
         onScroll={(e) => debouncedScroll(e)}
+        // @ts-ignore
         columns={draggableColumns}
+        rows={data.rows}
         rowGetter={(i) => data.rows[i]}
-        rowsCount={data.rows.length}
-        minHeight={window.innerHeight - 88}
+        rowsCount={data.rows?.length}
       />
     </div>
   ) : (

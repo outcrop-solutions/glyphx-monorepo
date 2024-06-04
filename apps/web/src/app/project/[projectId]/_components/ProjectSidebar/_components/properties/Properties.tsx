@@ -62,7 +62,6 @@ export const Properties = () => {
           url,
           setLoading,
           setDrawer,
-          setResize,
         });
       } else {
         await callCreateModel({
@@ -197,21 +196,16 @@ export const Properties = () => {
       // run can only instantiate one event loop per thread
       setModelRunnerState({initialized: true, modelRunner, lastPayloadHash: payloadHash});
 
-      const canvasContainer = document.getElementById('glyphx-cube-model');
+      // const canvasContainer = document.getElementById('glyphx-cube-model');
 
+      await modelRunner.run(1000, 1500);
       console.log('set lastPayloadHash');
       console.log('set resize');
       // setResize(150);
       console.log('set drawer');
       // setDrawer(true);
-      const width = canvasContainer!.clientWidth;
-      const height = canvasContainer!.clientHeight;
-
-      await modelRunner.run(1000, 1500);
-
-      const canvas = document.getElementById('cube_model') as HTMLCanvasElement;
     },
-    [handleStream, payloadHash, processData, setDrawer, setModelRunnerState, setResize]
+    [handleStream, payloadHash, processData, setModelRunnerState]
   );
 
   /* Initializes and manages the WebGL model on the canvas.

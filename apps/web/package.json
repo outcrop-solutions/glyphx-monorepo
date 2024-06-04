@@ -99,7 +99,7 @@
     "react-color": "^2.19.3",
     "react-copy-to-clipboard": "^5.1.0",
     "react-csv": "^2.2.2",
-    "react-data-grid": "6.1.0",
+    "react-data-grid": "7.0.0-beta.44",
     "react-dnd": "^13.1.1",
     "react-dnd-html5-backend": "^14.0.2",
     "react-dom": "18.2.0",

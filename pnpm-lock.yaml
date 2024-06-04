@@ -148,7 +148,7 @@ importers:
       react-color: ^2.19.3
       react-copy-to-clipboard: ^5.1.0
       react-csv: ^2.2.2
-      react-data-grid: 6.1.0
+      react-data-grid: 7.0.0-beta.44
       react-dnd: ^13.1.1
       react-dnd-html5-backend: ^14.0.2
       react-dom: 18.2.0
@@ -278,7 +278,7 @@ importers:
       react-color: 2.19.3_react@18.2.0
       react-copy-to-clipboard: 5.1.0_react@18.2.0
       react-csv: 2.2.2
-      react-data-grid: 6.1.0_biqbaboplfbrettd7655fr4n2y
+      react-data-grid: 7.0.0-beta.44_biqbaboplfbrettd7655fr4n2y
       react-dnd: 13.1.1_2vrpbrpfvom2aa5snvzcwpsf4q
       react-dnd-html5-backend: 14.1.0
       react-dom: 18.2.0_react@18.2.0
@@ -18816,17 +18816,15 @@ packages:
     resolution: {integrity: sha512-RG5hOcZKZFigIGE8LxIEV/OgS1vigFQT4EkaHeKgyuCbUAu9Nbd/1RYq++bJcJJ9VOqO/n9TZRADsXNDR4VEpw==}
     dev: false
 
-  /react-data-grid/6.1.0_biqbaboplfbrettd7655fr4n2y:
-    resolution: {integrity: sha512-N1UtiHvsowEPzhx0VPqQKvGgSza/YNljczbisFDGMjawiGApS2taMv7h+EDXDx49CdaA6ur4eYS0z10x63IUpw==}
+  /react-data-grid/7.0.0-beta.44_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-VTql8VPBJEf7E+zkrqYW+jaQT1/m47dxigWzPq59QESJ8LhU59kHyzIx06BUpjdZKdK/tzbWaw2yyJpKoNnt5g==}
     peerDependencies:
-      react: ^16.0.0
-      react-dom: ^16.0.0
+      react: ^18.0
+      react-dom: ^18.0
     dependencies:
-      object-assign: 4.1.1
+      clsx: 2.1.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-      react-is-deprecated: 0.1.2
-      shallowequal: 1.1.0
     dev: false
 
   /react-dnd-html5-backend/14.1.0:
@@ -19008,10 +19006,6 @@ packages:
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-    dev: false
-
-  /react-is-deprecated/0.1.2:
-    resolution: {integrity: sha512-n3Y04lqbuwMiSywwAKBwW89YxAPuFwS5tYA4L6wDGLQCdSsod1KSfzCIiTTUvS9hPdaB39HdvxjxAaS0Lk4h+A==}
     dev: false
 
   /react-is/16.13.1:
@@ -19852,10 +19846,6 @@ packages:
   /setprototypeof/1.2.0:
     resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
     dev: true
-
-  /shallowequal/1.1.0:
-    resolution: {integrity: sha512-y0m1JoUZSlPAjXVtPPW70aZWfIL/dSP7AFkRnniLCrK/8MDKog3TySTBmckD+RObVxH0v4Tox67+F14PdED2oQ==}
-    dev: false
 
   /sharp/0.32.6:
     resolution: {integrity: sha512-KyLTWwgcR9Oe4d9HwCwNM2l7+J0dUQwn/yf7S0EnTtb0eVS4RxO0eUSvxPtzT4F3SY+C4K6fqdv/DO27sJ/v/w==}

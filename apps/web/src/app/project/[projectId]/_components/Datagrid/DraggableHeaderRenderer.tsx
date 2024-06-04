@@ -84,13 +84,7 @@ export function DraggableHeaderRenderer({column, sortDirection, priority, isCell
         isDragging ? 'opacity-80' : 'opacity-100'
       } flex items-center justify-center truncate h-[30px] my-1  ${isOver ? 'bg-blue-500' : ''}`}
     >
-      <SortableHeaderCell
-        // @ts-ignore
-        sortDirection={sortDirection}
-        onSort={sort}
-        priority={priority}
-        isCellSelected={isCellSelected}
-      >
+      <SortableHeaderCell onSort={sort} isCellSelected={isCellSelected}>
         {renderColumnTitle(column)}
       </SortableHeaderCell>
     </div>

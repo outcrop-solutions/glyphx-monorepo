@@ -38,6 +38,7 @@ div[class='react-grid-Viewport'] {
 
 div[class='react-grid-Canvas'] {
   @apply bg-primary-dark-blue h-full text-white rounded w-full p-0 text-center;
+  /* @apply bg-primary-dark-blue h-full text-white rounded w-full p-0 text-center; */
 }
 canvas {
   background-color: black;

@@ -1,29 +1,3 @@
-export const resizeCanvas = (canvas: HTMLCanvasElement) => () => {
-  const container = canvas?.parentElement;
-  if (container) {
-    // Use clientWidth and clientHeight for the container's size, which includes padding
-    const containerWidth = container.clientWidth;
-    const containerHeight = container.clientHeight;
-
-    // Calculate the aspect ratio of the canvas
-    const aspectRatio = canvas.width / canvas.height;
-
-    // Calculate the new dimensions while maintaining the aspect ratio
-    let newWidth, newHeight;
-    if (containerWidth / containerHeight > aspectRatio) {
-      newHeight = containerHeight;
-      newWidth = containerHeight * aspectRatio;
-    } else {
-      newWidth = containerWidth;
-      newHeight = containerWidth / aspectRatio;
-    }
-
-    // Set the canvas dimensions in CSS to scale it properly
-    canvas.style.width = `${newWidth}px`;
-    canvas.style.height = `${newHeight}px`;
-  }
-};
-
 export const screenshotModel = () => {
   const canvas = document.getElementById('cube_model') as HTMLCanvasElement;
   const gl = canvas.getContext('webgl2', {preserveDrawingBuffer: true});
