@@ -107,6 +107,10 @@ div[role='grid'] {
   @apply bg-primary-dark-blue overflow-scroll flex-col flex-grow scrollbar-thin scrollbar-thumb-yellow scrollbar-thumb-rounded-full;
 }
 
+canvas {
+  @apply w-full h-full;
+}
+
 ::-webkit-scrollbar {
   width: 4px;
   height: 10px;

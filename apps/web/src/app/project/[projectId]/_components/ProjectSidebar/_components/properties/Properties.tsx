@@ -192,13 +192,12 @@ export const Properties = () => {
       // @ts-ignore
       await handleStream(GLY_URL, processData(undefined, 'glyph', modelRunner));
 
+      // const canvasContainer = document.getElementById('glyphx-cube-model');
+
+      await modelRunner.run();
       // creates a new state inside the model
       // run can only instantiate one event loop per thread
       setModelRunnerState({initialized: true, modelRunner, lastPayloadHash: payloadHash});
-
-      // const canvasContainer = document.getElementById('glyphx-cube-model');
-
-      await modelRunner.run(1000, 1500);
       console.log('set lastPayloadHash');
       console.log('set resize');
       // setResize(150);

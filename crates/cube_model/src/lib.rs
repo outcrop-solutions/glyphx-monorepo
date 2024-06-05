@@ -379,13 +379,10 @@ impl ModelRunner {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub async fn run(&self, height: u32, width: u32) {
+    pub async fn run(&self) {
         let el = EventLoopBuilder::<ModelEvent>::with_user_event().build();
         let window = WindowBuilder::new()
-            .with_inner_size(winit::dpi::LogicalSize {
-                width: width,
-                height: height,
-            })
+            .with_maximized(true)
             .build(&el)
             .unwrap();
 

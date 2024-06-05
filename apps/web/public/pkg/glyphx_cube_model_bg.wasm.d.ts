@@ -22,7 +22,7 @@ export function modelrunner_get_x_vector_count(a: number): number;
 export function modelrunner_get_y_vector_count(a: number): number;
 export function modelrunner_get_camera_data(a: number, b: number): void;
 export function modelrunner_set_camera_data(a: number, b: number, c: number, d: number): void;
-export function modelrunner_run(a: number, b: number, c: number): number;
+export function modelrunner_run(a: number): number;
 export function __wbg_modelrunner_free(a: number): void;
 export function __wbg_vector3_free(a: number): void;
 export function __wbg_get_vector3_x(a: number): number;

@@ -96,11 +96,9 @@ export class ModelRunner {
 */
   set_camera_data(camera_data: string, aspect_ratio: number): void;
 /**
-* @param {number} height
-* @param {number} width
 * @returns {Promise<void>}
 */
-  run(height: number, width: number): Promise<void>;
+  run(): Promise<void>;
 }
 /**
 * An [OrbitCamera] only permits rotation of the eye on a spherical shell around a target.
@@ -223,7 +221,7 @@ export interface InitOutput {
   readonly modelrunner_get_y_vector_count: (a: number) => number;
   readonly modelrunner_get_camera_data: (a: number, b: number) => void;
   readonly modelrunner_set_camera_data: (a: number, b: number, c: number, d: number) => void;
-  readonly modelrunner_run: (a: number, b: number, c: number) => number;
+  readonly modelrunner_run: (a: number) => number;
   readonly __wbg_modelrunner_free: (a: number) => void;
   readonly __wbg_vector3_free: (a: number) => void;
   readonly __wbg_get_vector3_x: (a: number) => number;

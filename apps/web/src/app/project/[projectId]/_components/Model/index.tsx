@@ -1,10 +1,10 @@
 'use client';
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useRecoilState} from 'recoil';
 import {modelRunnerAtom} from 'state';
 import {useHotkeys} from 'react-hotkeys-hook';
 
-export const Model = () => {
+export const Model = ({children}) => {
   const [modelRunnerState, setModelRunnerState] = useRecoilState(modelRunnerAtom);
   const initializingRef = useRef(false); // Reference to track whether mouse events have been setup
 
@@ -14,22 +14,29 @@ export const Model = () => {
 
   // setup our keybindings
   useHotkeys('up', () => {
-    console.log('move model up');
-    modelRunnerState.modelRunner.raise_model(10);
+    if (modelRunnerState.initialized) {
+      console.log('move model up');
+      modelRunnerState.modelRunner.raise_model(10);
+    }
   });
   useHotkeys('down', () => {
-    console.log('move model up');
-    modelRunnerState.modelRunner.raise_model(-10);
+    if (modelRunnerState.initialized) {
+      console.log('move model up');
+      modelRunnerState.modelRunner.raise_model(-10);
+    }
   });
   useHotkeys('left', () => {
-    console.log('move model left');
-    modelRunnerState.modelRunner.shift_model(-10);
+    if (modelRunnerState.initialized) {
+      console.log('move model left');
+      modelRunnerState.modelRunner.shift_model(-10);
+    }
   });
   useHotkeys('right', () => {
-    console.log('move model right');
-    modelRunnerState.modelRunner.raise_model(10);
+    if (modelRunnerState.initialized) {
+      console.log('move model right');
+      modelRunnerState.modelRunner.raise_model(10);
+    }
   });
-
   /**
    * - Attaches event listeners to the canvas for interactive model control.
    * - Ensures the model and event listeners are properly cleaned up.
@@ -38,6 +45,7 @@ export const Model = () => {
     if (modelRunnerState.initialized && !initializingRef.current) {
       initializingRef.current = true;
       let isDragRotate = false;
+
       console.log('within conditional', {modelRunnerState});
 
       // Update the canvas size to maintain the aspect ratio and fit its container
@@ -47,33 +55,6 @@ export const Model = () => {
       let handleMouseDown;
       let handleWheel;
 
-      // const resizeCanvas = () => () => {
-      //   const canvas = document.getElementById('cube_model') as HTMLCanvasElement;
-      //   const container = canvas?.parentElement;
-      //   if (container) {
-      //     // Use clientWidth and clientHeight for the container's size, which includes padding
-      //     const containerWidth = container.clientWidth;
-      //     const containerHeight = container.clientHeight;
-
-      //     // Calculate the aspect ratio of the canvas
-      //     const aspectRatio = canvas.width / canvas.height;
-
-      //     // Calculate the new dimensions while maintaining the aspect ratio
-      //     let newWidth, newHeight;
-      //     if (containerWidth / containerHeight > aspectRatio) {
-      //       newHeight = containerHeight;
-      //       newWidth = containerHeight * aspectRatio;
-      //     } else {
-      //       newWidth = containerWidth;
-      //       newHeight = containerWidth / aspectRatio;
-      //     }
-
-      //     // Set the canvas dimensions in CSS to scale it properly
-      //     canvas.style.width = `100%`;
-      //     canvas.style.height = `100%`;
-      //   }
-      // };
-
       const run = async () => {
         try {
           const canvasParent = document.getElementById('glyphx-cube-model');
@@ -81,16 +62,8 @@ export const Model = () => {
             console.log('Canvas not found');
             return;
           }
-          console.log('Canvas obtained', canvasParent);
-
-          const canvas = document.getElementById('cube-model') as HTMLCanvasElement;
-          // Set the canvas dimensions in CSS to scale it properly
-          canvas.style.width = `100%`;
-          canvas.style.height = `100%`;
+          console.log('Canvas parent obtained', canvasParent);
           // // Call this function to resize the canvas whenever the window is resized
-          // window.addEventListener('resize', resizeCanvas);
-          // // Initial resize on load
-          // resizeCanvas();
           // await modelRunnerState.modelRunner.run(1000, 1500);
 
           // Function to handle mouse down events on the canvas.
@@ -124,8 +97,6 @@ export const Model = () => {
           canvasParent.addEventListener('mousemove', handleMouseMove);
           canvasParent.addEventListener('mouseup', handleMouseUp);
           canvasParent.addEventListener('wheel', handleWheel, {passive: false});
-
-          // await modelRunner.run();
         } catch (error) {
           console.error('Failed to initialize mouse events:', error);
         }
@@ -138,7 +109,7 @@ export const Model = () => {
 
       // Clean-up function to remove event listeners and other potential states.
       return () => {
-        const canvas = document.getElementById('cube_model') as HTMLCanvasElement;
+        const canvas = document.getElementById('glyphx-cube-model') as HTMLCanvasElement;
         if (canvas) {
           canvas.removeEventListener('mousedown', handleMouseDown);
           canvas.removeEventListener('mousemove', handleMouseMove);
@@ -154,7 +125,9 @@ export const Model = () => {
 
   return (
     <div className="relative h-full w-full flex items-center justify-center">
-      <div id="glyphx-cube-model" className="h-full w-full bg-[#414d66]"></div>
+      <div id="glyphx-cube-model" className="h-full w-full bg-[#414d66]">
+        {children}
+      </div>
     </div>
   );
 };

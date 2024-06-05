@@ -54,7 +54,7 @@ export const GridContainer = () => {
           style={{overflow: 'scroll', height: `${getPaneHeight()}px`}}
           split={orientation}
           allowResize={true}
-          defaultSize={100}
+          defaultSize={500}
           maxSize={7000}
           minSize={70}
           onChange={handlePaneResize}
@@ -70,7 +70,6 @@ export const GridContainer = () => {
               <MainDropzone />
             )}
           </div>
-
           <div className="h-full w-full relative">
             <ModelFooter />
             <div className="h-full w-full relative">
