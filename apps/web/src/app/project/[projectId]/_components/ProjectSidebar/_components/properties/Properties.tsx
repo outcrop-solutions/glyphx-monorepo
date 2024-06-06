@@ -192,19 +192,18 @@ export const Properties = () => {
       // @ts-ignore
       await handleStream(GLY_URL, processData(undefined, 'glyph', modelRunner));
 
-      // const canvasContainer = document.getElementById('glyphx-cube-model');
-
-      await modelRunner.run();
       // creates a new state inside the model
       // run can only instantiate one event loop per thread
-      setModelRunnerState({initialized: true, modelRunner, lastPayloadHash: payloadHash});
       console.log('set lastPayloadHash');
       console.log('set resize');
-      // setResize(150);
       console.log('set drawer');
-      // setDrawer(true);
+      setDrawer(true);
+      // const width = canvasParent!.clientWidth;
+      // const height = canvasParent!.clientHeight;
+      setModelRunnerState({initialized: true, modelRunner, lastPayloadHash: payloadHash});
+      await modelRunner.run();
     },
-    [handleStream, payloadHash, processData, setModelRunnerState]
+    [handleStream, payloadHash, processData, setDrawer, setModelRunnerState]
   );
 
   /* Initializes and manages the WebGL model on the canvas.

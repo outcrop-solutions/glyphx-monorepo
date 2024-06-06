@@ -363,7 +363,7 @@ impl ModelRunner {
         // Winit prevents sizing with CSS, so we have to set
         // the size manually when on web.
         use winit::dpi::PhysicalSize;
-        window.set_inner_size(PhysicalSize::new(1500, 1000));
+        // window.set_inner_size(PhysicalSize::new(width, height));
 
         use winit::platform::web::WindowExtWebSys;
         web_sys::window()
@@ -372,6 +372,9 @@ impl ModelRunner {
                 let dst = doc.get_element_by_id(WEB_ELEMENT_NAME)?;
                 let canvas = web_sys::Element::from(window.canvas());
                 canvas.set_attribute("id", "cube_model").ok()?;
+                canvas
+                    .set_attribute("class", "mx-auto h-full w-full")
+                    .ok()?;
                 dst.append_child(&canvas).ok()?;
                 Some(())
             })
@@ -382,7 +385,10 @@ impl ModelRunner {
     pub async fn run(&self) {
         let el = EventLoopBuilder::<ModelEvent>::with_user_event().build();
         let window = WindowBuilder::new()
-            .with_maximized(true)
+            // .with_inner_size(winit::dpi::LogicalSize {
+            //     width: width,
+            //     height: height,
+            // })
             .build(&el)
             .unwrap();
 

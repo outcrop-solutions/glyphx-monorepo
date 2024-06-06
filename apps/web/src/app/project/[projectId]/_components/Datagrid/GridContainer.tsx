@@ -19,7 +19,6 @@ export const GridContainer = () => {
     setIsClient(true);
   }, []);
 
-  const modelRunnerState = useRecoilValue(modelRunnerAtom);
   const openFiles = useRecoilValue(filesOpenSelector);
   const orientation = useRecoilValue(orientationAtom);
   const {height} = useRecoilValue(windowSizeAtom);
@@ -54,7 +53,7 @@ export const GridContainer = () => {
           style={{overflow: 'scroll', height: `${getPaneHeight()}px`}}
           split={orientation}
           allowResize={true}
-          defaultSize={500}
+          defaultSize={200}
           maxSize={7000}
           minSize={70}
           onChange={handlePaneResize}

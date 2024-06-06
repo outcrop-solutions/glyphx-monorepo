@@ -104,7 +104,7 @@ div div[role='columnheader'] {
 }
 
 div[role='grid'] {
-  @apply bg-primary-dark-blue overflow-scroll flex-col flex-grow scrollbar-thin scrollbar-thumb-yellow scrollbar-thumb-rounded-full;
+  @apply bg-primary-dark-blue h-full w-full overflow-scroll flex-col flex-grow scrollbar-thin scrollbar-thumb-yellow scrollbar-thumb-rounded-full;
 }
 
 canvas {

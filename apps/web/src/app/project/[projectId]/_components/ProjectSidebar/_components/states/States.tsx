@@ -1,60 +1,13 @@
 'use client';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {StateList} from './StateList';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {projectAtom, rowIdsAtom} from 'state/project';
 import {PlusIcon} from '@heroicons/react/outline';
 import {CreateStateInput} from './CreateStateInput';
-import {cameraAtom, imageHashAtom} from 'state';
-import {useSWRConfig} from 'swr';
-import {webTypes} from 'types';
-import useApplyState from 'services/useApplyState';
-import {createState} from 'actions';
 
 export const States = () => {
-  const {mutate} = useSWRConfig();
-  const project = useRecoilValue(projectAtom);
-  const rowIds = useRecoilValue(rowIdsAtom);
   const [isCollapsed, setCollapsed] = useState(false);
   const [addState, setAddState] = useState(false);
-  const [camera, setCamera] = useRecoilState(cameraAtom);
-  const [image, setImage] = useRecoilState(imageHashAtom);
-  const setProject = useSetRecoilState(projectAtom);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState('Initial State');
-  const {applyState} = useApplyState();
-
-  const callCreateState = async (camera, image, project) => {
-    try {
-      if (Object.keys(camera).length > 0 && image.imageHash) {
-        setIsSubmitting(true);
-        const aspect = {
-          width: 300,
-          height: 200,
-        };
-        const rows = (rowIds ? rowIds : []) as unknown as number[];
-        const newProject = await createState(name, camera as webTypes.Camera, project, image.imageHash, aspect, rows);
-
-        if (newProject) {
-          // @ts-ignore
-          const filteredStates = newProject.stateHistory?.filter((state) => !state.deletedAt);
-          const idx = filteredStates.length - 1;
-
-          applyState(idx, newProject);
-          setName('Initial State');
-          setIsSubmitting(false);
-          setAddState(false);
-        }
-      }
-    } catch (error) {
-      console.log({error});
-    }
-  };
-
-  useEffect(() => {
-    callCreateState(camera, image, project);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [camera, setCamera, setProject, mutate, image, setImage, setAddState]);
 
   return (
     <div className="group flex flex-col grow">
@@ -93,7 +46,7 @@ export const States = () => {
         />
       </summary>
       {!isCollapsed && <StateList />}
-      {addState && <CreateStateInput isSubmitting={isSubmitting} name={name} setName={setName} />}
+      {addState && <CreateStateInput name={name} setName={setName} setAddState={setAddState} />}
     </div>
   );
 };

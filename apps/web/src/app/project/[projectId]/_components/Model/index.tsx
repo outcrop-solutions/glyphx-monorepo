@@ -57,12 +57,12 @@ export const Model = ({children}) => {
 
       const run = async () => {
         try {
-          const canvasParent = document.getElementById('glyphx-cube-model');
-          if (!canvasParent) {
+          const canvas = document.getElementById('glyphx-cube-model');
+          if (!canvas) {
             console.log('Canvas not found');
             return;
           }
-          console.log('Canvas parent obtained', canvasParent);
+          console.log('Canvas obtained', canvas);
           // // Call this function to resize the canvas whenever the window is resized
           // await modelRunnerState.modelRunner.run(1000, 1500);
 
@@ -93,10 +93,10 @@ export const Model = ({children}) => {
             modelRunnerState.modelRunner.add_distance(-e.deltaY);
           };
 
-          canvasParent.addEventListener('mousedown', handleMouseDown);
-          canvasParent.addEventListener('mousemove', handleMouseMove);
-          canvasParent.addEventListener('mouseup', handleMouseUp);
-          canvasParent.addEventListener('wheel', handleWheel, {passive: false});
+          canvas.addEventListener('mousedown', handleMouseDown);
+          canvas.addEventListener('mousemove', handleMouseMove);
+          canvas.addEventListener('mouseup', handleMouseUp);
+          canvas.addEventListener('wheel', handleWheel, {passive: false});
         } catch (error) {
           console.error('Failed to initialize mouse events:', error);
         }
@@ -125,7 +125,7 @@ export const Model = ({children}) => {
 
   return (
     <div className="relative h-full w-full flex items-center justify-center">
-      <div id="glyphx-cube-model" className="h-full w-full bg-[#414d66]">
+      <div id="glyphx-cube-model" className="flex items-center justify-center h-full w-full bg-[#414d66]">
         {children}
       </div>
     </div>

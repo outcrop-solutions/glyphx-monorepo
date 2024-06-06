@@ -3,7 +3,7 @@ import {error, constants} from 'core';
 import {put} from '@vercel/blob';
 import {getServerSession} from 'next-auth';
 import {stateService, activityLogService, projectService} from '../../business/src/services';
-import {databaseTypes, emailTypes, webTypes} from 'types';
+import {databaseTypes, emailTypes, rustGlyphEngineTypes, webTypes} from 'types';
 import {authOptions} from './auth';
 import {revalidatePath} from 'next/cache';
 import emailClient from './email';
@@ -33,7 +33,7 @@ export const getState = async (stateId: string) => {
  */
 export const createState = async (
   name: string,
-  camera: webTypes.Camera,
+  camera: rustGlyphEngineTypes.ICameraData,
   project: databaseTypes.IProject,
   imageHash: string,
   aspectRatio: webTypes.Aspect,

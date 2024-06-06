@@ -1,4 +1,4 @@
-import {databaseTypes, webTypes} from 'types';
+import {databaseTypes, rustGlyphEngineTypes, webTypes} from 'types';
 import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
 import {hashFileSystem, hashPayload} from '../util/hashFunctions';
@@ -28,7 +28,7 @@ export class StateService {
 
   public static async createState(
     name: string,
-    camera: webTypes.Camera,
+    camera: rustGlyphEngineTypes.ICameraData,
     project: databaseTypes.IProject,
     userId: string,
     aspectRatio: webTypes.Aspect,
