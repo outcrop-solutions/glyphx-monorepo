@@ -1,11 +1,22 @@
 export function convertTextToUtfForBuffer(text: string): Uint8Array {
+  let modifiedText;
+
+  // Check if the encoded string length exceeds 65535
+  if (text.length > 65535) {
+    const parsed = JSON.parse(text);
+    if (parsed && Array.isArray(parsed.rowId) && parsed.rowId.length > 0) {
+      parsed.rowId = [-9999, parsed.rowId[0]]; // Keep the rowId as an array but with only the first element
+      modifiedText = JSON.stringify(parsed);
+    }
+  } else {
+    modifiedText = text;
+  }
+
   // Create a TextEncoder instance
   const encoder = new TextEncoder();
-
-  // Encode a string using UTF-8 encoding
-  const encodedString = encoder.encode(text);
-
-  // Write the encoded string to a byte array
+  // Encode the string using UTF-8 encoding
+  const encodedString = encoder.encode(modifiedText);
+  // Normal encoding
   const byteArray = new Uint8Array(encodedString.length + 2);
   byteArray[0] = (encodedString.length >> 8) & 0xff;
   byteArray[1] = encodedString.length & 0xff;
