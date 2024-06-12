@@ -7,7 +7,7 @@ pub mod vector_processer;
 use crate::GlyphEngineResults;
 
 use glyphx_common::{AthenaConnection, Heartbeat, S3Connection};
-use model_common::{Stats, Glyph};
+use model_common::{Glyph, Stats};
 
 use glyphx_core::{
     aws::{
@@ -503,6 +503,8 @@ impl GlyphEngine {
             z_field_name
         );
 
+        println!("Starting Athena query with query: {}", query);
+
         let query_id = operations
             .start_athena_query(self.athena_connection, &query)
             .await?;
@@ -552,8 +554,18 @@ impl GlyphEngine {
             return Err(GlyphEngineProcessError::DataProcessingError(error_data));
         }
 
+        // debugging here
+        println!(
+            "Searching for value {:?} in the vector table for field {}",
+            orig_value, field_name
+        );
+
         let mut vector = vector_processor.get_vector(&orig_value);
         if vector.is_none() {
+            println!(
+                "Original value {:?} not found, trying backup value {:?}",
+                orig_value, backup_value
+            );
             vector = vector_processor.get_vector(&backup_value);
             if vector.is_none() {
                 let message = format!(
@@ -674,7 +686,15 @@ impl GlyphEngine {
         //the Ord trait -- f64 does not hold this.  To keep things moving, I am just going
         //to resuse VectorOrigionalValue, it is alread setup for OrdSet.
         let mut unique_values = OrdSet::<VectorOrigionalValue>::new();
+
+        println!(
+            "Starting process_query_results with file_name: {}",
+            file_name
+        );
+
         handle_error!(let upload_stream = operations.get_upload_stream(file_name, &self.s3_connection).await; GlyphEngineProcessError::from_get_upload_stream_error(file_name), error);
+
+        println!("Upload stream created for file: {}", file_name);
         //our handle_error macro will not let us create a mutable reference
         let mut upload_stream = upload_stream;
         loop {
@@ -683,6 +703,8 @@ impl GlyphEngine {
                 break;
             }
             let result = result.unwrap();
+            println!("Processing result: {:?}", result);
+
             let glyph = self.build_glyph(
                 &result,
                 x_field_name,
@@ -691,14 +713,20 @@ impl GlyphEngine {
                 x_vector_processer,
                 y_vector_processer,
             )?;
+
+            println!("Built glyph: {:?}", glyph);
+
             let z_value = VectorOrigionalValue::F64(glyph.z_value.clone());
             if !unique_values.contains(&z_value) {
                 unique_values.insert(z_value);
             }
             let ser_glyph = self.serialize_glyph(&glyph);
             handle_error!(let _result = operations.write_to_upload_stream(&mut upload_stream, Some(ser_glyph)).await; GlyphEngineProcessError::from_upload_stream_write_error(file_name), error);
+            println!("Wrote glyph to upload stream: {:?}", glyph);
         }
         handle_error!(let _result = operations.finish_upload_stream(&mut upload_stream).await; GlyphEngineProcessError::from_upload_stream_finish_error(file_name), error);
+
+        println!("Finished upload stream for file: {}", file_name);
 
         let vector_for_statistics = unique_values
             .iter()
@@ -707,6 +735,12 @@ impl GlyphEngine {
                 _ => 0.0,
             })
             .collect();
+
+        println!(
+            "Generated vector for statistics: {:?}",
+            vector_for_statistics
+        );
+
         Ok(vector_for_statistics)
     }
     fn get_stats_for_axis(&self, axis_name: &str, max_rank: u64, data: Vec<f64>) -> Stats {
@@ -773,7 +807,7 @@ impl GlyphEngine {
     ) -> Result<String, GlyphEngineProcessError> {
         let max_x_rank = x_field_processor.get_max_rank() as u64;
         let x_stats =
-            self.get_stats_for_axis("x", max_x_rank , x_field_processor.get_statistics_vector());
+            self.get_stats_for_axis("x", max_x_rank, x_field_processor.get_statistics_vector());
         let max_y_rank = y_field_processor.get_max_rank() as u64;
         let y_stats =
             self.get_stats_for_axis("y", max_y_rank, y_field_processor.get_statistics_vector());
@@ -3009,7 +3043,10 @@ pub mod glyph_engine {
                             .expect_get_max_vector()
                             .times(0)
                             .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
-                        vector_processer_mock1.expect_get_max_rank().times(1).return_const(9 as usize);
+                        vector_processer_mock1
+                            .expect_get_max_rank()
+                            .times(1)
+                            .return_const(9 as usize);
                         Box::new(vector_processer_mock1)
                     } else {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
@@ -3045,7 +3082,10 @@ pub mod glyph_engine {
                             .expect_get_max_vector()
                             .times(0)
                             .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
-                        vector_processer_mock2.expect_get_max_rank().times(1).return_const(9 as usize);
+                        vector_processer_mock2
+                            .expect_get_max_rank()
+                            .times(1)
+                            .return_const(9 as usize);
                         Box::new(vector_processer_mock2)
                     }
                 });
@@ -3691,7 +3731,10 @@ pub mod glyph_engine {
                             .returning(|| {
                                 vec![1.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0]
                             });
-                        vector_processer_mock1.expect_get_max_rank().times(1).return_const(9 as usize);
+                        vector_processer_mock1
+                            .expect_get_max_rank()
+                            .times(1)
+                            .return_const(9 as usize);
                         Box::new(vector_processer_mock1)
                     } else {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
@@ -3727,7 +3770,10 @@ pub mod glyph_engine {
                             .expect_get_max_vector()
                             .times(0)
                             .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
-                        vector_processer_mock2.expect_get_max_rank().times(1).return_const(9 as usize);
+                        vector_processer_mock2
+                            .expect_get_max_rank()
+                            .times(1)
+                            .return_const(9 as usize);
                         Box::new(vector_processer_mock2)
                     }
                 });
@@ -3848,7 +3894,10 @@ pub mod glyph_engine {
                             .expect_get_max_vector()
                             .times(0)
                             .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
-                        vector_processer_mock1.expect_get_max_rank().times(1).return_const(9 as usize);
+                        vector_processer_mock1
+                            .expect_get_max_rank()
+                            .times(1)
+                            .return_const(9 as usize);
                         Box::new(vector_processer_mock1)
                     } else {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
@@ -3884,7 +3933,10 @@ pub mod glyph_engine {
                             .expect_get_max_vector()
                             .times(0)
                             .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
-                        vector_processer_mock2.expect_get_max_rank().times(1).return_const(9 as usize);
+                        vector_processer_mock2
+                            .expect_get_max_rank()
+                            .times(1)
+                            .return_const(9 as usize);
                         Box::new(vector_processer_mock2)
                     }
                 });

@@ -4,7 +4,7 @@ import {useRecoilState} from 'recoil';
 import {modelRunnerAtom} from 'state';
 import {useHotkeys} from 'react-hotkeys-hook';
 
-export const Model = ({children}) => {
+export const Model = () => {
   const [modelRunnerState, setModelRunnerState] = useRecoilState(modelRunnerAtom);
   const initializingRef = useRef(false); // Reference to track whether mouse events have been setup
 
@@ -125,9 +125,7 @@ export const Model = ({children}) => {
 
   return (
     <div className="relative h-full w-full flex items-center justify-center">
-      <div id="glyphx-cube-model" className="flex items-center justify-center h-full w-full bg-[#414d66]">
-        {children}
-      </div>
+      <div id="glyphx-cube-model" className="flex items-center justify-center h-full w-full bg-[#414d66]"></div>
     </div>
   );
 };

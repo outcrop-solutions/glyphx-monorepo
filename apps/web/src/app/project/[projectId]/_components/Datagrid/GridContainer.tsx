@@ -53,7 +53,7 @@ export const GridContainer = () => {
           style={{overflow: 'scroll', height: `${getPaneHeight()}px`}}
           split={orientation}
           allowResize={true}
-          defaultSize={200}
+          defaultSize={500}
           maxSize={7000}
           minSize={70}
           onChange={handlePaneResize}
