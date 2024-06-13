@@ -5,7 +5,7 @@ export function convertTextToUtfForBuffer(text: string): Uint8Array {
   if (text.length > 65535) {
     const parsed = JSON.parse(text);
     if (parsed && Array.isArray(parsed.rowId) && parsed.rowId.length > 0) {
-      parsed.rowId = [-9999, parsed.rowId[0]]; // Keep the rowId as an array but with only the first element
+      parsed.rowId = [9999, parsed.rowId[0]]; // Keep the rowId as an array but with only the first element
       modifiedText = JSON.stringify(parsed);
     }
   } else {
