@@ -73,9 +73,11 @@ export class SgcStream extends Transform {
   _transform(chunk: IGlyph, encoding: string, callback: Function) {
     let bufferSize = 74;
     const tagSize = Buffer.byteLength(chunk.tag) + 2;
+    const urlSize = Buffer.byteLength(chunk.url) + 2;
+
+    // include desc byteLength in buffer sizing
     const desc = convertTextToUtfForBuffer(chunk.desc);
     const descSize = desc.length;
-    const urlSize = Buffer.byteLength(chunk.url) + 2;
 
     bufferSize += tagSize + descSize + urlSize;
     const buffer = Buffer.alloc(bufferSize);
@@ -148,17 +150,17 @@ export class SgcStream extends Transform {
     buffer.set(tag, bufferOffset);
     bufferOffset += tagSize;
 
-    console.dir({bufferOffset, bufferSize, tag: true}, {depth: null});
-
     const url = convertTextToUtfForBuffer(chunk.url);
     buffer.set(url, bufferOffset);
     bufferOffset += urlSize;
-    console.dir({bufferOffset, bufferSize, url: true}, {depth: null});
 
-    //  const desc = convertTextToUtfForBuffer(chunk.desc); was moved to the top of the file for offset correctness purposes
+    /**
+     * @jp-burford this is bufferOffset and not descSize or desc.length (which we tried previously)
+     * because we need to place the desc at the correct position, not at a position that === length
+     * i have stepped through this cherry picked version in the unit tests using MOCK_LARGE_DATA and found that the bufferSIze - bufferOffset = descSize and is correct at this step. (103 + 2 = 105)
+     */
     buffer.set(desc, bufferOffset);
     bufferOffset += descSize;
-    console.dir({bufferOffset, bufferSize, desc: true}, {depth: null});
 
     this.push(buffer);
     this.offset++;
