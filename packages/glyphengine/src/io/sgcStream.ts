@@ -148,17 +148,17 @@ export class SgcStream extends Transform {
     buffer.set(tag, bufferOffset);
     bufferOffset += tagSize;
 
-    console.log({bufferOffset, bufferSize, tag: true});
+    console.dir({bufferOffset, bufferSize, tag: true}, {depth: null});
 
     const url = convertTextToUtfForBuffer(chunk.url);
     buffer.set(url, bufferOffset);
     bufferOffset += urlSize;
-    console.log({bufferOffset, bufferSize, url: true});
+    console.dir({bufferOffset, bufferSize, url: true}, {depth: null});
 
     //  const desc = convertTextToUtfForBuffer(chunk.desc); was moved to the top of the file for offset correctness purposes
     buffer.set(desc, bufferOffset);
     bufferOffset += descSize;
-    console.log({bufferOffset, bufferSize, desc: true});
+    console.dir({bufferOffset, bufferSize, desc: true}, {depth: null});
 
     this.push(buffer);
     this.offset++;
