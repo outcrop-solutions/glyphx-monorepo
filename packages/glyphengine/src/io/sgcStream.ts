@@ -152,7 +152,8 @@ export class SgcStream extends Transform {
     buffer.set(url, bufferOffset);
     bufferOffset += urlSize;
 
-    buffer.set(desc, desc.length);
+    //  const desc = convertTextToUtfForBuffer(chunk.desc); was moved to the top of the file for offset correctness purposes
+    buffer.set(desc, bufferOffset);
     bufferOffset += descSize;
 
     this.push(buffer);
