@@ -79,7 +79,7 @@ impl AxisLines {
         let d_clone = device.clone();
         let d = d_clone.as_ref().borrow();
         let shader =
-            d.create_shader_module(wgpu::include_wgsl!("axis_lines/shader.wgsl").into());
+            d.create_shader_module(wgpu::include_wgsl!("shader.wgsl").into());
 
         let (vertex_buffer_layout, vertex_buffer) =
             Self::configure_verticies(&d, &vertex_data);

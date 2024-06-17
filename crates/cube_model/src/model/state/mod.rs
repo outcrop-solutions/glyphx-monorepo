@@ -1,6 +1,11 @@
+//NOTE: I am using this module to layout the beginning of a standard style for defining out modules
+//and imports.  This is a work in progress, and will be updated/changed as I figure out this 
+//aspect of the style.
+//1. Define any submodules 
 mod data_manager;
-
 mod errors;
+
+//2. Define any imports from the current crate.
 use crate::{
     camera::{
         camera_controller::CameraController, orbit_camera::OrbitCamera,
@@ -13,19 +18,26 @@ use crate::{
         model_configuration::ModelConfiguration,
         pipeline::{
             axis_lines,
+            glyph_data::{GlyphData, InstanceOutput},
             glyphs::{
-                self,
-                glyph_instance_data::GlyphInstanceData,
+                glyph_instance_data::{GlyphInstanceData, GlyphUniformData},
                 ranked_glyph_data::{Rank, RankDirection, RankedGlyphData},
+                Glyphs,
             },
             PipelineRunner,
         },
     },
 };
+
+//3. Define any imports from submodules.
 pub use data_manager::{CameraData, CameraManager, DataManager};
 pub use errors::*;
+
+//4. Define any imports from external Glyphx Crates.
 use model_common::Stats;
 
+//5. Define any imports from external 3rd party crates.
+use glam::Vec3;
 use smaa::*;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -35,8 +47,6 @@ use winit::dpi::PhysicalSize;
 use winit::event::DeviceEvent;
 use winit::window::Window;
 
-use glam::Vec3;
-use rand::Rng;
 
 const Z_ORDERS: [[&str; 4]; 4] = [
     ["x-axis-line", "z-axis-line", "y-axis-line", "glyphs"],
@@ -44,18 +54,21 @@ const Z_ORDERS: [[&str; 4]; 4] = [
     ["glyphs", "x-axis-line", "z-axis-line", "y-axis-line"],
     ["x-axis-line", "glyphs", "z-axis-line", "y-axis-line"],
 ];
+
 enum Face {
     Front,
     Right,
     Back,
     Left,
 }
+
 struct Pipelines {
     x_axis_line: axis_lines::AxisLines,
     y_axis_line: axis_lines::AxisLines,
     z_axis_line: axis_lines::AxisLines,
-    glyphs: glyphs::Glyphs,
+    glyphs: Glyphs,
 }
+
 pub struct State {
     surface: wgpu::Surface,
     device: Rc<RefCell<wgpu::Device>>,
@@ -72,15 +85,17 @@ pub struct State {
     light_buffer: wgpu::Buffer,
     model_configuration: Rc<RefCell<ModelConfiguration>>,
     smaa_target: SmaaTarget,
-    glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData,
+    glyph_uniform_data: GlyphUniformData,
     glyph_uniform_buffer: wgpu::Buffer,
     rank: Rank,
     rank_direction: RankDirection,
     pipelines: Pipelines,
+    glyph_data_pipeline: GlyphData,
     z_order: usize,
     data_manager: Rc<RefCell<DataManager>>,
     forward_face: Face,
     axis_visible: bool,
+    first_render: bool,
 }
 
 impl State {
@@ -178,6 +193,13 @@ impl State {
             config.format,
             SmaaMode::Smaa1X,
         );
+        let glyph_data_pipeline = GlyphData::new(
+            &glyph_uniform_buffer,
+            device.clone(),
+            model_configuration.clone(),
+            data_manager.clone(),
+        );
+
         let mut model = Self {
             window,
             surface,
@@ -203,6 +225,8 @@ impl State {
             data_manager,
             forward_face: Face::Front,
             axis_visible: true,
+            glyph_data_pipeline,
+            first_render: true,
         };
         //This allows us to initialize out camera with a pitch and yaw that is not 0
         model.update_z_order_and_rank(cm);
@@ -374,6 +398,10 @@ impl State {
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
+        if self.first_render {
+            self.run_compute_pipeline();
+            self.first_render = false;
+        }
         let background_color = self.color_table_uniform.background_color();
         let cm = self.camera_manager.clone();
         let cm = cm.borrow();
@@ -476,7 +504,7 @@ impl State {
     fn run_glyphs_pipeline(
         device: &Device,
         smaa_frame: &SmaaFrame,
-        pipeline: &glyphs::Glyphs,
+        pipeline: &Glyphs,
         rank: Rank,
         rank_direction: RankDirection,
         ranked_glyph_data: &RankedGlyphData,
@@ -560,6 +588,32 @@ impl State {
         config
     }
 
+    pub fn run_compute_pipeline(&mut self) {
+        eprintln!("Running compute pipeline");
+        let d = self.device.as_ref().borrow();
+        let mut encoder = d.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("ScreenClear Encoder"),
+        });
+        let output_buffer = self.glyph_data_pipeline.run_pipeline(&mut encoder);
+        self.queue.submit([encoder.finish()]);
+
+        let buffer_slice = output_buffer.slice(..);
+        buffer_slice.map_async(wgpu::MapMode::Read, |_| {});
+        d.poll(wgpu::Maintain::Wait);
+
+        let view = buffer_slice.get_mapped_range();
+        //our data is already in the correct order so we can 
+        //just push the verticies into a traingle list and attach 
+        //the normals
+        let output_data: Vec<InstanceOutput> = bytemuck::cast_slice(&view).to_vec();
+        for instance in &output_data {
+            println!("{:?}", instance);
+        }
+        drop(view);
+        output_buffer.unmap();
+       self.pipelines.glyphs.new_update_vertex_buffer(output_data); 
+    }
+
     async fn init_device(adapter: &wgpu::Adapter) -> (Device, Queue) {
         // The device is a logical GPU device pointing to the physical device identified by the adapter.
         // The queue a command queue for the device to execute.  We write our operation to the
@@ -621,7 +675,7 @@ impl State {
         light_buffer: &wgpu::Buffer,
         light_uniform: &LightUniform,
         model_configuration: Rc<RefCell<ModelConfiguration>>,
-        glyph_uniform_data: &glyphs::glyph_instance_data::GlyphUniformData,
+        glyph_uniform_data: &GlyphUniformData,
         glyph_uniform_buffer: &wgpu::Buffer,
     ) -> Pipelines {
         let mc = model_configuration.borrow();
@@ -673,7 +727,7 @@ impl State {
             glyph_uniform_data.max_interp_z,
         );
         let d = device.as_ref().borrow();
-        let glyphs = glyphs::Glyphs::new(
+        let glyphs = Glyphs::new(
             glyph_uniform_data,
             glyph_uniform_buffer,
             device.clone(),
@@ -696,7 +750,7 @@ impl State {
     fn configure_camera(
         config: &SurfaceConfiguration,
         device: &Device,
-        glyph_uniform_data: &glyphs::glyph_instance_data::GlyphUniformData,
+        glyph_uniform_data: &GlyphUniformData,
         camera_manager: &mut CameraManager,
     ) -> (OrbitCamera, wgpu::Buffer, CameraUniform, CameraController) {
         //{ distance: 4.079997, pitch: 0.420797, yaw: -39.125065, eye: Vector3 { x: -3.6850765, y: 1.66663, z: 0.537523 }, target: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, up: Vector3 { x: 0.0, y: 1.0, z: 0.0 }, bounds: OrbitCameraBounds { min_distance: Some(1.1), max_distance: None, min_pitch: -1.5707963, max_pitch: 1.5707963, min_yaw: None, max_yaw: None }, aspect: 1.5, fovy: 1.5707964, znear: 0.1, zfar: 1000.0 }
@@ -722,7 +776,7 @@ impl State {
     fn build_glyph_uniform_data(
         model_configuration: &Rc<RefCell<ModelConfiguration>>,
         data_manager: &DataManager,
-    ) -> glyphs::glyph_instance_data::GlyphUniformData {
+    ) -> GlyphUniformData {
         let mc = model_configuration.clone();
         let mut mc = mc.borrow_mut();
         let radius = if mc.grid_cylinder_radius > mc.grid_cone_radius {
@@ -763,28 +817,27 @@ impl State {
         let model_origin =
             (x_z_half as f32 + mc.glyph_offset / 2.0 + mc.grid_cone_radius / 2.0) * -1.0;
         mc.model_origin = [model_origin, model_origin, model_origin];
-        let glyph_uniform_data: glyphs::glyph_instance_data::GlyphUniformData =
-            glyphs::glyph_instance_data::GlyphUniformData {
-                min_x: min_x as f32,
-                max_x: max_x as f32,
-                min_interp_x: -1.0 * x_z_half as f32,
-                max_interp_x: x_z_half as f32,
+        let glyph_uniform_data: GlyphUniformData = GlyphUniformData {
+            min_x: min_x as f32,
+            max_x: max_x as f32,
+            min_interp_x: -1.0 * x_z_half as f32,
+            max_interp_x: x_z_half as f32,
 
-                min_y: min_y as f32,
-                max_y: max_y as f32,
-                //TODO: Why is this tied to model origin but the other axis are not?
-                min_interp_y: model_origin, // * y_half as f32,
-                max_interp_y: model_origin + y_size as f32,
+            min_y: min_y as f32,
+            max_y: max_y as f32,
+            //TODO: Why is this tied to model origin but the other axis are not?
+            min_interp_y: model_origin, // * y_half as f32,
+            max_interp_y: model_origin + y_size as f32,
 
-                min_z: min_z as f32,
-                max_z: max_z as f32,
-                min_interp_z: -1.0 * x_z_half as f32,
-                max_interp_z: x_z_half as f32,
+            min_z: min_z as f32,
+            max_z: max_z as f32,
+            min_interp_z: -1.0 * x_z_half as f32,
+            max_interp_z: x_z_half as f32,
 
-                x_z_offset,
-                y_offset: mc.min_glyph_height,
-                _padding: [0u32; 2],
-            };
+            x_z_offset,
+            y_offset: mc.min_glyph_height,
+            _padding: [0u32; 2],
+        };
         glyph_uniform_data
     }
     fn cacluate_rotation_change(&self, camera_manager: &CameraManager) -> f32 {
@@ -861,7 +914,7 @@ impl State {
 
     fn build_camera_and_uniform(
         camera_manager: &mut CameraManager,
-        glyph_uniform_data: &glyphs::glyph_instance_data::GlyphUniformData,
+        glyph_uniform_data: &GlyphUniformData,
         config: &SurfaceConfiguration,
     ) -> (OrbitCamera, CameraUniform) {
         let distance = (glyph_uniform_data.max_interp_x - glyph_uniform_data.min_interp_x) * 0.9;

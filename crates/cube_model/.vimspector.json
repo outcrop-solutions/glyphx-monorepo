@@ -5,7 +5,7 @@
       "filetypes": ["rust"],
       "configuration": {
         "request": "launch",
-        "program": "${workspaceRoot}/../../target/debug/deps/glyphx_cube_model-8ecb942a18b1893d",
+        "program": "${workspaceRoot}/../../target/debug/deps/glyphx_cube_model-5969a2adc14d0a5d",
         "runInTerminal": true,
         "preRunCommands": ["shell cargo test --no-run --package glyphx_cube_model"]
       }

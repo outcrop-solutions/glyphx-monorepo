@@ -1,13 +1,19 @@
 pub(crate) mod glyph_instance_data;
 pub(crate) mod ranked_glyph_data;
-use crate::assets::rectangular_prism::create_rectangular_prism;
-use crate::assets::shape_vertex::ShapeVertex;
-use crate::camera::uniform_buffer::CameraUniform;
-use crate::light::light_uniform::LightUniform;
-use crate::model::color_table_uniform::ColorTableUniform;
-use crate::model::model_configuration::ModelConfiguration;
-use bytemuck;
+
+use crate::{
+    assets::{rectangular_prism::create_rectangular_prism, shape_vertex::ShapeVertex},
+    camera::uniform_buffer::CameraUniform,
+    light::light_uniform::LightUniform,
+    model::{
+        color_table_uniform::ColorTableUniform, model_configuration::ModelConfiguration,
+        pipeline::glyph_data::InstanceOutput,
+    },
+};
+
 use glyph_instance_data::*;
+
+use bytemuck;
 use smaa::*;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -57,13 +63,13 @@ impl Glyphs {
             vertices: Vec::new(),
         };
 
-        Self::build_verticies(
-            &mut vertex_data.vertices,
-            &model_configuration.borrow(),
-            glyph_uniform_data,
-        );
+        // Self::build_verticies(
+        //     &mut vertex_data.vertices,
+        //     &model_configuration.borrow(),
+        //     glyph_uniform_data,
+        // );
 
-        let shader = d.create_shader_module(wgpu::include_wgsl!("glyphs/shader.wgsl").into());
+        let shader = d.create_shader_module(wgpu::include_wgsl!("shader.wgsl").into());
         let (vertex_buffer_layout, vertex_buffer) = Self::configure_verticies(&d, &vertex_data);
         let instance_buffer_layout = Self::configure_instance_buffer(&d);
 
@@ -113,7 +119,9 @@ impl Glyphs {
 
         //Our z size is based on the height of the grid with a little bit of padding so that
         //the top does not but up against the z axis line
-        let length = (model_configuration.grid_cylinder_length * model_configuration.z_height_ratio) + model_configuration.grid_cone_length;
+        let length = (model_configuration.grid_cylinder_length
+            * model_configuration.z_height_ratio)
+            + model_configuration.grid_cone_length;
 
         let shape_vertices = create_rectangular_prism(glyph_size, length);
         //now we want to move this to the model origin from it's current position at 0,0,0.
@@ -200,6 +208,7 @@ impl Glyphs {
         });
         self.vertex_data = vertex_data;
     }
+
     fn configure_verticies(
         device: &Device,
         vertex_data: &VertexData,
@@ -283,6 +292,21 @@ impl Glyphs {
         });
         render_pipeline
     }
+
+    pub fn new_update_vertex_buffer(&mut self, glyph_data: Vec<InstanceOutput>) {
+        let d = self.device.as_ref().borrow();
+        let vertex_data = glyph_data
+            .iter()
+            .map(|instance| instance.vertex_data)
+            .collect::<Vec<ShapeVertex>>();
+        let vertex_buffer = d.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Vertex Buffer"),
+            contents: bytemuck::cast_slice(&vertex_data),
+            usage: wgpu::BufferUsages::VERTEX,
+        });
+        self.vertex_buffer = vertex_buffer;
+    }
+
     pub fn run_pipeline<'a>(
         &'a self,
         encoder: &'a mut wgpu::CommandEncoder,

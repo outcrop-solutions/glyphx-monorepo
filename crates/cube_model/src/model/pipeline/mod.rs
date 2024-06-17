@@ -1,7 +1,7 @@
 pub(crate) mod axis_lines;
 pub(crate) mod glyphs;
 pub(crate) mod pipeline_manager;
-
+pub(crate) mod glyph_data;
 use smaa::SmaaFrame;
 
 pub trait PipelineRunner {

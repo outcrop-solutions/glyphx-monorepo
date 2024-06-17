@@ -88,7 +88,7 @@ impl RankedGlyphData {
         let core_data = Vec::new();
         RankedGlyphData {
             x_rank_size: x_rank_size + 1,
-            z_rank_size : z_rank_size + 1,
+            z_rank_size: z_rank_size + 1,
             core_data,
             x_rank,
             z_rank,
@@ -121,11 +121,11 @@ impl RankedGlyphData {
         let core_data = &mut self.core_data;
 
         let x_rank = &mut self.x_rank[x_rank];
-        x_rank.push(Rc::clone(&rc));
+        x_rank.push(rc.clone());
 
         let z_rank = &mut self.z_rank[z_rank];
-        z_rank.push(Rc::clone(&rc));
-        // core_data.push(rc);
+        z_rank.push(rc.clone());
+        core_data.push(rc);
         Ok(())
     }
 
@@ -137,13 +137,22 @@ impl RankedGlyphData {
 
         RankedGlyphIterator::new(rank, rank_direction, data)
     }
-
+    ///Is useful for getting a vector of the glyphs.
+    ///Order is not enforced, so this is not useful for rendering
+    ///but it is useful for compute pipline operations.
+    pub fn get_glyphs_vector(&self) -> Vec<GlyphInstanceData> {
+        self.core_data.iter().map(|rc| *rc.clone()).collect()
+    }
     pub fn get_x_rank_size(&self) -> usize {
         self.x_rank_size
     }
 
     pub fn get_z_rank_size(&self) -> usize {
         self.z_rank_size
+    }
+
+    pub fn get_number_of_glyphs(&self) -> usize {
+        self.core_data.len()
     }
 }
 
@@ -155,10 +164,10 @@ mod constructor {
         let x_rank_size = 10;
         let z_rank_size = 10;
         let ranked_glyph_data = RankedGlyphData::new(x_rank_size, z_rank_size);
-        assert_eq!(ranked_glyph_data.x_rank_size, x_rank_size);
-        assert_eq!(ranked_glyph_data.z_rank_size, z_rank_size);
-        assert_eq!(ranked_glyph_data.x_rank.len(), x_rank_size);
-        assert_eq!(ranked_glyph_data.z_rank.len(), z_rank_size);
+        assert_eq!(ranked_glyph_data.x_rank_size, x_rank_size + 1);
+        assert_eq!(ranked_glyph_data.z_rank_size, z_rank_size + 1);
+        assert_eq!(ranked_glyph_data.x_rank.len(), x_rank_size + 1);
+        assert_eq!(ranked_glyph_data.z_rank.len(), z_rank_size + 1);
         assert_eq!(ranked_glyph_data.core_data.len(), 0);
     }
 }
@@ -190,7 +199,8 @@ mod add {
         assert!(ranked_glyph_data.add(0, 0, first_glyph).is_ok());
         assert!(ranked_glyph_data.add(7, 4, second_glyph).is_ok());
 
-        assert_eq!(ranked_glyph_data.core_data.len(), 0);
+        assert_eq!(ranked_glyph_data.core_data.len(), 2);
+
 
         assert_eq!(ranked_glyph_data.x_rank[0].len(), 1);
         assert_eq!(ranked_glyph_data.z_rank[0].len(), 1);
@@ -324,7 +334,7 @@ mod iter {
         let mut z = 0;
         while let Some(glyphs) = iter.next() {
             for glyph in glyphs {
-                assert_eq!(glyph.x_value, x as f32);
+                assert_eq!(glyph.x_value, (x+1) as f32);
                 assert_eq!(glyph.z_value, z as f32);
                 z += 1;
             }
@@ -359,11 +369,88 @@ mod iter {
         while let Some(glyphs) = iter.next() {
             for glyph in glyphs {
                 assert_eq!(glyph.x_value, x as f32);
-                assert_eq!(glyph.z_value, z as f32);
+                assert_eq!(glyph.z_value, (z+1) as f32);
                 x += 1;
             }
             x = 0;
             z -= 1;
         }
+    }
+
+    mod get_glyphs_vector {
+        use super::*;
+
+        #[test]
+        fn is_ok() {
+            let x_rank_size = 10;
+            let z_rank_size = 10;
+            let mut ranked_glyph_data = RankedGlyphData::new(x_rank_size, z_rank_size);
+            let first_glyph = GlyphInstanceData {
+                glyph_id: 0,
+                x_value: 0.0,
+                y_value: 0.0,
+                z_value: 0.0,
+                glyph_selected: 0,
+            };
+
+            let second_glyph = GlyphInstanceData {
+                glyph_id: 1,
+                x_value: 1.0,
+                y_value: 1.0,
+                z_value: 1.0,
+                glyph_selected: 1,
+            };
+
+            assert!(ranked_glyph_data.add(0, 0, first_glyph).is_ok());
+            assert!(ranked_glyph_data.add(7, 4, second_glyph).is_ok());
+
+            assert_eq!(ranked_glyph_data.core_data.len(), 2);
+
+            let glyphs_vector = ranked_glyph_data.get_glyphs_vector();
+            assert_eq!(glyphs_vector.len(), 2);
+            assert_eq!(glyphs_vector[0].glyph_id, first_glyph.glyph_id);
+            assert_eq!(glyphs_vector[0].x_value, first_glyph.x_value);
+            assert_eq!(glyphs_vector[0].y_value, first_glyph.y_value);
+            assert_eq!(glyphs_vector[0].z_value, first_glyph.z_value);
+            assert_eq!(glyphs_vector[0].glyph_selected, first_glyph.glyph_selected);
+
+            assert_eq!(glyphs_vector[1].glyph_id, second_glyph.glyph_id);
+            assert_eq!(glyphs_vector[1].x_value, second_glyph.x_value);
+            assert_eq!(glyphs_vector[1].y_value, second_glyph.y_value);
+            assert_eq!(glyphs_vector[1].z_value, second_glyph.z_value);
+            assert_eq!(glyphs_vector[1].glyph_selected, second_glyph.glyph_selected);
+        }
+    }
+}
+
+#[cfg(test)]
+mod get_number_of_glyphs {
+    use super::*;
+    #[test]
+    fn is_ok() {
+        let x_rank_size = 10;
+        let z_rank_size = 10;
+        let mut ranked_glyph_data = RankedGlyphData::new(x_rank_size, z_rank_size);
+        let first_glyph = GlyphInstanceData {
+            glyph_id: 0,
+            x_value: 0.0,
+            y_value: 0.0,
+            z_value: 0.0,
+            glyph_selected: 0,
+        };
+
+        let second_glyph = GlyphInstanceData {
+            glyph_id: 1,
+            x_value: 1.0,
+            y_value: 1.0,
+            z_value: 1.0,
+            glyph_selected: 1,
+        };
+
+        assert_eq!(ranked_glyph_data.get_number_of_glyphs(), 0);
+        assert!(ranked_glyph_data.add(0, 0, first_glyph).is_ok());
+        assert_eq!(ranked_glyph_data.get_number_of_glyphs(), 1);
+        assert!(ranked_glyph_data.add(7, 4, second_glyph).is_ok());
+        assert_eq!(ranked_glyph_data.get_number_of_glyphs(), 2);
     }
 }

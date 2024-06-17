@@ -353,17 +353,18 @@ impl ModelRunner {
         if #[cfg(target_arch = "wasm32")] {
               std::panic::set_hook(Box::new(console_error_panic_hook::hook));
               console_log::init_with_level(log::Level::Warn).expect("Couldn't initialize logger");
+              
           } else {
               env_logger::init();
           }
         }
     }
     #[cfg(target_arch = "wasm32")]
-    fn configure_canvas(&self, window: &Window) {
+    fn configure_canvas(&self, window: &Window, width: u32, height: u32) {
         // Winit prevents sizing with CSS, so we have to set
         // the size manually when on web.
         use winit::dpi::PhysicalSize;
-        window.set_inner_size(PhysicalSize::new(1500, 1000));
+        window.set_inner_size(PhysicalSize::new(width, height));
 
         use winit::platform::web::WindowExtWebSys;
         web_sys::window()
@@ -379,21 +380,21 @@ impl ModelRunner {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub async fn run(&self) {
+    pub async fn run(&self, width: u32, height: u32) {
         self.init_logger();
 
         let el = EventLoopBuilder::<ModelEvent>::with_user_event().build();
         let window = WindowBuilder::new()
             .with_inner_size(winit::dpi::LogicalSize {
-                width: 1500,
-                height: 1000,
+                width,
+                height,
             })
             .build(&el)
             .unwrap();
 
         cfg_if::cfg_if! {
         if #[cfg(target_arch="wasm32")] {
-            self.configure_canvas(&window);
+            self.configure_canvas(&window, width, height);
         }
 
         }
@@ -420,6 +421,7 @@ impl ModelRunner {
         unsafe {
             EVENT_LOOP_PROXY = Some(el.create_proxy());
         }
+
         el.run(move |event, _, control_flow| {
             match event {
                 Event::UserEvent(ModelEvent::Redraw) => {
@@ -580,6 +582,8 @@ impl ModelRunner {
                             let mut cf = config.borrow_mut();
                             if modifiers.ctrl() {
                                 state.reset_camera_from_client();
+                            }else if modifiers.alt() {
+                               state.run_compute_pipeline();
                             } else {
                                 let modifier = if modifiers.shift() {
                                     if modifiers.alt() {

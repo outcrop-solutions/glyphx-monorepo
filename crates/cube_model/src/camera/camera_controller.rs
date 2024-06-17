@@ -1,6 +1,6 @@
 use winit::{
     dpi::PhysicalPosition,
-    event::{DeviceEvent, ElementState, MouseScrollDelta},
+    event::{DeviceEvent, ElementState, MouseScrollDelta, WindowEvent},
 };
 
 use crate::model::state::CameraManager;

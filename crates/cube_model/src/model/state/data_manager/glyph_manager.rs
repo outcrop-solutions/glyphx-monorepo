@@ -62,13 +62,14 @@ impl GlyphManager {
             .get_value(glyph.y_value)?;
 
         let ranked_glyph_data = self.get_ranked_glyph_data()?;
+        let glyph_id = ranked_glyph_data.get_number_of_glyphs() as u32;
         ranked_glyph_data.add(
             x_vector.rank as usize,
             z_vector.rank as usize,
             //Ok here we are flipping y and z, this make things make sense downstream as we
             //actually render the glyphs.
             GlyphInstanceData {
-                glyph_id: 0,
+                glyph_id,
                 x_value: glyph.x_value as f32,
                 y_value: glyph.z_value as f32,
                 z_value: glyph.y_value as f32,
@@ -161,8 +162,8 @@ mod unit_tests {
             let ranked_glyph_data = gm.get_ranked_glyph_data();
             assert!(ranked_glyph_data.is_ok());
             let ranked_glyph_data = ranked_glyph_data.unwrap();
-            assert_eq!(ranked_glyph_data.get_x_rank_size(), 10);
-            assert_eq!(ranked_glyph_data.get_z_rank_size(), 100);
+            assert_eq!(ranked_glyph_data.get_x_rank_size(), 11);
+            assert_eq!(ranked_glyph_data.get_z_rank_size(), 101);
         }
 
         #[test]
@@ -193,8 +194,8 @@ mod unit_tests {
             );
 
             let ranked_glyph_data = gm.get_ranked_glyph_data().unwrap();
-            assert_eq!(ranked_glyph_data.get_x_rank_size(), 10);
-            assert_eq!(ranked_glyph_data.get_z_rank_size(), 100);
+            assert_eq!(ranked_glyph_data.get_x_rank_size(), 11);
+            assert_eq!(ranked_glyph_data.get_z_rank_size(), 101);
 
             x_stats.max_rank = 20;
             z_stats.max_rank = 200;
@@ -208,8 +209,8 @@ mod unit_tests {
             assert!(result.is_ok());
 
             let ranked_glyph_data = gm.get_ranked_glyph_data().unwrap();
-            assert_eq!(ranked_glyph_data.get_x_rank_size(), 10);
-            assert_eq!(ranked_glyph_data.get_z_rank_size(), 100);
+            assert_eq!(ranked_glyph_data.get_x_rank_size(), 11);
+            assert_eq!(ranked_glyph_data.get_z_rank_size(), 101);
         }
 
         #[test]
@@ -342,7 +343,8 @@ mod unit_tests {
             assert!(result.is_ok());
 
             let mut count = 0;
-            gm.get_glyphs().unwrap()
+            gm.get_glyphs()
+                .unwrap()
                 .iter(Rank::X, RankDirection::Ascending)
                 .for_each(|r| count += r.len());
             assert_eq!(count, 2);
@@ -418,7 +420,10 @@ mod unit_tests {
             let mut bad_stats = Stats::default();
             bad_stats.max_rank = 1;
             bad_stats.axis = "x".to_string();
-           let _  = gm.stats_manager.borrow_mut().swap_stats(serialize(&bad_stats).unwrap());
+            let _ = gm
+                .stats_manager
+                .borrow_mut()
+                .swap_stats(serialize(&bad_stats).unwrap());
 
             let glyph = Glyph {
                 x_value: 2.0,
@@ -434,7 +439,6 @@ mod unit_tests {
                 AddGlyphError::RankOutOfRange(_) => {}
                 _ => panic!("Expected BincodeError"),
             }
-
         }
     }
 }
