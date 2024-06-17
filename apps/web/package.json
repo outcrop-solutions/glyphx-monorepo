@@ -62,7 +62,6 @@
     "database": "workspace:*",
     "date-fns": "^2.28.0",
     "dayjs": "^1.10.7",
-    "email": "workspace:*",
     "eslint-plugin-cypress": "2.12.1",
     "evaporate": "^2.1.4",
     "fileingestion": "workspace:*",

@@ -2,8 +2,22 @@ export function convertTextToUtfForBuffer(text: string): Uint8Array {
   // Create a TextEncoder instance
   const encoder = new TextEncoder();
 
+  let tempString = text;
+  //our string is > 2^16 so it will break the way strings are stored in the binary file.
+  if (text[0] == '{') {
+    const jsonObj = JSON.parse(text);
+    if (jsonObj.y.stock_code == '') console.log({text: text, length: text.length});
+    if (text.length >= 65535) {
+      let jsonObj = JSON.parse(text);
+      const tmpId = jsonObj.rowId[0];
+      jsonObj.rowId = [-9999, tmpId];
+      tempString = JSON.stringify(jsonObj);
+      console.log({tempString: tempString, length: tempString.length});
+    }
+  }
+
   // Encode a string using UTF-8 encoding
-  const encodedString = encoder.encode(text);
+  const encodedString = encoder.encode(tempString);
 
   // Write the encoded string to a byte array
   const byteArray = new Uint8Array(encodedString.length + 2);
