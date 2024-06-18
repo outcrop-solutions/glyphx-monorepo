@@ -178,9 +178,6 @@ importers:
       dayjs:
         specifier: ^1.10.7
         version: 1.11.10
-      email:
-        specifier: workspace:*
-        version: link:../../packages/email
       eslint-plugin-cypress:
         specifier: 2.12.1
         version: 2.12.1(eslint@8.53.0)
@@ -539,9 +536,6 @@ importers:
       dotenv:
         specifier: ^16.0.3
         version: 16.3.1
-      email:
-        specifier: workspace:*
-        version: link:../email
       express-validator:
         specifier: ^6.14.0
         version: 6.15.0
@@ -629,7 +623,7 @@ importers:
         version: 4.2.0
       tsup:
         specifier: 7.2.0
-        version: 7.2.0(postcss@8.4.33)(ts-node@10.9.1)(typescript@5.2.2)
+        version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
       tsx:
         specifier: ^3.7.1
         version: 3.14.0
@@ -765,7 +759,7 @@ importers:
         version: link:../tsconfig
       tsup:
         specifier: 7.2.0
-        version: 7.2.0(postcss@8.4.33)(ts-node@10.9.1)(typescript@5.2.2)
+        version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
       tsx:
         specifier: ^3.7.1
         version: 3.14.0
@@ -886,7 +880,7 @@ importers:
         version: 4.2.0
       tsup:
         specifier: 7.2.0
-        version: 7.2.0(postcss@8.4.33)(ts-node@10.9.1)(typescript@5.2.2)
+        version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
       typedoc:
         specifier: 0.25.1
         version: 0.25.1(typescript@5.2.2)
@@ -965,110 +959,13 @@ importers:
         version: link:../tsconfig
       tsup:
         specifier: 7.2.0
-        version: 7.2.0(postcss@8.4.33)(ts-node@10.9.1)(typescript@5.2.2)
+        version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
       tsx:
         specifier: ^3.7.1
         version: 3.14.0
       types:
         specifier: workspace:*
         version: link:../types
-      typescript:
-        specifier: 5.2.2
-        version: 5.2.2
-      uuid:
-        specifier: ^8.3.2
-        version: 8.3.2
-
-  packages/email:
-    dependencies:
-      autoprefixer:
-        specifier: ^10.4.15
-        version: 10.4.16(postcss@8.4.33)
-      core:
-        specifier: workspace:*
-        version: link:../core
-      postcss:
-        specifier: ^8.4.29
-        version: 8.4.33
-      react:
-        specifier: 18.2.0
-        version: 18.2.0
-      resend:
-        specifier: ^3.1.0
-        version: 3.1.0
-      server-only:
-        specifier: ^0.0.1
-        version: 0.0.1
-      tailwindcss:
-        specifier: ^3.3.3
-        version: 3.3.5(ts-node@10.9.1)
-      types:
-        specifier: workspace:*
-        version: link:../types
-    devDependencies:
-      '@types/chai':
-        specifier: ^4.3.3
-        version: 4.3.10
-      '@types/mocha':
-        specifier: ^10.0.0
-        version: 10.0.4
-      '@types/node':
-        specifier: ^18.11.7
-        version: 18.18.9
-      '@types/nodemailer':
-        specifier: ^6.4.7
-        version: 6.4.14
-      '@types/rewire':
-        specifier: ^2.5.28
-        version: 2.5.30
-      '@types/sinon':
-        specifier: ^10.0.13
-        version: 10.0.20
-      '@types/uuid':
-        specifier: ^9.0.0
-        version: 9.0.7
-      chai:
-        specifier: ^4.3.6
-        version: 4.3.10
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.3.1
-      eslint-config-custom:
-        specifier: workspace:*
-        version: link:../eslint-config-custom
-      lint-staged:
-        specifier: ^13.0.3
-        version: 13.3.0
-      mocha:
-        specifier: ^10.1.0
-        version: 10.2.0
-      nyc:
-        specifier: ^15.1.0
-        version: 15.1.0
-      rewire:
-        specifier: ^6.0.0
-        version: 6.0.0
-      rimraf:
-        specifier: ^3.0.2
-        version: 3.0.2
-      sinon:
-        specifier: ^14.0.1
-        version: 14.0.2
-      ts-node:
-        specifier: ^10.9.1
-        version: 10.9.1(@types/node@18.18.9)(typescript@5.2.2)
-      tsconfig:
-        specifier: workspace:*
-        version: link:../tsconfig
-      tsconfig-paths:
-        specifier: ^4.1.0
-        version: 4.2.0
-      tsup:
-        specifier: 7.2.0
-        version: 7.2.0(postcss@8.4.33)(ts-node@10.9.1)(typescript@5.2.2)
-      tsx:
-        specifier: ^3.7.1
-        version: 3.14.0
       typescript:
         specifier: 5.2.2
         version: 5.2.2
@@ -1213,7 +1110,7 @@ importers:
         version: 4.2.0
       tsup:
         specifier: 7.2.0
-        version: 7.2.0(postcss@8.4.33)(ts-node@10.9.1)(typescript@5.2.2)
+        version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
       tsx:
         specifier: ^3.7.1
         version: 3.14.0
@@ -1325,7 +1222,7 @@ importers:
         version: 4.2.0
       tsup:
         specifier: 7.2.0
-        version: 7.2.0(postcss@8.4.33)(ts-node@10.9.1)(typescript@5.2.2)
+        version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
       typedoc:
         specifier: 0.25.1
         version: 0.25.1(typescript@5.2.2)
@@ -1410,7 +1307,7 @@ importers:
         version: 11.1.0(eslint@8.53.0)
       eslint-plugin-prettier:
         specifier: ^4.2.1
-        version: 4.2.1(eslint@8.53.0)(prettier@3.2.4)
+        version: 4.2.1(eslint@8.53.0)(prettier@3.3.2)
       gts:
         specifier: ^3.1.0
         version: 3.1.1(typescript@5.2.2)
@@ -1460,7 +1357,7 @@ importers:
         version: link:../tsconfig
       tsup:
         specifier: 7.2.0
-        version: 7.2.0(postcss@8.4.33)(ts-node@10.9.1)(typescript@5.2.2)
+        version: 7.2.0(ts-node@10.9.1)(typescript@5.2.2)
       typedoc:
         specifier: 0.25.1
         version: 0.25.1(typescript@5.2.2)
@@ -9415,12 +9312,6 @@ packages:
     dependencies:
       undici-types: 5.26.5
 
-  /@types/nodemailer@6.4.14:
-    resolution: {integrity: sha512-fUWthHO9k9DSdPCSPRqcu6TWhYyxTBg382vlNIttSe9M7XfsT06y0f24KHXtbnijPGGRIcVvdKHTNikOI6qiHA==}
-    dependencies:
-      '@types/node': 18.18.9
-    dev: true
-
   /@types/normalize-package-data@2.4.4:
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
     dev: true
@@ -10297,22 +10188,6 @@ packages:
       postcss: 8.4.31
       postcss-value-parser: 4.2.0
     dev: true
-
-  /autoprefixer@10.4.16(postcss@8.4.33):
-    resolution: {integrity: sha512-7vd3UC6xKp0HLfua5IjZlcXvGAGy7cBAXTg2lyQ/8WpNhd6SiZ8Be+xm3FyBSYJx5GKcpRCzBh7RH4/0dnY+uQ==}
-    engines: {node: ^10 || ^12 || >=14}
-    hasBin: true
-    peerDependencies:
-      postcss: ^8.1.0
-    dependencies:
-      browserslist: 4.22.1
-      caniuse-lite: 1.0.30001562
-      fraction.js: 4.3.7
-      normalize-range: 0.1.2
-      picocolors: 1.0.0
-      postcss: 8.4.33
-      postcss-value-parser: 4.2.0
-    dev: false
 
   /available-typed-arrays@1.0.5:
     resolution: {integrity: sha512-DMD0KiN46eipeziST1LPP/STfDU0sufISXmjSgvVsoU2tqxctQeASejWcfNtxYKqETM1UxQ8sp2OrSBWpHY6sw==}
@@ -12251,7 +12126,7 @@ packages:
       prettier: 3.1.0
       prettier-linter-helpers: 1.0.0
 
-  /eslint-plugin-prettier@4.2.1(eslint@8.53.0)(prettier@3.2.4):
+  /eslint-plugin-prettier@4.2.1(eslint@8.53.0)(prettier@3.3.2):
     resolution: {integrity: sha512-f/0rXLXUt0oFYs8ra4w49wYZBG5GKZpAYsJSm6rnYL5uVDjd+zowwMwVZHnAjf4edNrKpCDYfXDgmRE/Ak7QyQ==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -12263,7 +12138,7 @@ packages:
         optional: true
     dependencies:
       eslint: 8.53.0
-      prettier: 3.2.4
+      prettier: 3.3.2
       prettier-linter-helpers: 1.0.0
     dev: true
 
@@ -13025,6 +12900,7 @@ packages:
 
   /fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
+    dev: true
 
   /fresh@0.5.2:
     resolution: {integrity: sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==}
@@ -15928,6 +15804,7 @@ packages:
   /normalize-range@0.1.2:
     resolution: {integrity: sha512-bdok/XvKII3nUpklnV6P2hxtMNrCboOjAcyBuQnWEhO665FwrSNRxU+AqpsyvO6LgGYPspN+lu5CLtw4jPRKNA==}
     engines: {node: '>=0.10.0'}
+    dev: true
 
   /npm-run-path@4.0.1:
     resolution: {integrity: sha512-S48WzZW777zhNIrn7gxOlISNAqi9ZC/uQFnRdbeIHhZhCA6UqpkOT8T1G7BvfdgP4Er8gF4sUbaS0i7QvIfCWw==}
@@ -16690,8 +16567,8 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
-  /prettier@3.2.4:
-    resolution: {integrity: sha512-FWu1oLHKCrtpO1ypU6J0SbK2d9Ckwysq6bHj/uaCP26DxrPpppCLQRGVuqAxSTvhF00AcvDRyYrLNW7ocBhFFQ==}
+  /prettier@3.3.2:
+    resolution: {integrity: sha512-rAVeHYMcv8ATV5d508CFdn+8/pHPpXeIid1DdrPwXnaAdH7cqjVbpJaT5eq4yRAFU/lsbwYwSF/n5iNrdJHPQA==}
     engines: {node: '>=14'}
     hasBin: true
     dev: true
@@ -18845,7 +18722,7 @@ packages:
   /tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
 
-  /tsup@7.2.0(postcss@8.4.33)(ts-node@10.9.1)(typescript@5.2.2):
+  /tsup@7.2.0(ts-node@10.9.1)(typescript@5.2.2):
     resolution: {integrity: sha512-vDHlczXbgUvY3rWvqFEbSqmC1L7woozbzngMqTtL2PGBODTtWlRwGDDawhvWzr5c1QjKe4OAKqJGfE1xeXUvtQ==}
     engines: {node: '>=16.14'}
     hasBin: true
@@ -18869,7 +18746,6 @@ packages:
       execa: 5.1.1
       globby: 11.1.0
       joycon: 3.1.1
-      postcss: 8.4.33
       postcss-load-config: 4.0.1(postcss@8.4.33)(ts-node@10.9.1)
       resolve-from: 5.0.0
       rollup: 3.29.4

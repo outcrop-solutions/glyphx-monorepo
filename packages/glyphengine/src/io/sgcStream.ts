@@ -154,11 +154,8 @@ export class SgcStream extends Transform {
     buffer.set(url, bufferOffset);
     bufferOffset += urlSize;
 
-    /**
-     * @jp-burford this is bufferOffset and not descSize or desc.length (which we tried previously)
-     * because we need to place the desc at the correct position, not at a position that === length
-     * i have stepped through this cherry picked version in the unit tests using MOCK_LARGE_DATA and found that the bufferSIze - bufferOffset = descSize and is correct at this step. (103 + 2 = 105)
-     */
+
+    //Description is set above because its size may need to be adjusted to prevent overrunning the 2^16 constraint
     buffer.set(desc, bufferOffset);
     bufferOffset += descSize;
 
