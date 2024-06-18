@@ -73,9 +73,11 @@ export class SgcStream extends Transform {
   _transform(chunk: IGlyph, encoding: string, callback: Function) {
     let bufferSize = 74;
     const tagSize = Buffer.byteLength(chunk.tag) + 2;
+    const urlSize = Buffer.byteLength(chunk.url) + 2;
+
+    // include desc byteLength in buffer sizing
     const desc = convertTextToUtfForBuffer(chunk.desc);
     const descSize = desc.length;
-    const urlSize = Buffer.byteLength(chunk.url) + 2;
 
     bufferSize += tagSize + descSize + urlSize;
     const buffer = Buffer.alloc(bufferSize);
@@ -151,6 +153,7 @@ export class SgcStream extends Transform {
     const url = convertTextToUtfForBuffer(chunk.url);
     buffer.set(url, bufferOffset);
     bufferOffset += urlSize;
+
 
     //Description is set above because its size may need to be adjusted to prevent overrunning the 2^16 constraint
     buffer.set(desc, bufferOffset);

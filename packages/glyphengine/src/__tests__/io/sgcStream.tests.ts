@@ -1,6 +1,6 @@
 import 'mocha';
 import {assert} from 'chai';
-import {MOCK_GLYPH_DATA} from './mockGlyphData';
+import {MOCK_GLYPH_DATA, MOCK_LARGE_DATA} from './mockGlyphData';
 import {Readable, Writable} from 'stream';
 import {pipeline} from 'stream/promises';
 import {SgcStream, MAGIC_NUMBER, FORMAT_VERSION, OFFSET} from '../../io/sgcStream';
@@ -114,6 +114,35 @@ describe('#io/SgcStream', () => {
         objectMode: true,
         read: () => {
           MOCK_GLYPH_DATA.forEach((data) => rStream.push(data));
+          rStream.push(null);
+        },
+      });
+
+      let recordNumber = -1;
+      const wStream = new Writable({
+        objectMode: true,
+        write: (chunk, encoding, callback) => {
+          if (recordNumber === -1) {
+            checkHeader(chunk);
+          } else {
+            checkRecord(recordNumber, chunk);
+          }
+          recordNumber++;
+          callback();
+        },
+      });
+
+      const sgcStream = new SgcStream();
+
+      await pipeline(rStream, sgcStream, wStream);
+
+      assert.strictEqual(recordNumber, 25);
+    });
+    it('Will take in our glyph data and transform it into a buffer when the JSON is BIG', async () => {
+      const rStream = new Readable({
+        objectMode: true,
+        read: () => {
+          MOCK_LARGE_DATA.forEach((data) => rStream.push(data));
           rStream.push(null);
         },
       });
