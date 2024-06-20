@@ -75,7 +75,7 @@ export class GlyphStream extends Transform {
       x: {},
       y: {},
       z: {},
-      rowId: rowIds,
+      rowId: [-9999, rowIds[0]],
     };
 
     //to try and restrict the amount of data that we are sending across the wire
