@@ -425,7 +425,7 @@ export class WorkspaceService {
 
         await Promise.all([
           mongoDbConnection.models.WorkspaceModel.addMembers(workspace.id!, [...memberIds]),
-          emailClient.sendEmail(emailData),
+          // emailClient.sendEmail(emailData),
         ]);
 
         return {members: createdMembers, workspace: workspace};

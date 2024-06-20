@@ -4,12 +4,56 @@ import {SdtParser, IInputFields} from './sdtParser';
 import {linearInterpolation, logaritmicInterpolation, convertRgbToHsv, convertHsvToRgb} from '../util';
 import {FUNCTION, SHAPE, TYPE} from '../constants';
 import dateNumberConverter from '../util/dateNumberConverter';
+import {stringify} from 'csv';
+import * as fs from 'fs';
 
 export class GlyphStream extends Transform {
   private sdtParser: SdtParser;
-  constructor(sdtParser: SdtParser) {
+  // used for writing glyphs to csv for debug
+  private __DEBUG__: boolean = true; // this should be set to false
+  private csvStringifier: any;
+  // @ts-ignore => this can be cleaned up by improving the DEBUG mode
+  private writeStream: fs.WriteStream;
+  private headerWritten: boolean;
+
+  constructor(sdtParser: SdtParser, outputPath?: string) {
     super({objectMode: true});
     this.sdtParser = sdtParser;
+
+    this.headerWritten = false;
+    if (this.__DEBUG__) {
+      this.writeStream = fs.createWriteStream(outputPath!);
+      this.csvStringifier = stringify({
+        header: true,
+        columns: [
+          {key: 'label', header: 'Label'},
+          {key: 'parent', header: 'Parent'},
+          {key: 'positionX', header: 'Position X'},
+          {key: 'positionY', header: 'Position Y'},
+          {key: 'positionZ', header: 'Position Z'},
+          {key: 'rotationX', header: 'Rotation X'},
+          {key: 'rotationY', header: 'Rotation Y'},
+          {key: 'rotationZ', header: 'Rotation Z'},
+          {key: 'scaleX', header: 'Scale X'},
+          {key: 'scaleY', header: 'Scale Y'},
+          {key: 'scaleZ', header: 'Scale Z'},
+          {key: 'colorR', header: 'Color R'},
+          {key: 'colorG', header: 'Color G'},
+          {key: 'colorB', header: 'Color B'},
+          {key: 'alpha', header: 'Alpha'},
+          {key: 'geometry', header: 'Geometry'},
+          {key: 'topology', header: 'Topology'},
+          {key: 'ratio', header: 'Ratio'},
+          {key: 'rotationRateX', header: 'Rotation Rate X'},
+          {key: 'rotationRateY', header: 'Rotation Rate Y'},
+          {key: 'rotationRateZ', header: 'Rotation Rate Z'},
+          {key: 'tag', header: 'Tag'},
+          {key: 'url', header: 'URL'},
+          {key: 'desc', header: 'Description'},
+        ],
+      });
+      this.csvStringifier.pipe(this.writeStream);
+    }
   }
 
   _transform(chunk: Record<string, unknown>, encoding: string, callback: Function) {
@@ -49,8 +93,31 @@ export class GlyphStream extends Transform {
       url: '',
       desc: desc,
     };
+
+    if (this.__DEBUG__) {
+      this.csvStringifier.write(glyph);
+    }
     this.push(glyph);
     callback();
+
+    // if (!this.headerWritten) {
+    //   this.push(this.csvStringifier.stringifyHeader());
+    //   this.headerWritten = true;
+    // }
+
+    // if (this.__DEBUG__) {
+    //   this.push(this.csvStringifier.stringifyRecord(glyph));
+    // } else {
+    //   this.push(glyph);
+    // }
+    // callback();
+  }
+
+  _flush(callback: Function) {
+    if (this.__DEBUG__) {
+      this.csvStringifier.end();
+      this.writeStream.end(callback);
+    }
   }
 
   private getDesc(chunk: Record<string, unknown>): string {
@@ -75,7 +142,7 @@ export class GlyphStream extends Transform {
       x: {},
       y: {},
       z: {},
-      rowId: [-9999, rowIds[0]],
+      rowId: rowIds,
     };
 
     //to try and restrict the amount of data that we are sending across the wire

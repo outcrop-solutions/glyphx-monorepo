@@ -1,20 +1,15 @@
 export function convertTextToUtfForBuffer(text: string): Uint8Array {
   let tempString = text;
   //our string is > 2^16 so it will break the way strings are stored in the binary file.
-  if (text[0] == '{') {
-    // if (text.length >= 65535) {
-    let jsonObj = JSON.parse(text);
-    const tmpId = jsonObj.rowId[0];
-
-    if (text.length >= 65535) {
-      console.log({tmpId});
-    }
-
-    jsonObj.rowId = [-9999, tmpId];
-    tempString = JSON.stringify(jsonObj);
-    console.log({tempString: tempString, length: tempString.length});
-    // }
-  }
+  // if (text[0] == '{') {
+  //   if (text.length >= 65535) {
+  //     let jsonObj = JSON.parse(text);
+  //     const tmpId = jsonObj.rowId[0];
+  //     jsonObj.rowId = [9999, tmpId];
+  //     tempString = JSON.stringify(jsonObj);
+  //     console.log({tempString: tempString, length: tempString.length});
+  //   }
+  // }
 
   // Create a TextEncoder instance
   const encoder = new TextEncoder();

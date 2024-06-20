@@ -261,7 +261,8 @@ export class GlyphEngine {
     const sgnFileName = `${filePrefix}/${payloadHash}.sgn`;
     const resultsStream = new streams.AthenaQueryReadStream(this.athenaManager, this.queryId as string, 1000);
 
-    const glyphStream = new GlyphStream(sdtParser);
+    const glyphStream = new GlyphStream(sdtParser, 'output.csv'); // this is for debug
+    // const glyphStream = new GlyphStream(sdtParser); this is the original implementation
     const forkingStream = new streams.ForkingStream(resultsStream, glyphStream);
 
     const sgnStream = new SgnStream();
