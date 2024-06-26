@@ -220,6 +220,17 @@ export const inviteUsers = async (req: NextApiRequest, res: NextApiResponse, ses
       workspaceId as string
     );
 
+    const emailData = {
+      type: emailTypes.EmailTypes.WORKSPACE_INVITATION,
+      workspaceName: workspace.name,
+      emails: members.map((member) => member.email),
+      workspaceId: workspace.id!,
+      inviteCode: workspace.inviteCode!,
+    } satisfies emailTypes.EmailData;
+
+    await emailClient.init();
+    await emailClient.sendEmail(emailData);
+
     const {agentData, location} = formatUserAgent(req);
 
     await activityLogService.createLog({
