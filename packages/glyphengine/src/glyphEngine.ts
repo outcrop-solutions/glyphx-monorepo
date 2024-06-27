@@ -2,13 +2,14 @@ import {aws, error, logging, generalPurposeFunctions, streams} from 'core';
 import {fileIngestionTypes, databaseTypes, glyphEngineTypes} from 'types';
 import {SdtParser} from './io';
 import {QueryRunner} from './io/queryRunner';
-import {IQueryResponse} from './interfaces';
+import {IGlyph, IQueryResponse} from './interfaces';
 import {QUERY_STATUS} from './constants';
 import {GlyphStream} from './io/glyphStream';
 import {SgcStream} from './io/sgcStream';
 import {SgnStream} from './io/sgnStream';
 import {PassThrough} from 'stream';
 import {processTrackingService, Heartbeat, projectService} from 'business';
+import {GlyphVerifierStream} from './io/glyphVerifierStream';
 
 export class GlyphEngine {
   private readonly templateKey: string;
@@ -262,6 +263,9 @@ export class GlyphEngine {
     const resultsStream = new streams.AthenaQueryReadStream(this.athenaManager, this.queryId as string, 1000);
 
     const glyphStream = new GlyphStream(sdtParser);
+
+    const glyphVerifierStream = new GlyphVerifierStream();
+
     const forkingStream = new streams.ForkingStream(resultsStream, glyphStream);
 
     const sgnStream = new SgnStream();
@@ -273,8 +277,33 @@ export class GlyphEngine {
     const sgnDestStream = this.outputBucketField.getUploadStream(sgnFileName, sgnUploadStream);
     const sgcDestStream = this.outputBucketField.getUploadStream(sgcFileName, sgcUploadStream);
 
+    let currentOffset = 6;
+    // Store the original descriptions in the verifier stream
+    glyphStream.on('data', (chunk: IGlyph) => {
+      glyphVerifierStream.storeOriginalChunks(currentOffset, chunk);
+      currentOffset++;
+    });
+
     forkingStream.fork('sgnStream', sgnStream, sgnUploadStream);
     forkingStream.fork('sgcStream', sgcStream, sgcUploadStream);
+
+    // Add logging for sgcStream
+    sgcStream.on('data', (chunk: Buffer) => {
+      // console.log(`sgcStream on data: Received chunk of length ${chunk.length}`);
+    });
+
+    // Add logging for sgcUploadStream
+    sgcUploadStream.on('data', (chunk: Buffer) => {
+      // console.log(`sgcUploadStream on data: Received chunk of length ${chunk.length}`);
+    });
+
+    // Add logging for glyphVerifierStream
+    glyphVerifierStream.on('data', (chunk: Buffer) => {
+      // console.log(`glyphVerifierStream on data: Received chunk of length ${chunk.length}`);
+    });
+
+    // pipe to verify
+    sgcUploadStream.pipe(glyphVerifierStream);
 
     forkingStream.startPipeline();
 

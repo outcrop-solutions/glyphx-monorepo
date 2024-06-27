@@ -154,7 +154,6 @@ export class SgcStream extends Transform {
     buffer.set(url, bufferOffset);
     bufferOffset += urlSize;
 
-
     //Description is set above because its size may need to be adjusted to prevent overrunning the 2^16 constraint
     buffer.set(desc, bufferOffset);
     bufferOffset += descSize;
