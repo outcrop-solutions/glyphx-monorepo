@@ -140,12 +140,12 @@ class VercelDeploymentTester {
   }
 }
 
-const branch = 'your_git_branch'; // Replace with your Git branch
-const startDate = '2023-01-01'; // Replace with your start date
-const endDate = '2023-12-31'; // Replace with your end date
-const vercelApiToken = 'your_vercel_api_token'; // Replace with your Vercel API token
-const vercelProjectId = 'your_vercel_project_id'; // Replace with your Vercel project ID
-const authToken = 'your_auth_token'; // Replace with your authentication token
+const branch = 'git_branch';
+const startDate = '2023-01-01';
+const endDate = '2023-12-31';
+const vercelApiToken = 'vercel_api_token';
+const vercelProjectId = 'vercel_project_id';
+const authToken = 'auth_token';
 
 const tester = new VercelDeploymentTester(branch, startDate, endDate, vercelApiToken, vercelProjectId, authToken);
 tester.runPipeline();
