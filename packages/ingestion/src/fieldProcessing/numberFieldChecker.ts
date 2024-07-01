@@ -272,6 +272,8 @@ export class NumberFieldChecker implements fieldProcessingInterfaces.IFieldCheck
     if (isPercent) {
       retval = retval / 100;
     }
+
+    retval = Number(retval.toFixed(7));
     return retval;
   }
 }
