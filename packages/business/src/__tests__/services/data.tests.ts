@@ -40,7 +40,7 @@ describe('#services/data', () => {
         () => new MockAthenaConnection(value) as unknown as aws.AthenaManager
       );
 
-      const result = await dataService.getDataByGlyphxIds('testTableName', [1, 2, 3, 4, 5]);
+      const result = await dataService.getDataByGlyphxIds('testProjectName', 'testTableName', [1, 2, 3, 4, 5]);
 
       assert.deepEqual(result, value);
     });
@@ -62,7 +62,7 @@ describe('#services/data', () => {
       sandbox.replace(error.GlyphxError.prototype, 'publish', publishOverride);
       let errored = false;
       try {
-        await dataService.getDataByGlyphxIds('testTableName', [1, 2, 3, 4, 5]);
+        await dataService.getDataByGlyphxIds('testProjectName', 'testTableName', [1, 2, 3, 4, 5]);
       } catch (err) {
         assert.instanceOf(err, error.DataServiceError);
         errored = true;
