@@ -418,6 +418,7 @@ export class WorkspaceService {
         });
 
         await Promise.all([mongoDbConnection.models.WorkspaceModel.addMembers(workspace.id!, [...memberIds])]);
+
         return {members: createdMembers, workspace: workspace};
       } else {
         const errMsg = 'No workspace found';
