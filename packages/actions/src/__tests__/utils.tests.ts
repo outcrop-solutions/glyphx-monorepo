@@ -7,7 +7,7 @@ import {dbConnection, Initializer, projectService, stateService, workspaceServic
 import {databaseTypes, fileIngestionTypes, glyphEngineTypes} from 'types';
 import {buildStateUrl, formatGridData, generateFilter, generateFilterQuery, generateSegment, getToken} from 'utils';
 
-describe.only('#tests/utils', () => {
+describe('#tests/utils', () => {
   const sandbox = createSandbox();
 
   context('#getToken', () => {
