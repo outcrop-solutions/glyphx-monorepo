@@ -51,7 +51,7 @@ export class QueryRunner {
     this.databaseName = databaseName;
     this.athenaManager = new aws.AthenaManager(databaseName);
     this.inited = false;
-    this.filter = this.composeFilter(filter);
+    this.filter = this.composeFilter(xColName, yColName, filter);
     this.queryField = '';
   }
 
@@ -59,12 +59,12 @@ export class QueryRunner {
     return this.queryField;
   }
 
-  private composeFilter(filter: string | undefined): string {
-    if (!filter?.trim()) {
-      return '';
-    } else {
-      return `WHERE ${filter.trim()}`;
+  private composeFilter(xColumnName: string, yColumnName: string, filter: string | undefined): string {
+    let baseFilter = `WHERE "${xColumnName}" IS NOT NULL AND "${yColumnName}" IS NOT NULL`;
+    if (filter?.trim()) {
+      baseFilter += ` AND ${filter.trim()}`;
     }
+    return baseFilter;
   }
 
   public async getQueryStatus(): Promise<IQueryResponse> {

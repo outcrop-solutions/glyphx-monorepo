@@ -62,7 +62,8 @@ export class MinMaxCalculator {
   }
 
   public async load(): Promise<void> {
-    const filterString = this.filter ? `WHERE ${this.filter}` : '';
+    const baseFilter = `WHERE "${this.xColumnName}" IS NOT NULL AND "${this.yColumnName}" IS NOT NULL`;
+    const filterString = this.filter ? ` AND ${this.filter}` : '';
 
     const formattedZ = this.zCol.replace('zColumn', `"${this.zColName}"`);
     const query = `
@@ -72,7 +73,7 @@ export class MinMaxCalculator {
       ${this.yCol} as yColumn,
       ${formattedZ} as zColumn
       FROM "${this.tableName}"
-      ${filterString}
+      ${baseFilter} ${filterString}
       GROUP BY ${this.xCol}, ${this.yCol}
     )
     SELECT
