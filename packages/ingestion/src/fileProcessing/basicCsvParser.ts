@@ -294,7 +294,9 @@ export class BasicCsvParser extends Transform {
       callback();
     } catch (err: any) {
       let e = new error.FileParseError(
-        `An error occurred while parsing the file: ${err.message ?? err} See the inner error for additional information.`,
+        `An error occurred while parsing the file: ${
+          err.message ?? err
+        } See the inner error for additional information.`,
         err
       );
       callback(e);
