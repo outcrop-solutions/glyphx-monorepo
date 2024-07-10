@@ -4,6 +4,7 @@ import {dataService} from '../../services';
 import {createSandbox} from 'sinon';
 import athenaConnection from '../../lib/athenaConnection';
 import {aws, error} from 'core';
+import {Initializer} from 'init';
 
 class MockAthenaConnection {
   private readonly retrunedValue: any;
@@ -122,6 +123,17 @@ describe('#services/data', () => {
 
       assert.isTrue(errored);
       assert.isTrue(didPublish);
+    });
+  });
+  context('getDataWith-9999RowID', () => {
+    it.only('will get the correct rows', async () => {
+      await Initializer.init();
+      let result = await dataService.getDataByGlyphxIds(
+        '668bf0b3febfbf697a733d3b',
+        'glyphx_6581c31c1505c86909e2f7fe_668bf0b3febfbf697a733d3b_view',
+        [2957, -9999, 5728, -9999, 3328, 2417]
+      );
+      console.log(result);
     });
   });
 });

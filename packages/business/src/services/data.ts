@@ -46,11 +46,9 @@ export class DataService {
 
     let result: Array<string> = [];
     for (let i = 0; i < baseRows.length; i++) {
-      result.push(
-        ` OR (${xFieldSelect} = ${baseRows[i][xFieldName]} AND ${yFieldSelect} = ${baseRows[i][yFieldName]}))`
-      );
+      result.push(`(${xFieldSelect} = ${baseRows[i][xFieldName]} AND ${yFieldSelect} = ${baseRows[i][yFieldName]})`);
     }
-    return `(${result.join('')}`;
+    return result;
   }
   static async buildQuery(
     projectId: string,
@@ -75,16 +73,17 @@ export class DataService {
         goodIds.push(glyphxIds[i]);
       } else {
         i++;
-        lookUpIds.push(i);
+        lookUpIds.push(glyphxIds[i]);
       }
 
       i++;
     }
-    filter = `glyphx_id__ IN (${goodIds.join(',')})`;
+    if (goodIds.length) filter = `glyphx_id__ IN (${goodIds.join(',')})`;
 
     if (lookUpIds.length > 0) {
-      let lookUpFilter = this.getLookUpFilter(projectId, tableName, lookUpIds);
-      filter = `${filter} ${lookUpFilter}`;
+      let lookUpFilter = await this.getLookUpFilter(projectId, tableName, lookUpIds);
+      if (filter) filter = `${filter} OR (${lookUpFilter.join(' OR ')})`;
+      else filter = `${lookUpFilter.join(' OR ')}`;
     }
     let query = `SELECT * FROM ${tableName} WHERE ${filter} ORDER BY glyphx_id__`;
 
