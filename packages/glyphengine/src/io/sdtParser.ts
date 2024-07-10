@@ -30,6 +30,7 @@ export class SdtParser {
   public isZDate: boolean;
   private zColName: string;
   private zAccumulatorType: glyphEngineTypes.constants.ACCUMULATOR_TYPE;
+  private minMaxCalculator: MinMaxCalculator | undefined;
 
   constructor(
     isXDate: boolean,
@@ -65,6 +66,7 @@ export class SdtParser {
     this.shapeField = SHAPE.CUBE;
     this.data = data;
     this.athenaManager = athenaManager;
+    this.minMaxCalculator = undefined;
   }
 
   private getBindings() {
@@ -133,7 +135,7 @@ export class SdtParser {
       y['@_field'],
       z['@_field']
     );
-
+    this.minMaxCalculator = minMaxCalculator;
     await minMaxCalculator.load();
     const xInputField = await this.buildInputField('x', x, minMaxCalculator.minMax, this.data!.get('type_x') as string);
 

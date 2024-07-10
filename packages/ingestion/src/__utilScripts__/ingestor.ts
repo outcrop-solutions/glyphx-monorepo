@@ -26,7 +26,7 @@ const optionsArguments = [
   {name: 'dumpAthenaQueries', type: Boolean, defaultValue: true},
 ];
 
-interface IOption {
+interface IOptions {
   inputFiles: string[] | undefined;
   outputDir: string;
   inputDir: string;
@@ -37,7 +37,7 @@ interface IOption {
   [key: string]: any;
 }
 
-async function getInputFiles(options: IOption) {
+async function getInputFiles(options: IOptions) {
   let rl = readline.promises.createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -59,7 +59,7 @@ async function getInputFiles(options: IOption) {
   }
 }
 
-async function processArgs(): Promise<IOption> {
+async function processArgs(): Promise<IOptions> {
   let args = process.argv.slice(2);
   let file_name = __filename;
   let pos = file_name.lastIndexOf('/');
@@ -74,7 +74,7 @@ async function processArgs(): Promise<IOption> {
 
   args = args.slice(i + 1);
 
-  let options: IOption = commandLineArgs(optionsArguments, {argv: args}) as IOption;
+  let options: IOptions = commandLineArgs(optionsArguments, {argv: args}) as IOptions;
 
   if (!options.inputFiles || options.inputFiles.length === 0) {
     await getInputFiles(options);
@@ -346,7 +346,7 @@ ${tableQuery}
   });
 }
 
-async function processFiles(options: IOption) {
+async function processFiles(options: IOptions) {
   console.log(`Processing files.  Ouputs can be found in : ${options.outputDir}`);
   await setupParentOutputDirectory(options.outputDir);
 
@@ -398,7 +398,7 @@ async function processFiles(options: IOption) {
   }
 }
 
-describe('fileParsingTester', () => {
+describe('fileIngestionTester', () => {
   it('should parse the file', async () => {
     const options = await processArgs();
     console.log(`ingestor is running with args: ${JSON.stringify(options)}`);

@@ -22,6 +22,7 @@ export class GlyphEngine {
 
   private queryRunner?: QueryRunner;
   private queryId?: string;
+  private query: string;
   private initedField: boolean;
 
   constructor(
@@ -39,6 +40,8 @@ export class GlyphEngine {
 
     this.processId = processId;
     this.initedField = false;
+
+    this.query = '';
   }
 
   public async init(): Promise<void> {
@@ -363,6 +366,7 @@ export class GlyphEngine {
     });
     await this.queryRunner.init();
     this.queryId = await this.queryRunner.startQuery();
+    this.query = this.queryRunner.query;
   }
 
   public static getAccumulatorFunction(
