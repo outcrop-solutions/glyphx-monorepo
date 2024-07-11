@@ -5,9 +5,9 @@ import {error} from 'core';
 
 describe('#fieldProcessing/DateFieldChecker', () => {
   context('checkField', () => {
-    it('05/15/1972 is a not a date within the accepted range', () => {
+    it('05/15/1972 is a date within the accepted range', () => {
       const dateChecker = new DateFieldChecker();
-      assert.isFalse(dateChecker.checkField('05/15/1972'));
+      assert.isTrue(dateChecker.checkField('05/15/1972'));
     });
     it('05/15/1982 is a date within the accepted range', () => {
       const dateChecker = new DateFieldChecker();
@@ -64,6 +64,18 @@ describe('#fieldProcessing/DateFieldChecker', () => {
     it('I am not a date is not a date', () => {
       const dateChecker = new DateFieldChecker();
       assert.isFalse(dateChecker.checkField('I am not a date'));
+    });
+    it('decimal numbers cannot be a date', () => {
+      const dateChecker = new DateFieldChecker();
+      assert.isFalse(dateChecker.checkField('0.134232435423'));
+    });
+    it('currency numbers cannot be a date', () => {
+      const dateChecker = new DateFieldChecker();
+      assert.isFalse(dateChecker.checkField('$1274736000000'));
+    });
+    it('perentage numbers cannot be a date', () => {
+      const dateChecker = new DateFieldChecker();
+      assert.isFalse(dateChecker.checkField('1274736000000%'));
     });
   });
 
