@@ -1,7 +1,6 @@
 import React, {useCallback, useState} from 'react';
 import produce from 'immer';
 import {useRecoilState, useSetRecoilState} from 'recoil';
-// import { _updateConfig, api } from 'lib';
 import {togglesConfigDirtyAtom, configsAtom} from 'state';
 import {toSnakeCase} from './toSnakeCase';
 

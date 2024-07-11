@@ -7,7 +7,7 @@ node_modules
 
 # Testing
 /coverage
-
+*.auth
 # Next.js
 .next
 out
@@ -43,6 +43,7 @@ yarn-error.log*
 
 # test data for integration tests
 testData
+test_data
 
 #code coverage output
 .nyc_output
@@ -62,4 +63,7 @@ output.log
 #artifacts from logging tests
 Foo.bar
 
+# exclude rust binary
+**/index.node
 packages/codegen/src/output
+**/glyph_engine.node

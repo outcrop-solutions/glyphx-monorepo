@@ -79,9 +79,10 @@ describe('#fileProcessing/fileUploadManager', () => {
       assert.isNotEmpty(results.fileInformation.parquetFileName);
       assert.strictEqual(results.fileInformation.tableName, tableName);
       assert.isArray(results.errorInformation);
-      assert.isAtLeast(results.errorInformation.length, 1);
+      //We removed the error stuff because it was causing stack overflow errors.
+      //assert.isAtLeast(results.errorInformation.length, 1);
 
-      assert.strictEqual(results.errorInformation[0].errorType, FILE_PROCESSING_ERROR_TYPES.INVALID_FIELD_VALUE);
+      //assert.strictEqual(results.errorInformation[0].errorType, FILE_PROCESSING_ERROR_TYPES.INVALID_FIELD_VALUE);
     });
 
     it('will throw an error when uploading a file fails', async () => {
@@ -170,9 +171,10 @@ describe('#fileProcessing/fileUploadManager', () => {
       assert.isNotEmpty(results.fileInformation.parquetFileName);
       assert.strictEqual(results.fileInformation.tableName, tableName);
       assert.isArray(results.errorInformation);
-      assert.isAtLeast(results.errorInformation.length, 1);
+      //We removed the error stuff because it was causing stack overflow errors.
+      //assert.isAtLeast(results.errorInformation.length, 1);
 
-      assert.strictEqual(results.errorInformation[0].errorType, FILE_PROCESSING_ERROR_TYPES.INVALID_FIELD_VALUE);
+      //assert.strictEqual(results.errorInformation[0].errorType, FILE_PROCESSING_ERROR_TYPES.INVALID_FIELD_VALUE);
       assert.isTrue(tableServiceStub.calledOnce);
     });
   });

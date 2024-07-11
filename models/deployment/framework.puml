@@ -1,0 +1,32 @@
+@startuml
+!include <awslib/AWSCommon>
+!include <awslib/Analytics/Athena>
+!include <awslib/Storage/SimpleStorageService>
+!include <awslib/SecurityIdentityCompliance/SecretsManager>
+!include <awslib/Serverless/Serverless>
+!include <tupadr3/common>
+!include <tupadr3/devicons2/mongodb>
+!include <tupadr3/devicons2/mocha>
+!include <tupadr3/devicons2/nextjs_original_wordmark>
+!include <tupadr3/devicons2/nodejs>
+!include <tupadr3/devicons2/react_original_wordmark>
+!include <tupadr3/devicons2/rust>
+
+left to right direction
+
+DEV2_NEXTJS_ORIGINAL_WORDMARK(nextjs, "NextJs", rectangle, green)
+DEV2_REACT_ORIGINAL_WORDMARK(client, "Web App", rectangle, lightblue) 
+rectangle "Vercel" as vercel 
+Serverless(serverless, "Serverless Functions", "Deployment")
+
+
+  node "Backend" as  backend  
+
+
+
+
+vercel -> serverless 
+vercel --> nextjs
+nextjs --> client
+nextjs --> backend
+@enduml

@@ -1,12 +1,13 @@
 'use client';
 import React from 'react';
-import StateIcon from 'public/svg/state.svg';
+import StateIcon from 'svg/state.svg';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {CameraIcon} from '@heroicons/react/outline';
 
+export const maxDuration = 300;
+
 export const CreateStateInput = ({isSubmitting, name, setName}) => {
   const validName = name?.length > 0 && name?.length <= 75;
-
   // local state
   const handleNameChange = (event) => setName(event.target.value);
 
@@ -36,7 +37,11 @@ export const CreateStateInput = ({isSubmitting, name, setName}) => {
         disabled={!validName || isSubmitting}
         onClick={createState}
       >
-        {isSubmitting ? <LoadingDots /> : <CameraIcon className="h-4 w-4" />}
+        {isSubmitting ? (
+          <LoadingDots className="h-4 w-4 flex items-center justify-center" />
+        ) : (
+          <CameraIcon className="h-4 w-4" />
+        )}
       </button>
     </div>
   );

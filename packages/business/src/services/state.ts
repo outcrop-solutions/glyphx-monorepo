@@ -1,8 +1,7 @@
 import {databaseTypes, webTypes} from 'types';
 import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
-import {hashFileSystem} from '../util/hashFileSystem';
-import {hashPayload} from '../util/hashPayload';
+import {hashFileSystem, hashPayload} from '../util/hashFunctions';
 
 export class StateService {
   public static async getState(stateId: string): Promise<databaseTypes.IState | null> {
@@ -41,6 +40,15 @@ export class StateService {
       const user = await mongoDbConnection.models.UserModel.getUserById(userId);
       const image = imageHash ? {imageHash} : {};
 
+      const cleanFiles = project.files.map((f) => {
+        delete f.selected;
+        delete f.open;
+
+        return {
+          ...f,
+        };
+      });
+
       const input = {
         ...image,
         createdBy: {...user},
@@ -50,14 +58,13 @@ export class StateService {
         camera: {...camera},
         aspectRatio: {...aspectRatio},
         properties: {...project.state.properties},
-        fileSystemHash: hashFileSystem(project.files),
-        payloadHash: hashPayload(hashFileSystem(project.files), project),
+        fileSystemHash: hashFileSystem(cleanFiles),
+        payloadHash: hashPayload(hashFileSystem(cleanFiles), project),
         workspace: {...workspace},
         project: {...project},
-        fileSystem: [...project.files],
+        fileSystem: [...cleanFiles],
         rowIds: rowIds,
       };
-
 
       const state = await mongoDbConnection.models.StateModel.createState(input);
 

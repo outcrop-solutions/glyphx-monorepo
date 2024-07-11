@@ -15,3 +15,4 @@ export {TypeCheckError} from './typeCheckError';
 export {UnexpectedError} from './unexpectedError';
 export {DbFormatterError} from './dbFormatterError';
 export {EmailError} from './emailError';
+export {ActionError} from './actionError';

@@ -83,7 +83,7 @@ export class WorkspaceService {
   ): Promise<databaseTypes.IWorkspace | null> {
     try {
       const workspace = await WorkspaceService.getSiteWorkspace(id);
-
+      // console.dir({workspace, userId, email, id}, {depth: null});
       if (workspace) {
         // delete workspace
         await mongoDbConnection.models.WorkspaceModel.updateWorkspaceByFilter(
@@ -93,9 +93,11 @@ export class WorkspaceService {
           }
         );
 
-        // remove workspace and membership from user
+        // remove workspace and membe,rship from user
         await mongoDbConnection.models.UserModel.removeWorkspaces(userId, [workspace.id!]);
-        const userMember = workspace.members.filter((mem: any) => mem.member.toString() === userId);
+        const userMember = workspace.members.filter((mem: any) => {
+          return mem?.member?.id?.toString() === userId;
+        });
 
         if (userMember?.length > 0) {
           await mongoDbConnection.models.UserModel.removeMembership(userId, [...userMember]);
@@ -218,8 +220,23 @@ export class WorkspaceService {
   public static async getSiteWorkspace(id: string): Promise<databaseTypes.IWorkspace | null> {
     try {
       const workspace = await mongoDbConnection.models.WorkspaceModel.getWorkspaceById(id);
-
-      return workspace;
+      // removed deleted projects and memberships to optimize retval size
+      const filteredMembers = workspace.members.filter((mem) => !mem.deletedAt);
+      const filteredProjects = workspace.projects.filter((proj) => {
+        if (!proj.deletedAt) {
+          const mems = proj.members.filter((m) => !m.deletedAt);
+          const project = {
+            ...proj,
+            members: mems,
+          };
+          return project;
+        }
+      });
+      return {
+        ...workspace,
+        members: filteredMembers,
+        projects: filteredProjects,
+      };
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError || err instanceof error.InvalidArgumentError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);

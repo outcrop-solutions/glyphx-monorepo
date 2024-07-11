@@ -11,15 +11,15 @@ export const Annotation = ({item}) => {
     >
       <div className="flex items-center justify-between text-xs">
         <div className="flex items-center">
-          <div className="flex items-center justify-center h-6 w-6 rounded-full bg-teal">
+          <div className="flex items-center justify-center h-4 w-4 rounded-full bg-teal">
             {item.author.name.charAt(0)}
           </div>
           <div className="text-center  whitespace-nowrap truncate ml-2">{item.author.name}</div>
         </div>
         <div className="text-center text-gray whitespace-nowrap truncate ml-2">{dayjs().to(dayjs(item.createdAt))}</div>
       </div>
-      <div className="transition duration-150 truncate grow ml-8">
-        <span className={`w-full text-left text-light-gray text-sm font-medium`}>{item.value}</span>
+      <div className="transition duration-150 grow ml-8">
+        <p className={`w-full text-left text-light-gray text-sm font-medium`}>{item.value}</p>
       </div>
     </li>
   );

@@ -42,7 +42,7 @@ fn build_updateable_fields(field_definitions: &Vec<&FieldDefinition>) -> TokenSt
                 )
             })
             .collect::<Vec<TokenStream>>();
-        let builder_default = if field.default_value.is_some() {
+        let _builder_default = if field.default_value.is_some() {
             format!(", default = \"{}\"", field.default_value.as_ref().unwrap())
         } else {
             String::new()

@@ -44,6 +44,7 @@ export const useSocket = () => {
               window.core.SendCameraPosition.connect((json: string) => {
                 const jsonCamera = `{${json}}`;
                 const {camera} = JSON.parse(jsonCamera);
+                console.log('camera in socket', {camera});
                 const newCamera: webTypes.Camera = {
                   pos: {
                     x: camera.position[0],
@@ -71,6 +72,7 @@ export const useSocket = () => {
               });
               window.core.SendScreenShot.connect((json: string) => {
                 const imageHash = JSON.parse(json);
+                console.log('send screenshot in socket', {imageHash});
                 setImage(
                   produce((draft: WritableDraft<webTypes.ImageHash>) => {
                     draft.imageHash = imageHash.imageData;
@@ -79,39 +81,39 @@ export const useSocket = () => {
               });
               window.core.OpenProjectComplete.connect((json: string) => {
                 const msg = JSON.parse(json);
+                console.log('open project complete', {msg});
                 if (!payload.current.isSent && msg.isCreate) {
+                  console.log('set isSet to true');
                   payload.current.isSent = true;
                   window?.core?.GetCameraPosition(true);
                   window?.core?.TakeScreenShot('');
+                } else if (payload.current.isSent) {
+                  console.log('set isSet to false');
+                  payload.current.isSent = false;
                 }
               });
             });
 
             setChannel(channel);
-          } catch (error) {
-            console.error({error});
-          }
+          } catch (error) {}
         };
 
-        ws.onerror = (error) => {
-          console.error('WebSocket Error:', error);
-        };
+        // ws.onerror = (error) => {};
 
         ws.onclose = (event) => {
-          if (event.wasClean) {
-            console.info(`Connection closed cleanly, code=${event.code}, reason=${event.reason}`);
-          } else {
-            console.warn('Connection died');
-            // TODO: Implement a reconnect mechanism here if needed
-          }
+          try {
+            if (event.wasClean) {
+              console.info(`Connection closed cleanly, code=${event.code}, reason=${event.reason}`);
+            } else {
+              console.warn('Connection died');
+              // TODO: Implement a reconnect mechanism here if needed
+            }
+          } catch (error) {}
         };
 
         ws.onmessage = (event) => {
           try {
-            //
-          } catch (error) {
-            console.error('Error parsing WebSocket message:', error);
-          }
+          } catch (error) {}
         };
 
         setSocket(ws);
@@ -121,11 +123,8 @@ export const useSocket = () => {
         try {
           isMounted.current = false;
           if (socket && socket.readyState === WebSocket.OPEN) {
-            // socket.close();
           }
-        } catch (error) {
-          console.error({error});
-        }
+        } catch (error) {}
       };
     } catch (error) {
       console.log({error});

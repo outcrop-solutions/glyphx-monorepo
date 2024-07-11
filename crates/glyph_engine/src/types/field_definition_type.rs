@@ -1,9 +1,10 @@
-#[derive(Debug, Copy, Clone)]
+use serde::{Deserialize, Serialize};
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum FieldDefinitionType {
     Standard,
     Date,
     Formula,
-    ACCUMULATED
+    ACCUMULATED,
 }
 
 impl FieldDefinitionType {
@@ -30,7 +31,7 @@ mod from_string {
         assert!(result.is_some());
         let result = result.unwrap();
         match result {
-            FieldDefinitionType::Standard => {},
+            FieldDefinitionType::Standard => {}
             _ => {
                 panic!("Unexpected result");
             }
@@ -43,7 +44,7 @@ mod from_string {
         assert!(result.is_some());
         let result = result.unwrap();
         match result {
-            FieldDefinitionType::Date => {},
+            FieldDefinitionType::Date => {}
             _ => {
                 panic!("Unexpected result");
             }
@@ -56,7 +57,7 @@ mod from_string {
         assert!(result.is_some());
         let result = result.unwrap();
         match result {
-            FieldDefinitionType::Formula => {},
+            FieldDefinitionType::Formula => {}
             _ => {
                 panic!("Unexpected result");
             }
@@ -69,7 +70,7 @@ mod from_string {
         assert!(result.is_some());
         let result = result.unwrap();
         match result {
-            FieldDefinitionType::ACCUMULATED => {},
+            FieldDefinitionType::ACCUMULATED => {}
             _ => {
                 panic!("Unexpected result");
             }

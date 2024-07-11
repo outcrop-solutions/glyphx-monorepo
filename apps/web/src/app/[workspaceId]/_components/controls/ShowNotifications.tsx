@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import {webTypes} from 'types';
-import NotificationIcon from 'public/svg/notification-icon.svg';
+import NotificationIcon from 'svg/notification-icon.svg';
 import {useSetRecoilState} from 'recoil';
 import {rightSidebarControlAtom} from 'state';
 import produce from 'immer';

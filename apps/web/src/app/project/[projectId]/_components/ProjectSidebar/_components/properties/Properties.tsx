@@ -1,5 +1,4 @@
 'use client';
-/* eslint-disable no-lone-blocks */
 import React, {useCallback, useState} from 'react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {Property} from './Property';
@@ -11,17 +10,15 @@ import {
   showLoadingAtom,
   splitPaneSizeAtom,
 } from 'state';
-import {_updateProjectState} from 'lib';
 import {useSession} from 'next-auth/react';
 import {useSWRConfig} from 'swr';
 import {callCreateModel} from 'lib/client/network/reqs/callCreateModel';
 import toast from 'react-hot-toast';
-import {hashPayload} from 'lib/utils/hashPayload';
-import {hashFileSystem} from 'lib/utils/hashFileSystem';
+import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
 import {useUrl} from 'lib/client/hooks';
 import {isValidPayload} from 'lib/utils/isValidPayload';
-import {callUpdateProject} from 'lib/client/network/reqs/callUpdateProject';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
+import {updateProjectState} from 'actions';
 
 export const Properties = () => {
   const session = useSession();
@@ -41,10 +38,22 @@ export const Properties = () => {
       event.stopPropagation();
       // project already contains filter state, no deepMerge necessary
       const payloadHash = hashPayload(hashFileSystem(project.files), project);
+      console.log({payloadHash});
       if (!isValidPayload(properties)) {
+        console.log('not a valid payload', {value: !isValidPayload(properties), properties});
         toast.success('Generate a model before applying filters!');
       } else if (doesStateExist) {
-        callUpdateProject(project, mutate);
+        console.log('called updateProjectState');
+        await updateProjectState(project.id, project.state);
+        console.log('called callDownloadModel', {
+          project,
+          payloadHash,
+          session,
+          url,
+          setLoading,
+          setDrawer,
+          setResize,
+        });
         await callDownloadModel({
           project,
           payloadHash,
@@ -55,6 +64,17 @@ export const Properties = () => {
           setResize,
         });
       } else {
+        console.log('called create model', {
+          isFilter: true,
+          project,
+          payloadHash,
+          session,
+          url,
+          setLoading,
+          setDrawer,
+          setResize,
+          mutate,
+        });
         await callCreateModel({
           isFilter: true,
           project,

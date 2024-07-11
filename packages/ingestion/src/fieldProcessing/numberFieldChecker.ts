@@ -234,8 +234,6 @@ export class NumberFieldChecker implements fieldProcessingInterfaces.IFieldCheck
         tempString = tempString.substring(1);
       }
     }
-
-    // console.log({tempString});
     return tempString;
   }
 

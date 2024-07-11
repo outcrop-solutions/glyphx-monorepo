@@ -42,8 +42,8 @@ function checkHeader(buffer: Buffer) {
   offset += 4;
 }
 
-function checkRecord(recordNumber: number, buffer: Buffer) {
-  const record = MOCK_GLYPH_DATA[recordNumber];
+function checkRecord(recordNumber: number, buffer: Buffer, data: any = MOCK_GLYPH_DATA) {
+  const record = data[recordNumber];
   let offset = 0;
   assert.strictEqual(buffer.readUInt32BE(offset), OFFSET + recordNumber);
   offset += 4;
@@ -101,7 +101,10 @@ function checkRecord(recordNumber: number, buffer: Buffer) {
   offset += urlSize;
   const description = convertUtfForBufferToText(buffer, offset);
   const descAsJson = JSON.parse(description);
-  const expectedDescAsJson = JSON.parse(record.desc);
+  let expectedDescAsJson = JSON.parse(record.desc);
+  if (record.desc.length > Math.pow(2, 15)) {
+    expectedDescAsJson.rowId = [-9999, expectedDescAsJson.rowId[0]];
+  }
   assert.deepStrictEqual(descAsJson, expectedDescAsJson);
   const descSize = Buffer.byteLength(description) + 2;
   offset += descSize;
@@ -154,7 +157,7 @@ describe('#io/SgcStream', () => {
           if (recordNumber === -1) {
             checkHeader(chunk);
           } else {
-            checkRecord(recordNumber, chunk);
+            checkRecord(recordNumber, chunk, MOCK_LARGE_DATA);
           }
           recordNumber++;
           callback();
@@ -165,7 +168,7 @@ describe('#io/SgcStream', () => {
 
       await pipeline(rStream, sgcStream, wStream);
 
-      assert.strictEqual(recordNumber, 25);
+      assert.strictEqual(recordNumber, 3);
     });
   });
 });

@@ -1,17 +1,18 @@
-use glyphx_core::GlyphxErrorData;
-use glyphx_core::GlyphxError;
-use crate::types::vectorizer_parameters::field_definition::FromJsonError;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, GlyphxError)]
+use crate::types::vectorizer_parameters::field_definition::FromJsonError;
+use glyphx_core::GlyphxError;
+use glyphx_core::GlyphxErrorData;
+
+#[derive(Debug, Clone, GlyphxError, Deserialize, Serialize)]
 #[error_definition("VectorizerParameters")]
 pub enum GetFieldDefinitionError {
-      AxisNotDefined(GlyphxErrorData),
-      SupportingFieldNotDefined(GlyphxErrorData),
-      JsonParsingError(GlyphxErrorData),
-      
+    AxisNotDefined(GlyphxErrorData),
+    SupportingFieldNotDefined(GlyphxErrorData),
+    JsonParsingError(GlyphxErrorData),
 }
 impl GetFieldDefinitionError {
-    pub fn from_from_json_error(input:  FromJsonError ) -> Self {
+    pub fn from_from_json_error(input: FromJsonError) -> Self {
         let data = input.get_glyphx_error_data();
         Self::JsonParsingError(data.clone())
     }
@@ -25,10 +26,10 @@ mod from_from_json_error {
     #[test]
     fn is_ok() {
         let message = "testMessage";
-        let data = json!({"field": "test"}); 
+        let data = json!({"field": "test"});
         let inner_error = None;
 
-        let data = GlyphxErrorData::new(message.to_string(), Some(data), inner_error); 
+        let data = GlyphxErrorData::new(message.to_string(), Some(data), inner_error);
 
         let input = FromJsonError::FieldNotDefined(data);
 
@@ -40,7 +41,7 @@ mod from_from_json_error {
                 let field = d["field"].as_str().unwrap();
                 assert_eq!(field, "test");
                 assert!(error_data.inner_error.is_none());
-            },
+            }
             _ => panic!("Expected JsonParsingError"),
         }
     }

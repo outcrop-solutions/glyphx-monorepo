@@ -1,3 +1,4 @@
+import 'mocha';
 import {assert} from 'chai';
 import {GlyphxError} from '../../error';
 import {createSandbox} from 'sinon';

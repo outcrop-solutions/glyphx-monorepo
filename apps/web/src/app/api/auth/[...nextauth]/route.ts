@@ -4,7 +4,7 @@ import {Initializer, dbConnection, userService} from 'business';
 import {MongoDBAdapter} from '@next-auth/mongodb-adapter';
 import GoogleProvider from 'next-auth/providers/google';
 import EmailProvider from 'next-auth/providers/email';
-import emailClient from '../../../../email';
+import emailClient from 'actions/src/email';
 import {emailTypes} from 'types';
 
 const getConnectionPromise = (async () => {
@@ -27,10 +27,12 @@ export const authOptions: NextAuthOptions = {
         const newUser = {
           ...userInfo,
           id: userInfo.id as string,
-          // image: user.image as string | undefined,
-          // color: '#444444',
-          // projectIds: userInfo.projects?.map((proj) => proj.id as string) ?? [],
+          username: userInfo.email?.split('@')[0],
         };
+        // image: user.image as string | undefined,
+        // color: '#444444',
+        // projectIds: userInfo.projects?.map((proj) => proj.id as string) ?? [],
+
         session.user = newUser;
       }
 
@@ -49,13 +51,14 @@ export const authOptions: NextAuthOptions = {
         const {host} = new URL(url);
         const emailData = {
           type: emailTypes.EmailTypes.EMAIL_VERFICATION,
-          url: host,
+          url: url,
           identifier,
           provider: {
             from: 'jp@glyphx.co',
           },
           theme: 'light',
-        } satisfies emailTypes.EmailData;
+        } satisfies emailTypes.iEmailVerificationData;
+        console.log({emailData});
         await emailClient.init();
         await emailClient.sendEmail(emailData);
       },

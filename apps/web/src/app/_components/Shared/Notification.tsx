@@ -1,8 +1,8 @@
-import Warning from 'public/svg/tooltip-icon.svg';
-import Error from 'public/svg/error-notif.svg';
-import Success from 'public/svg/success-notif.svg';
-import Default from 'public/svg/tooltip-icon.svg';
-import NotifIcon from 'public/svg/notif-icon.svg';
+import Warning from 'svg/tooltip-icon.svg';
+import Error from 'svg/error-notif.svg';
+import Success from 'svg/success-notif.svg';
+import Default from 'svg/tooltip-icon.svg';
+import NotifIcon from 'svg/notif-icon.svg';
 import {Route} from 'next';
 import Link from 'next/link';
 

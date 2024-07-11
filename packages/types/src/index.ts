@@ -6,6 +6,7 @@ export * as databaseTypes from './database';
 export * as emailTypes from './email';
 export * as glyphEngineTypes from './glyphEngine';
 export * as vectorizerTypes from './glyphEngine';
+export * as rustGlyphEngineTypes from './rustGlyphEngine';
 export type {IQueryResult} from './iQueryResult';
 export type {IWorkspacePath} from './workspaces/workspacePaths';
 export * from './collab';

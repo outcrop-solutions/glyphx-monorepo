@@ -99,9 +99,9 @@ pub fn convert_hsv_to_rgb(
   let m = value - c;
 
   // Calculate the RGB values
-  let mut r = 0.0;
-  let mut g = 0.0;
-  let mut b = 0.0;
+  let mut r;
+  let mut g;
+  let mut b;
   if hue >= 0.0 && hue < 60.0 {
     r = c;
     g = x;

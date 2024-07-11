@@ -1,4 +1,4 @@
-import PinnedIcon from 'public/svg/pinned-icon.svg';
+import PinnedIcon from 'svg/pinned-icon.svg';
 import {TemplatePreviewBtn} from './TemplatePreviewBtn';
 import {Initializer} from 'business/src/init';
 import {ProjectTemplateService} from 'business/src/services/projectTemplate';

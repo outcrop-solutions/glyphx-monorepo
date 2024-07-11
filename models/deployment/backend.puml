@@ -1,0 +1,46 @@
+@startuml
+!include <awslib/AWSCommon>
+!include <awslib/Analytics/Athena>
+!include <awslib/Storage/SimpleStorageService>
+!include <awslib/SecurityIdentityCompliance/SecretsManager>
+!include <awslib/Serverless/Serverless>
+!include <tupadr3/common>
+!include <tupadr3/devicons2/mongodb>
+!include <tupadr3/devicons2/mocha>
+!include <tupadr3/devicons2/nextjs_original_wordmark>
+!include <tupadr3/devicons2/nodejs>
+!include <tupadr3/devicons2/react_original_wordmark>
+!include <tupadr3/devicons2/rust>
+
+
+DEV2_MONGODB(mongodb, "MongoDB", database, green)
+
+
+
+
+  node "Backend" as  backend { 
+        DEV2_NODEJS(api, "API", rectangle, green)
+	DEV2_RUST(glyphengine, "glyphengine", rectangle, brown)
+	DEV2_RUST(fileingestion, "data ingestion", rectangle, brown)
+}
+
+Node "AWS" as aws {
+	SimpleStorageService(S3Bucket, "S3 Bucket", "for client and model files")
+	Athena(athena, "Athena", "Data Processing")
+	SecretsManager(secretsmanager, "Secrets Manager", "Secrets")
+
+}
+Node "Testing" as betesting {
+
+  DEV2_MOCHA(mocha, "mocha", rectangle, brown)
+  rectangle "mocking" as mocking {
+	  rectangle "mockall" as mockall 
+          rectangle "sinon" as sinon
+  }
+}
+
+
+backend --> betesting
+backend --|> aws
+backend --> mongodb
+@enduml

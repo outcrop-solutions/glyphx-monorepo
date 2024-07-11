@@ -1,12 +1,10 @@
 'use client';
 import React, {useState} from 'react';
 import {AnnotationList} from './AnnotationList';
-import {useAnnotations} from 'lib/client/hooks';
-import Link from 'next/link';
+import {PlusIcon} from '@heroicons/react/outline';
 
 export const Annotations = () => {
   const [isCollapsed, setCollapsed] = useState(false);
-  const {isLoading} = useAnnotations();
 
   return (
     <div className="group flex flex-col grow">
@@ -31,15 +29,19 @@ export const Annotations = () => {
               />
             </svg>
           </span>
-          <Link href="/">
+          <div>
             <span className="font-roboto font-medium text-[12px] leading-[14px] tracking-[.01em] ml-3 text-light-gray">
               {' '}
               Threads{' '}
             </span>
-          </Link>
+          </div>
         </div>
+        <PlusIcon
+          color="#CECECE"
+          className="w-5 h-5 opacity-100 mr-2 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white"
+        />
       </summary>
-      {!isCollapsed && !isLoading && <AnnotationList />}
+      {!isCollapsed && <AnnotationList />}
     </div>
   );
 };

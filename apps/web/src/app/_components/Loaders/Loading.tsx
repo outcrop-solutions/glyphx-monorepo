@@ -1,7 +1,8 @@
-import BarLoader from 'react-spinners/BarLoader';
+'use client';
 import {useRecoilValue} from 'recoil';
 import {showLoadingAtom} from 'state';
 import {databaseTypes} from 'types';
+import LoadingBar from './LoadingBar';
 // {
 //  processId: string;
 //  processName: string;
@@ -16,6 +17,7 @@ import {databaseTypes} from 'types';
 
 export const Loading = () => {
   const showLoading = useRecoilValue(showLoadingAtom);
+  console.log({showLoading});
 
   const loading =
     Object.keys(showLoading).length > 0
@@ -25,8 +27,8 @@ export const Loading = () => {
       : false;
 
   return loading ? (
-    <div className="fixed w-screen h-screen flex flex-col justify-center items-center bg-secondary-midnight z-60">
-      <BarLoader loading={loading} width={400} color={'yellow'} />
+    <div className="fixed w-screen h-screen flex flex-col justify-center items-center bg-secondary-midnight z-[90]">
+      <LoadingBar />
       {showLoading?.processId && <p className="text-white font-bold mt-5">{`Process ID: ${showLoading?.processId}`}</p>}
       {showLoading?.processName && <p className="text-white font-bold mt-5">{`${showLoading?.processName}`}</p>}
       {showLoading?.processStatus && (

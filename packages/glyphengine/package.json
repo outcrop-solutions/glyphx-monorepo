@@ -13,7 +13,8 @@
     "fix": "eslint . --fix",
     "format:write": "prettier --write \"**/*.{js,json,jsx,ts,tsx}\"",
     "format": "prettier \"**/*.{js,json,jsx,ts,tsx}\"",
-    "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist,prisma"
+    "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist,prisma",
+    "localGlyphEngine": "TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register  -r dotenv/config --recursive  --timeout 999999 --exit 'src/__utilScripts__/glyphEngine.ts'"
   },
   "lint-staged": {
     "*.{js,ts}": [
@@ -27,12 +28,14 @@
   "license": "ISC",
   "devDependencies": {
     "@aws-sdk/types": "3.222.0",
+    "@inquirer/prompts" : "^5.1.2",
     "eslint-config-custom": "workspace:*",
     "fileingestion": "workspace:^1.0.0",
     "tsconfig": "workspace:*",
     "types": "workspace:*",
     "lint-staged": "^13.0.3",
     "@types/chai": "^4.3.3",
+    "@types/command-line-args": "^5.2.3",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.11.7",
     "@types/rewire": "^2.5.28",
@@ -40,7 +43,9 @@
     "@types/uuid": "^9.0.0",
     "aws-sdk-client-mock": "^2.0.1",
     "chai": "^4.3.6",
+    "command-line-args": "^5.2.1",
     "fast-xml-parser": "^4.1.3",
+    "fuse.js" : "^7.0.0",
     "mocha": "^10.1.0",
     "nyc": "^15.1.0",
     "rewire": "^6.0.0",

@@ -6,9 +6,9 @@ import {rightSidebarControlAtom} from 'state/ui';
 import {workspaceAtom} from 'state/workspace';
 import {databaseTypes, webTypes} from 'types';
 // importing fuse
-import SearchInputIcon from 'public/svg/search-input-icon.svg';
-import SearchFilterIcon from 'public/svg/search-filter-icon.svg';
-import ProjectResultIcon from 'public/svg/project-result-icon.svg';
+import SearchInputIcon from 'svg/search-input-icon.svg';
+import SearchFilterIcon from 'svg/search-filter-icon.svg';
+import ProjectResultIcon from 'svg/project-result-icon.svg';
 import {useParams} from 'next/navigation';
 import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';

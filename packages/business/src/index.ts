@@ -28,7 +28,7 @@ export {
 
 // utils
 export {Heartbeat} from './util/heartbeat';
-export {hashFileSystem} from './util/hashFileSystem';
+export {hashFileSystem} from './util/hashFunctions';
 
 // services
 export {ProjectService as projectService} from './services/project';

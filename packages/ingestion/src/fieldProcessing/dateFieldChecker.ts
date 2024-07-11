@@ -3,20 +3,6 @@ import {error} from 'core';
 import {CURRENCY_TO_SYMBOL_MAP} from './numberFieldChecker';
 export class DateFieldChecker implements fieldProcessingInterfaces.IFieldChecker<Date> {
   checkField(input: string): boolean {
-    // const trimmedInput = input.trim();
-    // if (trimmedInput.length >= 6 && !this.containsCurrencySymbol(trimmedInput) && !trimmedInput.includes('%')) {
-    //   let val = Number(trimmedInput);
-    //   let fixed = Number(val.toFixed(7));
-    //   if (isNaN(fixed)) {
-    //     const time = new Date(trimmedInput).getTime();
-    //     return !isNaN(time);
-    //   } else {
-    //     return trimmedInput.length >= 10 && trimmedInput.length <= 13;
-    //   }
-    // } else {
-    //   return false;
-    // }
-
     const trimmedInput = input.trim();
 
     // Return false if the input contains a currency symbol or percentage sign
@@ -26,24 +12,32 @@ export class DateFieldChecker implements fieldProcessingInterfaces.IFieldChecker
 
     // Try to convert the trimmed input to a number
     const val = Number(trimmedInput);
-    let fixed = Number(val.toFixed(7));
-
-    // Check if it's a valid number
-    if (!isNaN(fixed)) {
-      // It's a valid number, so it's not a date
-      return false;
+    if (!isNaN(val)) {
+      let strNumbers = val.toString();
+      //numbers with decimal points are not dates
+      if (strNumbers.includes('.')) {
+        return false;
+      }
+      //Roughly 1980-01-01 -- this will only apply if I am sendingg epoch time (number) as a date.  Strings can happily be converted for dates ealiedr than this.
+      if (val < 315532800000) {
+        return false;
+      }
+      return true;
+    } else {
+      const date = Date.parse(trimmedInput);
+      if (isNaN(date)) {
+        return false;
+      } else {
+        return true;
+      }
     }
-
-    // If it's not a valid number, attempt to parse it as a date
-    const time = new Date(trimmedInput).getTime();
-    return !isNaN(time);
   }
 
   containsCurrencySymbol(input: string) {
     let retval = false;
     for (const key in CURRENCY_TO_SYMBOL_MAP) {
       const sym = CURRENCY_TO_SYMBOL_MAP[key];
-      if (input.includes(sym)) {
+      if (input === sym) {
         retval = true;
         break;
       }

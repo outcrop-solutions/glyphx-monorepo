@@ -1,21 +1,19 @@
+'use client';
 import {useCallback} from 'react';
 import {useSession} from 'next-auth/react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {fileIngestionTypes, webTypes, glyphEngineTypes} from 'types';
-import {_updateProjectState} from 'lib/client';
 import {doesStateExistSelector, drawerOpenAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom} from 'state';
-import {_createModel, _getSignedDataUrls} from 'lib/client/mutations/core';
 import {useUrl} from 'lib/client/hooks';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
-import {hashFileSystem} from 'lib/utils/hashFileSystem';
-import {hashPayload} from 'lib/utils/hashPayload';
+import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
 import {isValidPayload} from 'lib/utils/isValidPayload';
 import {deepMergeProject} from 'lib/utils/deepMerge';
 import {useSWRConfig} from 'swr';
-import {callUpdateProject} from 'lib/client/network/reqs/callUpdateProject';
 import {callCreateModel} from 'lib/client/network/reqs/callCreateModel';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
+import {updateProjectState} from 'actions';
 
 export const useProject = () => {
   const session = useSession();
@@ -26,7 +24,6 @@ export const useProject = () => {
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
   const url = useUrl();
-  // const setShowQtViewer = useSetRecoilState(showQtViewerAtom);
 
   const callETL = useCallback(
     async (axis: webTypes.constants.AXIS, column: any, project, isFilter: boolean) => {
@@ -35,7 +32,8 @@ export const useProject = () => {
       const isCurrentlyLoaded = payloadHash === hashPayload(hashFileSystem(project.files), project);
       // if invalid payload, only update project
       if (!isValidPayload(deepMerge.state.properties)) {
-        callUpdateProject(deepMerge, mutate);
+        const {state, id} = deepMerge;
+        await updateProjectState(id, state);
         // if model currently generated and downloaded, open project
       } else if (isCurrentlyLoaded) {
         if (window?.core) {
@@ -44,7 +42,9 @@ export const useProject = () => {
           window?.core?.ToggleDrawer(true);
         }
       } else if (doesStateExist) {
-        callUpdateProject(deepMerge, mutate);
+        const {state, id} = deepMerge;
+        await updateProjectState(id, state);
+
         await callDownloadModel({
           project: deepMerge,
           payloadHash,

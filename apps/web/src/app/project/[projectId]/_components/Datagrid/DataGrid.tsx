@@ -1,12 +1,12 @@
 'use client';
 import {useCallback, useMemo, useRef} from 'react';
-import BarLoader from 'react-spinners/BarLoader';
 import {debounce} from 'lodash';
 import {DraggableHeaderRenderer} from './DraggableHeaderRenderer';
 import dynamic from 'next/dynamic';
 import {useRecoilValue} from 'recoil';
 import {rowIdsAtom} from 'state';
 import useDataGrid from 'lib/client/hooks/useDataGrid';
+import LoadingBar from 'app/_components/Loaders/LoadingBar';
 
 const ReactDataGrid = dynamic(() => import('react-data-grid'), {
   ssr: false,
@@ -89,7 +89,7 @@ export const Datagrid = () => {
     }
   }, 100);
 
-  return data.rows.length > 0 ? (
+  return data.rows.length > 0 || isLoading ? (
     <div className="h-full w-full" ref={ref}>
       <ReactDataGrid
         //@ts-ignore
@@ -103,7 +103,7 @@ export const Datagrid = () => {
   ) : (
     <div className="h-full w-full flex flex-col justify-center items-center bg-secondary-mignight">
       <h1 className="text-xl font-bold my-4">Loading Data Grid...</h1>
-      <BarLoader loading={!data.rows.length} width={400} color={'yellow'} />
+      <LoadingBar />
     </div>
   );
 };

@@ -202,7 +202,7 @@ export class BasicFileTransformer extends Transform {
   /**
    * Puts the data together for the callback
    */
-  private getDataForCallback(): fileProcessingInterfaces.IFileInformation {
+  public getDataForCallback(): fileProcessingInterfaces.IFileInformation {
     const columns = this.columTypeTrackers.map((c) => {
       return {
         name: c.columnName,
@@ -312,7 +312,6 @@ export class BasicFileTransformer extends Transform {
       const dirtyValue = chunk[key];
       let value: unknown = null;
 
-      // console.log({fieldType: fieldTypeCalculator?.fieldTypeCalculator.fieldType});
       if (dirtyValue.length > fieldTypeCalculator.maxFieldLength)
         fieldTypeCalculator.maxFieldLength = dirtyValue.length;
       try {

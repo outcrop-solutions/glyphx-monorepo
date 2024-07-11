@@ -1,0 +1,50 @@
+@startuml
+!include <awslib/AWSCommon>
+!include <awslib/Analytics/Athena>
+!include <awslib/Storage/SimpleStorageService>
+!include <awslib/SecurityIdentityCompliance/SecretsManager>
+!include <awslib/Serverless/Serverless>
+!include <tupadr3/common>
+!include <tupadr3/devicons2/mongodb>
+!include <tupadr3/devicons2/mocha>
+!include <tupadr3/devicons2/nextjs_original_wordmark>
+!include <tupadr3/devicons2/nodejs>
+!include <tupadr3/devicons2/react_original_wordmark>
+!include <tupadr3/devicons2/rust>
+
+
+DEV2_REACT_ORIGINAL_WORDMARK(client, "Web App", rectangle, lightblue) 
+
+
+DEV2_RUST(modeling,  "Model Renderings", node, brown) {
+	rectangle "WasmBindGen" as wasm
+	rectangle "WGPU" as wgpu
+
+}
+
+node "Third Party Services" as services {
+
+	rectangle "GrowthBook" as growthbook  
+	rectangle "LiveBlocks" as liveblocks
+	rectangle "NextAuth" as nextauth
+	rectangle "VercelAI SDK" as vercelai
+	
+}
+
+node "Testing" as frontendtesting {
+
+	rectangle "Cypress" as cypress
+	rectangle "Jest" as jest
+  }
+
+
+
+client --|> growthbook : Feature Flags
+client --|> liveblocks : Colaboration
+client --|> nextauth : Authentication
+client --|> vercelai : AI Integration
+client --|> modeling : In Browser Modeling
+client --|> frontendtesting
+
+wasm -> wgpu 
+@enduml

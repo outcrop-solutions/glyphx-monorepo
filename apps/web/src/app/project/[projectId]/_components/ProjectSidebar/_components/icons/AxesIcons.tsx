@@ -1,8 +1,8 @@
 import React from 'react';
-import XAxisIcon from 'public/svg/x-axis-icon.svg';
-import YAxisIcon from 'public/svg/y-axis-icon.svg';
-import ZAxisIcon from 'public/svg/z-axis-icon.svg';
-import DefaultAxisIcon from 'public/svg/default-axis-icon.svg';
+import XAxisIcon from 'svg/x-axis-icon.svg';
+import YAxisIcon from 'svg/y-axis-icon.svg';
+import ZAxisIcon from 'svg/z-axis-icon.svg';
+import DefaultAxisIcon from 'svg/default-axis-icon.svg';
 
 export const AxesIcons = ({property}) => {
   const Icon = () => {

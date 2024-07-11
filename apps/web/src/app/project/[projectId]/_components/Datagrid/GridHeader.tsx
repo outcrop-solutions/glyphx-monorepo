@@ -6,8 +6,8 @@ import {projectAtom, rowIdsAtom} from 'state';
 import {useCallback} from 'react';
 import {toCSV} from './to-csv';
 import {api} from 'lib';
-import {_getRowIds} from 'lib/client/mutations';
 import {DownloadIcon} from '@heroicons/react/outline';
+import {getDataByRowId} from 'actions';
 
 export const GridHeader = () => {
   const filesOpen = useRecoilValue(filesOpenSelector);
@@ -15,14 +15,26 @@ export const GridHeader = () => {
   const project = useRecoilValue(projectAtom);
   const gridPayload = useRecoilValue(dataGridPayloadSelector);
 
-  const exportCsv = useCallback(() => {
-    api({
-      ..._getRowIds(project.workspace.id, project.id, gridPayload.tableName, rowIds as string[], 0, 0, true),
-      onSuccess: (data) => {
-        const csv = toCSV(data?.rows, data?.columns?.map(({key}) => key), ',', '"');
-        window?.core?.SendCsv(csv);
-      },
-    });
+  const exportCsv = useCallback(async () => {
+    const retval = await getDataByRowId(
+      project.workspace.id,
+      project.id,
+      gridPayload.tableName,
+      (rowIds as any[])?.map((id) => Number(id)) as number[],
+      true,
+      0,
+      0
+    );
+
+    if (retval?.data) {
+      const csv = toCSV(
+        retval.data?.rows,
+        retval.data?.columns?.map(({key}) => key),
+        ',',
+        '"'
+      );
+      window?.core?.SendCsv(csv);
+    }
   }, [gridPayload.tableName, project.id, project.workspace.id, rowIds]);
 
   return (
