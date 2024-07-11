@@ -15,7 +15,7 @@ export class DateFieldChecker implements fieldProcessingInterfaces.IFieldChecker
     if (!isNaN(val)) {
       let strNumbers = val.toString();
       //numbers with decimal points are not dates
-      if (strNumbers.indexOf('.') >= 0) {
+      if (strNumbers.includes('.')) {
         return false;
       }
       //Roughly 1980-01-01 -- this will only apply if I am sendingg epoch time (number) as a date.  Strings can happily be converted for dates ealiedr than this.
