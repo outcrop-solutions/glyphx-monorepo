@@ -3,7 +3,7 @@ import {assert} from 'chai';
 import {glyphEngineTypes} from 'types';
 import {generatePrestoDateConversionStatement} from '../../generalPurposeFunctions/presto';
 
-describe.only('#generalPurposeFunctions/presto', () => {
+describe('#generalPurposeFunctions/presto', () => {
   context('generatePrestoDateConversionStatement', () => {
     it('will convert QUALIFIED_DAY_OF_YEAR', () => {
       const conversion = glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR;

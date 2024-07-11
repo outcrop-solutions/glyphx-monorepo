@@ -36,7 +36,7 @@ describe('#utl/textConversion', () => {
 
       assert.strictEqual(resultString.length, length);
       const parsedResult = JSON.parse(resultString);
-      assert.deepEqual(parsedResult.rowId, [9999, 0], 'rowId should be modified to [9999, 0]');
+      assert.deepEqual(parsedResult.rowId, [-9999, 0], 'rowId should be modified to [-9999, 0]');
     });
   });
 
