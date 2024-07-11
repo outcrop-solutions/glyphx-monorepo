@@ -98,7 +98,6 @@ export const glyphEngine = async (project, payloadHash) => {
         const {sdtFileName, sgnFileName, sgcFileName} = await glyphEngine.process(data);
         const updatedProject = await projectService.updateProjectState(project.id, project.state);
 
-        console.log({updatedProject});
         const name = new Date().toISOString();
         // add new state to project to prevent redundant glyphengine runs
         // const state = await stateService.createState(

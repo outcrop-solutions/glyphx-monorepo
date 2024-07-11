@@ -39,7 +39,6 @@ export const createState = async (
   aspectRatio: webTypes.Aspect,
   rowIds: number[]
 ) => {
-  console.log('createState payload', {name, camera, project, imageHash, aspectRatio, rowIds});
   try {
     const session = await getServerSession(authOptions);
     if (session?.user) {

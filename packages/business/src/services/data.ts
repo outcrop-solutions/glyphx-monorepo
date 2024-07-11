@@ -103,7 +103,6 @@ export class DataService {
   ): Promise<any[]> {
     try {
       const query = await this.buildQuery(projectId, tableName, glyphxIds, pageSize, pageNumber, isExport);
-      console.log(query);
       const results = await AthenaConnection.connection.runQuery(query);
       return results;
     } catch (err) {
