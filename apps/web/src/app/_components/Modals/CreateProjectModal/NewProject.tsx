@@ -70,8 +70,8 @@ export const NewProject = ({exit}) => {
       <div className="mb-4 mt-4 flex flex-row justify-end items-center">
         <button
           onClick={() =>
-            startTransition(() => {
-              handleCreateProject();
+            startTransition(async () => {
+              await handleCreateProject();
               setModals(
                 produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
                   draft.modals.splice(0, 1);

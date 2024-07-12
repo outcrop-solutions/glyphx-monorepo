@@ -110,7 +110,7 @@ describe('#integrationTests/state', () => {
   });
 
   context('#createState', () => {
-    it('should create a new state', async () => {
+    it.only('should create a new state', async () => {
       try {
         const name = 'newStateIntegrationTestName';
         const camera = {
@@ -136,7 +136,7 @@ describe('#integrationTests/state', () => {
         const newProject = await stateActions.createState(name, camera, project, imageHash, aspectRatio, rowIds);
 
         assert.isOk(newProject);
-        // initial state in the before hook, + the one we just crreated
+        // initial state in the before hook, + the one we just created
         assert.strictEqual(newProject.stateHistory.length, 2);
 
         // clean up blob storage

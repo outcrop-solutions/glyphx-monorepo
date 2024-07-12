@@ -8,7 +8,7 @@ import {webTypes} from 'types';
 import {LinkDropDown} from './LinkDropDown';
 import {MemberList} from './MemberList';
 import Link from 'next/link';
-import {drawerOpenAtom, projectAtom, rightSidebarControlAtom} from 'state';
+import {cameraAtom, drawerOpenAtom, imageHashAtom, projectAtom, rightSidebarControlAtom} from 'state';
 
 import CloseProjectInfoIcon from 'svg/close-project-info.svg';
 import CopyToClipboardIcon from 'svg/copy-to-clipboard.svg';
@@ -26,6 +26,8 @@ export const Share = () => {
   const {data: ownership, isLoading: isOwnershipLoading} = useIsTeamOwner();
   const workspaceId = params?.workspaceId ?? project.workspace.id;
   const setDrawer = useSetRecoilState(drawerOpenAtom);
+  const setCamera = useSetRecoilState(cameraAtom);
+  const setImageHash = useSetRecoilState(imageHashAtom);
 
   const handleClose = () => {
     setRightSidebarControl(
@@ -89,6 +91,10 @@ export const Share = () => {
             onClick={() => {
               if (window?.core) {
                 window?.core?.ToggleDrawer(false);
+                setImageHash({
+                  imageHash: false,
+                });
+                setCamera({});
               }
             }}
           >
