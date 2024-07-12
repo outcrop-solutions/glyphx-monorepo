@@ -7,7 +7,7 @@ import SmallLogo from 'svg/small-logo.svg';
 import {ArrowLeftIcon, CubeIcon, EyeIcon, FolderIcon} from '@heroicons/react/outline';
 import {useParams} from 'next/navigation';
 import {useRecoilState, useSetRecoilState} from 'recoil';
-import {drawerOpenAtom, projectSegmentAtom} from 'state';
+import {cameraAtom, drawerOpenAtom, imageHashAtom, projectSegmentAtom} from 'state';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
 
 const LeftSidebar = () => {
@@ -18,6 +18,8 @@ const LeftSidebar = () => {
   // check if feature is enabled from growthbook endpoint
   const isAIEnabled = useFeatureIsOn('ai');
   const isWebGPUEnabled = useFeatureIsOn('webgpu');
+  const setCamera = useSetRecoilState(cameraAtom);
+  const setImageHash = useSetRecoilState(imageHashAtom);
 
   return (
     <aside
@@ -29,6 +31,10 @@ const LeftSidebar = () => {
             onClick={() => {
               setDrawer(false);
               window?.core?.ToggleDrawer(false);
+              setImageHash({
+                imageHash: false,
+              });
+              setCamera({});
             }}
             className={`py-1 ${projectId ? 'justify-center' : ''}`}
           >
