@@ -69,6 +69,7 @@ export class BasicCsvParser extends Transform {
   private currentRow: string[] = [];
   private inLineTerminator = false;
   private isLiteral = false;
+  private isStartOfField = true;
   private bufferSize: number;
   private smartLineTerminator: boolean;
   private trimWhitespace: boolean;
@@ -197,6 +198,7 @@ export class BasicCsvParser extends Transform {
   }
 
   _transform(chunk: Buffer, encoding: string, callback: TransformCallback) {
+    let raw = '';
     try {
       if (!this.decoder) {
         let localEncoding = encoding || this.encoding || 'utf8';
@@ -210,18 +212,26 @@ export class BasicCsvParser extends Transform {
       let result: [string, number] | undefined;
       while ((result = this.decoder.getChar(buffer, bytesConsumed)) && bytesConsumed < maxLen) {
         let [char, charSize] = result;
+        raw += char;
         bytesConsumed += charSize;
         //is this a delimiter.
         if (!this.isLiteral && char === this.literalChar) {
           this.isLiteral = true;
-        } else if (!this.isLiteral && this.isQuoted && char === this.quoteChar) {
+        } else if (
+          !this.isLiteral &&
+          this.isQuoted &&
+          char === this.quoteChar &&
+          ((this.isStartOfField && !this.inQuote) || this.inQuote)
+        ) {
           this.inLineTerminator = false;
           this.inQuote = !this.inQuote;
+          this.isStartOfField = false;
         } else if (!this.isLiteral && !this.inQuote && char === this.delimiter) {
           this.isHeaderRow
             ? this.headers.AddColumn(this.currentToken ?? '')
             : this.currentRow.push(this.trimWhitespace ? this.currentToken?.trim() ?? '' : this.currentToken ?? '');
           this.currentToken = undefined;
+          this.isStartOfField = true;
         } else if (
           !this.isLiteral &&
           !this.inQuote &&
@@ -244,6 +254,7 @@ export class BasicCsvParser extends Transform {
           this.currentRow = [];
           this.inLineTerminator = false;
           this.currentToken = undefined;
+          this.isStartOfField = true;
         } else if (
           !this.isLiteral &&
           !this.inQuote &&
@@ -267,6 +278,7 @@ export class BasicCsvParser extends Transform {
           this.currentRow = [];
           this.inLineTerminator = false;
           this.currentToken = undefined;
+          this.isStartOfField = true;
         } else if (!this.isLiteral && this.inLineTerminator) {
           if (this.currentToken === undefined) this.currentToken = '';
           this.currentToken += this.lineTerminator[0] + char;
@@ -279,10 +291,12 @@ export class BasicCsvParser extends Transform {
           if (this.inLineTerminator) {
             this.inLineTerminator = false;
             this.currentToken += this.lineTerminator[0];
+            this.isStartOfField = true;
           }
 
           this.currentToken += char;
           this.isLiteral = false;
+          this.isStartOfField = false;
           //If we fall through to here, we cant't be in a line terminator anymore.
         }
       }
