@@ -231,7 +231,7 @@ describe('#integrationTests/annotation', () => {
     });
   });
   context('#createProjectAnnotation', () => {
-    it('should create a project annotation', async () => {
+    it.only('should create a project annotation', async () => {
       try {
         const value = 'integration test annotation';
         const projectId = project.id;

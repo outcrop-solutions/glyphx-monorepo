@@ -110,7 +110,7 @@ describe('#integrationTests/state', () => {
   });
 
   context('#createState', () => {
-    it.only('should create a new state', async () => {
+    it('should create a new state', async () => {
       try {
         const name = 'newStateIntegrationTestName';
         const camera = {

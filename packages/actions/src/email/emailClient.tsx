@@ -1,3 +1,4 @@
+import React from 'react';
 import {EmailError} from 'core/src/error';
 import {bindSecrets, boundProperty} from 'core';
 import {Resend} from 'resend';
@@ -126,7 +127,7 @@ export class ResendClient {
       const {data, error} = await this.client!.emails.send({
         from: this.fromField,
         to: emailData.emails,
-        subject: 'Glyphx: New State Created',
+        subject: 'Glyphx: Annotation Created',
         react: AnnotationCreatedTemplate(emailData),
       });
       if (error) {
