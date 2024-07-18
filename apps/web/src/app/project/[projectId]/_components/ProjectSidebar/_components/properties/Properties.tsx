@@ -3,6 +3,8 @@ import React, {useCallback, useState} from 'react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {Property} from './Property';
 import {
+  imageHashAtom,
+  cameraAtom,
   doesStateExistSelector,
   drawerOpenAtom,
   projectAtom,
@@ -25,6 +27,8 @@ export const Properties = () => {
   const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
+  const setCamera = useSetRecoilState(cameraAtom);
+  const setImageHash = useSetRecoilState(imageHashAtom);
   const doesStateExist = useRecoilValue(doesStateExistSelector);
   const url = useUrl();
   const properties = useRecoilValue(propertiesSelector);
@@ -46,12 +50,16 @@ export const Properties = () => {
           setLoading,
           setDrawer,
           setResize,
+          setImageHash,
+          setCamera
         });
       } else {
         await callCreateModel({
           project,
           session,
           url,
+          setImageHash,
+          setCamera,
           setLoading,
           setDrawer,
           setResize,

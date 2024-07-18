@@ -135,8 +135,11 @@ export const ProjectProvider = ({
         setLoading,
         setDrawer,
         setResize,
+        setImageHash,
+        setCamera,
         camera,
       });
+      
       setActiveState(idx);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

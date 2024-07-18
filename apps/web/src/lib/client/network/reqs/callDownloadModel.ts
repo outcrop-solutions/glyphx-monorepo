@@ -11,6 +11,8 @@ export const callDownloadModel = async ({
   url,
   setLoading,
   setDrawer,
+  setImageHash,
+  setCamera,
   setResize,
   isLastState = false,
   camera = {},
@@ -21,6 +23,8 @@ export const callDownloadModel = async ({
   setLoading: any;
   setDrawer: any;
   setResize: any;
+  setImageHash: any;
+  setCamera: any;
   isLastState?: boolean;
   camera?: any;
 }) => {
@@ -51,6 +55,10 @@ export const callDownloadModel = async ({
           isNullCam ? undefined : camera
         )
       );
+      setImageHash({
+        imageHash: false,
+      });
+      setCamera({});
       setLoading({});
     }
   } else {
@@ -61,5 +69,9 @@ export const callDownloadModel = async ({
         draft.processEndTime = new Date();
       })
     );
+    setImageHash({
+      imageHash: false,
+    });
+    setCamera({});
   }
 };

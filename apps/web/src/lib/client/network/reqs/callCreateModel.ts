@@ -10,6 +10,8 @@ export const callCreateModel = async ({
   session,
   url,
   setLoading,
+  setImageHash,
+  setCamera,
   setDrawer,
   setResize,
 }: {
@@ -19,6 +21,8 @@ export const callCreateModel = async ({
   setLoadingisFilter?: boolean;
   setLoading: any;
   setDrawer: any;
+  setImageHash: any;
+  setCamera: any;
   setResize: any;
 }) => {
   try {
@@ -48,13 +52,17 @@ export const callCreateModel = async ({
         const signedUrls = await signDataUrls(project.id);
         // @ts-ignore
         if (!signedUrls?.error) {
-          setLoading({});
           if (window?.core) {
             setResize(150);
             setDrawer(true);
             window?.core?.OpenProject(
               _createOpenProject(signedUrls as {sdtUrl: any; sgcUrl: any; sgnUrl: any}, project, session, url, true, [])
             );
+            setLoading({});
+            setImageHash({
+              imageHash: false,
+            });
+            setCamera({});
           }
         }
       } else {
@@ -66,6 +74,10 @@ export const callCreateModel = async ({
             draft.processEndTime = new Date();
           })
         );
+        setImageHash({
+          imageHash: false,
+        });
+        setCamera({});
       }
     } else {
       console.log('failed to generate model');
@@ -76,6 +88,10 @@ export const callCreateModel = async ({
           draft.processEndTime = new Date();
         })
       );
+      setImageHash({
+        imageHash: false,
+      });
+      setCamera({});
     }
   } catch (error) {
     console.log({error});
