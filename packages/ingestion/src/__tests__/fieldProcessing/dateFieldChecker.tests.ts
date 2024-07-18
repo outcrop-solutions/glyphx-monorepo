@@ -3,7 +3,7 @@ import {assert} from 'chai';
 import {DateFieldChecker} from '../../fieldProcessing/dateFieldChecker';
 import {error} from 'core';
 
-describe('#fieldProcessing/DateFieldChecker', () => {
+describe.only('#fieldProcessing/DateFieldChecker', () => {
   context('checkField', () => {
     it('05/15/1972 is a date within the accepted range', () => {
       const dateChecker = new DateFieldChecker();
@@ -49,6 +49,16 @@ describe('#fieldProcessing/DateFieldChecker', () => {
       const dateChecker = new DateFieldChecker();
       assert.isTrue(dateChecker.checkField('1982-06-15T17:34:54.000Z'));
     });
+    it('19720515 is a date within the accepted range', () => {
+      const dateChecker = new DateFieldChecker();
+      assert.isTrue(dateChecker.checkField('19720515'));
+    });
+
+    it('19720631 is not date within the accepted range', () => {
+      const dateChecker = new DateFieldChecker();
+      assert.isFalse(dateChecker.checkField('19720631'));
+    });
+
     it('7473600000 is not a date within the accepted range', () => {
       const dateChecker = new DateFieldChecker();
       assert.isFalse(dateChecker.checkField('7473600000'));
@@ -89,10 +99,25 @@ describe('#fieldProcessing/DateFieldChecker', () => {
       });
       assert.equal(result.getTime(), localDate);
     });
+    it('19720515 can be converted', () => {
+      const localDate = new Date('1972-05-15').getTime();
+      const dateChecker = new DateFieldChecker();
+      let result = new Date();
+      assert.doesNotThrow(() => {
+        result = dateChecker.convertField('19720515');
+      });
+      assert.equal(result.getTime(), localDate);
+    });
     it('99/99/9999 connot be converted to a date', () => {
       const dateChecker = new DateFieldChecker();
       assert.throws(() => {
         dateChecker.convertField('99/99/9999');
+      }, error.InvalidArgumentError);
+    });
+    it('19720631 connot be converted to a date', () => {
+      const dateChecker = new DateFieldChecker();
+      assert.throws(() => {
+        dateChecker.convertField('19720631');
       }, error.InvalidArgumentError);
     });
     it('I am not a date cannot be converted to a date', () => {
