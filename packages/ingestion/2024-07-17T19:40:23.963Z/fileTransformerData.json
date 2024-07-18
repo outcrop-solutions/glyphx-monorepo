@@ -1,0 +1,34 @@
+{
+          "fileName": "thisFileFromATest",
+          "parquetFileName": "thisIsTheOutputFileFromATest",
+          "outputFileDirecotry": "thisIsTheOutputDirectoryFromATest",
+          "tableName": "thisIsTheTableNameFromATest",
+          "numberOfRows": 3490,
+          "numberOfColumns": 3,
+          "columns": [
+                    {
+                              "name": "glyphx_id__",
+                              "origionalName": "glyphx_id__",
+                              "fieldType": 2
+                    },
+                    {
+                              "name": "item_no_",
+                              "origionalName": "item_no_",
+                              "fieldType": 1,
+                              "longestString": 16
+                    },
+                    {
+                              "name": "vendor",
+                              "origionalName": "vendor",
+                              "fieldType": 1,
+                              "longestString": 6
+                    },
+                    {
+                              "name": "delta",
+                              "origionalName": "delta",
+                              "fieldType": 0
+                    }
+          ],
+          "fileSize": 193456,
+          "fileOperationType": 2
+}

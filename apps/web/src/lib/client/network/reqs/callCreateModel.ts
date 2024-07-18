@@ -6,15 +6,20 @@ import {_createOpenProject} from 'lib/client/mutations';
 import {glyphEngine, signDataUrls} from 'actions';
 
 export const callCreateModel = async ({
-  isFilter,
   project,
-  payloadHash,
   session,
   url,
   setLoading,
   setDrawer,
   setResize,
-  mutate,
+}: {
+  project: databaseTypes.IProject;
+  session: any;
+  url: string;
+  setLoadingisFilter?: boolean;
+  setLoading: any;
+  setDrawer: any;
+  setResize: any;
 }) => {
   try {
     // set initial loading state
@@ -30,8 +35,7 @@ export const callCreateModel = async ({
       stateHistory: [],
     };
     // create model
-    const retval = await glyphEngine(cleanProject, payloadHash);
-    console.dir(retval, {depth: 2});
+    const retval = await glyphEngine(cleanProject);
 
     if (!retval?.error) {
       setLoading(
@@ -40,24 +44,18 @@ export const callCreateModel = async ({
         })
       );
       // sign data urls
-      console.log({projectInput: project, payloadHash});
-      const signedUrls = await signDataUrls(project?.workspace.id, project?.id, payloadHash);
-      console.dir(signedUrls, {depth: 2});
-
-      if (!signedUrls?.error) {
-        setLoading({});
-        if (window?.core) {
-          setResize(150);
-          setDrawer(true);
-          console.log('calling open project');
-          console.log(signedUrls);
-          console.log(project);
-          console.log(session);
-          console.log(url);
-
-          window?.core?.OpenProject(
-            _createOpenProject(signedUrls as {sdtUrl: any; sgcUrl: any; sgnUrl: any}, project, session, url, true, [])
-          );
+      if (project.id) {
+        const signedUrls = await signDataUrls(project.id);
+        // @ts-ignore
+        if (!signedUrls?.error) {
+          setLoading({});
+          if (window?.core) {
+            setResize(150);
+            setDrawer(true);
+            window?.core?.OpenProject(
+              _createOpenProject(signedUrls as {sdtUrl: any; sgcUrl: any; sgnUrl: any}, project, session, url, true, [])
+            );
+          }
         }
       } else {
         console.log('failed to open model');

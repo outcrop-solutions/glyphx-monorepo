@@ -7,21 +7,21 @@ import {isNullCamera} from 'lib/utils/isNullCamera';
 
 export const callDownloadModel = async ({
   project,
-  payloadHash,
   session,
   url,
   setLoading,
   setDrawer,
   setResize,
+  isLastState = false,
   camera = {},
 }: {
   project: any;
-  payloadHash: string;
   session: any;
   url: string;
   setLoading: any;
   setDrawer: any;
   setResize: any;
+  isLastState?: boolean;
   camera?: any;
 }) => {
   setLoading(
@@ -30,7 +30,8 @@ export const callDownloadModel = async ({
     })
   );
   const isNullCam = isNullCamera(camera);
-  const retval = await signDataUrls(project?.workspace.id, project?.id, payloadHash);
+  const retval = await signDataUrls(project?.id, isLastState);
+  // @ts-ignore
   if (!retval?.error) {
     if (window?.core) {
       setResize(150);

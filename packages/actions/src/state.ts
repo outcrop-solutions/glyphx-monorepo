@@ -54,7 +54,6 @@ export const createState = async (
 
       const buffer = Buffer.from(imageHash, 'base64');
       const blob = new Blob([buffer], {type: 'image/png'});
-
       // upload state imageHash to Blob store
       const imageRetval = await put(`state/${state?.id}`, blob, {
         access: 'public',
@@ -72,7 +71,6 @@ export const createState = async (
           emails: retval.members?.map((mem) => mem.email),
           projectId: project.id as string,
         } satisfies emailTypes.EmailData;
-
         await emailClient.init();
         await emailClient.sendEmail(emailData);
       }

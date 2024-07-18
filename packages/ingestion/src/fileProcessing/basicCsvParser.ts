@@ -214,9 +214,17 @@ export class BasicCsvParser extends Transform {
         //is this a delimiter.
         if (!this.isLiteral && char === this.literalChar) {
           this.isLiteral = true;
+          // } else if (!this.isLiteral && this.isQuoted && char === this.quoteChar) {
+          //   this.inLineTerminator = false;
+          //   this.inQuote = !this.inQuote;
         } else if (!this.isLiteral && this.isQuoted && char === this.quoteChar) {
           this.inLineTerminator = false;
-          this.inQuote = !this.inQuote;
+          if (this.inQuote && buffer[bytesConsumed] === this.quoteChar.charCodeAt(0)) {
+            this.currentToken += char;
+            bytesConsumed += charSize; // Skip the next quote as it's escaped
+          } else {
+            this.inQuote = !this.inQuote;
+          }
         } else if (!this.isLiteral && !this.inQuote && char === this.delimiter) {
           this.isHeaderRow
             ? this.headers.AddColumn(this.currentToken ?? '')

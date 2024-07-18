@@ -14,7 +14,6 @@ import {useSession} from 'next-auth/react';
 import {useSWRConfig} from 'swr';
 import {callCreateModel} from 'lib/client/network/reqs/callCreateModel';
 import toast from 'react-hot-toast';
-import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
 import {useUrl} from 'lib/client/hooks';
 import {isValidPayload} from 'lib/utils/isValidPayload';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
@@ -36,27 +35,12 @@ export const Properties = () => {
     async (event: any) => {
       //Our apply button is wrapped in the summary element, and the click handler is bubbling up. so we need to stop propagation.  This will keep our axes control in the open state when pressing apply.
       event.stopPropagation();
-      // project already contains filter state, no deepMerge necessary
-      const payloadHash = hashPayload(hashFileSystem(project.files), project);
-      console.log({payloadHash});
       if (!isValidPayload(properties)) {
-        console.log('not a valid payload', {value: !isValidPayload(properties), properties});
         toast.success('Generate a model before applying filters!');
       } else if (doesStateExist) {
-        console.log('called updateProjectState');
         await updateProjectState(project.id, project.state);
-        console.log('called callDownloadModel', {
-          project,
-          payloadHash,
-          session,
-          url,
-          setLoading,
-          setDrawer,
-          setResize,
-        });
         await callDownloadModel({
           project,
-          payloadHash,
           session,
           url,
           setLoading,
@@ -64,32 +48,18 @@ export const Properties = () => {
           setResize,
         });
       } else {
-        console.log('called create model', {
-          isFilter: true,
-          project,
-          payloadHash,
-          session,
-          url,
-          setLoading,
-          setDrawer,
-          setResize,
-          mutate,
-        });
         await callCreateModel({
-          isFilter: true,
           project,
-          payloadHash,
           session,
           url,
           setLoading,
           setDrawer,
           setResize,
-          mutate,
         });
       }
       setLoading({});
     },
-    [doesStateExist, mutate, project, properties, session, setDrawer, setLoading, setResize, url]
+    [doesStateExist, project, properties, session, setDrawer, setLoading, setResize, url]
   );
 
   return (

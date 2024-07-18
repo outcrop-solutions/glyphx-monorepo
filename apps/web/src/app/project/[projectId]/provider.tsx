@@ -3,7 +3,7 @@ import React, {useCallback, useEffect, useRef} from 'react';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+import {useRecoilState, useSetRecoilState} from 'recoil';
 import {
   activeStateAtom,
   cameraAtom,
@@ -22,13 +22,11 @@ import {useSendPosition, useWindowSize} from 'services';
 import {useCloseViewerOnModalOpen} from 'services/useCloseViewerOnModalOpen';
 import {useCloseViewerOnLoading} from 'services/useCloseViewerOnLoading';
 import useTemplates from 'lib/client/hooks/useTemplates';
-import useProject from 'lib/client/hooks/useProject';
 // Live Page Structure
 import {LiveMap} from '@liveblocks/client';
 import {InitialDocumentProvider} from 'collab/lib/client';
 import {RoomProvider} from 'liveblocks.config';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
-import {annotationResourceIdSelector} from 'state/annotations';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
 import {useSession} from 'next-auth/react';
 import {useUrl} from 'lib/client/hooks';
@@ -51,9 +49,6 @@ export const ProjectProvider = ({
   project: databaseTypes.IProject;
 }) => {
   const {data: templateData, isLoading: templateLoading} = useTemplates();
-
-  // const {data, isLoading} = useProject();
-
   const session = useSession();
   const url = useUrl();
   const projectViewRef = useRef(null);
@@ -105,18 +100,6 @@ export const ProjectProvider = ({
         }
       });
       setProject(formattedProject);
-
-      // open latest state if it exists
-      // if (project.stateHistory.length > 0) {
-      //   const latestState = project.stateHistory[project.stateHistory.length - 1];
-      //   const camera = latestState.camera || {};
-      //   const imageHash = latestState.imageHash || false;
-      //   setCamera(camera);
-      //   setImageHash({
-      //     imageHash: imageHash,
-      //   });
-      // }
-
       setRowIds(false);
       setTemplates(templateData);
       setRightSidebarControl(
@@ -142,14 +125,11 @@ export const ProjectProvider = ({
     if (Array.isArray(project.stateHistory) && project.stateHistory?.length > 0) {
       const idx = project.stateHistory.length - 1;
       const lastState = project.stateHistory[idx];
-      console.log('openLastState', {project, idx});
-
-      const payloadHash = lastState.payloadHash;
       const camera = lastState.camera;
 
       await callDownloadModel({
+        isLastState: true,
         project,
-        payloadHash,
         session,
         url,
         setLoading,
@@ -172,8 +152,6 @@ export const ProjectProvider = ({
     return () => {
       setHasDrawerBeenShown(false);
     };
-    // This effect should only run once on mount, hence the empty dependency array.
-    // Make sure to not include variables that change on update unless you intentionally want to trigger the effect.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

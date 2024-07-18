@@ -40,15 +40,6 @@ export class StateService {
       const user = await mongoDbConnection.models.UserModel.getUserById(userId);
       const image = imageHash ? {imageHash} : {};
 
-      const cleanFiles = project.files.map((f) => {
-        delete f.selected;
-        delete f.open;
-
-        return {
-          ...f,
-        };
-      });
-
       const input = {
         ...image,
         createdBy: {...user},
@@ -58,11 +49,11 @@ export class StateService {
         camera: {...camera},
         aspectRatio: {...aspectRatio},
         properties: {...project.state.properties},
-        fileSystemHash: hashFileSystem(cleanFiles),
-        payloadHash: hashPayload(hashFileSystem(cleanFiles), project),
+        fileSystemHash: hashFileSystem(project.files),
+        payloadHash: hashPayload(hashFileSystem(project.files), project),
         workspace: {...workspace},
         project: {...project},
-        fileSystem: [...cleanFiles],
+        fileSystem: [...project.files],
         rowIds: rowIds,
       };
 

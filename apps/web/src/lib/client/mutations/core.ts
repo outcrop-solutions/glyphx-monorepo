@@ -51,8 +51,8 @@ export const _createOpenProject = (
       z: number;
     };
     dir: {
-      x: number;
       y: number;
+      x: number;
       z: number;
     };
     center?: {

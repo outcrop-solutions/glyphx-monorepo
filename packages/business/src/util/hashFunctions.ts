@@ -52,6 +52,35 @@ export function hashPayload(fileHash: string, project: databaseTypes.IProject): 
   return payloadHash;
 }
 
+// No project Id included
+export const oldHashFunction = (fileHash: string, project: databaseTypes.IProject): string => {
+  const relevantProps = ['X', 'Y', 'Z', 'A', 'B', 'C'];
+  const relevantKeys = ['key', 'dataType', 'interpolation', 'direction', 'filter', 'accumulatorType', 'dateGrouping'];
+  const propRetvals = [] as string[];
+  for (const propKey of relevantProps) {
+    const prop = project.state.properties[propKey];
+    const keyRetvals = [] as string[];
+    const dataType = prop.dataType;
+    for (const key of relevantKeys) {
+      if (key === 'filter' && dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER) {
+        keyRetvals.push(String((prop[key] as webTypes.INumbericFilter).min) ?? '');
+        keyRetvals.push(String((prop[key] as webTypes.INumbericFilter).max) ?? '');
+      } else if (key === 'filter' && dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING) {
+        for (const word of (prop[key] as webTypes.IStringFilter).keywords) {
+          keyRetvals.push(String(word));
+        }
+      } else {
+        keyRetvals.push(String(prop[key]));
+      }
+    }
+    propRetvals.push(keyRetvals.join(''));
+  }
+
+  const stateHash = MD5(propRetvals.join('')).toString();
+  const payloadHash = MD5(`${fileHash}${stateHash}`).toString();
+  return payloadHash;
+};
+
 /**
  * Performs project.files (fileSystem) hashing operation
  * Changes if fileStat.fileName | column.name | column.fieldType changes
@@ -62,7 +91,15 @@ export function hashPayload(fileHash: string, project: databaseTypes.IProject): 
  * @returns
  */
 export const hashFileSystem = (fileStats: fileIngestionTypes.IFileStats[]): string => {
-  const fileHashes = fileStats.map(({fileName, columns}: {fileName: string; columns: fileIngestionTypes.IColumn[]}) => {
+  // moved here from createState action in order to avoid discrepancy
+  const files = fileStats.map((f) => {
+    delete f.selected;
+    delete f.open;
+    return {
+      ...f,
+    };
+  });
+  const fileHashes = files.map(({fileName, columns}: {fileName: string; columns: fileIngestionTypes.IColumn[]}) => {
     const columnHashes = columns.map(({name, fieldType}) => `${name}${fieldType}`).join('');
     const formattedColHashInput = columnHashes;
     return MD5(`${fileName}${formattedColHashInput}`).toString();

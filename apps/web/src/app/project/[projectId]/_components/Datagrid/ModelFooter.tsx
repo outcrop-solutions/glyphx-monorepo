@@ -12,7 +12,6 @@ import {
   windowSizeAtom,
 } from 'state';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
-import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
 import {useSession} from 'next-auth/react';
 import {useUrl} from 'lib/client/hooks';
 
@@ -49,8 +48,7 @@ export const ModelFooter = () => {
       setDrawer(true);
     } else {
       // open drawer
-      const payloadHash = hashPayload(hashFileSystem(project.files), project);
-      await callDownloadModel({project, payloadHash, session, url, setLoading, setDrawer, setResize});
+      await callDownloadModel({project, session, url, setLoading, setDrawer, setResize});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drawer, project, session, setDrawer, setLoading, setOrientation, setResize, url, windowSize.height]);

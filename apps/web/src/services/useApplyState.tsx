@@ -56,28 +56,14 @@ const useApplyState = () => {
           : project.stateHistory.filter((state) => !state.deletedAt);
 
         const payload = filteredStates[idx];
-        const payloadHash = payload.payloadHash;
         const properties = payload.properties;
         const camera = payload.camera;
         const ids = payload.rowIds ?? [];
         const rowIds = convertRowIds(ids);
-
         const isNullCam = isNullCamera(camera);
-        const signedUrls = await signDataUrls(project?.workspace.id, project?.id, payloadHash);
+        const signedUrls = await signDataUrls(project);
 
-        console.log({
-          signedUrls,
-          isNullCam,
-          camera,
-          properties,
-          ids,
-          rowIds,
-          payload,
-          filteredStates,
-          newProject,
-          project,
-        });
-
+        // @ts-ignore
         if (!signedUrls?.error) {
           // replace project state
           setProject(

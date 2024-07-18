@@ -27,8 +27,6 @@ export const States = () => {
 
   const callCreateState = async (camera, image, project) => {
     try {
-      console.log('checking to call create state', {camera, image});
-
       if (Object.keys(camera).length > 0 && image.imageHash) {
         setIsSubmitting(true);
         const aspect = {
@@ -37,15 +35,11 @@ export const States = () => {
         };
         const rows = (rowIds ? rowIds : []) as unknown as number[];
         const newProject = await createState(name, camera as webTypes.Camera, project, image.imageHash, aspect, rows);
-        console.log('createState retval', {newProject});
 
         if (newProject) {
           // @ts-ignore
           const filteredStates = newProject.stateHistory?.filter((state) => !state.deletedAt);
           const idx = filteredStates.length - 1;
-
-          console.log({filteredStates, idx});
-
           applyState(idx, newProject);
           setName('Initial State');
           setIsSubmitting(false);
@@ -58,7 +52,6 @@ export const States = () => {
   };
 
   useEffect(() => {
-    console.log('within effect', {project, camera, image});
     callCreateState(camera, image, project);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [camera, setCamera, setProject, mutate, image, setImage, setAddState]);

@@ -10,6 +10,8 @@ import {databaseTypes, fileIngestionTypes, glyphEngineTypes, webTypes} from 'typ
 import {getServerSession} from 'next-auth';
 import {authOptions} from '../auth';
 import {revalidatePath} from 'next/cache';
+import {hashFileSystem} from 'business';
+import {hashPayload} from 'business/src/util/hashFunctions';
 
 /**
  * Call Glyph Engine
@@ -17,7 +19,7 @@ import {revalidatePath} from 'next/cache';
  * @param payloadHash
  * @returns
  */
-export const glyphEngine = async (project, payloadHash) => {
+export const glyphEngine = async (project) => {
   try {
     const session = await getServerSession(authOptions);
     if (session) {
@@ -26,6 +28,7 @@ export const glyphEngine = async (project, payloadHash) => {
         return {error: 'Invalid Payload'};
       } else {
         const properties = project.state.properties;
+        const payloadHash = hashPayload(hashFileSystem(project.files), project);
         const payload = {
           model_id: project.id,
           payload_hash: payloadHash,
@@ -98,19 +101,6 @@ export const glyphEngine = async (project, payloadHash) => {
         const {sdtFileName, sgnFileName, sgcFileName} = await glyphEngine.process(data);
         const updatedProject = await projectService.updateProjectState(project.id, project.state);
 
-        const name = new Date().toISOString();
-        // add new state to project to prevent redundant glyphengine runs
-        // const state = await stateService.createState(
-        //   name,
-        //   {
-        //     pos: { x: 0, y: 0, z: 0 },
-        //     dir: { x: 0, y: 0, z: 0 },
-        //   },
-        //   updatedProject.id,
-        //   session.user?.id,
-        //   { height: 300, width: 300 }
-        // );
-
         await activityLogService.createLog({
           actorId: session?.user?.id!,
           resourceId: payload.model_id,
@@ -126,14 +116,11 @@ export const glyphEngine = async (project, payloadHash) => {
 
         return {sdtFileName, sgnFileName, sgcFileName, updatedProject};
       }
+    } else {
+      throw new Error('Not Authorized');
     }
   } catch (err) {
-    const e = new error.ActionError(
-      'An unexpected error occurred running glyphengine',
-      'etl',
-      {project, payloadHash},
-      err
-    );
+    const e = new error.ActionError('An unexpected error occurred running glyphengine', 'etl', {project}, err);
     e.publish('etl', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }

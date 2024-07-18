@@ -231,7 +231,7 @@ describe('#integrationTests/annotation', () => {
     });
   });
   context('#createProjectAnnotation', () => {
-    it.only('should create a project annotation', async () => {
+    it('should create a project annotation', async () => {
       try {
         const value = 'integration test annotation';
         const projectId = project.id;
@@ -251,6 +251,7 @@ describe('#integrationTests/annotation', () => {
 
         // should have created project annotation in DB
         const annotations = await annotationAction.getProjectAnnotations(project.id);
+        assert.strictEqual(annotations?.length, 2);
         // clean up annotation
         if (annotations && annotations.length > 0) {
           for (const note of annotations) {
@@ -260,7 +261,6 @@ describe('#integrationTests/annotation', () => {
         } else {
           assert.fail();
         }
-        assert.strictEqual(annotations?.length, 2);
         // TODO: test for email being sent via fake smtp server
       } catch (error) {
         assert.fail();
