@@ -108,7 +108,7 @@ describe.only('#fieldProcessing/DateFieldChecker', () => {
       });
       assert.equal(result.getTime(), localDate);
     });
-    it('99/99/9999 connot be converted to a date', () => {
+    it('99/99/9999 cannot be converted to a date', () => {
       const dateChecker = new DateFieldChecker();
       assert.throws(() => {
         dateChecker.convertField('99/99/9999');

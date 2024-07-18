@@ -355,6 +355,9 @@ async function processFiles(options: IOptions) {
   for (let file of files) {
     let outputDir = files.length > 1 ? `${options.outputDir}/${file}` : options.outputDir;
     console.log(`processing file: ${options.inputDir}/${file} to ${outputDir} \n`);
+    if (files.length > 1) {
+      await setupParentOutputDirectory(outputDir);
+    }
     let streamArray: Array<stream.Writable | stream.Readable | stream.Transform> = [];
     streamArray.push(await getFileStream(`${options.inputDir}/${file}`));
     streamArray.push(new BasicCsvParser({}));
