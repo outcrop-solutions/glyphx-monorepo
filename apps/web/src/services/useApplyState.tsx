@@ -61,7 +61,7 @@ const useApplyState = () => {
         const ids = payload.rowIds ?? [];
         const rowIds = convertRowIds(ids);
         const isNullCam = isNullCamera(camera);
-        const signedUrls = await signDataUrls(project);
+        const signedUrls = await signDataUrls(project.id);
 
         // @ts-ignore
         if (!signedUrls?.error) {
