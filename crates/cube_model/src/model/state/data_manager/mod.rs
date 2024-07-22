@@ -2,7 +2,7 @@ mod glyph_manager;
 mod stats_manager;
 mod camera_manager;
 
-use super::{AddGlyphError, AddStatsError,  DeserializeVectorError, GetStatsError, ModelVectors, RankedGlyphData };
+use super::{AddGlyphError, AddStatsError,  DeserializeVectorError, GetStatsError, ModelVectors, RankedGlyphData, GlyphVertexData, NewRankedGlyphData, ComputedGlyphInstanceData};
 pub use glyph_manager::GlyphManager;
 pub use stats_manager::StatsManager;
 pub use camera_manager::{CameraManager, CameraData};
@@ -56,8 +56,21 @@ impl DataManager {
         self.glyph_manager.add_glyph(glyph_bytes)
     }
 
+    pub fn add_new_ranked_glyph(&mut self, glyph: GlyphVertexData) -> Result<(), AddGlyphError> {
+        self.glyph_manager.add_new_ranked_glyph(glyph)?;
+        Ok(())
+    }
+
     pub fn get_glyphs(&self) -> Option<&RankedGlyphData> {
         self.glyph_manager.get_glyphs()
+    }
+
+    pub fn new_get_glyphs(&self) -> Option<&NewRankedGlyphData> {
+        self.glyph_manager.new_get_glyphs()
+    }
+
+    pub fn get_raw_glyphs(&self) -> &Vec<ComputedGlyphInstanceData> {
+        self.glyph_manager.get_raw_glyphs()
     }
      
     pub fn get_vector_len( &self, axis: &str) -> usize {
@@ -76,6 +89,14 @@ impl DataManager {
 
     pub fn get_glyph_len(&self) -> usize {
         self.glyph_manager.len()
+    }
+
+    pub fn clear_glyphs(&mut self) {
+        self.glyph_manager.clear();
+    }
+
+    pub fn add_computed_glyph(&mut self, glyph: ComputedGlyphInstanceData) {
+        self.glyph_manager.add_ranked_glyph(glyph);
     }
 
 }
@@ -217,14 +238,13 @@ mod unit_tests {
             let result = data_manager.add_glyph(serialize(&glyph).unwrap());
             assert!(result.is_ok());
 
+            //Adding a glyph does not add it to the ranked glyph data
+            //this is handled after the glyph compute pipeline is run
             let glyph_data = data_manager.get_glyphs();
-            assert!(glyph_data.is_some());
-            let glyph_data = glyph_data.unwrap();
-            let mut count = 0;
-            glyph_data
-                .iter(Rank::X, RankDirection::Ascending)
-                .for_each(|r| count += r.len());
-            assert_eq!(count, 1);
+            assert!(glyph_data.is_none());
+
+            let glyph_data = data_manager.new_get_glyphs();
+            assert!(glyph_data.is_none());
         }
 
         #[test]

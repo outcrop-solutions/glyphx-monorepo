@@ -30,14 +30,22 @@ struct VertexData {
 struct InstanceInput {
     glyph_id: u32,
     x_value: f32,
+    x_rank: u32,
     y_value: f32,
     z_value: f32,
+    z_rank: u32,
     flags: u32,
+    padding: array<u32,5>,
 };
 
 struct InstanceOutput {
     glyph_id: u32,
     vertex_data: VertexData,
+    x_rank: u32,
+    z_rank: u32,
+    x_id: u32,
+    z_id: u32,
+    flags: u32,
 
 };
 
@@ -156,6 +164,11 @@ fn main(
     var out_index = index_y * size_of_x + index_x;
     var out_data: InstanceOutput;
     out_data.glyph_id = instance.glyph_id;
+    out_data.x_rank = instance.x_rank;
+    out_data.z_rank = instance.z_rank;
+    out_data.x_id = index_x;
+    out_data.z_id = index_y;
+    out_data.flags = instance.flags;
     var vertex_data: VertexData;
     vertex_data.position = array<f32, 3>(x_pos, y_vec, z_pos);
     vertex_data.normal = array<f32,3>(model.normal[0], model.normal[1], model.normal[2]);

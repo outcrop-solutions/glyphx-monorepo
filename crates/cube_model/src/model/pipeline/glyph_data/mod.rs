@@ -21,7 +21,10 @@ use crate::{
     assets::{rectangular_prism::create_rectangular_prism, shape_vertex::ShapeVertex},
     model::{
         model_configuration::ModelConfiguration,
-        pipeline::glyphs::ranked_glyph_data::RankedGlyphData, state::DataManager,
+        pipeline::glyphs::{
+            glyph_instance_data::ComputedGlyphInstanceData, ranked_glyph_data::RankedGlyphData,
+        },
+        state::DataManager,
     },
 };
 use bytemuck::{Pod, Zeroable};
@@ -82,7 +85,7 @@ impl GlyphData {
 
         let dm = data_manager.clone();
         let dm = dm.borrow();
-        let glyph_data = dm.get_glyphs().unwrap();
+        let glyph_data = dm.get_raw_glyphs();
         let (instance_buffer, instance_count) = Self::configure_instance_buffer(&d, glyph_data);
 
         let (output_buffer, output_size) =
@@ -161,13 +164,12 @@ impl GlyphData {
         }
     }
 
-    fn configure_instance_buffer(device: &Device, glyph_data: &RankedGlyphData) -> (Buffer, usize) {
-        let glyphs = glyph_data.get_glyphs_vector();
-        let instance_count = glyphs.len();
+    fn configure_instance_buffer(device: &Device, glyph_data: &Vec<ComputedGlyphInstanceData>) -> (Buffer, usize) {
+        let instance_count = glyph_data.len();
         (
             device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
                 label: Some("Instance Buffer"),
-                contents: bytemuck::cast_slice(glyphs.as_slice()),
+                contents: bytemuck::cast_slice(glyph_data.as_slice()),
                 usage: wgpu::BufferUsages::STORAGE,
             }),
             instance_count,
@@ -190,12 +192,15 @@ impl GlyphData {
         let x_size = vertex_data_length;
         let y_size = glyph_data_length;
         let output_size = (x_size * y_size * std::mem::size_of::<InstanceOutput>()) as usize;
-        (device.create_buffer(&wgpu::BufferDescriptor {
-            label: Some("Output Buffer"),
-            size: output_size as u64,
-            usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC,
-            mapped_at_creation: false,
-        }), output_size )
+        (
+            device.create_buffer(&wgpu::BufferDescriptor {
+                label: Some("Output Buffer"),
+                size: output_size as u64,
+                usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC,
+                mapped_at_creation: false,
+            }),
+            output_size,
+        )
     }
 
     //OK we have to push the buffers(vectors and glyphs) into uniforms and then reference them
@@ -287,7 +292,13 @@ impl GlyphData {
                 1,
             );
         }
-        encoder.copy_buffer_to_buffer(&self.output_buffer, 0, &staging_buffer, 0, self.output_size as u64);
+        encoder.copy_buffer_to_buffer(
+            &self.output_buffer,
+            0,
+            &staging_buffer,
+            0,
+            self.output_size as u64,
+        );
         staging_buffer
     }
 }
@@ -296,4 +307,9 @@ impl GlyphData {
 pub struct InstanceOutput {
     pub glyph_id: u32,
     pub vertex_data: ShapeVertex,
+    pub x_rank: u32,
+    pub z_rank: u32,
+    pub x_id: u32,
+    pub z_id: u32,
+    pub flags: u32,
 }

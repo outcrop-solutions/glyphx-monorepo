@@ -20,8 +20,9 @@ use crate::{
             axis_lines,
             glyph_data::{GlyphData, InstanceOutput},
             glyphs::{
-                glyph_instance_data::{GlyphInstanceData, GlyphUniformData},
+                glyph_instance_data::{ComputedGlyphInstanceData, GlyphInstanceData, GlyphUniformData},
                 ranked_glyph_data::{Rank, RankDirection, RankedGlyphData},
+                new_ranked_glyph_data::{NewRankedGlyphData, GlyphVertexData, NewRank, NewRankDirection},
                 Glyphs,
             },
             PipelineRunner,
@@ -87,8 +88,8 @@ pub struct State {
     smaa_target: SmaaTarget,
     glyph_uniform_data: GlyphUniformData,
     glyph_uniform_buffer: wgpu::Buffer,
-    rank: Rank,
-    rank_direction: RankDirection,
+    rank: NewRank,
+    rank_direction: NewRankDirection,
     pipelines: Pipelines,
     glyph_data_pipeline: GlyphData,
     z_order: usize,
@@ -216,8 +217,8 @@ impl State {
             glyph_uniform_buffer,
             glyph_uniform_data,
             smaa_target,
-            rank: Rank::Z,
-            rank_direction: RankDirection::Ascending,
+            rank: NewRank::Z,
+            rank_direction: NewRankDirection::Ascending,
             pipelines,
             light_buffer,
             light_uniform,
@@ -382,9 +383,6 @@ impl State {
             .z_axis_line
             .set_axis_start(config.model_origin[2]);
         self.pipelines.z_axis_line.update_vertex_buffer();
-        self.pipelines
-            .glyphs
-            .update_vertex_buffer(&self.glyph_uniform_data);
         self.light_uniform
             .upate_position(config.light_location.clone());
         self.light_uniform.upate_color([
@@ -468,7 +466,7 @@ impl State {
             //manager trait to render it.  So, we will handle it directly.
             if name == "glyphs" {
                 let dm = self.data_manager.borrow();
-                let ranked_glyph_data = dm.get_glyphs();
+                let ranked_glyph_data = dm.new_get_glyphs();
                 if ranked_glyph_data.is_some() {
                     let ranked_glyph_data = ranked_glyph_data.unwrap();
                     Self::run_glyphs_pipeline(
@@ -505,9 +503,9 @@ impl State {
         device: &Device,
         smaa_frame: &SmaaFrame,
         pipeline: &Glyphs,
-        rank: Rank,
-        rank_direction: RankDirection,
-        ranked_glyph_data: &RankedGlyphData,
+        rank: NewRank,
+        rank_direction: NewRankDirection,
+        ranked_glyph_data: &NewRankedGlyphData,
         pipeline_name: &str,
         commands: &mut Vec<CommandBuffer>,
     ) {
@@ -518,15 +516,18 @@ impl State {
             });
             let clean_rank = rank
                 .iter()
-                .map(|rc| GlyphInstanceData {
-                    glyph_id: rc.glyph_id,
-                    x_value: rc.x_value,
-                    y_value: rc.y_value,
-                    z_value: rc.z_value,
-                    glyph_selected: rc.glyph_selected,
+                .map(|rgd| GlyphVertexData{
+                    glyph_id: rgd.glyph_id,
+                    position: rgd.position,
+                    normal: rgd.normal,
+                    color: rgd.color,
+                    x_rank: rgd.x_rank,
+                    z_rank: rgd.z_rank,
+                    flags: rgd.flags,
+                
                 })
-                .collect::<Vec<GlyphInstanceData>>();
-            let instance_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                .collect::<Vec<GlyphVertexData>>();
+            let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
                 label: Some("Instance Buffer"),
                 contents: bytemuck::cast_slice(&clean_rank),
                 usage: wgpu::BufferUsages::VERTEX,
@@ -534,7 +535,7 @@ impl State {
             pipeline.run_pipeline(
                 &mut encoder,
                 smaa_frame,
-                &instance_buffer,
+                &vertex_buffer,
                 rank.len() as u32,
             );
             commands.push(encoder.finish());
@@ -606,12 +607,19 @@ impl State {
         //just push the verticies into a traingle list and attach 
         //the normals
         let output_data: Vec<InstanceOutput> = bytemuck::cast_slice(&view).to_vec();
+
+        let dm = &mut self.data_manager.as_ref().borrow_mut();
+       dm.clear_glyphs(); 
+
         for instance in &output_data {
+
             println!("{:?}", instance);
+            let vertex_data = GlyphVertexData::from(instance);
+            let _ = dm.add_new_ranked_glyph(vertex_data);
+
         }
         drop(view);
         output_buffer.unmap();
-       self.pipelines.glyphs.new_update_vertex_buffer(output_data); 
     }
 
     async fn init_device(adapter: &wgpu::Adapter) -> (Device, Queue) {
@@ -728,8 +736,6 @@ impl State {
         );
         let d = device.as_ref().borrow();
         let glyphs = Glyphs::new(
-            glyph_uniform_data,
-            glyph_uniform_buffer,
             device.clone(),
             config,
             camera_buffer,
@@ -738,7 +744,6 @@ impl State {
             color_table_uniform,
             light_buffer,
             light_uniform,
-            model_configuration.clone(),
         );
         Pipelines {
             x_axis_line,
@@ -875,19 +880,19 @@ impl State {
         let (z_order_index, rank, rank_direction) =
             if rotation_angle >= 301.0 || rotation_angle < 31.0 {
                 //Front
-                (0, Rank::Z, RankDirection::Ascending)
+                (0, NewRank::Z, NewRankDirection::Ascending)
             } else if rotation_angle >= 31.0 && rotation_angle < 121.0 {
                 //Right
-                (0, Rank::X, RankDirection::Ascending)
+                (0, NewRank::X, NewRankDirection::Ascending)
             } else if rotation_angle >= 121.0 && rotation_angle < 211.0 {
                 //Back
-                (1, Rank::Z, RankDirection::Descending)
+                (1, NewRank::Z, NewRankDirection::Descending)
             } else if rotation_angle >= 211.0 && rotation_angle < 301.0 {
                 //Left
-                (3, Rank::X, RankDirection::Descending)
+                (3, NewRank::X, NewRankDirection::Descending)
             } else {
                 //This will never happen but rust was trying to be helpful
-                (0, Rank::Z, RankDirection::Ascending)
+                (0, NewRank::Z, NewRankDirection::Ascending)
             };
 
         let forward_face = if rotation_angle >= 316.0 || rotation_angle < 46.0 {

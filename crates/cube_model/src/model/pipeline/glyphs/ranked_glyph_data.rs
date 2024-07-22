@@ -1,4 +1,4 @@
-use crate::model::pipeline::glyphs::glyph_instance_data::GlyphInstanceData;
+use crate::model::pipeline::glyphs::glyph_instance_data::{GlyphInstanceData, ComputedGlyphInstanceData};
 use serde::{Deserialize, Serialize};
 use std::rc::Rc;
 
@@ -25,14 +25,14 @@ pub struct RankedGlyphIterator<'a> {
     rank: Rank,
     rank_direction: RankDirection,
     index: usize,
-    data: &'a Vec<Vec<Rc<GlyphInstanceData>>>,
+    data: &'a Vec<Vec<Rc<ComputedGlyphInstanceData>>>,
 }
 
 impl<'a> RankedGlyphIterator<'a> {
     pub fn new(
         rank: Rank,
         rank_direction: RankDirection,
-        data: &'a Vec<Vec<Rc<GlyphInstanceData>>>,
+        data: &'a Vec<Vec<Rc<ComputedGlyphInstanceData>>>,
     ) -> RankedGlyphIterator<'a> {
         let index = match rank_direction {
             RankDirection::Ascending => 0,
@@ -48,7 +48,7 @@ impl<'a> RankedGlyphIterator<'a> {
 }
 
 impl<'a> Iterator for RankedGlyphIterator<'a> {
-    type Item = &'a Vec<Rc<GlyphInstanceData>>;
+    type Item = &'a Vec<Rc<ComputedGlyphInstanceData>>;
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.rank_direction {
@@ -75,9 +75,9 @@ impl<'a> Iterator for RankedGlyphIterator<'a> {
 pub struct RankedGlyphData {
     x_rank_size: usize,
     z_rank_size: usize,
-    core_data: Vec<Rc<GlyphInstanceData>>,
-    x_rank: Vec<Vec<Rc<GlyphInstanceData>>>,
-    z_rank: Vec<Vec<Rc<GlyphInstanceData>>>,
+    core_data: Vec<Rc<ComputedGlyphInstanceData>>,
+    x_rank: Vec<Vec<Rc<ComputedGlyphInstanceData>>>,
+    z_rank: Vec<Vec<Rc<ComputedGlyphInstanceData>>>,
 }
 impl RankedGlyphData {
     pub fn new(x_rank_size: usize, z_rank_size: usize) -> RankedGlyphData {
@@ -95,7 +95,7 @@ impl RankedGlyphData {
         }
     }
 
-    fn build_index(size: usize) -> Vec<Vec<Rc<GlyphInstanceData>>> {
+    fn build_index(size: usize) -> Vec<Vec<Rc<ComputedGlyphInstanceData>>> {
         let mut index = Vec::new();
         let mut i = 0;
         while i < size {
@@ -106,24 +106,24 @@ impl RankedGlyphData {
     }
     pub fn add(
         &mut self,
-        x_rank: usize,
-        z_rank: usize,
-        data: GlyphInstanceData,
+        data: ComputedGlyphInstanceData,
     ) -> Result<(), RankedGlyphDataError> {
-        if x_rank >= self.x_rank_size {
-            return Err(RankedGlyphDataError::InvalidXRank(x_rank));
+        let x_rank = data.x_rank;
+        let z_rank = data.z_rank;
+        if x_rank >= self.x_rank_size as u32 {
+            return Err(RankedGlyphDataError::InvalidXRank(x_rank as usize));
         }
-        if z_rank >= self.z_rank_size {
-            return Err(RankedGlyphDataError::InvalidZRank(z_rank));
+        if z_rank >= self.z_rank_size as u32 {
+            return Err(RankedGlyphDataError::InvalidZRank(z_rank as usize));
         }
 
         let rc = Rc::new(data);
         let core_data = &mut self.core_data;
 
-        let x_rank = &mut self.x_rank[x_rank];
+        let x_rank = &mut self.x_rank[x_rank as usize];
         x_rank.push(rc.clone());
 
-        let z_rank = &mut self.z_rank[z_rank];
+        let z_rank = &mut self.z_rank[z_rank as usize];
         z_rank.push(rc.clone());
         core_data.push(rc);
         Ok(())
@@ -140,7 +140,7 @@ impl RankedGlyphData {
     ///Is useful for getting a vector of the glyphs.
     ///Order is not enforced, so this is not useful for rendering
     ///but it is useful for compute pipline operations.
-    pub fn get_glyphs_vector(&self) -> Vec<GlyphInstanceData> {
+    pub fn get_glyphs_vector(&self) -> Vec<ComputedGlyphInstanceData> {
         self.core_data.iter().map(|rc| *rc.clone()).collect()
     }
     pub fn get_x_rank_size(&self) -> usize {
@@ -180,24 +180,28 @@ mod add {
         let x_rank_size = 10;
         let z_rank_size = 10;
         let mut ranked_glyph_data = RankedGlyphData::new(x_rank_size, z_rank_size);
-        let first_glyph = GlyphInstanceData {
-            glyph_id: 0,
-            x_value: 0.0,
-            y_value: 0.0,
-            z_value: 0.0,
-            glyph_selected: 0,
-        };
+        let first_glyph = ComputedGlyphInstanceData::new(
+             0,
+             0.0,
+             0,
+             0.0,
+             0.0,
+             0,
+             0,
+        );
 
-        let second_glyph = GlyphInstanceData {
-            glyph_id: 1,
-            x_value: 1.0,
-            y_value: 1.0,
-            z_value: 1.0,
-            glyph_selected: 1,
-        };
+        let second_glyph = ComputedGlyphInstanceData::new(
+            1,
+            1.0,
+            7,
+            1.0,
+            1.0,
+            4,
+            1,
+        );
 
-        assert!(ranked_glyph_data.add(0, 0, first_glyph).is_ok());
-        assert!(ranked_glyph_data.add(7, 4, second_glyph).is_ok());
+        assert!(ranked_glyph_data.add(first_glyph).is_ok());
+        assert!(ranked_glyph_data.add(second_glyph).is_ok());
 
         assert_eq!(ranked_glyph_data.core_data.len(), 2);
 
@@ -242,15 +246,17 @@ mod add {
         let x_rank_size = 10;
         let z_rank_size = 10;
         let mut ranked_glyph_data = RankedGlyphData::new(x_rank_size, z_rank_size);
-        let glyph = GlyphInstanceData {
-            glyph_id: 0,
-            x_value: 0.0,
-            y_value: 0.0,
-            z_value: 0.0,
-            glyph_selected: 0,
-        };
+        let glyph = ComputedGlyphInstanceData::new(
+            0,
+            0.0,
+            11,
+            0.0,
+            0.0,
+            0,
+            0,
+        );
 
-        let result = ranked_glyph_data.add(11, 0, glyph);
+        let result = ranked_glyph_data.add( glyph);
         assert!(result.is_err());
         let err_value = match result.unwrap_err() {
             RankedGlyphDataError::InvalidXRank(value) => value,
@@ -265,15 +271,17 @@ mod add {
         let x_rank_size = 10;
         let z_rank_size = 10;
         let mut ranked_glyph_data = RankedGlyphData::new(x_rank_size, z_rank_size);
-        let glyph = GlyphInstanceData {
-            glyph_id: 0,
-            x_value: 0.0,
-            y_value: 0.0,
-            z_value: 0.0,
-            glyph_selected: 0,
-        };
+        let glyph = ComputedGlyphInstanceData::new(
+            0,
+            0.0,
+            0,
+            0.0,
+            0.0,
+            11,
+            0,
+        );
 
-        let result = ranked_glyph_data.add(0, 11, glyph);
+        let result = ranked_glyph_data.add(glyph);
         assert!(result.is_err());
         let err_value = match result.unwrap_err() {
             RankedGlyphDataError::InvalidZRank(value) => value,
@@ -293,14 +301,16 @@ mod iter {
         let mut z = 0;
         while x < 10 {
             while z < 10 {
-                let glyph = GlyphInstanceData {
-                    glyph_id: 0,
-                    x_value: x as f32,
-                    y_value: 0.0,
-                    z_value: z as f32,
-                    glyph_selected: 0,
-                };
-                ranked_glyph_data.add(x, z, glyph).unwrap();
+                let glyph = ComputedGlyphInstanceData::new(
+                    0,
+                    x as f32,
+                    x,
+                    0.0,
+                    z as f32,
+                    z,
+                    0,
+                );
+                ranked_glyph_data.add(glyph).unwrap();
                 z += 1;
             }
             z = 0;
@@ -385,24 +395,28 @@ mod iter {
             let x_rank_size = 10;
             let z_rank_size = 10;
             let mut ranked_glyph_data = RankedGlyphData::new(x_rank_size, z_rank_size);
-            let first_glyph = GlyphInstanceData {
-                glyph_id: 0,
-                x_value: 0.0,
-                y_value: 0.0,
-                z_value: 0.0,
-                glyph_selected: 0,
-            };
+            let first_glyph = ComputedGlyphInstanceData::new(
+                0,
+                0.0,
+                0,
+                0.0,
+                0.0,
+                0,
+                0,
+            );
 
-            let second_glyph = GlyphInstanceData {
-                glyph_id: 1,
-                x_value: 1.0,
-                y_value: 1.0,
-                z_value: 1.0,
-                glyph_selected: 1,
-            };
+            let second_glyph = ComputedGlyphInstanceData::new(
+                1,
+                1.0,
+                7, 
+                1.0,
+                1.0,
+                4,
+                1,
+            );
 
-            assert!(ranked_glyph_data.add(0, 0, first_glyph).is_ok());
-            assert!(ranked_glyph_data.add(7, 4, second_glyph).is_ok());
+            assert!(ranked_glyph_data.add(first_glyph).is_ok());
+            assert!(ranked_glyph_data.add(second_glyph).is_ok());
 
             assert_eq!(ranked_glyph_data.core_data.len(), 2);
 
@@ -431,26 +445,30 @@ mod get_number_of_glyphs {
         let x_rank_size = 10;
         let z_rank_size = 10;
         let mut ranked_glyph_data = RankedGlyphData::new(x_rank_size, z_rank_size);
-        let first_glyph = GlyphInstanceData {
-            glyph_id: 0,
-            x_value: 0.0,
-            y_value: 0.0,
-            z_value: 0.0,
-            glyph_selected: 0,
-        };
+        let first_glyph = ComputedGlyphInstanceData::new(
+            0,
+            0.0,
+            0,
+            0.0,
+            0.0,
+            0,
+            0,
+        );
 
-        let second_glyph = GlyphInstanceData {
-            glyph_id: 1,
-            x_value: 1.0,
-            y_value: 1.0,
-            z_value: 1.0,
-            glyph_selected: 1,
-        };
+        let second_glyph = ComputedGlyphInstanceData::new(
+            1,
+            1.0,
+            7,
+            1.0,
+            1.0,
+            4,
+            1,
+        );
 
         assert_eq!(ranked_glyph_data.get_number_of_glyphs(), 0);
-        assert!(ranked_glyph_data.add(0, 0, first_glyph).is_ok());
+        assert!(ranked_glyph_data.add(first_glyph).is_ok());
         assert_eq!(ranked_glyph_data.get_number_of_glyphs(), 1);
-        assert!(ranked_glyph_data.add(7, 4, second_glyph).is_ok());
+        assert!(ranked_glyph_data.add(second_glyph).is_ok());
         assert_eq!(ranked_glyph_data.get_number_of_glyphs(), 2);
     }
 }

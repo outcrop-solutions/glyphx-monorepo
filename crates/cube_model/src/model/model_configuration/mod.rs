@@ -376,15 +376,15 @@ impl Default for ModelConfiguration {
             //A -- done
             grid_cylinder_length: 10.80,
             //R -- done
-            grid_cylinder_radius: 0.05,
+            grid_cylinder_radius: 0.005,
             //C -- done
-            grid_cone_length: 0.2,
+            grid_cone_length: 0.02,
             //K -- done
-            grid_cone_radius: 0.10,
+            grid_cone_radius: 0.010,
             //H -- done
-            z_height_ratio: 0.2,
+            z_height_ratio: 1.0,
             //O -- done
-            glyph_offset: 0.15,
+            glyph_offset: 0.015,
             //E -- Done
             min_glyph_height: 0.0002,
             //W -- Done
@@ -394,7 +394,7 @@ impl Default for ModelConfiguration {
             //I -- Done
             light_intensity: 0.02,
             //S -- Done
-            glyph_size: 0.15,
+            glyph_size: 0.015,
             //G
             model_origin: [-5.0, -5.0, -5.0],
         }

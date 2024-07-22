@@ -3,8 +3,7 @@ use glyphx_core_error::{GlyphxCoreError, GlyphxErrorData};
 use bincode::{Error, ErrorKind};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, to_value};
-use crate::data::GetVectorError;
-use crate::model::pipeline::glyphs::ranked_glyph_data::RankedGlyphDataError;
+use crate::{data::GetVectorError, model::pipeline::glyphs::{new_ranked_glyph_data::NewRankedGlyphDataError, ranked_glyph_data::RankedGlyphDataError}};
 #[derive(Debug, Clone,Deserialize, Serialize, GlyphxCoreError)]
 #[error_definition("StatsError")]
 pub enum AddGlyphError {
@@ -93,6 +92,26 @@ impl From<RankedGlyphDataError> for AddGlyphError {
                 (msg, json_data)
             },
             RankedGlyphDataError::InvalidZRank(rank) => {
+                let msg = format!("An error occurred adding the glyph. The Z rank: {} is out of bounds. See the inner error for additional information", rank);
+                let json_data = json!({"axis" : "Z",  "rank": rank});
+                (msg, json_data)
+            },
+        };
+        let inner_error = to_value(error).unwrap();
+        let error_data = GlyphxErrorData::new(message.to_string(), Some(data), Some(inner_error));
+        AddGlyphError::RankOutOfRange(error_data)
+    }
+}
+
+impl From<NewRankedGlyphDataError> for AddGlyphError {
+    fn from(error: NewRankedGlyphDataError) -> Self {
+        let (message, data) = match error {
+            NewRankedGlyphDataError::InvalidXRank(rank) => {
+                let msg = format!("An error occurred adding the glyph. The x rank: {} is out of bounds. See the inner error for additional information", rank);
+                let json_data = json!({"axis" : "x",  "rank": rank});
+                (msg, json_data)
+            },
+            NewRankedGlyphDataError::InvalidZRank(rank) => {
                 let msg = format!("An error occurred adding the glyph. The Z rank: {} is out of bounds. See the inner error for additional information", rank);
                 let json_data = json!({"axis" : "Z",  "rank": rank});
                 (msg, json_data)
