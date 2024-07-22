@@ -1,6 +1,7 @@
-pub(crate) mod glyph_instance_data;
 pub(crate) mod ranked_glyph_data;
 pub(crate) mod glyph_vertex_data;
+pub(crate) mod glyph_uniform_data;
+pub(crate) mod glyph_instance_data;
 
 use crate::{
     camera::uniform_buffer::CameraUniform,

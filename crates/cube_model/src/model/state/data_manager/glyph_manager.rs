@@ -3,7 +3,7 @@ use super::StatsManager;
 
 use crate::model::{
     pipeline::glyphs::{
-        glyph_instance_data::ComputedGlyphInstanceData,
+        glyph_instance_data::GlyphInstanceData,
         glyph_vertex_data::GlyphVertexData,
         ranked_glyph_data::{RankedGlyphData, RankedGlyphDataError},
     },
@@ -19,7 +19,7 @@ use std::rc::Rc;
 #[derive(Debug, Clone)]
 pub struct GlyphManager {
     stats_manager: Rc<RefCell<StatsManager>>,
-    raw_glyphs: Vec<ComputedGlyphInstanceData>,
+    raw_glyphs: Vec<GlyphInstanceData>,
     new_ranked_glyph_data: Option<RankedGlyphData>,
     x_model_vectors: Rc<RefCell<ModelVectors>>,
     z_model_vectors: Rc<RefCell<ModelVectors>>,
@@ -90,7 +90,7 @@ impl GlyphManager {
         raw_glyphs.push(
             //Ok here we are flipping y and z, this make things make sense downstream as we
             //actually render the glyphs.
-            ComputedGlyphInstanceData::new(
+            GlyphInstanceData::new(
                 glyph_id,
                 glyph.x_value as f32,
                 x_vector.rank as u32,
@@ -116,7 +116,7 @@ impl GlyphManager {
         self.new_ranked_glyph_data.as_ref()
     }
 
-    pub fn get_raw_glyphs(&self) -> &Vec<ComputedGlyphInstanceData> {
+    pub fn get_raw_glyphs(&self) -> &Vec<GlyphInstanceData> {
         &self.raw_glyphs
     }
 

@@ -21,7 +21,7 @@ use crate::{
     assets::{rectangular_prism::create_rectangular_prism, shape_vertex::ShapeVertex},
     model::{
         model_configuration::ModelConfiguration,
-        pipeline::glyphs::glyph_instance_data::ComputedGlyphInstanceData, state::DataManager,
+        pipeline::glyphs::glyph_instance_data::GlyphInstanceData, state::DataManager,
     },
 };
 use bytemuck::{Pod, Zeroable};
@@ -163,7 +163,7 @@ impl GlyphData {
 
     fn configure_instance_buffer(
         device: &Device,
-        glyph_data: &Vec<ComputedGlyphInstanceData>,
+        glyph_data: &Vec<GlyphInstanceData>,
     ) -> (Buffer, usize) {
         let instance_count = glyph_data.len();
         (

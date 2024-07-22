@@ -3,7 +3,7 @@ mod glyph_manager;
 mod stats_manager;
 
 use super::{
-    AddGlyphError, AddStatsError, ComputedGlyphInstanceData, DeserializeVectorError, GetStatsError,
+    AddGlyphError, AddStatsError, GlyphInstanceData, DeserializeVectorError, GetStatsError,
     GlyphVertexData, ModelVectors, RankedGlyphData,
 };
 pub use camera_manager::{CameraData, CameraManager};
@@ -68,7 +68,7 @@ impl DataManager {
         self.glyph_manager.new_get_glyphs()
     }
 
-    pub fn get_raw_glyphs(&self) -> &Vec<ComputedGlyphInstanceData> {
+    pub fn get_raw_glyphs(&self) -> &Vec<GlyphInstanceData> {
         self.glyph_manager.get_raw_glyphs()
     }
 

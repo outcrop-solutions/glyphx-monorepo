@@ -20,7 +20,8 @@ use crate::{
             axis_lines,
             glyph_data::{GlyphData, InstanceOutput},
             glyphs::{
-                glyph_instance_data::{ComputedGlyphInstanceData, GlyphUniformData},
+                glyph_instance_data::GlyphInstanceData,
+                glyph_uniform_data::GlyphUniformData,
                 glyph_vertex_data::GlyphVertexData,
                 ranked_glyph_data::{Rank, RankDirection, RankedGlyphData},
                 Glyphs,
@@ -583,7 +584,6 @@ impl State {
     }
 
     pub fn run_compute_pipeline(&mut self) {
-        eprintln!("Running compute pipeline");
         let d = self.device.as_ref().borrow();
         let mut encoder = d.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("ScreenClear Encoder"),
@@ -605,7 +605,6 @@ impl State {
         dm.clear_glyphs();
 
         for instance in &output_data {
-            println!("{:?}", instance);
             let vertex_data = GlyphVertexData::from(instance);
             let _ = dm.add_new_ranked_glyph(vertex_data);
         }
