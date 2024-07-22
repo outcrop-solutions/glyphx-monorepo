@@ -1,13 +1,15 @@
 use super::ModelVectors;
 use super::StatsManager;
-use crate::model::pipeline::glyphs::glyph_instance_data::{
-    ComputedGlyphInstanceData, GlyphInstanceData,
+
+use crate::model::{
+    pipeline::glyphs::{
+        glyph_instance_data::ComputedGlyphInstanceData,
+        glyph_vertex_data::GlyphVertexData,
+        ranked_glyph_data::{RankedGlyphData, RankedGlyphDataError},
+    },
+    state::AddGlyphError,
 };
-use crate::model::pipeline::glyphs::new_ranked_glyph_data::{
-    GlyphVertexData, NewRankedGlyphData, NewRankedGlyphDataError,
-};
-use crate::model::pipeline::glyphs::ranked_glyph_data::RankedGlyphData;
-use crate::model::state::AddGlyphError;
+
 use model_common::Glyph;
 
 use bincode::deserialize;
@@ -18,8 +20,7 @@ use std::rc::Rc;
 pub struct GlyphManager {
     stats_manager: Rc<RefCell<StatsManager>>,
     raw_glyphs: Vec<ComputedGlyphInstanceData>,
-    ranked_glyph_data: Option<RankedGlyphData>,
-    new_ranked_glyph_data: Option<NewRankedGlyphData>,
+    new_ranked_glyph_data: Option<RankedGlyphData>,
     x_model_vectors: Rc<RefCell<ModelVectors>>,
     z_model_vectors: Rc<RefCell<ModelVectors>>,
     total_glyphs: usize,
@@ -33,7 +34,6 @@ impl GlyphManager {
     ) -> GlyphManager {
         GlyphManager {
             stats_manager,
-            ranked_glyph_data: None,
             new_ranked_glyph_data: None,
             x_model_vectors,
             z_model_vectors,
@@ -41,23 +41,12 @@ impl GlyphManager {
             raw_glyphs: Vec::new(),
         }
     }
-    fn get_ranked_glyph_data(&mut self) -> Result<&mut RankedGlyphData, AddGlyphError> {
-        if self.ranked_glyph_data.is_none() {
-            let x_stats = self.stats_manager.borrow().get_stats("x")?;
-            let z_stats = self.stats_manager.borrow().get_stats("z")?;
-            self.ranked_glyph_data = Some(RankedGlyphData::new(
-                x_stats.max_rank as usize,
-                z_stats.max_rank as usize,
-            ));
-        }
-        Ok(self.ranked_glyph_data.as_mut().unwrap())
-    }
 
-    fn get_new_ranked_glyph_data(&mut self) -> Result<&mut NewRankedGlyphData, AddGlyphError> {
+    fn get_new_ranked_glyph_data(&mut self) -> Result<&mut RankedGlyphData, AddGlyphError> {
         if self.new_ranked_glyph_data.is_none() {
             let x_stats = self.stats_manager.borrow().get_stats("x")?;
             let z_stats = self.stats_manager.borrow().get_stats("z")?;
-            self.new_ranked_glyph_data = Some(NewRankedGlyphData::new(
+            self.new_ranked_glyph_data = Some(RankedGlyphData::new(
                 x_stats.max_rank as u32,
                 z_stats.max_rank as u32,
             ));
@@ -65,15 +54,10 @@ impl GlyphManager {
         Ok(self.new_ranked_glyph_data.as_mut().unwrap())
     }
 
-    pub fn add_ranked_glyph(&mut self, glyph: ComputedGlyphInstanceData) {
-        let ranked_glyph_data = self.get_ranked_glyph_data().unwrap();
-        ranked_glyph_data.add(glyph);
-    }
-
     pub fn add_new_ranked_glyph(
         &mut self,
         glyph: GlyphVertexData,
-    ) -> Result<(), NewRankedGlyphDataError> {
+    ) -> Result<(), RankedGlyphDataError> {
         let ranked_glyph_data = self.get_new_ranked_glyph_data().unwrap();
         ranked_glyph_data.add(glyph)?;
         Ok(())
@@ -128,11 +112,7 @@ impl GlyphManager {
         self.z_model_vectors.as_ref().borrow().len()
     }
 
-    pub fn get_glyphs(&self) -> Option<&RankedGlyphData> {
-        self.ranked_glyph_data.as_ref()
-    }
-
-    pub fn new_get_glyphs(&self) -> Option<&NewRankedGlyphData> {
+    pub fn new_get_glyphs(&self) -> Option<&RankedGlyphData> {
         self.new_ranked_glyph_data.as_ref()
     }
 
@@ -148,7 +128,6 @@ impl GlyphManager {
     ///that raw glyphs will remain in place until a new model is loaded.
     ///which the front end should handle.
     pub fn clear(&mut self) {
-        self.ranked_glyph_data = None;
         self.new_ranked_glyph_data = None;
     }
 }
@@ -221,7 +200,6 @@ mod unit_tests {
             );
             assert_eq!(gm.get_x_vector_len(), 0);
             assert_eq!(gm.get_z_vector_len(), 0);
-            assert!(gm.ranked_glyph_data.is_none());
             assert!(gm.new_ranked_glyph_data.is_none());
 
             let vector = Vector::new(VectorOrigionalValue::U64(0), 0.0, 0);
@@ -229,150 +207,6 @@ mod unit_tests {
             let _ = z_model_vectors.borrow_mut().insert_vector(vector.clone());
             assert_eq!(gm.get_x_vector_len(), 1);
             assert_eq!(gm.get_z_vector_len(), 1);
-        }
-    }
-
-    mod get_ranked_glyph_data {
-        use super::*;
-        use bincode::serialize;
-        use model_common::Stats;
-
-        #[test]
-        fn is_ok() {
-            let x_model_vectors = Rc::new(RefCell::new(ModelVectors::new()));
-            let z_model_vectors = Rc::new(RefCell::new(ModelVectors::new()));
-            let stats_manager = Rc::new(RefCell::new(StatsManager::new()));
-            let mut x_stats = Stats::default();
-            x_stats.max_rank = 10;
-            x_stats.axis = "x".to_string();
-
-            let mut z_stats = Stats::default();
-            z_stats.max_rank = 100;
-            z_stats.axis = "y".to_string();
-
-            let result = stats_manager
-                .borrow_mut()
-                .add_stats(serialize(&x_stats).unwrap());
-            assert!(result.is_ok());
-            let result = stats_manager
-                .borrow_mut()
-                .add_stats(serialize(&z_stats).unwrap());
-            assert!(result.is_ok());
-            let mut gm = GlyphManager::new(
-                x_model_vectors.clone(),
-                z_model_vectors.clone(),
-                stats_manager.clone(),
-            );
-
-            let ranked_glyph_data = gm.get_ranked_glyph_data();
-            assert!(ranked_glyph_data.is_ok());
-            let ranked_glyph_data = ranked_glyph_data.unwrap();
-            assert_eq!(ranked_glyph_data.get_x_rank_size(), 11);
-            assert_eq!(ranked_glyph_data.get_z_rank_size(), 101);
-        }
-
-        #[test]
-        fn multiple_calls_return_the_same_object() {
-            let x_model_vectors = Rc::new(RefCell::new(ModelVectors::new()));
-            let z_model_vectors = Rc::new(RefCell::new(ModelVectors::new()));
-            let stats_manager = Rc::new(RefCell::new(StatsManager::new()));
-            let mut x_stats = Stats::default();
-            x_stats.max_rank = 10;
-            x_stats.axis = "x".to_string();
-
-            let mut z_stats = Stats::default();
-            z_stats.max_rank = 100;
-            z_stats.axis = "y".to_string();
-
-            let result = stats_manager
-                .borrow_mut()
-                .add_stats(serialize(&x_stats).unwrap());
-            assert!(result.is_ok());
-            let result = stats_manager
-                .borrow_mut()
-                .add_stats(serialize(&z_stats).unwrap());
-            assert!(result.is_ok());
-            let mut gm = GlyphManager::new(
-                x_model_vectors.clone(),
-                z_model_vectors.clone(),
-                stats_manager.clone(),
-            );
-
-            let ranked_glyph_data = gm.get_ranked_glyph_data().unwrap();
-            assert_eq!(ranked_glyph_data.get_x_rank_size(), 11);
-            assert_eq!(ranked_glyph_data.get_z_rank_size(), 101);
-
-            x_stats.max_rank = 20;
-            z_stats.max_rank = 200;
-            let result = stats_manager
-                .borrow_mut()
-                .swap_stats(serialize(&x_stats).unwrap());
-            assert!(result.is_ok());
-            let result = stats_manager
-                .borrow_mut()
-                .swap_stats(serialize(&z_stats).unwrap());
-            assert!(result.is_ok());
-
-            let ranked_glyph_data = gm.get_ranked_glyph_data().unwrap();
-            assert_eq!(ranked_glyph_data.get_x_rank_size(), 11);
-            assert_eq!(ranked_glyph_data.get_z_rank_size(), 101);
-        }
-
-        #[test]
-        fn x_stats_are_undefined() {
-            let x_model_vectors = Rc::new(RefCell::new(ModelVectors::new()));
-            let z_model_vectors = Rc::new(RefCell::new(ModelVectors::new()));
-            let stats_manager = Rc::new(RefCell::new(StatsManager::new()));
-
-            let mut z_stats = Stats::default();
-            z_stats.max_rank = 100;
-            z_stats.axis = "y".to_string();
-
-            let result = stats_manager
-                .borrow_mut()
-                .add_stats(serialize(&z_stats).unwrap());
-            assert!(result.is_ok());
-            let mut gm = GlyphManager::new(
-                x_model_vectors.clone(),
-                z_model_vectors.clone(),
-                stats_manager.clone(),
-            );
-
-            let ranked_glyph_data = gm.get_ranked_glyph_data();
-            assert!(ranked_glyph_data.is_err());
-            let err = ranked_glyph_data.err().unwrap();
-            match err {
-                AddGlyphError::StatisticsNotInitialized(_) => {}
-                _ => panic!("Expected StatsNotFound"),
-            }
-        }
-        #[test]
-        fn z_stats_are_undefined() {
-            let x_model_vectors = Rc::new(RefCell::new(ModelVectors::new()));
-            let z_model_vectors = Rc::new(RefCell::new(ModelVectors::new()));
-            let stats_manager = Rc::new(RefCell::new(StatsManager::new()));
-
-            let mut x_stats = Stats::default();
-            x_stats.max_rank = 100;
-            x_stats.axis = "x".to_string();
-
-            let result = stats_manager
-                .borrow_mut()
-                .add_stats(serialize(&x_stats).unwrap());
-            assert!(result.is_ok());
-            let mut gm = GlyphManager::new(
-                x_model_vectors.clone(),
-                z_model_vectors.clone(),
-                stats_manager.clone(),
-            );
-
-            let ranked_glyph_data = gm.get_ranked_glyph_data();
-            assert!(ranked_glyph_data.is_err());
-            let err = ranked_glyph_data.err().unwrap();
-            match err {
-                AddGlyphError::StatisticsNotInitialized(_) => {}
-                _ => panic!("Expected StatsNotFound"),
-            }
         }
     }
 
@@ -547,9 +381,6 @@ mod unit_tests {
             let result = gm.add_glyph(serialize(&glyph).unwrap());
             assert!(result.is_ok());
 
-            let ranked_glyph_data = gm.get_glyphs();
-            assert!(ranked_glyph_data.is_none());
-
             //Adding a glyph does not create the ranked_glyph_data object
             //that is added after the fact by calling add_new_ranked_glyph
             let new_ranked_glyph_data = gm.new_get_glyphs();
@@ -669,7 +500,7 @@ mod unit_tests {
             assert!(result.is_err());
             let err = result.err().unwrap();
             let err_value = match err {
-                NewRankedGlyphDataError::InvalidXRank(value) => value,
+                RankedGlyphDataError::InvalidXRank(value) => value,
                 _ => 99999,
             };
             assert_eq!(err_value, 100);

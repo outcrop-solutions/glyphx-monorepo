@@ -1,41 +1,26 @@
 pub(crate) mod glyph_instance_data;
 pub(crate) mod ranked_glyph_data;
-pub(crate) mod new_ranked_glyph_data;
+pub(crate) mod glyph_vertex_data;
 
 use crate::{
-    assets::{rectangular_prism::create_rectangular_prism, shape_vertex::ShapeVertex},
     camera::uniform_buffer::CameraUniform,
     light::light_uniform::LightUniform,
     model::{
-        color_table_uniform::ColorTableUniform, model_configuration::ModelConfiguration,
-        pipeline::glyph_data::InstanceOutput, state::DataManager,
+        color_table_uniform::ColorTableUniform, 
+        pipeline::glyph_data::InstanceOutput, 
     },
 };
 
-use glyph_instance_data::*;
 
-use bytemuck;
 use smaa::*;
 use std::cell::RefCell;
 use std::rc::Rc;
-use wgpu::util::DeviceExt;
-use wgpu::{BindGroup, BindGroupLayout, Buffer, Device, RenderPipeline, SurfaceConfiguration, VertexBufferLayout};
+use wgpu::{BindGroup, BindGroupLayout, Buffer, Device, RenderPipeline, SurfaceConfiguration};
 
-use self::new_ranked_glyph_data::GlyphVertexData;
+use glyph_vertex_data::GlyphVertexData;
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
-pub struct Vertex {
-    pub position: [f32; 3],
-    //we don't need color here.  It is interpolated in the gpu
-}
-
-pub struct VertexData {
-    pub vertices: Vec<ShapeVertex>,
-}
 
 pub struct Glyphs {
-    device: Rc<RefCell<Device>>,
     render_pipeline: RenderPipeline,
     camera_bind_group: BindGroup,
     color_table_bind_group: BindGroup,
@@ -79,7 +64,6 @@ impl Glyphs {
         );
 
         Glyphs {
-            device,
             render_pipeline,
             camera_bind_group,
             color_table_bind_group,

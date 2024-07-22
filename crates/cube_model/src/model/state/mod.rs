@@ -1,7 +1,7 @@
 //NOTE: I am using this module to layout the beginning of a standard style for defining out modules
-//and imports.  This is a work in progress, and will be updated/changed as I figure out this 
+//and imports.  This is a work in progress, and will be updated/changed as I figure out this
 //aspect of the style.
-//1. Define any submodules 
+//1. Define any submodules
 mod data_manager;
 mod errors;
 
@@ -20,9 +20,9 @@ use crate::{
             axis_lines,
             glyph_data::{GlyphData, InstanceOutput},
             glyphs::{
-                glyph_instance_data::{ComputedGlyphInstanceData, GlyphInstanceData, GlyphUniformData},
+                glyph_instance_data::{ComputedGlyphInstanceData, GlyphUniformData},
+                glyph_vertex_data::GlyphVertexData,
                 ranked_glyph_data::{Rank, RankDirection, RankedGlyphData},
-                new_ranked_glyph_data::{NewRankedGlyphData, GlyphVertexData, NewRank, NewRankDirection},
                 Glyphs,
             },
             PipelineRunner,
@@ -47,7 +47,6 @@ use wgpu::{CommandBuffer, Device, Queue, Surface, SurfaceConfiguration, TextureV
 use winit::dpi::PhysicalSize;
 use winit::event::DeviceEvent;
 use winit::window::Window;
-
 
 const Z_ORDERS: [[&str; 4]; 4] = [
     ["x-axis-line", "z-axis-line", "y-axis-line", "glyphs"],
@@ -88,8 +87,8 @@ pub struct State {
     smaa_target: SmaaTarget,
     glyph_uniform_data: GlyphUniformData,
     glyph_uniform_buffer: wgpu::Buffer,
-    rank: NewRank,
-    rank_direction: NewRankDirection,
+    rank: Rank,
+    rank_direction: RankDirection,
     pipelines: Pipelines,
     glyph_data_pipeline: GlyphData,
     z_order: usize,
@@ -217,8 +216,8 @@ impl State {
             glyph_uniform_buffer,
             glyph_uniform_data,
             smaa_target,
-            rank: NewRank::Z,
-            rank_direction: NewRankDirection::Ascending,
+            rank: Rank::Z,
+            rank_direction: RankDirection::Ascending,
             pipelines,
             light_buffer,
             light_uniform,
@@ -503,9 +502,9 @@ impl State {
         device: &Device,
         smaa_frame: &SmaaFrame,
         pipeline: &Glyphs,
-        rank: NewRank,
-        rank_direction: NewRankDirection,
-        ranked_glyph_data: &NewRankedGlyphData,
+        rank: Rank,
+        rank_direction: RankDirection,
+        ranked_glyph_data: &RankedGlyphData,
         pipeline_name: &str,
         commands: &mut Vec<CommandBuffer>,
     ) {
@@ -516,7 +515,7 @@ impl State {
             });
             let clean_rank = rank
                 .iter()
-                .map(|rgd| GlyphVertexData{
+                .map(|rgd| GlyphVertexData {
                     glyph_id: rgd.glyph_id,
                     position: rgd.position,
                     normal: rgd.normal,
@@ -524,7 +523,6 @@ impl State {
                     x_rank: rgd.x_rank,
                     z_rank: rgd.z_rank,
                     flags: rgd.flags,
-                
                 })
                 .collect::<Vec<GlyphVertexData>>();
             let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -532,12 +530,7 @@ impl State {
                 contents: bytemuck::cast_slice(&clean_rank),
                 usage: wgpu::BufferUsages::VERTEX,
             });
-            pipeline.run_pipeline(
-                &mut encoder,
-                smaa_frame,
-                &vertex_buffer,
-                rank.len() as u32,
-            );
+            pipeline.run_pipeline(&mut encoder, smaa_frame, &vertex_buffer, rank.len() as u32);
             commands.push(encoder.finish());
         }
     }
@@ -603,20 +596,18 @@ impl State {
         d.poll(wgpu::Maintain::Wait);
 
         let view = buffer_slice.get_mapped_range();
-        //our data is already in the correct order so we can 
-        //just push the verticies into a traingle list and attach 
+        //our data is already in the correct order so we can
+        //just push the verticies into a traingle list and attach
         //the normals
         let output_data: Vec<InstanceOutput> = bytemuck::cast_slice(&view).to_vec();
 
         let dm = &mut self.data_manager.as_ref().borrow_mut();
-       dm.clear_glyphs(); 
+        dm.clear_glyphs();
 
         for instance in &output_data {
-
             println!("{:?}", instance);
             let vertex_data = GlyphVertexData::from(instance);
             let _ = dm.add_new_ranked_glyph(vertex_data);
-
         }
         drop(view);
         output_buffer.unmap();
@@ -880,19 +871,19 @@ impl State {
         let (z_order_index, rank, rank_direction) =
             if rotation_angle >= 301.0 || rotation_angle < 31.0 {
                 //Front
-                (0, NewRank::Z, NewRankDirection::Ascending)
+                (0, Rank::Z, RankDirection::Ascending)
             } else if rotation_angle >= 31.0 && rotation_angle < 121.0 {
                 //Right
-                (0, NewRank::X, NewRankDirection::Ascending)
+                (0, Rank::X, RankDirection::Ascending)
             } else if rotation_angle >= 121.0 && rotation_angle < 211.0 {
                 //Back
-                (1, NewRank::Z, NewRankDirection::Descending)
+                (1, Rank::Z, RankDirection::Descending)
             } else if rotation_angle >= 211.0 && rotation_angle < 301.0 {
                 //Left
-                (3, NewRank::X, NewRankDirection::Descending)
+                (3, Rank::X, RankDirection::Descending)
             } else {
                 //This will never happen but rust was trying to be helpful
-                (0, NewRank::Z, NewRankDirection::Ascending)
+                (0, Rank::Z, RankDirection::Ascending)
             };
 
         let forward_face = if rotation_angle >= 316.0 || rotation_angle < 46.0 {

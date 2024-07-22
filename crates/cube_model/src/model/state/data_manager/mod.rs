@@ -1,12 +1,15 @@
+mod camera_manager;
 mod glyph_manager;
 mod stats_manager;
-mod camera_manager;
 
-use super::{AddGlyphError, AddStatsError,  DeserializeVectorError, GetStatsError, ModelVectors, RankedGlyphData, GlyphVertexData, NewRankedGlyphData, ComputedGlyphInstanceData};
+use super::{
+    AddGlyphError, AddStatsError, ComputedGlyphInstanceData, DeserializeVectorError, GetStatsError,
+    GlyphVertexData, ModelVectors, RankedGlyphData,
+};
+pub use camera_manager::{CameraData, CameraManager};
 pub use glyph_manager::GlyphManager;
+use model_common::{Glyph, Stats};
 pub use stats_manager::StatsManager;
-pub use camera_manager::{CameraManager, CameraData};
-use model_common::{Stats, Glyph};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -61,19 +64,15 @@ impl DataManager {
         Ok(())
     }
 
-    pub fn get_glyphs(&self) -> Option<&RankedGlyphData> {
-        self.glyph_manager.get_glyphs()
-    }
-
-    pub fn new_get_glyphs(&self) -> Option<&NewRankedGlyphData> {
+    pub fn new_get_glyphs(&self) -> Option<&RankedGlyphData> {
         self.glyph_manager.new_get_glyphs()
     }
 
     pub fn get_raw_glyphs(&self) -> &Vec<ComputedGlyphInstanceData> {
         self.glyph_manager.get_raw_glyphs()
     }
-     
-    pub fn get_vector_len( &self, axis: &str) -> usize {
+
+    pub fn get_vector_len(&self, axis: &str) -> usize {
         match axis {
             "x" => self.x_vectors.borrow().len(),
             "z" => self.z_vectors.borrow().len(),
@@ -85,8 +84,6 @@ impl DataManager {
         self.stats_manager.borrow().len()
     }
 
-
-
     pub fn get_glyph_len(&self) -> usize {
         self.glyph_manager.len()
     }
@@ -94,11 +91,6 @@ impl DataManager {
     pub fn clear_glyphs(&mut self) {
         self.glyph_manager.clear();
     }
-
-    pub fn add_computed_glyph(&mut self, glyph: ComputedGlyphInstanceData) {
-        self.glyph_manager.add_ranked_glyph(glyph);
-    }
-
 }
 
 #[cfg(test)]
@@ -204,7 +196,6 @@ mod unit_tests {
 
     mod add_glyph {
         use super::*;
-        use crate::model::pipeline::glyphs::ranked_glyph_data::{Rank, RankDirection};
 
         #[test]
         fn is_ok() {
@@ -238,11 +229,6 @@ mod unit_tests {
             let result = data_manager.add_glyph(serialize(&glyph).unwrap());
             assert!(result.is_ok());
 
-            //Adding a glyph does not add it to the ranked glyph data
-            //this is handled after the glyph compute pipeline is run
-            let glyph_data = data_manager.get_glyphs();
-            assert!(glyph_data.is_none());
-
             let glyph_data = data_manager.new_get_glyphs();
             assert!(glyph_data.is_none());
         }
@@ -269,7 +255,6 @@ mod unit_tests {
             let result = data_manager.add_stats(serialize(&stats).unwrap());
             assert!(result.is_ok());
 
-
             let glyph_bytes = vec![0, 1, 2, 3];
             let result = data_manager.add_glyph(glyph_bytes);
             assert!(result.is_err());
@@ -279,7 +264,7 @@ mod unit_tests {
                 _ => panic!("Expected BincodeError"),
             }
 
-            let glyph_data = data_manager.get_glyphs();
+            let glyph_data = data_manager.new_get_glyphs();
             assert!(glyph_data.is_none());
         }
     }
