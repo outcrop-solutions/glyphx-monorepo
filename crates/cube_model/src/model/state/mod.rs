@@ -8,7 +8,7 @@ mod errors;
 //2. Define any imports from the current crate.
 use crate::{
     camera::{
-        camera_controller::CameraController, orbit_camera::OrbitCamera,
+        camera_controller::CameraController, 
         uniform_buffer::CameraUniform,
     },
     data::{DeserializeVectorError, ModelVectors},
@@ -128,7 +128,7 @@ impl State {
         let cm_clone = camera_manager.clone();
         let cm = &mut cm_clone.borrow_mut();
 
-        let (camera, camera_buffer, camera_uniform, camera_controller) =
+        let (camera_buffer, camera_uniform, camera_controller) =
             Self::configure_camera(&config, &d, &glyph_uniform_data, cm);
 
         let color_table_uniform = ColorTableUniform::new(
@@ -183,7 +183,6 @@ impl State {
             &light_uniform,
             model_configuration.clone(),
             &glyph_uniform_data,
-            &glyph_uniform_buffer,
         );
 
         let smaa_target = SmaaTarget::new(
@@ -343,8 +342,7 @@ impl State {
     }
 
     pub fn reset_camera(&mut self, camera_manager: &mut CameraManager) {
-        let (camera, camera_uniform) =
-            Self::build_camera_and_uniform(camera_manager, &self.glyph_uniform_data, &self.config);
+        Self::build_camera_and_uniform(camera_manager, &self.glyph_uniform_data, &self.config);
         self.update_z_order_and_rank(camera_manager);
         self.update(camera_manager);
     }
@@ -458,7 +456,6 @@ impl State {
         drop(screen_clear_render_pass);
         let mut commands = Vec::new();
         commands.push(encoder.finish());
-        let mut i: usize = 0;
         let string_order = Z_ORDERS[self.z_order];
         let d = self.device.as_ref().borrow();
         for name in string_order {
@@ -489,7 +486,6 @@ impl State {
                 };
                 commands.push(Self::run_axis_pipeline(&d, &smaa_frame, pipeline, &name));
             }
-            i += 1;
         }
         self.queue.submit(commands);
 
@@ -674,7 +670,6 @@ impl State {
         light_uniform: &LightUniform,
         model_configuration: Rc<RefCell<ModelConfiguration>>,
         glyph_uniform_data: &GlyphUniformData,
-        glyph_uniform_buffer: &wgpu::Buffer,
     ) -> Pipelines {
         let mc = model_configuration.borrow();
         let x_axis_line = axis_lines::AxisLines::new(
@@ -724,7 +719,6 @@ impl State {
             glyph_uniform_data.min_interp_z,
             glyph_uniform_data.max_interp_z,
         );
-        let d = device.as_ref().borrow();
         let glyphs = Glyphs::new(
             device.clone(),
             config,
@@ -747,16 +741,8 @@ impl State {
         device: &Device,
         glyph_uniform_data: &GlyphUniformData,
         camera_manager: &mut CameraManager,
-    ) -> (OrbitCamera, wgpu::Buffer, CameraUniform, CameraController) {
-        //{ distance: 4.079997, pitch: 0.420797, yaw: -39.125065, eye: Vector3 { x: -3.6850765, y: 1.66663, z: 0.537523 }, target: Vector3 { x: 0.0, y: 0.0, z: 0.0 }, up: Vector3 { x: 0.0, y: 1.0, z: 0.0 }, bounds: OrbitCameraBounds { min_distance: Some(1.1), max_distance: None, min_pitch: -1.5707963, max_pitch: 1.5707963, min_yaw: None, max_yaw: None }, aspect: 1.5, fovy: 1.5707964, znear: 0.1, zfar: 1000.0 }
-        // let mut camera = OrbitCamera::new(
-        //     4.07,
-        //     0.42,
-        //     -32.12,
-        //     Vec3::new(0.0, 0.0, 0.0),
-        //     config.width as f32 / config.height as f32,
-        // );
-        let (camera, camera_uniform) =
+    ) -> (wgpu::Buffer, CameraUniform, CameraController) {
+        let camera_uniform =
             Self::build_camera_and_uniform(camera_manager, glyph_uniform_data, config);
 
         let camera_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -765,7 +751,7 @@ impl State {
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
         let camera_controller = CameraController::new(0.025, 0.006);
-        (camera, camera_buffer, camera_uniform, camera_controller)
+        (camera_buffer, camera_uniform, camera_controller)
     }
 
     fn build_glyph_uniform_data(
@@ -788,7 +774,6 @@ impl State {
         let y_stats = data_manager.get_stats("y").unwrap();
         let min_y = y_stats.min;
         let max_y = y_stats.max;
-        let y_rank_count = y_stats.max_rank;
 
         let z_stats = data_manager.get_stats("z").unwrap();
         let min_z = z_stats.min;
@@ -807,7 +792,6 @@ impl State {
         let x_half = (x_size / 2.0) as u32 + 1;
 
         let z_half = (z_size / 2.0) as u32 + 1;
-        let y_half = (y_size / 2.0) as u32 + 1;
         let x_z_half = if x_half > z_half { x_half } else { z_half };
         let model_origin =
             (x_z_half as f32 + mc.glyph_offset / 2.0 + mc.grid_cone_radius / 2.0) * -1.0;
@@ -911,7 +895,7 @@ impl State {
         camera_manager: &mut CameraManager,
         glyph_uniform_data: &GlyphUniformData,
         config: &SurfaceConfiguration,
-    ) -> (OrbitCamera, CameraUniform) {
+    ) -> CameraUniform {
         let distance = (glyph_uniform_data.max_interp_x - glyph_uniform_data.min_interp_x) * 0.9;
         let y_offset = (glyph_uniform_data.max_interp_y - glyph_uniform_data.min_interp_y) / 2.0;
         let y_offset = (glyph_uniform_data.min_interp_y + y_offset) * -1.0;
