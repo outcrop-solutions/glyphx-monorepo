@@ -7,11 +7,11 @@ mod model_event;
 
 use model::{
     model_configuration::{ColorWheel, ModelConfiguration},
-    state::{CameraData, CameraManager, DataManager, State},
+    pipeline::glyphs::glyph_uniform_data::{InterpolationType, Order},
+    state::{CameraManager, DataManager, State},
 };
-use model_common::Stats;
 use model_event::{ModelEvent, ModelMoveDirection};
-use serde_json::{from_str, json, Value};
+use serde_json::{from_str, Value};
 use std::cell::RefCell;
 use std::rc::Rc;
 use winit::event::*;
@@ -353,7 +353,7 @@ impl ModelRunner {
         if #[cfg(target_arch = "wasm32")] {
               std::panic::set_hook(Box::new(console_error_panic_hook::hook));
               console_log::init_with_level(log::Level::Warn).expect("Couldn't initialize logger");
-              
+
           } else {
               env_logger::init();
           }
@@ -385,10 +385,7 @@ impl ModelRunner {
 
         let el = EventLoopBuilder::<ModelEvent>::with_user_event().build();
         let window = WindowBuilder::new()
-            .with_inner_size(winit::dpi::LogicalSize {
-                width,
-                height,
-            })
+            .with_inner_size(winit::dpi::LogicalSize { width, height })
             .build(&el)
             .unwrap();
 
@@ -417,6 +414,9 @@ impl ModelRunner {
         let mut min_color_index = self.default_min as isize;
         let mut max_color_index = self.default_min as isize;
         let mut background_color_index = self.default_background as isize;
+        let mut shift_pressed = false;
+        let mut alt_pressed = false;
+        let mut ctrl_pressed = false;
         let color_wheel = self.color_wheel.clone();
         unsafe {
             EVENT_LOOP_PROXY = Some(el.create_proxy());
@@ -497,25 +497,30 @@ impl ModelRunner {
                             ..
                         } => *control_flow = ControlFlow::Exit,
 
+                        WindowEvent::ModifiersChanged(modifier_state) => {
+                            shift_pressed = modifier_state.shift();
+                            alt_pressed = modifier_state.alt();
+                            ctrl_pressed = modifier_state.ctrl();
+                        }
+
                         WindowEvent::KeyboardInput {
                             input:
                                 KeyboardInput {
                                     state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::R),
-                                    modifiers,
                                     ..
                                 },
                             ..
                         } => {
                             let mut cf = config.borrow_mut();
-                            let modifier = if modifiers.shift() {
-                                if modifiers.alt() {
+                            let modifier = if shift_pressed {
+                                if alt_pressed {
                                     0.99
                                 } else {
                                     0.9
                                 }
                             } else {
-                                if modifiers.alt() {
+                                if alt_pressed {
                                     1.01
                                 } else {
                                     1.1
@@ -536,23 +541,22 @@ impl ModelRunner {
                                 KeyboardInput {
                                     state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::A),
-                                    modifiers,
                                     ..
                                 },
                             ..
                         } => {
-                            if modifiers.ctrl() {
+                            if ctrl_pressed {
                                 state.toggle_axis_visibility();
                             } else {
                                 let mut cf = config.borrow_mut();
-                                let modifier = if modifiers.shift() {
-                                    if modifiers.alt() {
+                                let modifier = if shift_pressed {
+                                    if alt_pressed {
                                         0.99
                                     } else {
                                         0.9
                                     }
                                 } else {
-                                    if modifiers.alt() {
+                                    if alt_pressed {
                                         1.01
                                     } else {
                                         1.1
@@ -574,25 +578,24 @@ impl ModelRunner {
                                 KeyboardInput {
                                     state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::C),
-                                    modifiers,
                                     ..
                                 },
                             ..
                         } => {
                             let mut cf = config.borrow_mut();
-                            if modifiers.ctrl() {
+                            if ctrl_pressed && !shift_pressed && !alt_pressed {
                                 state.reset_camera_from_client();
-                            }else if modifiers.alt() {
-                               state.run_compute_pipeline();
-                            } else {
-                                let modifier = if modifiers.shift() {
-                                    if modifiers.alt() {
+                            } else if alt_pressed && ctrl_pressed && !shift_pressed {
+                                state.run_compute_pipeline();
+                            } else if !ctrl_pressed {
+                                let modifier = if shift_pressed {
+                                    if alt_pressed {
                                         0.99
                                     } else {
                                         0.9
                                     }
                                 } else {
-                                    if modifiers.alt() {
+                                    if alt_pressed {
                                         1.01
                                     } else {
                                         1.1
@@ -614,20 +617,19 @@ impl ModelRunner {
                                 KeyboardInput {
                                     state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::K),
-                                    modifiers,
                                     ..
                                 },
                             ..
                         } => {
                             let mut cf = config.borrow_mut();
-                            let modifier = if modifiers.shift() {
-                                if modifiers.alt() {
+                            let modifier = if shift_pressed {
+                                if alt_pressed {
                                     0.99
                                 } else {
                                     0.9
                                 }
                             } else {
-                                if modifiers.alt() {
+                                if alt_pressed {
                                     1.01
                                 } else {
                                     1.1
@@ -649,20 +651,19 @@ impl ModelRunner {
                                 KeyboardInput {
                                     state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::H),
-                                    modifiers,
                                     ..
                                 },
                             ..
                         } => {
                             let mut cf = config.borrow_mut();
-                            let modifier = if modifiers.shift() {
-                                if modifiers.alt() {
+                            let modifier = if shift_pressed {
+                                if alt_pressed {
                                     0.99
                                 } else {
                                     0.9
                                 }
                             } else {
-                                if modifiers.alt() {
+                                if alt_pressed {
                                     1.01
                                 } else {
                                     1.1
@@ -684,20 +685,19 @@ impl ModelRunner {
                                 KeyboardInput {
                                     state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::O),
-                                    modifiers,
                                     ..
                                 },
                             ..
                         } => {
                             let mut cf = config.borrow_mut();
-                            let modifier = if modifiers.shift() {
-                                if modifiers.alt() {
+                            let modifier = if shift_pressed {
+                                if alt_pressed {
                                     0.99
                                 } else {
                                     0.9
                                 }
                             } else {
-                                if modifiers.alt() {
+                                if alt_pressed {
                                     1.01
                                 } else {
                                     1.1
@@ -719,20 +719,19 @@ impl ModelRunner {
                                 KeyboardInput {
                                     state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::E),
-                                    modifiers,
                                     ..
                                 },
                             ..
                         } => {
                             let mut cf = config.borrow_mut();
-                            let modifier = if modifiers.shift() {
-                                if modifiers.alt() {
+                            let modifier = if shift_pressed {
+                                if alt_pressed {
                                     0.99
                                 } else {
                                     0.9
                                 }
                             } else {
-                                if modifiers.alt() {
+                                if alt_pressed {
                                     1.01
                                 } else {
                                     1.1
@@ -754,20 +753,19 @@ impl ModelRunner {
                                 KeyboardInput {
                                     state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::S),
-                                    modifiers,
                                     ..
                                 },
                             ..
                         } => {
                             let mut cf = config.borrow_mut();
-                            let modifier = if modifiers.shift() {
-                                if modifiers.alt() {
+                            let modifier = if shift_pressed {
+                                if alt_pressed {
                                     0.99
                                 } else {
                                     0.9
                                 }
                             } else {
-                                if modifiers.alt() {
+                                if alt_pressed {
                                     1.01
                                 } else {
                                     1.1
@@ -789,13 +787,12 @@ impl ModelRunner {
                                 KeyboardInput {
                                     state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::W),
-                                    modifiers,
                                     ..
                                 },
                             ..
                         } => {
                             let mut cf = config.borrow_mut();
-                            if modifiers.shift() {
+                            if shift_pressed {
                                 cf.light_color = [255.0, 255.0, 255.0, 1.0];
                             } else {
                                 cf.light_color = [255.0, 0.0, 0.0, 1.0];
@@ -815,20 +812,19 @@ impl ModelRunner {
                                 KeyboardInput {
                                     state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::L),
-                                    modifiers,
                                     ..
                                 },
                             ..
                         } => {
                             let mut cf = config.borrow_mut();
-                            let modifier = if modifiers.shift() {
-                                if modifiers.alt() {
+                            let modifier = if shift_pressed {
+                                if alt_pressed {
                                     0.99
                                 } else {
                                     0.9
                                 }
                             } else {
-                                if modifiers.alt() {
+                                if alt_pressed {
                                     1.01
                                 } else {
                                     1.1
@@ -854,20 +850,19 @@ impl ModelRunner {
                                 KeyboardInput {
                                     state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::I),
-                                    modifiers,
                                     ..
                                 },
                             ..
                         } => {
                             let mut cf = config.borrow_mut();
-                            let modifier = if modifiers.shift() {
-                                if modifiers.alt() {
+                            let modifier = if shift_pressed {
+                                if alt_pressed {
                                     0.99
                                 } else {
                                     0.9
                                 }
                             } else {
-                                if modifiers.alt() {
+                                if alt_pressed {
                                     1.01
                                 } else {
                                     1.1
@@ -888,16 +883,36 @@ impl ModelRunner {
                                 KeyboardInput {
                                     state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::X),
-                                    modifiers,
                                     ..
                                 },
                             ..
                         } => {
-                            if modifiers.ctrl() {
+                            if alt_pressed && !ctrl_pressed && !shift_pressed {
+                                {
+                                    let mut cf = config.borrow_mut();
+                                    cf.x_interpolation =
+                                        if cf.x_interpolation == InterpolationType::Linear {
+                                            InterpolationType::Log
+                                        } else {
+                                            InterpolationType::Linear
+                                        };
+                                }
+                                state.update_config();
+                            } else if alt_pressed && ctrl_pressed && !shift_pressed {
+                                {
+                                    let mut cf = config.borrow_mut();
+                                    cf.x_order = if cf.x_order == Order::Ascending {
+                                        Order::Descending
+                                    } else {
+                                        Order::Ascending
+                                    };
+                                }
+                                state.update_config();
+                            } else if ctrl_pressed && !shift_pressed {
                                 state.move_camera("x_axis", 0.0);
-                            } else {
+                            } else if !ctrl_pressed {
                                 let mut cf = config.borrow_mut();
-                                if modifiers.shift() {
+                                if shift_pressed {
                                     x_color_index -= 1;
                                 } else {
                                     x_color_index += 1;
@@ -920,16 +935,37 @@ impl ModelRunner {
                                 KeyboardInput {
                                     state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::Y),
-                                    modifiers,
                                     ..
                                 },
                             ..
                         } => {
-                            if modifiers.ctrl() {
+                            if alt_pressed && !ctrl_pressed && !shift_pressed {
+                                {
+                                    let mut cf = config.borrow_mut();
+                                    cf.y_interpolation =
+                                        if cf.y_interpolation == InterpolationType::Linear {
+                                            InterpolationType::Log
+                                        } else {
+                                            InterpolationType::Linear
+                                        };
+                                }
+                                state.update_config();
+                            } else if alt_pressed && ctrl_pressed && !shift_pressed {
+                                {
+                                    let mut cf = config.borrow_mut();
+                                    cf.y_order = if cf.y_order == Order::Ascending {
+                                        Order::Descending
+                                    } else {
+                                        Order::Ascending
+                                    };
+                                }
+
+                                state.update_config();
+                            } else if ctrl_pressed && !shift_pressed && !alt_pressed{
                                 state.move_camera("y_axis", 0.0);
-                            } else {
+                            } else if !ctrl_pressed {
                                 let mut cf = config.borrow_mut();
-                                if modifiers.shift() {
+                                if shift_pressed {
                                     y_color_index -= 1;
                                 } else {
                                     y_color_index += 1;
@@ -951,16 +987,36 @@ impl ModelRunner {
                                 KeyboardInput {
                                     state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::Z),
-                                    modifiers,
                                     ..
                                 },
                             ..
                         } => {
-                            if modifiers.ctrl() {
+                            if alt_pressed && !ctrl_pressed && !shift_pressed {
+                                {
+                                    let mut cf = config.borrow_mut();
+                                    cf.z_interpolation =
+                                        if cf.z_interpolation == InterpolationType::Linear {
+                                            InterpolationType::Log
+                                        } else {
+                                            InterpolationType::Linear
+                                        };
+                                }
+                                state.update_config();
+                            } else if alt_pressed && ctrl_pressed && !shift_pressed {
+                                {
+                                    let mut cf = config.borrow_mut();
+                                    cf.z_order = if cf.z_order == Order::Ascending {
+                                        Order::Descending
+                                    } else {
+                                        Order::Ascending
+                                    };
+                                }
+                                state.update_config();
+                            } else if ctrl_pressed && !shift_pressed && !alt_pressed {
                                 state.move_camera("z_axis", 0.0);
-                            } else {
+                            } else if !ctrl_pressed {
                                 let mut cf = config.borrow_mut();
-                                if modifiers.shift() {
+                                if shift_pressed {
                                     z_color_index -= 1;
                                 } else {
                                     z_color_index += 1;
@@ -983,13 +1039,12 @@ impl ModelRunner {
                                 KeyboardInput {
                                     state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::M),
-                                    modifiers,
                                     ..
                                 },
                             ..
                         } => {
                             let mut cf = config.borrow_mut();
-                            if modifiers.shift() {
+                            if shift_pressed {
                                 max_color_index -= 1;
                             } else {
                                 max_color_index += 1;
@@ -1011,13 +1066,12 @@ impl ModelRunner {
                                 KeyboardInput {
                                     state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::N),
-                                    modifiers,
                                     ..
                                 },
                             ..
                         } => {
                             let mut cf = config.borrow_mut();
-                            if modifiers.shift() {
+                            if shift_pressed {
                                 min_color_index -= 1;
                             } else {
                                 min_color_index += 1;
@@ -1039,13 +1093,12 @@ impl ModelRunner {
                                 KeyboardInput {
                                     state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::B),
-                                    modifiers,
                                     ..
                                 },
                             ..
                         } => {
                             let mut cf = config.borrow_mut();
-                            if modifiers.shift() {
+                            if shift_pressed {
                                 background_color_index -= 1;
                             } else {
                                 background_color_index += 1;
@@ -1067,20 +1120,19 @@ impl ModelRunner {
                                 KeyboardInput {
                                     state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::G),
-                                    modifiers,
                                     ..
                                 },
                             ..
                         } => {
                             let mut cf = config.borrow_mut();
-                            let modifier = if modifiers.shift() {
-                                if modifiers.alt() {
+                            let modifier = if shift_pressed {
+                                if alt_pressed {
                                     0.99
                                 } else {
                                     0.9
                                 }
                             } else {
-                                if modifiers.alt() {
+                                if alt_pressed {
                                     1.01
                                 } else {
                                     1.1

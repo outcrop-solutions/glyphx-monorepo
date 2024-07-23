@@ -2,7 +2,7 @@ use glyphx_core_error::{GlyphxCoreError, GlyphxErrorData};
 use super::InsertVectorError;
 use serde::{Deserialize, Serialize};
 use bincode::{Error, ErrorKind};
-use serde_json::{json, Value};
+use serde_json::json;
 
 #[derive(Debug, Serialize, Deserialize, GlyphxCoreError)]
 #[error_definition("ModelVectors")]

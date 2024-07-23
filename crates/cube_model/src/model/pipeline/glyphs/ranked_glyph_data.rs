@@ -176,6 +176,7 @@ mod constructor {
 
 #[cfg(test)]
 mod add {
+    use crate::assets::shape_vertex::ShapeVertex;
     use super::*;
     #[test]
     fn is_ok() {
@@ -325,6 +326,7 @@ mod add {
 #[cfg(test)]
 mod iter {
     use super::*;
+    use crate::assets::shape_vertex::ShapeVertex;
     fn build_test_set() -> RankedGlyphData {
         let mut ranked_glyph_data = RankedGlyphData::new(10, 10);
         let mut x = 0;
@@ -423,6 +425,7 @@ mod iter {
 
     mod get_glyphs_vector {
         use super::*;
+    use crate::assets::shape_vertex::ShapeVertex;
 
         #[test]
         fn is_ok() {
@@ -492,6 +495,7 @@ mod iter {
 #[cfg(test)]
 mod get_number_of_glyphs {
     use super::*;
+    use crate::assets::shape_vertex::ShapeVertex;
     #[test]
     fn is_ok() {
         let x_rank_size = 10;

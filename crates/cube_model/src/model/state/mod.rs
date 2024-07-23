@@ -7,10 +7,7 @@ mod errors;
 
 //2. Define any imports from the current crate.
 use crate::{
-    camera::{
-        camera_controller::CameraController, 
-        uniform_buffer::CameraUniform,
-    },
+    camera::{camera_controller::CameraController, uniform_buffer::CameraUniform},
     data::{DeserializeVectorError, ModelVectors},
     light::light_uniform::LightUniform,
     model::{
@@ -21,7 +18,9 @@ use crate::{
             glyph_data::{GlyphData, InstanceOutput},
             glyphs::{
                 glyph_instance_data::GlyphInstanceData,
-                glyph_uniform_data::GlyphUniformData,
+                glyph_uniform_data::{
+                    GlyphUniformData, GlyphUniformFlags, InterpolationType, Order,
+                },
                 glyph_vertex_data::GlyphVertexData,
                 ranked_glyph_data::{Rank, RankDirection, RankedGlyphData},
                 Glyphs,
@@ -32,7 +31,7 @@ use crate::{
 };
 
 //3. Define any imports from submodules.
-pub use data_manager::{CameraData, CameraManager, DataManager};
+pub use data_manager::{CameraManager, DataManager};
 pub use errors::*;
 
 //4. Define any imports from external Glyphx Crates.
@@ -361,7 +360,36 @@ impl State {
         //eprintln!("Camera: {:?}, GlyphUniform: {:?}", self.camera, self.glyph_uniform_data);
     }
 
+    fn update_glyph_uniform_buffer(&mut self) {
+         let config = self.model_configuration.borrow();
+        let uniform_data = &mut self.glyph_uniform_data;
+        let mut flags = GlyphUniformFlags::default();
+        //Y and Z are flipped from our config to our uniform buffer.
+        flags.x_interp_type = config.x_interpolation;
+        flags.y_interp_type = config.z_interpolation;
+        flags.z_interp_type = config.y_interpolation;
+        flags.x_order = config.x_order;
+        flags.y_order = config.z_order;
+        flags.z_order = config.y_order;
+        let flags = flags.encode();
+        uniform_data.flags = flags;
+         
+         self.glyph_uniform_buffer = self.device.as_ref().borrow().create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Glyph Uniform Buffer"),
+            contents: bytemuck::cast_slice(&[self.glyph_uniform_data]),
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+         });
+    }
+
     pub fn update_config(&mut self) {
+
+        //Update our glyph information based on the updated configuration.
+        //TODO: at some point, we will want to split out or function to only run the compute
+        //pipeline if necessary for now, we will just run it whenever the config changes
+        self.update_glyph_uniform_buffer();
+        self.glyph_data_pipeline.update_vertices(&self.glyph_uniform_buffer);
+        self.run_compute_pipeline();
+
         let config = self.model_configuration.borrow();
         let color_table_uniform = &mut self.color_table_uniform;
         color_table_uniform.set_x_axis_color(config.x_axis_color);
@@ -391,6 +419,7 @@ impl State {
         self.light_uniform
             .upate_intensity(config.light_intensity.clone());
         self.glyph_uniform_data.y_offset = config.min_glyph_height;
+        
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
@@ -796,29 +825,40 @@ impl State {
         let model_origin =
             (x_z_half as f32 + mc.glyph_offset / 2.0 + mc.grid_cone_radius / 2.0) * -1.0;
         mc.model_origin = [model_origin, model_origin, model_origin];
-        let glyph_uniform_data: GlyphUniformData = GlyphUniformData {
+
+        let mut flags = GlyphUniformFlags::default();
+        //Y and Z are flipped from our config to our uniform buffer.
+        flags.x_interp_type = mc.x_interpolation;
+        flags.y_interp_type = mc.z_interpolation;
+        flags.z_interp_type = mc.y_interpolation;
+        flags.x_order = mc.x_order;
+        flags.y_order = mc.z_order;
+        flags.z_order = mc.y_order;
+
+        let flags = flags.encode();
+
+        let glyph_uniform_data = GlyphUniformData {
             min_x: min_x as f32,
             max_x: max_x as f32,
             min_interp_x: -1.0 * x_z_half as f32,
             max_interp_x: x_z_half as f32,
-
             min_y: min_y as f32,
             max_y: max_y as f32,
             //TODO: Why is this tied to model origin but the other axis are not?
             min_interp_y: model_origin, // * y_half as f32,
             max_interp_y: model_origin + y_size as f32,
-
             min_z: min_z as f32,
             max_z: max_z as f32,
             min_interp_z: -1.0 * x_z_half as f32,
             max_interp_z: x_z_half as f32,
-
+            flags,
             x_z_offset,
             y_offset: mc.min_glyph_height,
-            _padding: [0u32; 2],
+            _padding: 0,
         };
         glyph_uniform_data
     }
+
     fn cacluate_rotation_change(&self, camera_manager: &CameraManager) -> f32 {
         const RADS_PER_ROTATION: f32 = 6.283;
         let yaw = camera_manager.get_yaw();
@@ -831,7 +871,6 @@ impl State {
             rotation_rads
         };
         let degrees_of_rotation = rotation_rads * 180.0 / std::f32::consts::PI;
-        //eprintln!("Pitch: {} Yaw : {}, rotation_rads: {}: Degrees of rotation: {}, Model Width: {}, Distance : {}, %of Width {}", self.camera.pitch,  self.camera.yaw, rotation_rads, degrees_of_rotation, self.glyph_uniform_data.max_interp_x - self.glyph_uniform_data.min_interp_x, self.camera.distance, self.camera.distance / (self.glyph_uniform_data.max_interp_x - self.glyph_uniform_data.min_interp_x));
         let distance_ratio = distance
             / (self.glyph_uniform_data.max_interp_x - self.glyph_uniform_data.min_interp_x);
         let distance_off_set = if distance_ratio > 1.0 {

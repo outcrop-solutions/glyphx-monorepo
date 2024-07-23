@@ -29,7 +29,7 @@ use bytemuck::{Pod, Zeroable};
 use std::cell::RefCell;
 use std::rc::Rc;
 use wgpu::util::DeviceExt;
-use wgpu::{BindGroup, Buffer, ComputePipeline, Device};
+use wgpu::{BindGroup, Buffer, ComputePipeline, Device, ShaderModule};
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Pod, Zeroable)]
@@ -58,6 +58,7 @@ pub struct GlyphData {
     model_configuration: Rc<RefCell<ModelConfiguration>>,
     glyph_uniform_bind_group: BindGroup,
     data_manager: Rc<RefCell<DataManager>>,
+    shader: ShaderModule,
 }
 
 impl GlyphData {
@@ -70,11 +71,11 @@ impl GlyphData {
         let d_clone = device.clone();
         let d = d_clone.as_ref().borrow();
 
+        let shader = d.create_shader_module(wgpu::include_wgsl!("shader.wgsl").into());
+
         let mut vertex_data = VertexData {
             vertices: Vec::new(),
         };
-
-        let shader = d.create_shader_module(wgpu::include_wgsl!("shader.wgsl").into());
 
         Self::build_verticies(&mut vertex_data.vertices, &model_configuration.borrow());
         let vertex_buffer = Self::configure_vertex_buffer(&d, &vertex_data);
@@ -100,7 +101,7 @@ impl GlyphData {
             &instance_buffer,
             glyph_uniform_buffer,
             &output_buffer,
-            shader,
+            &shader,
         );
 
         GlyphData {
@@ -119,7 +120,43 @@ impl GlyphData {
             model_configuration,
             glyph_uniform_bind_group,
             data_manager,
+            shader,
         }
+    }
+
+    pub fn update_vertices(&mut self, glyph_uniform_buffer: &Buffer) {
+        let mut vertex_data = VertexData {
+            vertices: Vec::new(),
+        };
+        let d = &self.device.borrow();
+
+        Self::build_verticies(
+            &mut vertex_data.vertices,
+            &self.model_configuration.borrow(),
+        );
+        self.vertex_buffer = Self::configure_vertex_buffer(&d, &vertex_data);
+        self.vertex_count = vertex_data.vertices.len();
+
+        let (
+            compute_pipeline,
+            vertex_bind_group,
+            instance_bind_group,
+            glyph_uniform_bind_group,
+            output_bind_group,
+        ) = Self::configure_compute_pipeline(
+            &d,
+            &self.vertex_buffer,
+            &self.instance_buffer,
+            glyph_uniform_buffer,
+            &self.output_buffer,
+            &self.shader,
+        );
+        self.compute_pipeline = compute_pipeline;
+        self.vertex_bind_group = vertex_bind_group;
+        self.instance_bind_group = instance_bind_group;
+        self.glyph_uniform_bind_group = glyph_uniform_bind_group;
+        self.output_bind_group = output_bind_group;
+
     }
 
     pub fn build_verticies(
@@ -212,12 +249,12 @@ impl GlyphData {
         instance_buffer: &Buffer,
         uniform_buffer: &Buffer,
         output_buffer: &Buffer,
-        shader: wgpu::ShaderModule,
+        shader: &ShaderModule,
     ) -> (ComputePipeline, BindGroup, BindGroup, BindGroup, BindGroup) {
         let compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
             label: Some("Glyph Render Pipeline"),
             layout: None,
-            module: &shader,
+            module: shader,
             entry_point: "main",
         });
 

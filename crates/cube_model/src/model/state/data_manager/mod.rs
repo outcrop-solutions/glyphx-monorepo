@@ -6,7 +6,7 @@ use super::{
     AddGlyphError, AddStatsError, GlyphInstanceData, DeserializeVectorError, GetStatsError,
     GlyphVertexData, ModelVectors, RankedGlyphData,
 };
-pub use camera_manager::{CameraData, CameraManager};
+pub use camera_manager::CameraManager;
 pub use glyph_manager::GlyphManager;
 use model_common::{Glyph, Stats};
 pub use stats_manager::StatsManager;

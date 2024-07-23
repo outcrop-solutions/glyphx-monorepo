@@ -29,6 +29,12 @@ export interface IModelConfiguration {
   light_intensity: number;
   glyph_size: number;
   model_origin: Location;
+  x_interpolation: 'Linear' | 'Log';
+  x_order: 'Asc' | 'Desc';
+  y_interpolation: 'Linear' | 'Log';
+  y_order: 'Asc' | 'Desc';
+  z_interpolation: 'Linear' | 'Log';
+  z_order: 'Asc' | 'Desc';
 }
 
 export interface IUpdateModelConfiguration extends Partial<IModelConfiguration> {}

@@ -18,7 +18,8 @@ struct GlyphUniformData {
     //other values
     x_z_offset: f32,
     min_glyph_height: f32,
-    _padding: vec2<u32>,
+    flags: u32,
+    padding: u32,
 };
 
 struct VertexData {
@@ -49,6 +50,15 @@ struct InstanceOutput {
 
 };
 
+struct Flags {
+	x_log: bool,
+	x_desc: bool,
+	y_log: bool,
+	y_desc: bool,
+	z_log: bool,
+	z_desc: bool,
+};
+
 
 @group(0) @binding(0) 
 var<storage> vertex_buffer: array<VertexData>; 
@@ -61,6 +71,17 @@ var<uniform> glyph_uniform_data: GlyphUniformData;
  
 @group(3) @binding(0)
 var<storage, read_write> instance_output_buffer: array<InstanceOutput>;
+
+fn parse_flags(flags: u32) -> Flags {
+    var res: Flags;
+    res.x_log = ((flags >> 31u) & 1u) != 0u;
+    res.x_desc = ((flags >> 30u) & 1u) != 0u;
+    res.y_log = ((flags >> 23u) & 1u) != 0u;
+    res.y_desc = ((flags >> 22u) & 1u) != 0u;
+    res.z_log = ((flags >> 15u) & 1u) != 0u;
+    res.z_desc = ((flags >> 14u) & 1u) != 0u;
+    return res;
+}
 
 fn linear_interpolation(
     data_value: f32,
@@ -77,7 +98,70 @@ fn linear_interpolation(
 
     return res;
 }
+fn log_interpolation(
+    data_value: f32,
+    min_data_value: f32,
+    max_data_value: f32,
+    min_interpolated_value: f32,
+    max_interpolated_value: f32
+) -> f32 {
+    // Handle edge case
+    if (min_data_value == max_data_value) {
+        return max_interpolated_value;
+    }
 
+    // Calculate logarithmic values
+    let log_data_value = log(data_value);
+    let log_min_data_value = log(min_data_value);
+    let log_max_data_value = log(max_data_value);
+
+    // Ensure the result falls within the interpolation range
+    var res = linear_interpolation(
+        log_data_value,
+        log_min_data_value,
+        log_max_data_value,
+        min_interpolated_value,
+        max_interpolated_value
+    );
+
+    // Clamp the result within the interpolated value range
+    res = clamp(res, min_interpolated_value, max_interpolated_value);
+
+    return res;
+}
+
+fn interpolate_value( is_log: bool, is_desc: bool, 
+    data_value: f32,
+    min_data_value: f32,
+    max_data_value: f32,
+    min_interpolated_value: f32,
+    max_interpolated_value: f32
+) -> f32 {
+     var min =  min_data_value ;
+     var max =  max_data_value ;
+     if is_desc {
+	min = max_data_value;
+	max = min_data_value;
+     }
+     if is_log {
+	 return log_interpolation(
+	     data_value,
+	     min,
+	     max,
+	     min_interpolated_value,
+	     max_interpolated_value,
+	 );
+     } else {
+	 return linear_interpolation(
+	     data_value,
+	     min,
+	     max,
+	     min_interpolated_value,
+	     max_interpolated_value,
+	 );
+     }
+}
+ 
 @compute
 @workgroup_size(16, 1)
 fn main(
@@ -105,9 +189,13 @@ fn main(
 
     let min_x = glyph_uniform_data.min_interp_x;
     let max_x = glyph_uniform_data.max_interp_x;
+    let flags = parse_flags(glyph_uniform_data.flags);
+
     let instance = instance_buffer[index_y];
     let model = vertex_buffer[index_x];
-    let interp_x = linear_interpolation(
+    let interp_x = interpolate_value(
+	flags.x_log,
+	flags.x_desc,
         instance.x_value,
         glyph_uniform_data.min_x,
         glyph_uniform_data.max_x,
@@ -122,7 +210,9 @@ fn main(
     let min_z = glyph_uniform_data.min_interp_z;
     let max_z = glyph_uniform_data.max_interp_z;
 
-    let interp_z = linear_interpolation(
+    let interp_z = interpolate_value(
+        flags.z_log,
+	flags.z_desc,
         instance.z_value,
         glyph_uniform_data.min_z,
         glyph_uniform_data.max_z,
@@ -141,7 +231,9 @@ fn main(
     //Our inbound glyph should be the max size of the graph, but there will be some beveling on the 
     //bottom that we do not want to mess with.  We may need to use that as our midpoint and minimum size
     if y_vec > min_y {
-        let interp_value = linear_interpolation(
+        let interp_value = interpolate_value(
+	    flags.y_log,
+	    flags.y_desc,
             instance.y_value,
             glyph_uniform_data.min_y,
             glyph_uniform_data.max_y,
@@ -153,7 +245,9 @@ fn main(
         y_offset = distance;
     }
 
-    let color = floor(linear_interpolation(
+    let color = floor(interpolate_value(
+	flags.y_log,
+	flags.y_desc,
         instance.y_value,
         glyph_uniform_data.min_y,
         glyph_uniform_data.max_y,

@@ -6,7 +6,7 @@ use crate::assets::shape_vertex::ShapeVertex;
 /// mesh in wasm.  If it is already in the code then we do have nothing
 /// to load and the number of vertexes is not that large
 fn create_cone_normal_vertices() -> Vec<[f32; 3]> {
-    let mut base_normals = vec![
+    let base_normals = vec![
         [0.0, 0.0, 0.0],
         [-0.0000, -0.5033, -0.8641],
         [-0.0000, 1.0000, -0.0000],

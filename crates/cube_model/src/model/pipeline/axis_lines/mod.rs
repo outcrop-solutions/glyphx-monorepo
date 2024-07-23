@@ -9,7 +9,6 @@ use wgpu::util::DeviceExt;
 use wgpu::{BindGroup, BindGroupLayout, Buffer, Device, RenderPipeline, SurfaceConfiguration};
 
 use smaa::SmaaFrame;
-use std::borrow::Borrow;
 use std::rc::Rc;
 use std::cell::RefCell;
 use crate::model::pipeline::PipelineRunner;
@@ -138,14 +137,12 @@ impl AxisLines {
         let cone_height = mc.grid_cone_length;
         let cone_radius = mc.grid_cone_radius;
         //To the outside world z is up.  To us y is up
-        let y_height_ratio = mc.z_height_ratio;
         let (height, color, order) = match direction {
             AxisLineDirection::X => (cylinder_height , 60, [1,2,0]),
             AxisLineDirection::Y => (cylinder_height , 62, [0,1,2]),
             AxisLineDirection::Z => (cylinder_height + cone_height, 61, [2,0,1]),
         };
 
-        let offset = 1.0 -  cone_radius;
         let vertices = create_axis_line(cylinder_radius, height, cone_height, cone_radius);
         for mut vertex in vertices {
            vertex.color = color; 
