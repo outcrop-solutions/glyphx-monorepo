@@ -35,6 +35,7 @@ export interface IModelConfiguration {
   y_order: 'Asc' | 'Desc';
   z_interpolation: 'Linear' | 'Log';
   z_order: 'Asc' | 'Desc';
+  color_flip: boolean;
 }
 
 export interface IUpdateModelConfiguration extends Partial<IModelConfiguration> {}

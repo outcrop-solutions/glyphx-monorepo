@@ -752,6 +752,29 @@ impl ModelRunner {
                             input:
                                 KeyboardInput {
                                     state: ElementState::Pressed,
+                                    virtual_keycode: Some(VirtualKeyCode::F),
+                                    ..
+                                },
+                            ..
+                        } => {
+                            {
+                                let mut cf = config.borrow_mut();
+                                cf.color_flip = !cf.color_flip;
+                            }
+                            state.update_config();
+                            unsafe {
+                                let event = ModelEvent::Redraw;
+                                EVENT_LOOP_PROXY
+                                    .as_ref()
+                                    .unwrap()
+                                    .send_event(event)
+                                    .unwrap();
+                            }
+                        }
+                        WindowEvent::KeyboardInput {
+                            input:
+                                KeyboardInput {
+                                    state: ElementState::Pressed,
                                     virtual_keycode: Some(VirtualKeyCode::S),
                                     ..
                                 },
@@ -961,7 +984,7 @@ impl ModelRunner {
                                 }
 
                                 state.update_config();
-                            } else if ctrl_pressed && !shift_pressed && !alt_pressed{
+                            } else if ctrl_pressed && !shift_pressed && !alt_pressed {
                                 state.move_camera("y_axis", 0.0);
                             } else if !ctrl_pressed {
                                 let mut cf = config.borrow_mut();

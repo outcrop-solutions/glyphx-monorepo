@@ -42,6 +42,7 @@ pub struct GlyphUniformFlags {
     pub y_order: Order,
     pub z_interp_type: InterpolationType,
     pub z_order: Order,
+    pub color_flip: bool,
 }
 
 impl Default for GlyphUniformFlags {
@@ -53,6 +54,7 @@ impl Default for GlyphUniformFlags {
             y_order: Order::Ascending,
             z_interp_type: InterpolationType::Linear,
             z_order: Order::Ascending,
+            color_flip: false,
         }
     }
 }
@@ -68,6 +70,7 @@ impl GlyphUniformFlags {
         flags |= (self.y_order as u32) << 22;
         flags |= (self.z_interp_type as u32) << 15;
         flags |= (self.z_order as u32) << 14;
+        flags |= (if self.color_flip == true {1} else {0}) << 7;
 
         flags
     }
@@ -85,6 +88,12 @@ impl GlyphUniformFlags {
             _ => Err("Invalid order"),
         };
 
+        let get_bool = |bits: u32| match bits {
+            0 => false,
+            1 => true,
+            _ => false,
+        };
+
         Ok(Self {
             x_interp_type: get_interp_type((flags >> 31) & 0x1)?,
             x_order: get_order((flags >> 30) & 0x1)?,
@@ -92,6 +101,7 @@ impl GlyphUniformFlags {
             y_order: get_order((flags >> 22) & 0x1)?,
             z_interp_type: get_interp_type((flags >> 15) & 0x1)?,
             z_order: get_order((flags >> 14) & 0x1)?,
+            color_flip: get_bool((flags >> 7) & 0x1),
         })
     }
 }
@@ -178,11 +188,12 @@ mod unit_tests {
                 y_order: Order::Descending,
                 z_interp_type: InterpolationType::Log,
                 z_order: Order::Descending,
+                color_flip: true,
             };
 
             let encoded = flags.encode();
             let str_encoded = format!("{:032b}", encoded);
-            let expected_str = "11000000110000001100000000000000";
+            let expected_str = "11000000110000001100000010000000";
             assert_eq!(str_encoded, expected_str);
             let decoded = GlyphUniformFlags::decode(encoded).unwrap();
             assert_eq!(decoded.x_interp_type, InterpolationType::Log);
@@ -191,7 +202,7 @@ mod unit_tests {
             assert_eq!(decoded.y_order, Order::Descending);
             assert_eq!(decoded.z_interp_type, InterpolationType::Log);
             assert_eq!(decoded.z_order, Order::Descending);
-            eprintln!("Decoded: {}", str_encoded);
+            assert_eq!(decoded.color_flip, true);
         }
 
         #[test]
@@ -203,6 +214,7 @@ mod unit_tests {
                 y_order: Order::Ascending,
                 z_interp_type: InterpolationType::Linear,
                 z_order: Order::Descending,
+                color_flip: false,
             };
 
             let encoded = flags.encode();
@@ -216,7 +228,7 @@ mod unit_tests {
             assert_eq!(decoded.y_order, Order::Ascending);
             assert_eq!(decoded.z_interp_type, InterpolationType::Linear);
             assert_eq!(decoded.z_order, Order::Descending);
-            eprintln!("Decoded: {}", str_encoded);
+            assert_eq!(decoded.color_flip, false);
         }
 
         #[test]
@@ -228,6 +240,7 @@ mod unit_tests {
                 y_order: Order::Descending,
                 z_interp_type: InterpolationType::Log,
                 z_order: Order::Ascending,
+                color_flip: false,
             };
 
             let encoded = flags.encode();
@@ -241,7 +254,7 @@ mod unit_tests {
             assert_eq!(decoded.y_order, Order::Descending);
             assert_eq!(decoded.z_interp_type, InterpolationType::Log);
             assert_eq!(decoded.z_order, Order::Ascending);
-            eprintln!("Decoded: {}", str_encoded);
+            assert_eq!(decoded.color_flip, false);
         }
     }
 

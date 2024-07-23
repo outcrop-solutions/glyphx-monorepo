@@ -371,6 +371,7 @@ impl State {
         flags.x_order = config.x_order;
         flags.y_order = config.z_order;
         flags.z_order = config.y_order;
+        flags.color_flip = config.color_flip;
         let flags = flags.encode();
         uniform_data.flags = flags;
          
@@ -834,6 +835,7 @@ impl State {
         flags.x_order = mc.x_order;
         flags.y_order = mc.z_order;
         flags.z_order = mc.y_order;
+        flags.color_flip = mc.color_flip;
 
         let flags = flags.encode();
 

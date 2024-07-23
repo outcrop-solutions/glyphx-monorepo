@@ -57,6 +57,7 @@ struct Flags {
 	y_desc: bool,
 	z_log: bool,
 	z_desc: bool,
+	flip_color: bool,
 };
 
 
@@ -80,6 +81,7 @@ fn parse_flags(flags: u32) -> Flags {
     res.y_desc = ((flags >> 22u) & 1u) != 0u;
     res.z_log = ((flags >> 15u) & 1u) != 0u;
     res.z_desc = ((flags >> 14u) & 1u) != 0u;
+    res.flip_color = ((flags >> 7u) & 1u) != 0u;
     return res;
 }
 
@@ -106,7 +108,7 @@ fn log_interpolation(
     max_interpolated_value: f32
 ) -> f32 {
     // Handle edge case
-    if (min_data_value == max_data_value) {
+    if min_data_value == max_data_value {
         return max_interpolated_value;
     }
 
@@ -130,36 +132,30 @@ fn log_interpolation(
     return res;
 }
 
-fn interpolate_value( is_log: bool, is_desc: bool, 
-    data_value: f32,
-    min_data_value: f32,
-    max_data_value: f32,
-    min_interpolated_value: f32,
-    max_interpolated_value: f32
-) -> f32 {
-     var min =  min_data_value ;
-     var max =  max_data_value ;
-     if is_desc {
-	min = max_data_value;
-	max = min_data_value;
-     }
-     if is_log {
-	 return log_interpolation(
-	     data_value,
-	     min,
-	     max,
-	     min_interpolated_value,
-	     max_interpolated_value,
-	 );
-     } else {
-	 return linear_interpolation(
-	     data_value,
-	     min,
-	     max,
-	     min_interpolated_value,
-	     max_interpolated_value,
-	 );
-     }
+fn interpolate_value(is_log: bool, is_desc: bool, data_value: f32, min_data_value: f32, max_data_value: f32, min_interpolated_value: f32, max_interpolated_value: f32) -> f32 {
+    var min = min_data_value ;
+    var max = max_data_value ;
+    if is_desc {
+        min = max_data_value;
+        max = min_data_value;
+    }
+    if is_log {
+        return log_interpolation(
+            data_value,
+            min,
+            max,
+            min_interpolated_value,
+            max_interpolated_value,
+        );
+    } else {
+        return linear_interpolation(
+            data_value,
+            min,
+            max,
+            min_interpolated_value,
+            max_interpolated_value,
+        );
+    }
 }
  
 @compute
@@ -194,8 +190,8 @@ fn main(
     let instance = instance_buffer[index_y];
     let model = vertex_buffer[index_x];
     let interp_x = interpolate_value(
-	flags.x_log,
-	flags.x_desc,
+        flags.x_log,
+        flags.x_desc,
         instance.x_value,
         glyph_uniform_data.min_x,
         glyph_uniform_data.max_x,
@@ -212,7 +208,7 @@ fn main(
 
     let interp_z = interpolate_value(
         flags.z_log,
-	flags.z_desc,
+        flags.z_desc,
         instance.z_value,
         glyph_uniform_data.min_z,
         glyph_uniform_data.max_z,
@@ -232,8 +228,8 @@ fn main(
     //bottom that we do not want to mess with.  We may need to use that as our midpoint and minimum size
     if y_vec > min_y {
         let interp_value = interpolate_value(
-	    flags.y_log,
-	    flags.y_desc,
+            flags.y_log,
+            flags.y_desc,
             instance.y_value,
             glyph_uniform_data.min_y,
             glyph_uniform_data.max_y,
@@ -245,16 +241,18 @@ fn main(
         y_offset = distance;
     }
 
-    let color = floor(interpolate_value(
-	flags.y_log,
-	flags.y_desc,
+    var color = floor(interpolate_value(
+        flags.y_log,
+        flags.y_desc,
         instance.y_value,
         glyph_uniform_data.min_y,
         glyph_uniform_data.max_y,
         f32(0.0),
         f32(60.0),
     ));
-
+    if flags.flip_color {
+        color = 60.0 - color;
+    }
     var out_index = index_y * size_of_x + index_x;
     var out_data: InstanceOutput;
     out_data.glyph_id = instance.glyph_id;
