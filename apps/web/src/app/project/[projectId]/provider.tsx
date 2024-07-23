@@ -31,14 +31,6 @@ import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
 import {useSession} from 'next-auth/react';
 import {useUrl} from 'lib/client/hooks';
 
-const openFirstFile = (projData) => {
-  const newFiles = projData?.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
-  return {
-    ...projData,
-    files: [...newFiles],
-  };
-};
-
 export const ProjectProvider = ({
   children,
   doc,
@@ -77,6 +69,14 @@ export const ProjectProvider = ({
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setActiveState = useSetRecoilState(activeStateAtom);
 
+  const openFirstFile = useCallback((projData): databaseTypes.IProject => {
+    const newFiles = projData?.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
+    return {
+      ...projData,
+      files: [...newFiles],
+    };
+}, [])
+
   // hydrate recoil state
   useEffect(() => {
     if (!templateLoading) {
@@ -91,7 +91,7 @@ export const ProjectProvider = ({
         ) {
           const {keywords} = prop.filter as unknown as webTypes.IStringFilter;
           if (keywords && keywords.length > 0) {
-            formattedProject.state.properties[prop.axis].filter.keywords = [
+            (formattedProject.state.properties[prop.axis].filter as webTypes.IStringFilter).keywords = [
               ...keywords.map((word) => {
                 return Object.values(word).join('');
               }),
