@@ -24,19 +24,19 @@ const SCHEMA = new Schema<ITagDocument, ITagStaticMethods, ITagMethods>({
   },
   value: {type: String, required: true},
   workspaces: {
-    type: [Schema.Types.ObjectId],
+    type: [mongooseTypes.ObjectId],
     required: true,
     default: [],
     ref: 'workspace',
   },
   projects: {
-    type: [Schema.Types.ObjectId],
+    type: [mongooseTypes.ObjectId],
     required: true,
     default: [],
     ref: 'project',
   },
   templates: {
-    type: [Schema.Types.ObjectId],
+    type: [mongooseTypes.ObjectId],
     required: true,
     default: [],
     ref: 'projecttemplate',

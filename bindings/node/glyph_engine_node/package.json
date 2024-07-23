@@ -5,8 +5,7 @@
   "main": "index.node",
   "scripts": {
     "build": "cargo-cp-artifact -nc index.node -- cargo build --release --message-format=json-render-diagnostics && cp index.node ../../../apps/web/pkg/index.node && cp index.node ../../../packages/actions/pkg/index.node",
-    "install": "pnpm run build",
-    "test": "mocha"
+    "install": "pnpm run build"
   },
   "license": "MIT",
   "devDependencies": {

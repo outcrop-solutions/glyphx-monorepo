@@ -29,10 +29,12 @@ export function hashPayload(fileHash: string, project: databaseTypes.IProject): 
       } else if (
         key === 'filter' &&
         dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING &&
+        // @ts-ignore
         prop[key] &&
+        // @ts-ignore
         (prop[key] as webTypes.IStringFilter)?.keywords?.length > 0
       ) {
-        for (const word of (prop[key] as webTypes.IStringFilter)?.keywords) {
+        for (const word of (prop.filter as webTypes.IStringFilter)?.keywords) {
           keyRetvals.push(String(word));
         }
       } else {
@@ -63,13 +65,17 @@ export const oldHashFunction = (fileHash: string, project: databaseTypes.IProjec
     const dataType = prop.dataType;
     for (const key of relevantKeys) {
       if (key === 'filter' && dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER) {
+        // @ts-ignore
         keyRetvals.push(String((prop[key] as webTypes.INumbericFilter).min) ?? '');
+        // @ts-ignore
         keyRetvals.push(String((prop[key] as webTypes.INumbericFilter).max) ?? '');
       } else if (key === 'filter' && dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING) {
+        // @ts-ignore
         for (const word of (prop[key] as webTypes.IStringFilter).keywords) {
           keyRetvals.push(String(word));
         }
       } else {
+        // @ts-ignore
         keyRetvals.push(String(prop[key]));
       }
     }

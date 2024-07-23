@@ -1220,6 +1220,8 @@ describe('#services/workspace', () => {
       getWorkspaceByIdFromModelStub.resolves({
         _id: workspaceId.toString(),
         deletedAt: undefined,
+        members: [],
+        projects: [],
       });
 
       sandbox.replace(dbConnection.models.WorkspaceModel, 'getWorkspaceById', getWorkspaceByIdFromModelStub);
