@@ -27,13 +27,13 @@ const SCHEMA = new Schema<IProjectTemplateDocument, IProjectTemplateStaticMethod
   name: {type: String, required: true},
   description: {type: String, required: false},
   projects: {
-    type: [mongooseTypes.ObjectId],
+    type: [Schema.Types.ObjectId],
     required: true,
     default: [],
     ref: 'project',
   },
   tags: {
-    type: [mongooseTypes.ObjectId],
+    type: [Schema.Types.ObjectId],
     required: true,
     default: [],
     ref: 'tag',
