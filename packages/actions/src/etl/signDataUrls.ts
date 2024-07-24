@@ -6,6 +6,7 @@ import {projectService} from 'business';
 import {S3Manager} from 'core/src/aws';
 import {getServerSession} from 'next-auth';
 import {authOptions} from '../auth';
+import {signUrls} from './signUrls';
 
 /**
  * Created signed url to upload files
@@ -20,8 +21,6 @@ export const signDataUrls = async (projectId: string, isLastState?: boolean) => 
       const project = await projectService.getProject(projectId);
       const workspaceId = project?.workspace.id;
       if (project && workspaceId) {
-        // if hash exists
-
         // init S3 client
         await s3Connection.init();
         const s3Manager = s3Connection.s3Manager;
@@ -35,9 +34,16 @@ export const signDataUrls = async (projectId: string, isLastState?: boolean) => 
           if (fileExists) {
             return await signUrls(workspaceId, projectId, hash, s3Manager);
           } else {
-            throw new error.ActionError('No file found for last state', 'etl', {project, lastState, hash, checkFile, fileExists});
+            throw new error.ActionError('No file found for last state', 'etl', {
+              project,
+              lastState,
+              hash,
+              checkFile,
+              fileExists,
+            });
           }
         } else {
+          // if hash exists
           const newHash = hashPayload(hashFileSystem(project.files), project);
           const checkNewFile = `client/${workspaceId}/${projectId}/output/${newHash}.sgc`;
           // does file exist?
@@ -52,7 +58,15 @@ export const signDataUrls = async (projectId: string, isLastState?: boolean) => 
             if (oldFileExists) {
               return await signUrls(workspaceId, projectId, oldHash, s3Manager);
             } else {
-              throw new error.ActionError('No file found under either hash schemes', 'etl', {project, newFileExists, oldFileExists, oldHash, newHash, checkNewFile, checkOldFile });
+              throw new error.ActionError('No file found under either hash schemes', 'etl', {
+                project,
+                newFileExists,
+                oldFileExists,
+                oldHash,
+                newHash,
+                checkNewFile,
+                checkOldFile,
+              });
             }
           }
         }
@@ -65,22 +79,4 @@ export const signDataUrls = async (projectId: string, isLastState?: boolean) => 
     e.publish('etl', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }
-};
-
-const signUrls = async (workspaceId: string, projectId: string, payloadHash: string, s3: S3Manager) => {
-  const urls = [
-    `client/${workspaceId}/${projectId}/output/${payloadHash}.sdt`,
-    `client/${workspaceId}/${projectId}/output/${payloadHash}.sgn`,
-    `client/${workspaceId}/${projectId}/output/${payloadHash}.sgc`,
-  ];
-
-  // Create an array of promises
-  const promises = urls.map((url) => s3.getSignedDataUrlPromise(url));
-  // Use Promise.all to fetch all URLs concurrently
-  const signedUrls = await Promise.all(promises);
-  const sdtUrl = signedUrls.find((u: string) => u.includes('.sdt'));
-  const sgcUrl = signedUrls.find((u: string) => u.includes('.sgc'));
-  const sgnUrl = signedUrls.find((u: string) => u.includes('.sgn'));
-
-  return {sdtUrl, sgcUrl, sgnUrl};
 };
