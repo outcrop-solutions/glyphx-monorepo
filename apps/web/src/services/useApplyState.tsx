@@ -1,6 +1,6 @@
 'use client';
-import {useCallback} from 'react';
-import {useSession} from 'next-auth/react';
+import { useCallback } from 'react';
+import { useSession } from 'next-auth/react';
 import {
   activeStateAtom,
   cameraAtom,
@@ -10,10 +10,10 @@ import {
   showLoadingAtom,
   splitPaneSizeAtom,
 } from 'state';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {_createOpenProject} from 'lib';
-import {useUrl} from 'lib/client/hooks';
-import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { _createOpenProject } from 'lib';
+import { useUrl } from 'lib/client/hooks';
+import { callDownloadModel } from 'lib/client/network/reqs/callDownloadModel';
 
 const useApplyState = () => {
   const session = useSession();
@@ -27,7 +27,7 @@ const useApplyState = () => {
   const [activeState, setActiveState] = useRecoilState(activeStateAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
 
-  const convertRowIds = (input: {[key: string]: number}[]) => {
+  const convertRowIds = (input: { [key: string]: number }[]) => {
     return input.map((obj) => Object.values(obj).join(''));
   };
 
@@ -37,12 +37,14 @@ const useApplyState = () => {
         setActiveState('');
         return;
       }
+      console.log('applyState', { activeState, state })
       setActiveState(state.id);
       // only apply state if not loading
       if (!(Object.keys(loading).length > 0)) {
         const camera = state.camera;
         const ids = state.rowIds ?? [];
         const rowIds = convertRowIds(ids);
+
         await callDownloadModel({
           project,
           session,
@@ -62,7 +64,7 @@ const useApplyState = () => {
     [loading, project, session, setActiveState, setDrawer, setLoading, setResize, url, activeState]
   );
 
-  return {applyState};
+  return { applyState };
 };
 
 export default useApplyState;

@@ -1,17 +1,17 @@
 'use server';
-import {error, constants} from 'core';
-import {generalPurposeFunctions} from 'core';
-import {GlyphEngine} from 'glyphengine';
-import {processTrackingService, activityLogService, projectService} from '../../../business/src/services';
-import {generateFilterQuery} from '../utils/generateFilterQuery';
-import {isValidPayload} from '../utils/isValidPayload';
-import {s3Connection, athenaConnection} from '../../../business/src/lib';
-import {databaseTypes, fileIngestionTypes, glyphEngineTypes, webTypes} from 'types';
-import {getServerSession} from 'next-auth';
-import {authOptions} from '../auth';
-import {revalidatePath} from 'next/cache';
-import {hashFileSystem} from 'business';
-import {hashPayload} from 'business/src/util/hashFunctions';
+import { error, constants } from 'core';
+import { generalPurposeFunctions } from 'core';
+import { GlyphEngine } from 'glyphengine';
+import { processTrackingService, activityLogService, projectService } from '../../../business/src/services';
+import { generateFilterQuery } from '../utils/generateFilterQuery';
+import { isValidPayload } from '../utils/isValidPayload';
+import { s3Connection, athenaConnection } from '../../../business/src/lib';
+import { databaseTypes, fileIngestionTypes, glyphEngineTypes, webTypes } from 'types';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../auth';
+import { revalidatePath } from 'next/cache';
+import { hashFileSystem } from 'business';
+import { hashPayload } from 'business/src/util/hashFunctions';
 
 /**
  * Call Glyph Engine
@@ -25,7 +25,7 @@ export const glyphEngine = async (project) => {
     if (session) {
       if (!isValidPayload(project.state.properties)) {
         // fails silently
-        return {error: 'Invalid Payload'};
+        return { error: 'Invalid Payload' };
       } else {
         const properties = project.state.properties;
         const payloadHash = hashPayload(hashFileSystem(project.files), project);
@@ -36,13 +36,13 @@ export const glyphEngine = async (project) => {
           x_axis: properties[webTypes.constants.AXIS.X]['key'],
           x_date_grouping:
             properties[webTypes.constants.AXIS.X]['dataType'] === fileIngestionTypes.constants.FIELD_TYPE.DATE &&
-            !properties[webTypes.constants.AXIS.X]['dateGrouping']
+              !properties[webTypes.constants.AXIS.X]['dateGrouping']
               ? glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR
               : properties[webTypes.constants.AXIS.X]['dateGrouping'],
           y_axis: properties[webTypes.constants.AXIS.Y]['key'],
           y_date_grouping:
             properties[webTypes.constants.AXIS.Y]['dataType'] === fileIngestionTypes.constants.FIELD_TYPE.DATE &&
-            !properties[webTypes.constants.AXIS.Y]['dateGrouping']
+              !properties[webTypes.constants.AXIS.Y]['dateGrouping']
               ? glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR
               : properties[webTypes.constants.AXIS.Y]['dateGrouping'],
           z_axis: properties[webTypes.constants.AXIS.Z]['key'],
@@ -98,7 +98,7 @@ export const glyphEngine = async (project) => {
         ]);
 
         // process glyph engine
-        const {sdtFileName, sgnFileName, sgcFileName} = await glyphEngine.process(data);
+        await glyphEngine.process(data);
         const updatedProject = await projectService.updateProjectState(project.id, project.state);
 
         await activityLogService.createLog({
@@ -112,16 +112,16 @@ export const glyphEngine = async (project) => {
           action: databaseTypes.constants.ACTION_TYPE.MODEL_GENERATED,
         });
 
-        revalidatePath(`/project/${updatedProject.id}`, 'layout');
+        revalidatePath(`/project/${updatedProject.id}`, 'page');
 
-        return {sdtFileName, sgnFileName, sgcFileName, updatedProject};
+        return { ok: true };
       }
     } else {
       throw new Error('Not Authorized');
     }
   } catch (err) {
-    const e = new error.ActionError('An unexpected error occurred running glyphengine', 'etl', {project}, err);
+    const e = new error.ActionError('An unexpected error occurred running glyphengine', 'etl', { project }, err);
     e.publish('etl', constants.ERROR_SEVERITY.ERROR);
-    return {error: e.message};
+    return { error: e.message };
   }
 };

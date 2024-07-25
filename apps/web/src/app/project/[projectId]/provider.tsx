@@ -1,9 +1,9 @@
 'use client';
-import React, {useCallback, useEffect, useRef} from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import produce from 'immer';
-import {WritableDraft} from 'immer/dist/internal';
-import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
-import {useRecoilState, useSetRecoilState} from 'recoil';
+import { WritableDraft } from 'immer/dist/internal';
+import { databaseTypes, fileIngestionTypes, webTypes } from 'types';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import {
   activeStateAtom,
   cameraAtom,
@@ -18,18 +18,19 @@ import {
   templatesAtom,
   workspaceAtom,
 } from 'state';
-import {useSendPosition, useWindowSize} from 'services';
-import {useCloseViewerOnModalOpen} from 'services/useCloseViewerOnModalOpen';
-import {useCloseViewerOnLoading} from 'services/useCloseViewerOnLoading';
+import { useSendPosition, useWindowSize } from 'services';
+import { useCloseViewerOnModalOpen } from 'services/useCloseViewerOnModalOpen';
+import { useCloseViewerOnLoading } from 'services/useCloseViewerOnLoading';
 import useTemplates from 'lib/client/hooks/useTemplates';
 // Live Page Structure
-import {LiveMap} from '@liveblocks/client';
-import {InitialDocumentProvider} from 'collab/lib/client';
-import {RoomProvider} from 'liveblocks.config';
-import {useFeatureIsOn} from '@growthbook/growthbook-react';
-import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
-import {useSession} from 'next-auth/react';
-import {useUrl} from 'lib/client/hooks';
+import { LiveMap } from '@liveblocks/client';
+import { InitialDocumentProvider } from 'collab/lib/client';
+import { RoomProvider } from 'liveblocks.config';
+import { useFeatureIsOn } from '@growthbook/growthbook-react';
+import { callDownloadModel } from 'lib/client/network/reqs/callDownloadModel';
+import { useSession } from 'next-auth/react';
+import { useUrl } from 'lib/client/hooks';
+import { openFirstFile } from 'services/openFile';
 
 export const ProjectProvider = ({
   children,
@@ -40,7 +41,7 @@ export const ProjectProvider = ({
   doc: any;
   project: databaseTypes.IProject;
 }) => {
-  const {data: templateData, isLoading: templateLoading} = useTemplates();
+  const { data: templateData, isLoading: templateLoading } = useTemplates();
   const session = useSession();
   const url = useUrl();
   const projectViewRef = useRef(null);
@@ -69,37 +70,42 @@ export const ProjectProvider = ({
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setActiveState = useSetRecoilState(activeStateAtom);
 
-  const openFirstFile = useCallback((projData): databaseTypes.IProject => {
-    const newFiles = projData?.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
-    return {
-      ...projData,
-      files: [...newFiles],
-    };
-}, [])
+
 
   // hydrate recoil state
   useEffect(() => {
     if (!templateLoading) {
-      const projectData = openFirstFile(project);
-
-      let formattedProject = {...projectData};
       // rectify mongo scalar array
-      Object.values(projectData.state.properties).forEach((prop: webTypes.Property) => {
-        if (
-          prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING ||
-          prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE
-        ) {
-          const {keywords} = prop.filter as unknown as webTypes.IStringFilter;
-          if (keywords && keywords.length > 0) {
-            (formattedProject.state.properties[prop.axis].filter as webTypes.IStringFilter).keywords = [
-              ...keywords.map((word) => {
-                return Object.values(word).join('');
-              }),
-            ];
+      const newFormattedProject = produce(project, (draft) => {
+        draft.files = draft.files.map((file, idx) =>
+          idx === 0 ? { ...file, selected: true, open: true } : file
+        );
+
+        Object.values(draft.state.properties).forEach((prop: webTypes.Property) => {
+          if (
+            prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING ||
+            prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE
+          ) {
+            const { keywords } = prop.filter as unknown as webTypes.IStringFilter;
+            if (keywords && keywords.length > 0) {
+              draft.state.properties[prop.axis] = {
+                ...draft.state.properties[prop.axis],
+                filter: {
+                  ...draft.state.properties[prop.axis].filter,
+                  keywords: [
+                    ...keywords.map((word) => {
+                      return Object.values(word).join('');
+                    }),
+                  ],
+                },
+              };
+            }
           }
-        }
+        });
       });
-      setProject(formattedProject);
+
+      console.log({ project, newFormattedProject })
+      setProject(newFormattedProject);
       setRowIds(false);
       setTemplates(templateData);
       setRightSidebarControl(
@@ -124,26 +130,27 @@ export const ProjectProvider = ({
   const openLastState = useCallback(async () => {
     if (Array.isArray(project.stateHistory) && project.stateHistory?.length > 0) {
       const idx = project.stateHistory.length - 1;
-      const lastState = project.stateHistory[idx];
-      const camera = lastState.camera;
-
-      await callDownloadModel({
-        isLastState: true,
-        project,
-        session,
-        url,
-        setLoading,
-        setDrawer,
-        setResize,
-        setImageHash,
-        setCamera,
-        camera,
-      });
-      
-      setActiveState(idx);
+      const { id, camera, rowIds } = project.stateHistory[idx];
+      if (id) {
+        setActiveState(id);
+        await callDownloadModel({
+          project,
+          session,
+          url,
+          setLoading,
+          setDrawer,
+          setResize,
+          setImageHash,
+          setCamera,
+          stateId: id,
+          camera,
+          rowIds,
+        });
+        console.log('openLastState', { stateId: id })
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [project]);
+  }, []);
 
   useEffect(() => {
     if (!hasDrawerBeenShown) {
@@ -161,8 +168,8 @@ export const ProjectProvider = ({
   return enabled && project?.docId ? (
     <RoomProvider
       id={project?.docId as string}
-      initialPresence={{cursor: null}}
-      initialStorage={{notes: new LiveMap()}}
+      initialPresence={{ cursor: null }}
+      initialStorage={{ notes: new LiveMap() }}
     >
       <InitialDocumentProvider initialDocument={doc}>
         <div ref={projectViewRef} className="flex w-full h-full">

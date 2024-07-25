@@ -1,13 +1,13 @@
 'use server';
-import {error, constants} from 'core';
-import {s3Connection} from '../../../business/src/lib';
-import {hashFileSystem, hashPayload, oldHashFunction} from 'business/src/util/hashFunctions';
-import {projectService, stateService} from 'business';
-import {S3Manager} from 'core/src/aws';
-import {getServerSession} from 'next-auth';
-import {authOptions} from '../auth';
-import {signUrls} from './signUrls';
-import {ActionError} from 'core/src/error';
+import { error, constants } from 'core';
+import { s3Connection } from '../../../business/src/lib';
+import { hashFiles, hashPayload, oldHashFunction } from 'business/src/util/hashFunctions';
+import { projectService, stateService } from 'business';
+import { S3Manager } from 'core/src/aws';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../auth';
+import { signUrls } from './signUrls';
+import { ActionError } from 'core/src/error';
 
 /**
  * Created signed url to upload files
@@ -15,19 +15,19 @@ import {ActionError} from 'core/src/error';
  * @param payloadHash
  * @returns
  */
-export const signDataUrls = async (projectId: string, stateId: string = '') => {
+export const getDataUrls = async (projectId: string, stateId: string = '') => {
   try {
     const session = await getServerSession(authOptions);
     if (session) {
       const project = await projectService.getProject(projectId);
       const workspaceId = project?.workspace.id;
-
+      console.log('getDataUrls', { projectId, stateId })
       // exit early
       if (!project) {
-        throw new ActionError('no project found', 'signDataUrls', {projectId});
+        throw new ActionError('no project found', 'signDataUrls', { projectId });
       }
       if (!workspaceId) {
-        throw new ActionError('no workspace associated with project found', 'signDataUrls', {projectId});
+        throw new ActionError('no workspace associated with project found', 'signDataUrls', { projectId });
       }
       // init S3 client
       await s3Connection.init();
@@ -57,14 +57,14 @@ export const signDataUrls = async (projectId: string, stateId: string = '') => {
           });
         }
       } else {
-        const newHash = hashPayload(hashFileSystem(project.files), project);
+        const newHash = hashPayload(hashFiles(project.files), project);
         const checkNewFile = `client/${workspaceId}/${projectId}/output/${newHash}.sgc`;
         const newFileExists = await s3Manager.fileExists(checkNewFile);
         //  hash exists
         if (newFileExists) {
           return await signUrls(workspaceId, projectId, newHash, s3Manager);
         } else {
-          const oldHash = oldHashFunction(hashFileSystem(project.files), project);
+          const oldHash = oldHashFunction(hashFiles(project.files), project);
           const checkOldFile = `client/${workspaceId}/${projectId}/output/${oldHash}.sgc`;
           const oldFileExists = await s3Manager.fileExists(checkOldFile);
           if (oldFileExists) {
@@ -86,8 +86,9 @@ export const signDataUrls = async (projectId: string, stateId: string = '') => {
       throw new Error('Not Authorized');
     }
   } catch (err) {
-    const e = new error.ActionError('An unexpected error occurred running sign data urls', 'etl', {projectId}, err);
+    const e = new error.ActionError('An unexpected error occurred running sign data urls', 'etl', { projectId }, err);
+    console.dir({ err }, { depth: null })
     e.publish('etl', constants.ERROR_SEVERITY.ERROR);
-    return {error: e.message};
+    return { error: e.message };
   }
 };

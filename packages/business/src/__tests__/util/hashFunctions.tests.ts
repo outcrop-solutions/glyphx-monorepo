@@ -1,9 +1,9 @@
 import 'mocha';
-import {assert} from 'chai';
+import { assert } from 'chai';
 import MD5 from 'crypto-js/md5';
-import {createSandbox} from 'sinon';
-import {hashFileSystem, hashPayload, oldHashFunction, removePrefix} from '../../util/hashFunctions';
-import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
+import { createSandbox } from 'sinon';
+import { hashFiles, hashPayload, oldHashFunction, removePrefix } from '../../util/hashFunctions';
+import { databaseTypes, fileIngestionTypes, webTypes } from 'types';
 import {
   file1Clean,
   file1Dirty,
@@ -182,21 +182,21 @@ describe('#lib/hashFunctions', () => {
         };
 
         if (project) {
-          const payloadHash = hashPayload(hashFileSystem(project.files), project as any);
-          const oldPayloadHash = oldHashFunction(hashFileSystem(project.files), project as any);
+          const payloadHash = hashPayload(hashFiles(project.files), project as any);
+          const oldPayloadHash = oldHashFunction(hashFiles(project.files), project as any);
           assert.strictEqual(payloadHash, oldPayloadHash);
           assert.fail();
         }
-      } catch (error) {}
+      } catch (error) { }
     });
     it('will create the same hash regardless of extraneous properties in the fileStats array members', async () => {
       try {
-        const hash1 = hashFileSystem([file1Clean]);
-        const hash2 = hashFileSystem([file1Dirty]);
+        const hash1 = hashFiles([file1Clean]);
+        const hash2 = hashFiles([file1Dirty]);
         assert.strictEqual(hash1, hash2);
 
-        const hash3 = hashFileSystem([file2Clean]);
-        const hash4 = hashFileSystem([file2Dirty]);
+        const hash3 = hashFiles([file2Clean]);
+        const hash4 = hashFiles([file2Dirty]);
         assert.strictEqual(hash3, hash4);
       } catch (error) {
         assert.fail();
@@ -204,12 +204,12 @@ describe('#lib/hashFunctions', () => {
     });
     it('will create a different hash regardless of extraneous properties in the fileStats array members', async () => {
       try {
-        const hash1 = hashFileSystem([file1Clean]);
-        const hash2 = hashFileSystem([file2Dirty]);
+        const hash1 = hashFiles([file1Clean]);
+        const hash2 = hashFiles([file2Dirty]);
         assert.notEqual(hash1, hash2);
 
-        const hash3 = hashFileSystem([file2Clean]);
-        const hash4 = hashFileSystem([file1Dirty]);
+        const hash3 = hashFiles([file2Clean]);
+        const hash4 = hashFiles([file1Dirty]);
         assert.notEqual(hash3, hash4);
       } catch (error) {
         assert.fail();
@@ -217,13 +217,13 @@ describe('#lib/hashFunctions', () => {
     });
     it('will create a different hash for same files, different file order', async () => {
       try {
-        const hash1 = hashFileSystem([file1Clean, file2Clean]);
-        const hash2 = hashFileSystem([file2Clean, file1Clean]);
+        const hash1 = hashFiles([file1Clean, file2Clean]);
+        const hash2 = hashFiles([file2Clean, file1Clean]);
 
         assert.notEqual(hash1, hash2);
 
-        const hash3 = hashFileSystem([file1Dirty, file2Dirty]);
-        const hash4 = hashFileSystem([file2Dirty, file1Dirty]);
+        const hash3 = hashFiles([file1Dirty, file2Dirty]);
+        const hash4 = hashFiles([file2Dirty, file1Dirty]);
         assert.notEqual(hash3, hash4);
       } catch (error) {
         assert.fail();
@@ -231,9 +231,9 @@ describe('#lib/hashFunctions', () => {
     });
     it('will create a different hash for same file, different column order', async () => {
       try {
-        const hash1 = hashFileSystem([file2Clean]);
+        const hash1 = hashFiles([file2Clean]);
         // this file has different column order
-        const hash2 = hashFileSystem([file3Clean]);
+        const hash2 = hashFiles([file3Clean]);
         assert.notEqual(hash1, hash2);
       } catch (error) {
         assert.fail();
@@ -266,9 +266,9 @@ describe('#lib/hashFunctions', () => {
       try {
         // equivalent states, [clean, clean] = [dirty, dirty]
         // @ts-ignore
-        const hash1 = hashPayload(hashFileSystem(project1.files), project1);
+        const hash1 = hashPayload(hashFiles(project1.files), project1);
         // @ts-ignore
-        const hash2 = hashPayload(hashFileSystem(project2.files), project2);
+        const hash2 = hashPayload(hashFiles(project2.files), project2);
         assert.strictEqual(hash1, hash2);
       } catch (error) {
         assert.fail();
@@ -280,9 +280,9 @@ describe('#lib/hashFunctions', () => {
       try {
         // equivalent states, [clean/dirty] = [dirty/clean]
         // @ts-ignore
-        const hash1 = hashPayload(hashFileSystem(project3.files), project3);
+        const hash1 = hashPayload(hashFiles(project3.files), project3);
         // @ts-ignore
-        const hash2 = hashPayload(hashFileSystem(project4.files), project4);
+        const hash2 = hashPayload(hashFiles(project4.files), project4);
         assert.strictEqual(hash1, hash2);
       } catch (error) {
         assert.fail();
@@ -292,9 +292,9 @@ describe('#lib/hashFunctions', () => {
     it('will create a different hash due to changes to the X.key', async () => {
       try {
         // @ts-ignore
-        const hash1 = hashPayload(hashFileSystem(project5.files), project5);
+        const hash1 = hashPayload(hashFiles(project5.files), project5);
         // @ts-ignore
-        const hash2 = hashPayload(hashFileSystem(project6.files), project6);
+        const hash2 = hashPayload(hashFiles(project6.files), project6);
         assert.notEqual(hash1, hash2);
       } catch (error) {
         assert.fail();
@@ -303,9 +303,9 @@ describe('#lib/hashFunctions', () => {
     it('will create the same hash because change is an erroneous property', async () => {
       try {
         // @ts-ignore
-        const hash1 = hashPayload(hashFileSystem(project5.files), project5);
+        const hash1 = hashPayload(hashFiles(project5.files), project5);
         // @ts-ignore
-        const hash2 = hashPayload(hashFileSystem(project7.files), project7);
+        const hash2 = hashPayload(hashFiles(project7.files), project7);
         assert.strictEqual(hash1, hash2);
       } catch (error) {
         assert.fail();
@@ -314,9 +314,9 @@ describe('#lib/hashFunctions', () => {
     it('will create a different hash based on a change in projectId', async () => {
       try {
         // @ts-ignore
-        const hash1 = hashPayload(hashFileSystem(project1.files), project5);
+        const hash1 = hashPayload(hashFiles(project1.files), project5);
         // @ts-ignore
-        const hash2 = hashPayload(hashFileSystem(project2.files), project8);
+        const hash2 = hashPayload(hashFiles(project2.files), project8);
         assert.notEqual(hash1, hash2);
       } catch (error) {
         assert.fail();

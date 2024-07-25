@@ -1,6 +1,6 @@
 'use client';
-import {useCallback, useEffect, useState} from 'react';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+import { useCallback, useEffect, useState } from 'react';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import {
   drawerOpenAtom,
   hasDrawerBeenShownAtom,
@@ -11,10 +11,11 @@ import {
   viewerPositionSelector,
   windowSizeAtom,
 } from 'state';
-import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
-import {useSession} from 'next-auth/react';
-import {useUrl} from 'lib/client/hooks';
-import {cameraAtom, imageHashAtom} from 'state/snapshot';
+import { callDownloadModel } from 'lib/client/network/reqs/callDownloadModel';
+import { useSession } from 'next-auth/react';
+import { useUrl } from 'lib/client/hooks';
+import { cameraAtom, imageHashAtom } from 'state/snapshot';
+
 export const ModelFooter = () => {
   // const { mutate } = useSWRConfig();
   // ensures we don't pre-render the server
@@ -43,7 +44,6 @@ export const ModelFooter = () => {
       // close drawer
       setResize(windowSize.height - 105);
       setOrientation('horizontal');
-
       setDrawer(false);
       window?.core?.ToggleDrawer(false);
     } else if (window && !window.core) {
@@ -51,7 +51,8 @@ export const ModelFooter = () => {
       setDrawer(true);
     } else {
       // open drawer
-      await callDownloadModel({project, session, url, setLoading, setDrawer, setResize, setImageHash, setCamera});
+      console.log('called download model in ModelFooter')
+      await callDownloadModel({ project, session, url, setLoading, setDrawer, setResize, setImageHash, setCamera });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drawer, project, session, setDrawer, setLoading, setOrientation, setResize, url, windowSize.height]);
@@ -67,18 +68,16 @@ export const ModelFooter = () => {
           top: `${viewer.y - 44}px`,
           width: `${viewer.w + 5}px`,
         }}
-        className={`z-60 h-[44px] ${
-          orientation === 'vertical' ? 'border-b-none border-r-none border-b border-gray' : 'border border-gray'
-        } bg-primary-dark-blue text-xs flex items-center`}
+        className={`z-60 h-[44px] ${orientation === 'vertical' ? 'border-b-none border-r-none border-b border-gray' : 'border border-gray'
+          } bg-primary-dark-blue text-xs flex items-center`}
       >
         <div
           onClick={handleOpenClose}
           className="flex relative cursor-pointer group hover:bg-gray items-center border-r border-r-gray h-full px-4"
         >
           <div
-            className={`${
-              drawer ? 'text-secondary-blue' : 'text-white'
-            } mr-2 text-xs font-roboto font-medium leading-[14px] tracking-[0.01em]`}
+            className={`${drawer ? 'text-secondary-blue' : 'text-white'
+              } mr-2 text-xs font-roboto font-medium leading-[14px] tracking-[0.01em]`}
           >
             Glyph Viewer
           </div>

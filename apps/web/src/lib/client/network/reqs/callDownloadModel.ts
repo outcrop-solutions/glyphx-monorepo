@@ -1,9 +1,9 @@
-import {databaseTypes} from 'types';
+import { databaseTypes } from 'types';
 import produce from 'immer';
-import {WritableDraft} from 'immer/dist/internal';
-import {_createOpenProject} from '../../mutations';
-import {signDataUrls, updateProjectState} from 'actions';
-import {isNullCamera} from 'lib/utils/isNullCamera';
+import { WritableDraft } from 'immer/dist/internal';
+import { _createOpenProject } from '../../mutations';
+import { getDataUrls, updateProjectState } from 'actions';
+import { isNullCamera } from 'lib/utils/isNullCamera';
 
 export const callDownloadModel = async ({
   project,
@@ -14,6 +14,7 @@ export const callDownloadModel = async ({
   setImageHash,
   setCamera,
   setResize,
+  isCreate = false,
   stateId = '',
   rowIds = [],
   camera = {},
@@ -26,6 +27,7 @@ export const callDownloadModel = async ({
   setResize: any;
   setImageHash: any;
   setCamera: any;
+  isCreate?: boolean;
   stateId?: string;
   rowIds?: any[];
   camera?: any;
@@ -43,9 +45,24 @@ export const callDownloadModel = async ({
   //     draft.stateHistory = filteredStates;
   //   })
   // );
+  console.log('callDownloadModel', {
+    project,
+    session,
+    url,
+    setLoading,
+    setDrawer,
+    setImageHash,
+    setCamera,
+    setResize,
+    stateId,
+    rowIds,
+    camera,
+  })
   await updateProjectState(project.id, project.state);
   const isNullCam = isNullCamera(camera);
-  const retval = await signDataUrls(project?.id, stateId);
+  const retval = await getDataUrls(project?.id, stateId);
+
+  console.log('getDataUrls for download', { retval })
   // @ts-ignore
   if (!retval?.error) {
     if (window?.core) {
@@ -61,7 +78,7 @@ export const callDownloadModel = async ({
           project,
           session,
           url,
-          false,
+          isCreate,
           rowIds,
           isNullCam ? undefined : camera
         )

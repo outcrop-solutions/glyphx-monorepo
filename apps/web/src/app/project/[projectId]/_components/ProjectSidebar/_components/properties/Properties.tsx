@@ -1,7 +1,7 @@
 'use client';
-import React, {useCallback, useState} from 'react';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
-import {Property} from './Property';
+import React, { useCallback, useState } from 'react';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { Property } from './Property';
 import {
   imageHashAtom,
   cameraAtom,
@@ -12,17 +12,17 @@ import {
   showLoadingAtom,
   splitPaneSizeAtom,
 } from 'state';
-import {useSession} from 'next-auth/react';
-import {useSWRConfig} from 'swr';
-import {callCreateModel} from 'lib/client/network/reqs/callCreateModel';
+import { useSession } from 'next-auth/react';
+import { useSWRConfig } from 'swr';
+import { callCreateModel } from 'lib/client/network/reqs/callCreateModel';
 import toast from 'react-hot-toast';
-import {useUrl} from 'lib/client/hooks';
-import {isValidPayload} from 'lib/utils/isValidPayload';
-import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
+import { useUrl } from 'lib/client/hooks';
+import { isValidPayload } from 'lib/utils/isValidPayload';
+import { callDownloadModel } from 'lib/client/network/reqs/callDownloadModel';
 
 export const Properties = () => {
   const session = useSession();
-  const {mutate} = useSWRConfig();
+  const { mutate } = useSWRConfig();
   const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
@@ -41,6 +41,7 @@ export const Properties = () => {
       if (!isValidPayload(properties)) {
         toast.success('Generate a model before applying filters!');
       } else if (doesStateExist) {
+        console.log('called download model in properties')
         await callDownloadModel({
           project,
           session,

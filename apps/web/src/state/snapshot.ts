@@ -1,7 +1,7 @@
-import {atom, selector} from 'recoil';
-import {projectAtom} from './project';
-import {databaseTypes, webTypes} from 'types';
-import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
+import { atom, selector } from 'recoil';
+import { projectAtom } from './project';
+import { databaseTypes, webTypes } from 'types';
+import { hashPayload, hashFiles } from 'business/src/util/hashFunctions';
 
 // controls styling of state list items
 export const activeStateAtom = atom<string>({
@@ -24,7 +24,7 @@ export const cameraAtom = atom<webTypes.Camera | {}>({
 // populates state list
 export const stateSnapshotsSelector = selector<databaseTypes.IState[]>({
   key: 'stateSnapshotsSelector',
-  get: ({get}) => {
+  get: ({ get }) => {
     const project = get(projectAtom);
     return project?.stateHistory.filter((state) => !state.deletedAt);
   },
@@ -32,7 +32,7 @@ export const stateSnapshotsSelector = selector<databaseTypes.IState[]>({
 
 export const stateSelector = selector({
   key: 'activeSnapshotSelector',
-  get: ({get}) => {
+  get: ({ get }) => {
     const project = get(projectAtom);
     const activeStateIndex = get(activeStateAtom);
     return project?.stateHistory[activeStateIndex];
@@ -42,10 +42,10 @@ export const stateSelector = selector({
 // does current project's payload hash exist in it's stateHistory
 export const doesStateExistSelector = selector<boolean>({
   key: 'doesStateExistSelector',
-  get: ({get}) => {
+  get: ({ get }) => {
     const project = get(projectAtom);
     if (!project?.files) return false;
-    const currentPayloadHash = hashPayload(hashFileSystem(project.files), project);
+    const currentPayloadHash = hashPayload(hashFiles(project.files), project);
     const exists = project?.stateHistory?.filter((state) => state?.payloadHash === currentPayloadHash);
     return exists.length > 0;
   },
@@ -59,9 +59,9 @@ export const hasDrawerBeenShownAtom = atom({
 // is active state fileHash the same as project fileHash
 export const isFilterWritableSelector = selector<boolean>({
   key: 'isFilterWritableSelector',
-  get: ({get}) => {
+  get: ({ get }) => {
     const state = get(stateSelector);
     const project = get(projectAtom);
-    return state?.fileSystemHash === hashFileSystem(project?.files);
+    return state?.fileSystemHash === hashFiles(project?.files);
   },
 });

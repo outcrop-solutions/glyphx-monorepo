@@ -1,9 +1,9 @@
 'use client';
-import React, {startTransition, useState} from 'react';
-import {BackBtn} from './BackBtn';
-import {projectAtom} from 'state';
-import {useRecoilValue} from 'recoil';
-import {updateProjectName} from 'actions';
+import React, { startTransition, useState } from 'react';
+import { BackBtn } from './BackBtn';
+import { projectAtom } from 'state';
+import { useRecoilValue } from 'recoil';
+import { updateProjectName } from 'actions';
 
 export const ProjectControls = () => {
   const project = useRecoilValue(projectAtom);
@@ -12,7 +12,6 @@ export const ProjectControls = () => {
     <div
       onKeyDown={(ev) => {
         if (ev.key === 'Enter') {
-          console.log('running rename');
           startTransition(() => {
             updateProjectName(project.id, name);
           });
