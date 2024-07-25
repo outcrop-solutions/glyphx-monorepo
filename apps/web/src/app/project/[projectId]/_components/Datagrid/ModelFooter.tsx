@@ -14,7 +14,7 @@ import {
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
 import {useSession} from 'next-auth/react';
 import {useUrl} from 'lib/client/hooks';
-import {cameraAtom, imageHashAtom} from 'state/snapshot'
+import {cameraAtom, imageHashAtom} from 'state/snapshot';
 export const ModelFooter = () => {
   // const { mutate } = useSWRConfig();
   // ensures we don't pre-render the server

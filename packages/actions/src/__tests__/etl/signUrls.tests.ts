@@ -247,7 +247,7 @@ describe('#etl/signUrls', () => {
           };
 
           sandbox.replaceGetter(s3Connection, 's3Manager', () => s3ManagerStub as any);
-          const retval = await signDataUrls(mockProject.id, isLastState);
+          const retval = await signDataUrls(mockProject.id);
 
           assert.isTrue(getProjectStub.calledOnce);
           assert.isTrue(s3Stub.calledOnce);
@@ -272,7 +272,6 @@ describe('#etl/signUrls', () => {
           });
           const newFileExists = false; // returned both times it is called here
           const oldFileExists = true; // returned both times it is called here
-          const isLastState = false;
           const filesystemHash = 'filesystemHashTest';
           const payloadHash = 'payloadHashTest';
           const oldPayloadHash = 'oldPayloadHash';
@@ -304,7 +303,7 @@ describe('#etl/signUrls', () => {
           };
 
           sandbox.replaceGetter(s3Connection, 's3Manager', () => s3ManagerStub as any);
-          const retval = await signDataUrls(mockProject.id, isLastState);
+          const retval = await signDataUrls(mockProject.id);
 
           assert.isTrue(getProjectStub.calledOnce);
           assert.isTrue(s3Stub.calledOnce);
@@ -342,6 +341,7 @@ describe('#etl/signUrls', () => {
           const s3Stub = sandbox.stub().resolves();
           sandbox.replace(s3Connection, 'init', s3Stub);
 
+          const fileExistsStub = sandbox.stub();
           // contorl the retval one level down
           const promiseStub = sandbox
             .stub()
@@ -353,12 +353,19 @@ describe('#etl/signUrls', () => {
             .resolves(`${baseUrl}.sgn`);
 
           const s3ManagerStub = {
-            fileExists: sandbox.stub().onFirstCall().resolves(fileExists),
+            fileExists: fileExistsStub.onFirstCall().resolves(fileExists),
             getSignedDataUrlPromise: promiseStub,
           };
 
           sandbox.replaceGetter(s3Connection, 's3Manager', () => s3ManagerStub as any);
           const retval = await signDataUrls(mockProject.id, isLastState, payloadHash);
+
+          assert.isTrue(getProjectStub.calledOnce);
+          assert.isTrue(s3Stub.calledOnce);
+          assert.isTrue(fileExistsStub.calledOnce);
+          assert.isTrue(promiseStub.calledThrice);
+          assert.isTrue(hashFileSystemStub.notCalled);
+          assert.isTrue(hashPayloadStub.notCalled);
 
           assert.isUndefined(retval.error);
           assert.strictEqual(retval.sdtUrl, `${baseUrl}.sdt`);

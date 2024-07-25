@@ -11,7 +11,7 @@ import Image from 'next/image';
 import {webTypes} from 'types';
 import useApplyState from 'services/useApplyState';
 
-export const State = ({item, idx}) => {
+export const State = ({item}) => {
   const segment = useRecoilValue(projectSegmentAtom);
   const setModals = useSetRecoilState(modalsAtom);
   const [activeState, _] = useRecoilState(activeStateAtom);
@@ -68,14 +68,14 @@ export const State = ({item, idx}) => {
         </div>
       </div>
       <div className="flex items-center justify-center h-6 w-6">
-        {activeState === idx ? <ActiveStateIcon /> : <StateIcon className="" />}
+        {activeState === item.id ? <ActiveStateIcon /> : <StateIcon className="" />}
       </div>
       <div
-        onClick={() => applyState(idx, undefined)}
+        onClick={() => applyState(item.id)}
         className="block group-states-hover:text-white transition duration-150 truncate grow ml-2"
       >
         <span
-          className={`w-full text-left text-gray text-sm ${activeState === idx ? 'text-white' : ''} font-medium z-0`}
+          className={`w-full text-left text-gray text-sm ${activeState === item.id ? 'text-white' : ''} font-medium z-0`}
         >
           {item.name}
         </span>

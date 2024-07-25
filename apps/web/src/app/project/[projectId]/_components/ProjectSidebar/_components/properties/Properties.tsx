@@ -19,7 +19,6 @@ import toast from 'react-hot-toast';
 import {useUrl} from 'lib/client/hooks';
 import {isValidPayload} from 'lib/utils/isValidPayload';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
-import {updateProjectState} from 'actions';
 
 export const Properties = () => {
   const session = useSession();
@@ -42,7 +41,6 @@ export const Properties = () => {
       if (!isValidPayload(properties)) {
         toast.success('Generate a model before applying filters!');
       } else if (doesStateExist) {
-        await updateProjectState(project.id, project.state);
         await callDownloadModel({
           project,
           session,
@@ -51,7 +49,7 @@ export const Properties = () => {
           setDrawer,
           setResize,
           setImageHash,
-          setCamera
+          setCamera,
         });
       } else {
         await callCreateModel({
@@ -67,7 +65,7 @@ export const Properties = () => {
       }
       setLoading({});
     },
-    [doesStateExist, project, properties, session, setDrawer, setLoading, setResize, url]
+    [doesStateExist, project, properties, session, setCamera, setDrawer, setImageHash, setLoading, setResize, url]
   );
 
   return (

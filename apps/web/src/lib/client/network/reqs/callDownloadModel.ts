@@ -2,7 +2,7 @@ import {databaseTypes} from 'types';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {_createOpenProject} from '../../mutations';
-import {signDataUrls} from 'actions';
+import {signDataUrls, updateProjectState} from 'actions';
 import {isNullCamera} from 'lib/utils/isNullCamera';
 
 export const callDownloadModel = async ({
@@ -14,7 +14,8 @@ export const callDownloadModel = async ({
   setImageHash,
   setCamera,
   setResize,
-  isLastState = false,
+  stateId = '',
+  rowIds = [],
   camera = {},
 }: {
   project: any;
@@ -25,7 +26,8 @@ export const callDownloadModel = async ({
   setResize: any;
   setImageHash: any;
   setCamera: any;
-  isLastState?: boolean;
+  stateId?: string;
+  rowIds?: any[];
   camera?: any;
 }) => {
   setLoading(
@@ -33,8 +35,17 @@ export const callDownloadModel = async ({
       draft.processName = 'Fetching Data...';
     })
   );
+  // // replace project state
+  // setProject(
+  //   produce((draft: any) => {
+  //     // set axes and filters
+  //     draft.state.properties = properties;
+  //     draft.stateHistory = filteredStates;
+  //   })
+  // );
+  await updateProjectState(project.id, project.state);
   const isNullCam = isNullCamera(camera);
-  const retval = await signDataUrls(project?.id, isLastState);
+  const retval = await signDataUrls(project?.id, stateId);
   // @ts-ignore
   if (!retval?.error) {
     if (window?.core) {
@@ -51,7 +62,7 @@ export const callDownloadModel = async ({
           session,
           url,
           false,
-          [],
+          rowIds,
           isNullCam ? undefined : camera
         )
       );

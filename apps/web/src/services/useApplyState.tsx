@@ -11,13 +11,9 @@ import {
   splitPaneSizeAtom,
 } from 'state';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {WritableDraft} from 'immer/dist/internal';
-import produce from 'immer';
 import {_createOpenProject} from 'lib';
 import {useUrl} from 'lib/client/hooks';
-import {isNullCamera} from 'lib/utils/isNullCamera';
-import {databaseTypes} from 'types';
-import {signDataUrls} from 'actions';
+import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
 
 const useApplyState = () => {
   const session = useSession();
@@ -36,78 +32,30 @@ const useApplyState = () => {
   };
 
   const applyState = useCallback(
-    async (idx: number, newProject: any) => {
-      if (activeState === idx) {
-        setActiveState(-1);
+    async (state) => {
+      if (activeState === state.id) {
+        setActiveState('');
         return;
       }
-      setActiveState(idx);
-
-      if (window && window?.core) {
-        setResize(150);
-        setDrawer(true);
-        // return;
-      }
-
+      setActiveState(state.id);
       // only apply state if not loading
       if (!(Object.keys(loading).length > 0)) {
-        const filteredStates = newProject
-          ? newProject.stateHistory?.filter((state) => !state.deletedAt)
-          : project.stateHistory.filter((state) => !state.deletedAt);
-
-        const payload = filteredStates[idx];
-        const properties = payload.properties;
-        const camera = payload.camera;
-        const ids = payload.rowIds ?? [];
+        const camera = state.camera;
+        const ids = state.rowIds ?? [];
         const rowIds = convertRowIds(ids);
-        const isNullCam = isNullCamera(camera);
-        const signedUrls = await signDataUrls(project.id);
-
-        // @ts-ignore
-        if (!signedUrls?.error) {
-          // replace project state
-          setProject(
-            produce((draft: any) => {
-              // set axes and filters
-              draft.state.properties = properties;
-              draft.stateHistory = filteredStates;
-            })
-          );
-          if (window?.core) {
-            setResize(150);
-            setDrawer(true);
-            window?.core?.OpenProject(
-              _createOpenProject(
-                signedUrls as {sdtUrl: any; sgcUrl: any; sgnUrl: any},
-                project,
-                session,
-                url,
-                false,
-                rowIds,
-                isNullCam ? undefined : camera
-              )
-            );
-          }
-          // flush state to avoid createState retriggering by passing our Object.keys(camera).length > 0 && image.imageHash condition on line 31 of States.tsx
-          setImageHash({
-            imageHash: false,
-          });
-          setCamera({});
-        } else {
-          setLoading(
-            produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-              draft.processName = 'Failed to Open State Snapshot';
-              draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
-              draft.processEndTime = new Date();
-            })
-          );
-          setActiveState(-1);
-          // flush state
-          setImageHash({
-            imageHash: false,
-          });
-          setCamera({});
-        }
+        await callDownloadModel({
+          project,
+          session,
+          url,
+          setLoading,
+          setDrawer,
+          setImageHash,
+          setCamera,
+          setResize,
+          stateId: state.id,
+          rowIds: rowIds,
+          camera,
+        });
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

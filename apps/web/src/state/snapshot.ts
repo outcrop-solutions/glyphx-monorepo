@@ -4,9 +4,9 @@ import {databaseTypes, webTypes} from 'types';
 import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
 
 // controls styling of state list items
-export const activeStateAtom = atom<number>({
+export const activeStateAtom = atom<string>({
   key: 'activeStateAtom',
-  default: -1,
+  default: '',
 });
 
 export const imageHashAtom = atom<webTypes.ImageHash>({

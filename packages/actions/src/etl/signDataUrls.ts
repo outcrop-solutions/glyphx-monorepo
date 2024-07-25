@@ -2,11 +2,12 @@
 import {error, constants} from 'core';
 import {s3Connection} from '../../../business/src/lib';
 import {hashFileSystem, hashPayload, oldHashFunction} from 'business/src/util/hashFunctions';
-import {projectService} from 'business';
+import {projectService, stateService} from 'business';
 import {S3Manager} from 'core/src/aws';
 import {getServerSession} from 'next-auth';
 import {authOptions} from '../auth';
 import {signUrls} from './signUrls';
+import {ActionError} from 'core/src/error';
 
 /**
  * Created signed url to upload files
@@ -14,73 +15,70 @@ import {signUrls} from './signUrls';
  * @param payloadHash
  * @returns
  */
-export const signDataUrls = async (projectId: string, isLastState: boolean = false, payloadHash: string = '') => {
+export const signDataUrls = async (projectId: string, stateId: string = '') => {
   try {
     const session = await getServerSession(authOptions);
     if (session) {
       const project = await projectService.getProject(projectId);
       const workspaceId = project?.workspace.id;
-      if (project && workspaceId) {
-        // init S3 client
-        await s3Connection.init();
-        const s3Manager = s3Connection.s3Manager;
-        // open the last known state
-        if (isLastState) {
-          const idx = project.stateHistory.length - 1;
-          const lastState = project.stateHistory[idx];
-          const hash = lastState.payloadHash;
+
+      // exit early
+      if (!project) {
+        throw new ActionError('no project found', 'signDataUrls', {projectId});
+      }
+      if (!workspaceId) {
+        throw new ActionError('no workspace associated with project found', 'signDataUrls', {projectId});
+      }
+      // init S3 client
+      await s3Connection.init();
+      const s3Manager = s3Connection.s3Manager;
+
+      if (stateId) {
+        const state = await stateService.getState(stateId);
+        if (state) {
+          const hash = state.payloadHash;
           const checkFile = `client/${workspaceId}/${projectId}/output/${hash}.sgc`;
           const fileExists = await s3Manager.fileExists(checkFile);
           if (fileExists) {
             return await signUrls(workspaceId, projectId, hash, s3Manager);
           } else {
-            throw new error.ActionError('No file found for last state', 'etl', {
+            throw new ActionError('No file found for state', 'etl', {
               project,
-              lastState,
+              stateId,
               hash,
               checkFile,
               fileExists,
             });
           }
-        } else if (payloadHash) {
-          const checkFile = `client/${workspaceId}/${projectId}/output/${payloadHash}.sgc`;
-          const fileExists = await s3Manager.fileExists(checkFile);
-          if (fileExists) {
-            return await signUrls(workspaceId, projectId, payloadHash, s3Manager);
-          } else {
-            throw new error.ActionError('No file found for last state', 'etl', {
-              project,
-              payloadHash,
-              checkFile,
-              fileExists,
-            });
-          }
         } else {
-          // if hash exists
-          const newHash = hashPayload(hashFileSystem(project.files), project);
-          const checkNewFile = `client/${workspaceId}/${projectId}/output/${newHash}.sgc`;
-          // does file exist?
-          const newFileExists = await s3Manager.fileExists(checkNewFile);
-          if (newFileExists) {
-            return await signUrls(workspaceId, projectId, newHash, s3Manager);
+          throw new ActionError('No state found for stateId', 'etl', {
+            project,
+            stateId,
+          });
+        }
+      } else {
+        const newHash = hashPayload(hashFileSystem(project.files), project);
+        const checkNewFile = `client/${workspaceId}/${projectId}/output/${newHash}.sgc`;
+        const newFileExists = await s3Manager.fileExists(checkNewFile);
+        //  hash exists
+        if (newFileExists) {
+          return await signUrls(workspaceId, projectId, newHash, s3Manager);
+        } else {
+          const oldHash = oldHashFunction(hashFileSystem(project.files), project);
+          const checkOldFile = `client/${workspaceId}/${projectId}/output/${oldHash}.sgc`;
+          const oldFileExists = await s3Manager.fileExists(checkOldFile);
+          if (oldFileExists) {
+            return await signUrls(workspaceId, projectId, oldHash, s3Manager);
           } else {
-            const oldHash = oldHashFunction(hashFileSystem(project.files), project);
-            const checkOldFile = `client/${workspaceId}/${projectId}/output/${oldHash}.sgc`;
-            // does file exist?
-            const oldFileExists = await s3Manager.fileExists(checkOldFile);
-            if (oldFileExists) {
-              return await signUrls(workspaceId, projectId, oldHash, s3Manager);
-            } else {
-              throw new error.ActionError('No file found under either hash schemes', 'etl', {
-                project,
-                newFileExists,
-                oldFileExists,
-                oldHash,
-                newHash,
-                checkNewFile,
-                checkOldFile,
-              });
-            }
+            throw new ActionError('No file found under either hash schemes', 'etl', {
+              projectId,
+              newFileExists,
+              oldFileExists,
+              oldHash,
+              newHash,
+              checkNewFile,
+              checkOldFile,
+            });
           }
         }
       }

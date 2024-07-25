@@ -34,13 +34,10 @@ export const States = () => {
           height: (viewerPosition as webTypes.IViewerPosition).h || 200,
         };
         const rows = (rowIds ? rowIds : []) as unknown as number[];
-        const newProject = await createState(name, camera as webTypes.Camera, project, image.imageHash, aspect, rows);
+        const retval = await createState(name, camera as webTypes.Camera, project, image.imageHash, aspect, rows);
 
-        if (newProject) {
-          // @ts-ignore
-          const filteredStates = newProject.stateHistory?.filter((state) => !state.deletedAt);
-          const idx = filteredStates.length - 1;
-          applyState(idx, newProject);
+        if (retval?.state?.id) {
+          applyState(retval.state);
           setName('Initial State');
           setIsSubmitting(false);
           setAddState(false);
