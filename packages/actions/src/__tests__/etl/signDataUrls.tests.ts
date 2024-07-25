@@ -99,7 +99,7 @@ describe('#etl/signDataUrls', () => {
     sandbox.restore();
   });
 
-  context.only('signDataUrls', () => {
+  context('signDataUrls', () => {
     context('auth', () => {
       it('should return (and not throw) an error if not authorized', async () => {
         try {
@@ -113,7 +113,7 @@ describe('#etl/signDataUrls', () => {
       });
     });
 
-    context('pull data from last state', () => {
+    context('pull data from state', () => {
       // state happy path
       it('should retreive the state when it does exist', async () => {
         try {
@@ -264,7 +264,7 @@ describe('#etl/signDataUrls', () => {
       });
     });
 
-    context('pull data by calculated hash', () => {
+    context('pull data by calculated payload hash', () => {
       // new hash happy path
       it('should retrieve the file at the new hash if it exists', async () => {
         try {
