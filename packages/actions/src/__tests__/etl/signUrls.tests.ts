@@ -7,7 +7,7 @@ import {databaseTypes} from 'types';
 import mongoose from 'mongoose';
 
 describe('#etl/signUrls', () => {
-  const sandbox = createSandbox();
+  let sandbox;
   const mockUser = {
     name: 'James Graham',
     email: 'james@glyphx.co',
@@ -67,14 +67,22 @@ describe('#etl/signUrls', () => {
   } as unknown as databaseTypes.IProject;
 
   let signDataUrls;
-  let hashFileSystemStub = sandbox.stub().returns('');
-  let hashPayloadStub = sandbox.stub().returns('');
-  let oldHashFunctionStub = sandbox.stub().returns('');
-  let revalidatePathStub = sandbox.stub().resolves();
-  let redirectStub = sandbox.stub().resolves();
-  let mockSessionStub = sandbox.stub();
+  let hashFileSystemStub;
+  let hashPayloadStub;
+  let oldHashFunctionStub;
+  let revalidatePathStub;
+  let redirectStub;
+  let mockSessionStub;
 
   beforeEach(() => {
+    sandbox = createSandbox();
+    hashFileSystemStub = sandbox.stub().returns('');
+    hashPayloadStub = sandbox.stub().returns('');
+    oldHashFunctionStub = sandbox.stub().returns('');
+    revalidatePathStub = sandbox.stub().resolves();
+    redirectStub = sandbox.stub().resolves();
+    mockSessionStub = sandbox.stub();
+
     signDataUrls = proxyquire('../../etl/signDataUrls', {
       'next/cache': {revalidatePath: revalidatePathStub},
       'next/navigation': {redirect: redirectStub},
@@ -91,7 +99,7 @@ describe('#etl/signUrls', () => {
     sandbox.restore();
   });
 
-  context('signDataUrls', () => {
+  context.only('signDataUrls', () => {
     context('auth', () => {
       it('should return (and not throw) an error if not authorized', async () => {
         try {
@@ -105,7 +113,7 @@ describe('#etl/signUrls', () => {
       });
     });
 
-    context('pull data by state hash', () => {
+    context('pull data from last state', () => {
       // state happy path
       it('should retreive the lastState when it does exist', async () => {
         try {
@@ -256,8 +264,8 @@ describe('#etl/signUrls', () => {
           assert.fail();
         }
       });
-      // fallback path
-      it('should get the urls under the old hashing function if the new one does not exist', async () => {
+      // fallback to old path
+      it('should get the urls under the old hashing function', async () => {
         try {
           mockSessionStub.resolves({
             user: mockUser,
@@ -280,6 +288,7 @@ describe('#etl/signUrls', () => {
           const s3Stub = sandbox.stub().resolves();
           sandbox.replace(s3Connection, 'init', s3Stub);
 
+          const fileExistsStub = sandbox.stub();
           // contorl the retval one level down
           const promiseStub = sandbox
             .stub()
@@ -290,12 +299,67 @@ describe('#etl/signUrls', () => {
             .onThirdCall()
             .resolves(`${baseUrl}.sgn`);
           const s3ManagerStub = {
-            fileExists: sandbox.stub().onFirstCall().resolves(newFileExists).onSecondCall().resolves(oldFileExists), // can't find either file
+            fileExists: fileExistsStub.onFirstCall().resolves(newFileExists).onSecondCall().resolves(oldFileExists), // can't find either file
             getSignedDataUrlPromise: promiseStub,
           };
 
           sandbox.replaceGetter(s3Connection, 's3Manager', () => s3ManagerStub as any);
           const retval = await signDataUrls(mockProject.id, isLastState);
+
+          assert.isTrue(getProjectStub.calledOnce);
+          assert.isTrue(s3Stub.calledOnce);
+          assert.isTrue(fileExistsStub.calledTwice);
+          assert.isTrue(promiseStub.calledThrice);
+          assert.isTrue(hashFileSystemStub.calledTwice);
+          assert.isTrue(hashPayloadStub.calledOnce);
+
+          assert.isUndefined(retval.error);
+          assert.strictEqual(retval.sdtUrl, `${baseUrl}.sdt`);
+          assert.strictEqual(retval.sgcUrl, `${baseUrl}.sgc`);
+          assert.strictEqual(retval.sgnUrl, `${baseUrl}.sgn`);
+        } catch (error) {
+          assert.fail();
+        }
+      });
+      // applyState path
+      it('should get the urls based on hash supplied by applyState', async () => {
+        try {
+          mockSessionStub.resolves({
+            user: mockUser,
+          });
+          const fileExists = true; // returned both times it is called here
+          const isLastState = false;
+          const filesystemHash = 'filesystemHashTest';
+          const payloadHash = 'payloadHashTest';
+          const baseUrl = `client/${mockProject.workspace.id}/${mockProject.id}/output/${payloadHash}`;
+
+          hashFileSystemStub.returns(filesystemHash);
+          hashPayloadStub.returns(payloadHash);
+
+          const getProjectStub = sandbox.stub().resolves(mockProject);
+          sandbox.replace(projectService, 'getProject', getProjectStub);
+
+          const s3Stub = sandbox.stub().resolves();
+          sandbox.replace(s3Connection, 'init', s3Stub);
+
+          // contorl the retval one level down
+          const promiseStub = sandbox
+            .stub()
+            .onFirstCall()
+            .resolves(`${baseUrl}.sdt`)
+            .onSecondCall()
+            .resolves(`${baseUrl}.sgc`)
+            .onThirdCall()
+            .resolves(`${baseUrl}.sgn`);
+
+          const s3ManagerStub = {
+            fileExists: sandbox.stub().onFirstCall().resolves(fileExists),
+            getSignedDataUrlPromise: promiseStub,
+          };
+
+          sandbox.replaceGetter(s3Connection, 's3Manager', () => s3ManagerStub as any);
+          const retval = await signDataUrls(mockProject.id, isLastState, payloadHash);
+
           assert.isUndefined(retval.error);
           assert.strictEqual(retval.sdtUrl, `${baseUrl}.sdt`);
           assert.strictEqual(retval.sgcUrl, `${baseUrl}.sgc`);
@@ -305,7 +369,7 @@ describe('#etl/signUrls', () => {
         }
       });
       // no hash found (error path)
-      it('should throw an error if the new hash does not exist and old hash does not exist', async () => {
+      it('should throw an error if neither new/old hash exists', async () => {
         try {
           mockSessionStub.resolves({
             user: mockUser,
@@ -373,7 +437,12 @@ describe('#etl/signUrls', () => {
           const wId = 'workspace';
           const pId = 'project';
           const hash = 'hash';
-          const s3Manager = sandbox.stub();
+
+          const promiseStub = sandbox.stub();
+
+          const s3ManagerStub = {
+            getSignedDataUrlPromise: promiseStub,
+          };
         } catch (error) {}
       });
       it('should throw an error if s3Manager fials', async () => {

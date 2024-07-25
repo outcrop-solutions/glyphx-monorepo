@@ -14,7 +14,7 @@ import {signUrls} from './signUrls';
  * @param payloadHash
  * @returns
  */
-export const signDataUrls = async (projectId: string, isLastState?: boolean) => {
+export const signDataUrls = async (projectId: string, isLastState: boolean = false, payloadHash: string = '') => {
   try {
     const session = await getServerSession(authOptions);
     if (session) {
@@ -38,6 +38,19 @@ export const signDataUrls = async (projectId: string, isLastState?: boolean) => 
               project,
               lastState,
               hash,
+              checkFile,
+              fileExists,
+            });
+          }
+        } else if (payloadHash) {
+          const checkFile = `client/${workspaceId}/${projectId}/output/${payloadHash}.sgc`;
+          const fileExists = await s3Manager.fileExists(checkFile);
+          if (fileExists) {
+            return await signUrls(workspaceId, projectId, payloadHash, s3Manager);
+          } else {
+            throw new error.ActionError('No file found for last state', 'etl', {
+              project,
+              payloadHash,
               checkFile,
               fileExists,
             });
