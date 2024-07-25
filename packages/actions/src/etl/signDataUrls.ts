@@ -15,13 +15,12 @@ import { ActionError } from 'core/src/error';
  * @param payloadHash
  * @returns
  */
-export const getDataUrls = async (projectId: string, stateId: string = '') => {
+export const signDataUrls = async (projectId: string, stateId: string = '') => {
   try {
     const session = await getServerSession(authOptions);
     if (session) {
       const project = await projectService.getProject(projectId);
       const workspaceId = project?.workspace.id;
-      console.log('getDataUrls', { projectId, stateId })
       // exit early
       if (!project) {
         throw new ActionError('no project found', 'signDataUrls', { projectId });

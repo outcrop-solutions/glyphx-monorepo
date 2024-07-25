@@ -1,9 +1,9 @@
 import 'mocha';
-import {assert} from 'chai';
-import {createSandbox} from 'sinon';
+import { assert } from 'chai';
+import { createSandbox } from 'sinon';
 import proxyquire from 'proxyquire';
-import {projectService, s3Connection} from 'business';
-import {databaseTypes} from 'types';
+import { projectService, s3Connection } from 'business';
+import { databaseTypes } from 'types';
 import mongoose from 'mongoose';
 
 describe('#etl/signUrls', () => {
@@ -40,7 +40,7 @@ describe('#etl/signUrls', () => {
     stateHistory: [
       {
         id: new mongoose.Types.ObjectId().toString(),
-        camera: {id: new mongoose.Types.ObjectId().toString()},
+        camera: { id: new mongoose.Types.ObjectId().toString() },
         payloadHash: 'payloadHashTest',
       },
     ] as unknown as databaseTypes.IState,
@@ -84,9 +84,9 @@ describe('#etl/signUrls', () => {
     mockSessionStub = sandbox.stub();
 
     signDataUrls = proxyquire('../../etl/signDataUrls', {
-      'next/cache': {revalidatePath: revalidatePathStub},
-      'next/navigation': {redirect: redirectStub},
-      'next-auth': {getServerSession: mockSessionStub},
+      'next/cache': { revalidatePath: revalidatePathStub },
+      'next/navigation': { redirect: redirectStub },
+      'next-auth': { getServerSession: mockSessionStub },
       'business/src/util/hashFunctions': {
         hashFileSystem: hashFileSystemStub,
         hashPayload: hashPayloadStub,
@@ -113,18 +113,20 @@ describe('#etl/signUrls', () => {
       });
     });
 
-    context('pull data from last state', () => {
+    context.only('pull data from last state', () => {
       // state happy path
-      it('should retreive the lastState when it does exist', async () => {
+      it('should retreive the state when it does exist', async () => {
         try {
           mockSessionStub.resolves({
             user: mockUser,
           });
           const fileExists = true;
-          const isLastState = true;
           const baseUrl = `client/${mockProject.workspace.id}/${mockProject.id}/output/${mockProject.stateHistory[0].payloadHash}`;
           const getProjectStub = sandbox.stub().resolves(mockProject);
           sandbox.replace(projectService, 'getProject', getProjectStub);
+
+          const getStateStub = sandbox.stub().resolves(mockProject.stateHistory[0]);
+          sandbox.replace(projectService, 'getState', getStateStub);
 
           const s3Stub = sandbox.stub().resolves();
           sandbox.replace(s3Connection, 'init', s3Stub);
@@ -146,9 +148,10 @@ describe('#etl/signUrls', () => {
           };
 
           sandbox.replaceGetter(s3Connection, 's3Manager', () => s3ManagerStub as any);
-          const retval = await signDataUrls(mockProject.id, isLastState);
+          const retval = await signDataUrls(mockProject.id, mockProject.stateHistory[0].id);
 
           assert.isTrue(getProjectStub.calledOnce);
+          assert.isTrue(getStateStub.calledOnce);
           assert.isTrue(s3Stub.calledOnce);
           assert.isTrue(fileExistStub.calledOnce);
           assert.isTrue(promiseStub.calledThrice);
@@ -161,18 +164,20 @@ describe('#etl/signUrls', () => {
           assert.fail();
         }
       });
-      // state error path
-      it('should throw an error when the lastState does not exist', async () => {
+      // state not found path
+      it('should throw an error when the state does not exist', async () => {
         try {
           try {
             mockSessionStub.resolves({
               user: mockUser,
             });
             const fileExists = false;
-            const isLastState = true;
             const baseUrl = `client/${mockProject.workspace.id}/${mockProject.id}/output/${mockProject.stateHistory[0].payloadHash}`;
             const getProjectStub = sandbox.stub().resolves(mockProject);
             sandbox.replace(projectService, 'getProject', getProjectStub);
+
+            const getStateStub = sandbox.stub().resolves(false);
+            sandbox.replace(projectService, 'getState', getStateStub);
 
             const s3Stub = sandbox.stub().resolves();
             sandbox.replace(s3Connection, 'init', s3Stub);
@@ -193,19 +198,69 @@ describe('#etl/signUrls', () => {
             };
 
             sandbox.replaceGetter(s3Connection, 's3Manager', () => s3ManagerStub as any);
-            const retval = await signDataUrls(mockProject.id, isLastState);
+            const retval = await signDataUrls(mockProject.id, 'invalidStateId');
 
             assert.isTrue(getProjectStub.calledOnce);
+            assert.isTrue(getStateStub.calledOnce);
             assert.isTrue(s3Stub.calledOnce);
             assert.isTrue(fileExistStub.calledOnce);
             assert.isTrue(promiseStub.notCalled);
 
             assert.isNotNull(retval.error);
-            assert.strictEqual(retval.error, 'No file found for last state');
+            assert.strictEqual(retval.error, 'No file found for state');
           } catch (error) {
             assert.fail();
           }
-        } catch (error) {}
+        } catch (error) { }
+      });
+      // state error path
+      it('should throw an error when the state does not exist', async () => {
+        try {
+          try {
+            mockSessionStub.resolves({
+              user: mockUser,
+            });
+            const fileExists = false;
+            const baseUrl = `client/${mockProject.workspace.id}/${mockProject.id}/output/${mockProject.stateHistory[0].payloadHash}`;
+            const getProjectStub = sandbox.stub().resolves(mockProject);
+            sandbox.replace(projectService, 'getProject', getProjectStub);
+
+            const getStateStub = sandbox.stub().rejects();
+            sandbox.replace(projectService, 'getState', getStateStub);
+
+            const s3Stub = sandbox.stub().resolves();
+            sandbox.replace(s3Connection, 'init', s3Stub);
+
+            const fileExistStub = sandbox.stub();
+            // contorl the retval one level down
+            const promiseStub = sandbox
+              .stub()
+              .onFirstCall()
+              .resolves(`${baseUrl}.sdt`)
+              .onSecondCall()
+              .resolves(`${baseUrl}.sgc`)
+              .onThirdCall()
+              .resolves(`${baseUrl}.sgn`);
+            const s3ManagerStub = {
+              fileExists: fileExistStub.resolves(fileExists),
+              getSignedDataUrlPromise: promiseStub,
+            };
+
+            sandbox.replaceGetter(s3Connection, 's3Manager', () => s3ManagerStub as any);
+            const retval = await signDataUrls(mockProject.id, 'invalidStateId');
+
+            assert.isTrue(getProjectStub.calledOnce);
+            assert.isTrue(getStateStub.calledOnce);
+            assert.isTrue(s3Stub.calledOnce);
+            assert.isTrue(fileExistStub.calledOnce);
+            assert.isTrue(promiseStub.notCalled);
+
+            assert.isNotNull(retval.error);
+            assert.strictEqual(retval.error, 'No state found for stateId');
+          } catch (error) {
+            assert.fail();
+          }
+        } catch (error) { }
       });
     });
 
@@ -450,11 +505,11 @@ describe('#etl/signUrls', () => {
           const s3ManagerStub = {
             getSignedDataUrlPromise: promiseStub,
           };
-        } catch (error) {}
+        } catch (error) { }
       });
       it('should throw an error if s3Manager fials', async () => {
         try {
-        } catch (error) {}
+        } catch (error) { }
       });
     });
   });
@@ -500,6 +555,6 @@ describe('#etl/signUrls', () => {
         assert.fail();
       }
     });
-    it('should throw an error when S3Manager fails', () => {});
+    it('should throw an error when S3Manager fails', () => { });
   });
 });

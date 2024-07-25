@@ -2,7 +2,7 @@ import { databaseTypes } from 'types';
 import produce from 'immer';
 import { WritableDraft } from 'immer/dist/internal';
 import { _createOpenProject } from '../../mutations';
-import { getDataUrls, updateProjectState } from 'actions';
+import { signDataUrls, updateProjectState } from 'actions';
 import { isNullCamera } from 'lib/utils/isNullCamera';
 
 export const callDownloadModel = async ({
@@ -60,7 +60,7 @@ export const callDownloadModel = async ({
   })
   await updateProjectState(project.id, project.state);
   const isNullCam = isNullCamera(camera);
-  const retval = await getDataUrls(project?.id, stateId);
+  const retval = await signDataUrls(project?.id, stateId);
 
   console.log('getDataUrls for download', { retval })
   // @ts-ignore

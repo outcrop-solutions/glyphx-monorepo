@@ -3,7 +3,7 @@ import produce from 'immer';
 import { databaseTypes } from 'types';
 import { WritableDraft } from 'immer/dist/internal';
 import { _createOpenProject } from 'lib/client/mutations';
-import { glyphEngine, getDataUrls } from 'actions';
+import { glyphEngine, signDataUrls } from 'actions';
 import { callDownloadModel } from './callDownloadModel';
 
 export const callCreateModel = async ({
