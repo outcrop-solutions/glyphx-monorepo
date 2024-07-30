@@ -8,6 +8,7 @@ import {authOptions} from './auth';
 import {revalidatePath} from 'next/cache';
 import emailClient from './email';
 import {getToken} from './utils/blobStore';
+import {ActionError} from 'core/src/error';
 /**
  * Gets a state by id
  * @param stateId
@@ -16,7 +17,7 @@ export const getState = async (stateId: string) => {
   try {
     return await stateService.getState(stateId);
   } catch (err) {
-    const e = new error.ActionError('An unexpected error occurred getting the state by id', 'stateId', stateId, err);
+    const e = new ActionError('An unexpected error occurred getting the state by id', 'stateId', stateId, err);
     e.publish('state', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }
@@ -54,7 +55,6 @@ export const createState = async (
 
       const buffer = Buffer.from(imageHash, 'base64');
       const blob = new Blob([buffer], {type: 'image/png'});
-
       // upload state imageHash to Blob store
       const imageRetval = await put(`state/${state?.id}`, blob, {
         access: 'public',
@@ -72,7 +72,6 @@ export const createState = async (
           emails: retval.members?.map((mem) => mem.email),
           projectId: project.id as string,
         } satisfies emailTypes.EmailData;
-
         await emailClient.init();
         await emailClient.sendEmail(emailData);
       }
@@ -87,12 +86,14 @@ export const createState = async (
           onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
           action: databaseTypes.constants.ACTION_TYPE.CREATED,
         });
+        revalidatePath(`/project/${project.id}`, 'layout');
+        return {state: state};
+      } else {
+        throw new ActionError('State was not created', 'createState', {state});
       }
-      revalidatePath(`/project/${project.id}`, 'layout');
-      return retval;
     }
   } catch (err) {
-    const e = new error.ActionError('An unexpected error occurred creating the state', 'project', project, err);
+    const e = new ActionError('An unexpected error occurred creating the state', 'project', project, err);
     e.publish('state', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }
@@ -121,7 +122,7 @@ export const updateState = async (stateId: string, name: string) => {
       revalidatePath(`/project/${state.project.id}`, 'layout');
     }
   } catch (err) {
-    const e = new error.ActionError('An unexpected error occurred updating the state', 'stateId', stateId, err);
+    const e = new ActionError('An unexpected error occurred updating the state', 'stateId', stateId, err);
     e.publish('state', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }
@@ -149,7 +150,7 @@ export const deleteState = async (stateId: string) => {
       revalidatePath(`/project/${state.project.id}`, 'layout');
     }
   } catch (err) {
-    const e = new error.ActionError('An unexpected error occurred deleting the state', 'stateId', stateId, err);
+    const e = new ActionError('An unexpected error occurred deleting the state', 'stateId', stateId, err);
     e.publish('state', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }

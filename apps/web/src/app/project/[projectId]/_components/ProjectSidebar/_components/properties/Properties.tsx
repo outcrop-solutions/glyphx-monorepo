@@ -1,8 +1,10 @@
 'use client';
-import React, {useCallback, useState} from 'react';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
-import {Property} from './Property';
+import React, { useCallback, useState } from 'react';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { Property } from './Property';
 import {
+  imageHashAtom,
+  cameraAtom,
   doesStateExistSelector,
   drawerOpenAtom,
   projectAtom,
@@ -10,22 +12,22 @@ import {
   showLoadingAtom,
   splitPaneSizeAtom,
 } from 'state';
-import {useSession} from 'next-auth/react';
-import {useSWRConfig} from 'swr';
-import {callCreateModel} from 'lib/client/network/reqs/callCreateModel';
+import { useSession } from 'next-auth/react';
+import { useSWRConfig } from 'swr';
+import { callCreateModel } from 'lib/client/network/reqs/callCreateModel';
 import toast from 'react-hot-toast';
-import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
-import {useUrl} from 'lib/client/hooks';
-import {isValidPayload} from 'lib/utils/isValidPayload';
-import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
-import {updateProjectState} from 'actions';
+import { useUrl } from 'lib/client/hooks';
+import { isValidPayload } from 'lib/utils/isValidPayload';
+import { callDownloadModel } from 'lib/client/network/reqs/callDownloadModel';
 
 export const Properties = () => {
   const session = useSession();
-  const {mutate} = useSWRConfig();
+  const { mutate } = useSWRConfig();
   const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
+  const setCamera = useSetRecoilState(cameraAtom);
+  const setImageHash = useSetRecoilState(imageHashAtom);
   const doesStateExist = useRecoilValue(doesStateExistSelector);
   const url = useUrl();
   const properties = useRecoilValue(propertiesSelector);
@@ -36,60 +38,35 @@ export const Properties = () => {
     async (event: any) => {
       //Our apply button is wrapped in the summary element, and the click handler is bubbling up. so we need to stop propagation.  This will keep our axes control in the open state when pressing apply.
       event.stopPropagation();
-      // project already contains filter state, no deepMerge necessary
-      const payloadHash = hashPayload(hashFileSystem(project.files), project);
-      console.log({payloadHash});
       if (!isValidPayload(properties)) {
-        console.log('not a valid payload', {value: !isValidPayload(properties), properties});
         toast.success('Generate a model before applying filters!');
       } else if (doesStateExist) {
-        console.log('called updateProjectState');
-        await updateProjectState(project.id, project.state);
-        console.log('called callDownloadModel', {
-          project,
-          payloadHash,
-          session,
-          url,
-          setLoading,
-          setDrawer,
-          setResize,
-        });
+        console.log('called download model in properties')
         await callDownloadModel({
           project,
-          payloadHash,
           session,
           url,
           setLoading,
           setDrawer,
           setResize,
+          setImageHash,
+          setCamera,
         });
       } else {
-        console.log('called create model', {
-          isFilter: true,
-          project,
-          payloadHash,
-          session,
-          url,
-          setLoading,
-          setDrawer,
-          setResize,
-          mutate,
-        });
         await callCreateModel({
-          isFilter: true,
           project,
-          payloadHash,
           session,
           url,
+          setImageHash,
+          setCamera,
           setLoading,
           setDrawer,
           setResize,
-          mutate,
         });
       }
       setLoading({});
     },
-    [doesStateExist, mutate, project, properties, session, setDrawer, setLoading, setResize, url]
+    [doesStateExist, project, properties, session, setCamera, setDrawer, setImageHash, setLoading, setResize, url]
   );
 
   return (

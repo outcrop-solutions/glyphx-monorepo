@@ -1,7 +1,7 @@
-import {databaseTypes, webTypes} from 'types';
-import {error, constants} from 'core';
+import { databaseTypes, webTypes } from 'types';
+import { error, constants } from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
-import {hashFileSystem, hashPayload} from '../util/hashFunctions';
+import { hashFiles, hashPayload } from '../util/hashFunctions';
 
 export class StateService {
   public static async getState(stateId: string): Promise<databaseTypes.IState | null> {
@@ -17,7 +17,7 @@ export class StateService {
           'An unexpected error occurred while getting the state. See the inner error for additional details',
           'state',
           'getState',
-          {stateId},
+          { stateId },
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);
@@ -38,31 +38,22 @@ export class StateService {
     try {
       const workspace = await mongoDbConnection.models.WorkspaceModel.getWorkspaceById(project?.workspace.id!);
       const user = await mongoDbConnection.models.UserModel.getUserById(userId);
-      const image = imageHash ? {imageHash} : {};
-
-      const cleanFiles = project.files.map((f) => {
-        delete f.selected;
-        delete f.open;
-
-        return {
-          ...f,
-        };
-      });
+      const image = imageHash ? { imageHash } : {};
 
       const input = {
         ...image,
-        createdBy: {...user},
+        createdBy: { ...user },
         name: name,
         version: 0,
         static: true,
-        camera: {...camera},
-        aspectRatio: {...aspectRatio},
-        properties: {...project.state.properties},
-        fileSystemHash: hashFileSystem(cleanFiles),
-        payloadHash: hashPayload(hashFileSystem(cleanFiles), project),
-        workspace: {...workspace},
-        project: {...project},
-        fileSystem: [...cleanFiles],
+        camera: { ...camera },
+        aspectRatio: { ...aspectRatio },
+        properties: { ...project.state.properties },
+        fileSystemHash: hashFiles(project.files),
+        payloadHash: hashPayload(hashFiles(project.files), project),
+        workspace: { ...workspace },
+        project: { ...project },
+        fileSystem: [...project.files],
         rowIds: rowIds,
       };
 
@@ -86,7 +77,7 @@ export class StateService {
           'An unexpected error occurred while creating the state. See the inner error for additional details',
           'state',
           'createState',
-          {project, userId, name, camera, aspectRatio},
+          { project, userId, name, camera, aspectRatio },
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);
@@ -111,7 +102,7 @@ export class StateService {
           'An unexpected error occurred while updating the State. See the inner error for additional details',
           'state',
           'updateState',
-          {stateId},
+          { stateId },
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);
@@ -122,8 +113,8 @@ export class StateService {
 
   public static async updateState(stateId: string, name?: string, imageHash?: string): Promise<databaseTypes.IState> {
     try {
-      const image = imageHash ? {imageHash} : {};
-      const nameObj = name ? {name} : {};
+      const image = imageHash ? { imageHash } : {};
+      const nameObj = name ? { name } : {};
       const state = await mongoDbConnection.models.StateModel.updateStateById(stateId, {
         ...image,
         ...nameObj,
@@ -139,7 +130,7 @@ export class StateService {
           'An unexpected error occurred while updating the state. See the inner error for additional details',
           'state',
           'updateState',
-          {stateId},
+          { stateId },
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);

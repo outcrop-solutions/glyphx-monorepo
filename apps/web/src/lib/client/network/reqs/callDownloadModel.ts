@@ -1,27 +1,35 @@
-import {databaseTypes} from 'types';
+import { databaseTypes } from 'types';
 import produce from 'immer';
-import {WritableDraft} from 'immer/dist/internal';
-import {_createOpenProject} from '../../mutations';
-import {signDataUrls} from 'actions';
-import {isNullCamera} from 'lib/utils/isNullCamera';
+import { WritableDraft } from 'immer/dist/internal';
+import { _createOpenProject } from '../../mutations';
+import { signDataUrls, updateProjectState } from 'actions';
+import { isNullCamera } from 'lib/utils/isNullCamera';
 
 export const callDownloadModel = async ({
   project,
-  payloadHash,
   session,
   url,
   setLoading,
   setDrawer,
+  setImageHash,
+  setCamera,
   setResize,
+  isCreate = false,
+  stateId = '',
+  rowIds = [],
   camera = {},
 }: {
   project: any;
-  payloadHash: string;
   session: any;
   url: string;
   setLoading: any;
   setDrawer: any;
   setResize: any;
+  setImageHash: any;
+  setCamera: any;
+  isCreate?: boolean;
+  stateId?: string;
+  rowIds?: any[];
   camera?: any;
 }) => {
   setLoading(
@@ -29,8 +37,33 @@ export const callDownloadModel = async ({
       draft.processName = 'Fetching Data...';
     })
   );
+  // // replace project state
+  // setProject(
+  //   produce((draft: any) => {
+  //     // set axes and filters
+  //     draft.state.properties = properties;
+  //     draft.stateHistory = filteredStates;
+  //   })
+  // );
+  console.log('callDownloadModel', {
+    project,
+    session,
+    url,
+    setLoading,
+    setDrawer,
+    setImageHash,
+    setCamera,
+    setResize,
+    stateId,
+    rowIds,
+    camera,
+  })
+  await updateProjectState(project.id, project.state);
   const isNullCam = isNullCamera(camera);
-  const retval = await signDataUrls(project?.workspace.id, project?.id, payloadHash);
+  const retval = await signDataUrls(project?.id, stateId);
+
+  console.log('getDataUrls for download', { retval })
+  // @ts-ignore
   if (!retval?.error) {
     if (window?.core) {
       setResize(150);
@@ -45,11 +78,15 @@ export const callDownloadModel = async ({
           project,
           session,
           url,
-          false,
-          [],
+          isCreate,
+          rowIds,
           isNullCam ? undefined : camera
         )
       );
+      setImageHash({
+        imageHash: false,
+      });
+      setCamera({});
       setLoading({});
     }
   } else {
@@ -60,5 +97,9 @@ export const callDownloadModel = async ({
         draft.processEndTime = new Date();
       })
     );
+    setImageHash({
+      imageHash: false,
+    });
+    setCamera({});
   }
 };

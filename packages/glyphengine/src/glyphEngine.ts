@@ -1,14 +1,14 @@
-import {aws, error, logging, generalPurposeFunctions, streams} from 'core';
-import {fileIngestionTypes, databaseTypes, glyphEngineTypes} from 'types';
-import {SdtParser} from './io';
-import {QueryRunner} from './io/queryRunner';
-import {IQueryResponse} from './interfaces';
-import {QUERY_STATUS} from './constants';
-import {GlyphStream} from './io/glyphStream';
-import {SgcStream} from './io/sgcStream';
-import {SgnStream} from './io/sgnStream';
-import {PassThrough} from 'stream';
-import {processTrackingService, Heartbeat, projectService} from 'business';
+import { aws, error, logging, generalPurposeFunctions, streams } from 'core';
+import { fileIngestionTypes, databaseTypes, glyphEngineTypes } from 'types';
+import { SdtParser } from './io';
+import { QueryRunner } from './io/queryRunner';
+import { IQueryResponse } from './interfaces';
+import { QUERY_STATUS } from './constants';
+import { GlyphStream } from './io/glyphStream';
+import { SgcStream } from './io/sgcStream';
+import { SgnStream } from './io/sgnStream';
+import { PassThrough } from 'stream';
+import { processTrackingService, Heartbeat, projectService } from 'business';
 
 export class GlyphEngine {
   private readonly templateKey: string;
@@ -157,7 +157,7 @@ export class GlyphEngine {
   }
   public async process(
     data: Map<string, string>
-  ): Promise<{sdtFileName: string; sgnFileName: string; sgcFileName: string}> {
+  ): Promise<{ sdtFileName: string; sgnFileName: string; sgcFileName: string }> {
     await processTrackingService.updateProcessStatus(
       this.processId,
       databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
@@ -196,7 +196,7 @@ export class GlyphEngine {
       const sdtFileName = `${prefix}/${payloadHash}.sdt`;
       await this.outputBucketField.putObject(sdtFileName, template);
 
-      const {xCol, yCol, zCol, isXDate, xDateGrouping, isYDate, yDateGrouping, isZDate, zColName, zAccumulatorType} =
+      const { xCol, yCol, zCol, isXDate, xDateGrouping, isYDate, yDateGrouping, isZDate, zColName, zAccumulatorType } =
         this.formatCols(data);
 
       const initialParser = new SdtParser(
@@ -231,7 +231,7 @@ export class GlyphEngine {
         sgnFileName = fileNames.sgnFileName;
         sgcFileName = fileNames.sgcFileName;
       }
-      const retval = {sdtFileName, sgnFileName, sgcFileName};
+      const retval = { sdtFileName, sgnFileName, sgcFileName };
       heartBeat.stop();
       await processTrackingService.completeProcess(
         this.processId,
@@ -257,7 +257,7 @@ export class GlyphEngine {
     sdtParser: SdtParser,
     filePrefix: string,
     payloadHash: string
-  ): Promise<{sgcFileName: string; sgnFileName: string}> {
+  ): Promise<{ sgcFileName: string; sgnFileName: string }> {
     //bucket/client/workspaceId/ProjectId/output/model.sgc
     const sgcFileName = `${filePrefix}/${payloadHash}.sgc`;
     //bucket/client/workspaceId/ProjectId/output/model.sgn
@@ -282,7 +282,7 @@ export class GlyphEngine {
     forkingStream.startPipeline();
 
     await Promise.all([sgnDestStream.done(), sgcDestStream.done()]);
-    return {sgcFileName, sgnFileName};
+    return { sgcFileName, sgnFileName };
   }
 
   private async getQueryResponse(): Promise<IQueryResponse> {
@@ -351,7 +351,7 @@ export class GlyphEngine {
   private async startQuery(data: Map<string, string>, viewName: string): Promise<void> {
     //TODO: need some validation here
     const filter = (data.get('filter') as string) ?? undefined;
-    const {xCol, yCol, zCol, xColName, yColName, zColName} = this.formatCols(data);
+    const { xCol, yCol, zCol, xColName, yColName, zColName } = this.formatCols(data);
 
     this.queryRunner = new QueryRunner({
       databaseName: this.athenaManager.databaseName,

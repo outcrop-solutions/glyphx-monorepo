@@ -52,7 +52,7 @@ export function testError(errorToTest: any, params: IErrorTestingParameters, all
     if (KNOWN_REQUIRED_PARAMETERS.find((p) => p === key)) {
       continue;
     }
-    assert.strictEqual(err['data'][key], params[key], key);
+    assert.strictEqual((err as any)['data'][key], params[key], key);
   }
 
   //everyting from inner exception up should be optional so we are going to loop
