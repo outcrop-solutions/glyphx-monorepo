@@ -2,12 +2,15 @@
 //and imports.  This is a work in progress, and will be updated/changed as I figure out this
 //aspect of the style.
 //1. Define any submodules
-mod data_manager;
+pub(crate) mod data_manager;
 mod errors;
 
 //2. Define any imports from the current crate.
 use crate::{
-    camera::{camera_controller::CameraController, uniform_buffer::CameraUniform},
+    camera::{
+        camera_controller::{CameraController, MouseEvent},
+        uniform_buffer::CameraUniform,
+    },
     data::{DeserializeVectorError, ModelVectors},
     light::light_uniform::LightUniform,
     model::{
@@ -25,6 +28,10 @@ use crate::{
                 ranked_glyph_data::{Rank, RankDirection, RankedGlyphData},
                 Glyphs,
             },
+            hit_detection::{
+                HitCoordinates, HitDetection, HitDetectionData, HitDetectionOutputData,
+            },
+            new_hit_detection::{decode_glyph_id, encode_glyph_id, NewHitDetection},
             PipelineRunner,
         },
     },
@@ -42,11 +49,15 @@ use glam::Vec3;
 use smaa::*;
 use std::cell::RefCell;
 use std::rc::Rc;
-use wgpu::util::DeviceExt;
-use wgpu::{CommandBuffer, Device, Queue, Surface, SurfaceConfiguration, TextureViewDescriptor};
-use winit::dpi::PhysicalSize;
-use winit::event::DeviceEvent;
-use winit::window::Window;
+use wgpu::{
+    util::DeviceExt, CommandBuffer, Device, Queue, Surface, SurfaceConfiguration,
+    TextureViewDescriptor,
+};
+use winit::{
+    dpi::{PhysicalPosition, PhysicalSize},
+    event::DeviceEvent,
+    window::Window,
+};
 
 const Z_ORDERS: [[&str; 4]; 4] = [
     ["x-axis-line", "z-axis-line", "y-axis-line", "glyphs"],
@@ -91,11 +102,14 @@ pub struct State {
     rank_direction: RankDirection,
     pipelines: Pipelines,
     glyph_data_pipeline: GlyphData,
+    hit_detection_pipeline: Option<HitDetection>,
+    new_hit_detection_pipeline: NewHitDetection,
     z_order: usize,
     data_manager: Rc<RefCell<DataManager>>,
     forward_face: Face,
     axis_visible: bool,
     first_render: bool,
+    cursor_position: PhysicalPosition<f64>,
 }
 
 impl State {
@@ -198,6 +212,8 @@ impl State {
             model_configuration.clone(),
             data_manager.clone(),
         );
+        let new_hit_detection_pipeline =
+            NewHitDetection::new(device.clone(), &config, &camera_buffer, &camera_uniform);
 
         let mut model = Self {
             window,
@@ -225,7 +241,13 @@ impl State {
             forward_face: Face::Front,
             axis_visible: true,
             glyph_data_pipeline,
+            //The hit detection pipeline cannot be constructed until the compute pass
+            //has been run.  We will just reconstrut it at the end of every compute pass
+            hit_detection_pipeline: None,
+            new_hit_detection_pipeline,
             first_render: true,
+            //This should be updated pretty quickly after the model loads.
+            cursor_position: PhysicalPosition { x: 0.0, y: 0.0 },
         };
         //This allows us to initialize out camera with a pitch and yaw that is not 0
         model.update_z_order_and_rank(cm);
@@ -249,15 +271,39 @@ impl State {
             self.surface.configure(&d, &self.config);
         }
     }
-
+    pub fn update_cursor_position(&mut self, position: PhysicalPosition<f64>) {
+        self.cursor_position = position;
+    }
     pub fn input(&mut self, event: &DeviceEvent) -> bool {
-        let cm = self.camera_manager.clone();
-        let cm = &mut cm.borrow_mut();
-        let camera_result = self.camera_controller.process_events(event, cm);
-        if camera_result {
-            self.update_z_order_and_rank(cm);
+        let mut camera_result = MouseEvent::Unhandled;
+        {
+            let cm = self.camera_manager.clone();
+            let cm = &mut cm.borrow_mut();
+            camera_result = self.camera_controller.process_events(event, cm);
+        }
+
+        let handled = match camera_result {
+            MouseEvent::MouseMotion => {
+                let cm = self.camera_manager.clone();
+                let cm = &mut cm.borrow();
+                self.update_z_order_and_rank(cm);
+                true
+            }
+            MouseEvent::MouseClick => {
+                let hit_detection = HitCoordinates {
+                    x: self.cursor_position.x as f32,
+                    y: self.cursor_position.y as f32,
+                    _padding: [self.camera_manager.as_ref().borrow_mut().get_pitch(), 0.0],
+                };
+                self.run_hit_detection_pipeline(hit_detection);
+                true
+            }
+            MouseEvent::MouseScroll => true,
+            MouseEvent::Handled => true,
+            MouseEvent::MouseDown => true,
+            MouseEvent::Unhandled => false,
         };
-        camera_result
+        handled
     }
 
     pub fn move_camera(&mut self, direction: &str, amount: f32) {
@@ -361,7 +407,7 @@ impl State {
     }
 
     fn update_glyph_uniform_buffer(&mut self) {
-         let config = self.model_configuration.borrow();
+        let config = self.model_configuration.borrow();
         let uniform_data = &mut self.glyph_uniform_data;
         let mut flags = GlyphUniformFlags::default();
         //Y and Z are flipped from our config to our uniform buffer.
@@ -374,21 +420,25 @@ impl State {
         flags.color_flip = config.color_flip;
         let flags = flags.encode();
         uniform_data.flags = flags;
-         
-         self.glyph_uniform_buffer = self.device.as_ref().borrow().create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Glyph Uniform Buffer"),
-            contents: bytemuck::cast_slice(&[self.glyph_uniform_data]),
-            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-         });
+
+        self.glyph_uniform_buffer =
+            self.device
+                .as_ref()
+                .borrow()
+                .create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                    label: Some("Glyph Uniform Buffer"),
+                    contents: bytemuck::cast_slice(&[self.glyph_uniform_data]),
+                    usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+                });
     }
 
     pub fn update_config(&mut self) {
-
         //Update our glyph information based on the updated configuration.
         //TODO: at some point, we will want to split out or function to only run the compute
         //pipeline if necessary for now, we will just run it whenever the config changes
         self.update_glyph_uniform_buffer();
-        self.glyph_data_pipeline.update_vertices(&self.glyph_uniform_buffer);
+        self.glyph_data_pipeline
+            .update_vertices(&self.glyph_uniform_buffer);
         self.run_compute_pipeline();
 
         let config = self.model_configuration.borrow();
@@ -420,7 +470,6 @@ impl State {
         self.light_uniform
             .upate_intensity(config.light_intensity.clone());
         self.glyph_uniform_data.y_offset = config.min_glyph_height;
-        
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
@@ -428,6 +477,7 @@ impl State {
             self.run_compute_pipeline();
             self.first_render = false;
         }
+
         let background_color = self.color_table_uniform.background_color();
         let cm = self.camera_manager.clone();
         let cm = cm.borrow();
@@ -493,7 +543,7 @@ impl State {
             //manager trait to render it.  So, we will handle it directly.
             if name == "glyphs" {
                 let dm = self.data_manager.borrow();
-                let ranked_glyph_data = dm.new_get_glyphs();
+                let ranked_glyph_data = dm.get_glyphs();
                 if ranked_glyph_data.is_some() {
                     let ranked_glyph_data = ranked_glyph_data.unwrap();
                     Self::run_glyphs_pipeline(
@@ -594,9 +644,11 @@ impl State {
             .find(|f| f.is_srgb())
             .unwrap_or(surface_caps.formats[0]);
 
+        //TODO: remove copy source as a usage.  This is only here to test our new hit detection
+        //pipeline
         //define the surface configuration
         let config = wgpu::SurfaceConfiguration {
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_SRC,
             format: surface_format,
             width: size.width,
             height: size.height,
@@ -610,32 +662,288 @@ impl State {
     }
 
     pub fn run_compute_pipeline(&mut self) {
+        {
+            let d = self.device.as_ref().borrow();
+            let mut encoder = d.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("ScreenClear Encoder"),
+            });
+            let output_buffer = self.glyph_data_pipeline.run_pipeline(&mut encoder);
+            self.queue.submit([encoder.finish()]);
+
+            let buffer_slice = output_buffer.slice(..);
+            buffer_slice.map_async(wgpu::MapMode::Read, |_| {});
+            d.poll(wgpu::Maintain::Wait);
+
+            let view = buffer_slice.get_mapped_range();
+            //our data is already in the correct order so we can
+            //just push the verticies into a traingle list and attach
+            //the normals
+            let output_data: Vec<InstanceOutput> = bytemuck::cast_slice(&view).to_vec();
+
+            let dm = &mut self.data_manager.as_ref().borrow_mut();
+            dm.clear_glyphs();
+
+            let mut i = 0;
+            let mut min_x = 99999.0;
+            let mut max_x = -99999.0;
+            let mut min_y = 99999.0;
+            let mut max_y = -99999.0;
+            let mut min_z = 99999.0;
+            let mut max_z = -99999.0;
+            while i < output_data.len() {
+                let first_instance = &output_data[i];
+                i += 1;
+                let second_instance = &output_data[i];
+                i += 1;
+                let third_instance = &output_data[i];
+                i += 1;
+                if (first_instance.glyph_id != second_instance.glyph_id
+                    || first_instance.glyph_id != third_instance.glyph_id)
+                {
+                    panic!("Error: Glyphs are not in the correct order");
+                };
+                let verticies = [
+                    first_instance.vertex_data.position_vertex,
+                    second_instance.vertex_data.position_vertex,
+                    third_instance.vertex_data.position_vertex,
+                ];
+                let glyph_id = first_instance.glyph_id;
+                let x_rank = first_instance.x_rank;
+                let y_rank = first_instance.z_rank;
+                let hit_detection_data = HitDetectionData {
+                    verticies,
+                    glyph_id,
+                    x_rank,
+                    z_rank: y_rank,
+                };
+
+                dm.add_hit_detection_data(hit_detection_data);
+                if first_instance.vertex_data.position_vertex[0] < min_x {
+                    min_x = first_instance.vertex_data.position_vertex[0];
+                }
+                if first_instance.vertex_data.position_vertex[0] > max_x {
+                    max_x = first_instance.vertex_data.position_vertex[0];
+                }
+                if first_instance.vertex_data.position_vertex[1] < min_y {
+                    min_y = first_instance.vertex_data.position_vertex[1];
+                }
+                if first_instance.vertex_data.position_vertex[1] > max_y {
+                    max_y = first_instance.vertex_data.position_vertex[1];
+                }
+                if first_instance.vertex_data.position_vertex[2] < min_z {
+                    min_z = first_instance.vertex_data.position_vertex[2];
+                }
+                if first_instance.vertex_data.position_vertex[2] > max_z {
+                    max_z = first_instance.vertex_data.position_vertex[2];
+                }
+
+                let _ = dm.add_ranked_glyph(GlyphVertexData::from(first_instance));
+                if second_instance.vertex_data.position_vertex[0] < min_x {
+                    min_x = second_instance.vertex_data.position_vertex[0];
+                }
+                if second_instance.vertex_data.position_vertex[0] > max_x {
+                    max_x = second_instance.vertex_data.position_vertex[0];
+                }
+                if second_instance.vertex_data.position_vertex[1] < min_y {
+                    min_y = second_instance.vertex_data.position_vertex[1];
+                }
+                if second_instance.vertex_data.position_vertex[1] > max_y {
+                    max_y = second_instance.vertex_data.position_vertex[1];
+                }
+                if second_instance.vertex_data.position_vertex[2] < min_z {
+                    min_z = second_instance.vertex_data.position_vertex[2];
+                }
+                if second_instance.vertex_data.position_vertex[2] > max_z {
+                    max_z = second_instance.vertex_data.position_vertex[2];
+                }
+                let _ = dm.add_ranked_glyph(GlyphVertexData::from(second_instance));
+                if third_instance.vertex_data.position_vertex[0] < min_x {
+                    min_x = third_instance.vertex_data.position_vertex[0];
+                }
+                if third_instance.vertex_data.position_vertex[0] > max_x {
+                    max_x = third_instance.vertex_data.position_vertex[0];
+                }
+                if third_instance.vertex_data.position_vertex[1] < min_y {
+                    min_y = third_instance.vertex_data.position_vertex[1];
+                }
+                if third_instance.vertex_data.position_vertex[1] > max_y {
+                    max_y = third_instance.vertex_data.position_vertex[1];
+                }
+                if third_instance.vertex_data.position_vertex[2] < min_z {
+                    min_z = third_instance.vertex_data.position_vertex[2];
+                }
+                if third_instance.vertex_data.position_vertex[2] > max_z {
+                    max_z = third_instance.vertex_data.position_vertex[2];
+                }
+
+                let _ = dm.add_ranked_glyph(GlyphVertexData::from(third_instance));
+            }
+            drop(view);
+            output_buffer.unmap();
+        }
+        //The enclosing braces will ensure that our mutable borrow of the data manager is cleaned
+        //up so we can construct our hit detection pipeline
+        self.hit_detection_pipeline = Some(HitDetection::new(
+            self.device.clone(),
+            self.data_manager.clone(),
+        ));
+    }
+
+    fn run_hit_detection_pipeline(
+        &mut self,
+        hit_coordinates: HitCoordinates,
+    ) -> Result<(), wgpu::SurfaceError> {
         let d = self.device.as_ref().borrow();
+        let background_color = [1.0, 1.0, 1.0, 1.0];
+        let cm = self.camera_manager.clone();
+        let cm = cm.borrow();
+        let config = &self.config;
+
+        let picking_texture_desc = wgpu::TextureDescriptor {
+            label: Some("Picking Texture"),
+            size: wgpu::Extent3d {
+                width: config.width,
+                height: config.height,
+                depth_or_array_layers: 1,
+            },
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: wgpu::TextureFormat::Rgba8Unorm, // Adjust as needed
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_SRC,
+            view_formats: &[],
+        };
+
+        let picking_texture = d.create_texture(&picking_texture_desc);
+        let picking_texture_view =
+            picking_texture.create_view(&wgpu::TextureViewDescriptor::default());
+
+        let align = wgpu::COPY_BYTES_PER_ROW_ALIGNMENT;
+        let padded_bytes_per_row = ((4 * config.width + align - 1) / align) * align; // Round up to nearest multiple of align
+        let buffer_size = (config.height * padded_bytes_per_row) as wgpu::BufferAddress; // Assuming Rgba8Unorm format
+        let output_buffer = d.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("Output Buffer"),
+            size: buffer_size,
+            usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
+            mapped_at_creation: false,
+        });
+
+        self.queue.write_buffer(
+            &self.camera_buffer,
+            0,
+            bytemuck::cast_slice(&[cm.get_camera_uniform()]),
+        );
+
+        let d = self.device.as_ref().borrow();
+
         let mut encoder = d.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("ScreenClear Encoder"),
         });
-        let output_buffer = self.glyph_data_pipeline.run_pipeline(&mut encoder);
-        self.queue.submit([encoder.finish()]);
 
-        let buffer_slice = output_buffer.slice(..);
-        buffer_slice.map_async(wgpu::MapMode::Read, |_| {});
-        d.poll(wgpu::Maintain::Wait);
+        let screen_clear_render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: Some("Render Pass"),
+            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                view: &picking_texture_view,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(wgpu::Color {
+                        r: 1.0 as f64,
+                        g: 1.0 as f64,
+                        b: 1.0 as f64,
+                        a: 1.0,
+                    }),
+                    store: true,
+                },
+            })],
+            depth_stencil_attachment: None,
+        });
+        let mut commands = Vec::new();
 
-        let view = buffer_slice.get_mapped_range();
-        //our data is already in the correct order so we can
-        //just push the verticies into a traingle list and attach
-        //the normals
-        let output_data: Vec<InstanceOutput> = bytemuck::cast_slice(&view).to_vec();
+        drop(screen_clear_render_pass);
+        commands.push(encoder.finish());
+        let d = self.device.as_ref().borrow();
+        let dm = self.data_manager.borrow();
+        let ranked_glyph_data = dm.get_glyphs();
 
-        let dm = &mut self.data_manager.as_ref().borrow_mut();
-        dm.clear_glyphs();
+        if ranked_glyph_data.is_some() {
+            let ranked_glyph_data = ranked_glyph_data.unwrap();
 
-        for instance in &output_data {
-            let vertex_data = GlyphVertexData::from(instance);
-            let _ = dm.add_new_ranked_glyph(vertex_data);
+            let rank_iteratror = ranked_glyph_data.iter(self.rank, self.rank_direction);
+            for rank in rank_iteratror {
+                let mut encoder = d.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                    label: Some("Hit Detection Encoder"),
+                });
+                let clean_rank = rank
+                    .iter()
+                    .map(|rgd| GlyphVertexData {
+                        glyph_id: rgd.glyph_id,
+                        position: rgd.position,
+                        normal: rgd.normal,
+                        color: rgd.color,
+                        x_rank: rgd.x_rank,
+                        z_rank: rgd.z_rank,
+                        flags: rgd.flags,
+                    })
+                    .collect::<Vec<GlyphVertexData>>();
+                let vertex_buffer = d.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                    label: Some("Instance Buffer"),
+                    contents: bytemuck::cast_slice(&clean_rank),
+                    usage: wgpu::BufferUsages::VERTEX,
+                });
+                self.new_hit_detection_pipeline.run_pipeline(
+                    &mut encoder,
+                    &picking_texture_view,
+                    &vertex_buffer,
+                    rank.len() as u32,
+                );
+                //pipeline.run_pipeline(&mut encoder, smaa_frame, &vertex_buffer, rank.len() as u32);
+                commands.push(encoder.finish());
+            }
+            let mut encoder = d.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("Copy Buffer Encoder"),
+            });
+
+            encoder.copy_texture_to_buffer(
+                wgpu::ImageCopyTexture {
+                    texture: &picking_texture,
+                    mip_level: 0,
+                    origin: wgpu::Origin3d::ZERO,
+                    aspect: wgpu::TextureAspect::All,
+                },
+                wgpu::ImageCopyBuffer {
+                    buffer: &output_buffer,
+                    layout: wgpu::ImageDataLayout {
+                        offset: 0,
+                        bytes_per_row: Some(padded_bytes_per_row),
+                        rows_per_image: None,
+                    },
+                },
+                picking_texture_desc.size,
+            );
+
+            commands.push(encoder.finish());
+            self.queue.submit(commands);
+
+            let buffer_slice = output_buffer.slice(..);
+            buffer_slice.map_async(wgpu::MapMode::Read, |_| {});
+            d.poll(wgpu::Maintain::Wait);
+
+            let view = buffer_slice.get_mapped_range();
+            let pixel_pos = (hit_coordinates.y as u32 * padded_bytes_per_row
+                + hit_coordinates.x as u32 * 4) as usize;
+            let val = &view[pixel_pos..pixel_pos + 4];
+            //x: 219.60009765625, y: 722.2000122070313
+
+            eprintln!("val: {:?}", val);
+            let glyph_id = decode_glyph_id([val[0], val[1], val[2], val[3]]);
+            eprintln!("Glyph ID: {:?}", glyph_id);
+            if glyph_id != 16777215 {
+                let glyph = &mut dm.get_glyphs().unwrap().get_glyphs_vector()[glyph_id as usize];
+                glyph.flags = 1;
+                eprintln!("Glyph: {:?}", glyph);
+            }
         }
-        drop(view);
-        output_buffer.unmap();
+        Ok(())
     }
 
     async fn init_device(adapter: &wgpu::Adapter) -> (Device, Queue) {

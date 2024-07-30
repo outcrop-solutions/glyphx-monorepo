@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::rc::Rc;
+use std::{borrow::BorrowMut, rc::Rc};
 use super::GlyphVertexData;
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
@@ -155,6 +155,12 @@ impl RankedGlyphData {
     #[allow(dead_code)]
     pub fn get_number_of_glyphs(&self) -> usize {
         self.core_data.len()
+    }
+
+    pub fn select_glyph(&mut self, glyph_id: u32) {
+        let mut glyph = self.core_data[glyph_id as usize].clone();
+        let glyph = &mut glyph.borrow_mut();
+        glyph.flags = 1;
     }
 }
 

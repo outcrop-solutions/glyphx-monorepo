@@ -80,6 +80,9 @@ fn vs_main(
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
    // return vec4<f32>(0.0,0.0,0.0, 1.0);
+    if( in.flags == 1u) {
+	return vec4<f32>(0.0,0.0,0.0, 1.0);
+    }
     let color = color_table_buffer.color_table[in.color_code];
     let ambient_strength = light.light_intensity;
     let ambient_color = light.light_color * ambient_strength;

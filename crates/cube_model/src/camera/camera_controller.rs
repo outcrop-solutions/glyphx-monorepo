@@ -5,10 +5,20 @@ use winit::{
 
 use crate::model::state::CameraManager;
 
+pub enum MouseEvent {
+    MouseDown,
+    MouseMotion,
+    MouseClick,
+    MouseScroll,
+    Handled,
+    Unhandled,
+}
+
 pub struct CameraController {
     pub rotate_speed: f32,
     pub zoom_speed: f32,
     is_drag_rotate: bool,
+    is_click: bool,
 }
 
 impl CameraController {
@@ -17,6 +27,7 @@ impl CameraController {
             rotate_speed,
             zoom_speed,
             is_drag_rotate: false,
+            is_click: false,
         }
     }
 
@@ -24,7 +35,7 @@ impl CameraController {
         &mut self,
         event: &DeviceEvent,
         camera_manager: &mut CameraManager,
-    ) -> bool {
+    ) -> MouseEvent {
         match event {
             DeviceEvent::Button {
                 #[cfg(target_os = "macos")]
@@ -37,7 +48,15 @@ impl CameraController {
             } => {
                 let is_pressed = *state == ElementState::Pressed;
                 self.is_drag_rotate = is_pressed;
-                true
+                if !is_pressed && self.is_click {
+                    self.is_click = false;
+                    MouseEvent::MouseClick
+                } else if is_pressed {
+                    self.is_click = true;
+                    MouseEvent::MouseDown
+                } else {
+                    MouseEvent::Handled
+                }
             }
             DeviceEvent::MouseWheel { delta, .. } => {
                 let scroll_amount = -match delta {
@@ -49,17 +68,18 @@ impl CameraController {
                 };
                 camera_manager.add_distance(scroll_amount * self.zoom_speed);
                 camera_manager.update();
-                true
+                MouseEvent::MouseScroll
             }
             DeviceEvent::MouseMotion { delta } => {
                 if self.is_drag_rotate {
+                    self.is_click = false;
                     camera_manager.add_yaw(-delta.0 as f32 * self.rotate_speed);
                     camera_manager.add_pitch(delta.1 as f32 * self.rotate_speed);
                     camera_manager.update();
                 }
-                true
+                MouseEvent::MouseMotion
             }
-            _ => false,
+            _ => MouseEvent::Unhandled,
         }
     }
 }

@@ -486,6 +486,9 @@ impl ModelRunner {
                     window_id,
                 } if window_id == this_window_id => {
                     match event {
+                        WindowEvent::CursorMoved { position, .. } => {
+                            state.update_cursor_position(position.clone());
+                        }
                         WindowEvent::CloseRequested
                         | WindowEvent::KeyboardInput {
                             input:
