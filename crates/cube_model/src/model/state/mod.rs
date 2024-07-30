@@ -28,9 +28,6 @@ use crate::{
                 ranked_glyph_data::{Rank, RankDirection, RankedGlyphData},
                 Glyphs,
             },
-            hit_detection::{
-                HitCoordinates, HitDetection, HitDetectionData, HitDetectionOutputData,
-            },
             new_hit_detection::{decode_glyph_id, encode_glyph_id, NewHitDetection},
             PipelineRunner,
         },
@@ -102,7 +99,6 @@ pub struct State {
     rank_direction: RankDirection,
     pipelines: Pipelines,
     glyph_data_pipeline: GlyphData,
-    hit_detection_pipeline: Option<HitDetection>,
     new_hit_detection_pipeline: NewHitDetection,
     z_order: usize,
     data_manager: Rc<RefCell<DataManager>>,
@@ -245,7 +241,6 @@ impl State {
             glyph_data_pipeline,
             //The hit detection pipeline cannot be constructed until the compute pass
             //has been run.  We will just reconstrut it at the end of every compute pass
-            hit_detection_pipeline: None,
             new_hit_detection_pipeline,
             first_render: true,
             //This should be updated pretty quickly after the model loads.
@@ -676,7 +671,6 @@ impl State {
     }
 
     pub fn run_compute_pipeline(&mut self) {
-        {
             let d = self.device.as_ref().borrow();
             let mut encoder = d.create_command_encoder(&wgpu::CommandEncoderDescriptor {
                 label: Some("ScreenClear Encoder"),
@@ -697,110 +691,13 @@ impl State {
             let dm = &mut self.data_manager.as_ref().borrow_mut();
             dm.clear_glyphs();
 
+
             let mut i = 0;
-            let mut min_x = 99999.0;
-            let mut max_x = -99999.0;
-            let mut min_y = 99999.0;
-            let mut max_y = -99999.0;
-            let mut min_z = 99999.0;
-            let mut max_z = -99999.0;
-            while i < output_data.len() {
-                let first_instance = &output_data[i];
-                i += 1;
-                let second_instance = &output_data[i];
-                i += 1;
-                let third_instance = &output_data[i];
-                i += 1;
-                if (first_instance.glyph_id != second_instance.glyph_id
-                    || first_instance.glyph_id != third_instance.glyph_id)
-                {
-                    panic!("Error: Glyphs are not in the correct order");
-                };
-                let verticies = [
-                    first_instance.vertex_data.position_vertex,
-                    second_instance.vertex_data.position_vertex,
-                    third_instance.vertex_data.position_vertex,
-                ];
-                let glyph_id = first_instance.glyph_id;
-                let x_rank = first_instance.x_rank;
-                let y_rank = first_instance.z_rank;
-                let hit_detection_data = HitDetectionData {
-                    verticies,
-                    glyph_id,
-                    x_rank,
-                    z_rank: y_rank,
-                };
-
-                dm.add_hit_detection_data(hit_detection_data);
-                if first_instance.vertex_data.position_vertex[0] < min_x {
-                    min_x = first_instance.vertex_data.position_vertex[0];
-                }
-                if first_instance.vertex_data.position_vertex[0] > max_x {
-                    max_x = first_instance.vertex_data.position_vertex[0];
-                }
-                if first_instance.vertex_data.position_vertex[1] < min_y {
-                    min_y = first_instance.vertex_data.position_vertex[1];
-                }
-                if first_instance.vertex_data.position_vertex[1] > max_y {
-                    max_y = first_instance.vertex_data.position_vertex[1];
-                }
-                if first_instance.vertex_data.position_vertex[2] < min_z {
-                    min_z = first_instance.vertex_data.position_vertex[2];
-                }
-                if first_instance.vertex_data.position_vertex[2] > max_z {
-                    max_z = first_instance.vertex_data.position_vertex[2];
-                }
-
-                let _ = dm.add_ranked_glyph(GlyphVertexData::from(first_instance));
-                if second_instance.vertex_data.position_vertex[0] < min_x {
-                    min_x = second_instance.vertex_data.position_vertex[0];
-                }
-                if second_instance.vertex_data.position_vertex[0] > max_x {
-                    max_x = second_instance.vertex_data.position_vertex[0];
-                }
-                if second_instance.vertex_data.position_vertex[1] < min_y {
-                    min_y = second_instance.vertex_data.position_vertex[1];
-                }
-                if second_instance.vertex_data.position_vertex[1] > max_y {
-                    max_y = second_instance.vertex_data.position_vertex[1];
-                }
-                if second_instance.vertex_data.position_vertex[2] < min_z {
-                    min_z = second_instance.vertex_data.position_vertex[2];
-                }
-                if second_instance.vertex_data.position_vertex[2] > max_z {
-                    max_z = second_instance.vertex_data.position_vertex[2];
-                }
-                let _ = dm.add_ranked_glyph(GlyphVertexData::from(second_instance));
-                if third_instance.vertex_data.position_vertex[0] < min_x {
-                    min_x = third_instance.vertex_data.position_vertex[0];
-                }
-                if third_instance.vertex_data.position_vertex[0] > max_x {
-                    max_x = third_instance.vertex_data.position_vertex[0];
-                }
-                if third_instance.vertex_data.position_vertex[1] < min_y {
-                    min_y = third_instance.vertex_data.position_vertex[1];
-                }
-                if third_instance.vertex_data.position_vertex[1] > max_y {
-                    max_y = third_instance.vertex_data.position_vertex[1];
-                }
-                if third_instance.vertex_data.position_vertex[2] < min_z {
-                    min_z = third_instance.vertex_data.position_vertex[2];
-                }
-                if third_instance.vertex_data.position_vertex[2] > max_z {
-                    max_z = third_instance.vertex_data.position_vertex[2];
-                }
-
-                let _ = dm.add_ranked_glyph(GlyphVertexData::from(third_instance));
+            for glyph_instance in output_data.iter() {
+                let _ = dm.add_ranked_glyph(GlyphVertexData::from(glyph_instance));
             }
             drop(view);
             output_buffer.unmap();
-        }
-        //The enclosing braces will ensure that our mutable borrow of the data manager is cleaned
-        //up so we can construct our hit detection pipeline
-        self.hit_detection_pipeline = Some(HitDetection::new(
-            self.device.clone(),
-            self.data_manager.clone(),
-        ));
     }
 
     fn run_hit_detection_pipeline(

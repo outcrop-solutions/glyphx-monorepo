@@ -1,15 +1,13 @@
 mod camera_manager;
 mod glyph_manager;
 mod stats_manager;
-mod hit_detection_manager;
 
 use super::{
     AddGlyphError, AddStatsError, GlyphInstanceData, DeserializeVectorError, GetStatsError,
-    GlyphVertexData, ModelVectors, RankedGlyphData, HitDetectionData
+    GlyphVertexData, ModelVectors, RankedGlyphData 
 };
 pub use camera_manager::CameraManager;
 pub use glyph_manager::GlyphManager;
-pub use hit_detection_manager::HitDetectionManager;
 use model_common::{Glyph, Stats};
 pub use stats_manager::StatsManager;
 use std::cell::RefCell;
@@ -20,7 +18,6 @@ pub struct DataManager {
     z_vectors: Rc<RefCell<ModelVectors>>,
     stats_manager: Rc<RefCell<StatsManager>>,
     glyph_manager: GlyphManager,
-    hit_detection_manager: HitDetectionManager,
 }
 
 impl DataManager {
@@ -35,13 +32,11 @@ impl DataManager {
             rc_stats_manager.clone(),
         );
 
-        let hit_detection_manager = HitDetectionManager::new();
         DataManager {
             x_vectors: rc_x_vectors,
             z_vectors: rc_y_vectors,
             stats_manager: rc_stats_manager,
             glyph_manager,
-            hit_detection_manager,
         }
     }
 
@@ -70,20 +65,12 @@ impl DataManager {
         Ok(())
     }
 
-    pub fn add_hit_detection_data(&mut self, hit_detection_data: HitDetectionData) {
-        self.hit_detection_manager.add_hit_detection_data(hit_detection_data);
-    }
-
     pub fn get_glyphs(&self) -> Option<&RankedGlyphData> {
         self.glyph_manager.new_get_glyphs()
     }
 
     pub fn get_raw_glyphs(&self) -> &Vec<GlyphInstanceData> {
         self.glyph_manager.get_raw_glyphs()
-    }
-
-    pub fn get_hit_detection_data(&self) -> &Vec<HitDetectionData> {
-        self.hit_detection_manager.get_hit_detection_data()
     }
 
     pub fn get_vector_len(&self, axis: &str) -> usize {
@@ -102,19 +89,10 @@ impl DataManager {
         self.glyph_manager.len()
     }
 
-    pub fn get_hit_detection_data_len(&self) -> usize {
-        self.hit_detection_manager.len()
-    }
-
     pub fn clear_glyphs(&mut self) {
         self.glyph_manager.clear();
         //If we are clearning glyphs then we must also clear the hit detection data
-        self.clear_hit_detection_data();
 
-    }
-
-    pub fn clear_hit_detection_data(&mut self) {
-        self.hit_detection_manager.clear();
     }
 
     pub fn select_glyph(&mut self, glyph_id: u32) {
@@ -141,7 +119,6 @@ mod unit_tests {
             assert_eq!(data_manager.get_vector_len("z"), 0);
             assert_eq!(data_manager.get_stats_len(), 0);
             assert_eq!(data_manager.get_glyph_len(), 0);
-            assert_eq!(data_manager.get_hit_detection_data_len(), 0);
         }
 
     }
@@ -311,59 +288,6 @@ mod unit_tests {
         }
     }
 
-    mod add_hit_detection_data_ {
-        use super::*;
-
-        #[test]
-        fn is_ok() {
-            let mut data_manager = DataManager::new();
-            let hit_detection_data = HitDetectionData {
-                verticies: [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0]],
-                glyph_id: 63,
-                x_rank: 6300,
-                z_rank: 6363,
-            };
-            data_manager.add_hit_detection_data(hit_detection_data);
-            assert_eq!(data_manager.get_hit_detection_data_len(), 1);
-            let hdd = data_manager.get_hit_detection_data();
-            assert_eq!(hdd[0], hit_detection_data);
-        }
-
-        #[test]
-        fn is_err() {
-            let mut data_manager = DataManager::new();
-            let vector = Vector::new(VectorOrigionalValue::U64(0), 0.0, 0);
-
-            let result = data_manager.add_x_vector(serialize(&vector).unwrap());
-            assert!(result.is_ok());
-
-            let result = data_manager.add_z_vector(serialize(&vector).unwrap());
-            assert!(result.is_ok());
-
-            let mut stats = Stats::default();
-            stats.axis = "x".to_string();
-            stats.max_rank = 1;
-
-            let result = data_manager.add_stats(serialize(&stats).unwrap());
-            assert!(result.is_ok());
-
-            stats.axis = "y".to_string();
-            let result = data_manager.add_stats(serialize(&stats).unwrap());
-            assert!(result.is_ok());
-
-            let glyph_bytes = vec![0, 1, 2, 3];
-            let result = data_manager.add_glyph(glyph_bytes);
-            assert!(result.is_err());
-            let err = result.unwrap_err();
-            match err {
-                AddGlyphError::DeserializationError(_) => (),
-                _ => panic!("Expected BincodeError"),
-            }
-
-            let glyph_data = data_manager.get_glyphs();
-            assert!(glyph_data.is_none());
-        }
-    }
     mod clear {
         use super::*;
 
@@ -399,17 +323,7 @@ mod unit_tests {
             let result = data_manager.add_glyph(serialize(&glyph).unwrap());
             assert!(result.is_ok());
 
-            let hit_detection_data = HitDetectionData {
-                verticies: [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0]],
-                glyph_id: 63,
-                x_rank: 6300,
-                z_rank: 6363,
-            };
-            data_manager.add_hit_detection_data(hit_detection_data);
-            assert_eq!(data_manager.get_hit_detection_data_len(), 1);
-
             data_manager.clear_glyphs();
-            assert_eq!(data_manager.get_hit_detection_data_len(), 0);
             
             let gm = data_manager.get_glyphs();
             assert!(gm.is_none());
