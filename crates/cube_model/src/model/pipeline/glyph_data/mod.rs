@@ -1,22 +1,3 @@
-//1. This is a compute pipeline.
-//2. The x axis(not releated to modeling) is the glyph instance data for each glyph.
-//3. The y axis is the point in space for one vertex of eaxh triangle that will make up the glyph.
-//4. The glyph uniform data will be provided so that we can cacluate the position of each vertex.
-//5. The vertex shader will interpolate each vertex position and add it to an output buffer. This
-//   buffer will effectively hold every point of every triangle that will make up the glyph.  This
-//   buffer is what will be passed into the shader proigram in the glyph pipeline. This ouput
-//   buffer will be a struct which holds { glyph_id: u32, x_rank: u32; z_rank: u32; color_code: u32;  vertex: [f32;3] }.
-//6. Once this has been completed we will read from the output buffer which is { glyph_id: u32,
-//   vertex: Vec<[f32;3]>} and
-//   make a copy that is mapped to { glyph_id: u32, x_rank: u32, z_rank: u32, color_code: u32, Vec[Vec[f32;3];3].  What this will do is set up our hitpoint
-//   detection algorithm to analyze each triangle in the glyph to determine if the mouse is in it
-//   which it was clicked -- this will be completed in the cpu.
-//7. Building our data this way will simplify our pipelines
-//   a. Our glyph pipeline will only need to modify the vertex data based on the camera poition -- in the vertex shadee, and match the color to the color code in the fragment shader.
-//   b. Our hitpoint detection algorithm will only need to analyze the vertex data to determine if the mouse is in the triangle.
-//
-
-//I need the glyph_instance_data, the glyph_uniform_data and the vertex data.
 use crate::{
     assets::{rectangular_prism::create_rectangular_prism, shape_vertex::ShapeVertex},
     model::{

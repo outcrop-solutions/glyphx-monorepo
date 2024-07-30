@@ -110,6 +110,7 @@ pub struct State {
     axis_visible: bool,
     first_render: bool,
     cursor_position: PhysicalPosition<f64>,
+    selected_glyphs: Vec<u32>,
 }
 
 impl State {
@@ -195,6 +196,7 @@ impl State {
             &light_buffer,
             &light_uniform,
             model_configuration.clone(),
+            &glyph_uniform_buffer,
             &glyph_uniform_data,
         );
 
@@ -248,6 +250,7 @@ impl State {
             first_render: true,
             //This should be updated pretty quickly after the model loads.
             cursor_position: PhysicalPosition { x: 0.0, y: 0.0 },
+            selected_glyphs: Vec::new(),
         };
         //This allows us to initialize out camera with a pitch and yaw that is not 0
         model.update_z_order_and_rank(cm);
@@ -274,7 +277,7 @@ impl State {
     pub fn update_cursor_position(&mut self, position: PhysicalPosition<f64>) {
         self.cursor_position = position;
     }
-    pub fn input(&mut self, event: &DeviceEvent) -> bool {
+    pub fn input(&mut self, event: &DeviceEvent, is_shift_pressed: bool) -> bool {
         let mut camera_result = MouseEvent::Unhandled;
         {
             let cm = self.camera_manager.clone();
@@ -290,12 +293,11 @@ impl State {
                 true
             }
             MouseEvent::MouseClick => {
-                let hit_detection = HitCoordinates {
-                    x: self.cursor_position.x as f32,
-                    y: self.cursor_position.y as f32,
-                    _padding: [self.camera_manager.as_ref().borrow_mut().get_pitch(), 0.0],
-                };
-                self.run_hit_detection_pipeline(hit_detection);
+                self.run_hit_detection_pipeline(
+                    self.cursor_position.x as u32,
+                    self.cursor_position.y as u32,
+                    is_shift_pressed,
+                );
                 true
             }
             MouseEvent::MouseScroll => true,
@@ -497,6 +499,8 @@ impl State {
             0,
             bytemuck::cast_slice(&[self.light_uniform]),
         );
+
+        self.glyph_uniform_data.flags = if self.selected_glyphs.len() > 0 {1} else {0};
         self.queue.write_buffer(
             &self.glyph_uniform_buffer,
             0,
@@ -555,6 +559,7 @@ impl State {
                         ranked_glyph_data,
                         &name,
                         &mut commands,
+                        &self.selected_glyphs,
                     );
                 }
             } else if self.axis_visible {
@@ -584,6 +589,7 @@ impl State {
         ranked_glyph_data: &RankedGlyphData,
         pipeline_name: &str,
         commands: &mut Vec<CommandBuffer>,
+        selected_glyphs: &Vec<u32>,
     ) {
         let rank_iteratror = ranked_glyph_data.iter(rank, rank_direction);
         for rank in rank_iteratror {
@@ -592,14 +598,22 @@ impl State {
             });
             let clean_rank = rank
                 .iter()
-                .map(|rgd| GlyphVertexData {
-                    glyph_id: rgd.glyph_id,
-                    position: rgd.position,
-                    normal: rgd.normal,
-                    color: rgd.color,
-                    x_rank: rgd.x_rank,
-                    z_rank: rgd.z_rank,
-                    flags: rgd.flags,
+                .map(|rgd| {
+                    let rgd = rgd.borrow();
+                    let flags = if selected_glyphs.contains(&rgd.glyph_id) {
+                        1
+                    } else {
+                        0
+                    };
+                    GlyphVertexData {
+                        glyph_id: rgd.glyph_id,
+                        position: rgd.position,
+                        normal: rgd.normal,
+                        color: rgd.color,
+                        x_rank: rgd.x_rank,
+                        z_rank: rgd.z_rank,
+                        flags,
+                    }
                 })
                 .collect::<Vec<GlyphVertexData>>();
             let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -791,7 +805,9 @@ impl State {
 
     fn run_hit_detection_pipeline(
         &mut self,
-        hit_coordinates: HitCoordinates,
+        x_pos: u32,
+        y_pos: u32,
+        is_shift_pressed: bool,
     ) -> Result<(), wgpu::SurfaceError> {
         let d = self.device.as_ref().borrow();
         let background_color = [1.0, 1.0, 1.0, 1.0];
@@ -875,14 +891,17 @@ impl State {
                 });
                 let clean_rank = rank
                     .iter()
-                    .map(|rgd| GlyphVertexData {
-                        glyph_id: rgd.glyph_id,
-                        position: rgd.position,
-                        normal: rgd.normal,
-                        color: rgd.color,
-                        x_rank: rgd.x_rank,
-                        z_rank: rgd.z_rank,
-                        flags: rgd.flags,
+                    .map(|rgd| {
+                        let rgd = rgd.borrow();
+                        GlyphVertexData {
+                            glyph_id: rgd.glyph_id,
+                            position: rgd.position,
+                            normal: rgd.normal,
+                            color: rgd.color,
+                            x_rank: rgd.x_rank,
+                            z_rank: rgd.z_rank,
+                            flags: rgd.flags,
+                        }
                     })
                     .collect::<Vec<GlyphVertexData>>();
                 let vertex_buffer = d.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -929,19 +948,27 @@ impl State {
             d.poll(wgpu::Maintain::Wait);
 
             let view = buffer_slice.get_mapped_range();
-            let pixel_pos = (hit_coordinates.y as u32 * padded_bytes_per_row
-                + hit_coordinates.x as u32 * 4) as usize;
+            let pixel_pos = (y_pos as u32 * padded_bytes_per_row + x_pos as u32 * 4) as usize;
             let val = &view[pixel_pos..pixel_pos + 4];
-            //x: 219.60009765625, y: 722.2000122070313
 
-            eprintln!("val: {:?}", val);
             let glyph_id = decode_glyph_id([val[0], val[1], val[2], val[3]]);
-            eprintln!("Glyph ID: {:?}", glyph_id);
             if glyph_id != 16777215 {
-                let glyph = &mut dm.get_glyphs().unwrap().get_glyphs_vector()[glyph_id as usize];
-                glyph.flags = 1;
-                eprintln!("Glyph: {:?}", glyph);
+                if !self.selected_glyphs.contains(&glyph_id) {
+                    if !is_shift_pressed {
+                        self.selected_glyphs.clear();
+                    }
+                    self.selected_glyphs.push(glyph_id);
+                } else {
+                    let index = self.selected_glyphs.iter().position(|&r| r == glyph_id);
+                    if let Some(index) = index {
+                        self.selected_glyphs.remove(index);
+                    }
+                }
+            } else  if !is_shift_pressed{
+                self.selected_glyphs.clear();
             }
+            drop(view);
+            output_buffer.unmap();
         }
         Ok(())
     }
@@ -1007,6 +1034,7 @@ impl State {
         light_buffer: &wgpu::Buffer,
         light_uniform: &LightUniform,
         model_configuration: Rc<RefCell<ModelConfiguration>>,
+        glyph_uniform_buffer: &wgpu::Buffer,
         glyph_uniform_data: &GlyphUniformData,
     ) -> Pipelines {
         let mc = model_configuration.borrow();
@@ -1066,6 +1094,8 @@ impl State {
             color_table_uniform,
             light_buffer,
             light_uniform,
+            glyph_uniform_buffer,
+            glyph_uniform_data,
         );
         Pipelines {
             x_axis_line,

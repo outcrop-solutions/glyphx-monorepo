@@ -479,7 +479,7 @@ impl ModelRunner {
                     device_id: _,
                     event,
                 } => {
-                    state.input(&event);
+                    state.input(&event, shift_pressed);
                 }
                 Event::WindowEvent {
                     ref event,

@@ -22,6 +22,27 @@ struct ColorTable {
     color_table: array<vec4<f32>, 64>,
 };
 
+struct GlyphUniformData {
+    min_x: f32,
+    max_x: f32,
+    min_interp_x: f32,
+    max_interp_x: f32,
+    //y values
+    min_y: f32,
+    max_y: f32,
+    min_interp_y: f32,
+    max_interp_y: f32,
+    //z values
+    min_z: f32,
+    max_z: f32,
+    min_interp_z: f32,
+    max_interp_z: f32,
+    //other values
+    x_z_offset: f32,
+    min_glyph_height: f32,
+    flags: u32,
+    padding: u32,
+};
 
 @group(0) @binding(0) 
 var<uniform> camera: CameraUniform;
@@ -32,6 +53,9 @@ var<uniform> color_table_buffer: ColorTable;
 
 @group(2) @binding(0)
 var<uniform> light: LightUniform;
+
+@group(3) @binding(0)
+var<uniform> glyph_uniform_data: GlyphUniformData;
 
 struct VertexInput {
     @location(0) glyph_id: u32,
@@ -80,8 +104,9 @@ fn vs_main(
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
    // return vec4<f32>(0.0,0.0,0.0, 1.0);
-    if( in.flags == 1u) {
-	return vec4<f32>(0.0,0.0,0.0, 1.0);
+    var alpha = 1.0;
+    if ( glyph_uniform_data.flags == 1u && in.flags != 1u) {
+    	alpha = 0.15;
     }
     let color = color_table_buffer.color_table[in.color_code];
     let ambient_strength = light.light_intensity;
@@ -100,6 +125,6 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let result = (ambient_color + diffuse_color + specular_color) * color.xyz;
     //TODO: The light needs some work as it relates to the glyphs.  It is making them all yellow
     //return vec4<f32>(result, 1.0);
-    return vec4<f32>(color);
+    return vec4<f32>(color[0], color[1], color[2], alpha);
 }
  

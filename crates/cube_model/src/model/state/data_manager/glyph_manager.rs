@@ -130,6 +130,10 @@ impl GlyphManager {
     pub fn clear(&mut self) {
         self.new_ranked_glyph_data = None;
     }
+
+    pub fn select_glyph(&mut self, glyph_id: u32) {
+        self.new_ranked_glyph_data.as_mut().unwrap().select_glyph(glyph_id);
+    }
 }
 
 #[cfg(test)]

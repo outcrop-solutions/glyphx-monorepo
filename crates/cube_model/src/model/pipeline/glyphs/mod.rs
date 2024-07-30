@@ -20,12 +20,15 @@ use wgpu::{BindGroup, BindGroupLayout, Buffer, Device, RenderPipeline, SurfaceCo
 
 use glyph_vertex_data::GlyphVertexData;
 
+use self::glyph_uniform_data::GlyphUniformData;
+
 
 pub struct Glyphs {
     render_pipeline: RenderPipeline,
     camera_bind_group: BindGroup,
     color_table_bind_group: BindGroup,
     light_bind_group: BindGroup,
+    glyph_uniform_bind_group: BindGroup,
 }
 
 impl Glyphs {
@@ -38,6 +41,8 @@ impl Glyphs {
         color_table_uniform: &ColorTableUniform,
         light_buffer: &Buffer,
         light_uniform: &LightUniform,
+        glyph_uniform_buffer: &Buffer,
+        glyph_uniform: &GlyphUniformData,
     ) -> Glyphs {
         let d_clone = device.clone();
         let d = d_clone.as_ref().borrow();
@@ -50,6 +55,8 @@ impl Glyphs {
 
         let (light_bind_group_layout, light_bind_group) =
             light_uniform.configure_light_uniform(light_buffer, &d);
+        let (glyph_uniform_bind_group_layout, glyph_uniform_bind_group) =
+            glyph_uniform.configure_glyph_uniform(glyph_uniform_buffer,  &d);
         let (color_table_bind_group_layout, color_table_bind_group) =
             color_table_uniform.configure_color_table_uniform(color_table_buffer, &d);
 
@@ -58,6 +65,7 @@ impl Glyphs {
             camera_bind_group_layout,
             color_table_bind_group_layout,
             light_bind_group_layout,
+            glyph_uniform_bind_group_layout,
             shader,
             vertex_buffer_layout,
             config,
@@ -69,6 +77,7 @@ impl Glyphs {
             camera_bind_group,
             color_table_bind_group,
             light_bind_group,
+            glyph_uniform_bind_group,
         }
     }
 
@@ -77,6 +86,7 @@ impl Glyphs {
         camera_bind_group_layout: BindGroupLayout,
         color_table_bind_group_layout: BindGroupLayout,
         light_bind_group_layout: BindGroupLayout,
+        glyph_uniform_bind_group_layout: BindGroupLayout,
         shader: wgpu::ShaderModule,
         vertex_buffer_layout: wgpu::VertexBufferLayout<'static>,
         config: &SurfaceConfiguration
@@ -88,6 +98,7 @@ impl Glyphs {
                     &camera_bind_group_layout,
                     &color_table_bind_group_layout,
                     &light_bind_group_layout,
+                    &glyph_uniform_bind_group_layout,
                 ],
                 push_constant_ranges: &[],
             });
@@ -162,6 +173,7 @@ impl Glyphs {
         render_pass.set_bind_group(0, &self.camera_bind_group, &[]);
         render_pass.set_bind_group(1, &self.color_table_bind_group, &[]);
         render_pass.set_bind_group(2, &self.light_bind_group, &[]);
+        render_pass.set_bind_group(3, &self.glyph_uniform_bind_group, &[]);
         render_pass.set_vertex_buffer(0, vertex_data_buffer.slice(..));
         render_pass.draw(
             0..vertex_buffer_length,

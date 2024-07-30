@@ -116,6 +116,10 @@ impl DataManager {
     pub fn clear_hit_detection_data(&mut self) {
         self.hit_detection_manager.clear();
     }
+
+    pub fn select_glyph(&mut self, glyph_id: u32) {
+        self.glyph_manager.select_glyph(glyph_id);
+    }
 }
 
 #[cfg(test)]

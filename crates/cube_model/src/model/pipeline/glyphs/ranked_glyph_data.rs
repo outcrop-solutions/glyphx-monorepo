@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
-use std::{borrow::BorrowMut, rc::Rc};
 use super::GlyphVertexData;
+use serde::{Deserialize, Serialize};
+use std::{borrow::BorrowMut, cell::RefCell, rc::Rc};
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum RankedGlyphDataError {
@@ -26,14 +26,14 @@ pub struct RankedGlyphIterator<'a> {
     rank: Rank,
     rank_direction: RankDirection,
     index: usize,
-    data: &'a Vec<Vec<Rc<GlyphVertexData>>>,
+    data: &'a Vec<Vec<Rc<RefCell<GlyphVertexData>>>>,
 }
 
 impl<'a> RankedGlyphIterator<'a> {
     pub fn new(
         rank: Rank,
         rank_direction: RankDirection,
-        data: &'a Vec<Vec<Rc<GlyphVertexData>>>,
+        data: &'a Vec<Vec<Rc<RefCell<GlyphVertexData>>>>,
     ) -> RankedGlyphIterator<'a> {
         let index = match rank_direction {
             RankDirection::Ascending => 0,
@@ -49,7 +49,7 @@ impl<'a> RankedGlyphIterator<'a> {
 }
 
 impl<'a> Iterator for RankedGlyphIterator<'a> {
-    type Item = &'a Vec<Rc<GlyphVertexData>>;
+    type Item = &'a Vec<Rc<RefCell<GlyphVertexData>>>;
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.rank_direction {
@@ -76,9 +76,9 @@ impl<'a> Iterator for RankedGlyphIterator<'a> {
 pub struct RankedGlyphData {
     x_rank_size: u32,
     z_rank_size: u32,
-    core_data: Vec<Rc<GlyphVertexData>>,
-    x_rank: Vec<Vec<Rc<GlyphVertexData>>>,
-    z_rank: Vec<Vec<Rc<GlyphVertexData>>>,
+    core_data: Vec<Rc<RefCell<GlyphVertexData>>>,
+    x_rank: Vec<Vec<Rc<RefCell<GlyphVertexData>>>>,
+    z_rank: Vec<Vec<Rc<RefCell<GlyphVertexData>>>>,
 }
 impl RankedGlyphData {
     pub fn new(x_rank_size: u32, z_rank_size: u32) -> RankedGlyphData {
@@ -96,7 +96,7 @@ impl RankedGlyphData {
         }
     }
 
-    fn build_index(size: u32) -> Vec<Vec<Rc<GlyphVertexData>>> {
+    fn build_index(size: u32) -> Vec<Vec<Rc<RefCell<GlyphVertexData>>>> {
         let mut index = Vec::new();
         let mut i = 0;
         while i < size {
@@ -115,7 +115,7 @@ impl RankedGlyphData {
             return Err(RankedGlyphDataError::InvalidZRank(z_rank));
         }
 
-        let rc = Rc::new(data);
+        let rc = Rc::new(RefCell::new(data));
         let core_data = &mut self.core_data;
 
         let x_rank = &mut self.x_rank[x_rank as usize];
@@ -140,7 +140,13 @@ impl RankedGlyphData {
     ///but it is useful for compute pipline operations.
     #[allow(dead_code)]
     pub fn get_glyphs_vector(&self) -> Vec<GlyphVertexData> {
-        self.core_data.iter().map(|rc| *rc.clone()).collect()
+        self.core_data
+            .iter()
+            .map(|rc| {
+                let rc = rc.borrow();
+                rc.clone()
+            })
+            .collect()
     }
     #[allow(dead_code)]
     pub fn get_x_rank_size(&self) -> u32 {
@@ -158,8 +164,8 @@ impl RankedGlyphData {
     }
 
     pub fn select_glyph(&mut self, glyph_id: u32) {
-        let mut glyph = self.core_data[glyph_id as usize].clone();
-        let glyph = &mut glyph.borrow_mut();
+        let glyph = self.core_data[glyph_id as usize].clone();
+        let mut glyph = glyph.as_ref().borrow_mut();
         glyph.flags = 1;
     }
 }
@@ -182,8 +188,8 @@ mod constructor {
 
 #[cfg(test)]
 mod add {
-    use crate::assets::shape_vertex::ShapeVertex;
     use super::*;
+    use crate::assets::shape_vertex::ShapeVertex;
     #[test]
     fn is_ok() {
         let x_rank_size = 10;
@@ -222,6 +228,8 @@ mod add {
         assert_eq!(ranked_glyph_data.z_rank[0].len(), 1);
 
         let glyph = &ranked_glyph_data.x_rank[0][0];
+        let glyph = glyph.clone();
+        let glyph = glyph.as_ref().borrow();
         assert_eq!(glyph.glyph_id, first_glyph.glyph_id);
         assert_eq!(glyph.position[0], first_glyph.position[0]);
         assert_eq!(glyph.position[1], first_glyph.position[1]);
@@ -236,6 +244,8 @@ mod add {
         assert_eq!(glyph.flags, first_glyph.flags);
 
         let glyph = &ranked_glyph_data.z_rank[0][0];
+        let glyph = glyph.clone();
+        let glyph = glyph.as_ref().borrow();
         assert_eq!(glyph.glyph_id, first_glyph.glyph_id);
         assert_eq!(glyph.position[0], first_glyph.position[0]);
         assert_eq!(glyph.position[1], first_glyph.position[1]);
@@ -249,6 +259,8 @@ mod add {
         assert_eq!(glyph.flags, first_glyph.flags);
 
         let glyph = &ranked_glyph_data.x_rank[7][0];
+        let glyph = glyph.clone();
+        let glyph = glyph.as_ref().borrow();
         assert_eq!(glyph.glyph_id, second_glyph.glyph_id);
         assert_eq!(glyph.position[0], second_glyph.position[0]);
         assert_eq!(glyph.position[1], second_glyph.position[1]);
@@ -262,6 +274,8 @@ mod add {
         assert_eq!(glyph.flags, second_glyph.flags);
 
         let glyph = &ranked_glyph_data.z_rank[4][0];
+        let glyph = glyph.clone();
+        let glyph = glyph.as_ref().borrow();
         assert_eq!(glyph.glyph_id, second_glyph.glyph_id);
         assert_eq!(glyph.position[0], second_glyph.position[0]);
         assert_eq!(glyph.position[1], second_glyph.position[1]);
@@ -370,6 +384,8 @@ mod iter {
         while let Some(glyphs) = iter.next() {
             for glyph in glyphs {
                 let expected_id = (x * 10 + z) as u32;
+                let glyph = glyph.clone();
+                let glyph = glyph.as_ref().borrow();
                 assert_eq!(glyph.glyph_id, expected_id);
                 z += 1;
             }
@@ -387,6 +403,8 @@ mod iter {
         while let Some(glyphs) = iter.next() {
             for glyph in glyphs {
                 let expected_id = (x * 10 + z) as u32;
+                let glyph = glyph.clone();
+                let glyph = glyph.as_ref().borrow();
                 assert_eq!(glyph.glyph_id, expected_id);
                 z += 1;
             }
@@ -404,6 +422,8 @@ mod iter {
         while let Some(glyphs) = iter.next() {
             for glyph in glyphs {
                 let expected_id = (x * 10 + z) as u32;
+                let glyph = glyph.clone();
+                let glyph = glyph.as_ref().borrow();
                 assert_eq!(glyph.glyph_id, expected_id);
                 x += 1;
             }
@@ -421,6 +441,8 @@ mod iter {
         while let Some(glyphs) = iter.next() {
             for glyph in glyphs {
                 let expected_id = (x * 10 + z) as u32;
+                let glyph = glyph.clone();
+                let glyph = glyph.as_ref().borrow();
                 assert_eq!(glyph.glyph_id, expected_id);
                 x += 1;
             }
@@ -431,7 +453,7 @@ mod iter {
 
     mod get_glyphs_vector {
         use super::*;
-    use crate::assets::shape_vertex::ShapeVertex;
+        use crate::assets::shape_vertex::ShapeVertex;
 
         #[test]
         fn is_ok() {
