@@ -129,6 +129,7 @@ impl GlyphManager {
     ///which the front end should handle.
     pub fn clear(&mut self) {
         self.new_ranked_glyph_data = None;
+        self.total_glyphs = 0;
     }
 
     pub fn select_glyph(&mut self, glyph_id: u32) {

@@ -22,13 +22,13 @@ use crate::{
             glyphs::{
                 glyph_instance_data::GlyphInstanceData,
                 glyph_uniform_data::{
-                    GlyphUniformData, GlyphUniformFlags, InterpolationType, Order,
+                    GlyphUniformData, GlyphUniformFlags,
                 },
                 glyph_vertex_data::GlyphVertexData,
                 ranked_glyph_data::{Rank, RankDirection, RankedGlyphData},
                 Glyphs,
             },
-            new_hit_detection::{decode_glyph_id, encode_glyph_id, NewHitDetection},
+            new_hit_detection::{decode_glyph_id, NewHitDetection},
             PipelineRunner,
         },
     },
@@ -288,7 +288,10 @@ impl State {
                 true
             }
             MouseEvent::MouseClick => {
+                let device = self.device.clone();
+                let device = device.as_ref().borrow();
                 self.run_hit_detection_pipeline(
+                    &device,
                     self.cursor_position.x as u32,
                     self.cursor_position.y as u32,
                     is_shift_pressed,
@@ -400,7 +403,6 @@ impl State {
 
     pub fn update(&mut self, camera_manager: &mut CameraManager) {
         camera_manager.update();
-        //eprintln!("Camera: {:?}, GlyphUniform: {:?}", self.camera, self.glyph_uniform_data);
     }
 
     fn update_glyph_uniform_buffer(&mut self) {
@@ -415,9 +417,10 @@ impl State {
         flags.y_order = config.z_order;
         flags.z_order = config.y_order;
         flags.color_flip = config.color_flip;
+        flags.glyph_selected = self.selected_glyphs.len() > 0;
         let flags = flags.encode();
         uniform_data.flags = flags;
-
+        self.glyph_uniform_data = uniform_data.clone();
         self.glyph_uniform_buffer =
             self.device
                 .as_ref()
@@ -495,13 +498,11 @@ impl State {
             bytemuck::cast_slice(&[self.light_uniform]),
         );
 
-        self.glyph_uniform_data.flags = if self.selected_glyphs.len() > 0 {1} else {0};
         self.queue.write_buffer(
             &self.glyph_uniform_buffer,
             0,
             bytemuck::cast_slice(&[self.glyph_uniform_data]),
         );
-
         let output = self.surface.get_current_texture()?;
         let view = output
             .texture
@@ -595,10 +596,12 @@ impl State {
                 .iter()
                 .map(|rgd| {
                     let rgd = rgd.borrow();
-                    let flags = if selected_glyphs.contains(&rgd.glyph_id) {
+                    let flags = if selected_glyphs.len() > 0 && selected_glyphs.contains(&rgd.glyph_id) {
                         1
-                    } else {
+                    } else if selected_glyphs.len() > 0 {
                         0
+                    } else {
+                        1
                     };
                     GlyphVertexData {
                         glyph_id: rgd.glyph_id,
@@ -702,12 +705,11 @@ impl State {
 
     fn run_hit_detection_pipeline(
         &mut self,
+        device: &Device,
         x_pos: u32,
         y_pos: u32,
         is_shift_pressed: bool,
     ) -> Result<(), wgpu::SurfaceError> {
-        let d = self.device.as_ref().borrow();
-        let background_color = [1.0, 1.0, 1.0, 1.0];
         let cm = self.camera_manager.clone();
         let cm = cm.borrow();
         let config = &self.config;
@@ -727,14 +729,14 @@ impl State {
             view_formats: &[],
         };
 
-        let picking_texture = d.create_texture(&picking_texture_desc);
+        let picking_texture = device.create_texture(&picking_texture_desc);
         let picking_texture_view =
             picking_texture.create_view(&wgpu::TextureViewDescriptor::default());
 
         let align = wgpu::COPY_BYTES_PER_ROW_ALIGNMENT;
         let padded_bytes_per_row = ((4 * config.width + align - 1) / align) * align; // Round up to nearest multiple of align
         let buffer_size = (config.height * padded_bytes_per_row) as wgpu::BufferAddress; // Assuming Rgba8Unorm format
-        let output_buffer = d.create_buffer(&wgpu::BufferDescriptor {
+        let output_buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("Output Buffer"),
             size: buffer_size,
             usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
@@ -747,9 +749,8 @@ impl State {
             bytemuck::cast_slice(&[cm.get_camera_uniform()]),
         );
 
-        let d = self.device.as_ref().borrow();
 
-        let mut encoder = d.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("ScreenClear Encoder"),
         });
 
@@ -774,8 +775,8 @@ impl State {
 
         drop(screen_clear_render_pass);
         commands.push(encoder.finish());
-        let d = self.device.as_ref().borrow();
-        let dm = self.data_manager.borrow();
+        let dm = self.data_manager.clone();
+        let dm = dm.as_ref().borrow();
         let ranked_glyph_data = dm.get_glyphs();
 
         if ranked_glyph_data.is_some() {
@@ -783,7 +784,7 @@ impl State {
 
             let rank_iteratror = ranked_glyph_data.iter(self.rank, self.rank_direction);
             for rank in rank_iteratror {
-                let mut encoder = d.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
                     label: Some("Hit Detection Encoder"),
                 });
                 let clean_rank = rank
@@ -801,7 +802,7 @@ impl State {
                         }
                     })
                     .collect::<Vec<GlyphVertexData>>();
-                let vertex_buffer = d.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
                     label: Some("Instance Buffer"),
                     contents: bytemuck::cast_slice(&clean_rank),
                     usage: wgpu::BufferUsages::VERTEX,
@@ -815,7 +816,7 @@ impl State {
                 //pipeline.run_pipeline(&mut encoder, smaa_frame, &vertex_buffer, rank.len() as u32);
                 commands.push(encoder.finish());
             }
-            let mut encoder = d.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
                 label: Some("Copy Buffer Encoder"),
             });
 
@@ -842,7 +843,7 @@ impl State {
 
             let buffer_slice = output_buffer.slice(..);
             buffer_slice.map_async(wgpu::MapMode::Read, |_| {});
-            d.poll(wgpu::Maintain::Wait);
+            device.poll(wgpu::Maintain::Wait);
 
             let view = buffer_slice.get_mapped_range();
             let pixel_pos = (y_pos as u32 * padded_bytes_per_row + x_pos as u32 * 4) as usize;

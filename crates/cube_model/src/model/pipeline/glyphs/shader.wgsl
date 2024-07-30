@@ -44,6 +44,17 @@ struct GlyphUniformData {
     padding: u32,
 };
 
+struct Flags {
+	x_log: bool,
+	x_desc: bool,
+	y_log: bool,
+	y_desc: bool,
+	z_log: bool,
+	z_desc: bool,
+	flip_color: bool,
+	glyphs_selected: bool,
+};
+
 @group(0) @binding(0) 
 var<uniform> camera: CameraUniform;
 
@@ -76,6 +87,18 @@ struct VertexOutput {
     @location(3) flags: u32,
 };
 
+fn parse_flags(flags: u32) -> Flags {
+    var res: Flags;
+    res.x_log = ((flags >> 31u) & 1u) != 0u;
+    res.x_desc = ((flags >> 30u) & 1u) != 0u;
+    res.y_log = ((flags >> 23u) & 1u) != 0u;
+    res.y_desc = ((flags >> 22u) & 1u) != 0u;
+    res.z_log = ((flags >> 15u) & 1u) != 0u;
+    res.z_desc = ((flags >> 14u) & 1u) != 0u;
+    res.flip_color = ((flags >> 7u) & 1u) != 0u;
+    res.glyphs_selected = ((flags >> 6u) & 1u) != 0u;
+    return res;
+}
 
 @vertex
 fn vs_main(
@@ -95,7 +118,7 @@ fn vs_main(
 
     out.color_code = color;
     out.clip_position = camera.view_proj * vec4<f32>(out.world_position[0], out.world_position[1], out.world_position[2], 1.0);
-    out.flags = model.flags;
+    out.flags = model.flags; 
     return out;
 }
 
@@ -105,7 +128,7 @@ fn vs_main(
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
    // return vec4<f32>(0.0,0.0,0.0, 1.0);
     var alpha = 1.0;
-    if ( glyph_uniform_data.flags == 1u && in.flags != 1u) {
+    if ( in.flags != 1u) {
     	alpha = 0.15;
     }
     let color = color_table_buffer.color_table[in.color_code];

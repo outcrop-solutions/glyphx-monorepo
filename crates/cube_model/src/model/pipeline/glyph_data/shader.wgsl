@@ -58,6 +58,7 @@ struct Flags {
 	z_log: bool,
 	z_desc: bool,
 	flip_color: bool,
+	glyphs_selected: bool,
 };
 
 
@@ -82,6 +83,7 @@ fn parse_flags(flags: u32) -> Flags {
     res.z_log = ((flags >> 15u) & 1u) != 0u;
     res.z_desc = ((flags >> 14u) & 1u) != 0u;
     res.flip_color = ((flags >> 7u) & 1u) != 0u;
+    res.glyphs_selected = ((flags >> 6u) & 1u) != 0u;
     return res;
 }
 
