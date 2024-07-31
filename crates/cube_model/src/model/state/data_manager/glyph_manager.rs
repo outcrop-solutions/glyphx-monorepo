@@ -6,8 +6,9 @@ use crate::model::{
         glyph_instance_data::GlyphInstanceData,
         glyph_vertex_data::GlyphVertexData,
         ranked_glyph_data::{RankedGlyphData, RankedGlyphDataError},
+        glyph_id_data::GlyphIdManager,
     },
-    state::AddGlyphError,
+    state::{AddGlyphError, SelectedGlyph, GlyphDescription},
 };
 
 use model_common::Glyph;
@@ -24,6 +25,7 @@ pub struct GlyphManager {
     x_model_vectors: Rc<RefCell<ModelVectors>>,
     z_model_vectors: Rc<RefCell<ModelVectors>>,
     total_glyphs: usize,
+    glyph_id_manager: GlyphIdManager,
 }
 
 impl GlyphManager {
@@ -39,6 +41,7 @@ impl GlyphManager {
             z_model_vectors,
             total_glyphs: 0,
             raw_glyphs: Vec::new(),
+            glyph_id_manager : GlyphIdManager::new(),
         }
     }
 
@@ -100,6 +103,7 @@ impl GlyphManager {
                 0,
             ),
         );
+        self.glyph_id_manager.add_glyph_id_data(glyph_id, glyph.row_ids);
         self.total_glyphs += 1;
         Ok(retval)
     }
@@ -129,12 +133,30 @@ impl GlyphManager {
     ///which the front end should handle.
     pub fn clear(&mut self) {
         self.new_ranked_glyph_data = None;
-        self.total_glyphs = 0;
+        //self.total_glyphs = 0;
     }
 
     pub fn select_glyph(&mut self, glyph_id: u32) {
         self.new_ranked_glyph_data.as_mut().unwrap().select_glyph(glyph_id);
     }
+
+    pub fn get_glyph_description(&self, glyph_id: u32) -> Option<SelectedGlyph> {
+        let glyph = self.raw_glyphs.get(glyph_id as usize)?;
+        let x_vector = self.x_model_vectors.as_ref().borrow().get_value(glyph.x_value as f64).ok()?;
+        let y_vector = self.z_model_vectors.as_ref().borrow().get_value(glyph.z_value as f64).ok()?;
+        Some(SelectedGlyph::new(
+            glyph_id,
+            self.glyph_id_manager.get_glyph_id_data(glyph_id).unwrap().row_ids.clone(),
+            //This flips y and z back to client facing
+            GlyphDescription::new(
+                x_vector.orig_value.clone(),
+                y_vector.orig_value.clone(),
+                glyph.y_value as f64,
+            ),
+        ))
+    }
+
+
 }
 
 #[cfg(test)]

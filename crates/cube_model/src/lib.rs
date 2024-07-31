@@ -11,7 +11,7 @@ use model::{
     state::{CameraManager, DataManager, State},
 };
 use model_event::{ModelEvent, ModelMoveDirection};
-use serde_json::{from_str, Value};
+use serde_json::{from_str, json, Value};
 use std::cell::RefCell;
 use std::rc::Rc;
 use winit::event::*;
@@ -33,6 +33,21 @@ cfg_if::cfg_if! {
 const WEB_ELEMENT_NAME: &str = "glyphx-cube-model";
 static mut EVENT_LOOP_PROXY: Option<EventLoopProxy<ModelEvent>> = None;
 
+fn emit_event(event: &ModelEvent) {
+    cfg_if::cfg_if! {
+        if #[cfg(target_arch="wasm32")] {
+            let window = web_sys::window().unwrap();
+            let js_value = serde_wasm_bindgen::to_value(event).unwrap();
+            let event = web_sys::CustomEvent::new_with_event_init_dict(
+                "model-event",
+                web_sys::CustomEventInit::new().detail(&js_value)
+            ).unwrap();
+            window
+                .dispatch_event(&event)
+                .expect("Unable to dispatch custom event");
+        }
+    }
+}
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 pub struct ModelRunner {
     configuration: Rc<RefCell<ModelConfiguration>>,
@@ -67,22 +82,6 @@ impl ModelRunner {
         }
     }
 
-    fn emit_event(&self, event: &ModelEvent) {
-        cfg_if::cfg_if! {
-            if #[cfg(target_arch="wasm32")] {
-                let window = web_sys::window().unwrap();
-                let js_value = serde_wasm_bindgen::to_value(event).unwrap();
-                let event = web_sys::CustomEvent::new_with_event_init_dict(
-                    "model-event",
-                    web_sys::CustomEventInit::new().detail(&js_value)
-                ).unwrap();
-                window
-                    .dispatch_event(&event)
-                    .expect("Unable to dispatch custom event");
-            }
-        }
-    }
-
     ///Will force a redraw of the model, if the model is running.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn update_configuration(&self, config: &str, is_running: bool) -> Result<(), String> {
@@ -95,7 +94,7 @@ impl ModelRunner {
         unsafe {
             if is_running {
                 let event = ModelEvent::Redraw;
-                self.emit_event(&event);
+                emit_event(&event);
                 if EVENT_LOOP_PROXY.is_some() {
                     EVENT_LOOP_PROXY
                         .as_ref()
@@ -111,7 +110,7 @@ impl ModelRunner {
     pub fn toggle_axis_lines(&self) {
         unsafe {
             let event = ModelEvent::ToggleAxisLines;
-            self.emit_event(&event);
+            emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
                 EVENT_LOOP_PROXY
                     .as_ref()
@@ -123,10 +122,28 @@ impl ModelRunner {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn select_glyph(&self, x_pos: u32, y_pos: u32, multi_select: bool) {
+        unsafe {
+            let event = ModelEvent::SelectGlyph {
+                x_pos: x_pos as f32,
+                y_pos: y_pos as f32,
+                multi_select,
+            };
+            emit_event(&event);
+            if EVENT_LOOP_PROXY.is_some() {
+                EVENT_LOOP_PROXY
+                    .as_ref()
+                    .unwrap()
+                    .send_event(event)
+                    .unwrap();
+            }
+        }
+    }
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn add_yaw(&self, amount: f32) {
         unsafe {
             let event = ModelEvent::ModelMove(ModelMoveDirection::Yaw(amount));
-            self.emit_event(&event);
+            emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
                 EVENT_LOOP_PROXY
                     .as_ref()
@@ -145,7 +162,7 @@ impl ModelRunner {
             } else {
                 ModelEvent::ModelMove(ModelMoveDirection::Down(amount * -1.0))
             };
-            self.emit_event(&event);
+            emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
                 EVENT_LOOP_PROXY
                     .as_ref()
@@ -160,7 +177,7 @@ impl ModelRunner {
     pub fn reset_camera(&self) {
         unsafe {
             let event = ModelEvent::ModelMove(ModelMoveDirection::Reset);
-            self.emit_event(&event);
+            emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
                 EVENT_LOOP_PROXY
                     .as_ref()
@@ -176,7 +193,7 @@ impl ModelRunner {
     pub fn focus_on_x_axis(&self) {
         unsafe {
             let event = ModelEvent::ModelMove(ModelMoveDirection::X);
-            self.emit_event(&event);
+            emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
                 EVENT_LOOP_PROXY
                     .as_ref()
@@ -192,7 +209,7 @@ impl ModelRunner {
     pub fn focus_on_y_axis(&self) {
         unsafe {
             let event = ModelEvent::ModelMove(ModelMoveDirection::Y);
-            self.emit_event(&event);
+            emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
                 EVENT_LOOP_PROXY
                     .as_ref()
@@ -207,7 +224,7 @@ impl ModelRunner {
     pub fn focus_on_z_axis(&self) {
         unsafe {
             let event = ModelEvent::ModelMove(ModelMoveDirection::Z);
-            self.emit_event(&event);
+            emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
                 EVENT_LOOP_PROXY
                     .as_ref()
@@ -225,7 +242,7 @@ impl ModelRunner {
             } else {
                 ModelEvent::ModelMove(ModelMoveDirection::Left(amount * -1.0))
             };
-            self.emit_event(&event);
+            emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
                 EVENT_LOOP_PROXY
                     .as_ref()
@@ -240,7 +257,7 @@ impl ModelRunner {
     pub fn add_pitch(&self, amount: f32) {
         unsafe {
             let event = ModelEvent::ModelMove(ModelMoveDirection::Pitch(amount));
-            self.emit_event(&event);
+            emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
                 EVENT_LOOP_PROXY
                     .as_ref()
@@ -254,7 +271,7 @@ impl ModelRunner {
     pub fn add_distance(&self, amount: f32) {
         unsafe {
             let event = ModelEvent::ModelMove(ModelMoveDirection::Distance(amount));
-            self.emit_event(&event);
+            emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
                 EVENT_LOOP_PROXY
                     .as_ref()
@@ -474,6 +491,15 @@ impl ModelRunner {
                 }
                 Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Reset)) => {
                     state.reset_camera_from_client();
+                }
+                Event::UserEvent(ModelEvent::SelectGlyph {
+                    x_pos,
+                    y_pos,
+                    multi_select,
+                }) => {
+                    let res = state.hit_detection(x_pos as u32, y_pos as u32, multi_select);
+                    let values = res.iter().map(|v| v.to_json()).collect::<Vec<Value>>();
+                    emit_event(&ModelEvent::SelectedGlyphs(values));
                 }
                 Event::DeviceEvent {
                     device_id: _,

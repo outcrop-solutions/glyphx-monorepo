@@ -168,6 +168,7 @@ impl RankedGlyphData {
         let mut glyph = glyph.as_ref().borrow_mut();
         glyph.flags = 1;
     }
+
 }
 
 #[cfg(test)]

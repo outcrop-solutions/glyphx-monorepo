@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_json::{Value, json};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum VectorOrigionalValue {
@@ -7,7 +8,17 @@ pub enum VectorOrigionalValue {
     U64(u64),
     Empty,
 }
-
+impl VectorOrigionalValue {
+    pub fn to_json(&self) -> Value {
+        match self {
+            VectorOrigionalValue::String(s) => json!(&s),
+            VectorOrigionalValue::F64(f) => json!(&f),
+            VectorOrigionalValue::U64(u) => json!(&u),
+            VectorOrigionalValue::Empty => Value::Null,
+        }
+    }
+    
+}
 impl PartialEq for VectorOrigionalValue {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {

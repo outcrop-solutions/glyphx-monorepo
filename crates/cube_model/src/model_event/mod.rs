@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 mod add_glyphs;
 mod add_statistics;
 mod add_vector;
@@ -15,4 +16,7 @@ pub enum ModelEvent {
     AddGlyph(AddGlyphData),
     Redraw,
     ToggleAxisLines,
+    SelectGlyph{x_pos: f32, y_pos: f32, multi_select: bool},
+    SelectedGlyphs(Vec<Value>),
+
 }

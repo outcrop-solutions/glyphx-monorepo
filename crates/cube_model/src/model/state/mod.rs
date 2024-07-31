@@ -4,8 +4,10 @@
 //1. Define any submodules
 pub(crate) mod data_manager;
 mod errors;
+pub(crate) mod selected_glyph;
 
 //2. Define any imports from the current crate.
+use crate::Order;
 use crate::{
     camera::{
         camera_controller::{CameraController, MouseEvent},
@@ -20,10 +22,9 @@ use crate::{
             axis_lines,
             glyph_data::{GlyphData, InstanceOutput},
             glyphs::{
+                glyph_id_data::{GlyphIdData, GlyphIdManager},
                 glyph_instance_data::GlyphInstanceData,
-                glyph_uniform_data::{
-                    GlyphUniformData, GlyphUniformFlags,
-                },
+                glyph_uniform_data::{GlyphUniformData, GlyphUniformFlags},
                 glyph_vertex_data::GlyphVertexData,
                 ranked_glyph_data::{Rank, RankDirection, RankedGlyphData},
                 Glyphs,
@@ -37,9 +38,10 @@ use crate::{
 //3. Define any imports from submodules.
 pub use data_manager::{CameraManager, DataManager};
 pub use errors::*;
+pub use selected_glyph::{GlyphDescription, SelectedGlyph};
 
 //4. Define any imports from external Glyphx Crates.
-use model_common::Stats;
+use model_common::{vectors::VectorOrigionalValue, Stats};
 
 //5. Define any imports from external 3rd party crates.
 use glam::Vec3;
@@ -106,7 +108,7 @@ pub struct State {
     axis_visible: bool,
     first_render: bool,
     cursor_position: PhysicalPosition<f64>,
-    selected_glyphs: Vec<u32>,
+    selected_glyphs: Vec<SelectedGlyph>,
 }
 
 impl State {
@@ -288,10 +290,7 @@ impl State {
                 true
             }
             MouseEvent::MouseClick => {
-                let device = self.device.clone();
-                let device = device.as_ref().borrow();
-                self.run_hit_detection_pipeline(
-                    &device,
+                self.hit_detection(
                     self.cursor_position.x as u32,
                     self.cursor_position.y as u32,
                     is_shift_pressed,
@@ -306,6 +305,12 @@ impl State {
         handled
     }
 
+    pub fn hit_detection(&mut self, x_pos: u32, y_pos: u32, is_shift_pressed: bool)-> &Vec<SelectedGlyph> {
+        let device = self.device.clone();
+        let device = device.as_ref().borrow();
+        self.run_hit_detection_pipeline(&device, x_pos, y_pos, is_shift_pressed);
+        &self.selected_glyphs
+    }
     pub fn move_camera(&mut self, direction: &str, amount: f32) {
         let cm = self.camera_manager.clone();
         let cm = &mut cm.borrow_mut();
@@ -585,7 +590,7 @@ impl State {
         ranked_glyph_data: &RankedGlyphData,
         pipeline_name: &str,
         commands: &mut Vec<CommandBuffer>,
-        selected_glyphs: &Vec<u32>,
+        selected_glyphs: &Vec<SelectedGlyph>,
     ) {
         let rank_iteratror = ranked_glyph_data.iter(rank, rank_direction);
         for rank in rank_iteratror {
@@ -596,7 +601,9 @@ impl State {
                 .iter()
                 .map(|rgd| {
                     let rgd = rgd.borrow();
-                    let flags = if selected_glyphs.len() > 0 && selected_glyphs.contains(&rgd.glyph_id) {
+                    let flags = if selected_glyphs.len() > 0
+                        && selected_glyphs.iter().any(|sg| sg.glyph_id == rgd.glyph_id)
+                    {
                         1
                     } else if selected_glyphs.len() > 0 {
                         0
@@ -674,33 +681,32 @@ impl State {
     }
 
     pub fn run_compute_pipeline(&mut self) {
-            let d = self.device.as_ref().borrow();
-            let mut encoder = d.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("ScreenClear Encoder"),
-            });
-            let output_buffer = self.glyph_data_pipeline.run_pipeline(&mut encoder);
-            self.queue.submit([encoder.finish()]);
+        let d = self.device.as_ref().borrow();
+        let mut encoder = d.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("ScreenClear Encoder"),
+        });
+        let output_buffer = self.glyph_data_pipeline.run_pipeline(&mut encoder);
+        self.queue.submit([encoder.finish()]);
 
-            let buffer_slice = output_buffer.slice(..);
-            buffer_slice.map_async(wgpu::MapMode::Read, |_| {});
-            d.poll(wgpu::Maintain::Wait);
+        let buffer_slice = output_buffer.slice(..);
+        buffer_slice.map_async(wgpu::MapMode::Read, |_| {});
+        d.poll(wgpu::Maintain::Wait);
 
-            let view = buffer_slice.get_mapped_range();
-            //our data is already in the correct order so we can
-            //just push the verticies into a traingle list and attach
-            //the normals
-            let output_data: Vec<InstanceOutput> = bytemuck::cast_slice(&view).to_vec();
+        let view = buffer_slice.get_mapped_range();
+        //our data is already in the correct order so we can
+        //just push the verticies into a traingle list and attach
+        //the normals
+        let output_data: Vec<InstanceOutput> = bytemuck::cast_slice(&view).to_vec();
 
-            let dm = &mut self.data_manager.as_ref().borrow_mut();
-            dm.clear_glyphs();
+        let dm = &mut self.data_manager.as_ref().borrow_mut();
+        dm.clear_glyphs();
 
-
-            let mut i = 0;
-            for glyph_instance in output_data.iter() {
-                let _ = dm.add_ranked_glyph(GlyphVertexData::from(glyph_instance));
-            }
-            drop(view);
-            output_buffer.unmap();
+        let mut i = 0;
+        for glyph_instance in output_data.iter() {
+            let _ = dm.add_ranked_glyph(GlyphVertexData::from(glyph_instance));
+        }
+        drop(view);
+        output_buffer.unmap();
     }
 
     fn run_hit_detection_pipeline(
@@ -748,7 +754,6 @@ impl State {
             0,
             bytemuck::cast_slice(&[cm.get_camera_uniform()]),
         );
-
 
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("ScreenClear Encoder"),
@@ -851,23 +856,32 @@ impl State {
 
             let glyph_id = decode_glyph_id([val[0], val[1], val[2], val[3]]);
             if glyph_id != 16777215 {
-                if !self.selected_glyphs.contains(&glyph_id) {
+                let glyph_desc = dm.get_glyph_description(glyph_id).unwrap();
+                if !self
+                    .selected_glyphs
+                    .iter()
+                    .any(|sg| sg.glyph_id == glyph_id)
+                {
                     if !is_shift_pressed {
                         self.selected_glyphs.clear();
                     }
-                    self.selected_glyphs.push(glyph_id);
+                    self.selected_glyphs.push(glyph_desc);
                 } else {
-                    let index = self.selected_glyphs.iter().position(|&r| r == glyph_id);
+                    let index = self
+                        .selected_glyphs
+                        .iter()
+                        .position(|r| r.glyph_id == glyph_id);
                     if let Some(index) = index {
                         self.selected_glyphs.remove(index);
                     }
                 }
-            } else  if !is_shift_pressed{
+            } else if !is_shift_pressed {
                 self.selected_glyphs.clear();
             }
             drop(view);
             output_buffer.unmap();
         }
+
         Ok(())
     }
 
@@ -1127,20 +1141,57 @@ impl State {
     //These cubes are square at least on the x/z axis
     pub fn update_z_order_and_rank(&mut self, camera_manager: &CameraManager) {
         let rotation_angle = self.cacluate_rotation_change(camera_manager);
-
+        let flags = GlyphUniformFlags::decode(self.glyph_uniform_data.flags).unwrap();
+        //When we gerate the vectors in the glyph_data pipeline, ordering can be modified which
+        //moves the glyphs through space, but the rank is not changed.  So in these cases, we need
+        //to flip our rank direction to keep the ordering of the glyphs corect.
+        let is_z_desc = flags.z_order == Order::Descending;
+        let is_x_desc = flags.x_order == Order::Descending;
         let (z_order_index, rank, rank_direction) =
             if rotation_angle >= 301.0 || rotation_angle < 31.0 {
                 //Front
-                (0, Rank::Z, RankDirection::Ascending)
+                (
+                    0,
+                    Rank::Z,
+                    if !is_z_desc {
+                        RankDirection::Ascending
+                    } else {
+                        RankDirection::Descending
+                    },
+                )
             } else if rotation_angle >= 31.0 && rotation_angle < 121.0 {
                 //Right
-                (0, Rank::X, RankDirection::Ascending)
+                (
+                    0,
+                    Rank::X,
+                    if !is_x_desc {
+                        RankDirection::Ascending
+                    } else {
+                        RankDirection::Descending
+                    },
+                )
             } else if rotation_angle >= 121.0 && rotation_angle < 211.0 {
                 //Back
-                (1, Rank::Z, RankDirection::Descending)
+                (
+                    1,
+                    Rank::Z,
+                    if !is_z_desc {
+                        RankDirection::Descending
+                    } else {
+                        RankDirection::Ascending
+                    },
+                )
             } else if rotation_angle >= 211.0 && rotation_angle < 301.0 {
                 //Left
-                (3, Rank::X, RankDirection::Descending)
+                (
+                    3,
+                    Rank::X,
+                    if !is_x_desc {
+                        RankDirection::Descending
+                    } else {
+                        RankDirection::Ascending
+                    },
+                )
             } else {
                 //This will never happen but rust was trying to be helpful
                 (0, Rank::Z, RankDirection::Ascending)

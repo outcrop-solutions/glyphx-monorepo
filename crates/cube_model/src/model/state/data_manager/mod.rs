@@ -4,7 +4,8 @@ mod stats_manager;
 
 use super::{
     AddGlyphError, AddStatsError, GlyphInstanceData, DeserializeVectorError, GetStatsError,
-    GlyphVertexData, ModelVectors, RankedGlyphData 
+    GlyphVertexData, ModelVectors, RankedGlyphData, GlyphIdManager,
+    SelectedGlyph
 };
 pub use camera_manager::CameraManager;
 pub use glyph_manager::GlyphManager;
@@ -97,6 +98,9 @@ impl DataManager {
 
     pub fn select_glyph(&mut self, glyph_id: u32) {
         self.glyph_manager.select_glyph(glyph_id);
+    }
+    pub fn get_glyph_description(&self, glyph_id: u32) -> Option<SelectedGlyph> {
+        self.glyph_manager.get_glyph_description(glyph_id)
     }
 }
 
