@@ -4,6 +4,7 @@ import 'globals.css';
 import {Providers} from './providers';
 import {authOptions} from './api/auth/[...nextauth]/route';
 import {serverGrowthbook as growthbook} from './_components/serverGrowthbook';
+
 export const metadata: Metadata = {
   title: 'Home | Glyphx',
   description: 'Welcome to Glyphx',
