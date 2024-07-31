@@ -53,7 +53,6 @@ pub struct ModelRunner {
     configuration: Rc<RefCell<ModelConfiguration>>,
     data_manager: Rc<RefCell<DataManager>>,
     camera_manager: Rc<RefCell<CameraManager>>,
-    is_running: bool,
     color_wheel: ColorWheel,
     default_x: u8,
     default_y: u8,
@@ -71,7 +70,6 @@ impl ModelRunner {
             configuration: Rc::new(RefCell::new(ModelConfiguration::default())),
             data_manager: Rc::new(RefCell::new(DataManager::new())),
             camera_manager: Rc::new(RefCell::new(CameraManager::new())),
-            is_running: false,
             color_wheel: ColorWheel::new(),
             default_x: 0,
             default_y: 9,
@@ -429,7 +427,7 @@ impl ModelRunner {
         let mut y_color_index = self.default_y as isize;
         let mut z_color_index = self.default_z as isize;
         let mut min_color_index = self.default_min as isize;
-        let mut max_color_index = self.default_min as isize;
+        let mut max_color_index = self.default_max as isize;
         let mut background_color_index = self.default_background as isize;
         let mut shift_pressed = false;
         let mut alt_pressed = false;

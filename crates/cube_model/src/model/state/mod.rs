@@ -22,7 +22,7 @@ use crate::{
             axis_lines,
             glyph_data::{GlyphData, InstanceOutput},
             glyphs::{
-                glyph_id_data::{GlyphIdData, GlyphIdManager},
+                glyph_id_data::GlyphIdManager,
                 glyph_instance_data::GlyphInstanceData,
                 glyph_uniform_data::{GlyphUniformData, GlyphUniformFlags},
                 glyph_vertex_data::GlyphVertexData,
@@ -41,7 +41,7 @@ pub use errors::*;
 pub use selected_glyph::{GlyphDescription, SelectedGlyph};
 
 //4. Define any imports from external Glyphx Crates.
-use model_common::{vectors::VectorOrigionalValue, Stats};
+use model_common::Stats;
 
 //5. Define any imports from external 3rd party crates.
 use glam::Vec3;
@@ -622,7 +622,7 @@ impl State {
                 })
                 .collect::<Vec<GlyphVertexData>>();
             let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                label: Some("Instance Buffer"),
+                label: Some("Vertex Buffer"),
                 contents: bytemuck::cast_slice(&clean_rank),
                 usage: wgpu::BufferUsages::VERTEX,
             });
