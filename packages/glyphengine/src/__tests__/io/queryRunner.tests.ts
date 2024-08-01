@@ -128,9 +128,7 @@ describe('#io/QueryRunner', () => {
     });
 
     it('will start a query', async () => {
-      const regexString = `WITH\\s+temp\\s+as\\s*\\(\\s*SELECT\\s+glyphx_id__\\s+as\\s+rowid,\\s*([^\\s]+)\\s+as\\s+groupedXColumn,\\s*([^\\s]+)\\s+as\\s+groupedYColumn,\\s*([^\\s]+)\\s+as\\s+zColumn\\s*FROM\\s+"([^"]+)"\\."([^"]+)"\\s*\\)\\s*SELECT\\s+array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s+as\\s+"rowids",\\s*groupedXColumn as x_testXColumn,\\s*groupedYColumn as y_testYColumn,\\s*(SUM\\(([^\\s]+)\\))\\s+as\\s+zColumn\\s*FROM\\s+temp\\s+GROUP\\s+BY\\s+groupedXColumn,\\s+groupedYColumn;`;
-
-      // const regexString = `WITH\\s+temp\\s+as\\s*\\(\\s*SELECT\\s+glyphx_id__\\s+as\\s+rowid,\\s*([^\\s]+)\\s+as\\s+groupedXColumn,\\s*([^\\s]+)\\s+as\\s+groupedYColumn,\\s*([^\\s]+)\\s+as\\s+zColumn\\s*FROM\\s+"([^"]+)"\\."([^"]+)"\\s*\\)\\s*SELECT\\s+array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s+as\\s+"rowids",\\s*groupedXColumn,\\s*groupedYColumn,\\s*([^\\s]+)\\s+as\\s+zValue\\s*FROM\\s+temp\\s+GROUP\\s+BY\\s+groupedXColumn,\\s+groupedYColumn;`;
+      const regexString = `WITH\\s+temp\\s+as\\s*\\(\\s*SELECT\\s+glyphx_id__\\s+as\\s+rowid,\\s*([^\\s]+)\\s+as\\s+groupedXColumn,\\s*([^\\s]+)\\s+as\\s+groupedYColumn,\\s*([^\\s]+)\\s+as\\s+zColumn\\s*FROM\\s+"([^"]+)"\\."([^"]+)"\\s*WHERE\\s+"([^"]+)"\\s+IS\\s+NOT\\s+NULL\\s+AND\\s+"([^"]+)"\\s+IS\\s+NOT\\s+NULL\\s*\\)\\s*SELECT\\s+array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s+as\\s+"rowids",\\s*groupedXColumn as x_testXColumn,\\s*groupedYColumn as y_testYColumn,\\s*(SUM\\(([^\\s]+)\\))\\s+as\\s+zColumn\\s*FROM\\s+temp\\s+GROUP\\s+BY\\s+groupedXColumn,\\s+groupedYColumn;`;
 
       const viewName = 'testViewName';
       const xColumn = 'testXColumn';
@@ -161,22 +159,22 @@ describe('#io/QueryRunner', () => {
       const queryRegex = new RegExp(regexString, 'gm');
       const match = queryRegex.exec(query) as string[];
       assert.isNotEmpty(match);
-      assert.strictEqual(match.length, 8); // There are only 7 capture groups in the regex provided
+      assert.strictEqual(match.length, 10); // There are only 7 capture groups in the regex provided
       assert.strictEqual(match[1], `${xColumn}`); // The expected value for groupedXColumn
       assert.strictEqual(match[2], `${yColumn}`); // The expected value for groupedYColumn
       assert.strictEqual(match[3], 'zColumn'); // The expected value for zColumn
       assert.strictEqual(match[4], databaseName); // The expected value for the database name
       assert.strictEqual(match[5], viewName); // The expected value for the view name
-      assert.strictEqual(match[6], zColumn); // The expected value for zColumn
-      assert.strictEqual(match[7], 'zColumn'); // The expected value for zColumn
+      assert.strictEqual(match[6], `${xColumn}`); // The expected value for groupedXColumn
+      assert.strictEqual(match[7], `${yColumn}`); // The expected value for groupedYColumn
+      assert.strictEqual(match[8], zColumn); // The expected value for zColumn
+      assert.strictEqual(match[9], 'zColumn'); // The expected value for zColumn
 
       assert.isTrue(initStub.calledOnce);
     });
 
     it('will start a query where x and y are dates', async () => {
-      const regexString = `WITH\\s+temp\\s+as\\s*\\(\\s*SELECT\\s+glyphx_id__\\s+as\\s+rowid,\\s+DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)\\s+as\\s+groupedXColumn,\\s+DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)\\s+as\\s+groupedYColumn,\\s+(\\w+)\\s+as\\s+zColumn\\s*FROM\\s+"([^"]+)"\\."([^"]+)"\\s*\\)\\s*SELECT\\s+array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s+as\\s+"rowids",\\s+groupedXColumn\\s+as\\s+x_xColumn,\\s+groupedYColumn\\s+as\\s+y_yColumn,\\s+SUM\\((\\w+)\\)\\s+as\\s+zColumn\\s*FROM\\s+temp\\s+GROUP\\s+BY\\s+groupedXColumn,\\s+groupedYColumn;`;
-
-      // const regexString = `WITH\\s*temp\\s*as\\s*\\(\\s*SELECT\\s*glyphx_id__\\s*as\\s*rowid,\\s*(?:DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"([^"]+)")\\s*as\\s*groupedXColumn,\\s*(?:DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)|"([^"]+)")\\s*as\\s*groupedYColumn,\\s*(\\w+)\\s*as\\s*zColumn\\s*FROM\\s*"([^"]+)"\\."([^"]+)"\\s*\\)\\s*SELECT\\s*array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s*as\\s*"rowids",\\s*groupedXColumn,\\s*groupedYColumn,\\s*(AVG|SUM|MIN|MAX|COUNT)\\(zColumn\\)\\s*as\\s*zValue\\s*FROM\\s*temp\\s*GROUP\\s*BY\\s*groupedXColumn,\\s*groupedYColumn;`;
+      const regexString = `WITH\\s+temp\\s+as\\s*\\(\\s*SELECT\\s+glyphx_id__\\s+as\\s+rowid,\\s+DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)\\s+as\\s+groupedXColumn,\\s+DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)\\s+as\\s+groupedYColumn,\\s+(\\w+)\\s+as\\s+zColumn\\s*FROM\\s+"([^"]+)"\\."([^"]+)"\\s*WHERE\\s+"([^"]+)"\\s+IS\\s+NOT\\s+NULL\\s+AND\\s+"([^"]+)"\\s+IS\\s+NOT\\s+NULL\\s*\\)\\s*SELECT\\s+array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s+as\\s+"rowids",\\s+groupedXColumn\\s+as\\s+x_testXColumn,\\s+groupedYColumn\\s+as\\s+y_testYColumn,\\s+SUM\\((\\w+)\\)\\s+as\\s+zColumn\\s*FROM\\s+temp\\s+GROUP\\s+BY\\s+groupedXColumn,\\s+groupedYColumn;`;
 
       const viewName = 'testViewName';
       const xColumn = `DATE_FORMAT("testXColumn", '%Y-%j')`;
@@ -190,8 +188,8 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
-        xColName: 'xColumn',
-        yColName: 'yColumn',
+        xColName: 'testXColumn',
+        yColName: 'testYColumn',
         zColName: 'zColumn',
       }) as any;
 
@@ -207,18 +205,20 @@ describe('#io/QueryRunner', () => {
       const queryRegex = new RegExp(regexString, 'gm');
       const match = queryRegex.exec(query) as string[];
       assert.isNotEmpty(match);
-      assert.strictEqual(match.length, 7); // There are 9  capture groups in the regex provided
+      assert.strictEqual(match.length, 9); // There are 9  capture groups in the regex provided
       // NOTE: quotes are omitted because we are matching inside the date format
       assert.strictEqual(match[1], `testXColumn`); // The expected value for groupedXColumn
       assert.strictEqual(match[2], `testYColumn`); // The expected value for groupedYColumn
       assert.strictEqual(match[3], `zColumn`); // The expected value for zColumn
       assert.strictEqual(match[4], databaseName); // The expected value for the database name
       assert.strictEqual(match[5], viewName); // The expected value for the view name
+      assert.strictEqual(match[6], 'testXColumn'); // The column name of the x axis
+      assert.strictEqual(match[7], 'testYColumn'); // The column name of the y axis
       assert.isTrue(initStub.calledOnce);
     });
 
     it('will start a query with a filter', async () => {
-      const regexStringWFilter = `WITH\\s+temp\\s+as\\s*\\(\\s*SELECT\\s+glyphx_id__\\s+as\\s+rowid,\\s+DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)\\s+as\\s+groupedXColumn,\\s+DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)\\s+as\\s+groupedYColumn,\\s+(\\w+)\\s+as\\s+zColumn\\s*FROM\\s+"([^"]+)"\\."([^"]+)"(\\s+WHERE\\s+[^)]+)?\\s*\\)\\s*SELECT\\s+array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s+as\\s+"rowids",\\s+groupedXColumn\\s+as\\s+x_xColumn,\\s+groupedYColumn\\s+as\\s+y_yColumn,\\s+SUM\\((\\w+)\\)\\s+as\\s+zColumn\\s*FROM\\s+temp\\s+GROUP\\s+BY\\s+groupedXColumn,\\s+groupedYColumn(?:\\s+HAVING\\s+[^)]+)?;`;
+      const regexStringWFilter = `WITH\\s+temp\\s+as\\s*\\(\\s*SELECT\\s+glyphx_id__\\s+as\\s+rowid,\\s+DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)\\s+as\\s+groupedXColumn,\\s+DATE_FORMAT\\("([^"]+)",\\s*'[^']+'\\)\\s+as\\s+groupedYColumn,\\s+(\\w+)\\s+as\\s+zColumn\\s*FROM\\s+"([^"]+)"\\."([^"]+)"(\\s+WHERE\\s+[^)]+)?\\s*\\)\\s*SELECT\\s+array_join\\(array_agg\\(rowid\\),\\s*'\\|'\\)\\s+as\\s+"rowids",\\s+groupedXColumn\\s+as\\s+x_testXColumn,\\s+groupedYColumn\\s+as\\s+y_testYColumn,\\s+SUM\\((\\w+)\\)\\s+as\\s+zColumn\\s*FROM\\s+temp\\s+GROUP\\s+BY\\s+groupedXColumn,\\s+groupedYColumn(?:\\s+HAVING\\s+[^)]+)?;`;
 
       const viewName = 'testViewName';
       const xColumn = `DATE_FORMAT("testXColumn", '%Y-%j')`;
@@ -233,8 +233,8 @@ describe('#io/QueryRunner', () => {
         xCol: xColumn,
         yCol: yColumn,
         zCol: zColumn,
-        xColName: 'xColumn',
-        yColName: 'yColumn',
+        xColName: 'testXColumn',
+        yColName: 'testYColumn',
         zColName: 'zColumn',
         filter,
       }) as any;
@@ -257,7 +257,7 @@ describe('#io/QueryRunner', () => {
       assert.strictEqual(match[4], databaseName); // The expected value for the database name
       assert.strictEqual(match[5], viewName); // The expected value for the view name
       // If the filter is expected to be present, check for it
-      assert.include(query, `WHERE ${filter}`); // Checks if the WHERE clause is present in the query
+      assert.include(query, `WHERE "testXColumn" IS NOT NULL AND "testYColumn" IS NOT NULL AND ${filter}`); // Checks if the WHERE clause is present in the query
 
       assert.isTrue(initStub.calledOnce);
     });

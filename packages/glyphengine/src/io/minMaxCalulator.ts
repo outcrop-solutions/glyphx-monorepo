@@ -28,7 +28,7 @@ export class MinMaxCalculator {
   private readonly filter: string;
   private readonly athenaClient: aws.AthenaManager;
   private minMaxField?: IMinMax;
-
+  private query: string;
   public get minMax(): IMinMax {
     if (!this.minMaxField) {
       throw new error.InvalidOperationError('You must call load before accessing minMax', {});
@@ -58,10 +58,12 @@ export class MinMaxCalculator {
     this.yColumnName = yColumnName;
     this.zColumnName = zColumnName;
     this.filter = filter;
+    this.query = '';
   }
 
   public async load(): Promise<void> {
-    const filterString = this.filter ? `WHERE ${this.filter}` : '';
+    const baseFilter = `WHERE "${this.xColumnName}" IS NOT NULL AND "${this.yColumnName}" IS NOT NULL`;
+    const filterString = this.filter ? ` AND ${this.filter}` : '';
 
     const formattedZ = this.zCol.replace('zColumn', `"${this.zColName}"`);
     const query = `
@@ -71,7 +73,7 @@ export class MinMaxCalculator {
       ${this.yCol} as yColumn,
       ${formattedZ} as zColumn
       FROM "${this.tableName}"
-      ${filterString}
+      ${baseFilter} ${filterString}
       GROUP BY ${this.xCol}, ${this.yCol}
     )
     SELECT
@@ -83,6 +85,7 @@ export class MinMaxCalculator {
       MAX(zColumn) as "max_z_${this.zColumnName}"
     FROM temp;
   `;
+    this.query = query;
     const data = await this.athenaClient.runQuery(query);
     this.minMaxField = {
       x: {

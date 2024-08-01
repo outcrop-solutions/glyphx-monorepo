@@ -1,4 +1,3 @@
-'use client';
 /* eslint-disable @next/next/no-img-element */
 import React from 'react';
 import {Tailwind, Body, Container, Head, Html, Img, Row, Section, Text, Button} from '@react-email/components';

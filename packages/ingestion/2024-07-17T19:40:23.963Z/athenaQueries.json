@@ -1,0 +1,57 @@
+JoinInformation:
+{
+  "tableName": "glyphx_testclientid_testmodelid_thisisthetablenamefromatest",
+  "tableIndex": 0,
+  "tableAlias": "A",
+  "backingFileName": "thisIsTheOutputDirectoryFromATest",
+  "columns": [
+    {
+      "columnName": "glyphx_id__",
+      "columnType": 2,
+      "columnIndex": 0,
+      "isJoinColumn": false,
+      "isSelectedColumn": true
+    },
+    {
+      "columnName": "item_no_",
+      "columnType": 1,
+      "columnIndex": 1,
+      "isJoinColumn": false,
+      "isSelectedColumn": true
+    },
+    {
+      "columnName": "vendor",
+      "columnType": 1,
+      "columnIndex": 2,
+      "isJoinColumn": false,
+      "isSelectedColumn": true
+    },
+    {
+      "columnName": "delta",
+      "columnType": 0,
+      "columnIndex": 3,
+      "isJoinColumn": false,
+      "isSelectedColumn": true
+    }
+  ]
+}
+
+==========================================================================================================
+
+ TableQuery:
+CREATE EXTERNAL TABLE glyphx_testclientid_testmodelid_thisisthetablenamefromatest (
+	    glyphx_id__ bigint,
+item_no_ varchar(100),
+vendor varchar(100),
+delta double
+    )
+    STORED AS PARQUET
+    LOCATION 's3://testBucketName/thisIsTheOutputDirectoryFromATest'
+    TBLPROPERTIES ('parquet.compression'='GZIP');
+
+ ========================================================================================================
+  
+ ViewQuery:
+ CREATE VIEW viewDefinedFromTest AS
+	  SELECT A."glyphx_id__",A."item_no_",A."vendor",A."delta"
+FROM glyphx_testclientid_testmodelid_thisisthetablenamefromatest A  

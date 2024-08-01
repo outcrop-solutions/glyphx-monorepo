@@ -45,6 +45,30 @@
         "cwd": "${workspaceRoot}",
         "env": {"TS_NODE_FILES": "true", "DOTENV_CONFIG_PATH": "src/__integrationTests__/.env.integration"}
       }
+    },
+    "glyphEngine": {
+      "adapter": "vscode-node",
+      "configuration": {
+        "request": "launch",
+        "protocol": "auto",
+        "stopOnEntry": false,
+        "console": "integratedTerminal",
+        "program": "${workspaceRoot}/node_modules/mocha/bin/mocha",
+        "args": [
+          "-r",
+          "ts-node/register",
+          "-r",
+          "tsconfig-paths/register",
+          "-r",
+          "dotenv/config",
+          "--timeout",
+          "999999",
+          "--exit",
+          "src/__utilScripts__/**/glyphEngine.ts"
+        ],
+        "cwd": "${workspaceRoot}",
+        "env": {"TS_NODE_FILES": "true", "GLYPHX_ENV": "dev"}
+      }
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'mocha';
 import {assert} from 'chai';
 import {BasicFieldTypeCalculator} from 'fieldProcessing';
 import Stream from 'stream';

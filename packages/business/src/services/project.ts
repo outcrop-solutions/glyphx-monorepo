@@ -26,8 +26,17 @@ export class ProjectService {
   }
 
   public static async getProjects(filter?: Record<string, unknown>): Promise<databaseTypes.IProject[] | null> {
+    let page = filter?.page as number;
+    if (page != undefined) {
+      delete filter?.page;
+    }
+    let pageSize = filter?.pageSize as number;
+    if (pageSize != undefined) {
+      delete filter?.pageSize;
+    }
     try {
-      const projects = await mongoDbConnection.models.ProjectModel.queryProjects(filter);
+      //HACK: I do not want to risk messing up something upstream, so I am going to make it so I can pass the page and pagesize as part of the filter for my glyphEngine testing script.
+      const projects = await mongoDbConnection.models.ProjectModel.queryProjects(filter, page, pageSize);
       return projects?.results;
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError) {

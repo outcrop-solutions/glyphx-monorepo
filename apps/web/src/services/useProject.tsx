@@ -1,78 +1,13 @@
 'use client';
 import {useCallback} from 'react';
-import {useSession} from 'next-auth/react';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {useSetRecoilState} from 'recoil';
 import {fileIngestionTypes, webTypes, glyphEngineTypes} from 'types';
-import {doesStateExistSelector, drawerOpenAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom} from 'state';
-import {useUrl} from 'lib/client/hooks';
+import {projectAtom} from 'state';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
-import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
-import {isValidPayload} from 'lib/utils/isValidPayload';
-import {deepMergeProject} from 'lib/utils/deepMerge';
-import {useSWRConfig} from 'swr';
-import {callCreateModel} from 'lib/client/network/reqs/callCreateModel';
-import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
-import {updateProjectState} from 'actions';
 
 export const useProject = () => {
-  const session = useSession();
-  const {mutate} = useSWRConfig();
-  const doesStateExist = useRecoilValue(doesStateExistSelector);
-  const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setProject = useSetRecoilState(projectAtom);
-  const setDrawer = useSetRecoilState(drawerOpenAtom);
-  const setLoading = useSetRecoilState(showLoadingAtom);
-  const url = useUrl();
-
-  const callETL = useCallback(
-    async (axis: webTypes.constants.AXIS, column: any, project, isFilter: boolean) => {
-      const deepMerge = deepMergeProject(axis, column, project);
-      const payloadHash = hashPayload(hashFileSystem(project.files), deepMerge);
-      const isCurrentlyLoaded = payloadHash === hashPayload(hashFileSystem(project.files), project);
-      // if invalid payload, only update project
-      if (!isValidPayload(deepMerge.state.properties)) {
-        const {state, id} = deepMerge;
-        await updateProjectState(id, state);
-        // if model currently generated and downloaded, open project
-      } else if (isCurrentlyLoaded) {
-        if (window?.core) {
-          setResize(150);
-          setDrawer(true);
-          window?.core?.ToggleDrawer(true);
-        }
-      } else if (doesStateExist) {
-        const {state, id} = deepMerge;
-        await updateProjectState(id, state);
-
-        await callDownloadModel({
-          project: deepMerge,
-          payloadHash,
-          session,
-          url,
-          setLoading,
-          setDrawer,
-          setResize,
-        });
-      } else {
-        // creates update in route via deepMerge
-        await callCreateModel({
-          isFilter,
-          project: deepMerge,
-          payloadHash,
-          session,
-          url,
-          setLoading,
-          setDrawer,
-          setResize,
-          mutate,
-        });
-      }
-      setLoading({});
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
 
   const handleDrop = useCallback(
     (axis: webTypes.constants.AXIS, column: any, project: webTypes.IHydratedProject, isFilter: boolean) => {

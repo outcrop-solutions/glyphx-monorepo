@@ -202,7 +202,7 @@ export class BasicFileTransformer extends Transform {
   /**
    * Puts the data together for the callback
    */
-  private getDataForCallback(): fileProcessingInterfaces.IFileInformation {
+  public getDataForCallback(): fileProcessingInterfaces.IFileInformation {
     const columns = this.columTypeTrackers.map((c) => {
       return {
         name: c.columnName,

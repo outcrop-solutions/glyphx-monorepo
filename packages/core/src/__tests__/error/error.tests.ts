@@ -38,7 +38,7 @@ class Foo {
   }
 }
 
-describe.only('#util/error', () => {
+describe('#util/error', () => {
   context('serialize', () => {
     let glyphxError: GlyphxError;
     before(() => {

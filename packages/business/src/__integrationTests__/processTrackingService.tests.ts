@@ -18,7 +18,7 @@ describe('#ProcessTrackingService', () => {
   context('test the functions of the  ProcessTrackingService', () => {
     const mongoConnection = new MongoDbConnection();
     const processTrackingModel = mongoConnection.models.ProcessTrackingModel;
-    let processTrackingId: ObjectId;
+    let processTrackingId;
     before(async () => {
       await mongoConnection.init();
     });

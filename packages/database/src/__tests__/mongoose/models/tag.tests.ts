@@ -107,7 +107,7 @@ describe('#mongoose/models/tag', () => {
         await TagModel.allTagIdsExist(tagIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
-        assert.strictEqual(err.data.value[0].toString(), tagIds[1].toString());
+        assert.strictEqual((err as any).data.value[0].toString(), tagIds[1].toString());
         errored = true;
       }
       assert.isTrue(errored);

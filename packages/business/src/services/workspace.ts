@@ -220,8 +220,23 @@ export class WorkspaceService {
   public static async getSiteWorkspace(id: string): Promise<databaseTypes.IWorkspace | null> {
     try {
       const workspace = await mongoDbConnection.models.WorkspaceModel.getWorkspaceById(id);
-
-      return workspace;
+      // removed deleted projects and memberships to optimize retval size
+      const filteredMembers = workspace.members.filter((mem) => !mem.deletedAt);
+      const filteredProjects = workspace.projects.filter((proj) => {
+        if (!proj.deletedAt) {
+          const mems = proj.members.filter((m) => !m.deletedAt);
+          const project = {
+            ...proj,
+            members: mems,
+          };
+          return project;
+        }
+      });
+      return {
+        ...workspace,
+        members: filteredMembers,
+        projects: filteredProjects,
+      };
     } catch (err: any) {
       if (err instanceof error.DataNotFoundError || err instanceof error.InvalidArgumentError) {
         err.publish('', constants.ERROR_SEVERITY.WARNING);
@@ -418,6 +433,7 @@ export class WorkspaceService {
         });
 
         await Promise.all([mongoDbConnection.models.WorkspaceModel.addMembers(workspace.id!, [...memberIds])]);
+
         return {members: createdMembers, workspace: workspace};
       } else {
         const errMsg = 'No workspace found';

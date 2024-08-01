@@ -1,20 +1,30 @@
 'use client';
 import produce from 'immer';
-import {databaseTypes} from 'types';
-import {WritableDraft} from 'immer/dist/internal';
-import {_createOpenProject} from 'lib/client/mutations';
-import {glyphEngine, signDataUrls} from 'actions';
+import { databaseTypes } from 'types';
+import { WritableDraft } from 'immer/dist/internal';
+import { _createOpenProject } from 'lib/client/mutations';
+import { glyphEngine, signDataUrls } from 'actions';
+import { callDownloadModel } from './callDownloadModel';
 
 export const callCreateModel = async ({
-  isFilter,
   project,
-  payloadHash,
   session,
   url,
   setLoading,
+  setImageHash,
+  setCamera,
   setDrawer,
   setResize,
-  mutate,
+}: {
+  project: databaseTypes.IProject;
+  session: any;
+  url: string;
+  setLoadingisFilter?: boolean;
+  setLoading: any;
+  setDrawer: any;
+  setImageHash: any;
+  setCamera: any;
+  setResize: any;
 }) => {
   try {
     // set initial loading state
@@ -30,36 +40,21 @@ export const callCreateModel = async ({
       stateHistory: [],
     };
     // create model
-    const retval = await glyphEngine(cleanProject, payloadHash);
-
+    const retval = await glyphEngine(cleanProject);
+    //  download it
     if (!retval?.error) {
-      setLoading(
-        produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-          draft.processName = 'Fetching Data...';
-        })
-      );
-      // sign data urls
-      const signedUrls = await signDataUrls(project?.workspace.id, project?.id, payloadHash);
-
-      if (!signedUrls?.error) {
-        setLoading({});
-        if (window?.core) {
-          setResize(150);
-          setDrawer(true);
-
-          window?.core?.OpenProject(
-            _createOpenProject(signedUrls as {sdtUrl: any; sgcUrl: any; sgnUrl: any}, project, session, url, true, [])
-          );
-        }
-      } else {
-        setLoading(
-          produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-            draft.processName = 'Failed to Open Model';
-            draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
-            draft.processEndTime = new Date();
-          })
-        );
-      }
+      console.log('called download model in callCreateModel')
+      await callDownloadModel({
+        project,
+        session,
+        url,
+        isCreate: true,
+        setLoading,
+        setDrawer,
+        setResize,
+        setImageHash,
+        setCamera,
+      });
     } else {
       setLoading(
         produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
@@ -68,8 +63,12 @@ export const callCreateModel = async ({
           draft.processEndTime = new Date();
         })
       );
+      setImageHash({
+        imageHash: false,
+      });
+      setCamera({});
     }
   } catch (error) {
-    console.log({error});
+    console.log({ error });
   }
 };

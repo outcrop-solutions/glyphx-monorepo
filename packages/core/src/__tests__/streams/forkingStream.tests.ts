@@ -1,3 +1,4 @@
+import 'mocha';
 import {assert} from 'chai';
 import {ForkingStream} from '../../streams';
 import {Readable, Transform} from 'stream';

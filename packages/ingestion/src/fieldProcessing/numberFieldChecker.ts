@@ -270,6 +270,8 @@ export class NumberFieldChecker implements fieldProcessingInterfaces.IFieldCheck
     if (isPercent) {
       retval = retval / 100;
     }
-    return isNaN(retval) ? 0 : retval;
+
+    retval = Number(retval.toFixed(7));
+    return retval;
   }
 }
