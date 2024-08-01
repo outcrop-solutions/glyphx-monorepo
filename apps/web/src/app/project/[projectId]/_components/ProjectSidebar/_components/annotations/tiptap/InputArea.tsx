@@ -1,8 +1,7 @@
 'use client';
-import React from 'react';
+import React, {useTransition} from 'react';
 import './tiptap.css';
 import {ArrowRightIcon} from '@heroicons/react/outline';
-import {startTransition, useState} from 'react';
 import {createProjectAnnotation, createStateAnnotation, getSuggestedMembers} from 'actions/src/annotation';
 import Mention from '@tiptap/extension-mention';
 import {EditorContent, useEditor} from '@tiptap/react';
@@ -15,6 +14,7 @@ import {SuggestionOptions} from '@tiptap/suggestion';
 export const InputArea = ({id, type, revalidate}) => {
   const params = useParams();
   const projectId = params?.projectId as string;
+  const [isPending, startTransition] = useTransition();
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -45,12 +45,12 @@ export const InputArea = ({id, type, revalidate}) => {
           <div className="flex-shrink-0">
             <button
               onClick={() =>
-                startTransition(() => {
+                startTransition(async () => {
                   if (type === 'PROJECT') {
-                    createProjectAnnotation(id, value);
+                    await createProjectAnnotation(id, value);
                     editor.commands.setContent('');
                   } else {
-                    createStateAnnotation(id, value);
+                    await createStateAnnotation(id, value);
                     editor.commands.setContent('');
                   }
                   revalidate();
