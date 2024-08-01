@@ -1,4 +1,8 @@
-// Vertex shader
+// Vertex shader -- since we are using a compute shader to caluclate 
+// the values of the verticies, all we really need to do in this 
+// shader is apply, the camera, color, lighting and glyph selection
+// effects. Filtering, interpolation, direction etc are handled by 
+// the compute shader
 
 struct CameraUniform {
     view_pos: vec4<f32>,
@@ -17,6 +21,7 @@ struct LightUniform {
 struct ColorTable {
     color_table: array<vec4<f32>, 64>,
 };
+
 struct GlyphUniformData {
     min_x: f32,
     max_x: f32,
@@ -35,9 +40,20 @@ struct GlyphUniformData {
     //other values
     x_z_offset: f32,
     min_glyph_height: f32,
-    _padding: vec2<u32>,
+    flags: u32,
+    padding: u32,
 };
 
+struct Flags {
+	x_log: bool,
+	x_desc: bool,
+	y_log: bool,
+	y_desc: bool,
+	z_log: bool,
+	z_desc: bool,
+	flip_color: bool,
+	glyphs_selected: bool,
+};
 
 @group(0) @binding(0) 
 var<uniform> camera: CameraUniform;
@@ -53,17 +69,13 @@ var<uniform> light: LightUniform;
 var<uniform> glyph_uniform_data: GlyphUniformData;
 
 struct VertexInput {
-    @location(0) position: vec3<f32>,
-    @location(1) normal: vec3<f32>,
-    @location(2) color_code: u32,
-};
-
-struct InstanceInput {
-    @location(3) glyph_id: u32,
-    @location(4) x_value: f32,
-    @location(5) y_value: f32,
-    @location(6) z_value: f32,
-    @location(7) flags: u32,
+    @location(0) glyph_id: u32,
+    @location(1) position: vec3<f32>,
+    @location(2) normal: vec3<f32>,
+    @location(3) color_code: u32,
+    @location(4) x_rank: u32,
+    @location(5) z_rank: u32,
+    @location(6) flags: u32,
 };
 
 
@@ -72,95 +84,41 @@ struct VertexOutput {
     @location(0) world_position: vec3<f32>,
     @location(1) world_normal: vec3<f32>,
     @location(2) color_code: u32,
+    @location(3) flags: u32,
 };
 
-fn linear_interpolation(
-    data_value: f32,
-    min_data_value: f32,
-    max_data_value: f32,
-    min_interpolated_value: f32,
-    max_interpolated_value: f32
-) -> f32 {
-    if min_data_value == max_data_value {
-        return max_interpolated_value;
-    }
-
-    let res = min_interpolated_value + ((max_interpolated_value - min_interpolated_value) * (data_value - min_data_value)) / (max_data_value - min_data_value);
-
+fn parse_flags(flags: u32) -> Flags {
+    var res: Flags;
+    res.x_log = ((flags >> 31u) & 1u) != 0u;
+    res.x_desc = ((flags >> 30u) & 1u) != 0u;
+    res.y_log = ((flags >> 23u) & 1u) != 0u;
+    res.y_desc = ((flags >> 22u) & 1u) != 0u;
+    res.z_log = ((flags >> 15u) & 1u) != 0u;
+    res.z_desc = ((flags >> 14u) & 1u) != 0u;
+    res.flip_color = ((flags >> 7u) & 1u) != 0u;
+    res.glyphs_selected = ((flags >> 6u) & 1u) != 0u;
     return res;
 }
 
 @vertex
 fn vs_main(
     model: VertexInput,
-    instance: InstanceInput,
 ) -> VertexOutput {
-    let min_x = glyph_uniform_data.min_interp_x;
-    let max_x = glyph_uniform_data.max_interp_x;
-
-    let interp_x = linear_interpolation(
-	instance.x_value,
-	glyph_uniform_data.min_x,
-	glyph_uniform_data.max_x,
-	min_x,
-	max_x,
-    );
-
-    let distance_x = interp_x - min_x;
-    let x_pos = model.position[0] + distance_x + glyph_uniform_data.x_z_offset; 
-    let x_offset = x_pos - model.position[0];
-
-    let min_z = glyph_uniform_data.min_interp_z;
-    let max_z = glyph_uniform_data.max_interp_z;
-
-    let interp_z = linear_interpolation(
-        instance.z_value,
-        glyph_uniform_data.min_z,
-        glyph_uniform_data.max_z,
-        min_z,
-        max_z,
-    );
-     let distance_z = interp_z - min_z; 
-     let z_pos = model.position[2] + distance_z + glyph_uniform_data.x_z_offset;
-     let z_offset = z_pos - model.position[2];
-
-    let min_y = glyph_uniform_data.min_interp_y;
-    let max_y = glyph_uniform_data.max_interp_y;
-    //y is pined to min_y and scaled
-    var y_vec = model.position[1];
-    var y_offset = 0.0;
-    //Our inbound glyph should be the max size of the graph, but there will be some beveling on the 
-    //bottom that we do not want to mess with.  We may need to use that as our midpoint and minimum size
-    if y_vec > min_y {
-        let interp_value = linear_interpolation(
-            instance.y_value,
-            glyph_uniform_data.min_y,
-            glyph_uniform_data.max_y,
-            min_y,
-            max_y,
-        );
-        let distance = max_y - interp_value;
-        y_vec = interp_value; //y_vec - distance + glyph_uniform_data.min_glyph_height;
-        y_offset = distance;
-    }
-
-    let color = floor(linear_interpolation(
-        instance.y_value,
-        glyph_uniform_data.min_y,
-        glyph_uniform_data.max_y,
-        f32(0.0),
-        f32(60.0),
-    ));
+    let x_pos = model.position[0];
+    let y_pos = model.position[1];
+    let z_pos = model.position[2];
+    let color = model.color_code;
     var out: VertexOutput;
-    out.world_position = vec3<f32>(x_pos + camera.x_offset, y_vec + camera.y_offset, z_pos + camera.z_offset);
-//move the normals based on instance buffer
+
+    //apply our perspective camera
+    out.world_position = vec3<f32>(x_pos + camera.x_offset, y_pos + camera.y_offset, z_pos + camera.z_offset);
+
+    //move the normals based on instance buffer
     out.world_normal = vec3<f32>(model.normal);
-    out.color_code = u32(floor(color));
+
+    out.color_code = color;
     out.clip_position = camera.view_proj * vec4<f32>(out.world_position[0], out.world_position[1], out.world_position[2], 1.0);
-//    var clip_position = camera.view_proj * vec4<f32>(x_pos, y_vec, z_pos, 1.0);
-  //  clip_position[0] = clip_position[0] + x_offset;
-   // clip_position[2] = clip_position[2] + z_offset;
-   // out.clip_position = clip_position;
+    out.flags = model.flags; 
     return out;
 }
 
@@ -169,6 +127,10 @@ fn vs_main(
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
    // return vec4<f32>(0.0,0.0,0.0, 1.0);
+    var alpha = 1.0;
+    if ( in.flags != 1u) {
+    	alpha = 0.15;
+    }
     let color = color_table_buffer.color_table[in.color_code];
     let ambient_strength = light.light_intensity;
     let ambient_color = light.light_color * ambient_strength;
@@ -186,7 +148,6 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let result = (ambient_color + diffuse_color + specular_color) * color.xyz;
     //TODO: The light needs some work as it relates to the glyphs.  It is making them all yellow
     //return vec4<f32>(result, 1.0);
-      return vec4<f32>(color);
-
+    return vec4<f32>(color[0], color[1], color[2], alpha);
 }
  

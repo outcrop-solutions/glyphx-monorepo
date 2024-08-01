@@ -3,6 +3,7 @@ mod color_wheel;
 
 pub use color_wheel::ColorWheel;
 use crate::assets::color::Color;
+use crate::model::pipeline::glyphs::glyph_uniform_data::{InterpolationType, Order};
 pub use errors::*;
 use glyphx_core_error::GlyphxErrorData;
 use serde::{Deserialize, Serialize};
@@ -48,6 +49,46 @@ macro_rules! parse_json {
             return Err(FromJsonError::TypeMismatch(error_data));
         }
         let $var_name = $var_name.as_f64().unwrap() as f32;
+    };
+
+    (let $var_name: ident = &$json: ident [$field_name: literal] as String ) => {
+        let $var_name = &$json[$field_name];
+        if $var_name.is_null() {
+            let message = format!(
+                "The field {} was not found in the json",
+                stringify!($field_name)
+            );
+            let inner_data = $json.clone();
+            let error_data = GlyphxErrorData::new(message, Some(inner_data), None);
+            return Err(FromJsonError::FieldNotFound(error_data));
+        }
+        if !$var_name.is_string() {
+            let message = format!("The value of the json: {} is not a string", $var_name);
+            let inner_data = $json.clone();
+            let error_data = GlyphxErrorData::new(message, Some(inner_data), None);
+            return Err(FromJsonError::TypeMismatch(error_data));
+        }
+        let $var_name = $var_name.as_str().unwrap().to_string() ;
+    };
+
+    (let $var_name: ident = &$json: ident [$field_name: literal] as bool ) => {
+        let $var_name = &$json[$field_name];
+        if $var_name.is_null() {
+            let message = format!(
+                "The field {} was not found in the json",
+                stringify!($field_name)
+            );
+            let inner_data = $json.clone();
+            let error_data = GlyphxErrorData::new(message, Some(inner_data), None);
+            return Err(FromJsonError::FieldNotFound(error_data));
+        }
+        if !$var_name.is_boolean() {
+            let message = format!("The value of the json: {} is not a boolean", $var_name);
+            let inner_data = $json.clone();
+            let error_data = GlyphxErrorData::new(message, Some(inner_data), None);
+            return Err(FromJsonError::TypeMismatch(error_data));
+        }
+        let $var_name = $var_name.as_bool().unwrap();
     };
 }
 
@@ -100,6 +141,46 @@ macro_rules! partial_json {
 
         let $var_name = $field.as_f64 ().unwrap() as f32;
     };
+
+    (let $var_name: ident = &$field: ident as String ) => {
+        if $field.is_null() {
+            let message = format!(
+                "The field {} was null",
+                stringify!($var_name)
+            );
+            let inner_data = json!({stringify!($var_name): $field});
+            let error_data = GlyphxErrorData::new(message, Some(inner_data), None);
+            return Err(PartialUpdateError::NullValue(error_data));
+        }
+        if !$field.is_string() {
+            let message = format!("The value of the json: {} is not a string", $field);
+            let inner_data = json!({stringify!($var_name): $field});
+            let error_data = GlyphxErrorData::new(message, Some(inner_data), None);
+            return Err(PartialUpdateError::TypeMismatch(error_data));
+        }
+
+        let $var_name = $field.as_str ().unwrap().to_string();
+    };
+
+    (let $var_name: ident = &$field: ident as bool ) => {
+        if $field.is_null() {
+            let message = format!(
+                "The field {} was null",
+                stringify!($var_name)
+            );
+            let inner_data = json!({stringify!($var_name): $field});
+            let error_data = GlyphxErrorData::new(message, Some(inner_data), None);
+            return Err(PartialUpdateError::NullValue(error_data));
+        }
+        if !$field.is_boolean() {
+            let message = format!("The value of the json: {} is not a boolean", $field);
+            let inner_data = json!({stringify!($var_name): $field});
+            let error_data = GlyphxErrorData::new(message, Some(inner_data), None);
+            return Err(PartialUpdateError::TypeMismatch(error_data));
+        }
+
+        let $var_name = $field.as_bool().unwrap();
+    };
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -132,6 +213,13 @@ pub struct ModelConfiguration {
     pub light_intensity: f32,
     pub glyph_size: f32,
     pub model_origin: [f32; 3],
+    pub x_interpolation: InterpolationType,
+    pub x_order: Order,
+    pub y_interpolation: InterpolationType,
+    pub y_order: Order,
+    pub z_interpolation: InterpolationType,
+    pub z_order: Order,
+    pub color_flip: bool,
 }
 impl ModelConfiguration {
     fn location_from_array(json: &Vec<Value>) -> Result<Location, FromJsonError> {
@@ -225,7 +313,25 @@ impl ModelConfiguration {
         parse_json!(let light_intensity = &json["light_intensity"] as f32);
         parse_json!(let glyph_size = &json["glyph_size"] as f32);
         parse_json!(let model_origin = &json["model_origin"] as Array);
+        
+        parse_json!(let x_interpolation = &json["x_interpolation"] as String);
+        parse_json!(let x_order = &json["x_order"] as String);
+        let x_interpolation = InterpolationType::from(x_interpolation);
+        let x_order = Order::from(x_order);
+        
+        parse_json!(let y_interpolation = &json["y_interpolation"] as String);
+        parse_json!(let y_order = &json["y_order"] as String);
+        let y_interpolation = InterpolationType::from(y_interpolation);
+        let y_order = Order::from(y_order);
+        
+        parse_json!(let z_interpolation = &json["z_interpolation"] as String);
+        parse_json!(let z_order = &json["z_order"] as String);
+        let z_interpolation = InterpolationType::from(z_interpolation);
+        let z_order = Order::from(z_order);
+
         let model_origin = Self::location_from_array(model_origin)?;
+        parse_json!( let color_flip = &json["color_flip"] as bool);
+
         Ok(ModelConfiguration {
             min_color,
             max_color,
@@ -245,6 +351,13 @@ impl ModelConfiguration {
             light_intensity,
             glyph_size,
             model_origin,
+            x_interpolation,
+            x_order,
+            y_interpolation,
+            y_order,
+            z_interpolation,
+            z_order,
+            color_flip,
         })
     }
 
@@ -337,11 +450,54 @@ impl ModelConfiguration {
                     partial_json!(let glyph_size = &value as f32);
                     self.glyph_size = glyph_size;
                 },
+                
+                "x_interpolation" => {
+                    partial_json!(let x_interpolation = &value as String);
+                    let x_interpolation = InterpolationType::from(x_interpolation);
+                    self.x_interpolation = x_interpolation;
+                },
+
+                "x_order" => {
+                    partial_json!(let x_order = &value as String);
+                    let x_order = Order::from(x_order);
+                    self.x_order = x_order;
+                },
+
+                "y_interpolation" => {
+                    partial_json!(let y_interpolation = &value as String);
+                    let y_interpolation = InterpolationType::from(y_interpolation);
+                    self.y_interpolation = y_interpolation;
+                },
+
+                "y_order" => {
+                    partial_json!(let y_order = &value as String);
+                    let y_order = Order::from(y_order);
+                    self.y_order = y_order;
+                },
+
+                "z_interpolation" => {
+                    partial_json!(let z_interpolation = &value as String);
+                    let z_interpolation = InterpolationType::from(z_interpolation);
+                    self.z_interpolation = z_interpolation;
+                },
+
+                "z_order" => {
+                    partial_json!(let z_order = &value as String);
+                    let z_order = Order::from(z_order);
+                    self.z_order = z_order;
+                },
+
                 "model_origin" => {
                     partial_json!(let model_origin = &value as Array 3);
                     let model_origin = Self::location_from_array(model_origin)?;
                     self.model_origin = model_origin;
                 },
+
+                "color_flip" => {
+                    partial_json!(let color_flip = &value as bool);
+                    self.color_flip = color_flip;
+                },
+
                 value => {
                     let message = format!(
                         "The field: {} is not a valid field for a model configuration",
@@ -376,15 +532,15 @@ impl Default for ModelConfiguration {
             //A -- done
             grid_cylinder_length: 10.80,
             //R -- done
-            grid_cylinder_radius: 0.05,
+            grid_cylinder_radius: 0.005,
             //C -- done
-            grid_cone_length: 0.2,
+            grid_cone_length: 0.02,
             //K -- done
-            grid_cone_radius: 0.10,
+            grid_cone_radius: 0.010,
             //H -- done
-            z_height_ratio: 0.2,
+            z_height_ratio: 1.0,
             //O -- done
-            glyph_offset: 0.15,
+            glyph_offset: 0.015,
             //E -- Done
             min_glyph_height: 0.0002,
             //W -- Done
@@ -394,9 +550,16 @@ impl Default for ModelConfiguration {
             //I -- Done
             light_intensity: 0.02,
             //S -- Done
-            glyph_size: 0.15,
+            glyph_size: 0.015,
             //G
             model_origin: [-5.0, -5.0, -5.0],
+            x_interpolation: InterpolationType::Linear,
+            x_order: Order::Ascending,
+            y_interpolation: InterpolationType::Linear,
+            y_order: Order::Ascending,
+            z_interpolation: InterpolationType::Linear,
+            z_order: Order::Ascending,
+            color_flip: false,
         }
     }
 }
@@ -451,6 +614,34 @@ mod unit_tests {
             let input = ModelConfiguration::default();
             let mut json = to_value(&input).unwrap();
             json["grid_cone_length"] = json!("I am bad");
+            let result = ModelConfiguration::from_json(&json);
+            assert!(result.is_err());
+            let error = result.unwrap_err();
+            match error {
+                FromJsonError::TypeMismatch(_) => {}
+                _ => panic!("Expected TypeMismatch error"),
+            }
+        }
+
+        #[test]
+        fn string_is_not_a_string() {
+            let input = ModelConfiguration::default();
+            let mut json = to_value(&input).unwrap();
+            json["x_interpolation"] = json!(1.99878765);
+            let result = ModelConfiguration::from_json(&json);
+            assert!(result.is_err());
+            let error = result.unwrap_err();
+            match error {
+                FromJsonError::TypeMismatch(_) => {}
+                _ => panic!("Expected TypeMismatch error"),
+            }
+        }
+
+        #[test]
+        fn bool_is_not_a_bool() {
+            let input = ModelConfiguration::default();
+            let mut json = to_value(&input).unwrap();
+            json["color_flip"] = json!(1.99878765);
             let result = ModelConfiguration::from_json(&json);
             assert!(result.is_err());
             let error = result.unwrap_err();
@@ -712,6 +903,42 @@ mod unit_tests {
         }
 
         #[test]
+        fn x_interpolation() {
+            let mut input = ModelConfiguration::default();
+            let json = json!({"x_interpolation": "Log"});
+            let result = input.partial_update(&json);
+            assert!(result.is_ok());
+            assert_eq!(input.x_interpolation, InterpolationType::Log);
+        }
+
+        #[test]
+        fn x_order() {
+            let mut input = ModelConfiguration::default();
+            let json = json!({"x_order": "Desc"});
+            let result = input.partial_update(&json);
+            assert!(result.is_ok());
+            assert_eq!(input.x_order, Order::Descending);
+        }
+
+        #[test]
+        fn y_interpolation() {
+            let mut input = ModelConfiguration::default();
+            let json = json!({"y_interpolation": "Log"});
+            let result = input.partial_update(&json);
+            assert!(result.is_ok());
+            assert_eq!(input.y_interpolation, InterpolationType::Log);
+        }
+
+        #[test]
+        fn y_order() {
+            let mut input = ModelConfiguration::default();
+            let json = json!({"y_order": "Desc"});
+            let result = input.partial_update(&json);
+            assert!(result.is_ok());
+            assert_eq!(input.y_order, Order::Descending);
+        }
+
+        #[test]
         fn invalid_field() {
             let mut input = ModelConfiguration::default();
             let json = json!({"bad_field": 1.0});
@@ -722,6 +949,33 @@ mod unit_tests {
                 PartialUpdateError::FieldNotFound(_) => {}
                 _ => panic!("Expected FieldNotFound error"),
             }
+        }
+
+        #[test]
+        fn z_interpolation() {
+            let mut input = ModelConfiguration::default();
+            let json = json!({"z_interpolation": "Log"});
+            let result = input.partial_update(&json);
+            assert!(result.is_ok());
+            assert_eq!(input.z_interpolation, InterpolationType::Log);
+        }
+
+        #[test]
+        fn z_order() {
+            let mut input = ModelConfiguration::default();
+            let json = json!({"z_order": "Desc"});
+            let result = input.partial_update(&json);
+            assert!(result.is_ok());
+            assert_eq!(input.z_order, Order::Descending);
+        }
+
+        #[test]
+        fn color_flip() {
+            let mut input = ModelConfiguration::default();
+            let json = json!({"color_flip": true});
+            let result = input.partial_update(&json);
+            assert!(result.is_ok());
+            assert_eq!(input.color_flip, true);
         }
 
         #[test]

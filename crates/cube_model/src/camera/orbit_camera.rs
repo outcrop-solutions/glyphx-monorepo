@@ -191,6 +191,7 @@ impl OrbitCamera {
             self.yaw,
             self.distance,
         ));
+        //eprintln!("camera: {:?}", self);
     }
 }
 

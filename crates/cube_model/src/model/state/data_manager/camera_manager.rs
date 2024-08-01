@@ -38,7 +38,7 @@ impl CameraManager {
         distance: f32,
         aspect_ratio: f32,
         y_offset: f32,
-    ) -> (OrbitCamera, CameraUniform) {
+    ) ->  CameraUniform {
         let mut camera =
             OrbitCamera::new(distance, pitch, yaw, Vec3::new(0.0, 0.0, 0.0), aspect_ratio);
 
@@ -46,14 +46,13 @@ impl CameraManager {
         let mut camera_uniform = CameraUniform::default();
         camera_uniform.y_offset = y_offset;
         camera_uniform.update_view_proj(&camera);
-        let camera_clone = camera.clone();
         let camera_uniform_clone = camera_uniform.clone();
         self.camera = Some(camera);
         self.camera_uniform = Some(camera_uniform);
 
         //We return clones here so that these can be used to build the buffers.
         //All mut actions on these will be performed internally through methods on the CameraManager
-        (camera_clone, camera_uniform_clone)
+         camera_uniform_clone
     }
 
     pub fn get_camera_data(&self) -> String {

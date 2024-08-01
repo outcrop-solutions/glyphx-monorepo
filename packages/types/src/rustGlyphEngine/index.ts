@@ -7,3 +7,4 @@ export type {IGlyphEngineResults} from './iGlyphEngineResults';
 export type {IStandardFieldDefinition} from './iStandardFieldDefinition';
 export type {IModelConfiguration, IUpdateModelConfiguration} from './iModelConfiguration';
 export type {ICameraData} from './iCameraData';
+export type {ISelectedGlyph} from './iSelectedGlyph';

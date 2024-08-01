@@ -25,7 +25,7 @@ impl ModelVectors {
     }
 
     ///Expects data to be all of the bytes representing a vector.
-    pub fn deserialize(&mut self, mut data: Vec<u8>) -> Result<(), DeserializeVectorError> {
+    pub fn deserialize(&mut self, data: Vec<u8>) -> Result<(), DeserializeVectorError> {
         let vector = deserialize::<Vector>(&data);
         if vector.is_err() {
             let error = vector.err().unwrap();

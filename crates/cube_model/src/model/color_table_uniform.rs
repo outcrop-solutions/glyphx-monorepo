@@ -1,4 +1,3 @@
-use wgpu::util::DeviceExt;
 use wgpu::{BindGroup, BindGroupLayout, Buffer, Device};
 use crate::assets::color::{build_color_table, Color};
 

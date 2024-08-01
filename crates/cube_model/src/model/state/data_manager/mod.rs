@@ -1,12 +1,16 @@
+mod camera_manager;
 mod glyph_manager;
 mod stats_manager;
-mod camera_manager;
 
-use super::{AddGlyphError, AddStatsError,  DeserializeVectorError, GetStatsError, ModelVectors, RankedGlyphData };
+use super::{
+    AddGlyphError, AddStatsError, GlyphInstanceData, DeserializeVectorError, GetStatsError,
+    GlyphVertexData, ModelVectors, RankedGlyphData, GlyphIdManager,
+    SelectedGlyph
+};
+pub use camera_manager::CameraManager;
 pub use glyph_manager::GlyphManager;
+use model_common::{Glyph, Stats};
 pub use stats_manager::StatsManager;
-pub use camera_manager::{CameraManager, CameraData};
-use model_common::{Stats, Glyph};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -28,6 +32,7 @@ impl DataManager {
             rc_y_vectors.clone(),
             rc_stats_manager.clone(),
         );
+
         DataManager {
             x_vectors: rc_x_vectors,
             z_vectors: rc_y_vectors,
@@ -56,11 +61,20 @@ impl DataManager {
         self.glyph_manager.add_glyph(glyph_bytes)
     }
 
-    pub fn get_glyphs(&self) -> Option<&RankedGlyphData> {
-        self.glyph_manager.get_glyphs()
+    pub fn add_ranked_glyph(&mut self, glyph: GlyphVertexData) -> Result<(), AddGlyphError> {
+        self.glyph_manager.add_new_ranked_glyph(glyph)?;
+        Ok(())
     }
-     
-    pub fn get_vector_len( &self, axis: &str) -> usize {
+
+    pub fn get_glyphs(&self) -> Option<&RankedGlyphData> {
+        self.glyph_manager.new_get_glyphs()
+    }
+
+    pub fn get_raw_glyphs(&self) -> &Vec<GlyphInstanceData> {
+        self.glyph_manager.get_raw_glyphs()
+    }
+
+    pub fn get_vector_len(&self, axis: &str) -> usize {
         match axis {
             "x" => self.x_vectors.borrow().len(),
             "z" => self.z_vectors.borrow().len(),
@@ -72,12 +86,22 @@ impl DataManager {
         self.stats_manager.borrow().len()
     }
 
-
-
     pub fn get_glyph_len(&self) -> usize {
         self.glyph_manager.len()
     }
 
+    pub fn clear_glyphs(&mut self) {
+        self.glyph_manager.clear();
+        //If we are clearning glyphs then we must also clear the hit detection data
+
+    }
+
+    pub fn select_glyph(&mut self, glyph_id: u32) {
+        self.glyph_manager.select_glyph(glyph_id);
+    }
+    pub fn get_glyph_description(&self, glyph_id: u32) -> Option<SelectedGlyph> {
+        self.glyph_manager.get_glyph_description(glyph_id)
+    }
 }
 
 #[cfg(test)]
@@ -89,7 +113,19 @@ mod unit_tests {
         vectors::{Vector, VectorOrigionalValue},
         Glyph, Stats,
     };
+    mod contructor {
+        use super::*;
 
+        #[test]
+        fn is_ok() {
+            let data_manager = DataManager::new();
+            assert_eq!(data_manager.get_vector_len("x"), 0);
+            assert_eq!(data_manager.get_vector_len("z"), 0);
+            assert_eq!(data_manager.get_stats_len(), 0);
+            assert_eq!(data_manager.get_glyph_len(), 0);
+        }
+
+    }
     mod add_x_vector {
         use super::*;
 
@@ -183,7 +219,6 @@ mod unit_tests {
 
     mod add_glyph {
         use super::*;
-        use crate::model::pipeline::glyphs::ranked_glyph_data::{Rank, RankDirection};
 
         #[test]
         fn is_ok() {
@@ -218,13 +253,7 @@ mod unit_tests {
             assert!(result.is_ok());
 
             let glyph_data = data_manager.get_glyphs();
-            assert!(glyph_data.is_some());
-            let glyph_data = glyph_data.unwrap();
-            let mut count = 0;
-            glyph_data
-                .iter(Rank::X, RankDirection::Ascending)
-                .for_each(|r| count += r.len());
-            assert_eq!(count, 1);
+            assert!(glyph_data.is_none());
         }
 
         #[test]
@@ -249,7 +278,6 @@ mod unit_tests {
             let result = data_manager.add_stats(serialize(&stats).unwrap());
             assert!(result.is_ok());
 
-
             let glyph_bytes = vec![0, 1, 2, 3];
             let result = data_manager.add_glyph(glyph_bytes);
             assert!(result.is_err());
@@ -261,6 +289,48 @@ mod unit_tests {
 
             let glyph_data = data_manager.get_glyphs();
             assert!(glyph_data.is_none());
+        }
+    }
+
+    mod clear {
+        use super::*;
+
+        #[test]
+        fn is_ok() {
+            let mut data_manager = DataManager::new();
+            let vector = Vector::new(VectorOrigionalValue::U64(0), 0.0, 0);
+
+            let result = data_manager.add_x_vector(serialize(&vector).unwrap());
+            assert!(result.is_ok());
+
+            let result = data_manager.add_z_vector(serialize(&vector).unwrap());
+            assert!(result.is_ok());
+
+            let mut stats = Stats::default();
+            stats.axis = "x".to_string();
+            stats.max_rank = 1;
+
+            let result = data_manager.add_stats(serialize(&stats).unwrap());
+            assert!(result.is_ok());
+
+            stats.axis = "y".to_string();
+            let result = data_manager.add_stats(serialize(&stats).unwrap());
+            assert!(result.is_ok());
+
+            let glyph = Glyph {
+                x_value: 0.0,
+                y_value: 0.0,
+                z_value: 0.0,
+                row_ids: vec![0],
+            };
+
+            let result = data_manager.add_glyph(serialize(&glyph).unwrap());
+            assert!(result.is_ok());
+
+            data_manager.clear_glyphs();
+            
+            let gm = data_manager.get_glyphs();
+            assert!(gm.is_none());
         }
     }
 }

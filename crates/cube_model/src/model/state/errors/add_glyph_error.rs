@@ -3,8 +3,7 @@ use glyphx_core_error::{GlyphxCoreError, GlyphxErrorData};
 use bincode::{Error, ErrorKind};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, to_value};
-use crate::data::GetVectorError;
-use crate::model::pipeline::glyphs::ranked_glyph_data::RankedGlyphDataError;
+use crate::{data::GetVectorError, model::pipeline::glyphs::ranked_glyph_data::RankedGlyphDataError};
 #[derive(Debug, Clone,Deserialize, Serialize, GlyphxCoreError)]
 #[error_definition("StatsError")]
 pub enum AddGlyphError {
