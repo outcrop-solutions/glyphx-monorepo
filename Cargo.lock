@@ -1612,6 +1612,7 @@ dependencies = [
  "serde-wasm-bindgen",
  "serde_json",
  "smaa",
+ "statrs",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
