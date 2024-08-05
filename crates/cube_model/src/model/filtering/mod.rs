@@ -41,6 +41,7 @@ mod unit_tests {
     #[derive(Clone, Debug)]
     enum SubType {
         Value(ComparisonValue),
+        Statistic(String),
     }
 
     #[derive(Clone, Debug)]
@@ -58,6 +59,8 @@ mod unit_tests {
 
     struct Query {
         x: Option<QueryType>,
+        z: Option<QueryType>,
+        y: Option<QueryType>,
     }
 
     impl Query {
@@ -86,30 +89,70 @@ mod unit_tests {
             value
         }
         //Convert world side value to a vector to pass it to the comparison_fn
+        fn extract_statistic(value: &str, statistics: &Stats) -> Option<f64> {
+            match value {
+                "mean" => Some(statistics.mean),
+                "median" => Some(statistics.median),
+                "pct_0" => Some(statistics.pct_0),
+                "pct_5" => Some(statistics.pct_5),
+                "pct_10" => Some(statistics.pct_10),
+                "pct_15" => Some(statistics.pct_15),
+                "pct_20" => Some(statistics.pct_20),
+                "pct_25" => Some(statistics.pct_25),
+                "pct_30" => Some(statistics.pct_30),
+                "pct_33" => Some(statistics.pct_33),
+                "pct_35" => Some(statistics.pct_35),
+                "pct_40" => Some(statistics.pct_40),
+                "pct_45" => Some(statistics.pct_45),
+                "pct_50" => Some(statistics.pct_50),
+                "pct_55" => Some(statistics.pct_55),
+                "pct_60" => Some(statistics.pct_60),
+                "pct_65" => Some(statistics.pct_65),
+                "pct_67" => Some(statistics.pct_67),
+                "pct_70" => Some(statistics.pct_70),
+                "pct_75" => Some(statistics.pct_75),
+                "pct_80" => Some(statistics.pct_80),
+                "pct_85" => Some(statistics.pct_85),
+                "pct_90" => Some(statistics.pct_90),
+                "pct_95" => Some(statistics.pct_95),
+                "pct_99" => Some(statistics.pct_99),
+                _ => None,
+            }
+        }
         fn extract_comparison_value(
             sub_type: &SubType,
-            axis_vectors: &ModelVectors,
-            axis_statistics: &Stats,
+            axis_vectors: &Option<&ModelVectors>,
+            axis_stats: &Stats,
         ) -> Option<f64> {
             match sub_type {
                 SubType::Value(comparison_value) => {
-                    Self::extract_vector_from_value(&comparison_value, axis_vectors)
+                    if axis_vectors.is_some() {
+                        Self::extract_vector_from_value(&comparison_value, axis_vectors.unwrap())
+                    } else {
+                        //Y axis does not have vectors, it is already a number
+                        match comparison_value {
+                            ComparisonValue::Number(f) => Some(*f),
+                            ComparisonValue::Integer(i) => Some(*i as f64),
+                            _ => None,
+                        }
+                    }
                 }
+                SubType::Statistic(value) => Self::extract_statistic(value.as_str(), axis_stats),
             }
         }
         fn greater_than_fn(a: &f64, b: &f64) -> bool {
             a > b
         }
-        fn compare_values( operator: &Operator, vector_value: f64, comparison_value: f64) -> bool {
+        fn compare_values(operator: &Operator, vector_value: f64, comparison_value: f64) -> bool {
             match operator {
                 Operator::GreaterThan => Self::greater_than_fn(&vector_value, &comparison_value),
-                _ => false
+                _ => false,
             }
         }
         fn evaluate_axis(
             axis_query: &QueryType,
             vector_value: f64,
-            axis_vectors: &ModelVectors,
+            axis_vectors: &Option<&ModelVectors>,
             axis_stats: &Stats,
         ) -> bool {
             match axis_query {
@@ -119,12 +162,25 @@ mod unit_tests {
                     let comparison_val =
                         Self::extract_comparison_value(sub_type, axis_vectors, axis_stats);
                     if comparison_val.is_none() {
-                    return false;
+                        return false;
                     }
                     let comparison_value = comparison_val.unwrap();
-                    Self::compare_values( &operator, vector_value, comparison_value)
+                    Self::compare_values(&operator, vector_value, comparison_value)
                 }
             }
+        }
+        fn process_axis_query(
+            query_type: &Option<QueryType>,
+            vector_value: f64,
+            axis_vectors: &Option<&ModelVectors>,
+            axis_stats: &Stats,
+        ) -> bool {
+            let query_type = Self::get_query_type(query_type);
+            let expected_value = Self::get_expected_query_result(&query_type);
+            let evaluated_value =
+                Self::evaluate_axis(&query_type, vector_value, axis_vectors, axis_stats);
+
+            expected_value == evaluated_value
         }
         pub fn run(
             &self,
@@ -138,21 +194,28 @@ mod unit_tests {
             glyph_data
                 .iter()
                 .filter(|g| {
-                    let x_query_type = Self::get_query_type(&self.x);
-                    let expected_x = Self::get_expected_query_result(&x_query_type);
-                    let x_evaluated_value = Self::evaluate_axis(
-                        &x_query_type,
+                    let x_query_result = Self::process_axis_query(
+                        &self.x,
                         g.x_value as f64,
-                        x_vector_data,
+                        &Some(&x_vector_data),
                         x_statistics,
                     );
-                    x_evaluated_value == expected_x
+
+                    let z_query_result = Self::process_axis_query(
+                        &self.z,
+                        g.z_value as f64,
+                        &Some(&z_vector_data),
+                        z_statistics,
+                    );
+
+                    let y_query_result =
+                        Self::process_axis_query(&self.y, g.y_value as f64, &None, y_statistics);
+                    x_query_result && z_query_result && y_query_result
                 })
                 .map(|g| g.clone())
                 .collect()
         }
     }
-
 
     fn build_glyph_data(x_rank_size: u32, z_rank_size: u32) -> Vec<GlyphInstanceData> {
         let mut glyph_data: Vec<GlyphInstanceData> = Vec::new();
@@ -160,7 +223,7 @@ mod unit_tests {
             for z in 0..z_rank_size {
                 let glyph_id = x * z_rank_size + z;
                 let glyph_instance =
-                    GlyphInstanceData::new(glyph_id, x as f32, x, x as f32, (x * z) as f32, z, z);
+                    GlyphInstanceData::new(glyph_id, x as f32, x, (x * z) as f32, z as f32, z, z);
                 glyph_data.push(glyph_instance);
             }
         }
@@ -247,30 +310,750 @@ mod unit_tests {
         let x_stats = build_stats_for_axis("x", x_size as u64, &x_data);
         let z_data: Vec<f64> = glyph_data.iter().map(|z| z.z_value as f64).collect();
         let z_stats = build_stats_for_axis("z", z_size as u64, &z_data);
-        let y_data : Vec<f64> = glyph_data.iter().map(|y| y.y_value as f64).collect();
+        let y_data: Vec<f64> = glyph_data.iter().map(|y| y.y_value as f64).collect();
         let y_stats = build_stats_for_axis("y", 0, &y_data);
         let x_vectors = build_vectors(&x_data, &vector_type);
         let z_vectors = build_vectors(&z_data, &vector_type);
         (glyph_data, x_stats, z_stats, y_stats, x_vectors, z_vectors)
     }
+    mod include {
+        use super::*;
 
-    #[test]
-    fn x_greater_than_5() {
-        // Test code here
+        #[test]
+        fn x_greater_than_5() {
+            // Test code here
 
-        let (glyph_data, x_stats, z_stats, y_stats, x_vectors, z_vectors) =
-            build_test_data(10, 10, VectorType::Number);
-        let query = Query {
-            x: Some(QueryType::Include {
-                sub_type: SubType::Value(ComparisonValue::Number(5.0)),
-                operator: Operator::GreaterThan,
-            }),
-        };
+            let (glyph_data, x_stats, z_stats, y_stats, x_vectors, z_vectors) =
+                build_test_data(10, 10, VectorType::Number);
+            let query = Query {
+                x: Some(QueryType::Include {
+                    sub_type: SubType::Value(ComparisonValue::Number(5.0)),
+                    operator: Operator::GreaterThan,
+                }),
+                z: None,
+                y: None,
+            };
 
-        let results = query.run(&glyph_data, &x_vectors,& z_vectors, &x_stats,& z_stats,& y_stats);
-        assert!(results.len() < glyph_data.len());
-        results.iter().for_each(|g| {
-            assert!(g.x_value > 5.0);
-        });
+            let results = query.run(
+                &glyph_data,
+                &x_vectors,
+                &z_vectors,
+                &x_stats,
+                &z_stats,
+                &y_stats,
+            );
+            assert!(results.len() < glyph_data.len());
+            //We are only filtering on x so we should have z values less than our filter -- due` to the
+            //way we build the glyphs
+            let mut z_less_than_filter = false;
+            results.iter().for_each(|g| {
+                assert!(g.x_value > 5.0);
+                if g.z_value <= 5.0 {
+                    z_less_than_filter = true;
+                }
+            });
+
+            assert!(z_less_than_filter);
+        }
+
+        #[test]
+        fn z_greater_than_5() {
+            // Test code here
+
+            let (glyph_data, x_stats, z_stats, y_stats, x_vectors, z_vectors) =
+                build_test_data(10, 10, VectorType::Number);
+            let query = Query {
+                z: Some(QueryType::Include {
+                    sub_type: SubType::Value(ComparisonValue::Number(5.0)),
+                    operator: Operator::GreaterThan,
+                }),
+                x: None,
+                y: None,
+            };
+
+            let results = query.run(
+                &glyph_data,
+                &x_vectors,
+                &z_vectors,
+                &x_stats,
+                &z_stats,
+                &y_stats,
+            );
+            //We are only filtering on z so we should have x values less than our filter -- due to the
+            //way we build the glyphs
+            let mut x_less_than_filter = false;
+            assert!(results.len() < glyph_data.len());
+            results.iter().for_each(|g| {
+                assert!(g.z_value > 5.0);
+                if g.x_value < 5.0 {
+                    x_less_than_filter = true;
+                }
+            });
+            assert!(x_less_than_filter);
+        }
+
+        #[test]
+        fn y_greater_than_5() {
+            // Test code here
+
+            let (glyph_data, x_stats, z_stats, y_stats, x_vectors, z_vectors) =
+                build_test_data(10, 10, VectorType::Number);
+            let query = Query {
+                y: Some(QueryType::Include {
+                    sub_type: SubType::Value(ComparisonValue::Number(5.0)),
+                    operator: Operator::GreaterThan,
+                }),
+                x: None,
+                z: None,
+            };
+
+            let results = query.run(
+                &glyph_data,
+                &x_vectors,
+                &z_vectors,
+                &x_stats,
+                &z_stats,
+                &y_stats,
+            );
+            assert!(results.len() < glyph_data.len());
+            //We are only filtering on y so we should have x & z values less than our filter -- due` to the
+            //way we build the glyphs
+            let mut z_less_than_filter = false;
+            let mut x_less_than_filter = false;
+            results.iter().for_each(|g| {
+                assert!(g.y_value > 5.0);
+                if g.z_value <= 5.0 {
+                    z_less_than_filter = true;
+                }
+                if g.x_value <= 5.0 {
+                    x_less_than_filter = true;
+                }
+            });
+
+            assert!(z_less_than_filter);
+            assert!(x_less_than_filter);
+        }
+
+        #[test]
+        fn x_and_z_greater_than_5() {
+            // Test code here
+
+            let (glyph_data, x_stats, z_stats, y_stats, x_vectors, z_vectors) =
+                build_test_data(10, 10, VectorType::Number);
+            let query = Query {
+                z: Some(QueryType::Include {
+                    sub_type: SubType::Value(ComparisonValue::Number(5.0)),
+                    operator: Operator::GreaterThan,
+                }),
+                x: Some(QueryType::Include {
+                    sub_type: SubType::Value(ComparisonValue::Number(5.0)),
+                    operator: Operator::GreaterThan,
+                }),
+                y: None,
+            };
+
+            let results = query.run(
+                &glyph_data,
+                &x_vectors,
+                &z_vectors,
+                &x_stats,
+                &z_stats,
+                &y_stats,
+            );
+            //We are only filtering on z so we should have x values less than our filter -- due to the
+            //way we build the glyphs
+            assert!(results.len() < glyph_data.len());
+            results.iter().for_each(|g| {
+                assert!(g.z_value > 5.0);
+                assert!(g.x_value > 5.0);
+            });
+        }
+    }
+
+    mod exclude {
+        use super::*;
+
+        #[test]
+        fn x_greater_than_5() {
+            // Test code here
+
+            let (glyph_data, x_stats, z_stats, y_stats, x_vectors, z_vectors) =
+                build_test_data(10, 10, VectorType::Number);
+            let query = Query {
+                x: Some(QueryType::Exclude {
+                    sub_type: SubType::Value(ComparisonValue::Number(5.0)),
+                    operator: Operator::GreaterThan,
+                }),
+                z: None,
+                y: None,
+            };
+
+            let results = query.run(
+                &glyph_data,
+                &x_vectors,
+                &z_vectors,
+                &x_stats,
+                &z_stats,
+                &y_stats,
+            );
+            assert!(results.len() < glyph_data.len());
+            //We are only filtering on x so we should have z values less than our filter -- due` to the
+            //way we build the glyphs
+            let mut z_greater_than_filter = false;
+            results.iter().for_each(|g| {
+                assert!(g.x_value <= 5.0);
+                if g.z_value > 5.0 {
+                    z_greater_than_filter = true;
+                }
+            });
+
+            assert!(z_greater_than_filter);
+        }
+
+        #[test]
+        fn z_greater_than_5() {
+            // Test code here
+
+            let (glyph_data, x_stats, z_stats, y_stats, x_vectors, z_vectors) =
+                build_test_data(10, 10, VectorType::Number);
+            let query = Query {
+                z: Some(QueryType::Exclude {
+                    sub_type: SubType::Value(ComparisonValue::Number(5.0)),
+                    operator: Operator::GreaterThan,
+                }),
+                x: None,
+                y: None,
+            };
+
+            let results = query.run(
+                &glyph_data,
+                &x_vectors,
+                &z_vectors,
+                &x_stats,
+                &z_stats,
+                &y_stats,
+            );
+            //We are only filtering on z so we should have x values less than our filter -- due to the
+            //way we build the glyphs
+            let mut x_greater_than_filter = false;
+            assert!(results.len() < glyph_data.len());
+            results.iter().for_each(|g| {
+                assert!(g.z_value <= 5.0);
+                if g.x_value > 5.0 {
+                    x_greater_than_filter = true;
+                }
+            });
+            assert!(x_greater_than_filter);
+        }
+
+        #[test]
+        fn y_greater_than_5() {
+            // Test code here
+
+            let (glyph_data, x_stats, z_stats, y_stats, x_vectors, z_vectors) =
+                build_test_data(10, 10, VectorType::Number);
+            let query = Query {
+                y: Some(QueryType::Exclude {
+                    sub_type: SubType::Value(ComparisonValue::Number(5.0)),
+                    operator: Operator::GreaterThan,
+                }),
+                x: None,
+                z: None,
+            };
+
+            let results = query.run(
+                &glyph_data,
+                &x_vectors,
+                &z_vectors,
+                &x_stats,
+                &z_stats,
+                &y_stats,
+            );
+            assert!(results.len() < glyph_data.len());
+            //We are only filtering on y so we should have x & z values less than our filter -- due` to the
+            //way we build the glyphs
+            let mut z_greater_than_filter = false;
+            let mut x_greater_than_filter = false;
+            results.iter().for_each(|g| {
+                assert!(g.y_value <= 5.0);
+                if g.z_value > 5.0 {
+                    z_greater_than_filter = true;
+                }
+                if g.x_value > 5.0 {
+                    x_greater_than_filter = true;
+                }
+            });
+
+            assert!(z_greater_than_filter);
+            assert!(x_greater_than_filter);
+        }
+
+        #[test]
+        fn x_and_z_greater_than_5() {
+            // Test code here
+
+            let (glyph_data, x_stats, z_stats, y_stats, x_vectors, z_vectors) =
+                build_test_data(10, 10, VectorType::Number);
+            let query = Query {
+                z: Some(QueryType::Exclude {
+                    sub_type: SubType::Value(ComparisonValue::Number(5.0)),
+                    operator: Operator::GreaterThan,
+                }),
+                x: Some(QueryType::Exclude {
+                    sub_type: SubType::Value(ComparisonValue::Number(5.0)),
+                    operator: Operator::GreaterThan,
+                }),
+                y: None,
+            };
+
+            let results = query.run(
+                &glyph_data,
+                &x_vectors,
+                &z_vectors,
+                &x_stats,
+                &z_stats,
+                &y_stats,
+            );
+            //We are only filtering on z so we should have x values less than our filter -- due to the
+            //way we build the glyphs
+            assert!(results.len() < glyph_data.len());
+            results.iter().for_each(|g| {
+                assert!(g.z_value <= 5.0);
+                assert!(g.x_value <= 5.0);
+            });
+        }
+    }
+
+    mod mixed_queries {
+        use super::*;
+
+        #[test]
+        fn include_x_and_exclude_z_greater_than_5() {
+            // Test code here
+
+            let (glyph_data, x_stats, z_stats, y_stats, x_vectors, z_vectors) =
+                build_test_data(10, 10, VectorType::Number);
+            let query = Query {
+                z: Some(QueryType::Exclude {
+                    sub_type: SubType::Value(ComparisonValue::Number(5.0)),
+                    operator: Operator::GreaterThan,
+                }),
+                x: Some(QueryType::Include {
+                    sub_type: SubType::Value(ComparisonValue::Number(5.0)),
+                    operator: Operator::GreaterThan,
+                }),
+                y: None,
+            };
+
+            let results = query.run(
+                &glyph_data,
+                &x_vectors,
+                &z_vectors,
+                &x_stats,
+                &z_stats,
+                &y_stats,
+            );
+            //We are only filtering on z so we should have x values less than our filter -- due to the
+            //way we build the glyphs
+            assert!(results.len() < glyph_data.len());
+            results.iter().for_each(|g| {
+                assert!(g.z_value <= 5.0);
+                assert!(g.x_value > 5.0);
+            });
+        }
+    }
+    mod extract_comparison_value {
+        use super::*;
+
+        #[test]
+        fn number_is_ok() {
+            let values: Vec<f64>= (0 .. 100).collect::<Vec<u32>>().iter().map(|v| *v as f64).collect();
+            let vectors = build_vectors(&values, &VectorType::Number);
+            let value = Query::extract_vector_from_value(&ComparisonValue::Number(5.0), &vectors);
+            assert!(value.is_some() );
+            let value = value.unwrap();
+            assert_eq!(value, 5.0);
+
+        }
+
+        #[test]
+        fn number_is_none() {
+            let values: Vec<f64>= (0 .. 100).collect::<Vec<u32>>().iter().map(|v| *v as f64).collect();
+            let vectors = build_vectors(&values, &VectorType::Number);
+            let value = Query::extract_vector_from_value(&ComparisonValue::Number(105.0), &vectors);
+            assert!(value.is_none() );
+
+        }
+
+        #[test]
+        fn number_is_mismatched_type() {
+            let values: Vec<f64>= (0 .. 100).collect::<Vec<u32>>().iter().map(|v| *v as f64).collect();
+            let vectors = build_vectors(&values, &VectorType::Number);
+            let value = Query::extract_vector_from_value(&ComparisonValue::String("I am a test".to_string()), &vectors);
+            assert!(value.is_none() );
+
+        }
+
+        #[test]
+        fn integer_is_ok() {
+            let values: Vec<f64>= (0 .. 100).collect::<Vec<u32>>().iter().map(|v| *v as f64).collect();
+            let vectors = build_vectors(&values, &VectorType::Integer);
+            let value = Query::extract_vector_from_value(&&ComparisonValue::Integer(5), &vectors);
+            assert!(value.is_some() );
+            let value = value.unwrap();
+            assert_eq!(value, 5.0);
+
+        }
+
+        #[test]
+        fn integer_is_none() {
+            let values: Vec<f64>= (0 .. 100).collect::<Vec<u32>>().iter().map(|v| *v as f64).collect();
+            let vectors = build_vectors(&values, &VectorType::Integer);
+            let value = Query::extract_vector_from_value(&ComparisonValue::Integer(105), &vectors);
+            assert!(value.is_none() );
+
+        }
+
+        #[test]
+        fn integer_is_mismatched_type() {
+            let values: Vec<f64>= (0 .. 100).collect::<Vec<u32>>().iter().map(|v| *v as f64).collect();
+            let vectors = build_vectors(&values, &VectorType::Integer);
+            let value = Query::extract_vector_from_value(&ComparisonValue::String("I am a test".to_string()), &vectors);
+            assert!(value.is_none() );
+
+        }
+
+        #[test]
+        fn string_is_ok() {
+            let values: Vec<f64>= (0 .. 100).collect::<Vec<u32>>().iter().map(|v| *v as f64).collect();
+            let vectors = build_vectors(&values, &VectorType::String("String".to_string()));
+            let value = Query::extract_vector_from_value(&&ComparisonValue::String("String-5".to_string()), &vectors);
+            assert!(value.is_some() );
+            let value = value.unwrap();
+            assert_eq!(value, 5.0);
+
+        }
+
+        #[test]
+        fn string_is_none() {
+            let values: Vec<f64>= (0 .. 100).collect::<Vec<u32>>().iter().map(|v| *v as f64).collect();
+            let vectors = build_vectors(&values, &VectorType::String("String".to_string()));
+            let value = Query::extract_vector_from_value(&ComparisonValue::String("String-105".to_string()), &vectors);
+            assert!(value.is_none() );
+
+        }
+
+        #[test]
+        fn string_is_mismatched_type() {
+            let values: Vec<f64>= (0 .. 100).collect::<Vec<u32>>().iter().map(|v| *v as f64).collect();
+            let vectors = build_vectors(&values, &VectorType::String("String".to_string()));
+            let value = Query::extract_vector_from_value(&ComparisonValue::Number(5.0), &vectors);
+            assert!(value.is_none() );
+
+        }
+    }
+
+    mod stats {
+        use super::*;
+
+        fn build_test_stats() -> Stats {
+            Stats {
+                axis: "test".to_string(),
+                min: 0.0,
+                max: 999.0,
+                mean: 500.0,
+                median: 550.0,
+                variance: f64::NAN,
+                standard_deviation: f64::NAN,
+                entropy: f64::NAN,
+                skewness: f64::NAN,
+                pct_0: 0.0,
+                pct_5: 5.0,
+                pct_10: 10.0,
+                pct_15: 15.0,
+                pct_20: 20.0,
+                pct_25: 25.0,
+                pct_30: 30.0,
+                pct_33: 33.0,
+                pct_35: 35.0,
+                pct_40: 40.0,
+                pct_45: 45.0,
+                pct_50: 50.0,
+                pct_55: 55.0,
+                pct_60: 60.0,
+                pct_65: 65.0,
+                pct_67: 67.0,
+                pct_70: 70.0,
+                pct_75: 75.0,
+                pct_80: 80.0,
+                pct_85: 85.0,
+                pct_90: 90.0,
+                pct_95: 95.0,
+                pct_99: 99.0,
+                max_rank: 1000,
+            }
+        }
+
+        #[test]
+        fn mean() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("mean", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.mean);
+        }
+
+        #[test]
+        fn median() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("median", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.median);
+        }
+
+        #[test]
+        fn pct_0() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_0", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_0);
+        }
+        
+        #[test]
+        fn pct_5() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_5", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_5);
+        }
+
+        #[test]
+        fn pct_10() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_10", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_10);
+        }
+
+        #[test]
+        fn pct_15() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_15", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_15);
+        }
+        
+        #[test]
+        fn pct_20() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_20", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_20);
+        }
+
+        #[test]
+        fn pct_25() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_25", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_25);
+        }
+
+        #[test]
+        fn pct_30() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_30", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_30);
+        }
+
+        #[test]
+        fn pct_33() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_33", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_33);
+        }
+
+        #[test]
+        fn pct_35() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_35", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_35);
+        }
+
+        #[test]
+        fn pct_40() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_40", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_40);
+        }
+
+        #[test]
+        fn pct_45() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_45", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_45);
+        }
+
+        #[test]
+        fn pct_50() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_50", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_50);
+        }
+
+        #[test]
+        fn pct_55() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_55", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_55);
+        }
+
+        #[test]
+        fn pct_60() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_60", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_60);
+        }
+
+        #[test]
+        fn pct_65() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_65", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_65);
+        }
+
+        #[test]
+        fn pct_67() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_67", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_67);
+        }
+
+        #[test]
+        fn pct_70() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_70", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_70);
+        }
+
+        #[test]
+        fn pct_75() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_75", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_75);
+        }
+
+        #[test]
+        fn pct_80() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_80", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_80);
+        }
+
+        #[test]
+        fn pct_90() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_90", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_90);
+        }
+
+        #[test]
+        fn pct_95() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_95", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_95);
+        }
+
+        #[test]
+        fn pct_99() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("pct_99", &stats);
+            assert!(result.is_some());
+            let result = result.unwrap();
+            assert_eq!(result, stats.pct_99);
+        }
+
+        #[test]
+        fn is_none() {
+            let stats = build_test_stats();
+            let result = Query::extract_statistic("something else", &stats);
+            assert!(result.is_none());
+        }
+
+        #[test]
+        fn x_greater_than_65_pct() {
+            // Test code here
+
+            let (glyph_data, x_stats, z_stats, y_stats, x_vectors, z_vectors) =
+                build_test_data(10, 10, VectorType::Number);
+            let comp_value = x_stats.pct_65 as f32;
+
+            let query = Query {
+                x: Some(QueryType::Include {
+                    sub_type: SubType::Statistic("pct_65".to_string()),
+                    operator: Operator::GreaterThan,
+                }),
+                z: None,
+                y: None,
+            };
+
+            let results = query.run(
+                &glyph_data,
+                &x_vectors,
+                &z_vectors,
+                &x_stats,
+                &z_stats,
+                &y_stats,
+            );
+            assert!(results.len() < glyph_data.len());
+            //We are only filtering on x so we should have z values less than our filter -- due` to the
+            //way we build the glyphs
+            let mut z_less_than_filter = false;
+            results.iter().for_each(|g| {
+                assert!(g.x_value > comp_value);
+                if g.z_value <= comp_value {
+                    z_less_than_filter = true;
+                }
+            });
+
+            assert!(z_less_than_filter);
+        }
     }
 }
