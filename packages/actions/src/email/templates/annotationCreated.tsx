@@ -3,6 +3,7 @@ import React from 'react';
 import {Tailwind, Body, Container, Head, Html, Img, Row, Section, Text, Button} from '@react-email/components';
 import {emailTypes} from 'types';
 import {getEnvSpecificStateUrl} from '../../utils/getUrls';
+import {getUrlKey} from '../../utils';
 
 export const AnnotationCreatedTemplate = ({
   projectId,
