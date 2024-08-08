@@ -34,7 +34,7 @@ export const AnnotationCreatedTemplate = ({
         <Container className="bg-secondary-dark-blue h-screen px-4 flex flex-col justify-center items-center space-y-2 w-[380px]">
           <Img
             className="mx-auto mt-4"
-            src={`https://aqhswtcebhzai9us.public.blob.vercel-storage.com/email-logo-lMNRUtVWULQczrDDjf06zIeVxv34Fh.png`}
+            src={`https://${getUrlKey()}.public.blob.vercel-storage.com/email-logo-lMNRUtVWULQczrDDjf06zIeVxv34Fh.png`}
           />
           <Text className="text-white mb-2">A thread was created</Text>
           <Section
