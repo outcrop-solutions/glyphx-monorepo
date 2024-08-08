@@ -28,9 +28,9 @@ export const buildStateUrl = (stateId: string) => {
 
 export const getUrlKey = () => {
   let urlKey = `${process.env.DEV_BLOB_URL}`;
-  if (process.env.VERCEL_ENV === 'preview' && process.env.DEMO_BLOB_URL) {
+  if (process.env.VERCEL_ENV === 'preview') {
     urlKey = `${process.env.DEMO_BLOB_URL}`;
-  } else if (process.env.VERCEL_ENV === 'production' && process.env.PROD_BLOB_URL) {
+  } else if (process.env.VERCEL_ENV === 'production') {
     urlKey = `${process.env.PROD_BLOB_URL}`;
   }
   return urlKey;
