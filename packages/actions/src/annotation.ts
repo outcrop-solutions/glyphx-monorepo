@@ -119,7 +119,6 @@ export const getStateAnnotations = async (stateId: string) => {
  */
 export const createProjectAnnotation = async (projectId: string, value: string) => {
   try {
-    console.log('createProjectAnnotation', {projectId, value});
     const session = await getServerSession(authOptions);
     if (session?.user) {
       await annotationService.createProjectAnnotation({
@@ -162,8 +161,6 @@ export const createProjectAnnotation = async (projectId: string, value: string) 
         await emailClient.init();
         await emailClient.sendEmail(emailData);
       }
-
-      console.log('createProjectAnnotation', {members, retval, value});
       revalidatePath(`/project/${projectId}`, 'layout');
     }
   } catch (err) {
@@ -185,7 +182,6 @@ export const createProjectAnnotation = async (projectId: string, value: string) 
  */
 export const createStateAnnotation = async (stateId: string, value: string) => {
   try {
-    console.log('createStateAnnotation', {stateId, value});
     const session = await getServerSession(authOptions);
     if (session?.user) {
       const annotation = await annotationService.createStateAnnotation({
@@ -229,7 +225,6 @@ export const createStateAnnotation = async (stateId: string, value: string) => {
             await emailClient.init();
             await emailClient.sendEmail(emailData);
           }
-          console.log('createStateAnnotation', {members, retval, value});
         }
 
         revalidatePath(`/project/${state?.project.id}`, 'layout');
