@@ -15,7 +15,7 @@ fn read_usize<R: Read>(reader: &mut R) -> Result<usize, Box<dyn std::error::Erro
 } 
 
 fn main() {
-     let runner = ModelRunner::new();
+    let runner = ModelRunner::new();
     const PREFIX: &str = "b05e0a4fdd3b75a1a28e65f407097cad";
     let x_vector_file_name = format!("./test_data/{}-x-axis.vec", PREFIX);
     let y_vector_file_name = format!("./test_data/{}-y-axis.vec", PREFIX);

@@ -2,6 +2,7 @@ use crate::{data::ModelVectors,
     model::pipeline::glyphs::glyph_instance_data::GlyphInstanceData};
 use glyphx_core_error::{GlyphxCoreError, GlyphxErrorData};
 use model_common::{Stats, VectorOrigionalValue};
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
 
@@ -27,7 +28,7 @@ impl FromJsonValueError {
 }
 
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum ComparisonValue {
     Number(f64),
     Integer(u64),
@@ -123,7 +124,7 @@ enum VectorType {
     String(String),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum Operator {
     GreaterThan,
 }
@@ -156,7 +157,7 @@ impl Operator {
         }
     }
 }
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum SubType {
     Value(ComparisonValue),
     Statistic(String),
@@ -197,7 +198,7 @@ impl SubType {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum QueryType {
     Include {
         sub_type: SubType,
@@ -274,7 +275,8 @@ impl QueryType {
     }
 }
 
-struct Query {
+#[derive(Debug,Clone, Deserialize, Serialize)]
+pub struct Query {
     x: Option<QueryType>,
     z: Option<QueryType>,
     y: Option<QueryType>,
@@ -435,6 +437,9 @@ impl Query {
             .collect()
     }
 
+    //NOTE: You may be wondering, "How are we handling the flipping of the z and y axis?" "Does the
+    //client need to keep track of this?".  We will flip y and z in lib when we bring the json
+    //across as a string.  This will make things a little easier to keep track of.
     pub fn from_json_value(json_value: &Value) -> Result<Self, FromJsonValueError> {
         if !json_value.is_object() {
             return Err(FromJsonValueError::json_format_error(
