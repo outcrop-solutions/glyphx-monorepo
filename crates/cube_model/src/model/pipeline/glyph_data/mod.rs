@@ -1,9 +1,9 @@
 use crate::{
     assets::{rectangular_prism::create_rectangular_prism, shape_vertex::ShapeVertex},
     model::{
-        filtering::Query, model_configuration::ModelConfiguration,
+        filtering::Query, 
         model_configuration::ModelConfiguration,
-        pipeline::glyphs::glyph_instance_data::GlyphInstanceData, state::DataManager,
+        state::DataManager,
     },
 };
 use bytemuck::{Pod, Zeroable};
