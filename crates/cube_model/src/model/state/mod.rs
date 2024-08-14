@@ -310,6 +310,19 @@ impl State {
         };
         handled
     }
+    pub fn update_selected_glyphs(&mut self, selected_glyphs: Vec<u64>) {
+        let mut selected : Vec<SelectedGlyph> = Vec::new();
+        let dm = self.data_manager.clone();
+        let dm = dm.borrow();
+        for sg in selected_glyphs {
+                let glyph_desc = dm.get_glyph_description(sg as u32);
+                if glyph_desc.is_some() {
+                    let glyph_desc = glyph_desc.unwrap();
+                    selected.push(glyph_desc);
+                }
+        }
+        self.selected_glyphs = selected;
+    }
 
     pub fn hit_detection(&mut self, x_pos: u32, y_pos: u32, is_shift_pressed: bool)-> &Vec<SelectedGlyph> {
         let device = self.device.clone();
