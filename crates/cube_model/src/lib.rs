@@ -6,6 +6,7 @@ mod model;
 mod model_event;
 
 use model::{
+    filtering::Query,
     model_configuration::{ColorWheel, ModelConfiguration},
     pipeline::glyphs::glyph_uniform_data::{InterpolationType, Order},
     state::{CameraManager, DataManager, State},
@@ -79,6 +80,53 @@ impl ModelRunner {
             default_background: 0,
         }
     }
+
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn update_model_filter(&self, filter: &str) -> Result<(), String> {
+        let json_value = from_str::<Value>(filter);
+        if json_value.is_err() {
+            let err = json_value.err().unwrap();
+            return Err(format!(
+                "An error ocurred while parsing the json: {}",
+                err.to_string()
+            ));
+        }
+        let mut json_value = json_value.unwrap();
+        //:NOTE You may have seen this in other places in this model, but in WGPU world,
+        //The Y and Z axis are flipped.  I tried to not flip them, but things got really confused
+        // really fast.  So, in the model, the Y and Z axis are flipped.  This keeps all of the
+        // stuff in web land in sync with the way that the application definws the axis.
+        // because of this, we will need to flip our filters so that they are correct in the
+        // model.
+        let true_z: Option<Value> = json_value.get("y").cloned();
+        let true_y: Option<Value> = json_value.get("z").cloned();
+        if true_z.is_some() {
+            json_value["z"] = true_z.unwrap();
+        }
+        if true_y.is_some() {
+            json_value["y"] = true_y.unwrap();
+        }
+        let filter_query = Query::from_json_value(&json_value);
+        if filter_query.is_err() {
+            let error = filter_query.err().unwrap().to_string();
+            return Err(error);
+        }
+        let filter_query = filter_query.unwrap();
+        unsafe {
+            let event = ModelEvent::UpdateModelFilter(filter_query);
+            emit_event(&event);
+            if EVENT_LOOP_PROXY.is_some() {
+                EVENT_LOOP_PROXY
+                    .as_ref()
+                    .unwrap()
+                    .send_event(event)
+                    .unwrap();
+            }
+        }
+        Ok(())
+    }
+
 
     ///Will force a redraw of the model, if the model is running.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
@@ -432,6 +480,9 @@ impl ModelRunner {
         let mut shift_pressed = false;
         let mut alt_pressed = false;
         let mut ctrl_pressed = false;
+
+        let mut filter_on = false;
+
         let color_wheel = self.color_wheel.clone();
         unsafe {
             EVENT_LOOP_PROXY = Some(el.create_proxy());
@@ -499,6 +550,21 @@ impl ModelRunner {
                     let values = res.iter().map(|v| v.to_json()).collect::<Vec<Value>>();
                     emit_event(&ModelEvent::SelectedGlyphs(values));
                 }
+
+                Event::UserEvent(ModelEvent::UpdateModelFilter(model_filter)) => {
+                    state.update_model_filter(model_filter);
+                    state.update_config();
+                    //Once our state is updated we need to force a redraw
+                    unsafe {
+                        let event = ModelEvent::Redraw;
+                        EVENT_LOOP_PROXY
+                            .as_ref()
+                            .unwrap()
+                            .send_event(event)
+                            .unwrap();
+                    }
+                }
+
                 Event::DeviceEvent {
                     device_id: _,
                     event,
@@ -784,10 +850,35 @@ impl ModelRunner {
                                 },
                             ..
                         } => {
-                            {
-                                let mut cf = config.borrow_mut();
-                                cf.color_flip = !cf.color_flip;
-                            }
+
+                            if ctrl_pressed {
+                                if filter_on {
+                                    state.update_model_filter(Query::default());
+                                } else {
+                                    let json_value = json!({
+                                    "x": {
+                                       "include" : {
+                                          "sub_type": {
+                                              "name": "Value",
+                                              "type": "Number",
+                                              "value": 5.0
+                                          },
+                                          "operator": {
+                                              "name": "GreaterThan"
+                                          }
+                                       }}});
+                                    let query = Query::from_json_value(&json_value);
+                                    assert!(query.is_ok());
+                                    let query = query.unwrap();
+                                    state.update_model_filter(query);
+                                }
+                                filter_on = !filter_on;
+                            } else {
+                                {
+                                    let mut cf = config.borrow_mut();
+                                    cf.color_flip = !cf.color_flip;
+                                }
+
                             state.update_config();
                             unsafe {
                                 let event = ModelEvent::Redraw;

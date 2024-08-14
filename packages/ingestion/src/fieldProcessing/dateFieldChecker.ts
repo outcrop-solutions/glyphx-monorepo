@@ -28,6 +28,7 @@ export class DateFieldChecker implements fieldProcessingInterfaces.IFieldChecker
         return false;
       }
       //Roughly 1980-01-01 -- this will only apply if I am sendingg epoch time (number) as a date.  Strings can happily be converted for dates ealiedr than this.
+
       REGEX_DATE.lastIndex = 0;
       const match = REGEX_DATE.exec(strNumbers);
       if (match) {
@@ -45,6 +46,7 @@ export class DateFieldChecker implements fieldProcessingInterfaces.IFieldChecker
           return true;
         }
       }
+
       if (val < 315532800000) {
         return false;
       }

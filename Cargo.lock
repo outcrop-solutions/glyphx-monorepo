@@ -1612,6 +1612,7 @@ dependencies = [
  "serde-wasm-bindgen",
  "serde_json",
  "smaa",
+ "statrs",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
@@ -2366,6 +2367,7 @@ dependencies = [
 name = "model_common"
 version = "0.1.0"
 dependencies = [
+ "bincode",
  "serde",
  "serde_json",
 ]

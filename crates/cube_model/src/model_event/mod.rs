@@ -1,3 +1,4 @@
+use crate::model::filtering::Query;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 mod add_glyphs;
@@ -18,5 +19,7 @@ pub enum ModelEvent {
     ToggleAxisLines,
     SelectGlyph{x_pos: f32, y_pos: f32, multi_select: bool},
     SelectedGlyphs(Vec<Value>),
+    UpdateModelFilter(Query),
+
 
 }

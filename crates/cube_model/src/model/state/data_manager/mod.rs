@@ -102,6 +102,15 @@ impl DataManager {
     pub fn get_glyph_description(&self, glyph_id: u32) -> Option<SelectedGlyph> {
         self.glyph_manager.get_glyph_description(glyph_id)
     }
+
+    pub fn get_x_vectors(&self) -> Rc<RefCell<ModelVectors>> {
+        self.x_vectors.clone()
+    }
+
+    pub fn get_z_vectors(&self) -> Rc<RefCell<ModelVectors>> {
+        self.z_vectors.clone()
+    }
+
 }
 
 #[cfg(test)]

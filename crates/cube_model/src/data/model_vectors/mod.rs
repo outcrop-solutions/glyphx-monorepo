@@ -3,7 +3,7 @@ mod error;
 pub use error::*;
 
 use glyphx_core_error::GlyphxErrorData;
-use model_common::vectors::Vector;
+use model_common::{vectors::Vector, VectorOrigionalValue};
 
 use bincode::deserialize;
 use im::OrdMap;
@@ -65,6 +65,44 @@ impl ModelVectors {
         let v = v.unwrap();
         Ok(v.clone())
     }
+
+    pub fn get_vector( &self, vector_origional_value: VectorOrigionalValue ) -> Option<f64> {
+        let found = self.vectors.iter().find(|(k, v)| {
+            
+            if vector_origional_value.is_string() {
+                if !v.orig_value.is_string() {
+                    return false;
+                }
+                let comp_value = vector_origional_value.get_string().unwrap();
+                let orig_value = v.orig_value.get_string().unwrap();
+                return comp_value == orig_value;
+            } else if vector_origional_value.is_f64() {
+                if !v.orig_value.is_f64() {
+                    return false;
+                }
+                let comp_value = vector_origional_value.get_f64().unwrap();
+                let orig_value = v.orig_value.get_f64().unwrap();
+                return comp_value == orig_value;
+            } else if vector_origional_value.is_u64() {
+                if !v.orig_value.is_u64() {
+                    return false;
+                }
+                let comp_value = vector_origional_value.get_u64().unwrap();
+                let orig_value = v.orig_value.get_u64().unwrap();
+                return comp_value == orig_value;
+            } else {
+                return false;
+            }
+        });
+
+        if found.is_none() {
+             None   
+        } else {
+            let v = *found.unwrap().0.as_ref();
+            Some(v)
+        }
+
+    }
     pub fn len(&self) -> usize {
         self.vectors.len()
     }
@@ -107,7 +145,7 @@ mod unit_tests {
         }
     }
 
-    mod get_vector {
+    mod get_value {
         use super::*;
 
         #[test]
@@ -155,6 +193,127 @@ mod unit_tests {
         }
     }
 
+    mod get_vector {
+        use super::*;
+
+        #[test]
+        fn f64_is_ok() {
+            let mut model_vectors = ModelVectors::new();
+            let vector = Vector::new(VectorOrigionalValue::F64(1.0), 1.0, 0);
+            let vector2 = Vector::new(VectorOrigionalValue::F64(2.0), 2.0, 1);
+            model_vectors.insert_vector(vector).unwrap();
+            model_vectors.insert_vector(vector2).unwrap();
+            let result = model_vectors.get_vector(VectorOrigionalValue::F64(1.0));
+            assert!(result.is_some());
+            let v = result.unwrap();
+            assert_eq!(v, 1.0);
+
+            let result = model_vectors.get_vector(VectorOrigionalValue::F64(2.0));
+            assert!(result.is_some());
+            let v = result.unwrap();
+            assert_eq!(v, 2.0);
+        }
+
+        #[test]
+        fn f64_vector_does_not_exist() {
+            let mut model_vectors = ModelVectors::new();
+            let vector = Vector::new(VectorOrigionalValue::F64(1.0), 1.0, 0);
+            let vector2 = Vector::new(VectorOrigionalValue::F64(2.0), 2.0, 1);
+            model_vectors.insert_vector(vector).unwrap();
+            model_vectors.insert_vector(vector2).unwrap();
+            let result = model_vectors.get_vector(VectorOrigionalValue::F64(3.0));
+            assert!(result.is_none());
+        }
+
+        #[test]
+        fn f64_vector_does_not_exist_on_u64() {
+            let mut model_vectors = ModelVectors::new();
+            let vector = Vector::new(VectorOrigionalValue::U64(1), 1.0, 0);
+            let vector2 = Vector::new(VectorOrigionalValue::U64(2), 2.0, 1);
+            model_vectors.insert_vector(vector).unwrap();
+            model_vectors.insert_vector(vector2).unwrap();
+            let result = model_vectors.get_vector(VectorOrigionalValue::F64(1.0));
+            assert!(result.is_none());
+        }
+
+        #[test]
+        fn u64_is_ok() {
+            let mut model_vectors = ModelVectors::new();
+            let vector = Vector::new(VectorOrigionalValue::U64(1), 1.0, 0);
+            let vector2 = Vector::new(VectorOrigionalValue::U64(2), 2.0, 1);
+            model_vectors.insert_vector(vector).unwrap();
+            model_vectors.insert_vector(vector2).unwrap();
+            let result = model_vectors.get_vector(VectorOrigionalValue::U64(1));
+            assert!(result.is_some());
+            let v = result.unwrap();
+            assert_eq!(v, 1.0);
+
+            let result = model_vectors.get_vector(VectorOrigionalValue::U64(2));
+            assert!(result.is_some());
+            let v = result.unwrap();
+            assert_eq!(v, 2.0);
+        }
+
+        #[test]
+        fn u64_vector_does_not_exist() {
+            let mut model_vectors = ModelVectors::new();
+            let vector = Vector::new(VectorOrigionalValue::U64(1), 1.0, 0);
+            let vector2 = Vector::new(VectorOrigionalValue::U64(2), 2.0, 1);
+            model_vectors.insert_vector(vector).unwrap();
+            model_vectors.insert_vector(vector2).unwrap();
+            let result = model_vectors.get_vector(VectorOrigionalValue::U64(3));
+            assert!(result.is_none());
+        }
+        #[test]
+        fn u64_vector_does_not_exist_on_f64() {
+            let mut model_vectors = ModelVectors::new();
+            let vector = Vector::new(VectorOrigionalValue::F64(1.0), 1.0, 0);
+            let vector2 = Vector::new(VectorOrigionalValue::F64(2.0), 2.0, 1);
+            model_vectors.insert_vector(vector).unwrap();
+            model_vectors.insert_vector(vector2).unwrap();
+            let result = model_vectors.get_vector(VectorOrigionalValue::U64(1));
+            assert!(result.is_none());
+        }
+
+        #[test]
+        fn string_is_ok() {
+            let mut model_vectors = ModelVectors::new();
+            let vector = Vector::new(VectorOrigionalValue::String("String 1".to_string()), 1.0, 0);
+            let vector2 = Vector::new(VectorOrigionalValue::String("String 2".to_string()), 2.0, 1);
+            model_vectors.insert_vector(vector).unwrap();
+            model_vectors.insert_vector(vector2).unwrap();
+            let result = model_vectors.get_vector(VectorOrigionalValue::String("String 1".to_string()));
+            assert!(result.is_some());
+            let v = result.unwrap();
+            assert_eq!(v, 1.0);
+
+            let result = model_vectors.get_vector(VectorOrigionalValue::String("String 2".to_string()));
+            assert!(result.is_some());
+            let v = result.unwrap();
+            assert_eq!(v, 2.0);
+        }
+
+        #[test]
+        fn string_vector_does_not_exist() {
+            let mut model_vectors = ModelVectors::new();
+            let vector = Vector::new(VectorOrigionalValue::String("String 1".to_string()), 1.0, 0);
+            let vector2 = Vector::new(VectorOrigionalValue::String("String 2".to_string()), 2.0, 1);
+            model_vectors.insert_vector(vector).unwrap();
+            model_vectors.insert_vector(vector2).unwrap();
+            let result = model_vectors.get_vector(VectorOrigionalValue::String("String 3".to_string()));
+            assert!(result.is_none());
+        }
+        #[test]
+        fn string_vector_does_not_exist_on_f64() {
+            let mut model_vectors = ModelVectors::new();
+            let vector = Vector::new(VectorOrigionalValue::F64(1.0), 1.0, 0);
+            let vector2 = Vector::new(VectorOrigionalValue::F64(2.0), 2.0, 1);
+            model_vectors.insert_vector(vector).unwrap();
+            model_vectors.insert_vector(vector2).unwrap();
+            let result = model_vectors.get_vector(VectorOrigionalValue::String("String 1".to_string()));
+            assert!(result.is_none());
+        }
+    }
     mod deserialize_vector {
         use super::*;
         use bincode::serialize;

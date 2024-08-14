@@ -7,7 +7,6 @@ mod errors;
 pub(crate) mod selected_glyph;
 
 //2. Define any imports from the current crate.
-use crate::Order;
 use crate::{
     camera::{
         camera_controller::{CameraController, MouseEvent},
@@ -32,7 +31,9 @@ use crate::{
             new_hit_detection::{decode_glyph_id, NewHitDetection},
             PipelineRunner,
         },
+        filtering::Query,
     },
+    Order,
 };
 
 //3. Define any imports from submodules.
@@ -109,6 +110,8 @@ pub struct State {
     first_render: bool,
     cursor_position: PhysicalPosition<f64>,
     selected_glyphs: Vec<SelectedGlyph>,
+    model_filter: Query,
+
 }
 
 impl State {
@@ -248,6 +251,9 @@ impl State {
             //This should be updated pretty quickly after the model loads.
             cursor_position: PhysicalPosition { x: 0.0, y: 0.0 },
             selected_glyphs: Vec::new(),
+
+            model_filter: Query::default(),
+
         };
         //This allows us to initialize out camera with a pitch and yaw that is not 0
         model.update_z_order_and_rank(cm);
@@ -437,13 +443,17 @@ impl State {
                 });
     }
 
+   pub fn update_model_filter(&mut self, model_filter: Query ) {
+        self.model_filter = model_filter;
+   }
     pub fn update_config(&mut self) {
         //Update our glyph information based on the updated configuration.
         //TODO: at some point, we will want to split out or function to only run the compute
         //pipeline if necessary for now, we will just run it whenever the config changes
         self.update_glyph_uniform_buffer();
         self.glyph_data_pipeline
-            .update_vertices(&self.glyph_uniform_buffer);
+            .update_vertices(&self.glyph_uniform_buffer, &self.model_filter);
+
         self.run_compute_pipeline();
 
         let config = self.model_configuration.borrow();
