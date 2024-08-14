@@ -69,6 +69,7 @@ export class BasicCsvParser extends Transform {
   private currentRow: string[] = [];
   private inLineTerminator = false;
   private isLiteral = false;
+  private isStartOfField = true;
   private bufferSize: number;
   private smartLineTerminator: boolean;
   private trimWhitespace: boolean;
@@ -106,11 +107,15 @@ export class BasicCsvParser extends Transform {
     //TODO: Do we have an appropriate number of columns
     let numberOfColumns = this.headers.getColumnCount();
     if (row.length !== numberOfColumns) {
-      throw new error.InvalidArgumentError(
-        `The number of columns in the row: ${row.length} does not match the number of columns in the header: ${numberOfColumns}`,
-        'row',
-        row
-      );
+      let columnsToPush = numberOfColumns - row.length;
+      for (let i = 0; i < columnsToPush; i++) {
+        row.push('');
+      }
+      // throw new error.InvalidArgumentError(
+      //   `The number of columns in the row: ${row.length} does not match the number of columns in the header: ${numberOfColumns}`,
+      //   'row',
+      //   row
+      // );
     }
 
     for (let i = 0; i < numberOfColumns; i++) {
@@ -127,8 +132,16 @@ export class BasicCsvParser extends Transform {
       validityData.push({index: i, rowCount: 0, rowsWithValues: 0, percentFilled: 0});
     }
 
-    this.data.forEach((row) => {
+    this.data.forEach((row, index) => {
       for (let i = 0; i < row.length; i++) {
+        if (i >= validityData.length) {
+          //we found an extra column without a header. To this point, there has not been any data in this column,
+          //but we expect that our data will be square (same number of columns per row). If it isn't, setting
+          //rowCount to index will square it up.
+          validityData.push({index: i, rowCount: index, rowsWithValues: 0, percentFilled: 0});
+          //This header does not have a name, but the Headers class will give it a unique name.
+          this.headers.AddColumn('');
+        }
         validityData[i].rowCount++;
         if (row[i].length > 0) {
           validityData[i].rowsWithValues++;
@@ -197,6 +210,7 @@ export class BasicCsvParser extends Transform {
   }
 
   _transform(chunk: Buffer, encoding: string, callback: TransformCallback) {
+    let raw = '';
     try {
       if (!this.decoder) {
         let localEncoding = encoding || this.encoding || 'utf8';
@@ -210,18 +224,42 @@ export class BasicCsvParser extends Transform {
       let result: [string, number] | undefined;
       while ((result = this.decoder.getChar(buffer, bytesConsumed)) && bytesConsumed < maxLen) {
         let [char, charSize] = result;
+        raw += char;
         bytesConsumed += charSize;
+        //In some files, the escape character could be the same character as the special character,
+        //i.e. "" for a quote.  If we are in a quote, we need to check the next character to see
+        //if it the same as the special character.  If it is, make it the literal character.
+        if (this.inQuote && (char === '"' || char === "'" || char === '`')) {
+          const r = this.decoder.getChar(buffer, bytesConsumed) as [string, number];
+          if (r) {
+            let [peekChar] = r;
+            if (peekChar === char) {
+              char = this.literalChar;
+            }
+          } else {
+            //we can't peek at the next character so we will push this charcter back on the buffer and let flush clean it up.
+            bytesConsumed -= charSize;
+            break;
+          }
+        }
         //is this a delimiter.
         if (!this.isLiteral && char === this.literalChar) {
           this.isLiteral = true;
-        } else if (!this.isLiteral && this.isQuoted && char === this.quoteChar) {
+        } else if (
+          !this.isLiteral &&
+          this.isQuoted &&
+          char === this.quoteChar &&
+          ((this.isStartOfField && !this.inQuote) || this.inQuote)
+        ) {
           this.inLineTerminator = false;
           this.inQuote = !this.inQuote;
+          this.isStartOfField = false;
         } else if (!this.isLiteral && !this.inQuote && char === this.delimiter) {
           this.isHeaderRow
             ? this.headers.AddColumn(this.currentToken ?? '')
             : this.currentRow.push(this.trimWhitespace ? this.currentToken?.trim() ?? '' : this.currentToken ?? '');
           this.currentToken = undefined;
+          this.isStartOfField = true;
         } else if (
           !this.isLiteral &&
           !this.inQuote &&
@@ -244,6 +282,7 @@ export class BasicCsvParser extends Transform {
           this.currentRow = [];
           this.inLineTerminator = false;
           this.currentToken = undefined;
+          this.isStartOfField = true;
         } else if (
           !this.isLiteral &&
           !this.inQuote &&
@@ -267,6 +306,7 @@ export class BasicCsvParser extends Transform {
           this.currentRow = [];
           this.inLineTerminator = false;
           this.currentToken = undefined;
+          this.isStartOfField = true;
         } else if (!this.isLiteral && this.inLineTerminator) {
           if (this.currentToken === undefined) this.currentToken = '';
           this.currentToken += this.lineTerminator[0] + char;
@@ -279,10 +319,12 @@ export class BasicCsvParser extends Transform {
           if (this.inLineTerminator) {
             this.inLineTerminator = false;
             this.currentToken += this.lineTerminator[0];
+            this.isStartOfField = true;
           }
 
           this.currentToken += char;
           this.isLiteral = false;
+          this.isStartOfField = false;
           //If we fall through to here, we cant't be in a line terminator anymore.
         }
       }
@@ -294,7 +336,9 @@ export class BasicCsvParser extends Transform {
       callback();
     } catch (err: any) {
       let e = new error.FileParseError(
-        `An error occurred while parsing the file: ${err.message ?? err} See the inner error for additional information.`,
+        `An error occurred while parsing the file: ${
+          err.message ?? err
+        } See the inner error for additional information.`,
         err
       );
       callback(e);

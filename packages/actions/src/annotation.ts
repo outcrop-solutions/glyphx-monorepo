@@ -157,6 +157,7 @@ export const createProjectAnnotation = async (projectId: string, value: string) 
           emails: [...members.map((mem) => mem.email)],
           projectId: project.id,
         } satisfies emailTypes.EmailData;
+        console.dir({emailData}, {depth: null});
         await emailClient.init();
         await emailClient.sendEmail(emailData);
       }
@@ -220,6 +221,7 @@ export const createStateAnnotation = async (stateId: string, value: string) => {
               emails: [...members.map((mem) => mem.email)],
               projectId: state.project.id as string,
             } satisfies emailTypes.EmailData;
+            console.dir({emailData}, {depth: null});
             await emailClient.init();
             await emailClient.sendEmail(emailData);
           }

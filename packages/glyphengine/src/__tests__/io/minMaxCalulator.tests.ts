@@ -139,7 +139,33 @@ describe('#io/minMaxCalculator', () => {
       await minMaxCalculator.load();
       assert.isTrue(queryStub.calledOnce);
       const query = queryStub.getCall(0).args[0];
-      assert.isFalse(query.includes('WHERE'));
+      const nullFilter = `WHERE "${xColumn}" IS NOT NULL AND "${yColumn}" IS NOT NULL`;
+      assert.isTrue(query.includes(nullFilter));
+    });
+
+    it('will load our data from athena with a filter', async () => {
+      const mockClient = new MockAthenaClient(minMaxData) as unknown as aws.AthenaManager;
+      const queryStub = sandbox.stub();
+      queryStub.resolves(minMaxData);
+      sandbox.replace(mockClient, 'runQuery', queryStub);
+      const minMaxCalculator = new MinMaxCalculator(
+        'xCol',
+        'yCol',
+        'zCol',
+        'zCol',
+        mockClient,
+        tableName,
+        xColumn,
+        yColumn,
+        zColumn,
+        filter
+      ) as any;
+
+      await minMaxCalculator.load();
+      assert.isTrue(queryStub.calledOnce);
+      const query = queryStub.getCall(0).args[0];
+      const expectedFilter = `WHERE "${xColumn}" IS NOT NULL AND "${yColumn}" IS NOT NULL  AND ${filter}`;
+      assert.isTrue(query.includes(expectedFilter));
     });
   });
 

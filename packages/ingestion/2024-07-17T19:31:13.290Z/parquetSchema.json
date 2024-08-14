@@ -1,0 +1,1 @@
+{"glyphx_id__":{"type":"INT64","encoding":"PLAIN","optional":false},"item_no_":{"type":"UTF8","encoding":"PLAIN","optional":false},"vendor":{"type":"UTF8","encoding":"PLAIN","optional":false},"delta":{"type":"DOUBLE","encoding":"PLAIN","optional":true}}

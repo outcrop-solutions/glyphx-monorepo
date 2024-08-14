@@ -1,9 +1,10 @@
 'use client';
 import React, {useCallback, useRef, useState} from 'react';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {Property} from './Property';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {
-  dataGridPayloadSelector,
+  imageHashAtom,
+  cameraAtom,
   doesStateExistSelector,
   drawerOpenAtom,
   modelRunnerAtom,
@@ -12,12 +13,13 @@ import {
   propertiesSelector,
   showLoadingAtom,
   splitPaneSizeAtom,
+  dataGridPayloadSelector,
 } from 'state';
 import {useSession} from 'next-auth/react';
 import {useSWRConfig} from 'swr';
 import {callCreateModel} from 'lib/client/network/reqs/callCreateModel';
 import toast from 'react-hot-toast';
-import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
+import {hashPayload, hashFiles} from 'business/src/util/hashFunctions';
 import {useUrl} from 'lib/client/hooks';
 import {isValidPayload} from 'lib/utils/isValidPayload';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
@@ -33,6 +35,8 @@ export const Properties = () => {
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
   const urlRef = useRef('');
+  const setCamera = useSetRecoilState(cameraAtom);
+  const setImageHash = useSetRecoilState(imageHashAtom);
   const doesStateExist = useRecoilValue(doesStateExistSelector);
   const {workspaceId, projectId, tableName} = useRecoilValue(dataGridPayloadSelector);
 
@@ -49,38 +53,35 @@ export const Properties = () => {
     async (event: any) => {
       //Our apply button is wrapped in the summary element, and the click handler is bubbling up. so we need to stop propagation.  This will keep our axes control in the open state when pressing apply.
       event.stopPropagation();
-      // project already contains filter state, no deepMerge necessary
-      const payloadHash = hashPayload(hashFileSystem(project.files), project);
-
       if (!isValidPayload(properties)) {
         toast.success('Generate a model before applying filters!');
       } else if (doesStateExist) {
-        await updateProjectState(project.id, project.state);
+        console.log('called download model in properties');
         await callDownloadModel({
           project,
-          payloadHash,
           session,
           url,
           setLoading,
           setDrawer,
           setResize,
+          setImageHash,
+          setCamera,
         });
       } else {
         await callCreateModel({
-          isFilter: true,
           project,
-          payloadHash,
           session,
           url,
+          setImageHash,
+          setCamera,
           setLoading,
           setDrawer,
           setResize,
-          mutate,
         });
       }
       setLoading({});
     },
-    [doesStateExist, mutate, project, properties, session, setDrawer, setLoading, setResize, url]
+    [doesStateExist, project, properties, session, setCamera, setDrawer, setImageHash, setLoading, setResize, url]
   );
 
   /**

@@ -110,6 +110,7 @@ impl DataManager {
     pub fn get_z_vectors(&self) -> Rc<RefCell<ModelVectors>> {
         self.z_vectors.clone()
     }
+
 }
 
 #[cfg(test)]

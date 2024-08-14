@@ -81,6 +81,7 @@ impl ModelRunner {
         }
     }
 
+
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn update_model_filter(&self, filter: &str, is_running: bool) -> Result<(), String> {
         let json_value = from_str::<Value>(filter);
@@ -127,6 +128,7 @@ impl ModelRunner {
         }
         Ok(())
     }
+
 
     ///Will force a redraw of the model, if the model is running.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
@@ -480,7 +482,9 @@ impl ModelRunner {
         let mut shift_pressed = false;
         let mut alt_pressed = false;
         let mut ctrl_pressed = false;
+
         let mut filter_on = false;
+
         let color_wheel = self.color_wheel.clone();
         unsafe {
             EVENT_LOOP_PROXY = Some(el.create_proxy());
@@ -548,6 +552,7 @@ impl ModelRunner {
                     let values = res.iter().map(|v| v.to_json()).collect::<Vec<Value>>();
                     emit_event(&ModelEvent::SelectedGlyphs(values));
                 }
+
                 Event::UserEvent(ModelEvent::UpdateModelFilter(model_filter)) => {
                     state.update_model_filter(model_filter);
                     state.update_config();
@@ -561,6 +566,7 @@ impl ModelRunner {
                             .unwrap();
                     }
                 }
+
                 Event::DeviceEvent {
                     device_id: _,
                     event,
@@ -846,6 +852,7 @@ impl ModelRunner {
                                 },
                             ..
                         } => {
+
                             if ctrl_pressed {
                                 if filter_on {
                                     state.update_model_filter(Query::default());
@@ -873,7 +880,7 @@ impl ModelRunner {
                                     let mut cf = config.borrow_mut();
                                     cf.color_flip = !cf.color_flip;
                                 }
-                            }
+
                             state.update_config();
                             unsafe {
                                 let event = ModelEvent::Redraw;

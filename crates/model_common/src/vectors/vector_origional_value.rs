@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum VectorOrigionalValue {
     String(String),
@@ -17,6 +18,7 @@ impl VectorOrigionalValue {
             VectorOrigionalValue::Empty => Value::Null,
         }
     }
+
     pub fn is_string(&self) -> bool {
         match self {
             Self::String(_) => true,
@@ -64,6 +66,7 @@ impl VectorOrigionalValue {
             _ => false,
         }
     }
+
 }
 impl PartialEq for VectorOrigionalValue {
     fn eq(&self, other: &Self) -> bool {

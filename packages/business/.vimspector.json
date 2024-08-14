@@ -21,7 +21,8 @@
         "cwd": "${workspaceRoot}",
         "env": {
           "TS_NODE_FILES": "true",
-          "EMAIL_SERVER": "smtp://apikey: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@smtp.sendgrid.net:587"
+          "EMAIL_SERVER": "smtp://apikey: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@smtp.sendgrid.net:587",
+	  "GLYPHX_ENV" : "prod"
         }
       }
     },

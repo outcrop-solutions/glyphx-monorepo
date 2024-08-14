@@ -111,6 +111,7 @@ pub struct State {
     cursor_position: PhysicalPosition<f64>,
     selected_glyphs: Vec<SelectedGlyph>,
     model_filter: Query,
+
 }
 
 impl State {
@@ -250,7 +251,9 @@ impl State {
             //This should be updated pretty quickly after the model loads.
             cursor_position: PhysicalPosition { x: 0.0, y: 0.0 },
             selected_glyphs: Vec::new(),
+
             model_filter: Query::default(),
+
         };
         //This allows us to initialize out camera with a pitch and yaw that is not 0
         model.update_z_order_and_rank(cm);
@@ -450,6 +453,7 @@ impl State {
         self.update_glyph_uniform_buffer();
         self.glyph_data_pipeline
             .update_vertices(&self.glyph_uniform_buffer, &self.model_filter);
+
         self.run_compute_pipeline();
 
         let config = self.model_configuration.borrow();

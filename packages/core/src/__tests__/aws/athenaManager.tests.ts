@@ -647,7 +647,7 @@ describe('#aws/AthenaManager', () => {
         await athenaManager.getPagedQueryResults('testQueryId');
       } catch (err: any) {
         assert.instanceOf(err, error.InvalidOperationError);
-        assert.strictEqual(err.innerError.name, errorText);
+        assert.strictEqual((err as any).innerError?.name, errorText);
         errored = true;
       }
       assert.isTrue(errored);

@@ -17,7 +17,6 @@ export class SecretManager {
     } else {
       environment = 'dev';
     }
-    
     this.secretNameField = `${environment}/${secretName}`;
 
     //TODO: we need to figure out how we want to handle secret configurations

@@ -206,6 +206,39 @@ describe('#fileProcessing/BasicCsvParser', () => {
       assert.equal(headers.getColumn(3).finalName, 'field4');
     });
 
+    it('will parse a utf8 file with non escaped embeded quoted', () => {
+      let csvStream = new BasicCsvParser({lineTerminator: '\n', isQuoted: true, trimWhitespace: false});
+      let leftover: Buffer = Buffer.from('');
+      let headerRow = Buffer.from('"field1",field2,field3,field4\n', 'utf8');
+      csvStream.write(headerRow, 'utf8', () => {});
+      for (let i = 0; i < 10; i++) {
+        let chunk = Buffer.concat([leftover, Buffer.from(`"Th,is","is",pas"s : ${i},€\r\n`, 'utf8')]);
+        let input: Buffer;
+        if (i < 9) {
+          leftover = chunk.subarray(-1);
+          input = chunk.subarray(0, chunk.length - 1);
+        } else {
+          input = chunk;
+        }
+        csvStream.write(input, 'utf8', () => {});
+      }
+
+      let data = (csvStream as any).data;
+      assert.equal((csvStream as any).data.length, 10);
+      for (let i = 0; i < 10; i++) {
+        assert.equal(data[i][0], `Th,is`);
+        assert.equal(data[i][1], `is`);
+        assert.equal(data[i][2], `pas"s : ${i}`);
+        assert.equal(data[i][3], `€\r`);
+      }
+
+      let headers: BasicColumnNameProcessor = (csvStream as any).headers;
+      assert.equal(headers.getColumn(0).finalName, 'field1');
+      assert.equal(headers.getColumn(1).finalName, 'field2');
+      assert.equal(headers.getColumn(2).finalName, 'field3');
+      assert.equal(headers.getColumn(3).finalName, 'field4');
+    });
+
     it('will parse a utf8 file quoted with literal', () => {
       let csvStream = new BasicCsvParser({lineTerminator: '\n', isQuoted: true, trimWhitespace: false});
       let leftover: Buffer = Buffer.from('');
