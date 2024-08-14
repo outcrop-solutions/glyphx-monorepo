@@ -81,7 +81,6 @@ impl ModelRunner {
         }
     }
 
-
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn update_model_filter(&self, filter: &str) -> Result<(), String> {
         let json_value = from_str::<Value>(filter);
@@ -126,7 +125,6 @@ impl ModelRunner {
         }
         Ok(())
     }
-
 
     ///Will force a redraw of the model, if the model is running.
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
@@ -850,7 +848,6 @@ impl ModelRunner {
                                 },
                             ..
                         } => {
-
                             if ctrl_pressed {
                                 if filter_on {
                                     state.update_model_filter(Query::default());
@@ -878,7 +875,7 @@ impl ModelRunner {
                                     let mut cf = config.borrow_mut();
                                     cf.color_flip = !cf.color_flip;
                                 }
-
+                            }
                             state.update_config();
                             unsafe {
                                 let event = ModelEvent::Redraw;
