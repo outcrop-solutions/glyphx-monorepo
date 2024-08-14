@@ -19,7 +19,7 @@ pub enum ModelEvent {
     ToggleAxisLines,
     SelectGlyph{x_pos: f32, y_pos: f32, multi_select: bool},
     SelectedGlyphs(Vec<Value>),
-    SelectGlyphs(Vec<u64>),
+    SelectGlyphs(Vec<u32>),
     UpdateModelFilter(Query),
     
 

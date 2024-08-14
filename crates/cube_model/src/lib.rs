@@ -433,7 +433,7 @@ impl ModelRunner {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn set_selected_glyphs(&self, selected_glyphs: Vec<u64>) {
+    pub fn set_selected_glyphs(&self, selected_glyphs: Vec<u32>) {
         unsafe {
             let event = ModelEvent::SelectGlyphs(selected_glyphs);
             EVENT_LOOP_PROXY
@@ -585,7 +585,10 @@ impl ModelRunner {
                 }
 
                 Event::UserEvent(ModelEvent::SelectGlyphs(selected_glyphs)) => {
-                    state.update_selected_glyphs(selected_glyphs);
+                    let glyphs = state.update_selected_glyphs(selected_glyphs);
+                    let values = glyphs.iter().map(|v| v.to_json()).collect::<Vec<Value>>();
+                    emit_event(&ModelEvent::SelectedGlyphs(values));
+
                     unsafe {
                         let event = ModelEvent::Redraw;
                         EVENT_LOOP_PROXY
