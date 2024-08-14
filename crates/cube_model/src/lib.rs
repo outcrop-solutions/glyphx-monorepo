@@ -82,7 +82,7 @@ impl ModelRunner {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn update_model_filter(&self, filter: &str, is_running: bool) -> Result<(), String> {
+    pub fn update_model_filter(&self, filter: &str) -> Result<(), String> {
         let json_value = from_str::<Value>(filter);
         if json_value.is_err() {
             let err = json_value.err().unwrap();
@@ -94,15 +94,15 @@ impl ModelRunner {
         let mut json_value = json_value.unwrap();
         //:NOTE You may have seen this in other places in this model, but in WGPU world,
         //The Y and Z axis are flipped.  I tried to not flip them, but things got really confused
-            // really fast.  So, in the model, the Y and Z axis are flipped.  This keeps all of the
-            // stuff in web land in sync with the way that the application definws the axis.
-            // because of this, we will need to flip our filters so that they are correct in the
-            // model.
-        let true_z : Option<Value> = json_value.get("y").cloned();
-        let true_y : Option<Value> = json_value.get("z").cloned();
+        // really fast.  So, in the model, the Y and Z axis are flipped.  This keeps all of the
+        // stuff in web land in sync with the way that the application definws the axis.
+        // because of this, we will need to flip our filters so that they are correct in the
+        // model.
+        let true_z: Option<Value> = json_value.get("y").cloned();
+        let true_y: Option<Value> = json_value.get("z").cloned();
         if true_z.is_some() {
             json_value["z"] = true_z.unwrap();
-        } 
+        }
         if true_y.is_some() {
             json_value["y"] = true_y.unwrap();
         }
@@ -113,16 +113,14 @@ impl ModelRunner {
         }
         let filter_query = filter_query.unwrap();
         unsafe {
-            if is_running {
-                let event = ModelEvent::UpdateModelFilter(filter_query);
-                emit_event(&event);
-                if EVENT_LOOP_PROXY.is_some() {
-                    EVENT_LOOP_PROXY
-                        .as_ref()
-                        .unwrap()
-                        .send_event(event)
-                        .unwrap();
-                }
+            let event = ModelEvent::UpdateModelFilter(filter_query);
+            emit_event(&event);
+            if EVENT_LOOP_PROXY.is_some() {
+                EVENT_LOOP_PROXY
+                    .as_ref()
+                    .unwrap()
+                    .send_event(event)
+                    .unwrap();
             }
         }
         Ok(())
