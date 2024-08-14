@@ -89,7 +89,7 @@ export const Datagrid = () => {
     }
   }, 100);
 
-  return data.rows.length > 0 ? (
+  return data.rows.length > 0 || isLoading ? (
     <div className="h-full w-full" ref={ref}>
       <ReactDataGrid
         //@ts-ignore

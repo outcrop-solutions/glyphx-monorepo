@@ -2,6 +2,7 @@ use crate::{
     assets::{rectangular_prism::create_rectangular_prism, shape_vertex::ShapeVertex},
     model::{
         filtering::Query, model_configuration::ModelConfiguration,
+        model_configuration::ModelConfiguration,
         pipeline::glyphs::glyph_instance_data::GlyphInstanceData, state::DataManager,
     },
 };
@@ -64,9 +65,11 @@ impl GlyphData {
 
         let dm = data_manager.clone();
         let dm = dm.borrow();
+
         let glyph_filter = Query::default();
         let (instance_buffer, instance_count) =
             Self::configure_instance_buffer(&d, &glyph_filter, &dm);
+
 
         let (output_buffer, output_size) =
             Self::configure_output_buffer(&d, vertex_data.vertices.len(), instance_count);
@@ -106,7 +109,9 @@ impl GlyphData {
         }
     }
 
+
     pub fn update_vertices(&mut self, glyph_uniform_buffer: &Buffer, instance_filter: &Query) {
+
         let mut vertex_data = VertexData {
             vertices: Vec::new(),
         };
@@ -127,6 +132,7 @@ impl GlyphData {
         let (output_buffer, output_size) =
             Self::configure_output_buffer(&d, vertex_data.vertices.len(), instance_count);
 
+
         let (
             compute_pipeline,
             vertex_bind_group,
@@ -136,13 +142,16 @@ impl GlyphData {
         ) = Self::configure_compute_pipeline(
             &d,
             &self.vertex_buffer,
+
             &instance_buffer,
             glyph_uniform_buffer,
             &output_buffer,
+
             &self.shader,
         );
         self.compute_pipeline = compute_pipeline;
         self.vertex_bind_group = vertex_bind_group;
+
         self.instance_buffer = instance_buffer;
         self.instance_count = instance_count;
         self.instance_bind_group = instance_bind_group;
@@ -150,6 +159,7 @@ impl GlyphData {
         self.output_bind_group = output_bind_group;
         self.output_buffer = output_buffer;
         self.output_size = output_size;
+
     }
 
     pub fn build_verticies(
@@ -207,6 +217,7 @@ impl GlyphData {
         let glyph_data = instance_filter.run(
             glyph_data, &x_vectors, &z_vectors, &x_stats, &y_stats, &z_stats,
         );
+
         let instance_count = glyph_data.len();
         (
             device.create_buffer_init(&wgpu::util::BufferInitDescriptor {

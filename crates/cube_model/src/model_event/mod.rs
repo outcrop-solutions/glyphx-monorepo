@@ -21,4 +21,5 @@ pub enum ModelEvent {
     SelectedGlyphs(Vec<Value>),
     UpdateModelFilter(Query),
 
+
 }

@@ -1,4 +1,4 @@
-import {webTypes, databaseTypes} from 'types';
+import { webTypes, databaseTypes } from 'types';
 /******************** INGESTION *********************/
 
 /**
@@ -38,9 +38,9 @@ export const _uploadFile = (acceptedFile: ArrayBuffer, url: string): webTypes.IF
  * @returns stringified Qt Open Project payload
  */
 export const _createOpenProject = (
-  data: {sdtUrl: string; sgnUrl: string; sgcUrl: string},
+  data: { sdtUrl: string; sgnUrl: string; sgcUrl: string },
   project: databaseTypes.IProject,
-  session: Omit<databaseTypes.ISession & {status}, 'jwt' | 'user' | 'expires' | 'sessionToken'>,
+  session: Omit<databaseTypes.ISession & { status }, 'jwt' | 'user' | 'expires' | 'sessionToken'>,
   url: string,
   isCreate: boolean,
   rowIds: any[],
@@ -66,7 +66,7 @@ export const _createOpenProject = (
   const rows = rowIds || [];
 
   return JSON.stringify({
-    camera: {...cam},
+    camera: { ...cam },
     projectId: project?.id,
     workspaceId: project?.workspace.id,
     sdtUrl: data.sdtUrl,
@@ -79,13 +79,13 @@ export const _createOpenProject = (
     sessionInformation:
       session.status === 'unauthenticated'
         ? {
-            user: {
-              name: 'James Graham',
-              email: 'james@glyphx.co',
-              userId: '645aa1458d6a87808abf59db',
-            },
-            expires: '2024-05-10T14:29:38.896Z',
-          }
+          user: {
+            name: 'James Graham',
+            email: 'james@glyphx.co',
+            userId: '645aa1458d6a87808abf59db',
+          },
+          expires: '2024-05-10T14:29:38.896Z',
+        }
         : session,
   });
 };

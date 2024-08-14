@@ -1,13 +1,13 @@
 'use server';
-import {error, constants} from 'core';
-import {revalidatePath} from 'next/cache';
-import {generalPurposeFunctions} from 'core';
-import {FileIngestor, BasicColumnNameCleaner} from 'fileingestion';
-import {processTrackingService, activityLogService, projectService} from '../../../business/src/services';
-import {s3Connection, athenaConnection} from '../../../business/src/lib';
-import {databaseTypes} from 'types';
-import {getServerSession} from 'next-auth';
-import {authOptions} from '../auth';
+import { error, constants } from 'core';
+import { revalidatePath } from 'next/cache';
+import { generalPurposeFunctions } from 'core';
+import { FileIngestor, BasicColumnNameCleaner } from 'fileingestion';
+import { processTrackingService, activityLogService, projectService } from '../../../business/src/services';
+import { s3Connection, athenaConnection } from '../../../business/src/lib';
+import { databaseTypes } from 'types';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../auth';
 
 /**
  * File Ingestion Key Notes
@@ -74,7 +74,7 @@ export const fileIngestion = async (payload) => {
       // Add to S3
       await s3Connection.init();
       const s3Manager = s3Connection.s3Manager;
-      const newPayload = {...cleanPayload};
+      const newPayload = { ...cleanPayload };
 
       for (let i = 0; i < newPayload.fileInfo.length; i++) {
         const stream = await s3Manager.getObjectStream(
@@ -86,14 +86,14 @@ export const fileIngestion = async (payload) => {
       // Setup process tracking
       const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
       const PROCESS_NAME = 'testingProcessUnique';
-      const {id: processDocumentId} = await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
+      const { id: processDocumentId } = await processTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
 
       // Create file ingestor
       const fileIngestor = new FileIngestor(newPayload, s3Manager, athenaConnection.connection, PROCESS_ID);
       if (!fileIngestor.inited) {
         await fileIngestor.init();
       }
-      const {fileInformation, fileProcessingErrors, joinInformation, viewName, status, info} =
+      const { fileInformation, fileProcessingErrors, joinInformation, viewName, status, info } =
         await fileIngestor.process();
 
       await activityLogService.createLog({
@@ -119,7 +119,7 @@ export const fileIngestion = async (payload) => {
       });
       //get the updated project
       const project = await projectService.getProject(newPayload.modelId);
-      revalidatePath(`/project/${project?.id}`, 'layout');
+      revalidatePath(`/project/${project?.id}`, 'page');
       return {
         fileInformation,
         joinInformation,
@@ -133,6 +133,6 @@ export const fileIngestion = async (payload) => {
   } catch (err) {
     const e = new error.ActionError('An unexpected error occurred ingesting the file', 'etl', payload, err);
     e.publish('etl', constants.ERROR_SEVERITY.ERROR);
-    return {error: e.message};
+    return { error: e.message };
   }
 };

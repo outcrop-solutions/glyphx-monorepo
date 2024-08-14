@@ -148,7 +148,7 @@ describe('#mongoose/models/processTracking', () => {
         await ProcessTrackingModel.allProcessTrackingIdsExist(processTrackingIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
-        assert.strictEqual(err.data.value[0].toString(), processTrackingIds[1].toString());
+        assert.strictEqual((err as any).data.value[0].toString(), processTrackingIds[1].toString());
         errored = true;
       }
       assert.isTrue(errored);

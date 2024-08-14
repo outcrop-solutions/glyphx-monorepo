@@ -1,6 +1,6 @@
 import 'mocha';
 import {assert} from 'chai';
-import {MOCK_GLYPH_DATA} from './mockGlyphData';
+import {MOCK_GLYPH_DATA, MOCK_LARGE_DATA} from './mockGlyphData';
 import {Readable, Writable} from 'stream';
 import {pipeline} from 'stream/promises';
 import {SgcStream, MAGIC_NUMBER, FORMAT_VERSION, OFFSET} from '../../io/sgcStream';
@@ -42,8 +42,8 @@ function checkHeader(buffer: Buffer) {
   offset += 4;
 }
 
-function checkRecord(recordNumber: number, buffer: Buffer) {
-  const record = MOCK_GLYPH_DATA[recordNumber];
+function checkRecord(recordNumber: number, buffer: Buffer, data: any = MOCK_GLYPH_DATA) {
+  const record = data[recordNumber];
   let offset = 0;
   assert.strictEqual(buffer.readUInt32BE(offset), OFFSET + recordNumber);
   offset += 4;
@@ -101,7 +101,10 @@ function checkRecord(recordNumber: number, buffer: Buffer) {
   offset += urlSize;
   const description = convertUtfForBufferToText(buffer, offset);
   const descAsJson = JSON.parse(description);
-  const expectedDescAsJson = JSON.parse(record.desc);
+  let expectedDescAsJson = JSON.parse(record.desc);
+  if (record.desc.length > Math.pow(2, 15)) {
+    expectedDescAsJson.rowId = [-9999, expectedDescAsJson.rowId[0]];
+  }
   assert.deepStrictEqual(descAsJson, expectedDescAsJson);
   const descSize = Buffer.byteLength(description) + 2;
   offset += descSize;
@@ -137,6 +140,35 @@ describe('#io/SgcStream', () => {
       await pipeline(rStream, sgcStream, wStream);
 
       assert.strictEqual(recordNumber, 25);
+    });
+    it('Will take in our glyph data and transform it into a buffer when the JSON is BIG', async () => {
+      const rStream = new Readable({
+        objectMode: true,
+        read: () => {
+          MOCK_LARGE_DATA.forEach((data) => rStream.push(data));
+          rStream.push(null);
+        },
+      });
+
+      let recordNumber = -1;
+      const wStream = new Writable({
+        objectMode: true,
+        write: (chunk, encoding, callback) => {
+          if (recordNumber === -1) {
+            checkHeader(chunk);
+          } else {
+            checkRecord(recordNumber, chunk, MOCK_LARGE_DATA);
+          }
+          recordNumber++;
+          callback();
+        },
+      });
+
+      const sgcStream = new SgcStream();
+
+      await pipeline(rStream, sgcStream, wStream);
+
+      assert.strictEqual(recordNumber, 3);
     });
   });
 });

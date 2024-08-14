@@ -4,9 +4,8 @@
   "description": "Neon Bindings for acessing the rust built glyph_engine in node",
   "main": "index.node",
   "scripts": {
-    "build": "cargo-cp-artifact -nc index.node -- cargo build --release --message-format=json-render-diagnostics && cp index.node ../../../apps/web/pkg/index.node && cp index.node ../../../apps/web/public/pkg/index.node && cp index.node ../../../packages/actions/pkg/index.node",
-    "install": "pnpm run build",
-    "test": "mocha"
+    "build": "cargo-cp-artifact -nc index.node -- cargo build --release --message-format=json-render-diagnostics && cp index.node ../../../apps/web/pkg/index.node && cp index.node ../../../packages/actions/pkg/index.node",
+    "install": "pnpm run build"
   },
   "license": "MIT",
   "devDependencies": {

@@ -1,14 +1,14 @@
-import {aws, error, logging, generalPurposeFunctions, streams} from 'core';
-import {fileIngestionTypes, databaseTypes, glyphEngineTypes} from 'types';
-import {SdtParser} from './io';
-import {QueryRunner} from './io/queryRunner';
-import {IQueryResponse} from './interfaces';
-import {QUERY_STATUS} from './constants';
-import {GlyphStream} from './io/glyphStream';
-import {SgcStream} from './io/sgcStream';
-import {SgnStream} from './io/sgnStream';
-import {PassThrough} from 'stream';
-import {processTrackingService, Heartbeat, projectService} from 'business';
+import { aws, error, logging, generalPurposeFunctions, streams } from 'core';
+import { fileIngestionTypes, databaseTypes, glyphEngineTypes } from 'types';
+import { SdtParser } from './io';
+import { QueryRunner } from './io/queryRunner';
+import { IQueryResponse } from './interfaces';
+import { QUERY_STATUS } from './constants';
+import { GlyphStream } from './io/glyphStream';
+import { SgcStream } from './io/sgcStream';
+import { SgnStream } from './io/sgnStream';
+import { PassThrough } from 'stream';
+import { processTrackingService, Heartbeat, projectService } from 'business';
 
 export class GlyphEngine {
   private readonly templateKey: string;
@@ -22,6 +22,7 @@ export class GlyphEngine {
 
   private queryRunner?: QueryRunner;
   private queryId?: string;
+  private query: string;
   private initedField: boolean;
 
   constructor(
@@ -39,6 +40,8 @@ export class GlyphEngine {
 
     this.processId = processId;
     this.initedField = false;
+
+    this.query = '';
   }
 
   public async init(): Promise<void> {
@@ -154,7 +157,7 @@ export class GlyphEngine {
   }
   public async process(
     data: Map<string, string>
-  ): Promise<{sdtFileName: string; sgnFileName: string; sgcFileName: string}> {
+  ): Promise<{ sdtFileName: string; sgnFileName: string; sgcFileName: string }> {
     await processTrackingService.updateProcessStatus(
       this.processId,
       databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS,
@@ -193,7 +196,7 @@ export class GlyphEngine {
       const sdtFileName = `${prefix}/${payloadHash}.sdt`;
       await this.outputBucketField.putObject(sdtFileName, template);
 
-      const {xCol, yCol, zCol, isXDate, xDateGrouping, isYDate, yDateGrouping, isZDate, zColName, zAccumulatorType} =
+      const { xCol, yCol, zCol, isXDate, xDateGrouping, isYDate, yDateGrouping, isZDate, zColName, zAccumulatorType } =
         this.formatCols(data);
 
       const initialParser = new SdtParser(
@@ -228,7 +231,7 @@ export class GlyphEngine {
         sgnFileName = fileNames.sgnFileName;
         sgcFileName = fileNames.sgcFileName;
       }
-      const retval = {sdtFileName, sgnFileName, sgcFileName};
+      const retval = { sdtFileName, sgnFileName, sgcFileName };
       heartBeat.stop();
       await processTrackingService.completeProcess(
         this.processId,
@@ -254,7 +257,7 @@ export class GlyphEngine {
     sdtParser: SdtParser,
     filePrefix: string,
     payloadHash: string
-  ): Promise<{sgcFileName: string; sgnFileName: string}> {
+  ): Promise<{ sgcFileName: string; sgnFileName: string }> {
     //bucket/client/workspaceId/ProjectId/output/model.sgc
     const sgcFileName = `${filePrefix}/${payloadHash}.sgc`;
     //bucket/client/workspaceId/ProjectId/output/model.sgn
@@ -279,7 +282,7 @@ export class GlyphEngine {
     forkingStream.startPipeline();
 
     await Promise.all([sgnDestStream.done(), sgcDestStream.done()]);
-    return {sgcFileName, sgnFileName};
+    return { sgcFileName, sgnFileName };
   }
 
   private async getQueryResponse(): Promise<IQueryResponse> {
@@ -348,7 +351,7 @@ export class GlyphEngine {
   private async startQuery(data: Map<string, string>, viewName: string): Promise<void> {
     //TODO: need some validation here
     const filter = (data.get('filter') as string) ?? undefined;
-    const {xCol, yCol, zCol, xColName, yColName, zColName} = this.formatCols(data);
+    const { xCol, yCol, zCol, xColName, yColName, zColName } = this.formatCols(data);
 
     this.queryRunner = new QueryRunner({
       databaseName: this.athenaManager.databaseName,
@@ -363,6 +366,7 @@ export class GlyphEngine {
     });
     await this.queryRunner.init();
     this.queryId = await this.queryRunner.startQuery();
+    this.query = this.queryRunner.query;
   }
 
   public static getAccumulatorFunction(
@@ -390,71 +394,7 @@ export class GlyphEngine {
     columnName: string,
     dateGroup: glyphEngineTypes.constants.DATE_GROUPING
   ): glyphEngineTypes.constants.DATE_GROUPING | string {
-    switch (dateGroup) {
-      // DOY variants
-      case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR:
-        return `(year(from_unixtime("${columnName}"/1000)) * 1000) + day_of_year(from_unixtime("${columnName}"/1000))`;
-
-      case glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_YEAR:
-        return `day_of_year(from_unixtime("${columnName}"/1000))`;
-
-      // Month variants
-      case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_MONTH:
-        return `(year(from_unixtime("${columnName}"/1000)) * 100) + month(from_unixtime("${columnName}"/1000))`;
-
-      case glyphEngineTypes.constants.DATE_GROUPING.MONTH:
-        return `month(from_unixtime("${columnName}"/1000))`;
-
-      // DOM variants
-      case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_MONTH:
-        return `(year(from_unixtime("${columnName}"/1000)) * 10000) + (month(from_unixtime("${columnName}"/1000)) * 100) + day_of_month(from_unixtime("${columnName}"/1000))`;
-
-      case glyphEngineTypes.constants.DATE_GROUPING.YEAR_DAY_OF_MONTH:
-        return `(year(from_unixtime("${columnName}"/1000)) * 100) + day_of_month(from_unixtime("${columnName}"/1000))`;
-
-      case glyphEngineTypes.constants.DATE_GROUPING.MONTH_DAY_OF_MONTH:
-        return `(month(from_unixtime("${columnName}"/1000)) * 100) + day_of_month(from_unixtime("${columnName}"/1000))`;
-
-      case glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_MONTH:
-        return `day(from_unixtime("${columnName}"/1000))`;
-
-      // DOW variants
-      case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_WEEK:
-        return `(year_of_week(from_unixtime("${columnName}"/1000)) * 1000) + (week_of_year(from_unixtime("${columnName}"/1000)) * 10) + day_of_week(from_unixtime("${columnName}"/1000))`;
-
-      case glyphEngineTypes.constants.DATE_GROUPING.YEAR_DAY_OF_WEEK:
-        return `(year_of_week(from_unixtime("${columnName}"/1000)) * 100) + day_of_week(from_unixtime("${columnName}"/1000))`;
-
-      case glyphEngineTypes.constants.DATE_GROUPING.WEEK_DAY_OF_WEEK:
-        return `(week_of_year(from_unixtime("${columnName}"/1000)) * 10) + day_of_week(from_unixtime("${columnName}"/1000))`;
-
-      case glyphEngineTypes.constants.DATE_GROUPING.DAY_OF_WEEK:
-        return `day_of_week(from_unixtime("${columnName}"/1000))`;
-
-      // WOY variants
-      case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_WEEK_OF_YEAR:
-        return `(year_of_week(from_unixtime("${columnName}"/1000)) * 100) + (week_of_year(from_unixtime("${columnName}"/1000)))`;
-
-      case glyphEngineTypes.constants.DATE_GROUPING.WEEK_OF_YEAR:
-        return `week_of_year(from_unixtime("${columnName}"/1000))`;
-      // non-variants
-
-      case glyphEngineTypes.constants.DATE_GROUPING.YEAR_OF_WEEK:
-        return `year_of_week(from_unixtime("${columnName}"/1000))`;
-
-      case glyphEngineTypes.constants.DATE_GROUPING.YEAR:
-        return `year(from_unixtime("${columnName}"/1000))`;
-
-      // Quarter variants
-      case glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_QUARTER:
-        return `(year(from_unixtime("${columnName}"/1000)) * 10) + quarter(from_unixtime("${columnName}"/1000))`;
-
-      case glyphEngineTypes.constants.DATE_GROUPING.QUARTER:
-        return `quarter(from_unixtime("${columnName}"/1000))`;
-
-      default:
-        return `"${columnName}"`;
-    }
+    return generalPurposeFunctions.presto.generatePrestoDateConversionStatement(columnName, dateGroup);
   }
 
   updateSdt(template: string, data: Map<string, string>): string {

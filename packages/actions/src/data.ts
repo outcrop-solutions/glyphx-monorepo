@@ -29,7 +29,7 @@ export const getDataByRowId = async (
     const session = await getServerSession(authOptions);
     if (session) {
       const fullTableName = sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName);
-      const data = await dataService.getDataByGlyphxIds(fullTableName, rowIds, undefined, undefined, true);
+      const data = await dataService.getDataByGlyphxIds(projectId, fullTableName, rowIds, undefined, undefined, true);
       const project = await projectService.getProject(projectId);
 
       if (project) {

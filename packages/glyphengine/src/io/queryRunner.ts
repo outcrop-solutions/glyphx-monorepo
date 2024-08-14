@@ -29,6 +29,7 @@ export class QueryRunner {
   private queryId?: string;
   private queryStatusField?: IQueryResponse;
   private readonly filter: string;
+  private queryField: string;
   constructor({
     databaseName,
     viewName,
@@ -50,14 +51,20 @@ export class QueryRunner {
     this.databaseName = databaseName;
     this.athenaManager = new aws.AthenaManager(databaseName);
     this.inited = false;
-    this.filter = this.composeFilter(filter);
+    this.filter = this.composeFilter(xColName, yColName, filter);
+    this.queryField = '';
   }
-  private composeFilter(filter: string | undefined): string {
-    if (!filter?.trim()) {
-      return '';
-    } else {
-      return `WHERE ${filter.trim()}`;
+
+  public get query(): string {
+    return this.queryField;
+  }
+
+  private composeFilter(xColumnName: string, yColumnName: string, filter: string | undefined): string {
+    let baseFilter = `WHERE "${xColumnName}" IS NOT NULL AND "${yColumnName}" IS NOT NULL`;
+    if (filter?.trim()) {
+      baseFilter += ` AND ${filter.trim()}`;
     }
+    return baseFilter;
   }
 
   public async getQueryStatus(): Promise<IQueryResponse> {
@@ -108,6 +115,7 @@ export class QueryRunner {
     GROUP BY groupedXColumn, groupedYColumn;
 `;
     //this is already wrapped in a GlyphxError so no need to wrap it again
+    this.queryField = query;
     this.queryId = await this.athenaManager.startQuery(query);
     this.queryStatusField = {
       status: QUERY_STATUS.RUNNING,

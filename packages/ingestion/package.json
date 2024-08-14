@@ -15,7 +15,8 @@
     "clean": "rimraf .turbo node_modules dist",
     "start:dev": "ts-node src/index.ts",
     "docs": "npx typedoc",
-    "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs"
+    "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs",
+    "localIngestor": "TS_NODE_FILES=true mocha -r ts-node/register -r tsconfig-paths/register  -r dotenv/config --recursive  --timeout 999999 --exit 'src/__utilScripts__/ingestor.ts'"
   },
   "lint-staged": {
     "*.{js,ts}": [
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@aws-sdk/types": "3.292.0",
     "@types/chai": "^4.3.3",
+    "@types/command-line-args": "^5.2.3",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.11.7",
     "@types/parquetjs": "^0.10.3",
@@ -37,6 +39,7 @@
     "@types/uuid": "^9.0.0",
     "aws-sdk-client-mock": "^2.1.1",
     "chai": "^4.3.6",
+    "command-line-args": "^5.2.1",
     "eslint-config-custom": "workspace:*",
     "husky": "^8.0.1",
     "iconv-lite": "^0.6.3",
