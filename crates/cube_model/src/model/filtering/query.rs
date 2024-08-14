@@ -1295,6 +1295,52 @@ mod unit_tests {
         }
 
         #[test]
+        fn x_is_stat_is_ok() {
+            let json_value = json!({
+            "x": {
+               "include" : {
+                  "sub_type": {
+                      "name": "Statistic",
+                      "value": "pct_65" 
+                  },
+                  "operator": {
+                      "name": "GreaterThan"
+                  }
+               }}});
+
+            let query = Query::from_json_value(&json_value);
+            assert!(query.is_ok());
+            let query = query.unwrap();
+            let x_query = query.x.unwrap();
+            match x_query {
+                QueryType::Include { sub_type, operator } => {
+                    match sub_type {
+                        SubType::Statistic(stat) => {
+                            assert_eq!(stat, "pct_65");
+                        }
+                        _ => panic!("Unexpected SubType"),
+                    }
+                    match operator {
+                        Operator::GreaterThan => {}
+                        _ => panic!("Unexpected Operator"),
+                    }
+                }
+                _ => panic!("Unexpected QueryType"),
+            };
+
+            let y_query = query.y.unwrap();
+            match y_query {
+                QueryType::NoOp => {}
+                _ => panic!("Unexpected QueryType"),
+            };
+
+            let z_query = query.z.unwrap();
+            match z_query {
+                QueryType::NoOp => {}
+                _ => panic!("Unexpected QueryType"),
+            };
+        }
+        #[test]
         fn y_is_ok() {
             let json_value = json!({
             "y": {

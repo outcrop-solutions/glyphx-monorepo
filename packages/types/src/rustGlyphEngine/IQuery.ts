@@ -44,7 +44,7 @@ interface ISubType {
   name: string;
 }
 
-//The IValue interface defines a QueryType as being related to the vecroized
+//The IValue interface defines a QueryType as being related to the vectorized
 //values in our model and provides the information needed to convert the value
 //to a vector.  This allows the user to deine a query in terms related to the
 //data, while providing information needed to look up the values in the vector
@@ -58,8 +58,41 @@ interface IValue extends ISubType {
   value: string | number;
 }
 
+//A disciminator that defines the valid values for an IStatistic.value field.
+type StatisticValue =
+  | 'mean'
+  | 'median'
+  | 'pct_0'
+  | 'pct_5'
+  | 'pct_10'
+  | 'pct_15'
+  | 'pct_20'
+  | 'pct_25'
+  | 'pct_30'
+  | 'pct_33'
+  | 'pct_35'
+  | 'pct_40'
+  | 'pct_45'
+  | 'pct_50'
+  | 'pct_55'
+  | 'pct_60'
+  | 'pct_65'
+  | 'pct_67'
+  | 'pct_70'
+  | 'pct_75'
+  | 'pct_80'
+  | 'pct_85'
+  | 'pct_90'
+  | 'pct_95'
+  | 'pct_99';
+
+//The IStatistic interface defines a QueryType as being related to the statistics for an axis.  In essence, the Query will extract the comprison value from the statistics precomputed by glyphngine.
+interface IStatistic extends ISubType {
+  name: 'Statistic';
+  value: StatisticValue;
+}
 //The descriminator to determine our valid sub types.
-type SubType = IValue;
+type SubType = IValue | IStatistic;
 
 //Our IQueryTypeDefinition defines how values will be extracted from the axis and
 //how they will be compared.  SubType defines the type of the value that will be
@@ -139,6 +172,24 @@ let stringValueQuery: IQuery = {
   z: {},
 };
 
+//Here is an example query that will include all glyphs whose raw (unvectorized) value is
+//greater than the 99th percentile.
+//origional value.
+let statisticValueQuery: IQuery = {
+  x: {
+    include: {
+      sub_type: {
+        name: 'Statistic',
+        value: 'pct_99',
+      },
+      operator: {
+        name: 'GreaterThan',
+      },
+    },
+  },
+  y: {},
+  z: {},
+};
 //Here is an example query that will include all glyphs whose raw (unvectorized) value is
 //greater than 5.0 and less than 8.  Since the type is a number, the vector will most likelly match the
 //origional value.
