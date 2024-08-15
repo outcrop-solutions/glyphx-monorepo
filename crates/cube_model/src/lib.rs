@@ -352,6 +352,29 @@ impl ModelRunner {
             Err(e) => Err(serde_json::to_string(&e).unwrap()),
         }
     }
+    //Get statistics will return the raw statistics(vector values) for the given axis.
+    
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn get_statistics(&self, axis: &str) -> Result<String, String> {
+        if ["x", "y", "x"].contains(&axis) {
+            return Err("Invalid axis.  Must be x, y, or z".to_string());
+        }
+        //NOTE: You should have seen this before.  Y and Z are flipped in the model, so we need to
+        //flip them back to return the correct values to the client.
+        let axis = match axis {
+            "x" => "x",
+            "y" => "z",
+            "z" => "y",
+            _ => "x",
+        };
+        let mut dm = self.data_manager.borrow();
+      
+        let result = dm.get_stats(axis);
+        match result {
+            Ok(stats) => Ok(serde_json::to_string(&stats).unwrap()),
+            Err(e) => Err(serde_json::to_string(&e).unwrap()),
+        }
+    }
 
     ///Adding a glyph will update internal state but it
     ///will not emit any redraw events.
