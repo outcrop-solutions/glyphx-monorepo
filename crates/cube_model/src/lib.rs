@@ -353,7 +353,6 @@ impl ModelRunner {
         }
     }
     //Get statistics will return the raw statistics(vector values) for the given axis.
-
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn get_statistics(&self, axis: &str) -> Result<String, String> {
         if ["x", "y", "x"].contains(&axis) {
@@ -368,7 +367,6 @@ impl ModelRunner {
             _ => "x",
         };
         let mut dm = self.data_manager.borrow();
-
         let result = dm.get_stats(axis);
         match result {
             Ok(stats) => Ok(serde_json::to_string(&stats).unwrap()),
