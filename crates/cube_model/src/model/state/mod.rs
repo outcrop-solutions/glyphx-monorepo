@@ -1,10 +1,16 @@
+//1. Holds DataManager which is passed to sub structs. 
+//2. Sets up physical infrastructure, i.e. device etc 
+//3. Shared buffers -- camera, color table, light  -- Create a Buffer Manager
+//4. Create a wgpu manager 
 //NOTE: I am using this module to layout the beginning of a standard style for defining out modules
 //and imports.  This is a work in progress, and will be updated/changed as I figure out this
 //aspect of the style.
 //1. Define any submodules
 pub(crate) mod data_manager;
 mod errors;
+mod orientation_manager;
 pub(crate) mod selected_glyph;
+mod wgpu_manager;
 
 //2. Define any imports from the current crate.
 use crate::{
@@ -39,7 +45,9 @@ use crate::{
 //3. Define any imports from submodules.
 pub use data_manager::{CameraManager, DataManager};
 pub use errors::*;
+use orientation_manager::{OrientationManager, Face};
 pub use selected_glyph::{GlyphDescription, SelectedGlyph};
+use wgpu_manager::WgpuManager;
 
 //4. Define any imports from external Glyphx Crates.
 use model_common::Stats;
@@ -59,19 +67,6 @@ use winit::{
     window::Window,
 };
 
-const Z_ORDERS: [[&str; 4]; 4] = [
-    ["x-axis-line", "z-axis-line", "y-axis-line", "glyphs"],
-    ["z-axis-line", "glyphs", "x-axis-line", "y-axis-line"],
-    ["glyphs", "x-axis-line", "z-axis-line", "y-axis-line"],
-    ["x-axis-line", "glyphs", "z-axis-line", "y-axis-line"],
-];
-
-enum Face {
-    Front,
-    Right,
-    Back,
-    Left,
-}
 
 struct Pipelines {
     x_axis_line: axis_lines::AxisLines,
@@ -81,12 +76,8 @@ struct Pipelines {
 }
 
 pub struct State {
-    surface: wgpu::Surface,
-    device: Rc<RefCell<wgpu::Device>>,
-    queue: wgpu::Queue,
-    config: wgpu::SurfaceConfiguration,
-    size: winit::dpi::PhysicalSize<u32>,
-    window: Window,
+    wgpu_manager: WgpuManager,
+    orientation_manager : OrientationManager,
     camera_manager: Rc<RefCell<CameraManager>>,
     camera_buffer: wgpu::Buffer,
     camera_controller: CameraController,
@@ -98,14 +89,10 @@ pub struct State {
     smaa_target: SmaaTarget,
     glyph_uniform_data: GlyphUniformData,
     glyph_uniform_buffer: wgpu::Buffer,
-    rank: Rank,
-    rank_direction: RankDirection,
     pipelines: Pipelines,
     glyph_data_pipeline: GlyphData,
     new_hit_detection_pipeline: NewHitDetection,
-    z_order: usize,
     data_manager: Rc<RefCell<DataManager>>,
-    forward_face: Face,
     axis_visible: bool,
     first_render: bool,
     cursor_position: PhysicalPosition<f64>,
@@ -120,15 +107,8 @@ impl State {
         data_manager: Rc<RefCell<DataManager>>,
         camera_manager: Rc<RefCell<CameraManager>>,
     ) -> State {
-        let size = window.inner_size();
-
-        let (surface, adapter) = Self::init_wgpu(&window).await;
-
-        let (device, queue) = Self::init_device(&adapter).await;
-        let device = Rc::new(RefCell::new(device));
-        let d_clone = device.clone();
-        let d = d_clone.as_ref().borrow();
-        let config = Self::configure_surface(&surface, adapter, size, &d);
+        let wgpu_manager = WgpuManager::new(window).await;
+        let orientation_manager = OrientationManager::new();
 
         let mc = model_configuration.clone();
 
@@ -141,9 +121,12 @@ impl State {
 
         let cm_clone = camera_manager.clone();
         let cm = &mut cm_clone.borrow_mut();
+           let device = wgpu_manager.device();
+        let d = device.borrow();
 
         let (camera_buffer, camera_uniform, camera_controller) =
-            Self::configure_camera(&config, &d, &glyph_uniform_data, cm);
+            Self::configure_camera(wgpu_manager.config(), &d, &glyph_uniform_data, cm);
+            
 
         let color_table_uniform = ColorTableUniform::new(
             mc.min_color,
@@ -188,7 +171,7 @@ impl State {
         //axis pipelines to handle config updates
         let pipelines = Self::build_pipelines(
             device.clone(),
-            &config,
+            wgpu_manager.config(),
             &camera_buffer,
             &camera_uniform,
             &color_table_buffer,
@@ -202,10 +185,10 @@ impl State {
 
         let smaa_target = SmaaTarget::new(
             &d,
-            &queue,
-            window.inner_size().width,
-            window.inner_size().height,
-            config.format,
+            wgpu_manager.queue(),
+            wgpu_manager.window().inner_size().width,
+            wgpu_manager.window().inner_size().height,
+            wgpu_manager.config().format,
             SmaaMode::Smaa1X,
         );
         let glyph_data_pipeline = GlyphData::new(
@@ -215,15 +198,11 @@ impl State {
             data_manager.clone(),
         );
         let new_hit_detection_pipeline =
-            NewHitDetection::new(device.clone(), &config, &camera_buffer, &camera_uniform);
+            NewHitDetection::new(device.clone(), &wgpu_manager.config(), &camera_buffer, &camera_uniform);
 
         let mut model = Self {
-            window,
-            surface,
-            device,
-            queue,
-            config,
-            size,
+            wgpu_manager,
+            orientation_manager,
             camera_manager,
             camera_buffer,
             camera_controller,
@@ -233,14 +212,10 @@ impl State {
             glyph_uniform_buffer,
             glyph_uniform_data,
             smaa_target,
-            rank: Rank::Z,
-            rank_direction: RankDirection::Ascending,
             pipelines,
             light_buffer,
             light_uniform,
-            z_order: 0,
             data_manager,
-            forward_face: Face::Front,
             axis_visible: true,
             glyph_data_pipeline,
             //The hit detection pipeline cannot be constructed until the compute pass
@@ -259,20 +234,16 @@ impl State {
     }
 
     pub fn window(&self) -> &Window {
-        &self.window
+        &self.wgpu_manager.window()
     }
 
     pub fn size(&self) -> &PhysicalSize<u32> {
-        &self.size
+        &self.wgpu_manager.size()
     }
 
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
         if new_size.width > 0 && new_size.height > 0 {
-            self.size = new_size;
-            self.config.width = new_size.width;
-            self.config.height = new_size.height;
-            let d = self.device.as_ref().borrow();
-            self.surface.configure(&d, &self.config);
+            self.wgpu_manager.set_size(new_size);
         }
     }
 
@@ -332,11 +303,12 @@ impl State {
         y_pos: u32,
         is_shift_pressed: bool,
     ) -> &Vec<SelectedGlyph> {
-        let device = self.device.clone();
-        let device = device.as_ref().borrow();
+        let device = self.wgpu_manager.device();
+        let device = device.borrow();
         self.run_hit_detection_pipeline(&device, x_pos, y_pos, is_shift_pressed);
         &self.selected_glyphs
     }
+
     pub fn move_camera(&mut self, direction: &str, amount: f32) {
         let cm = self.camera_manager.clone();
         let cm = &mut cm.borrow_mut();
@@ -359,7 +331,7 @@ impl State {
             "down" => {
                 cm.add_y_offset(-1.0 * amount);
             }
-            "left" => match self.forward_face {
+            "left" => match self.orientation_manager.forward_face() {
                 Face::Front => {
                     cm.add_x_offset(-1.0 * amount);
                 }
@@ -373,7 +345,8 @@ impl State {
                     cm.add_z_offset(-1.0 * amount);
                 }
             },
-            "right" => match self.forward_face {
+
+            "right" => match self.orientation_manager.forward_face() {
                 Face::Front => {
                     cm.add_x_offset(amount);
                 }
@@ -418,10 +391,11 @@ impl State {
     }
 
     pub fn reset_camera(&mut self, camera_manager: &mut CameraManager) {
-        Self::build_camera_and_uniform(camera_manager, &self.glyph_uniform_data, &self.config);
+        Self::build_camera_and_uniform(camera_manager, &self.glyph_uniform_data, &self.wgpu_manager.config());
         self.update_z_order_and_rank(camera_manager);
         self.update(camera_manager);
     }
+
     pub fn toggle_axis_visibility(&mut self) {
         self.axis_visible = !self.axis_visible;
     }
@@ -453,8 +427,7 @@ impl State {
         uniform_data.flags = flags;
         self.glyph_uniform_data = uniform_data.clone();
         self.glyph_uniform_buffer =
-            self.device
-                .as_ref()
+            self.wgpu_manager.device()
                 .borrow()
                 .create_buffer_init(&wgpu::util::BufferInitDescriptor {
                     label: Some("Glyph Uniform Buffer"),
@@ -516,35 +489,36 @@ impl State {
         let background_color = self.color_table_uniform.background_color();
         let cm = self.camera_manager.clone();
         let cm = cm.borrow();
-        self.queue.write_buffer(
+        self.wgpu_manager.queue().write_buffer(
             &self.camera_buffer,
             0,
             bytemuck::cast_slice(&[cm.get_camera_uniform()]),
         );
-        self.queue.write_buffer(
+        self.wgpu_manager.queue().write_buffer(
             &self.color_table_buffer,
             0,
             bytemuck::cast_slice(&[self.color_table_uniform]),
         );
 
-        self.queue.write_buffer(
+        self.wgpu_manager.queue().write_buffer(
             &self.light_buffer,
             0,
             bytemuck::cast_slice(&[self.light_uniform]),
         );
 
-        self.queue.write_buffer(
+        self.wgpu_manager.queue().write_buffer(
             &self.glyph_uniform_buffer,
             0,
             bytemuck::cast_slice(&[self.glyph_uniform_data]),
         );
-        let output = self.surface.get_current_texture()?;
+        let output = self.wgpu_manager.surface().get_current_texture()?;
         let view = output
             .texture
             .create_view(&TextureViewDescriptor::default());
 
-        let d = self.device.as_ref().borrow();
-        let smaa_frame = self.smaa_target.start_frame(&d, &self.queue, &view);
+        let d = self.wgpu_manager.device();
+        let d = d.borrow();
+        let smaa_frame = self.smaa_target.start_frame(&d, self.wgpu_manager.queue(), &view);
 
         let mut encoder = d.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("ScreenClear Encoder"),
@@ -571,8 +545,9 @@ impl State {
         drop(screen_clear_render_pass);
         let mut commands = Vec::new();
         commands.push(encoder.finish());
-        let string_order = Z_ORDERS[self.z_order];
-        let d = self.device.as_ref().borrow();
+        let string_order = self.orientation_manager.z_order();
+        let d = self.wgpu_manager.device();
+        let d = d.borrow();
         for name in string_order {
             //Glyphs has it's own logic to render in rank order so we can't really use the pipeline
             //manager trait to render it.  So, we will handle it directly.
@@ -585,8 +560,8 @@ impl State {
                         &d,
                         &smaa_frame,
                         &self.pipelines.glyphs,
-                        self.rank,
-                        self.rank_direction,
+                        self.orientation_manager.rank(),
+                        self.orientation_manager.rank_direction(),
                         ranked_glyph_data,
                         &name,
                         &mut commands,
@@ -603,7 +578,7 @@ impl State {
                 commands.push(Self::run_axis_pipeline(&d, &smaa_frame, pipeline, &name));
             }
         }
-        self.queue.submit(commands);
+        self.wgpu_manager.queue().submit(commands);
 
         smaa_frame.resolve();
         output.present();
@@ -676,47 +651,16 @@ impl State {
         encoder.finish()
     }
 
-    fn configure_surface(
-        surface: &Surface,
-        adapter: wgpu::Adapter,
-        size: PhysicalSize<u32>,
-        device: &Device,
-    ) -> SurfaceConfiguration {
-        // Get the capabilities of our surface
-        let surface_caps = surface.get_capabilities(&adapter);
-        // Shader code in this crate assumes an sRGB surface texture. Using a different
-        // one will result all the colors coming out darker.
-        let surface_format = surface_caps
-            .formats
-            .iter()
-            .copied()
-            .find(|f| f.is_srgb())
-            .unwrap_or(surface_caps.formats[0]);
-
-        //TODO: remove copy source as a usage.  This is only here to test our new hit detection
-        //pipeline
-        //define the surface configuration
-        let config = wgpu::SurfaceConfiguration {
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_SRC,
-            format: surface_format,
-            width: size.width,
-            height: size.height,
-            present_mode: surface_caps.present_modes[0],
-            alpha_mode: surface_caps.alpha_modes[0],
-            view_formats: vec![],
-        };
-        //and apply it to our surface
-        surface.configure(device, &config);
-        config
-    }
 
     pub fn run_compute_pipeline(&mut self) {
-        let d = self.device.as_ref().borrow();
+        let d = self.wgpu_manager.device();
+        let d = d.borrow();
+
         let mut encoder = d.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("ScreenClear Encoder"),
         });
         let output_buffer = self.glyph_data_pipeline.run_pipeline(&mut encoder);
-        self.queue.submit([encoder.finish()]);
+        self.wgpu_manager.queue().submit([encoder.finish()]);
 
         let buffer_slice = output_buffer.slice(..);
         buffer_slice.map_async(wgpu::MapMode::Read, |_| {});
@@ -731,7 +675,6 @@ impl State {
         let dm = &mut self.data_manager.as_ref().borrow_mut();
         dm.clear_glyphs();
 
-        let mut i = 0;
         for glyph_instance in output_data.iter() {
             let _ = dm.add_ranked_glyph(GlyphVertexData::from(glyph_instance));
         }
@@ -748,7 +691,7 @@ impl State {
     ) -> Result<(), wgpu::SurfaceError> {
         let cm = self.camera_manager.clone();
         let cm = cm.borrow();
-        let config = &self.config;
+        let config = self.wgpu_manager.config();
 
         let picking_texture_desc = wgpu::TextureDescriptor {
             label: Some("Picking Texture"),
@@ -779,7 +722,7 @@ impl State {
             mapped_at_creation: false,
         });
 
-        self.queue.write_buffer(
+        self.wgpu_manager.queue().write_buffer(
             &self.camera_buffer,
             0,
             bytemuck::cast_slice(&[cm.get_camera_uniform()]),
@@ -817,7 +760,8 @@ impl State {
         if ranked_glyph_data.is_some() {
             let ranked_glyph_data = ranked_glyph_data.unwrap();
 
-            let rank_iteratror = ranked_glyph_data.iter(self.rank, self.rank_direction);
+            let rank_iteratror = ranked_glyph_data.iter(self.orientation_manager.rank(), self.orientation_manager.rank_direction());
+            
             for rank in rank_iteratror {
                 let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
                     label: Some("Hit Detection Encoder"),
@@ -874,7 +818,7 @@ impl State {
             );
 
             commands.push(encoder.finish());
-            self.queue.submit(commands);
+            self.wgpu_manager.queue().submit(commands);
 
             let buffer_slice = output_buffer.slice(..);
             buffer_slice.map_async(wgpu::MapMode::Read, |_| {});
@@ -915,56 +859,7 @@ impl State {
         Ok(())
     }
 
-    async fn init_device(adapter: &wgpu::Adapter) -> (Device, Queue) {
-        // The device is a logical GPU device pointing to the physical device identified by the adapter.
-        // The queue a command queue for the device to execute.  We write our operation to the
-        // queue to be rendered on the physical device for display on the surface
-        let (device, queue) = adapter
-            .request_device(
-                &wgpu::DeviceDescriptor {
-                    features: wgpu::Features::default(),
-                    // WebGL doesn't support all of wgpu's features, so if
-                    // we're building for the web we'll have to disable some.
-                    limits: if cfg!(target_arch = "wasm32") {
-                        wgpu::Limits::downlevel_webgl2_defaults()
-                    } else {
-                        wgpu::Limits::default()
-                    },
-                    label: None,
-                },
-                None, // Trace path
-            )
-            .await
-            .unwrap();
-        (device, queue)
-    }
 
-    async fn init_wgpu(window: &Window) -> (Surface, wgpu::Adapter) {
-        // The instance is a handle to our GPU api (WGPU)
-        // Backends::all => Vulkan + Metal + DX12 + Browser WebGPU
-        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
-            backends: wgpu::Backends::all(),
-            dx12_shader_compiler: Default::default(),
-        });
-
-        // The Surface is our connection to the window on which we are drawing.
-        // # Safety
-        //
-        // The surface needs to live as long as the window that created it.
-        // State owns the window so this should be safe.
-        let surface = unsafe { instance.create_surface(window) }.unwrap();
-
-        // The adapter is a handle to a physical GPU device.
-        let adapter = instance
-            .request_adapter(&wgpu::RequestAdapterOptions {
-                power_preference: wgpu::PowerPreference::default(),
-                compatible_surface: Some(&surface),
-                force_fallback_adapter: false,
-            })
-            .await
-            .unwrap();
-        (surface, adapter)
-    }
 
     fn build_pipelines(
         device: Rc<RefCell<Device>>,
@@ -1141,112 +1036,12 @@ impl State {
         glyph_uniform_data
     }
 
-    fn cacluate_rotation_change(&self, camera_manager: &CameraManager) -> f32 {
-        const RADS_PER_ROTATION: f32 = 6.283;
-        let yaw = camera_manager.get_yaw();
-        let distance = camera_manager.get_distance();
-
-        let rotation_rads = yaw % RADS_PER_ROTATION;
-        let rotation_rads = if rotation_rads < 0.0 {
-            RADS_PER_ROTATION + rotation_rads
-        } else {
-            rotation_rads
-        };
-        let degrees_of_rotation = rotation_rads * 180.0 / std::f32::consts::PI;
-        let distance_ratio = distance
-            / (self.glyph_uniform_data.max_interp_x - self.glyph_uniform_data.min_interp_x);
-        let distance_off_set = if distance_ratio > 1.0 {
-            0.0
-        } else if distance_ratio >= 0.9 {
-            1.0
-        } else if distance_ratio >= 0.8 {
-            7.0
-        } else if distance_ratio >= 0.7 {
-            13.0
-        } else {
-            23.0
-        };
-        degrees_of_rotation - distance_off_set
-    }
-    //These cubes are square at least on the x/z axis
-    pub fn update_z_order_and_rank(&mut self, camera_manager: &CameraManager) {
-        let rotation_angle = self.cacluate_rotation_change(camera_manager);
-        let flags = GlyphUniformFlags::decode(self.glyph_uniform_data.flags).unwrap();
-        //When we gerate the vectors in the glyph_data pipeline, ordering can be modified which
-        //moves the glyphs through space, but the rank is not changed.  So in these cases, we need
-        //to flip our rank direction to keep the ordering of the glyphs corect.
-        let is_z_desc = flags.z_order == Order::Descending;
+    fn update_z_order_and_rank(&mut self, camera_manager: &CameraManager) {
+       let cube_size = self.glyph_uniform_data.max_interp_x - self.glyph_uniform_data.min_interp_x;
+       let flags = GlyphUniformFlags::decode(self.glyph_uniform_data.flags).unwrap();
         let is_x_desc = flags.x_order == Order::Descending;
-        let (z_order_index, rank, rank_direction) =
-            if rotation_angle >= 301.0 || rotation_angle < 31.0 {
-                //Front
-                (
-                    0,
-                    Rank::Z,
-                    if !is_z_desc {
-                        RankDirection::Ascending
-                    } else {
-                        RankDirection::Descending
-                    },
-                )
-            } else if rotation_angle >= 31.0 && rotation_angle < 121.0 {
-                //Right
-                (
-                    0,
-                    Rank::X,
-                    if !is_x_desc {
-                        RankDirection::Ascending
-                    } else {
-                        RankDirection::Descending
-                    },
-                )
-            } else if rotation_angle >= 121.0 && rotation_angle < 211.0 {
-                //Back
-                (
-                    1,
-                    Rank::Z,
-                    if !is_z_desc {
-                        RankDirection::Descending
-                    } else {
-                        RankDirection::Ascending
-                    },
-                )
-            } else if rotation_angle >= 211.0 && rotation_angle < 301.0 {
-                //Left
-                (
-                    3,
-                    Rank::X,
-                    if !is_x_desc {
-                        RankDirection::Descending
-                    } else {
-                        RankDirection::Ascending
-                    },
-                )
-            } else {
-                //This will never happen but rust was trying to be helpful
-                (0, Rank::Z, RankDirection::Ascending)
-            };
-
-        let forward_face = if rotation_angle >= 316.0 || rotation_angle < 46.0 {
-            //Front
-            Face::Front
-        } else if rotation_angle >= 46.0 && rotation_angle < 136.0 {
-            //Right
-            Face::Right
-        } else if rotation_angle >= 136.0 && rotation_angle < 226.0 {
-            //Back
-            Face::Back
-        } else if rotation_angle >= 226.0 && rotation_angle < 316.0 {
-            //Left
-            Face::Left
-        } else {
-            //This will never happen but rust was trying to be helpful
-            Face::Front
-        };
-        self.z_order = z_order_index;
-        self.rank = rank;
-        self.rank_direction = rank_direction;
-        self.forward_face = forward_face;
+        let is_z_desc = flags.z_order == Order::Descending;
+        self.orientation_manager.update_z_order_and_rank(camera_manager.get_yaw(), camera_manager.get_distance(), is_x_desc, is_z_desc, cube_size);
     }
 
     fn build_camera_and_uniform(
