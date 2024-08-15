@@ -353,7 +353,6 @@ impl ModelRunner {
         }
     }
     //Get statistics will return the raw statistics(vector values) for the given axis.
-    
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn get_statistics(&self, axis: &str) -> Result<String, String> {
         if ["x", "y", "x"].contains(&axis) {
@@ -368,7 +367,6 @@ impl ModelRunner {
             _ => "x",
         };
         let mut dm = self.data_manager.borrow();
-      
         let result = dm.get_stats(axis);
         match result {
             Ok(stats) => Ok(serde_json::to_string(&stats).unwrap()),
@@ -424,6 +422,18 @@ impl ModelRunner {
         cm.set_camera_data(camera_data, aspect_ratio);
         unsafe {
             let event = ModelEvent::Redraw;
+            EVENT_LOOP_PROXY
+                .as_ref()
+                .unwrap()
+                .send_event(event)
+                .unwrap();
+        }
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn set_selected_glyphs(&self, selected_glyphs: Vec<u32>) {
+        unsafe {
+            let event = ModelEvent::SelectGlyphs(selected_glyphs);
             EVENT_LOOP_PROXY
                 .as_ref()
                 .unwrap()
@@ -570,6 +580,21 @@ impl ModelRunner {
                     let res = state.hit_detection(x_pos as u32, y_pos as u32, multi_select);
                     let values = res.iter().map(|v| v.to_json()).collect::<Vec<Value>>();
                     emit_event(&ModelEvent::SelectedGlyphs(values));
+                }
+
+                Event::UserEvent(ModelEvent::SelectGlyphs(selected_glyphs)) => {
+                    let glyphs = state.update_selected_glyphs(selected_glyphs);
+                    let values = glyphs.iter().map(|v| v.to_json()).collect::<Vec<Value>>();
+                    emit_event(&ModelEvent::SelectedGlyphs(values));
+
+                    unsafe {
+                        let event = ModelEvent::Redraw;
+                        EVENT_LOOP_PROXY
+                            .as_ref()
+                            .unwrap()
+                            .send_event(event)
+                            .unwrap();
+                    }
                 }
 
                 Event::UserEvent(ModelEvent::UpdateModelFilter(model_filter)) => {
@@ -919,20 +944,24 @@ impl ModelRunner {
                             ..
                         } => {
                             let mut cf = config.borrow_mut();
-                            let modifier = if shift_pressed {
-                                if alt_pressed {
-                                    0.99
-                                } else {
-                                    0.9
-                                }
+                            if ctrl_pressed {
+                                state.update_selected_glyphs(vec![1, 3, 5, 7, 9]);
                             } else {
-                                if alt_pressed {
-                                    1.01
+                                let modifier = if shift_pressed {
+                                    if alt_pressed {
+                                        0.99
+                                    } else {
+                                        0.9
+                                    }
                                 } else {
-                                    1.1
-                                }
-                            };
-                            cf.glyph_size = cf.glyph_size * modifier;
+                                    if alt_pressed {
+                                        1.01
+                                    } else {
+                                        1.1
+                                    }
+                                };
+                                cf.glyph_size = cf.glyph_size * modifier;
+                            }
                             unsafe {
                                 let event = ModelEvent::Redraw;
                                 EVENT_LOOP_PROXY

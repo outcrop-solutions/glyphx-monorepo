@@ -16,6 +16,7 @@ use crate::{
     light::light_uniform::LightUniform,
     model::{
         color_table_uniform::ColorTableUniform,
+        filtering::Query,
         model_configuration::ModelConfiguration,
         pipeline::{
             axis_lines,
@@ -31,7 +32,6 @@ use crate::{
             new_hit_detection::{decode_glyph_id, NewHitDetection},
             PipelineRunner,
         },
-        filtering::Query,
     },
     Order,
 };
@@ -111,7 +111,6 @@ pub struct State {
     cursor_position: PhysicalPosition<f64>,
     selected_glyphs: Vec<SelectedGlyph>,
     model_filter: Query,
-
 }
 
 impl State {
@@ -253,7 +252,6 @@ impl State {
             selected_glyphs: Vec::new(),
 
             model_filter: Query::default(),
-
         };
         //This allows us to initialize out camera with a pitch and yaw that is not 0
         model.update_z_order_and_rank(cm);
@@ -277,9 +275,11 @@ impl State {
             self.surface.configure(&d, &self.config);
         }
     }
+
     pub fn update_cursor_position(&mut self, position: PhysicalPosition<f64>) {
         self.cursor_position = position;
     }
+
     pub fn input(&mut self, event: &DeviceEvent, is_shift_pressed: bool) -> bool {
         let mut camera_result = MouseEvent::Unhandled;
         {
@@ -311,7 +311,27 @@ impl State {
         handled
     }
 
-    pub fn hit_detection(&mut self, x_pos: u32, y_pos: u32, is_shift_pressed: bool)-> &Vec<SelectedGlyph> {
+    pub fn update_selected_glyphs(&mut self, selected_glyphs: Vec<u32>) -> &Vec<SelectedGlyph> {
+        let mut selected: Vec<SelectedGlyph> = Vec::new();
+        let dm = self.data_manager.clone();
+        let dm = dm.borrow();
+        for sg in selected_glyphs {
+            let glyph_desc = dm.get_glyph_description(sg );
+            if glyph_desc.is_some() {
+                let glyph_desc = glyph_desc.unwrap();
+                selected.push(glyph_desc);
+            }
+        }
+        self.selected_glyphs = selected;
+        &self.selected_glyphs
+    }
+
+    pub fn hit_detection(
+        &mut self,
+        x_pos: u32,
+        y_pos: u32,
+        is_shift_pressed: bool,
+    ) -> &Vec<SelectedGlyph> {
         let device = self.device.clone();
         let device = device.as_ref().borrow();
         self.run_hit_detection_pipeline(&device, x_pos, y_pos, is_shift_pressed);
@@ -443,9 +463,9 @@ impl State {
                 });
     }
 
-   pub fn update_model_filter(&mut self, model_filter: Query ) {
+    pub fn update_model_filter(&mut self, model_filter: Query) {
         self.model_filter = model_filter;
-   }
+    }
     pub fn update_config(&mut self) {
         //Update our glyph information based on the updated configuration.
         //TODO: at some point, we will want to split out or function to only run the compute
