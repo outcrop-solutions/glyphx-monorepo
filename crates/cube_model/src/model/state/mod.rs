@@ -57,7 +57,7 @@ use model_common::Stats;
 //5. Define any imports from external 3rd party crates.
 use glam::Vec3;
 use smaa::*;
-use std::cell::RefCell;
+use std::{borrow::BorrowMut, cell::RefCell};
 use std::rc::Rc;
 use wgpu::{
     util::DeviceExt, CommandBuffer, Device, Queue, Surface, SurfaceConfiguration,
@@ -82,8 +82,6 @@ pub struct State {
     buffer_manager: BufferManager,
     camera_manager: Rc<RefCell<CameraManager>>,
     camera_controller: CameraController,
-    color_table_uniform: ColorTableUniform,
-    color_table_buffer: wgpu::Buffer,
     light_uniform: LightUniform,
     light_buffer: wgpu::Buffer,
     model_configuration: Rc<RefCell<ModelConfiguration>>,
@@ -119,36 +117,25 @@ impl State {
         let dm = dm.borrow();
 
         let mc = model_configuration.clone();
+
         let glyph_uniform_data = Self::build_glyph_uniform_data(&mc, &dm);
+
+        let mc = mc.borrow();
         let buffer_manager = BufferManager::new(
             wgpu_manager.clone(),
             camera_manager.clone(),
             &glyph_uniform_data,
+            &mc
         );
 
         let camera_controller = CameraController::new(0.025, 0.006);
 
-        let mc = mc.borrow();
 
         let cm_clone = camera_manager.clone();
-        let cm = &mut cm_clone.borrow_mut();
+        let cm =  cm_clone.as_ref().borrow_mut();
         let device = wm.device();
         let d = device.borrow();
 
-        let color_table_uniform = ColorTableUniform::new(
-            mc.min_color,
-            mc.max_color,
-            mc.x_axis_color,
-            mc.y_axis_color,
-            mc.z_axis_color,
-            mc.background_color,
-        );
-
-        let color_table_buffer = d.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Color Table Buffer"),
-            contents: bytemuck::cast_slice(&[color_table_uniform]),
-            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-        });
 
         let light_uniform = LightUniform::new(
             mc.light_location,
@@ -181,8 +168,8 @@ impl State {
             wm.config(),
             buffer_manager.camera_buffer(),
             buffer_manager.camera_uniform(),
-            &color_table_buffer,
-            &color_table_uniform,
+            buffer_manager.color_table_buffer(),
+            buffer_manager.color_table_uniform(),
             &light_buffer,
             &light_uniform,
             model_configuration.clone(),
@@ -218,8 +205,6 @@ impl State {
             camera_manager,
             camera_controller,
             model_configuration,
-            color_table_buffer,
-            color_table_uniform,
             glyph_uniform_buffer,
             glyph_uniform_data,
             smaa_target,
@@ -240,7 +225,7 @@ impl State {
             model_filter: Query::default(),
         };
         //This allows us to initialize out camera with a pitch and yaw that is not 0
-        model.update_z_order_and_rank(cm);
+        model.update_z_order_and_rank(&cm);
         model
     }
 
@@ -263,7 +248,7 @@ impl State {
 
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
         if new_size.width > 0 && new_size.height > 0 {
-            self.wgpu_manager.borrow_mut().set_size(new_size);
+            self.wgpu_manager.as_ref().borrow_mut().set_size(new_size);
         }
     }
 
@@ -275,8 +260,8 @@ impl State {
         let mut camera_result = MouseEvent::Unhandled;
         {
             let cm = self.camera_manager.clone();
-            let cm = &mut cm.borrow_mut();
-            camera_result = self.camera_controller.process_events(event, cm);
+            let mut cm = cm.as_ref().borrow_mut();
+            camera_result = self.camera_controller.process_events(event, &mut cm);
         }
 
         let handled = match camera_result {
@@ -333,68 +318,68 @@ impl State {
         let cm = self.camera_manager.clone();
         match direction {
             "distance" => {
-                let mut cm = cm.borrow_mut();
+                let mut cm = cm.as_ref().borrow_mut();
                 cm.add_distance(amount * self.camera_controller.zoom_speed);
                 self.update(&mut cm);
             }
             "yaw" => {
-                let mut cm = cm.borrow_mut();
+                let mut cm = cm.as_ref().borrow_mut();
                 cm.add_yaw(amount * self.camera_controller.rotate_speed);
                 self.update(&mut cm);
             }
             "pitch" => {
-                let mut cm = cm.borrow_mut();
+                let mut cm = cm.as_ref().borrow_mut();
                 cm.add_pitch(amount * self.camera_controller.rotate_speed);
                 self.update(&mut cm);
             }
             "up" => {
-                let mut cm = cm.borrow_mut();
+                let mut cm = cm.as_ref().borrow_mut();
                 cm.add_y_offset(amount);
             }
             "down" => {
-                let mut cm = cm.borrow_mut();
+                let mut cm = cm.as_ref().borrow_mut();
                 cm.add_y_offset(-1.0 * amount);
             }
             "left" => match self.orientation_manager.forward_face() {
                 Face::Front => {
-                    let mut cm = cm.borrow_mut();
+                    let mut cm = cm.as_ref().borrow_mut();
                     cm.add_x_offset(-1.0 * amount);
                 }
                 Face::Right => {
-                    let mut cm = cm.borrow_mut();
+                    let mut cm = cm.as_ref().borrow_mut();
                     cm.add_z_offset(amount);
                 }
                 Face::Back => {
-                    let mut cm = cm.borrow_mut();
+                    let mut cm = cm.as_ref().borrow_mut();
                     cm.add_x_offset(amount);
                 }
                 Face::Left => {
-                    let mut cm = cm.borrow_mut();
+                    let mut cm = cm.as_ref().borrow_mut();
                     cm.add_z_offset(-1.0 * amount);
                 }
             },
 
             "right" => match self.orientation_manager.forward_face() {
                 Face::Front => {
-                    let mut cm = cm.borrow_mut();
+                    let mut cm = cm.as_ref().borrow_mut();
                     cm.add_x_offset(amount);
                 }
                 Face::Right => {
-                    let mut cm = cm.borrow_mut();
+                    let mut cm = cm.as_ref().borrow_mut();
                     cm.add_z_offset(-1.0 * amount);
                 }
                 Face::Back => {
-                    let mut cm = cm.borrow_mut();
+                    let mut cm = cm.as_ref().borrow_mut();
                     cm.add_x_offset(-1.0 * amount);
                 }
                 Face::Left => {
-                    let mut cm = cm.borrow_mut();
+                    let mut cm = cm.as_ref().borrow_mut();
                     cm.add_z_offset(amount);
                 }
             },
             "x_axis" => {
                 self.reset_camera();
-                let mut cm = cm.borrow_mut();
+                let mut cm = cm.as_ref().borrow_mut();
                 cm.set_yaw(3.14159);
                 cm.set_pitch(0.0);
                 self.update_z_order_and_rank(&mut cm);
@@ -402,7 +387,7 @@ impl State {
 
             "y_axis" => {
                 self.reset_camera();
-                let mut cm = cm.borrow_mut();
+                let mut cm = cm.as_ref().borrow_mut();
                 cm.set_yaw(4.71239);
                 cm.set_pitch(0.0);
                 self.update_z_order_and_rank(&mut cm);
@@ -410,7 +395,7 @@ impl State {
 
             "z_axis" => {
                 self.reset_camera();
-                let mut cm = cm.borrow_mut();
+                let mut cm = cm.as_ref().borrow_mut();
                 cm.set_yaw(0.0);
                 cm.set_pitch(1.5708);
                 self.update_z_order_and_rank(&mut cm);
@@ -424,7 +409,7 @@ impl State {
             .build_camera_and_uniform(&self.glyph_uniform_data);
         let cm = self.camera_manager.clone();
         self.update_z_order_and_rank(&cm.borrow());
-        self.update(&mut cm.borrow_mut());
+        self.update(&mut cm.as_ref().borrow_mut());
     }
 
     pub fn toggle_axis_visibility(&mut self) {
@@ -433,7 +418,7 @@ impl State {
 
     pub fn update_from_client(&mut self) {
         let cm = self.camera_manager.clone();
-        let cm = &mut cm.borrow_mut();
+        let cm = &mut cm.as_ref().borrow_mut();
         self.update(cm);
     }
 
@@ -472,6 +457,7 @@ impl State {
     pub fn update_model_filter(&mut self, model_filter: Query) {
         self.model_filter = model_filter;
     }
+
     pub fn update_config(&mut self) {
         //Update our glyph information based on the updated configuration.
         //TODO: at some point, we will want to split out or function to only run the compute
@@ -483,12 +469,7 @@ impl State {
         self.run_compute_pipeline();
 
         let config = self.model_configuration.borrow();
-        let color_table_uniform = &mut self.color_table_uniform;
-        color_table_uniform.set_x_axis_color(config.x_axis_color);
-        color_table_uniform.set_y_axis_color(config.y_axis_color);
-        color_table_uniform.set_z_axis_color(config.z_axis_color);
-        color_table_uniform.set_background_color(config.background_color);
-        color_table_uniform.update_colors(config.min_color, config.max_color);
+        self.buffer_manager.borrow_mut().update_color_table( config.x_axis_color, config.y_axis_color, config.z_axis_color, config.background_color, config.min_color, config.max_color);
         self.pipelines
             .x_axis_line
             .set_axis_start(config.model_origin[0]);
@@ -519,7 +500,7 @@ impl State {
             self.first_render = false;
         }
 
-        let background_color = self.color_table_uniform.background_color();
+        let background_color = self.buffer_manager.color_table_uniform().background_color();
         let cm = self.camera_manager.clone();
         let cm = cm.borrow();
         self.wgpu_manager.borrow().queue().write_buffer(
@@ -528,9 +509,9 @@ impl State {
             bytemuck::cast_slice(&[cm.get_camera_uniform()]),
         );
         self.wgpu_manager.borrow().queue().write_buffer(
-            &self.color_table_buffer,
+            &self.buffer_manager.color_table_buffer(),
             0,
-            bytemuck::cast_slice(&[self.color_table_uniform]),
+            bytemuck::cast_slice(&[*self.buffer_manager.color_table_uniform()]),
         );
 
         self.wgpu_manager.borrow().queue().write_buffer(
@@ -984,7 +965,7 @@ impl State {
         data_manager: &DataManager,
     ) -> GlyphUniformData {
         let mc = model_configuration.clone();
-        let mut mc = mc.borrow_mut();
+        let mut mc = mc.as_ref().borrow_mut();
         let radius = if mc.grid_cylinder_radius > mc.grid_cone_radius {
             mc.grid_cylinder_radius
         } else {

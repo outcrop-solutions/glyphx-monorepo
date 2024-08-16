@@ -927,7 +927,6 @@ impl ModelRunner {
                                     cf.color_flip = !cf.color_flip;
                                 }
                             }
-                            state.update_config();
                             unsafe {
                                 let event = ModelEvent::Redraw;
                                 EVENT_LOOP_PROXY
