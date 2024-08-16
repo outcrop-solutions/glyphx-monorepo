@@ -573,7 +573,7 @@ impl ModelRunner {
                     state.move_camera("y_axis", 0.0);
                 }
                 Event::UserEvent(ModelEvent::ModelMove(ModelMoveDirection::Reset)) => {
-                    state.reset_camera_from_client();
+                    state.reset_camera();
                 }
                 Event::UserEvent(ModelEvent::SelectGlyph {
                     x_pos,
@@ -726,7 +726,7 @@ impl ModelRunner {
                         } => {
                             let mut cf = config.borrow_mut();
                             if ctrl_pressed && !shift_pressed && !alt_pressed {
-                                state.reset_camera_from_client();
+                                state.reset_camera();
                             } else if alt_pressed && ctrl_pressed && !shift_pressed {
                                 state.run_compute_pipeline();
                             } else if !ctrl_pressed {
@@ -1424,7 +1424,7 @@ impl ModelRunner {
                         _ => {}
                     }
                 }
-                Event::RedrawRequested(window_id) if window_id == state.window().id() => {
+                Event::RedrawRequested(window_id) if window_id == state.get_window_id() => {
                     state.update_from_client();
                     match state.render() {
                         Ok(_) => {}
@@ -1442,7 +1442,7 @@ impl ModelRunner {
                 Event::MainEventsCleared => {
                     // RedrawRequested will only trigger once, unless we manually
                     // request it.
-                    state.window().request_redraw();
+                    state.request_window_redraw();
                 }
 
                 _ => {}
