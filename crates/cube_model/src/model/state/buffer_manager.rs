@@ -1,7 +1,9 @@
 use crate::camera::uniform_buffer::CameraUniform;
+use crate::light::light_uniform;
 use crate::model::color_table_uniform::ColorTableUniform;
 use crate::model::state::ModelConfiguration;
-
+use crate::light::light_uniform::LightUniform;
+    
 use super::CameraManager;
 use super::GlyphUniformData;
 use super::WgpuManager;
@@ -22,6 +24,8 @@ pub struct BufferManager {
     camera_buffer: Buffer,
     color_table_uniform: ColorTableUniform,
     color_table_buffer: Buffer,
+    light_uniform: LightUniform,
+    light_buffer: Buffer,
 }
 
 impl BufferManager {
@@ -45,6 +49,7 @@ impl BufferManager {
         );
         let (color_table_uniform, color_table_buffer) =
             Self::configure_color_table(model_configuration, &wm.device().borrow());
+        let (light_uniform, light_buffer) = Self::configure_light(model_configuration, &wm.device().borrow());
         BufferManager {
             wgpu_manager,
             camera_manager,
@@ -52,9 +57,30 @@ impl BufferManager {
             camera_buffer,
             color_table_uniform,
             color_table_buffer,
+            light_uniform,
+            light_buffer,
         }
     }
+    
+    fn configure_light(model_configuration: &ModelConfiguration, device: &Device) -> (LightUniform, Buffer) {
+        let light_uniform = LightUniform::new(
+            model_configuration.light_location,
+            [
+                model_configuration.light_color[0] / 255.0,
+                model_configuration.light_color[1] / 255.0,
+                model_configuration.light_color[2] / 255.0,
+            ],
+            model_configuration.light_intensity,
+        );
 
+        let light_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Light Buffer"),
+            contents: bytemuck::cast_slice(&[light_uniform]),
+            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        });
+        (light_uniform, light_buffer)
+    }
+    
     fn configure_color_table(
         model_configuration: &ModelConfiguration,
         device: &Device,
@@ -157,6 +183,11 @@ impl BufferManager {
             .set_background_color(background_color);
         self.color_table_uniform.update_colors(min_color, max_color);
     }
+    pub fn update_light_uniform(&mut self, location:[f32;3], color: [f32;3], intensity:f32) {
+        self.light_uniform.upate_position(location);
+        self.light_uniform.upate_color(location);
+        self.light_uniform.upate_intensity(intensity);
+    }
 
     pub fn camera_buffer(&self) -> &Buffer {
         &self.camera_buffer
@@ -171,5 +202,13 @@ impl BufferManager {
 
     pub fn color_table_uniform(&self) -> &ColorTableUniform {
         &self.color_table_uniform
+    }
+
+    pub fn light_buffer(&self) -> &Buffer {
+        &self.light_buffer
+    }
+
+    pub fn light_uniform(&self) -> &LightUniform {
+        &self.light_uniform
     }
 }

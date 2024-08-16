@@ -57,8 +57,8 @@ use model_common::Stats;
 //5. Define any imports from external 3rd party crates.
 use glam::Vec3;
 use smaa::*;
-use std::{borrow::BorrowMut, cell::RefCell};
 use std::rc::Rc;
+use std::{borrow::BorrowMut, cell::RefCell};
 use wgpu::{
     util::DeviceExt, CommandBuffer, Device, Queue, Surface, SurfaceConfiguration,
     TextureViewDescriptor,
@@ -82,8 +82,6 @@ pub struct State {
     buffer_manager: BufferManager,
     camera_manager: Rc<RefCell<CameraManager>>,
     camera_controller: CameraController,
-    light_uniform: LightUniform,
-    light_buffer: wgpu::Buffer,
     model_configuration: Rc<RefCell<ModelConfiguration>>,
     smaa_target: SmaaTarget,
     glyph_uniform_data: GlyphUniformData,
@@ -125,33 +123,15 @@ impl State {
             wgpu_manager.clone(),
             camera_manager.clone(),
             &glyph_uniform_data,
-            &mc
+            &mc,
         );
 
         let camera_controller = CameraController::new(0.025, 0.006);
 
-
         let cm_clone = camera_manager.clone();
-        let cm =  cm_clone.as_ref().borrow_mut();
+        let cm = cm_clone.as_ref().borrow_mut();
         let device = wm.device();
         let d = device.borrow();
-
-
-        let light_uniform = LightUniform::new(
-            mc.light_location,
-            [
-                mc.light_color[0] / 255.0,
-                mc.light_color[1] / 255.0,
-                mc.light_color[2] / 255.0,
-            ],
-            mc.light_intensity,
-        );
-
-        let light_buffer = d.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Light Buffer"),
-            contents: bytemuck::cast_slice(&[light_uniform]),
-            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-        });
 
         //let ranked_glyph_data = Self::build_instance_data();
 
@@ -170,8 +150,8 @@ impl State {
             buffer_manager.camera_uniform(),
             buffer_manager.color_table_buffer(),
             buffer_manager.color_table_uniform(),
-            &light_buffer,
-            &light_uniform,
+            buffer_manager.light_buffer(),
+            buffer_manager.light_uniform(),
             model_configuration.clone(),
             &glyph_uniform_buffer,
             &glyph_uniform_data,
@@ -209,8 +189,6 @@ impl State {
             glyph_uniform_data,
             smaa_target,
             pipelines,
-            light_buffer,
-            light_uniform,
             data_manager,
             axis_visible: true,
             glyph_data_pipeline,
@@ -469,7 +447,14 @@ impl State {
         self.run_compute_pipeline();
 
         let config = self.model_configuration.borrow();
-        self.buffer_manager.borrow_mut().update_color_table( config.x_axis_color, config.y_axis_color, config.z_axis_color, config.background_color, config.min_color, config.max_color);
+        self.buffer_manager.borrow_mut().update_color_table(
+            config.x_axis_color,
+            config.y_axis_color,
+            config.z_axis_color,
+            config.background_color,
+            config.min_color,
+            config.max_color,
+        );
         self.pipelines
             .x_axis_line
             .set_axis_start(config.model_origin[0]);
@@ -482,15 +467,16 @@ impl State {
             .z_axis_line
             .set_axis_start(config.model_origin[2]);
         self.pipelines.z_axis_line.update_vertex_buffer();
-        self.light_uniform
-            .upate_position(config.light_location.clone());
-        self.light_uniform.upate_color([
-            config.light_color[0] / 255.0,
-            config.light_color[1] / 255.0,
-            config.light_color[2] / 255.0,
-        ]);
-        self.light_uniform
-            .upate_intensity(config.light_intensity.clone());
+
+        self.buffer_manager.borrow_mut().update_light_uniform(
+            config.light_location,
+            [
+                config.light_color[0] / 255.0,
+                config.light_color[1] / 255.0,
+                config.light_color[2] / 255.0,
+            ],
+            config.light_intensity,
+        );
         self.glyph_uniform_data.y_offset = config.min_glyph_height;
     }
 
@@ -515,9 +501,9 @@ impl State {
         );
 
         self.wgpu_manager.borrow().queue().write_buffer(
-            &self.light_buffer,
+            self.buffer_manager.light_buffer(),
             0,
-            bytemuck::cast_slice(&[self.light_uniform]),
+            bytemuck::cast_slice(&[*self.buffer_manager.light_uniform()]),
         );
 
         self.wgpu_manager.borrow().queue().write_buffer(
