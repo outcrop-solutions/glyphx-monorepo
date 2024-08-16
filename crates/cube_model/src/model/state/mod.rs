@@ -84,8 +84,6 @@ pub struct State {
     camera_controller: CameraController,
     model_configuration: Rc<RefCell<ModelConfiguration>>,
     smaa_target: SmaaTarget,
-    glyph_uniform_data: GlyphUniformData,
-    glyph_uniform_buffer: wgpu::Buffer,
     pipelines: Pipelines,
     glyph_data_pipeline: GlyphData,
     new_hit_detection_pipeline: NewHitDetection,
@@ -115,16 +113,21 @@ impl State {
         let dm = dm.borrow();
 
         let mc = model_configuration.clone();
+        let mut mc = mc.as_ref().borrow_mut();
 
-        let glyph_uniform_data = Self::build_glyph_uniform_data(&mc, &dm);
-
-        let mc = mc.borrow();
         let buffer_manager = BufferManager::new(
             wgpu_manager.clone(),
             camera_manager.clone(),
-            &glyph_uniform_data,
             &mc,
+            &dm,
         );
+        
+        //TODO:clean this up, It is is the curlies so we do not get multiple mut borrow errors
+        //later
+        
+            mc.model_origin = *buffer_manager.model_origin();
+            drop(mc);
+       
 
         let camera_controller = CameraController::new(0.025, 0.006);
 
@@ -133,13 +136,6 @@ impl State {
         let device = wm.device();
         let d = device.borrow();
 
-        //let ranked_glyph_data = Self::build_instance_data();
-
-        let glyph_uniform_buffer = d.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Glyph Uniform Buffer"),
-            contents: bytemuck::cast_slice(&[glyph_uniform_data]),
-            usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-        });
 
         //We are cloning device here, because we are storing it in the
         //axis pipelines to handle config updates
@@ -153,8 +149,8 @@ impl State {
             buffer_manager.light_buffer(),
             buffer_manager.light_uniform(),
             model_configuration.clone(),
-            &glyph_uniform_buffer,
-            &glyph_uniform_data,
+            buffer_manager.glyph_uniform_buffer(),
+            buffer_manager.glyph_uniform_data(),
         );
 
         let smaa_target = SmaaTarget::new(
@@ -166,7 +162,7 @@ impl State {
             SmaaMode::Smaa1X,
         );
         let glyph_data_pipeline = GlyphData::new(
-            &glyph_uniform_buffer,
+            buffer_manager.glyph_uniform_buffer(),
             device.clone(),
             model_configuration.clone(),
             data_manager.clone(),
@@ -185,8 +181,6 @@ impl State {
             camera_manager,
             camera_controller,
             model_configuration,
-            glyph_uniform_buffer,
-            glyph_uniform_data,
             smaa_target,
             pipelines,
             data_manager,
@@ -384,7 +378,7 @@ impl State {
 
     pub fn reset_camera(&mut self) {
         self.buffer_manager
-            .build_camera_and_uniform(&self.glyph_uniform_data);
+            .build_camera_and_uniform();
         let cm = self.camera_manager.clone();
         self.update_z_order_and_rank(&cm.borrow());
         self.update(&mut cm.as_ref().borrow_mut());
@@ -404,33 +398,6 @@ impl State {
         camera_manager.update();
     }
 
-    fn update_glyph_uniform_buffer(&mut self) {
-        let config = self.model_configuration.borrow();
-        let uniform_data = &mut self.glyph_uniform_data;
-        let mut flags = GlyphUniformFlags::default();
-        //Y and Z are flipped from our config to our uniform buffer.
-        flags.x_interp_type = config.x_interpolation;
-        flags.y_interp_type = config.z_interpolation;
-        flags.z_interp_type = config.y_interpolation;
-        flags.x_order = config.x_order;
-        flags.y_order = config.z_order;
-        flags.z_order = config.y_order;
-        flags.color_flip = config.color_flip;
-        flags.glyph_selected = self.selected_glyphs.len() > 0;
-        let flags = flags.encode();
-        uniform_data.flags = flags;
-        self.glyph_uniform_data = uniform_data.clone();
-        self.glyph_uniform_buffer = self
-            .wgpu_manager
-            .borrow()
-            .device()
-            .borrow()
-            .create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                label: Some("Glyph Uniform Buffer"),
-                contents: bytemuck::cast_slice(&[self.glyph_uniform_data]),
-                usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-            });
-    }
 
     pub fn update_model_filter(&mut self, model_filter: Query) {
         self.model_filter = model_filter;
@@ -440,9 +407,10 @@ impl State {
         //Update our glyph information based on the updated configuration.
         //TODO: at some point, we will want to split out or function to only run the compute
         //pipeline if necessary for now, we will just run it whenever the config changes
-        self.update_glyph_uniform_buffer();
+        
+        self.buffer_manager.update_glyph_uniform_buffer(&self.model_configuration.as_ref().borrow(), self.selected_glyphs.len() > 0);
         self.glyph_data_pipeline
-            .update_vertices(&self.glyph_uniform_buffer, &self.model_filter);
+            .update_vertices(self.buffer_manager.glyph_uniform_buffer(), &self.model_filter);
 
         self.run_compute_pipeline();
 
@@ -477,7 +445,7 @@ impl State {
             ],
             config.light_intensity,
         );
-        self.glyph_uniform_data.y_offset = config.min_glyph_height;
+        self.buffer_manager.update_glyph_uniform_y_offset(config.min_glyph_height);
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
@@ -507,9 +475,9 @@ impl State {
         );
 
         self.wgpu_manager.borrow().queue().write_buffer(
-            &self.glyph_uniform_buffer,
+            self.buffer_manager.glyph_uniform_buffer(),
             0,
-            bytemuck::cast_slice(&[self.glyph_uniform_data]),
+            bytemuck::cast_slice(&[*self.buffer_manager.glyph_uniform_data()]),
         );
         let output = self.wgpu_manager.borrow().surface().get_current_texture()?;
         let view = output
@@ -694,7 +662,7 @@ impl State {
     ) -> Result<(), wgpu::SurfaceError> {
         let cm = self.camera_manager.borrow();
         let wm = self.wgpu_manager.borrow();
-        let config = wm.config();
+        let config  = wm.config();
 
         let picking_texture_desc = wgpu::TextureDescriptor {
             label: Some("Picking Texture"),
@@ -946,86 +914,10 @@ impl State {
         }
     }
 
-    fn build_glyph_uniform_data(
-        model_configuration: &Rc<RefCell<ModelConfiguration>>,
-        data_manager: &DataManager,
-    ) -> GlyphUniformData {
-        let mc = model_configuration.clone();
-        let mut mc = mc.as_ref().borrow_mut();
-        let radius = if mc.grid_cylinder_radius > mc.grid_cone_radius {
-            mc.grid_cylinder_radius
-        } else {
-            mc.grid_cone_radius
-        };
-
-        let x_stats = data_manager.get_stats("x").unwrap();
-        let min_x = x_stats.min;
-        let max_x = x_stats.max;
-        let x_rank_count = x_stats.max_rank;
-
-        let y_stats = data_manager.get_stats("y").unwrap();
-        let min_y = y_stats.min;
-        let max_y = y_stats.max;
-
-        let z_stats = data_manager.get_stats("z").unwrap();
-        let min_z = z_stats.min;
-        let max_z = z_stats.max;
-        let z_rank_count = z_stats.max_rank;
-
-        let x_z_offset = radius + mc.glyph_offset;
-        let glyph_size = mc.glyph_size;
-
-        //How much space will our glyphs take up?
-        let x_size = x_rank_count as f32 * glyph_size + x_z_offset;
-        let z_size = z_rank_count as f32 * glyph_size + x_z_offset;
-
-        let y_size = (if x_size > z_size { x_size } else { z_size }) * mc.z_height_ratio;
-
-        let x_half = (x_size / 2.0) as u32 + 1;
-
-        let z_half = (z_size / 2.0) as u32 + 1;
-        let x_z_half = if x_half > z_half { x_half } else { z_half };
-        let model_origin =
-            (x_z_half as f32 + mc.glyph_offset / 2.0 + mc.grid_cone_radius / 2.0) * -1.0;
-        mc.model_origin = [model_origin, model_origin, model_origin];
-
-        let mut flags = GlyphUniformFlags::default();
-        //Y and Z are flipped from our config to our uniform buffer.
-        flags.x_interp_type = mc.x_interpolation;
-        flags.y_interp_type = mc.z_interpolation;
-        flags.z_interp_type = mc.y_interpolation;
-        flags.x_order = mc.x_order;
-        flags.y_order = mc.z_order;
-        flags.z_order = mc.y_order;
-        flags.color_flip = mc.color_flip;
-
-        let flags = flags.encode();
-
-        let glyph_uniform_data = GlyphUniformData {
-            min_x: min_x as f32,
-            max_x: max_x as f32,
-            min_interp_x: -1.0 * x_z_half as f32,
-            max_interp_x: x_z_half as f32,
-            min_y: min_y as f32,
-            max_y: max_y as f32,
-            //TODO: Why is this tied to model origin but the other axis are not?
-            min_interp_y: model_origin, // * y_half as f32,
-            max_interp_y: model_origin + y_size as f32,
-            min_z: min_z as f32,
-            max_z: max_z as f32,
-            min_interp_z: -1.0 * x_z_half as f32,
-            max_interp_z: x_z_half as f32,
-            flags,
-            x_z_offset,
-            y_offset: mc.min_glyph_height,
-            _padding: 0,
-        };
-        glyph_uniform_data
-    }
 
     fn update_z_order_and_rank(&mut self, camera_manager: &CameraManager) {
-        let cube_size = self.glyph_uniform_data.max_interp_x - self.glyph_uniform_data.min_interp_x;
-        let flags = GlyphUniformFlags::decode(self.glyph_uniform_data.flags).unwrap();
+        let cube_size = self.buffer_manager.glyph_uniform_data().max_interp_x - self.buffer_manager.glyph_uniform_data().min_interp_x;
+        let flags = GlyphUniformFlags::decode(self.buffer_manager.glyph_uniform_data().flags).unwrap();
         let is_x_desc = flags.x_order == Order::Descending;
         let is_z_desc = flags.z_order == Order::Descending;
         self.orientation_manager.update_z_order_and_rank(
