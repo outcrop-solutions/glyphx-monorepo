@@ -115,19 +115,11 @@ impl State {
         let mc = model_configuration.clone();
         let mut mc = mc.as_ref().borrow_mut();
 
-        let buffer_manager = BufferManager::new(
-            wgpu_manager.clone(),
-            camera_manager.clone(),
-            &mc,
-            &dm,
-        );
-        
-        //TODO:clean this up, It is is the curlies so we do not get multiple mut borrow errors
-        //later
-        
-            mc.model_origin = *buffer_manager.model_origin();
-            drop(mc);
-       
+        let buffer_manager =
+            BufferManager::new(wgpu_manager.clone(), camera_manager.clone(), &mc, &dm);
+
+        mc.model_origin = *buffer_manager.model_origin();
+        drop(mc);
 
         let camera_controller = CameraController::new(0.025, 0.006);
 
@@ -136,14 +128,14 @@ impl State {
         let device = wm.device();
         let d = device.borrow();
 
-
+        let camera_uniform = cm.get_camera_uniform();
         //We are cloning device here, because we are storing it in the
         //axis pipelines to handle config updates
         let pipelines = Self::build_pipelines(
             device.clone(),
             wm.config(),
             buffer_manager.camera_buffer(),
-            buffer_manager.camera_uniform(),
+            &camera_uniform,
             buffer_manager.color_table_buffer(),
             buffer_manager.color_table_uniform(),
             buffer_manager.light_buffer(),
@@ -171,7 +163,7 @@ impl State {
             device.clone(),
             &wm.config(),
             buffer_manager.camera_buffer(),
-            buffer_manager.camera_uniform(),
+            &camera_uniform,
         );
 
         let mut model = Self {
@@ -377,8 +369,8 @@ impl State {
     }
 
     pub fn reset_camera(&mut self) {
-        self.buffer_manager
-            .build_camera_and_uniform();
+        self.buffer_manager.build_camera_and_uniform();
+                
         let cm = self.camera_manager.clone();
         self.update_z_order_and_rank(&cm.borrow());
         self.update(&mut cm.as_ref().borrow_mut());
@@ -398,7 +390,6 @@ impl State {
         camera_manager.update();
     }
 
-
     pub fn update_model_filter(&mut self, model_filter: Query) {
         self.model_filter = model_filter;
     }
@@ -407,10 +398,15 @@ impl State {
         //Update our glyph information based on the updated configuration.
         //TODO: at some point, we will want to split out or function to only run the compute
         //pipeline if necessary for now, we will just run it whenever the config changes
-        
-        self.buffer_manager.update_glyph_uniform_buffer(&self.model_configuration.as_ref().borrow(), self.selected_glyphs.len() > 0);
-        self.glyph_data_pipeline
-            .update_vertices(self.buffer_manager.glyph_uniform_buffer(), &self.model_filter);
+
+        self.buffer_manager.update_glyph_uniform_buffer(
+            &self.model_configuration.as_ref().borrow(),
+            self.selected_glyphs.len() > 0,
+        );
+        self.glyph_data_pipeline.update_vertices(
+            self.buffer_manager.glyph_uniform_buffer(),
+            &self.model_filter,
+        );
 
         self.run_compute_pipeline();
 
@@ -445,7 +441,8 @@ impl State {
             ],
             config.light_intensity,
         );
-        self.buffer_manager.update_glyph_uniform_y_offset(config.min_glyph_height);
+        self.buffer_manager
+            .update_glyph_uniform_y_offset(config.min_glyph_height);
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
@@ -467,7 +464,6 @@ impl State {
             0,
             bytemuck::cast_slice(&[*self.buffer_manager.color_table_uniform()]),
         );
-
         self.wgpu_manager.borrow().queue().write_buffer(
             self.buffer_manager.light_buffer(),
             0,
@@ -662,7 +658,7 @@ impl State {
     ) -> Result<(), wgpu::SurfaceError> {
         let cm = self.camera_manager.borrow();
         let wm = self.wgpu_manager.borrow();
-        let config  = wm.config();
+        let config = wm.config();
 
         let picking_texture_desc = wgpu::TextureDescriptor {
             label: Some("Picking Texture"),
@@ -914,10 +910,11 @@ impl State {
         }
     }
 
-
     fn update_z_order_and_rank(&mut self, camera_manager: &CameraManager) {
-        let cube_size = self.buffer_manager.glyph_uniform_data().max_interp_x - self.buffer_manager.glyph_uniform_data().min_interp_x;
-        let flags = GlyphUniformFlags::decode(self.buffer_manager.glyph_uniform_data().flags).unwrap();
+        let cube_size = self.buffer_manager.glyph_uniform_data().max_interp_x
+            - self.buffer_manager.glyph_uniform_data().min_interp_x;
+        let flags =
+            GlyphUniformFlags::decode(self.buffer_manager.glyph_uniform_data().flags).unwrap();
         let is_x_desc = flags.x_order == Order::Descending;
         let is_z_desc = flags.z_order == Order::Descending;
         self.orientation_manager.update_z_order_and_rank(

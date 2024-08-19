@@ -193,7 +193,7 @@ impl BufferManager {
     }
     pub fn update_light_uniform(&mut self, location:[f32;3], color: [f32;3], intensity:f32) {
         self.light_uniform.upate_position(location);
-        self.light_uniform.upate_color(location);
+        self.light_uniform.upate_color(color);
         self.light_uniform.upate_intensity(intensity);
     }
 
@@ -314,9 +314,6 @@ impl BufferManager {
     }
     pub fn camera_buffer(&self) -> &Buffer {
         &self.camera_buffer
-    }
-    pub fn camera_uniform(&self) -> &CameraUniform {
-        &self.camera_uniform
     }
 
     pub fn color_table_buffer(&self) -> &Buffer {
