@@ -1,17 +1,11 @@
-use std::cell::RefCell;
-use std::rc::Rc; 
-use winit::window::Window;
-use winit::dpi::PhysicalSize;
-use wgpu::Surface;
-use wgpu::Device;
-use wgpu::Queue;
-use wgpu::Adapter;
-use wgpu::SurfaceConfiguration;
+use std::{cell::RefCell, rc::Rc};
+use wgpu::{Adapter, Device, Queue, Surface, SurfaceConfiguration};
+use winit::{dpi::PhysicalSize, window::Window};
 
 pub struct WgpuManager {
     window: Window,
-    size: PhysicalSize<u32>, 
-    surface: Surface, 
+    size: PhysicalSize<u32>,
+    surface: Surface,
     device: Rc<RefCell<Device>>,
     queue: Queue,
     config: SurfaceConfiguration,
@@ -23,13 +17,19 @@ impl WgpuManager {
         let (surface, adapter) = Self::init_wgpu(&window).await;
         let (device, queue) = Self::init_device(&adapter).await;
 
-        
         let config = Self::configure_surface(&surface, adapter, size, &device);
 
         //Drop device into a RefCell here so we can pass it around to the pipelines, buffer
         //manager, etc
         let device = Rc::new(RefCell::new(device));
-        WgpuManager { window, size, surface, device, queue, config }
+        WgpuManager {
+            window,
+            size,
+            surface,
+            device,
+            queue,
+            config,
+        }
     }
 
     pub fn window(&self) -> &Window {
@@ -41,7 +41,7 @@ impl WgpuManager {
     }
 
     pub fn surface(&self) -> &Surface {
-       &self.surface 
+        &self.surface
     }
 
     pub fn device(&self) -> Rc<RefCell<Device>> {
@@ -52,7 +52,7 @@ impl WgpuManager {
         &self.queue
     }
 
-    pub fn config( &self) -> &SurfaceConfiguration {
+    pub fn config(&self) -> &SurfaceConfiguration {
         &self.config
     }
 
@@ -62,7 +62,6 @@ impl WgpuManager {
         self.config.height = size.height;
         self.reconfigure_surface();
     }
-
 
     pub fn reconfigure_surface(&mut self) {
         let d = self.device();

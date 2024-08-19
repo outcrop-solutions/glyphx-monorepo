@@ -1,22 +1,13 @@
-    
-use super::CameraManager;
-use super::GlyphUniformData;
-use super::WgpuManager;
-use super::DataManager;
-use super::ModelConfiguration;
-use super::CameraUniform;
-use super::ColorTableUniform;
-use super::LightUniform;
-use super::GlyphUniformFlags;
+use super::{
+    CameraManager, CameraUniform, ColorTableUniform, DataManager, GlyphUniformData,
+    GlyphUniformFlags, LightUniform, ModelConfiguration, WgpuManager,
+};
 
-use std::cell::RefCell;
-use std::rc::Rc;
-use wgpu::util::DeviceExt;
-use wgpu::Buffer;
-use wgpu::Device;
-use wgpu::SurfaceConfiguration;
+use std::{cell::RefCell, rc::Rc};
+use wgpu::{util::DeviceExt, Buffer, Device, SurfaceConfiguration};
 
 type Color = [f32; 4];
+
 pub struct BufferManager {
     wgpu_manager: Rc<RefCell<WgpuManager>>,
     camera_manager: Rc<RefCell<CameraManager>>,
@@ -28,7 +19,7 @@ pub struct BufferManager {
     light_buffer: Buffer,
     glyph_uniform_data: GlyphUniformData,
     glyph_uniform_buffer: Buffer,
-    model_origin: [f32;3]
+    model_origin: [f32; 3],
 }
 
 impl BufferManager {
@@ -37,7 +28,6 @@ impl BufferManager {
         camera_manager: Rc<RefCell<CameraManager>>,
         model_configuration: &ModelConfiguration,
         data_manager: &DataManager,
-
     ) -> BufferManager {
         let cm = camera_manager.clone();
         let mut cm = cm.as_ref().borrow_mut();
@@ -45,7 +35,12 @@ impl BufferManager {
         let wm = wgpu_manager.clone();
         let wm = wm.as_ref().borrow();
 
-        let (glyph_uniform_data, model_origin, glyph_uniform_buffer) =  Self::build_glyph_uniform_data(model_configuration, data_manager, &wm.device().borrow());
+        let (glyph_uniform_data, model_origin, glyph_uniform_buffer) =
+            Self::build_glyph_uniform_data(
+                model_configuration,
+                data_manager,
+                &wm.device().borrow(),
+            );
 
         let (camera_uniform, camera_buffer) = Self::configure_camera_impl(
             &mut cm,
@@ -55,7 +50,8 @@ impl BufferManager {
         );
         let (color_table_uniform, color_table_buffer) =
             Self::configure_color_table(model_configuration, &wm.device().borrow());
-        let (light_uniform, light_buffer) = Self::configure_light(model_configuration, &wm.device().borrow());
+        let (light_uniform, light_buffer) =
+            Self::configure_light(model_configuration, &wm.device().borrow());
         BufferManager {
             wgpu_manager,
             camera_manager,
@@ -70,8 +66,11 @@ impl BufferManager {
             model_origin,
         }
     }
-    
-    fn configure_light(model_configuration: &ModelConfiguration, device: &Device) -> (LightUniform, Buffer) {
+
+    fn configure_light(
+        model_configuration: &ModelConfiguration,
+        device: &Device,
+    ) -> (LightUniform, Buffer) {
         let light_uniform = LightUniform::new(
             model_configuration.light_location,
             [
@@ -89,7 +88,7 @@ impl BufferManager {
         });
         (light_uniform, light_buffer)
     }
-    
+
     fn configure_color_table(
         model_configuration: &ModelConfiguration,
         device: &Device,
@@ -160,9 +159,7 @@ impl BufferManager {
         )
     }
 
-    pub fn build_camera_and_uniform(
-        &mut self,
-    ) -> CameraUniform {
+    pub fn build_camera_and_uniform(&mut self) -> CameraUniform {
         let mut cm = self.camera_manager.as_ref().try_borrow_mut();
         if cm.is_err() {
             let i = 0;
@@ -191,7 +188,7 @@ impl BufferManager {
             .set_background_color(background_color);
         self.color_table_uniform.update_colors(min_color, max_color);
     }
-    pub fn update_light_uniform(&mut self, location:[f32;3], color: [f32;3], intensity:f32) {
+    pub fn update_light_uniform(&mut self, location: [f32; 3], color: [f32; 3], intensity: f32) {
         self.light_uniform.upate_position(location);
         self.light_uniform.upate_color(color);
         self.light_uniform.upate_intensity(intensity);
@@ -200,8 +197,8 @@ impl BufferManager {
     fn build_glyph_uniform_data(
         mc: &ModelConfiguration,
         data_manager: &DataManager,
-        d: &Device
-    ) -> (GlyphUniformData, [f32;3], Buffer) {
+        d: &Device,
+    ) -> (GlyphUniformData, [f32; 3], Buffer) {
         let radius = if mc.grid_cylinder_radius > mc.grid_cone_radius {
             mc.grid_cylinder_radius
         } else {
@@ -238,7 +235,7 @@ impl BufferManager {
 
         let model_origin =
             (x_z_half as f32 + mc.glyph_offset / 2.0 + mc.grid_cone_radius / 2.0) * -1.0;
-       let full_model_origin = [model_origin, model_origin, model_origin];
+        let full_model_origin = [model_origin, model_origin, model_origin];
 
         let mut flags = GlyphUniformFlags::default();
         //Y and Z are flipped from our config to our uniform buffer.
@@ -281,7 +278,11 @@ impl BufferManager {
         (glyph_uniform_data, full_model_origin, glyph_uniform_buffer)
     }
 
-    pub fn update_glyph_uniform_buffer(&mut self, config: &ModelConfiguration, glyph_selected: bool) {
+    pub fn update_glyph_uniform_buffer(
+        &mut self,
+        config: &ModelConfiguration,
+        glyph_selected: bool,
+    ) {
         let uniform_data = &mut self.glyph_uniform_data;
         let mut flags = GlyphUniformFlags::default();
         //Y and Z are flipped from our config to our uniform buffer.
@@ -292,7 +293,7 @@ impl BufferManager {
         flags.y_order = config.z_order;
         flags.z_order = config.y_order;
         flags.color_flip = config.color_flip;
-        flags.glyph_selected = glyph_selected; 
+        flags.glyph_selected = glyph_selected;
         let flags = flags.encode();
         uniform_data.flags = flags;
 
@@ -309,7 +310,7 @@ impl BufferManager {
                 usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
             });
     }
-    pub fn update_glyph_uniform_y_offset(&mut self, y_offset:  f32) {
+    pub fn update_glyph_uniform_y_offset(&mut self, y_offset: f32) {
         self.glyph_uniform_data.y_offset = y_offset;
     }
     pub fn camera_buffer(&self) -> &Buffer {
@@ -340,7 +341,7 @@ impl BufferManager {
         &self.glyph_uniform_data
     }
 
-    pub fn model_origin(&self) -> &[f32;3] {
+    pub fn model_origin(&self) -> &[f32; 3] {
         &self.model_origin
     }
 }
