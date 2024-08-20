@@ -2,7 +2,7 @@ use bytemuck::cast_slice;
 
 use crate::model::{
     model_configuration,
-    pipeline::{glyphs::ranked_glyph_data::RankedGlyphIterator, hit_detection, PipelineRunner},
+    pipeline::{glyphs::ranked_glyph_data::RankedGlyphIterator, hit_detection},
 };
 
 use super::{

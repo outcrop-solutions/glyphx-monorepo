@@ -38,7 +38,6 @@ use crate::{
                 Glyphs,
             },
             hit_detection::{decode_glyph_id, HitDetection},
-            PipelineRunner,
         },
     },
     Order,
