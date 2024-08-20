@@ -58,11 +58,10 @@ use model_common::Stats;
 //5. Define any imports from external 3rd party crates.
 use glam::Vec3;
 use smaa::*;
-use std::rc::Rc;
-use std::{borrow::BorrowMut, cell::RefCell};
+use std::{cell::RefCell, rc::Rc};
 use wgpu::{
-    util::DeviceExt, CommandBuffer, Device, Queue, Surface, SurfaceConfiguration,
-    TextureViewDescriptor,
+    Color, CommandEncoderDescriptor, Device, LoadOp, Maintain, MapMode, Operations,
+    RenderPassColorAttachment, RenderPassDescriptor, SurfaceError, TextureViewDescriptor,
 };
 use winit::{
     dpi::{PhysicalPosition, PhysicalSize},
@@ -434,16 +433,21 @@ impl State {
             .update_glyph_uniform_y_offset(config.min_glyph_height);
     }
 
-    pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
+    pub fn render(&mut self) -> Result<(), SurfaceError> {
         if self.first_render {
             self.run_compute_pipeline();
             self.first_render = false;
         }
 
-        let background_color = self.buffer_manager.as_ref().borrow().color_table_uniform().background_color();
+        let background_color = self
+            .buffer_manager
+            .as_ref()
+            .borrow()
+            .color_table_uniform()
+            .background_color();
         let cm = self.camera_manager.clone();
         let cm = cm.borrow();
-        
+
         self.wgpu_manager.borrow().queue().write_buffer(
             &self.buffer_manager.as_ref().borrow().camera_buffer(),
             0,
@@ -478,17 +482,17 @@ impl State {
         let wm = self.wgpu_manager.as_ref().borrow();
         let smaa_frame = self.smaa_target.start_frame(&d, wm.queue(), &view);
 
-        let mut encoder = d.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+        let mut encoder = d.create_command_encoder(&CommandEncoderDescriptor {
             label: Some("ScreenClear Encoder"),
         });
 
-        let screen_clear_render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+        let screen_clear_render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
             label: Some("Render Pass"),
-            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+            color_attachments: &[Some(RenderPassColorAttachment {
                 view: &*smaa_frame,
                 resolve_target: None,
-                ops: wgpu::Operations {
-                    load: wgpu::LoadOp::Clear(wgpu::Color {
+                ops: Operations {
+                    load: LoadOp::Clear(Color {
                         r: background_color[0] as f64,
                         g: background_color[1] as f64,
                         b: background_color[2] as f64,
@@ -511,16 +515,22 @@ impl State {
             //Glyphs has it's own logic to render in rank order so we can't really use the pipeline
             //manager trait to render it.  So, we will handle it directly.
             if name == "glyphs" {
-                self.pipeline_manager.run_glyph_pipeline(&self.selected_glyphs, self.orientation_manager.rank(), self.orientation_manager.rank_direction(), &smaa_frame, &mut commands);
+                self.pipeline_manager.run_glyph_pipeline(
+                    &self.selected_glyphs,
+                    self.orientation_manager.rank(),
+                    self.orientation_manager.rank_direction(),
+                    &smaa_frame,
+                    &mut commands,
+                );
             } else if self.axis_visible {
-                
                 let pipeline = match name {
                     "x-axis-line" => AxisLineDirection::X,
                     "y-axis-line" => AxisLineDirection::Y,
                     "z-axis-line" => AxisLineDirection::Z,
                     _ => panic!("Unknown pipeline name"),
                 };
-                self.pipeline_manager.run_axis_pipeline(pipeline, &smaa_frame, &mut commands);
+                self.pipeline_manager
+                    .run_axis_pipeline(pipeline, &smaa_frame, &mut commands);
             }
         }
         self.wgpu_manager.borrow().queue().submit(commands);
@@ -531,16 +541,15 @@ impl State {
         Ok(())
     }
 
-
     pub fn run_compute_pipeline(&mut self) {
         let output_buffer = self.pipeline_manager.run_glyph_data_pipeline();
         let buffer_slice = output_buffer.slice(..);
-        buffer_slice.map_async(wgpu::MapMode::Read, |_| {});
+        buffer_slice.map_async(MapMode::Read, |_| {});
 
         let wm = self.wgpu_manager.borrow();
         let d = wm.device();
         let d = d.borrow();
-        d.poll(wgpu::Maintain::Wait);
+        d.poll(Maintain::Wait);
 
         let view = buffer_slice.get_mapped_range();
         //our data is already in the correct order so we can
@@ -564,51 +573,67 @@ impl State {
         x_pos: u32,
         y_pos: u32,
         is_shift_pressed: bool,
-    ) -> Result<(), wgpu::SurfaceError> {
-            let (output_buffer, bytes_per_row) = self.pipeline_manager.run_hit_detection_pipeline(self.orientation_manager.rank(), self.orientation_manager.rank_direction());
-            let buffer_slice = output_buffer.slice(..);
-            buffer_slice.map_async(wgpu::MapMode::Read, |_| {});
-            device.poll(wgpu::Maintain::Wait);
+    ) -> Result<(), SurfaceError> {
+        let (output_buffer, bytes_per_row) = self.pipeline_manager.run_hit_detection_pipeline(
+            self.orientation_manager.rank(),
+            self.orientation_manager.rank_direction(),
+        );
+        let buffer_slice = output_buffer.slice(..);
+        buffer_slice.map_async(MapMode::Read, |_| {});
+        device.poll(Maintain::Wait);
 
-            let view = buffer_slice.get_mapped_range();
-            let pixel_pos = (y_pos as u32 * bytes_per_row + x_pos as u32 * 4) as usize;
-            let val = &view[pixel_pos..pixel_pos + 4];
+        let view = buffer_slice.get_mapped_range();
+        let pixel_pos = (y_pos as u32 * bytes_per_row + x_pos as u32 * 4) as usize;
+        let val = &view[pixel_pos..pixel_pos + 4];
 
-            let glyph_id = decode_glyph_id([val[0], val[1], val[2], val[3]]);
-            if glyph_id != 16777215 {
-                let glyph_desc = self.data_manager.borrow().get_glyph_description(glyph_id).unwrap();
-                if !self
+        let glyph_id = decode_glyph_id([val[0], val[1], val[2], val[3]]);
+        if glyph_id != 16777215 {
+            let glyph_desc = self
+                .data_manager
+                .borrow()
+                .get_glyph_description(glyph_id)
+                .unwrap();
+            if !self
+                .selected_glyphs
+                .iter()
+                .any(|sg| sg.glyph_id == glyph_id)
+            {
+                if !is_shift_pressed {
+                    self.selected_glyphs.clear();
+                }
+                self.selected_glyphs.push(glyph_desc);
+            } else {
+                let index = self
                     .selected_glyphs
                     .iter()
-                    .any(|sg| sg.glyph_id == glyph_id)
-                {
-                    if !is_shift_pressed {
-                        self.selected_glyphs.clear();
-                    }
-                    self.selected_glyphs.push(glyph_desc);
-                } else {
-                    let index = self
-                        .selected_glyphs
-                        .iter()
-                        .position(|r| r.glyph_id == glyph_id);
-                    if let Some(index) = index {
-                        self.selected_glyphs.remove(index);
-                    }
+                    .position(|r| r.glyph_id == glyph_id);
+                if let Some(index) = index {
+                    self.selected_glyphs.remove(index);
                 }
-            } else if !is_shift_pressed {
-                self.selected_glyphs.clear();
             }
-            drop(view);
-            output_buffer.unmap();
-        
+        } else if !is_shift_pressed {
+            self.selected_glyphs.clear();
+        }
+        drop(view);
+        output_buffer.unmap();
+
         Ok(())
     }
 
     fn update_z_order_and_rank(&mut self, camera_manager: &CameraManager) {
-        let cube_size = self.buffer_manager.borrow().glyph_uniform_data().max_interp_x
-            - self.buffer_manager.borrow().glyph_uniform_data().min_interp_x;
+        let cube_size = self
+            .buffer_manager
+            .borrow()
+            .glyph_uniform_data()
+            .max_interp_x
+            - self
+                .buffer_manager
+                .borrow()
+                .glyph_uniform_data()
+                .min_interp_x;
         let flags =
-            GlyphUniformFlags::decode(self.buffer_manager.borrow().glyph_uniform_data().flags).unwrap();
+            GlyphUniformFlags::decode(self.buffer_manager.borrow().glyph_uniform_data().flags)
+                .unwrap();
         let is_x_desc = flags.x_order == Order::Descending;
         let is_z_desc = flags.z_order == Order::Descending;
         self.orientation_manager.update_z_order_and_rank(

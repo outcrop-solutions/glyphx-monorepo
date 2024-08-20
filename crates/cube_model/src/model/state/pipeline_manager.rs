@@ -7,7 +7,7 @@ use crate::model::{
 
 use super::{
     axis_lines::{AxisLineDirection, AxisLines},
-    BufferManager, CameraManager, DataManager, GlyphData, GlyphVertexData, Glyphs, HitDetection,
+    BufferManager, DataManager, GlyphData, GlyphVertexData, Glyphs, HitDetection,
     ModelConfiguration, Query, Rank, RankDirection, SelectedGlyph, WgpuManager,
 };
 
@@ -16,10 +16,10 @@ use std::{cell::RefCell, rc::Rc};
 use wgpu::{
     util::{BufferInitDescriptor, DeviceExt},
     Buffer, BufferAddress, BufferDescriptor, BufferUsages, Color, CommandBuffer,
-    CommandEncoderDescriptor, Device, Extent3d, ImageCopyBuffer, ImageCopyTexture, ImageDataLayout,
-    LoadOp, Operations, Origin3d, RenderPassColorAttachment, RenderPassDescriptor,
-    SurfaceConfiguration, Texture, TextureAspect, TextureDescriptor, TextureDimension,
-    TextureFormat, TextureUsages, TextureView, TextureViewDescriptor, COPY_BYTES_PER_ROW_ALIGNMENT,
+    CommandEncoderDescriptor, Device, Extent3d, LoadOp, Operations, Origin3d,
+    RenderPassColorAttachment, RenderPassDescriptor, SurfaceConfiguration, Texture, TextureAspect,
+    TextureDescriptor, TextureDimension, TextureFormat, TextureUsages, TextureView,
+    TextureViewDescriptor, COPY_BYTES_PER_ROW_ALIGNMENT,
 };
 
 pub struct PipelineManager {

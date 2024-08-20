@@ -19,21 +19,20 @@ pub struct OrientationManager {
     rank_direction: RankDirection,
     forward_face: Face,
     z_order: u8,
-    
 }
 
 impl OrientationManager {
     pub fn new() -> Self {
-       OrientationManager {
+        OrientationManager {
             rank: Rank::Z,
             rank_direction: RankDirection::Ascending,
             forward_face: Face::Front,
-            z_order: 0
-       }
+            z_order: 0,
+        }
     }
 
     pub fn rank(&self) -> Rank {
-       self.rank
+        self.rank
     }
 
     pub fn rank_direction(&self) -> RankDirection {
@@ -58,8 +57,7 @@ impl OrientationManager {
             rotation_rads
         };
         let degrees_of_rotation = rotation_rads * 180.0 / std::f32::consts::PI;
-        let distance_ratio = distance
-            / cube_size;
+        let distance_ratio = distance / cube_size;
         let distance_off_set = if distance_ratio > 1.0 {
             0.0
         } else if distance_ratio >= 0.9 {
@@ -75,12 +73,19 @@ impl OrientationManager {
     }
 
     //These cubes are square at least on the x/z axis
-    pub fn update_z_order_and_rank(&mut self, yaw: f32, distance: f32, is_x_desc: bool, is_z_desc: bool, cube_size: f32) {
+    pub fn update_z_order_and_rank(
+        &mut self,
+        yaw: f32,
+        distance: f32,
+        is_x_desc: bool,
+        is_z_desc: bool,
+        cube_size: f32,
+    ) {
         let rotation_angle = self.cacluate_rotation_change(yaw, distance, cube_size);
-        
+
         //When we gerate the vectors in the glyph_data pipeline,
-        //ordering can be modified which moves the glyphs through 
-        //space, but the rank is not changed.  So in these cases, 
+        //ordering can be modified which moves the glyphs through
+        //space, but the rank is not changed.  So in these cases,
         //we need to flip our rank direction to keep the ordering
         //of the glyphs corect.
         let (z_order_index, rank, rank_direction) =

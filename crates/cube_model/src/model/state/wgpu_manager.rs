@@ -1,5 +1,8 @@
 use std::{cell::RefCell, rc::Rc};
-use wgpu::{Adapter, Device, Queue, Surface, SurfaceConfiguration};
+use wgpu::{
+    Adapter, Backends, Device, DeviceDescriptor, Features, Instance, InstanceDescriptor, Limits,
+    PowerPreference, Queue, RequestAdapterOptions, Surface, SurfaceConfiguration, TextureUsages,
+};
 use winit::{dpi::PhysicalSize, window::Window};
 
 pub struct WgpuManager {
@@ -69,11 +72,11 @@ impl WgpuManager {
         self.surface.configure(&d, self.config());
     }
 
-    async fn init_wgpu(window: &Window) -> (Surface, wgpu::Adapter) {
+    async fn init_wgpu(window: &Window) -> (Surface, Adapter) {
         // The instance is a handle to our GPU api (WGPU)
         // Backends::all => Vulkan + Metal + DX12 + Browser WebGPU
-        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
-            backends: wgpu::Backends::all(),
+        let instance = Instance::new(InstanceDescriptor {
+            backends: Backends::all(),
             dx12_shader_compiler: Default::default(),
         });
 
@@ -86,8 +89,8 @@ impl WgpuManager {
 
         // The adapter is a handle to a physical GPU device.
         let adapter = instance
-            .request_adapter(&wgpu::RequestAdapterOptions {
-                power_preference: wgpu::PowerPreference::default(),
+            .request_adapter(&RequestAdapterOptions {
+                power_preference: PowerPreference::default(),
                 compatible_surface: Some(&surface),
                 force_fallback_adapter: false,
             })
@@ -102,14 +105,14 @@ impl WgpuManager {
         // queue to be rendered on the physical device for display on the surface
         let (device, queue) = adapter
             .request_device(
-                &wgpu::DeviceDescriptor {
-                    features: wgpu::Features::default(),
+                &DeviceDescriptor {
+                    features: Features::default(),
                     // WebGL doesn't support all of wgpu's features, so if
                     // we're building for the web we'll have to disable some.
                     limits: if cfg!(target_arch = "wasm32") {
-                        wgpu::Limits::downlevel_webgl2_defaults()
+                        Limits::downlevel_webgl2_defaults()
                     } else {
-                        wgpu::Limits::default()
+                        Limits::default()
                     },
                     label: None,
                 },
@@ -122,7 +125,7 @@ impl WgpuManager {
 
     fn configure_surface(
         surface: &Surface,
-        adapter: wgpu::Adapter,
+        adapter: Adapter,
         size: PhysicalSize<u32>,
         device: &Device,
     ) -> SurfaceConfiguration {
@@ -137,11 +140,8 @@ impl WgpuManager {
             .find(|f| f.is_srgb())
             .unwrap_or(surface_caps.formats[0]);
 
-        //TODO: remove copy source as a usage.  This is only here to test our new hit detection
-        //pipeline
-        //define the surface configuration
-        let config = wgpu::SurfaceConfiguration {
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_SRC,
+        let config = SurfaceConfiguration {
+            usage: TextureUsages::RENDER_ATTACHMENT,
             format: surface_format,
             width: size.width,
             height: size.height,
