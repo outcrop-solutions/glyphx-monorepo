@@ -5,7 +5,6 @@ use crate::{
     },
 };
 
-
 use smaa::*;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -27,18 +26,18 @@ pub fn decode_glyph_id(color: [u8; 4]) -> u32 {
     r | g | b
 }
 
-pub struct NewHitDetection {
+pub struct HitDetection {
     render_pipeline: RenderPipeline,
     camera_bind_group: BindGroup,
 }
 
-impl NewHitDetection {
+impl HitDetection {
     pub fn new(
         device: Rc<RefCell<Device>>,
         config: &SurfaceConfiguration,
         camera_buffer: &Buffer,
         camera_uniform: &CameraUniform,
-    ) -> NewHitDetection {
+    ) -> Self {
         let d_clone = device.clone();
         let d = d_clone.as_ref().borrow();
 
@@ -58,7 +57,7 @@ impl NewHitDetection {
 
         );
 
-        NewHitDetection {
+        Self {
             render_pipeline,
             camera_bind_group,
         }

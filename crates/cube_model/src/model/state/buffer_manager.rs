@@ -313,8 +313,15 @@ impl BufferManager {
     pub fn update_glyph_uniform_y_offset(&mut self, y_offset: f32) {
         self.glyph_uniform_data.y_offset = y_offset;
     }
+
     pub fn camera_buffer(&self) -> &Buffer {
         &self.camera_buffer
+    }
+
+    pub fn camera_uniform(&self) -> CameraUniform {
+        let cm = self.camera_manager.borrow();
+        let camera_uniform = cm.get_camera_uniform();
+        camera_uniform
     }
 
     pub fn color_table_buffer(&self) -> &Buffer {
