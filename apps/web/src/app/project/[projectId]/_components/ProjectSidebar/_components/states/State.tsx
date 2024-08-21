@@ -1,21 +1,21 @@
 'use client';
-import { PencilIcon, TrashIcon } from '@heroicons/react/outline';
-import { useCallback } from 'react';
-import { modalsAtom, projectSegmentAtom } from 'state';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { WritableDraft } from 'immer/dist/internal';
+import {PencilIcon, TrashIcon} from '@heroicons/react/outline';
+import {useCallback} from 'react';
+import {modalsAtom, projectSegmentAtom} from 'state';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
 import StateIcon from 'svg/state.svg';
-import ActiveStateIcon from 'svg/active-state.svg';
+import ActiveStateIcon from '../../../../../../../svg/active-state.svg';
 import Image from 'next/image';
-import { webTypes } from 'types';
+import {webTypes} from 'types';
 import useApplyState from 'services/useApplyState';
 
-export const State = ({ item, activeState }) => {
+export const State = ({item, activeState}) => {
   const segment = useRecoilValue(projectSegmentAtom);
   const setModals = useSetRecoilState(modalsAtom);
 
-  const { applyState } = useApplyState();
+  const {applyState} = useApplyState();
 
   const deleteState = useCallback(() => {
     setModals(
@@ -55,8 +55,9 @@ export const State = ({ item, activeState }) => {
       className="p-2 group-states hover:bg-secondary-midnight hover:text-white last:mb-0 flex items-center justify-between cursor-pointer relative"
     >
       <div
-        className={`hidden group-states-hover:flex pointer-events-none absolute p-2 rounded border bg-primary-dark-blue w-56 h-56 ${isThreads ? 'top-10' : 'bottom-16'
-          } z-60`}
+        className={`hidden group-states-hover:flex pointer-events-none absolute p-2 rounded border bg-primary-dark-blue w-56 h-56 ${
+          isThreads ? 'top-10' : 'bottom-16'
+        } z-60`}
       >
         {item.imageHash && (
           <Image alt="state" width={300} height={200} src={`data:image/png;base64,${item.imageHash}`} />
