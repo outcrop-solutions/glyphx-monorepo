@@ -43,6 +43,7 @@ yarn-error.log*
 
 # test data for integration tests
 testData
+results
 test_data
 
 #code coverage output
