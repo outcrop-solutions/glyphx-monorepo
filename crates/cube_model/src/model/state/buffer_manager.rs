@@ -318,6 +318,9 @@ impl BufferManager {
         &self.camera_buffer
     }
 
+    //You may be wondering why this is not returning a borrow of the camera uniform.
+    //it is because the camera uniform is owned by the camera manager and doing 
+    //so will choke on the fact that cm goes out of scope when this function returns.
     pub fn camera_uniform(&self) -> CameraUniform {
         let cm = self.camera_manager.borrow();
         let camera_uniform = cm.get_camera_uniform();

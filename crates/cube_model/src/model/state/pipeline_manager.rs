@@ -1,24 +1,17 @@
-use bytemuck::cast_slice;
-
-use crate::model::{
-    model_configuration,
-    pipeline::{glyphs::ranked_glyph_data::RankedGlyphIterator, hit_detection},
-};
-
 use super::{
-    AxisLineDirection, AxisLines,
-    BufferManager, DataManager, GlyphData, GlyphVertexData, Glyphs, HitDetection,
-    ModelConfiguration, Query, Rank, RankDirection, SelectedGlyph, WgpuManager,
+    AxisLineDirection, AxisLines, BufferManager, DataManager, GlyphData, GlyphVertexData, Glyphs,
+    HitDetection, ModelConfiguration, Query, Rank, RankDirection, SelectedGlyph, WgpuManager,
 };
 
+use bytemuck::cast_slice;
 use smaa::*;
 use std::{cell::RefCell, rc::Rc};
 use wgpu::{
     util::{BufferInitDescriptor, DeviceExt},
     Buffer, BufferAddress, BufferDescriptor, BufferUsages, Color, CommandBuffer,
-    CommandEncoderDescriptor, Device, Extent3d, LoadOp, Operations, Origin3d,
-    RenderPassColorAttachment, SurfaceConfiguration, Texture, TextureAspect,
-    TextureDescriptor, TextureDimension, TextureFormat, TextureUsages, TextureView,
+    CommandEncoderDescriptor, Device, Extent3d, ImageCopyBuffer, ImageCopyTexture, ImageDataLayout,
+    LoadOp, Operations, Origin3d, RenderPassColorAttachment, SurfaceConfiguration, Texture,
+    TextureAspect, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages, TextureView,
     TextureViewDescriptor, COPY_BYTES_PER_ROW_ALIGNMENT,
 };
 
@@ -234,6 +227,47 @@ impl PipelineManager {
 
         commands.push(encoder.finish());
     }
+
+    fn build_vertex_buffer(
+        rank: &Vec<Rc<RefCell<GlyphVertexData>>>,
+        selected_glyphs: Option<&Vec<SelectedGlyph>>,
+        device: &Device,
+    ) -> Buffer {
+        let clean_rank = rank
+            .iter()
+            .map(|rgd| {
+                let rgd = rgd.borrow();
+                let flags = if selected_glyphs.is_some() {
+                    let selected_glyphs = selected_glyphs.unwrap();
+                    if selected_glyphs.len() > 0
+                        && selected_glyphs.iter().any(|sg| sg.glyph_id == rgd.glyph_id)
+                    {
+                        1
+                    } else if selected_glyphs.len() > 0 {
+                        0
+                    } else {
+                        1
+                    }
+                } else {
+                    rgd.flags
+                };
+                GlyphVertexData {
+                    glyph_id: rgd.glyph_id,
+                    position: rgd.position,
+                    normal: rgd.normal,
+                    color: rgd.color,
+                    x_rank: rgd.x_rank,
+                    z_rank: rgd.z_rank,
+                    flags,
+                }
+            })
+            .collect::<Vec<GlyphVertexData>>();
+        device.create_buffer_init(&BufferInitDescriptor {
+            label: Some("Instance Buffer"),
+            contents: cast_slice(&clean_rank),
+            usage: BufferUsages::VERTEX,
+        })
+    }
     pub fn run_glyph_pipeline(
         &self,
         selected_glyphs: &Vec<SelectedGlyph>,
@@ -246,43 +280,16 @@ impl PipelineManager {
         let device = wm.device();
         let device = device.borrow();
 
-        let dm = self.data_manager.as_ref().borrow();
+        let dm = self.data_manager.borrow();
         let ranked_glyph_data = dm.get_glyphs().unwrap();
         let iter = ranked_glyph_data.iter(rank, rank_direction);
+
         for rank in iter {
             let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
                 label: Some("glyph Encoder"),
             });
-            let clean_rank = rank
-                .iter()
-                .map(|rgd| {
-                    let rgd = rgd.borrow();
-                    let flags = if selected_glyphs.len() > 0
-                        && selected_glyphs.iter().any(|sg| sg.glyph_id == rgd.glyph_id)
-                    {
-                        1
-                    } else if selected_glyphs.len() > 0 {
-                        0
-                    } else {
-                        1
-                    };
-                    GlyphVertexData {
-                        glyph_id: rgd.glyph_id,
-                        position: rgd.position,
-                        normal: rgd.normal,
-                        color: rgd.color,
-                        x_rank: rgd.x_rank,
-                        z_rank: rgd.z_rank,
-                        flags,
-                    }
-                })
-                .collect::<Vec<GlyphVertexData>>();
 
-            let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                label: Some("Vertex Buffer"),
-                contents: cast_slice(&clean_rank),
-                usage: wgpu::BufferUsages::VERTEX,
-            });
+            let vertex_buffer = Self::build_vertex_buffer(&rank, Some(selected_glyphs), &device);
             self.glyphs
                 .run_pipeline(&mut encoder, smaa_frame, &vertex_buffer, rank.len() as u32);
             commands.push(encoder.finish());
@@ -298,6 +305,7 @@ impl PipelineManager {
         let wm = self.wgpu_manager.borrow();
         let device = wm.device();
         let device = device.borrow();
+
         let (pipeline, pipeline_name) = match axis_direction {
             AxisLineDirection::X => (&self.x_axis_line, "x_axis_line"),
             AxisLineDirection::Y => (&self.y_axis_line, "y_axis_line"),
@@ -320,7 +328,9 @@ impl PipelineManager {
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("Glyph Data Pipeline"),
         });
+
         let output_buffer = self.glyph_data.run_pipeline(&mut encoder);
+
         wm.queue().submit([encoder.finish()]);
 
         output_buffer
@@ -334,17 +344,17 @@ impl PipelineManager {
         let wm = self.wgpu_manager.borrow();
         let d = wm.device();
         let d = d.borrow();
+
+        let bm = self.buffer_manager.borrow();
+
         let config = wm.config();
+        let queue = wm.queue();
 
         let (texture, texture_view) = Self::get_hit_detection_texture(config, &d);
 
         let (output_buffer, bytes_per_row) = Self::get_hit_detection_output_buffer(config, &d);
 
-        self.wgpu_manager.borrow().queue().write_buffer(
-            &self.buffer_manager.borrow().camera_buffer(),
-            0,
-            cast_slice(&[self.buffer_manager.borrow().camera_uniform()]),
-        );
+        queue.write_buffer(&bm.camera_buffer(), 0, cast_slice(&[bm.camera_uniform()]));
 
         let mut commands = Vec::new();
 
@@ -367,7 +377,9 @@ impl PipelineManager {
             bytes_per_row,
             &mut commands,
         );
-        wm.queue().submit(commands);
+
+        queue.submit(commands);
+
         (output_buffer, bytes_per_row)
     }
 
@@ -391,26 +403,9 @@ impl PipelineManager {
                 let mut encoder = device.create_command_encoder(&CommandEncoderDescriptor {
                     label: Some("Hit Detection Encoder"),
                 });
-                let clean_rank = rank
-                    .iter()
-                    .map(|rgd| {
-                        let rgd = rgd.borrow();
-                        GlyphVertexData {
-                            glyph_id: rgd.glyph_id,
-                            position: rgd.position,
-                            normal: rgd.normal,
-                            color: rgd.color,
-                            x_rank: rgd.x_rank,
-                            z_rank: rgd.z_rank,
-                            flags: rgd.flags,
-                        }
-                    })
-                    .collect::<Vec<GlyphVertexData>>();
-                let vertex_buffer = device.create_buffer_init(&BufferInitDescriptor {
-                    label: Some("Instance Buffer"),
-                    contents: cast_slice(&clean_rank),
-                    usage: BufferUsages::VERTEX,
-                });
+
+                let vertex_buffer = Self::build_vertex_buffer(&rank, None, &device);
+
                 pipeline.run_pipeline(
                     &mut encoder,
                     &texture_view,
@@ -434,15 +429,15 @@ impl PipelineManager {
         });
 
         encoder.copy_texture_to_buffer(
-            wgpu::ImageCopyTexture {
+            ImageCopyTexture {
                 texture: picking_texture,
                 mip_level: 0,
                 origin: Origin3d::ZERO,
                 aspect: TextureAspect::All,
             },
-            wgpu::ImageCopyBuffer {
+            ImageCopyBuffer {
                 buffer: output_buffer,
-                layout: wgpu::ImageDataLayout {
+                layout: ImageDataLayout {
                     offset: 0,
                     bytes_per_row: Some(bytes_per_row),
                     rows_per_image: None,
@@ -452,9 +447,10 @@ impl PipelineManager {
         );
         commands.push(encoder.finish())
     }
+
     fn get_hit_detection_texture(
         config: &SurfaceConfiguration,
-        d: &Device,
+        device: &Device,
     ) -> (Texture, TextureView) {
         let picking_texture_desc = TextureDescriptor {
             label: Some("Picking Texture"),
@@ -471,10 +467,11 @@ impl PipelineManager {
             view_formats: &[],
         };
 
-        let picking_texture = d.create_texture(&picking_texture_desc);
+        let picking_texture = device.create_texture(&picking_texture_desc);
         let picking_texture_view = picking_texture.create_view(&TextureViewDescriptor::default());
         (picking_texture, picking_texture_view)
     }
+
     fn get_hit_detection_output_buffer(
         config: &SurfaceConfiguration,
         device: &Device,
