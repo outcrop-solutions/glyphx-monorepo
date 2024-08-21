@@ -8,7 +8,7 @@ import {select, input, rawlist, Separator} from '@inquirer/prompts';
 
 import {Initializer, projectService} from 'business';
 import {BasicColumnNameCleaner} from 'fileingestion';
-import {webTypes, fileIngestionTypes, databaseTypes} from 'types';
+import {webTypes, fileIngestionTypes, databaseTypes, glyphEngineTypes} from 'types';
 import {GlyphEngine} from '../glyphEngine';
 import {SdtParser} from '../io/sdtParser';
 import {GlyphStream} from '../io/glyphStream';
@@ -290,11 +290,19 @@ function getArgsMap(project: databaseTypes.IProject): Map<string, string> {
   data.set('x_axis', project.state.properties.X.key as string);
   data.set('x_func', project.state.properties.X.interpolation as string);
   data.set('x_direction', project.state.properties.X.direction as string);
-  data.set('x_date_grouping', project.state.properties.X.dateGrouping as string);
+  data.set(
+    'x_date_grouping',
+    (project.state.properties.X.dateGrouping as string) ??
+      glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR
+  );
   data.set('y_axis', project.state.properties.Y.key as string);
   data.set('y_func', project.state.properties.Y.interpolation as string);
   data.set('y_direction', project.state.properties.Y.direction as string);
-  data.set('y_date_grouping', project.state.properties.Y.dateGrouping as string);
+  data.set(
+    'y_date_grouping',
+    (project.state.properties.Y.dateGrouping as string) ??
+      glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR
+  );
   data.set('z_axis', project.state.properties.Z.key as string);
   data.set('z_func', project.state.properties.Z.interpolation as string);
   data.set('z_direction', project.state.properties.Z.direction as string);
@@ -620,11 +628,11 @@ async function processData(options: IOptions, project: databaseTypes.IProject) {
   await pipeline;
 }
 
-describe('fileIngestionTester', () => {
+describe('glyphengineTester', () => {
   it('should parse the file', async () => {
     await Initializer.init();
     const {options, project} = await processArgs();
-    console.log(`ingestor is running with args: ${JSON.stringify(options)}`);
+    console.log(`glyphengine is running with args: ${JSON.stringify(options)}`);
 
     await processData(options, project);
   });
