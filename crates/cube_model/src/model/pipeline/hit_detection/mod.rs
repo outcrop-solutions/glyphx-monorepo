@@ -1,17 +1,19 @@
 use crate::{
     camera::uniform_buffer::CameraUniform,
-    model::{
-        pipeline::glyphs::glyph_vertex_data::GlyphVertexData
-    },
+    model::pipeline::glyphs::glyph_vertex_data::GlyphVertexData,
 };
 
-use smaa::*;
 use std::cell::RefCell;
 use std::rc::Rc;
-use wgpu::{BindGroup, BindGroupLayout, Buffer, Device, RenderPipeline, SurfaceConfiguration};
+use wgpu::{
+    BindGroup, BindGroupLayout, BlendState, Buffer, ColorTargetState, ColorWrites, CommandEncoder,
+    Device, Face, FragmentState, FrontFace, LoadOp, MultisampleState, Operations,
+    PipelineLayoutDescriptor, PolygonMode, PrimitiveState, PrimitiveTopology,
+    RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline, RenderPipelineDescriptor,
+    ShaderModule, SurfaceConfiguration, TextureFormat, TextureView, VertexState,
+};
 
-
-pub fn encode_glyph_id(glyph_id: u32) -> [f32; 4] {
+pub fn _encode_glyph_id(glyph_id: u32) -> [f32; 4] {
     let mut encoded = [0.0; 4];
     encoded[0] = ((glyph_id & 0xFF) as f32) / 255.0;
     encoded[1] = ((glyph_id >> 8) & 0xFF) as f32 / 255.0;
@@ -19,10 +21,11 @@ pub fn encode_glyph_id(glyph_id: u32) -> [f32; 4] {
     encoded[3] = 0.0;
     encoded
 }
+
 pub fn decode_glyph_id(color: [u8; 4]) -> u32 {
     let r = (color[0]) as u32;
     let g = ((color[1]) as u32) << 8;
-    let b = ((color[2] )as u32) << 16;
+    let b = ((color[2]) as u32) << 16;
     r | g | b
 }
 
@@ -47,14 +50,12 @@ impl HitDetection {
         let (camera_bind_group_layout, camera_bind_group) =
             camera_uniform.configure_camera_uniform(camera_buffer, &d);
 
-
         let render_pipeline = Self::configure_render_pipeline(
             &d,
             camera_bind_group_layout,
             shader,
             vertex_buffer_layout,
             config,
-
         );
 
         Self {
@@ -66,47 +67,44 @@ impl HitDetection {
     fn configure_render_pipeline(
         device: &Device,
         camera_bind_group_layout: BindGroupLayout,
-        shader: wgpu::ShaderModule,
+        shader: ShaderModule,
         vertex_buffer_layout: wgpu::VertexBufferLayout<'static>,
-        config: &SurfaceConfiguration
+        config: &SurfaceConfiguration,
     ) -> RenderPipeline {
-        let render_pipeline_layout =
-            device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                label: Some("Hit Detection Render Pipeline Layout"),
-                bind_group_layouts: &[
-                    &camera_bind_group_layout,
-                ],
-                push_constant_ranges: &[],
-            });
+        let render_pipeline_layout = device.create_pipeline_layout(&PipelineLayoutDescriptor {
+            label: Some("Hit Detection Render Pipeline Layout"),
+            bind_group_layouts: &[&camera_bind_group_layout],
+            push_constant_ranges: &[],
+        });
 
-        let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+        let render_pipeline = device.create_render_pipeline(&RenderPipelineDescriptor {
             label: Some("Hit Detection Render Pipeline"),
             layout: Some(&render_pipeline_layout),
-            vertex: wgpu::VertexState {
+            vertex: VertexState {
                 module: &shader,
                 entry_point: "vs_main",
                 buffers: &[vertex_buffer_layout],
             },
-            fragment: Some(wgpu::FragmentState {
+            fragment: Some(FragmentState {
                 module: &shader,
                 entry_point: "fs_main",
-                targets: &[Some(wgpu::ColorTargetState {
-                    format: wgpu::TextureFormat::Rgba8Unorm,
+                targets: &[Some(ColorTargetState {
+                    format: TextureFormat::Rgba8Unorm,
 
-                    blend: Some(wgpu::BlendState::REPLACE) ,
-                    write_mask: wgpu::ColorWrites::ALL,
+                    blend: Some(BlendState::REPLACE),
+                    write_mask: ColorWrites::ALL,
                 })],
             }),
-            primitive: wgpu::PrimitiveState {
-                topology: wgpu::PrimitiveTopology::TriangleList,
+            primitive: PrimitiveState {
+                topology: PrimitiveTopology::TriangleList,
                 strip_index_format: None,
-                front_face: wgpu::FrontFace::Ccw,
-                cull_mode: Some(wgpu::Face::Back),
-                polygon_mode: wgpu::PolygonMode::Fill,
+                front_face: FrontFace::Ccw,
+                cull_mode: Some(Face::Back),
+                polygon_mode: PolygonMode::Fill,
                 ..Default::default()
             },
             depth_stencil: None,
-            multisample: wgpu::MultisampleState {
+            multisample: MultisampleState {
                 count: 1,
                 mask: !0,
                 alpha_to_coverage_enabled: false,
@@ -116,20 +114,20 @@ impl HitDetection {
         render_pipeline
     }
 
-    pub fn run_pipeline<'a>(
-        &'a self,
-        encoder: &'a mut wgpu::CommandEncoder,
-        view: &wgpu::TextureView,
+    pub fn run_pipeline(
+        &self,
+        encoder: &mut CommandEncoder,
+        view: &TextureView,
         vertex_data_buffer: &Buffer,
         vertex_buffer_length: u32,
     ) {
-        let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+        let mut render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
             label: Some("Render Pass"),
-            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+            color_attachments: &[Some(RenderPassColorAttachment {
                 view: &view,
                 resolve_target: None,
-                ops: wgpu::Operations {
-                    load: wgpu::LoadOp::Load,
+                ops: Operations {
+                    load: LoadOp::Load,
                     store: true,
                 },
             })],
@@ -138,20 +136,17 @@ impl HitDetection {
         render_pass.set_pipeline(&self.render_pipeline);
         render_pass.set_bind_group(0, &self.camera_bind_group, &[]);
         render_pass.set_vertex_buffer(0, vertex_data_buffer.slice(..));
-        render_pass.draw(
-            0..vertex_buffer_length,
-            0..1,
-        );
+        render_pass.draw(0..vertex_buffer_length, 0..1);
     }
 }
 
 #[cfg(test)]
 mod id_encoding {
-    use super::*; 
+    use super::*;
     #[test]
     fn test_encode_object_id() {
         let id = 0x00FF00;
-        let encoded = encode_glyph_id(id);
+        let encoded = _encode_glyph_id(id);
         assert_eq!(encoded, [0.0, 1.0, 0.0, 0.0]);
     }
 

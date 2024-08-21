@@ -1,6 +1,6 @@
 use super::GlyphVertexData;
 use serde::{Deserialize, Serialize};
-use std::{borrow::BorrowMut, cell::RefCell, rc::Rc};
+use std::{ cell::RefCell, rc::Rc};
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum RankedGlyphDataError {

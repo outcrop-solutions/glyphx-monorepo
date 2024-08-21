@@ -1,34 +1,28 @@
-use crate::assets::axis_line::create_axis_line;
-use crate::assets::shape_vertex::ShapeVertex;
-use crate::camera::uniform_buffer::CameraUniform;
-use crate::light::light_uniform::LightUniform;
-use crate::model::color_table_uniform::ColorTableUniform;
-use crate::model::model_configuration::ModelConfiguration;
-use bytemuck;
-use wgpu::util::DeviceExt;
-use wgpu::{BindGroup, BindGroupLayout, Buffer, Device, RenderPipeline, SurfaceConfiguration};
+use crate::{
+    assets::{axis_line::create_axis_line, shape_vertex::ShapeVertex},
+    camera::uniform_buffer::CameraUniform,
+    light::light_uniform::LightUniform,
+    model::{color_table_uniform::ColorTableUniform, model_configuration::ModelConfiguration},
+};
 
+use bytemuck;
 use smaa::SmaaFrame;
 use std::cell::RefCell;
 use std::rc::Rc;
+use wgpu::{
+    util::{BufferInitDescriptor, DeviceExt},
+    BindGroup, BindGroupLayout, BlendComponent, BlendFactor, BlendOperation, BlendState, Buffer,
+    BufferUsages, ColorTargetState, ColorWrites, CommandEncoder, Device, Face, FragmentState,
+    FrontFace, LoadOp, MultisampleState, Operations, PipelineLayoutDescriptor, PolygonMode,
+    PrimitiveState, PrimitiveTopology, RenderPassColorAttachment, RenderPassDescriptor,
+    RenderPipeline, RenderPipelineDescriptor, ShaderModule, SurfaceConfiguration,
+    VertexBufferLayout, VertexState,
+};
 
 pub enum AxisLineDirection {
     X,
     Y,
     Z,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
-pub struct Vertex {
-    pub position: [f32; 3],
-    pub color: u32,
-}
-
-#[derive(Debug)]
-pub struct VertexData {
-    verticies: Vec<Vertex>,
-    indicies: Vec<u32>,
 }
 
 pub struct AxisLines {
@@ -48,7 +42,7 @@ pub struct AxisLines {
 
 impl AxisLines {
     pub fn new(
-        device: Rc<RefCell<wgpu::Device>>,
+        device: Rc<RefCell<Device>>,
         config: &SurfaceConfiguration,
         camera_buffer: &Buffer,
         camera_uniform: &CameraUniform,
@@ -63,14 +57,16 @@ impl AxisLines {
         max_axis_value: f32,
     ) -> AxisLines {
         let vertex_data = Self::build_verticies(
-            &model_configuration,
+            &model_configuration.borrow(),
             &direction,
             axis_start,
             min_axis_value,
             max_axis_value,
         );
-        let d_clone = device.clone();
-        let d = d_clone.as_ref().borrow();
+
+        let d = device.clone();
+        let d = d.borrow();
+
         let shader = d.create_shader_module(wgpu::include_wgsl!("shader.wgsl").into());
 
         let (vertex_buffer_layout, vertex_buffer) = Self::configure_verticies(&d, &vertex_data);
@@ -111,21 +107,24 @@ impl AxisLines {
     pub fn set_axis_start(&mut self, axis_start: f32) {
         self.axis_start = axis_start;
     }
+
     pub fn build_verticies(
-        model_configuration: &Rc<RefCell<ModelConfiguration>>,
+        model_configuration: &ModelConfiguration,
         direction: &AxisLineDirection,
         axis_start: f32,
         min_axis_value: f32,
         max_axis_value: f32,
     ) -> Vec<ShapeVertex> {
         let mut vertex_data: Vec<ShapeVertex> = Vec::new();
-        let mc = model_configuration.as_ref().borrow();
-        let cylinder_radius = mc.grid_cylinder_radius;
+
+        let cylinder_radius = model_configuration.grid_cylinder_radius;
         //Make this the size of the axis based on the glyph data.
         //let cylinder_height = mc.grid_cylinder_length;
-        let cylinder_height = max_axis_value - min_axis_value + mc.glyph_offset + mc.glyph_size;
-        let cone_height = mc.grid_cone_length;
-        let cone_radius = mc.grid_cone_radius;
+        let cylinder_height = max_axis_value - min_axis_value
+            + model_configuration.glyph_offset
+            + model_configuration.glyph_size;
+        let cone_height = model_configuration.grid_cone_length;
+        let cone_radius = model_configuration.grid_cone_radius;
         //To the outside world z is up.  To us y is up
         let (height, color, order) = match direction {
             AxisLineDirection::X => (cylinder_height, 60, [1, 2, 0]),
@@ -155,7 +154,7 @@ impl AxisLines {
 
     pub fn update_vertex_buffer(&mut self) {
         self.vertex_data = Self::build_verticies(
-            &self.model_configuration,
+            &self.model_configuration.borrow(),
             &self.direction,
             self.axis_start,
             self.min_axis_value,
@@ -163,21 +162,22 @@ impl AxisLines {
         );
 
         let d = self.device.as_ref().borrow();
-        self.vertex_buffer = d.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        self.vertex_buffer = d.create_buffer_init(&BufferInitDescriptor {
             label: Some("Vertex Buffer"),
             contents: bytemuck::cast_slice(&self.vertex_data),
-            usage: wgpu::BufferUsages::VERTEX,
+            usage: BufferUsages::VERTEX,
         });
     }
+
     fn configure_verticies(
         device: &Device,
         vertex_data: &Vec<ShapeVertex>,
-    ) -> (wgpu::VertexBufferLayout<'static>, Buffer) {
+    ) -> (VertexBufferLayout<'static>, Buffer) {
         let vertex_buffer_layout = ShapeVertex::desc();
-        let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        let vertex_buffer = device.create_buffer_init(&BufferInitDescriptor {
             label: Some("Vertex Buffer"),
             contents: bytemuck::cast_slice(&vertex_data),
-            usage: wgpu::BufferUsages::VERTEX,
+            usage: BufferUsages::VERTEX,
         });
 
         (vertex_buffer_layout, vertex_buffer)
@@ -188,59 +188,58 @@ impl AxisLines {
         camera_bind_group_layout: BindGroupLayout,
         color_table_bind_group_layout: BindGroupLayout,
         light_bind_group_layout: BindGroupLayout,
-        shader: wgpu::ShaderModule,
-        vertex_buffer_layout: wgpu::VertexBufferLayout<'static>,
+        shader: ShaderModule,
+        vertex_buffer_layout: VertexBufferLayout,
         config: &SurfaceConfiguration,
     ) -> RenderPipeline {
-        let render_pipeline_layout =
-            device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                label: Some("Render Pipeline Layout"),
-                bind_group_layouts: &[
-                    &camera_bind_group_layout,
-                    &color_table_bind_group_layout,
-                    &light_bind_group_layout,
-                ],
-                push_constant_ranges: &[],
-            });
+        let render_pipeline_layout = device.create_pipeline_layout(&PipelineLayoutDescriptor {
+            label: Some("Render Pipeline Layout"),
+            bind_group_layouts: &[
+                &camera_bind_group_layout,
+                &color_table_bind_group_layout,
+                &light_bind_group_layout,
+            ],
+            push_constant_ranges: &[],
+        });
 
-        let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+        let render_pipeline = device.create_render_pipeline(&RenderPipelineDescriptor {
             label: Some("Render Pipeline"),
             layout: Some(&render_pipeline_layout),
-            vertex: wgpu::VertexState {
+            vertex: VertexState {
                 module: &shader,
                 entry_point: "vs_main",
                 buffers: &[vertex_buffer_layout],
             },
-            fragment: Some(wgpu::FragmentState {
+            fragment: Some(FragmentState {
                 module: &shader,
                 entry_point: "fs_main",
-                targets: &[Some(wgpu::ColorTargetState {
+                targets: &[Some(ColorTargetState {
                     format: config.format,
-                    blend: Some(wgpu::BlendState {
-                        color: wgpu::BlendComponent {
-                            src_factor: wgpu::BlendFactor::SrcAlpha,
-                            dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
-                            operation: wgpu::BlendOperation::Add,
+                    blend: Some(BlendState {
+                        color: BlendComponent {
+                            src_factor: BlendFactor::SrcAlpha,
+                            dst_factor: BlendFactor::OneMinusSrcAlpha,
+                            operation: BlendOperation::Add,
                         },
-                        alpha: wgpu::BlendComponent {
-                            src_factor: wgpu::BlendFactor::One,
-                            dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
-                            operation: wgpu::BlendOperation::Add,
+                        alpha: BlendComponent {
+                            src_factor: BlendFactor::One,
+                            dst_factor: BlendFactor::OneMinusSrcAlpha,
+                            operation: BlendOperation::Add,
                         },
                     }),
-                    write_mask: wgpu::ColorWrites::ALL,
+                    write_mask: ColorWrites::ALL,
                 })],
             }),
-            primitive: wgpu::PrimitiveState {
-                topology: wgpu::PrimitiveTopology::TriangleList,
+            primitive: PrimitiveState {
+                topology: PrimitiveTopology::TriangleList,
                 strip_index_format: None,
-                front_face: wgpu::FrontFace::Ccw,
-                cull_mode: Some(wgpu::Face::Back),
-                polygon_mode: wgpu::PolygonMode::Fill,
+                front_face: FrontFace::Ccw,
+                cull_mode: Some(Face::Back),
+                polygon_mode: PolygonMode::Fill,
                 ..Default::default()
             },
             depth_stencil: None,
-            multisample: wgpu::MultisampleState {
+            multisample: MultisampleState {
                 count: 1,
                 mask: !0,
                 alpha_to_coverage_enabled: false,
@@ -250,18 +249,14 @@ impl AxisLines {
         render_pipeline
     }
 
-    pub fn run_pipeline<'a>(
-        &'a self,
-        encoder: &'a mut wgpu::CommandEncoder,
-        smaa_frame: &SmaaFrame,
-    ) {
-        let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+    pub fn run_pipeline(&self, encoder: &mut CommandEncoder, smaa_frame: &SmaaFrame) {
+        let mut render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
             label: Some("Render Pass"),
-            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+            color_attachments: &[Some(RenderPassColorAttachment {
                 view: &*smaa_frame,
                 resolve_target: None,
-                ops: wgpu::Operations {
-                    load: wgpu::LoadOp::Load,
+                ops: Operations {
+                    load: LoadOp::Load,
                     store: true,
                 },
             })],
