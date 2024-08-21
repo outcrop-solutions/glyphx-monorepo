@@ -163,12 +163,6 @@ impl RankedGlyphData {
         self.core_data.len()
     }
 
-    pub fn select_glyph(&mut self, glyph_id: u32) {
-        let glyph = self.core_data[glyph_id as usize].clone();
-        let mut glyph = glyph.as_ref().borrow_mut();
-        glyph.flags = 1;
-    }
-
 }
 
 #[cfg(test)]

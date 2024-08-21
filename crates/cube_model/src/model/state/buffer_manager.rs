@@ -126,22 +126,6 @@ impl BufferManager {
         (camera_uniform, camera_buffer)
     }
 
-    pub fn configure_camera(
-        &mut self,
-        glyph_uniform_data: &GlyphUniformData,
-    ) -> (&Buffer, &CameraUniform) {
-        let (camera_uniform, camera_buffer) = Self::configure_camera_impl(
-            &mut self.camera_manager.as_ref().borrow_mut(),
-            glyph_uniform_data,
-            self.wgpu_manager.borrow().config(),
-            &self.wgpu_manager.borrow().device().borrow(),
-        );
-        self.camera_uniform = camera_uniform;
-        self.camera_buffer = camera_buffer;
-
-        (&self.camera_buffer, &self.camera_uniform)
-    }
-
     fn build_camera_and_uniform_impl(
         camera_manager: &mut CameraManager,
         glyph_uniform_data: &GlyphUniformData,
@@ -160,11 +144,7 @@ impl BufferManager {
     }
 
     pub fn build_camera_and_uniform(&mut self) -> CameraUniform {
-        let mut cm = self.camera_manager.as_ref().try_borrow_mut();
-        if cm.is_err() {
-            let i = 0;
-        }
-        let mut cm = cm.unwrap();
+        let mut cm = self.camera_manager.as_ref().borrow_mut();
         let wm = self.wgpu_manager.as_ref().borrow();
 
         let camera_uniform =

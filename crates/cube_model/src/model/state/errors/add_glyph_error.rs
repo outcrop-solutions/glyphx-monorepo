@@ -12,21 +12,6 @@ pub enum AddGlyphError {
    StatisticsNotInitialized(GlyphxErrorData),
    VectorNotFound(GlyphxErrorData),
 }
-impl AddGlyphError {
-    pub fn rank_out_of_range(axis_name: &str, rank: u64, max_rank: u64) -> Self {
-        let msg = format!("The rank: {} for axis: {} is out of bounds: {} .", rank, axis_name, max_rank);
-        let json_data = json!({"axis_name": axis_name, "rank": rank, "max_rank": max_rank});
-        let data = GlyphxErrorData::new(msg, Some(json_data), None);
-        AddGlyphError::RankOutOfRange(data)
-    }
-
-    pub fn statistics_not_initialized(axis: &str) -> Self {
-        let msg = format!("The statistics for axis : {} have not been initialized. You must load them before adding glyphs.", axis);
-        let data = GlyphxErrorData::new(msg.to_string(), None, None);
-        AddGlyphError::StatisticsNotInitialized(data)
-    }
-
-}
 impl From<Error> for AddGlyphError {
     fn from(error: Error) -> Self {
         let (inner_error, msg, data) = match error.as_ref() {

@@ -1,10 +1,12 @@
 [workspace]
 members = ["crates/common", "crates/core", "crates/cube_model", "crates/database", "crates/error",  "crates/glyph_engine", "crates/macro_tests", "crates/macros/*", "crates/model_common", "bindings/node/*" ]
+resolver = "2"
 
-ignoredFolders = [
-  "$HOME",
-  "$HOME/.cargo/**",
-  "$HOME/.rustup/**"
-]
-[build]
-rustdocflags = ["--document-private-items"]
+[profile.test]
+features = ["test"]
+
+[profile.release]
+strip = true  # Automatically strip symbols from the binary.
+opt-level = "z"  # Optimize for size.
+lto = true
+

@@ -80,6 +80,7 @@ impl StatsManager {
         Ok(stats)
     }
 
+    #[allow(dead_code)]
     pub fn swap_stats(&mut self, stats_bytes: Vec<u8>) -> Result<(), AddStatsError> {
         let stats = deserialize::<Stats>(&stats_bytes)?;
         //Ok pay attention to this, it is super important.  In WebGPU Y is up and Z is depth.  So

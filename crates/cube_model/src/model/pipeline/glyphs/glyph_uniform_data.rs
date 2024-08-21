@@ -114,14 +114,7 @@ impl GlyphUniformFlags {
         })
     }
 }
-#[repr(C)]
-#[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
-pub struct FieldUniformDescription {
-    pub field_type: u32,
-    pub field_min_value: f32,
-    pub field_max_value: f32,
-    pub _padding: u32,
-}
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct GlyphUniformData {

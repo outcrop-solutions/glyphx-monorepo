@@ -18,7 +18,7 @@ use wgpu::{
 pub struct PipelineManager {
     wgpu_manager: Rc<RefCell<WgpuManager>>,
     buffer_manager: Rc<RefCell<BufferManager>>,
-    model_configuration: Rc<RefCell<ModelConfiguration>>,
+    _model_configuration: Rc<RefCell<ModelConfiguration>>,
     data_manager: Rc<RefCell<DataManager>>,
     x_axis_line: AxisLines,
     y_axis_line: AxisLines,
@@ -114,14 +114,13 @@ impl PipelineManager {
 
         let hit_detection = HitDetection::new(
             wm.device(),
-            wm.config(),
             bm.camera_buffer(),
             &bm.camera_uniform(),
         );
         Self {
             wgpu_manager,
             buffer_manager,
-            model_configuration,
+            _model_configuration : model_configuration,
             data_manager,
             x_axis_line,
             y_axis_line,
@@ -130,30 +129,6 @@ impl PipelineManager {
             glyph_data,
             hit_detection,
         }
-    }
-
-    pub fn x_axis_line(&self) -> &AxisLines {
-        &self.x_axis_line
-    }
-
-    pub fn y_axis_line(&self) -> &AxisLines {
-        &self.y_axis_line
-    }
-
-    pub fn z_axis_line(&self) -> &AxisLines {
-        &self.z_axis_line
-    }
-
-    pub fn glyphs(&self) -> &Glyphs {
-        &self.glyphs
-    }
-
-    pub fn glyph_data(&self) -> &GlyphData {
-        &self.glyph_data
-    }
-
-    pub fn hit_detection(&self) -> &HitDetection {
-        &self.hit_detection
     }
 
     pub fn upate_glyph_data_verticies(&mut self, model_filter: &Query) {

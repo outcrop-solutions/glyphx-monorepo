@@ -10,7 +10,7 @@ use wgpu::{
     Device, Face, FragmentState, FrontFace, LoadOp, MultisampleState, Operations,
     PipelineLayoutDescriptor, PolygonMode, PrimitiveState, PrimitiveTopology,
     RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline, RenderPipelineDescriptor,
-    ShaderModule, SurfaceConfiguration, TextureFormat, TextureView, VertexState,
+    ShaderModule, TextureFormat, TextureView, VertexBufferLayout, VertexState,
 };
 
 pub fn _encode_glyph_id(glyph_id: u32) -> [f32; 4] {
@@ -37,7 +37,6 @@ pub struct HitDetection {
 impl HitDetection {
     pub fn new(
         device: Rc<RefCell<Device>>,
-        config: &SurfaceConfiguration,
         camera_buffer: &Buffer,
         camera_uniform: &CameraUniform,
     ) -> Self {
@@ -55,7 +54,6 @@ impl HitDetection {
             camera_bind_group_layout,
             shader,
             vertex_buffer_layout,
-            config,
         );
 
         Self {
@@ -68,8 +66,7 @@ impl HitDetection {
         device: &Device,
         camera_bind_group_layout: BindGroupLayout,
         shader: ShaderModule,
-        vertex_buffer_layout: wgpu::VertexBufferLayout<'static>,
-        config: &SurfaceConfiguration,
+        vertex_buffer_layout: VertexBufferLayout<'static>,
     ) -> RenderPipeline {
         let render_pipeline_layout = device.create_pipeline_layout(&PipelineLayoutDescriptor {
             label: Some("Hit Detection Render Pipeline Layout"),

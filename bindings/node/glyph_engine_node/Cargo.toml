@@ -7,11 +7,6 @@ license = "ISC"
 edition = "2021"
 exclude = ["index.node"]
 
-[profile.release]
-strip = true  # Automatically strip symbols from the binary.
-opt-level = "z"  # Optimize for size.
-lto = true
-
 [lib]
 crate-type = ["cdylib"]
 

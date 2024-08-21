@@ -1,4 +1,3 @@
-
 mod assets;
 mod camera;
 mod data;
@@ -32,9 +31,11 @@ cfg_if::cfg_if! {
     }
 }
 
+#[allow(dead_code)]
 const WEB_ELEMENT_NAME: &str = "glyphx-cube-model";
 static mut EVENT_LOOP_PROXY: Option<EventLoopProxy<ModelEvent>> = None;
 
+#[allow(unused_variables)]
 fn emit_event(event: &ModelEvent) {
     cfg_if::cfg_if! {
         if #[cfg(target_arch="wasm32")] {
@@ -368,7 +369,7 @@ impl ModelRunner {
             "z" => "y",
             _ => "x",
         };
-        let mut dm = self.data_manager.borrow();
+        let dm = self.data_manager.borrow();
 
         let result = dm.get_stats(axis);
         match result {

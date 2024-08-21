@@ -17,9 +17,8 @@ use smaa::*;
 use std::cell::RefCell;
 use std::rc::Rc;
 use wgpu::{
-    util::{BufferInitDescriptor, DeviceExt},
     BindGroup, BindGroupLayout, BlendComponent, BlendFactor, BlendOperation, BlendState, Buffer,
-    BufferUsages, ColorTargetState, ColorWrites, CommandEncoder, Device, Face, FragmentState,
+    ColorTargetState, ColorWrites, CommandEncoder, Device, Face, FragmentState,
     FrontFace, LoadOp, MultisampleState, Operations, PipelineLayoutDescriptor, PolygonMode,
     PrimitiveState, PrimitiveTopology, RenderPassColorAttachment, RenderPassDescriptor,
     RenderPipeline, RenderPipelineDescriptor, ShaderModule, SurfaceConfiguration,

@@ -67,7 +67,7 @@ impl ModelVectors {
     }
 
     pub fn get_vector( &self, vector_origional_value: VectorOrigionalValue ) -> Option<f64> {
-        let found = self.vectors.iter().find(|(k, v)| {
+        let found = self.vectors.iter().find(|(_k, v)| {
             
             if vector_origional_value.is_string() {
                 if !v.orig_value.is_string() {
@@ -75,23 +75,23 @@ impl ModelVectors {
                 }
                 let comp_value = vector_origional_value.get_string().unwrap();
                 let orig_value = v.orig_value.get_string().unwrap();
-                return comp_value == orig_value;
+                comp_value == orig_value
             } else if vector_origional_value.is_f64() {
                 if !v.orig_value.is_f64() {
                     return false;
                 }
                 let comp_value = vector_origional_value.get_f64().unwrap();
                 let orig_value = v.orig_value.get_f64().unwrap();
-                return comp_value == orig_value;
+                comp_value == orig_value
             } else if vector_origional_value.is_u64() {
                 if !v.orig_value.is_u64() {
                     return false;
                 }
                 let comp_value = vector_origional_value.get_u64().unwrap();
                 let orig_value = v.orig_value.get_u64().unwrap();
-                return comp_value == orig_value;
+                comp_value == orig_value
             } else {
-                return false;
+                false
             }
         });
 

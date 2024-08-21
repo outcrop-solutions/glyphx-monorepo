@@ -24,7 +24,7 @@ pub fn linear_interpolation<T:Num + std::cmp::PartialOrd + std::fmt::Display + C
 }
 //TODO: This can probably be made gerneric using libm and then functions like these can be moved to
 //the core crate
-pub fn logaritmic_interpolation(
+pub fn _logaritmic_interpolation(
   data_value: f32,
   min_data_value: f32,
   max_data_value: f32,

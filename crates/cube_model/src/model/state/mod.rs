@@ -30,7 +30,6 @@ use crate::{
             axis_lines::{AxisLineDirection, AxisLines},
             glyph_data::{GlyphData, InstanceOutput},
             glyphs::{
-                glyph_id_data::GlyphIdManager,
                 glyph_instance_data::GlyphInstanceData,
                 glyph_uniform_data::{GlyphUniformData, GlyphUniformFlags},
                 glyph_vertex_data::GlyphVertexData,
