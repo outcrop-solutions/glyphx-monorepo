@@ -355,7 +355,6 @@ impl ModelRunner {
         }
     }
     //Get statistics will return the raw statistics(vector values) for the given axis.
-
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn get_statistics(&self, axis: &str) -> Result<String, String> {
         if ["x", "y", "x"].contains(&axis) {

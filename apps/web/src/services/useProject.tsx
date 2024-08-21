@@ -25,6 +25,11 @@ export const useProject = () => {
           ) {
             draft.state.properties[`${axis}`].accumulatorType = glyphEngineTypes.constants.ACCUMULATOR_TYPE.COUNT;
           }
+          // set default dateGrouping
+          if (column.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE) {
+            draft.state.properties[`${axis}`].dateGrouping =
+              glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR;
+          }
           if (
             column.dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING ||
             column.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE
