@@ -27,7 +27,7 @@ use crate::{
         filtering::Query,
         model_configuration::ModelConfiguration,
         pipeline::{
-            axis_lines,
+            axis_lines::{AxisLineDirection, AxisLines},
             glyph_data::{GlyphData, InstanceOutput},
             glyphs::{
                 glyph_id_data::GlyphIdManager,
@@ -60,8 +60,8 @@ use glam::Vec3;
 use smaa::*;
 use std::{cell::RefCell, rc::Rc};
 use wgpu::{
-    Color, CommandEncoderDescriptor, Device, LoadOp, Maintain, MapMode, Operations,
-    RenderPassColorAttachment, RenderPassDescriptor, SurfaceError, TextureViewDescriptor,
+     Device,  Maintain, MapMode, 
+    SurfaceError, TextureViewDescriptor,
 };
 use winit::{
     dpi::{PhysicalPosition, PhysicalSize},
@@ -69,7 +69,6 @@ use winit::{
     window::Window,
 };
 
-use super::pipeline::axis_lines::AxisLineDirection;
 
 pub struct State {
     wgpu_manager: Rc<RefCell<WgpuManager>>,
@@ -97,6 +96,8 @@ impl State {
     ) -> State {
         let wgpu_manager = Rc::new(RefCell::new(WgpuManager::new(window).await));
         //Make a local version that we can use to pass to our configuration functions
+        //Anytime we clone, we need to assign the clone to a local variable so that it does not
+        //get dropped.
         let wm = wgpu_manager.clone();
         let wm = wm.borrow();
 
@@ -122,17 +123,20 @@ impl State {
 
         let camera_controller = CameraController::new(0.025, 0.006);
 
+        //This is a similar pattern to what was described above involving clone.
+        //In this case the wgpu_manager is cloning device for us but it is the
+        //same pattern we have to assign the cloned device in a local variable
+        //so that it does not get dropped.
         let device = wm.device();
         let d = device.borrow();
 
-        //We are cloning device here, because we are storing it in the
-        //axis pipelines to handle config updates
         let pipeline_manager = PipelineManager::new(
             wgpu_manager.clone(),
             buffer_manager.clone(),
             model_configuration.clone(),
             data_manager.clone(),
         );
+
         let smaa_target = SmaaTarget::new(
             &d,
             wm.queue(),
@@ -160,10 +164,11 @@ impl State {
 
             model_filter: Query::default(),
         };
-        //This allows us to initialize out camera with a pitch and yaw that is not 0
+        //This allows us to initialize our camera with a pitch and yaw that is not 0
         let cm_clone = model.camera_manager.clone();
         let cm = cm_clone.as_ref().borrow_mut();
         model.update_z_order_and_rank(&cm);
+
         model
     }
 
@@ -186,7 +191,7 @@ impl State {
 
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
         if new_size.width > 0 && new_size.height > 0 {
-            self.wgpu_manager.as_ref().borrow_mut().set_size(new_size);
+            self.wgpu_manager.borrow_mut().set_size(new_size);
         }
     }
 
@@ -195,18 +200,21 @@ impl State {
     }
 
     pub fn input(&mut self, event: &DeviceEvent, is_shift_pressed: bool) -> bool {
-        let mut camera_result = MouseEvent::Unhandled;
-        {
-            let cm = self.camera_manager.clone();
-            let mut cm = cm.as_ref().borrow_mut();
-            camera_result = self.camera_controller.process_events(event, &mut cm);
-        }
+        //This is a little rust thing that we need to pay more attention too.  Instead of
+        //persisting the mutable borrow we can just pass it through to the underlying function as
+        //such.  This will only scope the borrow to the function call and not the entire block, so
+        //no already borrowed as mutable errors.
+        let camera_result = self
+            .camera_controller
+            .process_events(event, &mut self.camera_manager.borrow_mut());
 
         let handled = match camera_result {
             MouseEvent::MouseMotion => {
-                let cm = self.camera_manager.clone();
-                let cm = &mut cm.borrow();
-                self.update_z_order_and_rank(cm);
+                //Cloning the camera manager here gets around a mutible borrow error involving self
+                //This is slightly different than the pattern we discussed in the new functio.  In
+                //this case cloning and borrowing in the function call does not cause the cloned
+                //value to be dropped.
+                self.update_z_order_and_rank(&self.camera_manager.clone().borrow());
                 true
             }
             MouseEvent::MouseClick => {
@@ -227,8 +235,7 @@ impl State {
 
     pub fn update_selected_glyphs(&mut self, selected_glyphs: Vec<u32>) -> &Vec<SelectedGlyph> {
         let mut selected: Vec<SelectedGlyph> = Vec::new();
-        let dm = self.data_manager.clone();
-        let dm = dm.borrow();
+        let dm = self.data_manager.borrow();
         for sg in selected_glyphs {
             let glyph_desc = dm.get_glyph_description(sg);
             if glyph_desc.is_some() {
@@ -248,15 +255,19 @@ impl State {
     ) -> &Vec<SelectedGlyph> {
         let device = self.wgpu_manager.borrow().device();
         let device = device.borrow();
-        self.run_hit_detection_pipeline(&device, x_pos, y_pos, is_shift_pressed);
+
+        //TODO: we should really react to an error here.
+        let _ = self.run_hit_detection_pipeline(&device, x_pos, y_pos, is_shift_pressed);
         &self.selected_glyphs
     }
 
     pub fn move_camera(&mut self, direction: &str, amount: f32) {
+        //Ok we have to clone the camera here because if we don't we
+        //get a mutable borrow error related to self.
         let cm = self.camera_manager.clone();
         match direction {
             "distance" => {
-                let mut cm = cm.as_ref().borrow_mut();
+                let mut cm = cm.borrow_mut();
                 cm.add_distance(amount * self.camera_controller.zoom_speed);
                 self.update(&mut cm);
             }
@@ -316,6 +327,8 @@ impl State {
                 }
             },
             "x_axis" => {
+                //reset camera creates a mutable borrow of our camera manager, so we need to
+                //let reset_camera finish before taking our borrow.
                 self.reset_camera();
                 let mut cm = cm.as_ref().borrow_mut();
                 cm.set_yaw(3.14159);
@@ -343,14 +356,11 @@ impl State {
     }
 
     pub fn reset_camera(&mut self) {
-        self.buffer_manager
-            .as_ref()
-            .borrow_mut()
-            .build_camera_and_uniform();
+        self.buffer_manager.borrow_mut().build_camera_and_uniform();
 
         let cm = self.camera_manager.clone();
         self.update_z_order_and_rank(&cm.borrow());
-        self.update(&mut cm.as_ref().borrow_mut());
+        self.update(&mut cm.borrow_mut());
     }
 
     pub fn toggle_axis_visibility(&mut self) {
@@ -359,7 +369,7 @@ impl State {
 
     pub fn update_from_client(&mut self) {
         let cm = self.camera_manager.clone();
-        let cm = &mut cm.as_ref().borrow_mut();
+        let cm = &mut cm.borrow_mut();
         self.update(cm);
     }
 
@@ -376,8 +386,11 @@ impl State {
         //TODO: at some point, we will want to split out or function to only run the compute
         //pipeline if necessary for now, we will just run it whenever the config changes
 
+        //Ok, you are probably asking yourself, why we are not creating a local variable for the
+        //buffer manager and referencing it instead of borrowing mut every time.  The reason
+        //is that run compute pipeline also borrows the buffer manager mutably.  And it can
+        //be called from several different places.  So for now we will just borrow mut every time.
         self.buffer_manager
-            .as_ref()
             .borrow_mut()
             .update_glyph_uniform_buffer(
                 &self.model_configuration.as_ref().borrow(),
@@ -390,45 +403,38 @@ impl State {
         self.run_compute_pipeline();
 
         let config = self.model_configuration.borrow();
-        self.buffer_manager
-            .as_ref()
-            .borrow_mut()
-            .update_color_table(
-                config.x_axis_color,
-                config.y_axis_color,
-                config.z_axis_color,
-                config.background_color,
-                config.min_color,
-                config.max_color,
-            );
+        self.buffer_manager.borrow_mut().update_color_table(
+            config.x_axis_color,
+            config.y_axis_color,
+            config.z_axis_color,
+            config.background_color,
+            config.min_color,
+            config.max_color,
+        );
 
         self.pipeline_manager
-            .set_axis_start(axis_lines::AxisLineDirection::X, config.model_origin[0]);
+            .set_axis_start(AxisLineDirection::X, config.model_origin[0]);
         self.pipeline_manager
-            .update_vertex_buffer(axis_lines::AxisLineDirection::X);
+            .update_vertex_buffer(AxisLineDirection::X);
         self.pipeline_manager
-            .set_axis_start(axis_lines::AxisLineDirection::Y, config.model_origin[1]);
+            .set_axis_start(AxisLineDirection::Y, config.model_origin[1]);
         self.pipeline_manager
-            .update_vertex_buffer(axis_lines::AxisLineDirection::Y);
+            .update_vertex_buffer(AxisLineDirection::Y);
         self.pipeline_manager
-            .set_axis_start(axis_lines::AxisLineDirection::Z, config.model_origin[2]);
+            .set_axis_start(AxisLineDirection::Z, config.model_origin[2]);
         self.pipeline_manager
-            .update_vertex_buffer(axis_lines::AxisLineDirection::Z);
+            .update_vertex_buffer(AxisLineDirection::Z);
 
+        self.buffer_manager.borrow_mut().update_light_uniform(
+            config.light_location,
+            [
+                config.light_color[0] / 255.0,
+                config.light_color[1] / 255.0,
+                config.light_color[2] / 255.0,
+            ],
+            config.light_intensity,
+        );
         self.buffer_manager
-            .as_ref()
-            .borrow_mut()
-            .update_light_uniform(
-                config.light_location,
-                [
-                    config.light_color[0] / 255.0,
-                    config.light_color[1] / 255.0,
-                    config.light_color[2] / 255.0,
-                ],
-                config.light_intensity,
-            );
-        self.buffer_manager
-            .as_ref()
             .borrow_mut()
             .update_glyph_uniform_y_offset(config.min_glyph_height);
     }
@@ -438,79 +444,57 @@ impl State {
             self.run_compute_pipeline();
             self.first_render = false;
         }
+        let buffer_manager = self.buffer_manager.borrow();
+        let wgpu_manager = self.wgpu_manager.borrow();
+        let queue = wgpu_manager.queue();
+        let device = wgpu_manager.device();
+        let device = device.borrow();
 
-        let background_color = self
-            .buffer_manager
-            .as_ref()
-            .borrow()
-            .color_table_uniform()
-            .background_color();
-        let cm = self.camera_manager.clone();
-        let cm = cm.borrow();
+        let background_color = buffer_manager.color_table_uniform().background_color();
 
-        self.wgpu_manager.borrow().queue().write_buffer(
-            &self.buffer_manager.as_ref().borrow().camera_buffer(),
+        //This is yet another way to skin this mutible borrow cat.  Here, we can borrow the
+        //camera_manager and we don't have to worry about the immutable borrow of self since
+        //it is wrapped in () and is dropped after the borrow is executed.
+        let cm = (&mut self.camera_manager).borrow();
+
+        queue.write_buffer(
+            &buffer_manager.camera_buffer(),
             0,
             bytemuck::cast_slice(&[cm.get_camera_uniform()]),
         );
 
-        self.wgpu_manager.borrow().queue().write_buffer(
-            &self.buffer_manager.as_ref().borrow().color_table_buffer(),
+        queue.write_buffer(
+            &buffer_manager.color_table_buffer(),
             0,
-            bytemuck::cast_slice(&[*self.buffer_manager.as_ref().borrow().color_table_uniform()]),
+            bytemuck::cast_slice(&[*buffer_manager.color_table_uniform()]),
         );
 
-        self.wgpu_manager.borrow().queue().write_buffer(
-            self.buffer_manager.as_ref().borrow().light_buffer(),
+        queue.write_buffer(
+            buffer_manager.light_buffer(),
             0,
-            bytemuck::cast_slice(&[*self.buffer_manager.as_ref().borrow().light_uniform()]),
+            bytemuck::cast_slice(&[*buffer_manager.light_uniform()]),
         );
 
-        self.wgpu_manager.borrow().queue().write_buffer(
-            self.buffer_manager.as_ref().borrow().glyph_uniform_buffer(),
+        queue.write_buffer(
+            buffer_manager.glyph_uniform_buffer(),
             0,
-            bytemuck::cast_slice(&[*self.buffer_manager.as_ref().borrow().glyph_uniform_data()]),
+            bytemuck::cast_slice(&[*buffer_manager.glyph_uniform_data()]),
         );
 
-        let output = self.wgpu_manager.borrow().surface().get_current_texture()?;
+        let output = wgpu_manager.surface().get_current_texture()?;
         let view = output
             .texture
             .create_view(&TextureViewDescriptor::default());
 
-        let d = self.wgpu_manager.borrow().device();
-        let d = d.borrow();
-        let wm = self.wgpu_manager.as_ref().borrow();
-        let smaa_frame = self.smaa_target.start_frame(&d, wm.queue(), &view);
-
-        let mut encoder = d.create_command_encoder(&CommandEncoderDescriptor {
-            label: Some("ScreenClear Encoder"),
-        });
-
-        let screen_clear_render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
-            label: Some("Render Pass"),
-            color_attachments: &[Some(RenderPassColorAttachment {
-                view: &*smaa_frame,
-                resolve_target: None,
-                ops: Operations {
-                    load: LoadOp::Clear(Color {
-                        r: background_color[0] as f64,
-                        g: background_color[1] as f64,
-                        b: background_color[2] as f64,
-                        a: 1.0,
-                    }),
-                    store: true,
-                },
-            })],
-            depth_stencil_attachment: None,
-        });
-
-        drop(screen_clear_render_pass);
+        let smaa_frame = self.smaa_target.start_frame(&device, queue, &view);
 
         let mut commands = Vec::new();
-        commands.push(encoder.finish());
+
+        self.pipeline_manager
+            .clear_screen(background_color, &*smaa_frame, &mut commands);
+
         let string_order = self.orientation_manager.z_order();
-        let d = self.wgpu_manager.borrow().device();
-        let d = d.borrow();
+
         for name in string_order {
             //Glyphs has it's own logic to render in rank order so we can't really use the pipeline
             //manager trait to render it.  So, we will handle it directly.
@@ -533,7 +517,8 @@ impl State {
                     .run_axis_pipeline(pipeline, &smaa_frame, &mut commands);
             }
         }
-        self.wgpu_manager.borrow().queue().submit(commands);
+
+        queue.submit(commands);
 
         smaa_frame.resolve();
         output.present();
@@ -546,9 +531,9 @@ impl State {
         let buffer_slice = output_buffer.slice(..);
         buffer_slice.map_async(MapMode::Read, |_| {});
 
-        let wm = self.wgpu_manager.borrow();
-        let d = wm.device();
+        let d = self.wgpu_manager.borrow().device();
         let d = d.borrow();
+
         d.poll(Maintain::Wait);
 
         let view = buffer_slice.get_mapped_range();
@@ -557,7 +542,7 @@ impl State {
         //the normals
         let output_data: Vec<InstanceOutput> = bytemuck::cast_slice(&view).to_vec();
 
-        let dm = &mut self.data_manager.as_ref().borrow_mut();
+        let dm = &mut self.data_manager.borrow_mut();
         dm.clear_glyphs();
 
         for glyph_instance in output_data.iter() {
@@ -621,19 +606,11 @@ impl State {
     }
 
     fn update_z_order_and_rank(&mut self, camera_manager: &CameraManager) {
-        let cube_size = self
-            .buffer_manager
-            .borrow()
-            .glyph_uniform_data()
-            .max_interp_x
-            - self
-                .buffer_manager
-                .borrow()
-                .glyph_uniform_data()
-                .min_interp_x;
-        let flags =
-            GlyphUniformFlags::decode(self.buffer_manager.borrow().glyph_uniform_data().flags)
-                .unwrap();
+        let buffer_manager = self.buffer_manager.borrow();
+        let glyph_uniform_data = buffer_manager.glyph_uniform_data();
+
+        let cube_size = glyph_uniform_data.max_interp_x - glyph_uniform_data.min_interp_x;
+        let flags = GlyphUniformFlags::decode(glyph_uniform_data.flags).unwrap();
         let is_x_desc = flags.x_order == Order::Descending;
         let is_z_desc = flags.z_order == Order::Descending;
         self.orientation_manager.update_z_order_and_rank(

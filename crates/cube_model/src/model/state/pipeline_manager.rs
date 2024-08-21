@@ -6,7 +6,7 @@ use crate::model::{
 };
 
 use super::{
-    axis_lines::{AxisLineDirection, AxisLines},
+    AxisLineDirection, AxisLines,
     BufferManager, DataManager, GlyphData, GlyphVertexData, Glyphs, HitDetection,
     ModelConfiguration, Query, Rank, RankDirection, SelectedGlyph, WgpuManager,
 };
@@ -17,7 +17,7 @@ use wgpu::{
     util::{BufferInitDescriptor, DeviceExt},
     Buffer, BufferAddress, BufferDescriptor, BufferUsages, Color, CommandBuffer,
     CommandEncoderDescriptor, Device, Extent3d, LoadOp, Operations, Origin3d,
-    RenderPassColorAttachment, RenderPassDescriptor, SurfaceConfiguration, Texture, TextureAspect,
+    RenderPassColorAttachment, SurfaceConfiguration, Texture, TextureAspect,
     TextureDescriptor, TextureDimension, TextureFormat, TextureUsages, TextureView,
     TextureViewDescriptor, COPY_BYTES_PER_ROW_ALIGNMENT,
 };
@@ -198,6 +198,42 @@ impl PipelineManager {
         }
     }
 
+    pub fn clear_screen(
+        &self,
+        background_color: [f32; 4],
+        texture_view: &TextureView,
+        commands: &mut Vec<CommandBuffer>,
+    ) {
+        let wm = self.wgpu_manager.borrow();
+        let device = wm.device();
+        let device = device.borrow();
+        let mut encoder = device.create_command_encoder(&CommandEncoderDescriptor {
+            label: Some("Clear Screen Encoder"),
+        });
+
+        let color = Color {
+            r: background_color[0] as f64,
+            g: background_color[1] as f64,
+            b: background_color[2] as f64,
+            a: background_color[3] as f64,
+        };
+
+        let render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: Some("Render Pass"),
+            color_attachments: &[Some(RenderPassColorAttachment {
+                view: texture_view,
+                resolve_target: None,
+                ops: Operations {
+                    load: LoadOp::Clear(color),
+                    store: true,
+                },
+            })],
+            depth_stencil_attachment: None,
+        });
+        drop(render_pass);
+
+        commands.push(encoder.finish());
+    }
     pub fn run_glyph_pipeline(
         &self,
         selected_glyphs: &Vec<SelectedGlyph>,
@@ -312,7 +348,7 @@ impl PipelineManager {
 
         let mut commands = Vec::new();
 
-        Self::hit_detection_clear_screen(&d, &texture_view, &mut commands);
+        self.clear_screen([1.0, 1.0, 1.0, 1.0], &texture_view, &mut commands);
 
         Self::encode_hit_detection_pipeline(
             &self.hit_detection,
@@ -455,36 +491,5 @@ impl PipelineManager {
             mapped_at_creation: false,
         });
         (output_buffer, padded_bytes_per_row)
-    }
-
-    fn hit_detection_clear_screen(
-        d: &Device,
-        texture_view: &TextureView,
-        commands: &mut Vec<CommandBuffer>,
-    ) {
-        let mut encoder = d.create_command_encoder(&CommandEncoderDescriptor {
-            label: Some("ScreenClear Encoder"),
-        });
-
-        {
-            let _screen_clear_render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
-                label: Some("Render Pass"),
-                color_attachments: &[Some(RenderPassColorAttachment {
-                    view: &texture_view,
-                    resolve_target: None,
-                    ops: Operations {
-                        load: LoadOp::Clear(Color {
-                            r: 1.0 as f64,
-                            g: 1.0 as f64,
-                            b: 1.0 as f64,
-                            a: 1.0,
-                        }),
-                        store: true,
-                    },
-                })],
-                depth_stencil_attachment: None,
-            });
-        }
-        commands.push(encoder.finish());
     }
 }
