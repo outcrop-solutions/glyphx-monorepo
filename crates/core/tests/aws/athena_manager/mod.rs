@@ -86,7 +86,7 @@ async fn validate_table_definition(athena_manager: &AthenaManager, table_name: &
 async fn get_paged_results(
     athena_manager: &AthenaManager,
     table_name: &str,
-) -> Box<dyn Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin>
+) -> Box<dyn Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Send + Unpin + 'static>
 {
     let query = format!("SELECT * FROM {}", &table_name);
     let query_id = athena_manager.start_query(&query, None).await;
