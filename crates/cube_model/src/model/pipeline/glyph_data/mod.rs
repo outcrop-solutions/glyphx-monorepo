@@ -6,8 +6,8 @@ use crate::{
         state::DataManager,
     },
 };
-use bytemuck::{Pod, Zeroable};
 
+use bytemuck::{Pod, Zeroable};
 use std::cell::RefCell;
 use std::rc::Rc;
 use wgpu::util::DeviceExt;
@@ -15,9 +15,14 @@ use wgpu::{BindGroup, Buffer, ComputePipeline, Device, ShaderModule};
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Pod, Zeroable)]
-pub struct Vertex {
-    pub position: [f32; 3],
-    //we don't need color here.  It is interpolated in the gpu
+pub struct InstanceOutput {
+    pub glyph_id: u32,
+    pub vertex_data: ShapeVertex,
+    pub x_rank: u32,
+    pub z_rank: u32,
+    pub x_id: u32,
+    pub z_id: u32,
+    pub flags: u32,
 }
 
 pub struct VertexData {
@@ -29,7 +34,6 @@ pub struct GlyphData {
     compute_pipeline: ComputePipeline,
     vertex_buffer: Buffer,
     vertex_bind_group: BindGroup,
-    vertex_data: VertexData,
     vertex_count: usize,
     instance_buffer: Buffer,
     instance_bind_group: BindGroup,
@@ -50,8 +54,8 @@ impl GlyphData {
         model_configuration: Rc<RefCell<ModelConfiguration>>,
         data_manager: Rc<RefCell<DataManager>>,
     ) -> GlyphData {
-        let d_clone = device.clone();
-        let d = d_clone.as_ref().borrow();
+        let d = device.clone();
+        let d = d.borrow();
 
         let shader = d.create_shader_module(wgpu::include_wgsl!("shader.wgsl").into());
 
@@ -94,7 +98,6 @@ impl GlyphData {
             compute_pipeline,
             vertex_buffer,
             vertex_bind_group,
-            vertex_data,
             vertex_count,
             instance_buffer,
             instance_bind_group,
@@ -124,8 +127,8 @@ impl GlyphData {
         self.vertex_buffer = Self::configure_vertex_buffer(&d, &vertex_data);
         self.vertex_count = vertex_data.vertices.len();
 
-        let dm = self.data_manager.clone();
-        let dm = dm.borrow();
+        let dm = self.data_manager.borrow();
+
         let (instance_buffer, instance_count) =
             Self::configure_instance_buffer(&d, instance_filter, &dm);
 
@@ -149,9 +152,9 @@ impl GlyphData {
 
             &self.shader,
         );
+
         self.compute_pipeline = compute_pipeline;
         self.vertex_bind_group = vertex_bind_group;
-
         self.instance_buffer = instance_buffer;
         self.instance_count = instance_count;
         self.instance_bind_group = instance_bind_group;
@@ -218,14 +221,13 @@ impl GlyphData {
             glyph_data, &x_vectors, &z_vectors, &x_stats, &y_stats, &z_stats,
         );
 
-        let instance_count = glyph_data.len();
         (
             device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
                 label: Some("Instance Buffer"),
                 contents: bytemuck::cast_slice(glyph_data.as_slice()),
                 usage: wgpu::BufferUsages::STORAGE,
             }),
-            instance_count,
+            glyph_data.len(),
         )
     }
 
@@ -354,15 +356,4 @@ impl GlyphData {
         );
         staging_buffer
     }
-}
-#[repr(C)]
-#[derive(Copy, Clone, Debug, Pod, Zeroable)]
-pub struct InstanceOutput {
-    pub glyph_id: u32,
-    pub vertex_data: ShapeVertex,
-    pub x_rank: u32,
-    pub z_rank: u32,
-    pub x_id: u32,
-    pub z_id: u32,
-    pub flags: u32,
 }

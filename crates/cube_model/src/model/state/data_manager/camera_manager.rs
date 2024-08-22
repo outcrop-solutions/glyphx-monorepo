@@ -122,6 +122,7 @@ impl CameraManager {
         self.camera.as_mut().unwrap().set_yaw(yaw);
     }
 
+    #[allow(dead_code)]
     pub fn get_pitch(&self) -> f32 {
         if self.camera.is_none() {
             return 0.0;
@@ -155,6 +156,7 @@ impl CameraManager {
         self.camera.as_ref().unwrap().distance
     }
 
+    #[allow(dead_code)]
     pub fn get_y_offset(&self) -> f32 {
         if self.camera_uniform.is_none() {
             return 0.0;
@@ -172,6 +174,7 @@ impl CameraManager {
             .update_y_offset(y_offset);
     }
 
+    #[allow(dead_code)]
     pub fn get_x_offset(&self) -> f32 {
         if self.camera_uniform.is_none() {
             return 0.0;
@@ -189,6 +192,7 @@ impl CameraManager {
             .update_x_offset(x_offset);
     }
 
+    #[allow(dead_code)]
     pub fn get_z_offset(&self) -> f32 {
         if self.camera_uniform.is_none() {
             return 0.0;

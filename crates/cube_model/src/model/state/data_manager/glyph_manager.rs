@@ -3,12 +3,12 @@ use super::StatsManager;
 
 use crate::model::{
     pipeline::glyphs::{
+        glyph_id_data::GlyphIdManager,
         glyph_instance_data::GlyphInstanceData,
         glyph_vertex_data::GlyphVertexData,
         ranked_glyph_data::{RankedGlyphData, RankedGlyphDataError},
-        glyph_id_data::GlyphIdManager,
     },
-    state::{AddGlyphError, SelectedGlyph, GlyphDescription},
+    state::{AddGlyphError, GlyphDescription, SelectedGlyph},
 };
 
 use model_common::Glyph;
@@ -41,7 +41,7 @@ impl GlyphManager {
             z_model_vectors,
             total_glyphs: 0,
             raw_glyphs: Vec::new(),
-            glyph_id_manager : GlyphIdManager::new(),
+            glyph_id_manager: GlyphIdManager::new(),
         }
     }
 
@@ -103,17 +103,10 @@ impl GlyphManager {
                 0,
             ),
         );
-        self.glyph_id_manager.add_glyph_id_data(glyph_id, glyph.row_ids);
+        self.glyph_id_manager
+            .add_glyph_id_data(glyph_id, glyph.row_ids);
         self.total_glyphs += 1;
         Ok(retval)
-    }
-
-    pub fn get_x_vector_len(&self) -> usize {
-        self.x_model_vectors.as_ref().borrow().len()
-    }
-
-    pub fn get_z_vector_len(&self) -> usize {
-        self.z_model_vectors.as_ref().borrow().len()
     }
 
     pub fn new_get_glyphs(&self) -> Option<&RankedGlyphData> {
@@ -136,17 +129,27 @@ impl GlyphManager {
         //self.total_glyphs = 0;
     }
 
-    pub fn select_glyph(&mut self, glyph_id: u32) {
-        self.new_ranked_glyph_data.as_mut().unwrap().select_glyph(glyph_id);
-    }
-
     pub fn get_glyph_description(&self, glyph_id: u32) -> Option<SelectedGlyph> {
         let glyph = self.raw_glyphs.get(glyph_id as usize)?;
-        let x_vector = self.x_model_vectors.as_ref().borrow().get_value(glyph.x_value as f64).ok()?;
-        let y_vector = self.z_model_vectors.as_ref().borrow().get_value(glyph.z_value as f64).ok()?;
+        let x_vector = self
+            .x_model_vectors
+            .as_ref()
+            .borrow()
+            .get_value(glyph.x_value as f64)
+            .ok()?;
+        let y_vector = self
+            .z_model_vectors
+            .as_ref()
+            .borrow()
+            .get_value(glyph.z_value as f64)
+            .ok()?;
         Some(SelectedGlyph::new(
             glyph_id,
-            self.glyph_id_manager.get_glyph_id_data(glyph_id).unwrap().row_ids.clone(),
+            self.glyph_id_manager
+                .get_glyph_id_data(glyph_id)
+                .unwrap()
+                .row_ids
+                .clone(),
             //This flips y and z back to client facing
             GlyphDescription::new(
                 x_vector.orig_value.clone(),
@@ -155,8 +158,16 @@ impl GlyphManager {
             ),
         ))
     }
+}
 
-
+#[cfg(test)]
+impl GlyphManager {
+    pub fn get_z_vector_len(&self) -> usize {
+        self.z_model_vectors.as_ref().borrow().len()
+    }
+    pub fn get_x_vector_len(&self) -> usize {
+        self.x_model_vectors.as_ref().borrow().len()
+    }
 }
 
 #[cfg(test)]

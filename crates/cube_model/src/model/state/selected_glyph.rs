@@ -1,14 +1,13 @@
 use model_common::vectors::VectorOrigionalValue;
 
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 
 pub struct GlyphDescription {
-    pub x : VectorOrigionalValue,
+    pub x: VectorOrigionalValue,
     //These are in application order and not flipped.  It is because the data is not flipped when
     //it is loaded into the GlyphManager
-    pub y : VectorOrigionalValue,
-    pub z : f64,
-
+    pub y: VectorOrigionalValue,
+    pub z: f64,
 }
 impl GlyphDescription {
     pub fn new(x: VectorOrigionalValue, y: VectorOrigionalValue, z: f64) -> Self {
@@ -21,17 +20,21 @@ impl GlyphDescription {
             ("y".to_string(), self.y.to_json()),
             ("z".to_string(), json!(self.z)),
         ]))
-    } 
+    }
 }
 pub struct SelectedGlyph {
     pub glyph_id: u32,
     pub row_ids: Vec<usize>,
-    pub desc: GlyphDescription, 
+    pub desc: GlyphDescription,
 }
 
 impl SelectedGlyph {
     pub fn new(glyph_id: u32, row_ids: Vec<usize>, desc: GlyphDescription) -> Self {
-        Self { glyph_id, row_ids, desc }
+        Self {
+            glyph_id,
+            row_ids,
+            desc,
+        }
     }
 
     pub fn to_json(&self) -> Value {
@@ -47,10 +50,9 @@ impl SelectedGlyph {
 #[cfg(test)]
 mod unit_tests {
     use super::*;
-    
+
     #[test]
     fn is_ok() {
-
         let description = GlyphDescription::new(
             VectorOrigionalValue::F64(1.0),
             VectorOrigionalValue::String("I am Groot".to_string()),

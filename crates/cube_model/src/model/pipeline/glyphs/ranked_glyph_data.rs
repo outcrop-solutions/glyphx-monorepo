@@ -1,6 +1,6 @@
 use super::GlyphVertexData;
 use serde::{Deserialize, Serialize};
-use std::{borrow::BorrowMut, cell::RefCell, rc::Rc};
+use std::{ cell::RefCell, rc::Rc};
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum RankedGlyphDataError {
@@ -161,12 +161,6 @@ impl RankedGlyphData {
     #[allow(dead_code)]
     pub fn get_number_of_glyphs(&self) -> usize {
         self.core_data.len()
-    }
-
-    pub fn select_glyph(&mut self, glyph_id: u32) {
-        let glyph = self.core_data[glyph_id as usize].clone();
-        let mut glyph = glyph.as_ref().borrow_mut();
-        glyph.flags = 1;
     }
 
 }

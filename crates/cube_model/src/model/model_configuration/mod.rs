@@ -277,6 +277,7 @@ impl ModelConfiguration {
             json[3].as_f64().unwrap() as f32,
         ])
     }
+    #[allow(dead_code)]
     pub fn from_json(json: &Value) -> Result<Self, FromJsonError> {
         parse_json!(let min_color = &json["min_color"] as Array);
         let min_color = Self::color_from_array(min_color)?;
