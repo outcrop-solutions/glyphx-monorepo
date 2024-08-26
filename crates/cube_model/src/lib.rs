@@ -11,7 +11,7 @@ use model::{
     pipeline::glyphs::glyph_uniform_data::{InterpolationType, Order},
     state::{CameraManager, DataManager, State},
 };
-use model_event::{ModelEvent, ModelMoveDirection};
+use model_event::{JsSafeModelEvent, ModelEvent, ModelMoveDirection};
 use pollster::FutureExt;
 use serde_json::{from_str, json, Value};
 use std::cell::RefCell;
@@ -117,22 +117,37 @@ impl ApplicationHandler<ModelEvent> for Application {
             .unwrap();
         window.request_inner_size(PhysicalSize::new(self.width, self.height));
 
-        cfg_if::cfg_if! {
-        if #[cfg(target_arch="wasm32")] {
+        #[cfg(target_arch = "wasm32")]
+        {
             self.configure_canvas(&window);
-        }
-
-        }
-
-        self.state = Some(
-            State::new(
+            let state_future = State::new(
                 window,
                 self.configuration.clone(),
                 self.data_manager.clone(),
                 self.camera_manager.clone(),
-            )
-            .block_on(),
-        );
+            );
+            let future = async move {
+                let state = state_future.await;
+                unsafe {
+                    let event = ModelEvent::StateReady(state);
+                    EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
+                }
+            };
+            wasm_bindgen_futures::spawn_local(future);
+        }
+
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            self.state = Some(
+                State::new(
+                    window,
+                    self.configuration.clone(),
+                    self.data_manager.clone(),
+                    self.camera_manager.clone(),
+                )
+                .block_on(),
+            );
+        }
     }
 
     fn window_event(
@@ -141,74 +156,46 @@ impl ApplicationHandler<ModelEvent> for Application {
         window_id: WindowId,
         event: WindowEvent,
     ) {
-//        eprintln!("Window Event: {:?}", event);
-        let state = self.state.as_mut().unwrap();
-        let mut redraw = true;
-        if window_id == state.get_window_id() {
-            match event {
-                WindowEvent::CursorMoved { position, .. } => {
-                    state.update_cursor_position(position.clone());
-                    redraw = false;
-                }
-                WindowEvent::CloseRequested
-                | WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            logical_key: Key::Named(NamedKey::Escape),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    event_loop.exit();
-                }
+        //        eprintln!("Window Event: {:?}", event);
+        if self.state.is_some() {
+            let state = self.state.as_mut().unwrap();
+            let mut redraw = true;
+            if window_id == state.get_window_id() {
+                match event {
+                    WindowEvent::CursorMoved { position, .. } => {
+                        state.update_cursor_position(position.clone());
+                        redraw = false;
+                    }
+                    WindowEvent::CloseRequested
+                    | WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                logical_key: Key::Named(NamedKey::Escape),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
+                        event_loop.exit();
+                    }
 
-                WindowEvent::ModifiersChanged(modifier_state) => {
-                    let state = modifier_state.state();
-                    self.shift_pressed = state.shift_key();
-                    self.alt_pressed = state.alt_key();
-                    self.ctrl_pressed = state.control_key();
-                    redraw = false;
-                }
+                    WindowEvent::ModifiersChanged(modifier_state) => {
+                        let state = modifier_state.state();
+                        self.shift_pressed = state.shift_key();
+                        self.alt_pressed = state.alt_key();
+                        self.ctrl_pressed = state.control_key();
+                        redraw = false;
+                    }
 
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyR),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    let modifier = if self.shift_pressed {
-                        if self.alt_pressed {
-                            0.99
-                        } else {
-                            0.9
-                        }
-                    } else {
-                        if self.alt_pressed {
-                            1.01
-                        } else {
-                            1.1
-                        }
-                    };
-
-                    let mut cf = self.configuration.borrow_mut();
-                    cf.grid_cylinder_radius = cf.grid_cylinder_radius * modifier;
-                }
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyA),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    if self.ctrl_pressed {
-                        state.toggle_axis_visibility();
-                    } else {
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyR),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
                         let modifier = if self.shift_pressed {
                             if self.alt_pressed {
                                 0.99
@@ -224,23 +211,79 @@ impl ApplicationHandler<ModelEvent> for Application {
                         };
 
                         let mut cf = self.configuration.borrow_mut();
-                        cf.grid_cylinder_length = cf.grid_cylinder_length * modifier;
+                        cf.grid_cylinder_radius = cf.grid_cylinder_radius * modifier;
                     }
-                }
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyC),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    if self.ctrl_pressed && !self.shift_pressed && !self.alt_pressed {
-                        state.reset_camera();
-                    } else if self.alt_pressed && self.ctrl_pressed && !self.shift_pressed {
-                        state.run_compute_pipeline();
-                    } else if !self.ctrl_pressed {
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyA),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
+                        if self.ctrl_pressed {
+                            state.toggle_axis_visibility();
+                        } else {
+                            let modifier = if self.shift_pressed {
+                                if self.alt_pressed {
+                                    0.99
+                                } else {
+                                    0.9
+                                }
+                            } else {
+                                if self.alt_pressed {
+                                    1.01
+                                } else {
+                                    1.1
+                                }
+                            };
+
+                            let mut cf = self.configuration.borrow_mut();
+                            cf.grid_cylinder_length = cf.grid_cylinder_length * modifier;
+                        }
+                    }
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyC),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
+                        if self.ctrl_pressed && !self.shift_pressed && !self.alt_pressed {
+                            state.reset_camera();
+                        } else if self.alt_pressed && self.ctrl_pressed && !self.shift_pressed {
+                            state.run_compute_pipeline();
+                        } else if !self.ctrl_pressed {
+                            let modifier = if self.shift_pressed {
+                                if self.alt_pressed {
+                                    0.99
+                                } else {
+                                    0.9
+                                }
+                            } else {
+                                if self.alt_pressed {
+                                    1.01
+                                } else {
+                                    1.1
+                                }
+                            };
+
+                            let mut cf = self.configuration.borrow_mut();
+                            cf.grid_cone_length = cf.grid_cone_length * modifier;
+                        }
+                    }
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyK),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
                         let modifier = if self.shift_pressed {
                             if self.alt_pressed {
                                 0.99
@@ -256,165 +299,18 @@ impl ApplicationHandler<ModelEvent> for Application {
                         };
 
                         let mut cf = self.configuration.borrow_mut();
-                        cf.grid_cone_length = cf.grid_cone_length * modifier;
+                        cf.grid_cone_radius = cf.grid_cone_radius * modifier;
                     }
-                }
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyK),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    let modifier = if self.shift_pressed {
-                        if self.alt_pressed {
-                            0.99
-                        } else {
-                            0.9
-                        }
-                    } else {
-                        if self.alt_pressed {
-                            1.01
-                        } else {
-                            1.1
-                        }
-                    };
 
-                    let mut cf = self.configuration.borrow_mut();
-                    cf.grid_cone_radius = cf.grid_cone_radius * modifier;
-                }
-
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyH),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    let modifier = if self.shift_pressed {
-                        if self.alt_pressed {
-                            0.99
-                        } else {
-                            0.9
-                        }
-                    } else {
-                        if self.alt_pressed {
-                            1.01
-                        } else {
-                            1.1
-                        }
-                    };
-
-                    let mut cf = self.configuration.borrow_mut();
-                    cf.z_height_ratio = cf.z_height_ratio * modifier;
-                }
-
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyO),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    let modifier = if self.shift_pressed {
-                        if self.alt_pressed {
-                            0.99
-                        } else {
-                            0.9
-                        }
-                    } else {
-                        if self.alt_pressed {
-                            1.01
-                        } else {
-                            1.1
-                        }
-                    };
-
-                    let mut cf = self.configuration.borrow_mut();
-                    cf.glyph_offset = cf.glyph_offset * modifier;
-                }
-
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyE),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    let modifier = if self.shift_pressed {
-                        if self.alt_pressed {
-                            0.99
-                        } else {
-                            0.9
-                        }
-                    } else {
-                        if self.alt_pressed {
-                            1.01
-                        } else {
-                            1.1
-                        }
-                    };
-
-                    let mut cf = self.configuration.borrow_mut();
-                    cf.min_glyph_height = cf.min_glyph_height * modifier;
-                }
-
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyF),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    if self.ctrl_pressed {
-                        if self.filter_on {
-                            state.update_model_filter(Query::default());
-                        } else {
-                            let json_value = json!({
-                            "x": {
-                               "include" : {
-                                  "sub_type": {
-                                      "name": "Value",
-                                      "type": "Number",
-                                      "value": 5.0
-                                  },
-                                  "operator": {
-                                      "name": "GreaterThan"
-                                  }
-                               }}});
-                            let query = Query::from_json_value(&json_value);
-                            assert!(query.is_ok());
-                            let query = query.unwrap();
-                            state.update_model_filter(query);
-                        }
-                        self.filter_on = !self.filter_on;
-                    } else {
-                        let mut cf = self.configuration.borrow_mut();
-                        cf.color_flip = !cf.color_flip;
-                    }
-                }
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyS),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    if self.ctrl_pressed {
-                        state.update_selected_glyphs(vec![1, 3, 5, 7, 9]);
-                    } else {
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyH),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
                         let modifier = if self.shift_pressed {
                             if self.alt_pressed {
                                 0.99
@@ -430,466 +326,566 @@ impl ApplicationHandler<ModelEvent> for Application {
                         };
 
                         let mut cf = self.configuration.borrow_mut();
-                        cf.glyph_size = cf.glyph_size * modifier;
+                        cf.z_height_ratio = cf.z_height_ratio * modifier;
                     }
-                }
 
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyW),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    let mut cf = self.configuration.borrow_mut();
-                    if self.shift_pressed {
-                        cf.light_color = [255.0, 255.0, 255.0, 1.0];
-                    } else {
-                        cf.light_color = [255.0, 0.0, 0.0, 1.0];
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyO),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
+                        let modifier = if self.shift_pressed {
+                            if self.alt_pressed {
+                                0.99
+                            } else {
+                                0.9
+                            }
+                        } else {
+                            if self.alt_pressed {
+                                1.01
+                            } else {
+                                1.1
+                            }
+                        };
+
+                        let mut cf = self.configuration.borrow_mut();
+                        cf.glyph_offset = cf.glyph_offset * modifier;
                     }
-                }
 
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyL),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    let modifier = if self.shift_pressed {
-                        if self.alt_pressed {
-                            0.99
-                        } else {
-                            0.9
-                        }
-                    } else {
-                        if self.alt_pressed {
-                            1.01
-                        } else {
-                            1.1
-                        }
-                    };
-
-                    let mut cf = self.configuration.borrow_mut();
-
-                    cf.light_location = [
-                        cf.light_location[0] * modifier,
-                        cf.light_location[1] * modifier,
-                        cf.light_location[2] * modifier,
-                    ];
-                }
-
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyI),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    let modifier = if self.shift_pressed {
-                        if self.alt_pressed {
-                            0.99
-                        } else {
-                            0.9
-                        }
-                    } else {
-                        if self.alt_pressed {
-                            1.01
-                        } else {
-                            1.1
-                        }
-                    };
-
-                    let mut cf = self.configuration.borrow_mut();
-                    cf.light_intensity = cf.light_intensity * modifier;
-                }
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyX),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    let mut cf = self.configuration.borrow_mut();
-                    let mut update_config = false;
-                    if self.alt_pressed && !self.ctrl_pressed && !self.shift_pressed {
-                        {
-                            cf.x_interpolation = if cf.x_interpolation == InterpolationType::Linear
-                            {
-                                InterpolationType::Log
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyE),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
+                        let modifier = if self.shift_pressed {
+                            if self.alt_pressed {
+                                0.99
                             } else {
-                                InterpolationType::Linear
-                            };
-                        }
-                        update_config = true;
-                    } else if self.alt_pressed && self.ctrl_pressed && !self.shift_pressed {
-                        {
-                            cf.x_order = if cf.x_order == Order::Ascending {
-                                Order::Descending
+                                0.9
+                            }
+                        } else {
+                            if self.alt_pressed {
+                                1.01
                             } else {
-                                Order::Ascending
-                            };
+                                1.1
+                            }
+                        };
+
+                        let mut cf = self.configuration.borrow_mut();
+                        cf.min_glyph_height = cf.min_glyph_height * modifier;
+                    }
+
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyF),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
+                        if self.ctrl_pressed {
+                            if self.filter_on {
+                                state.update_model_filter(Query::default());
+                            } else {
+                                let json_value = json!({
+                                "x": {
+                                   "include" : {
+                                      "sub_type": {
+                                          "name": "Value",
+                                          "type": "Number",
+                                          "value": 5.0
+                                      },
+                                      "operator": {
+                                          "name": "GreaterThan"
+                                      }
+                                   }}});
+                                let query = Query::from_json_value(&json_value);
+                                assert!(query.is_ok());
+                                let query = query.unwrap();
+                                state.update_model_filter(query);
+                            }
+                            self.filter_on = !self.filter_on;
+                        } else {
+                            let mut cf = self.configuration.borrow_mut();
+                            cf.color_flip = !cf.color_flip;
                         }
-                        update_config = true;
-                    } else if self.ctrl_pressed && !self.shift_pressed {
-                        state.move_camera("x_axis", 0.0);
-                    } else if !self.ctrl_pressed {
+                    }
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyS),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
+                        if self.ctrl_pressed {
+                            state.update_selected_glyphs(vec![1, 3, 5, 7, 9]);
+                        } else {
+                            let modifier = if self.shift_pressed {
+                                if self.alt_pressed {
+                                    0.99
+                                } else {
+                                    0.9
+                                }
+                            } else {
+                                if self.alt_pressed {
+                                    1.01
+                                } else {
+                                    1.1
+                                }
+                            };
+
+                            let mut cf = self.configuration.borrow_mut();
+                            cf.glyph_size = cf.glyph_size * modifier;
+                        }
+                    }
+
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyW),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
+                        let mut cf = self.configuration.borrow_mut();
                         if self.shift_pressed {
-                            self.x_color_index -= 1;
+                            cf.light_color = [255.0, 255.0, 255.0, 1.0];
                         } else {
-                            self.x_color_index += 1;
+                            cf.light_color = [255.0, 0.0, 0.0, 1.0];
                         }
-                        let x_color = self.color_wheel.get_color(self.x_color_index);
-                        cf.x_axis_color = x_color;
                     }
-                    drop(cf);
-                    if update_config {
-                        state.update_config();
-                    }
-                }
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyY),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    let mut update_config = false;
-                    let mut cf = self.configuration.borrow_mut();
 
-                    if self.alt_pressed && !self.ctrl_pressed && !self.shift_pressed {
-                        {
-                            cf.y_interpolation = if cf.y_interpolation == InterpolationType::Linear
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyL),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
+                        let modifier = if self.shift_pressed {
+                            if self.alt_pressed {
+                                0.99
+                            } else {
+                                0.9
+                            }
+                        } else {
+                            if self.alt_pressed {
+                                1.01
+                            } else {
+                                1.1
+                            }
+                        };
+
+                        let mut cf = self.configuration.borrow_mut();
+
+                        cf.light_location = [
+                            cf.light_location[0] * modifier,
+                            cf.light_location[1] * modifier,
+                            cf.light_location[2] * modifier,
+                        ];
+                    }
+
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyI),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
+                        let modifier = if self.shift_pressed {
+                            if self.alt_pressed {
+                                0.99
+                            } else {
+                                0.9
+                            }
+                        } else {
+                            if self.alt_pressed {
+                                1.01
+                            } else {
+                                1.1
+                            }
+                        };
+
+                        let mut cf = self.configuration.borrow_mut();
+                        cf.light_intensity = cf.light_intensity * modifier;
+                    }
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyX),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
+                        let mut cf = self.configuration.borrow_mut();
+                        let mut update_config = false;
+                        if self.alt_pressed && !self.ctrl_pressed && !self.shift_pressed {
                             {
-                                InterpolationType::Log
-                            } else {
-                                InterpolationType::Linear
-                            };
-                        }
-                        update_config = true;
-                    } else if self.alt_pressed && self.ctrl_pressed && !self.shift_pressed {
-                        {
-                            cf.y_order = if cf.y_order == Order::Ascending {
-                                Order::Descending
-                            } else {
-                                Order::Ascending
-                            };
-                        }
-
-                        update_config = true;
-                    } else if self.ctrl_pressed && !self.shift_pressed && !self.alt_pressed {
-                        state.move_camera("y_axis", 0.0);
-                    } else if !self.ctrl_pressed {
-                        if self.shift_pressed {
-                            self.y_color_index -= 1;
-                        } else {
-                            self.y_color_index += 1;
-                        }
-                        let y_color = self.color_wheel.get_color(self.y_color_index);
-                        cf.y_axis_color = y_color;
-                    }
-                    drop(cf);
-                    if update_config {
-                        state.update_config();
-                    }
-                }
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyZ),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    let mut update_config = false;
-                    let mut cf = self.configuration.borrow_mut();
-
-                    if self.alt_pressed && !self.ctrl_pressed && !self.shift_pressed {
-                        {
-                            cf.z_interpolation = if cf.z_interpolation == InterpolationType::Linear
+                                cf.x_interpolation =
+                                    if cf.x_interpolation == InterpolationType::Linear {
+                                        InterpolationType::Log
+                                    } else {
+                                        InterpolationType::Linear
+                                    };
+                            }
+                            update_config = true;
+                        } else if self.alt_pressed && self.ctrl_pressed && !self.shift_pressed {
                             {
-                                InterpolationType::Log
+                                cf.x_order = if cf.x_order == Order::Ascending {
+                                    Order::Descending
+                                } else {
+                                    Order::Ascending
+                                };
+                            }
+                            update_config = true;
+                        } else if self.ctrl_pressed && !self.shift_pressed {
+                            state.move_camera("x_axis", 0.0);
+                        } else if !self.ctrl_pressed {
+                            if self.shift_pressed {
+                                self.x_color_index -= 1;
                             } else {
-                                InterpolationType::Linear
-                            };
+                                self.x_color_index += 1;
+                            }
+                            let x_color = self.color_wheel.get_color(self.x_color_index);
+                            cf.x_axis_color = x_color;
                         }
-                        update_config = true;
-                    } else if self.alt_pressed && self.ctrl_pressed && !self.shift_pressed {
-                        {
-                            cf.z_order = if cf.z_order == Order::Ascending {
-                                Order::Descending
+                        drop(cf);
+                        if update_config {
+                            state.update_config();
+                        }
+                    }
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyY),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
+                        let mut update_config = false;
+                        let mut cf = self.configuration.borrow_mut();
+
+                        if self.alt_pressed && !self.ctrl_pressed && !self.shift_pressed {
+                            {
+                                cf.y_interpolation =
+                                    if cf.y_interpolation == InterpolationType::Linear {
+                                        InterpolationType::Log
+                                    } else {
+                                        InterpolationType::Linear
+                                    };
+                            }
+                            update_config = true;
+                        } else if self.alt_pressed && self.ctrl_pressed && !self.shift_pressed {
+                            {
+                                cf.y_order = if cf.y_order == Order::Ascending {
+                                    Order::Descending
+                                } else {
+                                    Order::Ascending
+                                };
+                            }
+
+                            update_config = true;
+                        } else if self.ctrl_pressed && !self.shift_pressed && !self.alt_pressed {
+                            state.move_camera("y_axis", 0.0);
+                        } else if !self.ctrl_pressed {
+                            if self.shift_pressed {
+                                self.y_color_index -= 1;
                             } else {
-                                Order::Ascending
-                            };
+                                self.y_color_index += 1;
+                            }
+                            let y_color = self.color_wheel.get_color(self.y_color_index);
+                            cf.y_axis_color = y_color;
                         }
-                        update_config = true;
-                    } else if self.ctrl_pressed && !self.shift_pressed && !self.alt_pressed {
-                        state.move_camera("z_axis", 0.0);
-                    } else if !self.ctrl_pressed {
+                        drop(cf);
+                        if update_config {
+                            state.update_config();
+                        }
+                    }
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyZ),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
+                        let mut update_config = false;
+                        let mut cf = self.configuration.borrow_mut();
+
+                        if self.alt_pressed && !self.ctrl_pressed && !self.shift_pressed {
+                            {
+                                cf.z_interpolation =
+                                    if cf.z_interpolation == InterpolationType::Linear {
+                                        InterpolationType::Log
+                                    } else {
+                                        InterpolationType::Linear
+                                    };
+                            }
+                            update_config = true;
+                        } else if self.alt_pressed && self.ctrl_pressed && !self.shift_pressed {
+                            {
+                                cf.z_order = if cf.z_order == Order::Ascending {
+                                    Order::Descending
+                                } else {
+                                    Order::Ascending
+                                };
+                            }
+                            update_config = true;
+                        } else if self.ctrl_pressed && !self.shift_pressed && !self.alt_pressed {
+                            state.move_camera("z_axis", 0.0);
+                        } else if !self.ctrl_pressed {
+                            if self.shift_pressed {
+                                self.z_color_index -= 1;
+                            } else {
+                                self.z_color_index += 1;
+                            }
+                            let z_color = self.color_wheel.get_color(self.z_color_index);
+                            cf.z_axis_color = z_color;
+                        }
+                        drop(cf);
+                        if update_config {
+                            state.update_config();
+                        }
+                    }
+
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyM),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
                         if self.shift_pressed {
-                            self.z_color_index -= 1;
+                            self.max_color_index -= 1;
                         } else {
-                            self.z_color_index += 1;
+                            self.max_color_index += 1;
                         }
-                        let z_color = self.color_wheel.get_color(self.z_color_index);
-                        cf.z_axis_color = z_color;
+                        let color = self.color_wheel.get_color(self.max_color_index);
+                        let mut cf = self.configuration.borrow_mut();
+                        cf.max_color = color;
                     }
-                    drop(cf);
-                    if update_config {
-                        state.update_config();
-                    }
-                }
 
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyM),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    if self.shift_pressed {
-                        self.max_color_index -= 1;
-                    } else {
-                        self.max_color_index += 1;
-                    }
-                    let color = self.color_wheel.get_color(self.max_color_index);
-                    let mut cf = self.configuration.borrow_mut();
-                    cf.max_color = color;
-                }
-
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyN),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    if self.shift_pressed {
-                        self.min_color_index -= 1;
-                    } else {
-                        self.min_color_index += 1;
-                    }
-                    let color = self.color_wheel.get_color(self.min_color_index);
-                    let mut cf = self.configuration.borrow_mut();
-                    cf.min_color = color;
-                }
-
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyB),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    if self.shift_pressed {
-                        self.background_color_index -= 1;
-                    } else {
-                        self.background_color_index += 1;
-                    }
-                    let color = self.color_wheel.get_color(self.background_color_index);
-                    let mut cf = self.configuration.borrow_mut();
-                    cf.background_color = color;
-                }
-
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::KeyG),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => {
-                    let modifier = if self.shift_pressed {
-                        if self.alt_pressed {
-                            0.99
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyN),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
+                        if self.shift_pressed {
+                            self.min_color_index -= 1;
                         } else {
-                            0.9
+                            self.min_color_index += 1;
                         }
-                    } else {
-                        if self.alt_pressed {
-                            1.01
-                        } else {
-                            1.1
-                        }
-                    };
-                    let mut cf = self.configuration.borrow_mut();
-                    cf.model_origin = [
-                        cf.model_origin[0] * modifier,
-                        cf.model_origin[1] * modifier,
-                        cf.model_origin[2] * modifier,
-                    ];
-                }
-
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::ArrowUp),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => unsafe {
-                    let event = ModelEvent::ModelMove(ModelMoveDirection::Up(1.0));
-                    EVENT_LOOP_PROXY
-                        .as_ref()
-                        .unwrap()
-                        .send_event(event)
-                        .unwrap();
-                },
-
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::ArrowDown),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => unsafe {
-                    let event = ModelEvent::ModelMove(ModelMoveDirection::Down(1.0));
-                    EVENT_LOOP_PROXY
-                        .as_ref()
-                        .unwrap()
-                        .send_event(event)
-                        .unwrap();
-                },
-
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::ArrowLeft),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => unsafe {
-                    let event = ModelEvent::ModelMove(ModelMoveDirection::Left(1.0));
-                    EVENT_LOOP_PROXY
-                        .as_ref()
-                        .unwrap()
-                        .send_event(event)
-                        .unwrap();
-                },
-
-                WindowEvent::KeyboardInput {
-                    event:
-                        KeyEvent {
-                            physical_key: PhysicalKey::Code(KeyCode::ArrowRight),
-                            state: ElementState::Pressed,
-                            ..
-                        },
-                    ..
-                } => unsafe {
-                    let event = ModelEvent::ModelMove(ModelMoveDirection::Right(1.0));
-                    EVENT_LOOP_PROXY
-                        .as_ref()
-                        .unwrap()
-                        .send_event(event)
-                        .unwrap();
-                },
-                WindowEvent::Resized(physical_size) => {
-                    state.resize(physical_size);
-                }
-
-                WindowEvent::ScaleFactorChanged { .. } => {
-                    // new_inner_size is &&mut so we have to dereference it twice
-                    let size = state.size();
-                    state.resize(size);
-                }
-
-                WindowEvent::RedrawRequested => {
-                    state.update_from_client();
-                    match state.render() {
-                        Ok(_) => {}
-                        Err(wgpu::SurfaceError::Lost) => {
-                            let size = state.size().clone();
-                            state.resize(size)
-                        }
-
-                        // The system is out of memory, we should probably quit
-                        Err(wgpu::SurfaceError::OutOfMemory) => event_loop.exit(),
-                        // All other errors (Outdated, Timeout) should be resolved by the next frame
-                        Err(e) => eprintln!("{:?}", e),
+                        let color = self.color_wheel.get_color(self.min_color_index);
+                        let mut cf = self.configuration.borrow_mut();
+                        cf.min_color = color;
                     }
-                }
-                WindowEvent::MouseInput {
-                    state: element_state,
-                    button,
-                    ..
-                } => {
-                    let new_event = DeviceEvent::Button {
+
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyB),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
+                        if self.shift_pressed {
+                            self.background_color_index -= 1;
+                        } else {
+                            self.background_color_index += 1;
+                        }
+                        let color = self.color_wheel.get_color(self.background_color_index);
+                        let mut cf = self.configuration.borrow_mut();
+                        cf.background_color = color;
+                    }
+
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyG),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => {
+                        let modifier = if self.shift_pressed {
+                            if self.alt_pressed {
+                                0.99
+                            } else {
+                                0.9
+                            }
+                        } else {
+                            if self.alt_pressed {
+                                1.01
+                            } else {
+                                1.1
+                            }
+                        };
+                        let mut cf = self.configuration.borrow_mut();
+                        cf.model_origin = [
+                            cf.model_origin[0] * modifier,
+                            cf.model_origin[1] * modifier,
+                            cf.model_origin[2] * modifier,
+                        ];
+                    }
+
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::ArrowUp),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => unsafe {
+                        let event = ModelEvent::ModelMove(ModelMoveDirection::Up(1.0));
+                        EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
+                    },
+
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::ArrowDown),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => unsafe {
+                        let event = ModelEvent::ModelMove(ModelMoveDirection::Down(1.0));
+                        EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
+                    },
+
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::ArrowLeft),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => unsafe {
+                        let event = ModelEvent::ModelMove(ModelMoveDirection::Left(1.0));
+                        EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
+                    },
+
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::ArrowRight),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } => unsafe {
+                        let event = ModelEvent::ModelMove(ModelMoveDirection::Right(1.0));
+                        EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
+                    },
+                    WindowEvent::Resized(physical_size) => {
+                        state.resize(physical_size);
+                    }
+
+                    WindowEvent::ScaleFactorChanged { .. } => {
+                        // new_inner_size is &&mut so we have to dereference it twice
+                        let size = state.size();
+                        state.resize(size);
+                    }
+
+                    WindowEvent::RedrawRequested => {
+                        state.update_from_client();
+                        match state.render() {
+                            Ok(_) => {}
+                            Err(wgpu::SurfaceError::Lost) => {
+                                let size = state.size().clone();
+                                state.resize(size)
+                            }
+
+                            // The system is out of memory, we should probably quit
+                            Err(wgpu::SurfaceError::OutOfMemory) => event_loop.exit(),
+                            // All other errors (Outdated, Timeout) should be resolved by the next frame
+                            Err(e) => eprintln!("{:?}", e),
+                        }
+                    }
+                    WindowEvent::MouseInput {
                         state: element_state,
-                        button: match button {
-                            winit::event::MouseButton::Left => 1,
-                            _ => 0,
-                        },
-                    };
-                    if state.input(&new_event, self.shift_pressed) {
-                        match state.render() {
-                            Ok(_) => {}
-                            // Reconfigure the surface if lost
-                            Err(wgpu::SurfaceError::Lost) => {
-                                let size = state.size().clone();
-                                state.resize(size)
+                        button,
+                        ..
+                    } => {
+                        let new_event = DeviceEvent::Button {
+                            state: element_state,
+                            button: match button {
+                                winit::event::MouseButton::Left => 1,
+                                _ => 0,
+                            },
+                        };
+                        if state.input(&new_event, self.shift_pressed) {
+                            match state.render() {
+                                Ok(_) => {}
+                                // Reconfigure the surface if lost
+                                Err(wgpu::SurfaceError::Lost) => {
+                                    let size = state.size().clone();
+                                    state.resize(size)
+                                }
+                                // The system is out of memory, we should probably quit
+                                Err(wgpu::SurfaceError::OutOfMemory) => event_loop.exit(),
+                                // All other errors (Outdated, Timeout) should be resolved by the next frame
+                                Err(e) => eprintln!("{:?}", e),
                             }
-                            // The system is out of memory, we should probably quit
-                            Err(wgpu::SurfaceError::OutOfMemory) => event_loop.exit(),
-                            // All other errors (Outdated, Timeout) should be resolved by the next frame
-                            Err(e) => eprintln!("{:?}", e),
                         }
+                        redraw = false;
                     }
-                    redraw = false;
-                }
-                WindowEvent::MouseWheel { delta,..} => {
-
-                    let new_event = DeviceEvent::MouseWheel { delta };
-                    if state.input(&new_event, self.shift_pressed) {
-                        match state.render() {
-                            Ok(_) => {}
-                            // Reconfigure the surface if lost
-                            Err(wgpu::SurfaceError::Lost) => {
-                                let size = state.size().clone();
-                                state.resize(size)
+                    WindowEvent::MouseWheel { delta, .. } => {
+                        let new_event = DeviceEvent::MouseWheel { delta };
+                        if state.input(&new_event, self.shift_pressed) {
+                            match state.render() {
+                                Ok(_) => {}
+                                // Reconfigure the surface if lost
+                                Err(wgpu::SurfaceError::Lost) => {
+                                    let size = state.size().clone();
+                                    state.resize(size)
+                                }
+                                // The system is out of memory, we should probably quit
+                                Err(wgpu::SurfaceError::OutOfMemory) => event_loop.exit(),
+                                // All other errors (Outdated, Timeout) should be resolved by the next frame
+                                Err(e) => eprintln!("{:?}", e),
                             }
-                            // The system is out of memory, we should probably quit
-                            Err(wgpu::SurfaceError::OutOfMemory) => event_loop.exit(),
-                            // All other errors (Outdated, Timeout) should be resolved by the next frame
-                            Err(e) => eprintln!("{:?}", e),
                         }
+                        redraw = false;
                     }
-                    redraw = false;
-                }
-                _ => {
-                    redraw = false;
+                    _ => {
+                        redraw = false;
+                    }
                 }
             }
-        }
-        if redraw {
-            unsafe {
-                let event = ModelEvent::Redraw;
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
+            if redraw {
+                unsafe {
+                    let event = ModelEvent::Redraw;
+                    EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
+                }
             }
         }
     }
@@ -901,20 +897,21 @@ impl ApplicationHandler<ModelEvent> for Application {
         event: DeviceEvent,
     ) {
         //eprintln!("Device Event: {:?}", event);
-
-        let state = self.state.as_mut().unwrap();
-        if state.input(&event, self.shift_pressed) {
-            match state.render() {
-                Ok(_) => {}
-                // Reconfigure the surface if lost
-                Err(wgpu::SurfaceError::Lost) => {
-                    let size = state.size().clone();
-                    state.resize(size)
+        if self.state.is_some() {
+            let state = self.state.as_mut().unwrap();
+            if state.input(&event, self.shift_pressed) {
+                match state.render() {
+                    Ok(_) => {}
+                    // Reconfigure the surface if lost
+                    Err(wgpu::SurfaceError::Lost) => {
+                        let size = state.size().clone();
+                        state.resize(size)
+                    }
+                    // The system is out of memory, we should probably quit
+                    Err(wgpu::SurfaceError::OutOfMemory) => event_loop.exit(),
+                    // All other errors (Outdated, Timeout) should be resolved by the next frame
+                    Err(e) => eprintln!("{:?}", e),
                 }
-                // The system is out of memory, we should probably quit
-                Err(wgpu::SurfaceError::OutOfMemory) => event_loop.exit(),
-                // All other errors (Outdated, Timeout) should be resolved by the next frame
-                Err(e) => eprintln!("{:?}", e),
             }
         }
     }
@@ -922,6 +919,9 @@ impl ApplicationHandler<ModelEvent> for Application {
     fn user_event(&mut self, event_loop: &ActiveEventLoop, event: ModelEvent) {
         let state = self.state.as_mut().unwrap();
         match event {
+            ModelEvent::StateReady(new_state) => {
+                self.state = Some(new_state);
+            }
             ModelEvent::Redraw => {
                 state.update_config();
                 match state.render() {
@@ -990,11 +990,7 @@ impl ApplicationHandler<ModelEvent> for Application {
 
                 unsafe {
                     let event = ModelEvent::Redraw;
-                    EVENT_LOOP_PROXY
-                        .as_ref()
-                        .unwrap()
-                        .send_event(event)
-                        .unwrap();
+                    EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
                 }
             }
 
@@ -1004,11 +1000,7 @@ impl ApplicationHandler<ModelEvent> for Application {
                 //Once our state is updated we need to force a redraw
                 unsafe {
                     let event = ModelEvent::Redraw;
-                    EVENT_LOOP_PROXY
-                        .as_ref()
-                        .unwrap()
-                        .send_event(event)
-                        .unwrap();
+                    EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
                 }
             }
 
@@ -1021,8 +1013,9 @@ impl ApplicationHandler<ModelEvent> for Application {
 fn emit_event(event: &ModelEvent) {
     cfg_if::cfg_if! {
         if #[cfg(target_arch="wasm32")] {
+            let event = JsSafeModelEvent::from(event);
             let window = web_sys::window().unwrap();
-            let js_value = serde_wasm_bindgen::to_value(event).unwrap();
+            let js_value = serde_wasm_bindgen::to_value(&event).unwrap();
             let event = web_sys::CustomEvent::new_with_event_init_dict(
                 "model-event",
                 web_sys::CustomEventInit::new().detail(&js_value)
@@ -1100,11 +1093,7 @@ impl ModelRunner {
             let event = ModelEvent::UpdateModelFilter(filter_query);
             emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
+                EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
             }
         }
         Ok(())
@@ -1124,11 +1113,7 @@ impl ModelRunner {
                 let event = ModelEvent::Redraw;
                 emit_event(&event);
                 if EVENT_LOOP_PROXY.is_some() {
-                    EVENT_LOOP_PROXY
-                        .as_ref()
-                        .unwrap()
-                        .send_event(event)
-                        .unwrap();
+                    EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
                 }
             }
         }
@@ -1140,11 +1125,7 @@ impl ModelRunner {
             let event = ModelEvent::ToggleAxisLines;
             emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
+                EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
             }
         }
     }
@@ -1159,11 +1140,7 @@ impl ModelRunner {
             };
             emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
+                EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
             }
         }
     }
@@ -1173,11 +1150,7 @@ impl ModelRunner {
             let event = ModelEvent::ModelMove(ModelMoveDirection::Yaw(amount));
             emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
+                EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
             }
         }
     }
@@ -1192,11 +1165,7 @@ impl ModelRunner {
             };
             emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
+                EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
             }
         }
     }
@@ -1207,11 +1176,7 @@ impl ModelRunner {
             let event = ModelEvent::ModelMove(ModelMoveDirection::Reset);
             emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
+                EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
             }
         }
     }
@@ -1223,11 +1188,7 @@ impl ModelRunner {
             let event = ModelEvent::ModelMove(ModelMoveDirection::X);
             emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
+                EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
             }
         }
     }
@@ -1239,11 +1200,7 @@ impl ModelRunner {
             let event = ModelEvent::ModelMove(ModelMoveDirection::Y);
             emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
+                EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
             }
         }
     }
@@ -1254,11 +1211,7 @@ impl ModelRunner {
             let event = ModelEvent::ModelMove(ModelMoveDirection::Z);
             emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
+                EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
             }
         }
     }
@@ -1272,11 +1225,7 @@ impl ModelRunner {
             };
             emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
+                EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
             }
         }
     }
@@ -1287,11 +1236,7 @@ impl ModelRunner {
             let event = ModelEvent::ModelMove(ModelMoveDirection::Pitch(amount));
             emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
+                EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
             }
         }
     }
@@ -1301,11 +1246,7 @@ impl ModelRunner {
             let event = ModelEvent::ModelMove(ModelMoveDirection::Distance(amount));
             emit_event(&event);
             if EVENT_LOOP_PROXY.is_some() {
-                EVENT_LOOP_PROXY
-                    .as_ref()
-                    .unwrap()
-                    .send_event(event)
-                    .unwrap();
+                EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
             }
         }
     }
@@ -1407,11 +1348,7 @@ impl ModelRunner {
         cm.set_camera_data(camera_data, aspect_ratio);
         unsafe {
             let event = ModelEvent::Redraw;
-            EVENT_LOOP_PROXY
-                .as_ref()
-                .unwrap()
-                .send_event(event)
-                .unwrap();
+            EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
         }
     }
 
@@ -1419,11 +1356,7 @@ impl ModelRunner {
     pub fn set_selected_glyphs(&self, selected_glyphs: Vec<u32>) {
         unsafe {
             let event = ModelEvent::SelectGlyphs(selected_glyphs);
-            EVENT_LOOP_PROXY
-                .as_ref()
-                .unwrap()
-                .send_event(event)
-                .unwrap();
+            EVENT_LOOP_PROXY.as_ref().unwrap().send_event(event);
         }
     }
 

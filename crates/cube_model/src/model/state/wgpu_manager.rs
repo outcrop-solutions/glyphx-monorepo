@@ -5,6 +5,7 @@ use wgpu::{
 };
 use winit::{dpi::PhysicalSize, window::Window};
 
+
 pub struct WgpuManager {
     window: Arc<Window>,
     size: PhysicalSize<u32>,
