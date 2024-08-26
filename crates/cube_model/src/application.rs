@@ -9,6 +9,7 @@ use super::{
     model_event::{ModelEvent, ModelMoveDirection},
     send_event,
 };
+
 use pollster::FutureExt;
 use serde_json::{json, Value};
 use std::cell::RefCell;
