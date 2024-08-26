@@ -65,8 +65,6 @@ use winit::{
     window::Window,
 };
 
-use serde::Serialize;
-
 pub struct State {
     wgpu_manager: Rc<RefCell<WgpuManager>>,
     orientation_manager: OrientationManager,

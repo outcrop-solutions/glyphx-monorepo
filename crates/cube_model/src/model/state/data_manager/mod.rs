@@ -3,15 +3,15 @@ mod glyph_manager;
 mod stats_manager;
 
 use super::{
-    AddGlyphError, AddStatsError, GlyphInstanceData, DeserializeVectorError, GetStatsError,
-    GlyphVertexData, ModelVectors, RankedGlyphData, 
-    SelectedGlyph
+    AddGlyphError, AddStatsError, DeserializeVectorError, GetStatsError, GlyphInstanceData,
+    GlyphVertexData, ModelVectors, RankedGlyphData, SelectedGlyph,
 };
 pub use camera_manager::CameraManager;
 pub use glyph_manager::GlyphManager;
-use model_common::{Glyph, Stats};
-use serde_json::Value;
 pub use stats_manager::StatsManager;
+
+use model_common::{Glyph, Stats};
+
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -94,7 +94,6 @@ impl DataManager {
     pub fn clear_glyphs(&mut self) {
         self.glyph_manager.clear();
         //If we are clearning glyphs then we must also clear the hit detection data
-
     }
 
     pub fn get_glyph_description(&self, glyph_id: u32) -> Option<SelectedGlyph> {
@@ -108,7 +107,6 @@ impl DataManager {
     pub fn get_z_vectors(&self) -> Rc<RefCell<ModelVectors>> {
         self.z_vectors.clone()
     }
-
 }
 
 #[cfg(test)]
@@ -131,7 +129,6 @@ mod unit_tests {
             assert_eq!(data_manager.get_stats_len(), 0);
             assert_eq!(data_manager.get_glyph_len(), 0);
         }
-
     }
     mod add_x_vector {
         use super::*;
@@ -335,7 +332,7 @@ mod unit_tests {
             assert!(result.is_ok());
 
             data_manager.clear_glyphs();
-            
+
             let gm = data_manager.get_glyphs();
             assert!(gm.is_none());
         }
