@@ -1,17 +1,17 @@
 use crate::{
     assets::{rectangular_prism::create_rectangular_prism, shape_vertex::ShapeVertex},
-    model::{
-        filtering::Query, 
-        model_configuration::ModelConfiguration,
-        state::DataManager,
-    },
+    model::{filtering::Query, model_configuration::ModelConfiguration, state::DataManager},
 };
 
 use bytemuck::{Pod, Zeroable};
 use std::cell::RefCell;
 use std::rc::Rc;
-use wgpu::util::DeviceExt;
-use wgpu::{BindGroup, Buffer, ComputePipeline, Device, ShaderModule};
+use wgpu::{
+    util::{BufferInitDescriptor, DeviceExt},
+    BindGroup, BindGroupDescriptor, BindGroupEntry, Buffer, BufferDescriptor, BufferUsages,
+    CommandEncoder, ComputePassDescriptor, ComputePipeline, ComputePipelineDescriptor, Device,
+    PipelineCompilationOptions, ShaderModule,
+};
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Pod, Zeroable)]
@@ -74,7 +74,6 @@ impl GlyphData {
         let (instance_buffer, instance_count) =
             Self::configure_instance_buffer(&d, &glyph_filter, &dm);
 
-
         let (output_buffer, output_size) =
             Self::configure_output_buffer(&d, vertex_data.vertices.len(), instance_count);
 
@@ -112,9 +111,7 @@ impl GlyphData {
         }
     }
 
-
     pub fn update_vertices(&mut self, glyph_uniform_buffer: &Buffer, instance_filter: &Query) {
-
         let mut vertex_data = VertexData {
             vertices: Vec::new(),
         };
@@ -135,7 +132,6 @@ impl GlyphData {
         let (output_buffer, output_size) =
             Self::configure_output_buffer(&d, vertex_data.vertices.len(), instance_count);
 
-
         let (
             compute_pipeline,
             vertex_bind_group,
@@ -145,11 +141,9 @@ impl GlyphData {
         ) = Self::configure_compute_pipeline(
             &d,
             &self.vertex_buffer,
-
             &instance_buffer,
             glyph_uniform_buffer,
             &output_buffer,
-
             &self.shader,
         );
 
@@ -162,7 +156,6 @@ impl GlyphData {
         self.output_bind_group = output_bind_group;
         self.output_buffer = output_buffer;
         self.output_size = output_size;
-
     }
 
     pub fn build_verticies(
@@ -222,20 +215,20 @@ impl GlyphData {
         );
 
         (
-            device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            device.create_buffer_init(&BufferInitDescriptor {
                 label: Some("Instance Buffer"),
                 contents: bytemuck::cast_slice(glyph_data.as_slice()),
-                usage: wgpu::BufferUsages::STORAGE,
+                usage: BufferUsages::STORAGE,
             }),
             glyph_data.len(),
         )
     }
 
     fn configure_vertex_buffer(device: &Device, vertex_data: &VertexData) -> Buffer {
-        device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        device.create_buffer_init(&BufferInitDescriptor {
             label: Some("Vertex Buffer"),
             contents: bytemuck::cast_slice(vertex_data.vertices.as_slice()),
-            usage: wgpu::BufferUsages::STORAGE,
+            usage: BufferUsages::STORAGE,
         })
     }
 
@@ -248,10 +241,10 @@ impl GlyphData {
         let y_size = glyph_data_length;
         let output_size = (x_size * y_size * std::mem::size_of::<InstanceOutput>()) as usize;
         (
-            device.create_buffer(&wgpu::BufferDescriptor {
+            device.create_buffer(&BufferDescriptor {
                 label: Some("Output Buffer"),
                 size: output_size as u64,
-                usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC,
+                usage: BufferUsages::STORAGE | BufferUsages::COPY_SRC,
                 mapped_at_creation: false,
             }),
             output_size,
@@ -269,17 +262,19 @@ impl GlyphData {
         output_buffer: &Buffer,
         shader: &ShaderModule,
     ) -> (ComputePipeline, BindGroup, BindGroup, BindGroup, BindGroup) {
-        let compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
+        let compute_pipeline = device.create_compute_pipeline(&ComputePipelineDescriptor {
             label: Some("Glyph Render Pipeline"),
             layout: None,
             module: shader,
             entry_point: "main",
+            cache: None,
+            compilation_options: PipelineCompilationOptions::default(),
         });
 
         let vertex_bind_group_layout = compute_pipeline.get_bind_group_layout(0);
-        let vertex_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        let vertex_bind_group = device.create_bind_group(&BindGroupDescriptor {
             layout: &vertex_bind_group_layout,
-            entries: &[wgpu::BindGroupEntry {
+            entries: &[BindGroupEntry {
                 binding: 0,
                 resource: vertex_buffer.as_entire_binding(),
             }],
@@ -287,9 +282,9 @@ impl GlyphData {
         });
 
         let instance_bind_group_layout = compute_pipeline.get_bind_group_layout(1);
-        let instance_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        let instance_bind_group = device.create_bind_group(&BindGroupDescriptor {
             layout: &instance_bind_group_layout,
-            entries: &[wgpu::BindGroupEntry {
+            entries: &[BindGroupEntry {
                 binding: 0,
                 resource: instance_buffer.as_entire_binding(),
             }],
@@ -297,9 +292,9 @@ impl GlyphData {
         });
 
         let uniform_bind_group_layout = compute_pipeline.get_bind_group_layout(2);
-        let uniform_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        let uniform_bind_group = device.create_bind_group(&BindGroupDescriptor {
             layout: &uniform_bind_group_layout,
-            entries: &[wgpu::BindGroupEntry {
+            entries: &[BindGroupEntry {
                 binding: 0,
                 resource: uniform_buffer.as_entire_binding(),
             }],
@@ -307,9 +302,9 @@ impl GlyphData {
         });
 
         let output_bind_group_layout = compute_pipeline.get_bind_group_layout(3);
-        let output_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        let output_bind_group = device.create_bind_group(&BindGroupDescriptor {
             layout: &output_bind_group_layout,
-            entries: &[wgpu::BindGroupEntry {
+            entries: &[BindGroupEntry {
                 binding: 0,
                 resource: output_buffer.as_entire_binding(),
             }],
@@ -324,17 +319,18 @@ impl GlyphData {
         )
     }
 
-    pub fn run_pipeline<'a>(&'a self, encoder: &'a mut wgpu::CommandEncoder) -> Buffer {
+    pub fn run_pipeline<'a>(&'a self, encoder: &'a mut CommandEncoder) -> Buffer {
         let d = self.device.borrow();
-        let staging_buffer = d.create_buffer(&wgpu::BufferDescriptor {
+        let staging_buffer = d.create_buffer(&BufferDescriptor {
             label: Some("Staging Buffer"),
             size: self.output_size as u64,
-            usage: wgpu::BufferUsages::MAP_READ | wgpu::BufferUsages::COPY_DST,
+            usage: BufferUsages::MAP_READ | BufferUsages::COPY_DST,
             mapped_at_creation: false,
         });
         {
-            let mut compute_pass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
+            let mut compute_pass = encoder.begin_compute_pass(&ComputePassDescriptor {
                 label: Some("Glyph Data Pass"),
+                timestamp_writes: None,
             });
             compute_pass.set_pipeline(&self.compute_pipeline);
             compute_pass.set_bind_group(0, &self.vertex_bind_group, &[]);

@@ -19,11 +19,13 @@ use std::rc::Rc;
 use winit::{
     application::ApplicationHandler,
     dpi::PhysicalSize,
-    event::{ DeviceEvent, DeviceId, ElementState, KeyEvent, WindowEvent},
+    event::{DeviceEvent, DeviceId, ElementState, KeyEvent, WindowEvent},
     event_loop::{ActiveEventLoop, EventLoop, EventLoopProxy},
-    keyboard::{Key,KeyCode, ModifiersKeyState,NamedKey, PhysicalKey },
+    keyboard::{Key, KeyCode, ModifiersKeyState, NamedKey, PhysicalKey},
     window::{Window, WindowId},
 };
+
+use crate::camera::camera_controller::MouseEvent;
 cfg_if::cfg_if! {
     if #[cfg(target_arch="wasm32")] {
         use wasm_bindgen::prelude::*;
@@ -89,18 +91,8 @@ impl Application {
         }
     }
 
-    fn process_modifier_state(lstate: ModifiersKeyState, rstate: ModifiersKeyState) -> bool {
-        match lstate {
-            ModifiersKeyState::Pressed => true,
-            _ => match rstate {
-                ModifiersKeyState::Pressed => true,
-                _ => false,
-            },
-        }
-    }
-
     #[cfg(target_arch = "wasm32")]
-    fn configure_canvas(&self, window: &Window ) {
+    fn configure_canvas(&self, window: &Window) {
         // Winit prevents sizing with CSS, so we have to set
         // the size manually when on web.
 
@@ -149,46 +141,40 @@ impl ApplicationHandler<ModelEvent> for Application {
         window_id: WindowId,
         event: WindowEvent,
     ) {
+//        eprintln!("Window Event: {:?}", event);
         let state = self.state.as_mut().unwrap();
-        let mut cf = self.configuration.borrow_mut();
-
+        let mut redraw = true;
         if window_id == state.get_window_id() {
             match event {
                 WindowEvent::CursorMoved { position, .. } => {
                     state.update_cursor_position(position.clone());
+                    redraw = false;
                 }
                 WindowEvent::CloseRequested
                 | WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            logical_key:
-                                Key::Named(NamedKey::Escape),
+                            logical_key: Key::Named(NamedKey::Escape),
                             state: ElementState::Pressed,
                             ..
                         },
                     ..
-                } => event_loop.exit(),
+                } => {
+                    event_loop.exit();
+                }
 
                 WindowEvent::ModifiersChanged(modifier_state) => {
-                    self.shift_pressed = Self::process_modifier_state(
-                        modifier_state.lshift_state(),
-                        modifier_state.rshift_state(),
-                    );
-                    self.alt_pressed = Self::process_modifier_state(
-                        modifier_state.lalt_state(),
-                        modifier_state.ralt_state(),
-                    );
-                    self.ctrl_pressed = Self::process_modifier_state(
-                        modifier_state.lcontrol_state(),
-                        modifier_state.rcontrol_state(),
-                    );
+                    let state = modifier_state.state();
+                    self.shift_pressed = state.shift_key();
+                    self.alt_pressed = state.alt_key();
+                    self.ctrl_pressed = state.control_key();
+                    redraw = false;
                 }
 
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyR),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyR),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -207,21 +193,14 @@ impl ApplicationHandler<ModelEvent> for Application {
                             1.1
                         }
                     };
+
+                    let mut cf = self.configuration.borrow_mut();
                     cf.grid_cylinder_radius = cf.grid_cylinder_radius * modifier;
-                    unsafe {
-                        let event = ModelEvent::Redraw;
-                        EVENT_LOOP_PROXY
-                            .as_ref()
-                            .unwrap()
-                            .send_event(event)
-                            .unwrap();
-                    }
                 }
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyA),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyA),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -243,22 +222,15 @@ impl ApplicationHandler<ModelEvent> for Application {
                                 1.1
                             }
                         };
+
+                        let mut cf = self.configuration.borrow_mut();
                         cf.grid_cylinder_length = cf.grid_cylinder_length * modifier;
-                        unsafe {
-                            let event = ModelEvent::Redraw;
-                            EVENT_LOOP_PROXY
-                                .as_ref()
-                                .unwrap()
-                                .send_event(event)
-                                .unwrap();
-                        }
                     }
                 }
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyC),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyC),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -282,22 +254,15 @@ impl ApplicationHandler<ModelEvent> for Application {
                                 1.1
                             }
                         };
+
+                        let mut cf = self.configuration.borrow_mut();
                         cf.grid_cone_length = cf.grid_cone_length * modifier;
                     }
-                    unsafe {
-                        let event = ModelEvent::Redraw;
-                        EVENT_LOOP_PROXY
-                            .as_ref()
-                            .unwrap()
-                            .send_event(event)
-                            .unwrap();
-                    }
                 }
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyK),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyK),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -316,22 +281,15 @@ impl ApplicationHandler<ModelEvent> for Application {
                             1.1
                         }
                     };
+
+                    let mut cf = self.configuration.borrow_mut();
                     cf.grid_cone_radius = cf.grid_cone_radius * modifier;
-                    unsafe {
-                        let event = ModelEvent::Redraw;
-                        EVENT_LOOP_PROXY
-                            .as_ref()
-                            .unwrap()
-                            .send_event(event)
-                            .unwrap();
-                    }
                 }
 
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyH),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyH),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -350,22 +308,15 @@ impl ApplicationHandler<ModelEvent> for Application {
                             1.1
                         }
                     };
+
+                    let mut cf = self.configuration.borrow_mut();
                     cf.z_height_ratio = cf.z_height_ratio * modifier;
-                    unsafe {
-                        let event = ModelEvent::Redraw;
-                        EVENT_LOOP_PROXY
-                            .as_ref()
-                            .unwrap()
-                            .send_event(event)
-                            .unwrap();
-                    }
                 }
 
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyO),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyO),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -384,22 +335,15 @@ impl ApplicationHandler<ModelEvent> for Application {
                             1.1
                         }
                     };
+
+                    let mut cf = self.configuration.borrow_mut();
                     cf.glyph_offset = cf.glyph_offset * modifier;
-                    unsafe {
-                        let event = ModelEvent::Redraw;
-                        EVENT_LOOP_PROXY
-                            .as_ref()
-                            .unwrap()
-                            .send_event(event)
-                            .unwrap();
-                    }
                 }
 
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyE),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyE),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -418,22 +362,15 @@ impl ApplicationHandler<ModelEvent> for Application {
                             1.1
                         }
                     };
+
+                    let mut cf = self.configuration.borrow_mut();
                     cf.min_glyph_height = cf.min_glyph_height * modifier;
-                    unsafe {
-                        let event = ModelEvent::Redraw;
-                        EVENT_LOOP_PROXY
-                            .as_ref()
-                            .unwrap()
-                            .send_event(event)
-                            .unwrap();
-                    }
                 }
 
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyF),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyF),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -462,24 +399,14 @@ impl ApplicationHandler<ModelEvent> for Application {
                         }
                         self.filter_on = !self.filter_on;
                     } else {
-                        {
-                            cf.color_flip = !cf.color_flip;
-                        }
-                    }
-                    unsafe {
-                        let event = ModelEvent::Redraw;
-                        EVENT_LOOP_PROXY
-                            .as_ref()
-                            .unwrap()
-                            .send_event(event)
-                            .unwrap();
+                        let mut cf = self.configuration.borrow_mut();
+                        cf.color_flip = !cf.color_flip;
                     }
                 }
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyS),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyS),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -501,48 +428,33 @@ impl ApplicationHandler<ModelEvent> for Application {
                                 1.1
                             }
                         };
+
+                        let mut cf = self.configuration.borrow_mut();
                         cf.glyph_size = cf.glyph_size * modifier;
-                    }
-                    unsafe {
-                        let event = ModelEvent::Redraw;
-                        EVENT_LOOP_PROXY
-                            .as_ref()
-                            .unwrap()
-                            .send_event(event)
-                            .unwrap();
                     }
                 }
 
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyW),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyW),
                             state: ElementState::Pressed,
                             ..
                         },
                     ..
                 } => {
+                    let mut cf = self.configuration.borrow_mut();
                     if self.shift_pressed {
                         cf.light_color = [255.0, 255.0, 255.0, 1.0];
                     } else {
                         cf.light_color = [255.0, 0.0, 0.0, 1.0];
                     }
-                    unsafe {
-                        let event = ModelEvent::Redraw;
-                        EVENT_LOOP_PROXY
-                            .as_ref()
-                            .unwrap()
-                            .send_event(event)
-                            .unwrap();
-                    }
                 }
 
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyL),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyL),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -561,26 +473,20 @@ impl ApplicationHandler<ModelEvent> for Application {
                             1.1
                         }
                     };
+
+                    let mut cf = self.configuration.borrow_mut();
+
                     cf.light_location = [
                         cf.light_location[0] * modifier,
                         cf.light_location[1] * modifier,
                         cf.light_location[2] * modifier,
                     ];
-                    unsafe {
-                        let event = ModelEvent::Redraw;
-                        EVENT_LOOP_PROXY
-                            .as_ref()
-                            .unwrap()
-                            .send_event(event)
-                            .unwrap();
-                    }
                 }
 
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyI),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyI),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -599,29 +505,23 @@ impl ApplicationHandler<ModelEvent> for Application {
                             1.1
                         }
                     };
+
+                    let mut cf = self.configuration.borrow_mut();
                     cf.light_intensity = cf.light_intensity * modifier;
-                    unsafe {
-                        let event = ModelEvent::Redraw;
-                        EVENT_LOOP_PROXY
-                            .as_ref()
-                            .unwrap()
-                            .send_event(event)
-                            .unwrap();
-                    }
                 }
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyX),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyX),
                             state: ElementState::Pressed,
                             ..
                         },
                     ..
                 } => {
+                    let mut cf = self.configuration.borrow_mut();
+                    let mut update_config = false;
                     if self.alt_pressed && !self.ctrl_pressed && !self.shift_pressed {
                         {
-                            let mut cf = self.configuration.borrow_mut();
                             cf.x_interpolation = if cf.x_interpolation == InterpolationType::Linear
                             {
                                 InterpolationType::Log
@@ -629,17 +529,16 @@ impl ApplicationHandler<ModelEvent> for Application {
                                 InterpolationType::Linear
                             };
                         }
-                        state.update_config();
+                        update_config = true;
                     } else if self.alt_pressed && self.ctrl_pressed && !self.shift_pressed {
                         {
-                            let mut cf = self.configuration.borrow_mut();
                             cf.x_order = if cf.x_order == Order::Ascending {
                                 Order::Descending
                             } else {
                                 Order::Ascending
                             };
                         }
-                        state.update_config();
+                        update_config = true;
                     } else if self.ctrl_pressed && !self.shift_pressed {
                         state.move_camera("x_axis", 0.0);
                     } else if !self.ctrl_pressed {
@@ -650,27 +549,24 @@ impl ApplicationHandler<ModelEvent> for Application {
                         }
                         let x_color = self.color_wheel.get_color(self.x_color_index);
                         cf.x_axis_color = x_color;
-
-                        unsafe {
-                            let event = ModelEvent::Redraw;
-                            EVENT_LOOP_PROXY
-                                .as_ref()
-                                .unwrap()
-                                .send_event(event)
-                                .unwrap();
-                        }
+                    }
+                    drop(cf);
+                    if update_config {
+                        state.update_config();
                     }
                 }
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyY),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyY),
                             state: ElementState::Pressed,
                             ..
                         },
                     ..
                 } => {
+                    let mut update_config = false;
+                    let mut cf = self.configuration.borrow_mut();
+
                     if self.alt_pressed && !self.ctrl_pressed && !self.shift_pressed {
                         {
                             cf.y_interpolation = if cf.y_interpolation == InterpolationType::Linear
@@ -680,7 +576,7 @@ impl ApplicationHandler<ModelEvent> for Application {
                                 InterpolationType::Linear
                             };
                         }
-                        state.update_config();
+                        update_config = true;
                     } else if self.alt_pressed && self.ctrl_pressed && !self.shift_pressed {
                         {
                             cf.y_order = if cf.y_order == Order::Ascending {
@@ -690,7 +586,7 @@ impl ApplicationHandler<ModelEvent> for Application {
                             };
                         }
 
-                        state.update_config();
+                        update_config = true;
                     } else if self.ctrl_pressed && !self.shift_pressed && !self.alt_pressed {
                         state.move_camera("y_axis", 0.0);
                     } else if !self.ctrl_pressed {
@@ -701,26 +597,24 @@ impl ApplicationHandler<ModelEvent> for Application {
                         }
                         let y_color = self.color_wheel.get_color(self.y_color_index);
                         cf.y_axis_color = y_color;
-                        unsafe {
-                            let event = ModelEvent::Redraw;
-                            EVENT_LOOP_PROXY
-                                .as_ref()
-                                .unwrap()
-                                .send_event(event)
-                                .unwrap();
-                        }
+                    }
+                    drop(cf);
+                    if update_config {
+                        state.update_config();
                     }
                 }
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyZ),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyZ),
                             state: ElementState::Pressed,
                             ..
                         },
                     ..
                 } => {
+                    let mut update_config = false;
+                    let mut cf = self.configuration.borrow_mut();
+
                     if self.alt_pressed && !self.ctrl_pressed && !self.shift_pressed {
                         {
                             cf.z_interpolation = if cf.z_interpolation == InterpolationType::Linear
@@ -730,7 +624,7 @@ impl ApplicationHandler<ModelEvent> for Application {
                                 InterpolationType::Linear
                             };
                         }
-                        state.update_config();
+                        update_config = true;
                     } else if self.alt_pressed && self.ctrl_pressed && !self.shift_pressed {
                         {
                             cf.z_order = if cf.z_order == Order::Ascending {
@@ -739,7 +633,7 @@ impl ApplicationHandler<ModelEvent> for Application {
                                 Order::Ascending
                             };
                         }
-                        state.update_config();
+                        update_config = true;
                     } else if self.ctrl_pressed && !self.shift_pressed && !self.alt_pressed {
                         state.move_camera("z_axis", 0.0);
                     } else if !self.ctrl_pressed {
@@ -750,22 +644,17 @@ impl ApplicationHandler<ModelEvent> for Application {
                         }
                         let z_color = self.color_wheel.get_color(self.z_color_index);
                         cf.z_axis_color = z_color;
-                        unsafe {
-                            let event = ModelEvent::Redraw;
-                            EVENT_LOOP_PROXY
-                                .as_ref()
-                                .unwrap()
-                                .send_event(event)
-                                .unwrap();
-                        }
+                    }
+                    drop(cf);
+                    if update_config {
+                        state.update_config();
                     }
                 }
 
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyM),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyM),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -777,22 +666,14 @@ impl ApplicationHandler<ModelEvent> for Application {
                         self.max_color_index += 1;
                     }
                     let color = self.color_wheel.get_color(self.max_color_index);
+                    let mut cf = self.configuration.borrow_mut();
                     cf.max_color = color;
-                    unsafe {
-                        let event = ModelEvent::Redraw;
-                        EVENT_LOOP_PROXY
-                            .as_ref()
-                            .unwrap()
-                            .send_event(event)
-                            .unwrap();
-                    }
                 }
 
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyN),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyN),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -804,22 +685,14 @@ impl ApplicationHandler<ModelEvent> for Application {
                         self.min_color_index += 1;
                     }
                     let color = self.color_wheel.get_color(self.min_color_index);
+                    let mut cf = self.configuration.borrow_mut();
                     cf.min_color = color;
-                    unsafe {
-                        let event = ModelEvent::Redraw;
-                        EVENT_LOOP_PROXY
-                            .as_ref()
-                            .unwrap()
-                            .send_event(event)
-                            .unwrap();
-                    }
                 }
 
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyB),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyB),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -831,22 +704,14 @@ impl ApplicationHandler<ModelEvent> for Application {
                         self.background_color_index += 1;
                     }
                     let color = self.color_wheel.get_color(self.background_color_index);
+                    let mut cf = self.configuration.borrow_mut();
                     cf.background_color = color;
-                    unsafe {
-                        let event = ModelEvent::Redraw;
-                        EVENT_LOOP_PROXY
-                            .as_ref()
-                            .unwrap()
-                            .send_event(event)
-                            .unwrap();
-                    }
                 }
 
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::KeyG),
+                            physical_key: PhysicalKey::Code(KeyCode::KeyG),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -865,26 +730,18 @@ impl ApplicationHandler<ModelEvent> for Application {
                             1.1
                         }
                     };
+                    let mut cf = self.configuration.borrow_mut();
                     cf.model_origin = [
                         cf.model_origin[0] * modifier,
                         cf.model_origin[1] * modifier,
                         cf.model_origin[2] * modifier,
                     ];
-                    unsafe {
-                        let event = ModelEvent::Redraw;
-                        EVENT_LOOP_PROXY
-                            .as_ref()
-                            .unwrap()
-                            .send_event(event)
-                            .unwrap();
-                    }
                 }
 
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::ArrowUp),
+                            physical_key: PhysicalKey::Code(KeyCode::ArrowUp),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -901,8 +758,7 @@ impl ApplicationHandler<ModelEvent> for Application {
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::ArrowDown),
+                            physical_key: PhysicalKey::Code(KeyCode::ArrowDown),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -919,8 +775,7 @@ impl ApplicationHandler<ModelEvent> for Application {
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::ArrowLeft),
+                            physical_key: PhysicalKey::Code(KeyCode::ArrowLeft),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -937,8 +792,7 @@ impl ApplicationHandler<ModelEvent> for Application {
                 WindowEvent::KeyboardInput {
                     event:
                         KeyEvent {
-                            physical_key:
-                                PhysicalKey::Code(KeyCode::ArrowRight),
+                            physical_key: PhysicalKey::Code(KeyCode::ArrowRight),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -976,19 +830,93 @@ impl ApplicationHandler<ModelEvent> for Application {
                         Err(e) => eprintln!("{:?}", e),
                     }
                 }
-                _ => {}
+                WindowEvent::MouseInput {
+                    state: element_state,
+                    button,
+                    ..
+                } => {
+                    let new_event = DeviceEvent::Button {
+                        state: element_state,
+                        button: match button {
+                            winit::event::MouseButton::Left => 1,
+                            _ => 0,
+                        },
+                    };
+                    if state.input(&new_event, self.shift_pressed) {
+                        match state.render() {
+                            Ok(_) => {}
+                            // Reconfigure the surface if lost
+                            Err(wgpu::SurfaceError::Lost) => {
+                                let size = state.size().clone();
+                                state.resize(size)
+                            }
+                            // The system is out of memory, we should probably quit
+                            Err(wgpu::SurfaceError::OutOfMemory) => event_loop.exit(),
+                            // All other errors (Outdated, Timeout) should be resolved by the next frame
+                            Err(e) => eprintln!("{:?}", e),
+                        }
+                    }
+                    redraw = false;
+                }
+                WindowEvent::MouseWheel { delta,..} => {
+
+                    let new_event = DeviceEvent::MouseWheel { delta };
+                    if state.input(&new_event, self.shift_pressed) {
+                        match state.render() {
+                            Ok(_) => {}
+                            // Reconfigure the surface if lost
+                            Err(wgpu::SurfaceError::Lost) => {
+                                let size = state.size().clone();
+                                state.resize(size)
+                            }
+                            // The system is out of memory, we should probably quit
+                            Err(wgpu::SurfaceError::OutOfMemory) => event_loop.exit(),
+                            // All other errors (Outdated, Timeout) should be resolved by the next frame
+                            Err(e) => eprintln!("{:?}", e),
+                        }
+                    }
+                    redraw = false;
+                }
+                _ => {
+                    redraw = false;
+                }
+            }
+        }
+        if redraw {
+            unsafe {
+                let event = ModelEvent::Redraw;
+                EVENT_LOOP_PROXY
+                    .as_ref()
+                    .unwrap()
+                    .send_event(event)
+                    .unwrap();
             }
         }
     }
 
     fn device_event(
         &mut self,
-        _event_loop: &ActiveEventLoop,
+        event_loop: &ActiveEventLoop,
         _device_id: DeviceId,
         event: DeviceEvent,
     ) {
+        //eprintln!("Device Event: {:?}", event);
+
         let state = self.state.as_mut().unwrap();
-        state.input(&event, self.shift_pressed);
+        if state.input(&event, self.shift_pressed) {
+            match state.render() {
+                Ok(_) => {}
+                // Reconfigure the surface if lost
+                Err(wgpu::SurfaceError::Lost) => {
+                    let size = state.size().clone();
+                    state.resize(size)
+                }
+                // The system is out of memory, we should probably quit
+                Err(wgpu::SurfaceError::OutOfMemory) => event_loop.exit(),
+                // All other errors (Outdated, Timeout) should be resolved by the next frame
+                Err(e) => eprintln!("{:?}", e),
+            }
+        }
     }
 
     fn user_event(&mut self, event_loop: &ActiveEventLoop, event: ModelEvent) {
@@ -1515,9 +1443,7 @@ impl ModelRunner {
     pub async fn run(&self, width: u32, height: u32) {
         self.init_logger();
 
-        let el = EventLoop::<ModelEvent>::with_user_event()
-            .build()
-            .unwrap();
+        let el = EventLoop::<ModelEvent>::with_user_event().build().unwrap();
 
         //        let this_window_id = window.id();
         //self.is_running = true;

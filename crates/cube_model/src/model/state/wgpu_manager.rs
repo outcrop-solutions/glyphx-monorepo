@@ -1,14 +1,14 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, rc::Rc, sync::Arc};
 use wgpu::{
-    Adapter, Backends, Device, DeviceDescriptor, Features, Instance, InstanceDescriptor, Limits,
+    Adapter, Backends, Device, DeviceDescriptor, Features, Instance, InstanceDescriptor, InstanceFlags, Limits,
     PowerPreference, Queue, RequestAdapterOptions, Surface, SurfaceConfiguration, TextureUsages,
 };
 use winit::{dpi::PhysicalSize, window::Window};
 
 pub struct WgpuManager {
-    window: Window,
+    window: Arc<Window>,
     size: PhysicalSize<u32>,
-    surface: Surface,
+    surface: Surface<'static>,
     device: Rc<RefCell<Device>>,
     queue: Queue,
     config: SurfaceConfiguration,
@@ -17,7 +17,8 @@ pub struct WgpuManager {
 impl WgpuManager {
     pub async fn new(window: Window) -> Self {
         let size = window.inner_size();
-        let (surface, adapter) = Self::init_wgpu(&window).await;
+        let window_arc = Arc::new(window);
+        let (surface, adapter) = Self::init_wgpu(&window_arc).await;
         let (device, queue) = Self::init_device(&adapter).await;
 
         let config = Self::configure_surface(&surface, adapter, size, &device);
@@ -26,7 +27,7 @@ impl WgpuManager {
         //manager, etc
         let device = Rc::new(RefCell::new(device));
         WgpuManager {
-            window,
+            window : window_arc,
             size,
             surface,
             device,
@@ -72,12 +73,12 @@ impl WgpuManager {
         self.surface.configure(&d, self.config());
     }
 
-    async fn init_wgpu(window: &Window) -> (Surface, Adapter) {
+    async fn init_wgpu(arc_window: &Arc<Window>) -> (Surface<'static>, Adapter) {
         // The instance is a handle to our GPU api (WGPU)
         // Backends::all => Vulkan + Metal + DX12 + Browser WebGPU
         let instance = Instance::new(InstanceDescriptor {
             backends: Backends::all(),
-            dx12_shader_compiler: Default::default(),
+            ..Default::default()
         });
 
         // The Surface is our connection to the window on which we are drawing.
@@ -85,7 +86,7 @@ impl WgpuManager {
         //
         // The surface needs to live as long as the window that created it.
         // State owns the window so this should be safe.
-        let surface = unsafe { instance.create_surface(window) }.unwrap();
+        let surface =  instance.create_surface(arc_window.clone()).unwrap();
 
         // The adapter is a handle to a physical GPU device.
         let adapter = instance
@@ -106,15 +107,16 @@ impl WgpuManager {
         let (device, queue) = adapter
             .request_device(
                 &DeviceDescriptor {
-                    features: Features::default(),
+                    required_features: Features::default(),
                     // WebGL doesn't support all of wgpu's features, so if
                     // we're building for the web we'll have to disable some.
-                    limits: if cfg!(target_arch = "wasm32") {
+                    required_limits: if cfg!(target_arch = "wasm32") {
                         Limits::downlevel_webgl2_defaults()
                     } else {
                         Limits::default()
                     },
                     label: None,
+                    ..Default::default()
                 },
                 None, // Trace path
             )
@@ -148,6 +150,7 @@ impl WgpuManager {
             present_mode: surface_caps.present_modes[0],
             alpha_mode: surface_caps.alpha_modes[0],
             view_formats: vec![],
+            desired_maximum_frame_latency: 2
         };
         //and apply it to our surface
         surface.configure(device, &config);

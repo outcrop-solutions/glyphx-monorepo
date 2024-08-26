@@ -58,16 +58,12 @@ use model_common::Stats;
 use glam::Vec3;
 use smaa::*;
 use std::{cell::RefCell, rc::Rc};
-use wgpu::{
-     Device,  Maintain, MapMode, 
-    SurfaceError, TextureViewDescriptor,
-};
+use wgpu::{Device, Maintain, MapMode, SurfaceError, TextureViewDescriptor};
 use winit::{
     dpi::{PhysicalPosition, PhysicalSize},
     event::DeviceEvent,
     window::Window,
 };
-
 
 pub struct State {
     wgpu_manager: Rc<RefCell<WgpuManager>>,
@@ -222,11 +218,11 @@ impl State {
                     self.cursor_position.y as u32,
                     is_shift_pressed,
                 );
-                true
+                true 
             }
             MouseEvent::MouseScroll => true,
-            MouseEvent::Handled => true,
-            MouseEvent::MouseDown => true,
+            MouseEvent::Handled => false,
+            MouseEvent::MouseDown => false,
             MouseEvent::Unhandled => false,
         };
         handled
@@ -283,27 +279,33 @@ impl State {
             "up" => {
                 let mut cm = cm.as_ref().borrow_mut();
                 cm.add_y_offset(amount);
+                self.update(&mut cm);
             }
             "down" => {
                 let mut cm = cm.as_ref().borrow_mut();
                 cm.add_y_offset(-1.0 * amount);
+                self.update(&mut cm);
             }
             "left" => match self.orientation_manager.forward_face() {
                 Face::Front => {
                     let mut cm = cm.as_ref().borrow_mut();
                     cm.add_x_offset(-1.0 * amount);
+                    self.update(&mut cm);
                 }
                 Face::Right => {
                     let mut cm = cm.as_ref().borrow_mut();
                     cm.add_z_offset(amount);
+                    self.update(&mut cm);
                 }
                 Face::Back => {
                     let mut cm = cm.as_ref().borrow_mut();
                     cm.add_x_offset(amount);
+                    self.update(&mut cm);
                 }
                 Face::Left => {
                     let mut cm = cm.as_ref().borrow_mut();
                     cm.add_z_offset(-1.0 * amount);
+                    self.update(&mut cm);
                 }
             },
 
@@ -311,18 +313,22 @@ impl State {
                 Face::Front => {
                     let mut cm = cm.as_ref().borrow_mut();
                     cm.add_x_offset(amount);
+                    self.update(&mut cm);
                 }
                 Face::Right => {
                     let mut cm = cm.as_ref().borrow_mut();
                     cm.add_z_offset(-1.0 * amount);
+                    self.update(&mut cm);
                 }
                 Face::Back => {
                     let mut cm = cm.as_ref().borrow_mut();
                     cm.add_x_offset(-1.0 * amount);
+                    self.update(&mut cm);
                 }
                 Face::Left => {
                     let mut cm = cm.as_ref().borrow_mut();
                     cm.add_z_offset(amount);
+                    self.update(&mut cm);
                 }
             },
             "x_axis" => {
@@ -333,6 +339,7 @@ impl State {
                 cm.set_yaw(3.14159);
                 cm.set_pitch(0.0);
                 self.update_z_order_and_rank(&mut cm);
+                self.update(&mut cm);
             }
 
             "y_axis" => {
@@ -341,6 +348,7 @@ impl State {
                 cm.set_yaw(4.71239);
                 cm.set_pitch(0.0);
                 self.update_z_order_and_rank(&mut cm);
+                self.update(&mut cm);
             }
 
             "z_axis" => {
@@ -349,6 +357,7 @@ impl State {
                 cm.set_yaw(0.0);
                 cm.set_pitch(1.5708);
                 self.update_z_order_and_rank(&mut cm);
+                self.update(&mut cm);
             }
             _ => (),
         };
@@ -392,7 +401,7 @@ impl State {
         self.buffer_manager
             .borrow_mut()
             .update_glyph_uniform_buffer(
-                &self.model_configuration.as_ref().borrow(),
+                &self.model_configuration.borrow(),
                 self.selected_glyphs.len() > 0,
             );
 

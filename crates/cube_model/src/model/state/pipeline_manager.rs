@@ -10,7 +10,7 @@ use wgpu::{
     util::{BufferInitDescriptor, DeviceExt},
     Buffer, BufferAddress, BufferDescriptor, BufferUsages, Color, CommandBuffer,
     CommandEncoderDescriptor, Device, Extent3d, ImageCopyBuffer, ImageCopyTexture, ImageDataLayout,
-    LoadOp, Operations, Origin3d, RenderPassColorAttachment, SurfaceConfiguration, Texture,
+    LoadOp, Operations, Origin3d, RenderPassColorAttachment, RenderPassDescriptor, StoreOp,  SurfaceConfiguration, Texture,
     TextureAspect, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages, TextureView,
     TextureViewDescriptor, COPY_BYTES_PER_ROW_ALIGNMENT,
 };
@@ -186,17 +186,19 @@ impl PipelineManager {
             a: background_color[3] as f64,
         };
 
-        let render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+        let render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
             label: Some("Render Pass"),
             color_attachments: &[Some(RenderPassColorAttachment {
                 view: texture_view,
                 resolve_target: None,
                 ops: Operations {
                     load: LoadOp::Clear(color),
-                    store: true,
+                    store: StoreOp::Store,
                 },
             })],
             depth_stencil_attachment: None,
+            timestamp_writes: None,
+            occlusion_query_set: None,
         });
         drop(render_pass);
 

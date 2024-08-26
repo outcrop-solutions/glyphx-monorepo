@@ -32,10 +32,10 @@ pollster = "0.3"
 rand = "0.8"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.96"
-smaa = "0.10.0"
+smaa = "0.15.0"
 statrs = "0.16.0" 
 winit = "0.30.5"
-wgpu = "0.16"
+wgpu = "22.1.0"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_error_panic_hook = "0.1.6"
