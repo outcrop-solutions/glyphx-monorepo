@@ -14,7 +14,7 @@ fn secret_bound_singleton() {
     let db = instance.get_database();
     assert!(db.is_ok());
     let db = db.unwrap();
-    let results = db.list_collection_names(None);
+    let results = db.list_collection_names().run();
     assert!(results.is_ok());
     let results = results.unwrap();
     let user_collection_exists = results.iter().any(|x| x == "users");

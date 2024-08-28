@@ -9,7 +9,7 @@ test = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 async-trait = "0.1.68"
-bson = "2.7.0"
+bson = "2.11.0"
 cool_asserts = "2.0.3"
 glyphx_core = { path = "../core", features = ["aws", "macros"] }
 glyphx_database = { path = "../database" }

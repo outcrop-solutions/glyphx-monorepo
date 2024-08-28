@@ -49,7 +49,7 @@ impl MongoDbConnectionOps for MongoDbConnectionOpsImpl {
 
         }
         let database = &database.as_ref().unwrap();
-        let check_results = database.list_collection_names(None).await;
+        let check_results = database.list_collection_names().await;
         if check_results.is_err() {
             let err = check_results.err().unwrap();
             let err = *err.kind;

@@ -12,9 +12,9 @@ test = true
 async-recursion = "1.0.4"
 async-trait = "0.1.68"
 aws-config = { version = "1.5.5", features = ["behavior-version-latest"] }
-aws-sdk-athena = "1.41.0"
-aws-sdk-s3 = "1.46.0"
-aws-sdk-secretsmanager = "1.43.0"
+aws-sdk-athena = { version = "1.41.0", features = ["behavior-version-latest"] }
+aws-sdk-s3 = { version = "1.46.0", features = ["behavior-version-latest"] }
+aws-sdk-secretsmanager = { version = "1.43.0", features = ["behavior-version-latest"] }
 aws-smithy-async = "1.2.1"
 aws-smithy-http = "0.60.0"
 aws-smithy-types = "1.2.2"

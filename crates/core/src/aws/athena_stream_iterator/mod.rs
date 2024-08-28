@@ -87,6 +87,10 @@ impl AthenaStreamIterator {
         let result_set = query_output_results.result_set.as_ref().unwrap();
         //there are always rows, but they will be emptry if we have exhausted the result set.
         //this is the only to reliably check that we are at the end of the results.
+        if result_set.rows.is_none() {
+            self.exhausted = true;
+            return Ok(None);
+        }
         let rows = result_set.rows.as_ref().unwrap();
         if rows.is_empty() {
             self.exhausted = true;
