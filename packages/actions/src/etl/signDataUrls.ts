@@ -1,15 +1,16 @@
 'use server';
-import { error, constants } from 'core';
-import { s3Connection } from '../../../business/src/lib';
-import { hashFiles, hashPayload, oldHashFunction } from 'business/src/util/hashFunctions';
-import { projectService, stateService } from 'business';
-import { S3Manager } from 'core/src/aws';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth';
-import { signUrls } from './signUrls';
-import { ActionError } from 'core/src/error';
+import {error, constants} from 'core';
+import {s3Connection} from '../../../business/src/lib';
+import {hashFiles, hashPayload, oldHashFunction} from 'business/src/util/hashFunctions';
+import {projectService, stateService} from 'business';
+import {S3Manager} from 'core/src/aws';
+import {getServerSession} from 'next-auth';
+import {authOptions} from '../auth';
+import {signUrls} from './signUrls';
+import {ActionError} from 'core/src/error';
 
 /**
+ * NOTE: This is currently failing because
  * Created signed url to upload files
  * @param project
  * @param payloadHash
@@ -23,10 +24,10 @@ export const signDataUrls = async (projectId: string, stateId: string = '') => {
       const workspaceId = project?.workspace.id;
       // exit early
       if (!project) {
-        throw new ActionError('no project found', 'signDataUrls', { projectId });
+        throw new ActionError('no project found', 'signDataUrls', {projectId});
       }
       if (!workspaceId) {
-        throw new ActionError('no workspace associated with project found', 'signDataUrls', { projectId });
+        throw new ActionError('no workspace associated with project found', 'signDataUrls', {projectId});
       }
       // init S3 client
       await s3Connection.init();
@@ -56,6 +57,7 @@ export const signDataUrls = async (projectId: string, stateId: string = '') => {
           });
         }
       } else {
+        // this hash is calculated after the project has included the state, and so is different than the one calculated in glyphengine
         const newHash = hashPayload(hashFiles(project.files), project);
         const checkNewFile = `client/${workspaceId}/${projectId}/output/${newHash}.sgc`;
         const newFileExists = await s3Manager.fileExists(checkNewFile);
@@ -85,8 +87,8 @@ export const signDataUrls = async (projectId: string, stateId: string = '') => {
       throw new Error('Not Authorized');
     }
   } catch (err) {
-    const e = new error.ActionError('An unexpected error occurred running sign data urls', 'etl', { projectId }, err);
+    const e = new error.ActionError('An unexpected error occurred running sign data urls', 'etl', {projectId}, err);
     e.publish('etl', constants.ERROR_SEVERITY.ERROR);
-    return { error: e.message };
+    return {error: e.message};
   }
 };

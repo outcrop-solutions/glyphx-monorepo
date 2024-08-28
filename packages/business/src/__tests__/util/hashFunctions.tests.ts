@@ -1,9 +1,9 @@
 import 'mocha';
-import { assert } from 'chai';
+import {assert} from 'chai';
 import MD5 from 'crypto-js/md5';
-import { createSandbox } from 'sinon';
-import { hashFiles, hashPayload, oldHashFunction, removePrefix } from '../../util/hashFunctions';
-import { databaseTypes, fileIngestionTypes, webTypes } from 'types';
+import {createSandbox} from 'sinon';
+import {hashFiles, hashPayload, oldHashFunction, removePrefix} from '../../util/hashFunctions';
+import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
 import {
   file1Clean,
   file1Dirty,
@@ -187,7 +187,7 @@ describe('#lib/hashFunctions', () => {
           assert.strictEqual(payloadHash, oldPayloadHash);
           assert.fail();
         }
-      } catch (error) { }
+      } catch (error) {}
     });
     it('will create the same hash regardless of extraneous properties in the fileStats array members', async () => {
       try {
@@ -317,6 +317,353 @@ describe('#lib/hashFunctions', () => {
         const hash1 = hashPayload(hashFiles(project1.files), project5);
         // @ts-ignore
         const hash2 = hashPayload(hashFiles(project2.files), project8);
+        assert.notEqual(hash1, hash2);
+      } catch (error) {
+        assert.fail();
+      }
+    });
+
+    it.only('checking the filter is included in the payload hash', async () => {
+      try {
+        const project = {
+          id: '66c781bf2ad1a468ec1446ac',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          name: '8_22_requirement_validation_time',
+          docId: 'pTUye-aPBiWzuE6YqfzJO',
+          description: '',
+          currentVersion: 0,
+          workspace: '66b66a4faa83b6d2b3deb8f3',
+          state: {
+            properties: {
+              X: {
+                axis: 'X',
+                accepts: 'COLUMN_DRAG',
+                key: 'mml_type',
+                dataType: 1,
+                interpolation: 'LIN',
+                direction: 'ASC',
+                filter: {
+                  keywords: ['MATERIAL'],
+                },
+              },
+              Y: {
+                axis: 'Y',
+                accepts: 'COLUMN_DRAG',
+                key: 'date_requested',
+                dataType: 3,
+                interpolation: 'LIN',
+                direction: 'ASC',
+                filter: {
+                  keywords: [],
+                },
+                dateGrouping: 'qualified_day_of_year',
+              },
+              Z: {
+                axis: 'Z',
+                accepts: 'COLUMN_DRAG',
+                key: 'requirement_validation_timedifference_in_days_created_to_requested',
+                dataType: 0,
+                interpolation: 'LIN',
+                direction: 'ASC',
+                filter: {
+                  min: 0,
+                  max: 3,
+                },
+                accumulatorType: 'AVG',
+              },
+              A: {
+                axis: 'A',
+                accepts: 'COLUMN_DRAG',
+                key: 'Column 1',
+                dataType: 0,
+                interpolation: 'LIN',
+                direction: 'ASC',
+                filter: {
+                  min: 0,
+                  max: 0,
+                },
+              },
+              B: {
+                axis: 'B',
+                accepts: 'COLUMN_DRAG',
+                key: 'Column 2',
+                dataType: 0,
+                interpolation: 'LIN',
+                direction: 'ASC',
+                filter: {
+                  min: 0,
+                  max: 0,
+                },
+              },
+              C: {
+                axis: 'C',
+                accepts: 'COLUMN_DRAG',
+                key: 'Column 3',
+                dataType: 0,
+                interpolation: 'LIN',
+                direction: 'ASC',
+                filter: {
+                  min: 0,
+                  max: 0,
+                },
+              },
+            },
+          },
+          stateHistory: ['66c78221f96dc936be9901f2', '66cf226fec20160bc7386a1e'],
+          members: ['66c781bf2ad1a468ec1446c1'],
+          tags: [],
+          files: [
+            {
+              fileName: 'cwt_jlt_8_22_mod_2.csv',
+              tableName: 'cwt_jlt_8_22_mod_2',
+              numberOfRows: 3025,
+              numberOfColumns: 13,
+              columns: [
+                {
+                  name: 'glyphx_id__',
+                  fieldType: 2,
+                },
+                {
+                  name: 's_no',
+                  fieldType: 0,
+                },
+                {
+                  name: 'mml_type',
+                  fieldType: 1,
+                  longestString: 18,
+                },
+                {
+                  name: 'date_created',
+                  fieldType: 3,
+                },
+                {
+                  name: 'date_requested',
+                  fieldType: 3,
+                },
+                {
+                  name: 'xdate_ordered',
+                  fieldType: 1,
+                  longestString: 9,
+                },
+                {
+                  name: 'date_desired_ep',
+                  fieldType: 3,
+                },
+                {
+                  name: 'xdate_rcvd',
+                  fieldType: 1,
+                  longestString: 9,
+                },
+                {
+                  name: 'total_procurement_time_requirement_created_to_delivery',
+                  fieldType: 0,
+                },
+                {
+                  name: 'delivery_performance_difference_in_days_between_delivered_and_desired_date',
+                  fieldType: 0,
+                },
+                {
+                  name: 'requirement_validation_timedifference_in_days_created_to_requested',
+                  fieldType: 0,
+                },
+                {
+                  name: 'order_processing_time_difference_b_w_requested_and_ordered',
+                  fieldType: 0,
+                },
+                {
+                  name: 'order_fulfillment_time_difference_b_w_ordered_and_received',
+                  fieldType: 0,
+                },
+                {
+                  name: 'internal_delivery_time_difference_b_w_received_and_delivered',
+                  fieldType: 0,
+                },
+              ],
+              fileSize: 1772688,
+            },
+          ],
+          viewName: 'glyphx_66b66a4faa83b6d2b3deb8f3_66c781bf2ad1a468ec1446ac_view',
+          aspectRatio: {
+            height: 1376,
+            width: 1722,
+            id: '66cf2270ec20160bc7386a35',
+          },
+          imageHash: '',
+        };
+
+        const project2 = {
+          id: '66c781bf2ad1a468ec1446ac',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          name: '8_22_requirement_validation_time',
+          docId: 'pTUye-aPBiWzuE6YqfzJO',
+          description: '',
+          currentVersion: 0,
+          workspace: '66b66a4faa83b6d2b3deb8f3',
+          state: {
+            properties: {
+              X: {
+                axis: 'X',
+                accepts: 'COLUMN_DRAG',
+                key: 'mml_type',
+                dataType: 1,
+                interpolation: 'LIN',
+                direction: 'ASC',
+                filter: {
+                  keywords: [],
+                },
+              },
+              Y: {
+                axis: 'Y',
+                accepts: 'COLUMN_DRAG',
+                key: 'date_requested',
+                dataType: 3,
+                interpolation: 'LIN',
+                direction: 'ASC',
+                filter: {
+                  keywords: [],
+                },
+                dateGrouping: 'qualified_day_of_year',
+              },
+              Z: {
+                axis: 'Z',
+                accepts: 'COLUMN_DRAG',
+                key: 'requirement_validation_timedifference_in_days_created_to_requested',
+                dataType: 0,
+                interpolation: 'LIN',
+                direction: 'ASC',
+                filter: {
+                  min: 0,
+                  max: 3,
+                },
+                accumulatorType: 'AVG',
+              },
+              A: {
+                axis: 'A',
+                accepts: 'COLUMN_DRAG',
+                key: 'Column 1',
+                dataType: 0,
+                interpolation: 'LIN',
+                direction: 'ASC',
+                filter: {
+                  min: 0,
+                  max: 0,
+                },
+              },
+              B: {
+                axis: 'B',
+                accepts: 'COLUMN_DRAG',
+                key: 'Column 2',
+                dataType: 0,
+                interpolation: 'LIN',
+                direction: 'ASC',
+                filter: {
+                  min: 0,
+                  max: 0,
+                },
+              },
+              C: {
+                axis: 'C',
+                accepts: 'COLUMN_DRAG',
+                key: 'Column 3',
+                dataType: 0,
+                interpolation: 'LIN',
+                direction: 'ASC',
+                filter: {
+                  min: 0,
+                  max: 0,
+                },
+              },
+            },
+          },
+          stateHistory: ['66c78221f96dc936be9901f2', '66cf226fec20160bc7386a1e'],
+          members: ['66c781bf2ad1a468ec1446c1'],
+          tags: [],
+          files: [
+            {
+              fileName: 'cwt_jlt_8_22_mod_2.csv',
+              tableName: 'cwt_jlt_8_22_mod_2',
+              numberOfRows: 3025,
+              numberOfColumns: 13,
+              columns: [
+                {
+                  name: 'glyphx_id__',
+                  fieldType: 2,
+                },
+                {
+                  name: 's_no',
+                  fieldType: 0,
+                },
+                {
+                  name: 'mml_type',
+                  fieldType: 1,
+                  longestString: 18,
+                },
+                {
+                  name: 'date_created',
+                  fieldType: 3,
+                },
+                {
+                  name: 'date_requested',
+                  fieldType: 3,
+                },
+                {
+                  name: 'xdate_ordered',
+                  fieldType: 1,
+                  longestString: 9,
+                },
+                {
+                  name: 'date_desired_ep',
+                  fieldType: 3,
+                },
+                {
+                  name: 'xdate_rcvd',
+                  fieldType: 1,
+                  longestString: 9,
+                },
+                {
+                  name: 'total_procurement_time_requirement_created_to_delivery',
+                  fieldType: 0,
+                },
+                {
+                  name: 'delivery_performance_difference_in_days_between_delivered_and_desired_date',
+                  fieldType: 0,
+                },
+                {
+                  name: 'requirement_validation_timedifference_in_days_created_to_requested',
+                  fieldType: 0,
+                },
+                {
+                  name: 'order_processing_time_difference_b_w_requested_and_ordered',
+                  fieldType: 0,
+                },
+                {
+                  name: 'order_fulfillment_time_difference_b_w_ordered_and_received',
+                  fieldType: 0,
+                },
+                {
+                  name: 'internal_delivery_time_difference_b_w_received_and_delivered',
+                  fieldType: 0,
+                },
+              ],
+              fileSize: 1772688,
+            },
+          ],
+          viewName: 'glyphx_66b66a4faa83b6d2b3deb8f3_66c781bf2ad1a468ec1446ac_view',
+          aspectRatio: {
+            height: 1376,
+            width: 1722,
+            id: '66cf2270ec20160bc7386a35',
+          },
+          imageHash: '',
+        };
+
+        const hash1 = hashPayload(hashFiles(project.files), project as unknown as databaseTypes.IProject);
+        const hash2 = hashPayload(hashFiles(project2.files), project2 as unknown as databaseTypes.IProject);
+
+        assert.isOk(hash1);
+        assert.isOk(hash2);
         assert.notEqual(hash1, hash2);
       } catch (error) {
         assert.fail();

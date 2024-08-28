@@ -1,10 +1,10 @@
 'use client';
 import produce from 'immer';
-import { databaseTypes } from 'types';
-import { WritableDraft } from 'immer/dist/internal';
-import { _createOpenProject } from 'lib/client/mutations';
-import { glyphEngine, signDataUrls } from 'actions';
-import { callDownloadModel } from './callDownloadModel';
+import {databaseTypes} from 'types';
+import {WritableDraft} from 'immer/dist/internal';
+import {_createOpenProject} from 'lib/client/mutations';
+import {glyphEngine, signDataUrls} from 'actions';
+import {callDownloadModel} from './callDownloadModel';
 
 export const callCreateModel = async ({
   project,
@@ -42,8 +42,8 @@ export const callCreateModel = async ({
     // create model
     const retval = await glyphEngine(cleanProject);
     //  download it
-    if (!retval?.error) {
-      console.log('called download model in callCreateModel')
+    if (retval?.project) {
+      console.log('called download model in callCreateModel');
       await callDownloadModel({
         project,
         session,
@@ -70,6 +70,6 @@ export const callCreateModel = async ({
       setCamera({});
     }
   } catch (error) {
-    console.log({ error });
+    console.log({error});
   }
 };
