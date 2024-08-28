@@ -20,6 +20,7 @@ export const signDataUrls = async (projectId: string, stateId: string = '') => {
   try {
     const session = await getServerSession(authOptions);
     if (session) {
+      // the question is whether this project has the filter included or not, as it forms the basis - id does
       const project = await projectService.getProject(projectId);
       const workspaceId = project?.workspace.id;
       // exit early

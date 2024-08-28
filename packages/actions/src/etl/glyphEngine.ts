@@ -28,7 +28,11 @@ export const glyphEngine = async (project) => {
         return {error: 'Invalid Payload'};
       } else {
         const properties = project.state.properties;
-        const payloadHash = hashPayload(hashFiles(project.files), project);
+
+        // (this no longer happens anywhere else)
+        const updatedProject = await projectService.updateProjectState(project.id, project.state);
+        // THIS PAYLOAD HASH ENDS UP IN S3, it is currently not seeing the state with the included filter, it used to run before the project is updated
+        const payloadHash = hashPayload(hashFiles(updatedProject.files), updatedProject);
         const payload = {
           model_id: project.id,
           payload_hash: payloadHash,
@@ -99,7 +103,6 @@ export const glyphEngine = async (project) => {
 
         // process glyph engine
         await glyphEngine.process(data);
-        const updatedProject = await projectService.updateProjectState(project.id, project.state);
 
         await activityLogService.createLog({
           actorId: session?.user?.id!,
