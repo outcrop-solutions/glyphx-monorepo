@@ -47,9 +47,9 @@ fn convert_data_type_to_legal_type(input: &str) -> LegalDataTypes {
 ///`metadata` - A ResultSetMetadata struct that contains information about the columns returned from Athena.
 fn get_column_info(metadata: &ResultSetMetadata) -> Vec<ColumnInformation> {
     let mut column_information: Vec<ColumnInformation> = Vec::new();
-    for column in metadata.column_info().unwrap() {
-        let name = column.name().unwrap();
-        let data_type = column.r#type().unwrap();
+    for column in metadata.column_info() {
+        let name = column.name();
+        let data_type = column.r#type();
         let nullable = match column.nullable().unwrap() {
             ColumnNullable::Nullable => true,
             _ => false,
@@ -178,17 +178,17 @@ pub fn convert_to_json(result_set: &ResultSet, includes_header_row: Option<bool>
     let column_information = get_column_info(&metadata);
     let mut rows: Vec<Value> = Vec::new();
     let mut first = true;
-    if result_set.rows().is_none(){
+    if result_set.rows().is_empty() {
         return Value::Null;
     }
-    for row in result_set.rows().unwrap() {
+    for row in result_set.rows() {
         if first && includes_header_row {
             first = false;
             continue;
         }
         let mut key_values: Map<String, Value> = Map::new();
         let mut column_num = 0;
-        for column in row.data().unwrap() {
+        for column in row.data() {
             let column_value = column.var_char_value();
             let column_information = &column_information[column_num];
             let column_name = &column_information.name;
@@ -370,12 +370,12 @@ mod get_column_info {
                     .name("col1".to_string())
                     .r#type("varchar".to_string())
                     .nullable(ColumnNullable::Nullable)
-                    .build(),
+                    .build().unwrap(),
                 ColumnInfo::builder()
                     .name("col2".to_string())
                     .r#type("bigint".to_string())
                     .nullable(ColumnNullable::NotNull)
-                    .build(),
+                    .build().unwrap(),
             ]))
             .build();
 
@@ -631,12 +631,12 @@ mod convert_to_json{
                     .name("col1".to_string())
                     .r#type("varchar".to_string())
                     .nullable(ColumnNullable::Nullable)
-                    .build(),
+                    .build().unwrap(),
                 ColumnInfo::builder()
                     .name("col2".to_string())
                     .r#type("bigint".to_string())
                     .nullable(ColumnNullable::NotNull)
-                    .build(),
+                    .build().unwrap(),
             ]))
             .build();
 
@@ -694,12 +694,12 @@ mod convert_to_json{
                     .name("col1".to_string())
                     .r#type("varchar".to_string())
                     .nullable(ColumnNullable::Nullable)
-                    .build(),
+                    .build().unwrap(),
                 ColumnInfo::builder()
                     .name("col2".to_string())
                     .r#type("bigint".to_string())
                     .nullable(ColumnNullable::NotNull)
-                    .build(),
+                    .build().unwrap(),
             ]))
             .build();
 
@@ -748,12 +748,12 @@ mod convert_to_json{
                     .name("col1".to_string())
                     .r#type("varchar".to_string())
                     .nullable(ColumnNullable::Nullable)
-                    .build(),
+                    .build().unwrap(),
                 ColumnInfo::builder()
                     .name("col2".to_string())
                     .r#type("bigint".to_string())
                     .nullable(ColumnNullable::NotNull)
-                    .build(),
+                    .build().unwrap(),
             ]))
             .build();
 

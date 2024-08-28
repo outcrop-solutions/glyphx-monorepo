@@ -200,7 +200,7 @@ impl S3ManagerOps for S3ManagerOpsImpl {
         let res = res.send().await;
         match res {
             Ok(result) => {
-                let truncated = result.is_truncated();
+                let truncated = result.is_truncated().unwrap_or(false);
                 let mut keys = Vec::new();
                 if let Some(contents) = result.contents {
                     for content in contents {
@@ -269,7 +269,7 @@ impl S3ManagerOps for S3ManagerOpsImpl {
             .presigned(PresigningConfig::expires_in(expires_in).unwrap())
             .await;
         match result {
-            Ok(request) => Ok(request.to_http_request(String::from("")).unwrap()),
+            Ok(request) => Ok(request.into_http_02x_request(String::from(""))),
             Err(e) => Err(e),
         }
     }
@@ -640,7 +640,7 @@ impl S3Manager {
         } else {
             let info = head_result.unwrap();
             let dt = info.last_modified().unwrap();
-            let size = info.content_length();
+            let size = info.content_length().unwrap_or(0);
             Ok(S3FileInfo {
                 file_name: key.to_string(),
                 file_size: size,
@@ -725,15 +725,6 @@ impl S3Manager {
                         )));
                     }
 
-                    GetObjectError::Unhandled(unhandled) => {
-                        let msg = unhandled.to_string();
-                        let data = json!({ "bucket_name": self.bucket, "key" : key });
-                        return Err(GetObjectStreamError::UnexpectedError(GlyphxErrorData::new(
-                            msg,
-                            Some(data),
-                            None,
-                        )));
-                    }
                     _ => {
                         let msg = e.meta().message().unwrap().to_string();
                         let data = json!({ "bucket_name": self.bucket, "key" : key });
@@ -1397,10 +1388,8 @@ pub mod get_file_information {
     use super::*;
     use aws_sdk_s3::primitives::{DateTime, DateTimeFormat};
     use aws_sdk_s3::types::error::NotFound;
-    use aws_smithy_http::body::SdkBody;
-    use aws_smithy_types::error::metadata::ErrorMetadata;
-    use aws_smithy_types::error::Unhandled;
-    use http;
+    use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata,};
+    use aws_smithy_runtime_api::http::{Response, StatusCode};
 
     #[tokio::test]
     async fn is_ok() {
@@ -1457,11 +1446,10 @@ pub mod get_file_information {
                     .build();
                 let not_found = NotFound::builder().message("not found").meta(meta).build();
                 let err = HeadObjectError::NotFound(not_found);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status  = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());  
+                let headers = inner.headers_mut();
+                headers.insert("Content-Type",  http::HeaderValue::from_str("application/json").unwrap());
                 Err(SdkError::service_error(err, inner))
             })
             .times(1);
@@ -1480,55 +1468,13 @@ pub mod get_file_information {
         assert!(is_not_found);
     }
 
-    #[tokio::test]
-    async fn unhandled_error() {
-        let bucket = "jps-test-bucket".to_string();
-        let key = "jps-test-key".to_string();
-        let mut mock_ops = MockS3ManagerOps::new();
-        mock_ops
-            .expect_bucket_exists_operation()
-            .returning(|_, _| Ok(true))
-            .times(1);
-
-        mock_ops
-            .expect_get_file_information_operation()
-            .returning(move |_, _, _| {
-                let meta = ErrorMetadata::builder()
-                    .message("an error has occurred")
-                    .code("500")
-                    .build();
-                let unhandled = Unhandled::builder().source("not found").meta(meta).build();
-                let err = HeadObjectError::Unhandled(unhandled);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
-                Err(SdkError::service_error(err, inner))
-            })
-            .times(1);
-
-        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
-        let s3_manager = s3_manager_result.ok().unwrap();
-
-        let res = s3_manager
-            .get_file_information_impl(&key.clone(), &mock_ops)
-            .await;
-        assert!(res.is_err());
-        let is_unhandled = match res.err().unwrap() {
-            GetFileInformationError::UnexpectedError(_) => true,
-            _ => false,
-        };
-        assert!(is_unhandled);
-    }
 }
 
 #[cfg(test)]
 mod get_signed_upload_url {
     use super::*;
-    use aws_smithy_http::body::SdkBody;
-    use aws_smithy_types::error::metadata::ErrorMetadata;
-    use http;
+    use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata,};
+    use aws_smithy_runtime_api::http::{Response, StatusCode};
 
     #[tokio::test]
     async fn is_ok() {
@@ -1591,11 +1537,10 @@ mod get_signed_upload_url {
                     .code("500")
                     .build();
                 let err = PutObjectError::generic(meta);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status  = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());  
+                let headers = inner.headers_mut();
+                headers.insert("Content-Type",  http::HeaderValue::from_str("application/json").unwrap());
                 Err(SdkError::service_error(err, inner))
             })
             .times(1);
@@ -1622,10 +1567,8 @@ mod get_signed_upload_url {
 mod get_object_stream {
     use super::*;
     use aws_sdk_s3::types::error::{InvalidObjectState, NoSuchKey};
-    use aws_smithy_http::body::SdkBody;
-    use aws_smithy_types::error::metadata::ErrorMetadata;
-    use aws_smithy_types::error::Unhandled;
-    use http;
+    use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata,};
+    use aws_smithy_runtime_api::http::{Response, StatusCode};
 
     #[tokio::test]
     async fn is_ok() {
@@ -1687,11 +1630,10 @@ mod get_object_stream {
                     .meta(meta)
                     .build();
                 let err = GetObjectError::InvalidObjectState(invalid_state);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status  = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());  
+                let headers = inner.headers_mut();
+                headers.insert("Content-Type",  http::HeaderValue::from_str("application/json").unwrap());
                 Err(SdkError::service_error(err, inner))
             })
             .times(1);
@@ -1729,11 +1671,10 @@ mod get_object_stream {
                     .meta(meta)
                     .build();
                 let err = GetObjectError::NoSuchKey(not_found);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status  = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());  
+                let headers = inner.headers_mut();
+                headers.insert("Content-Type",  http::HeaderValue::from_str("application/json").unwrap());
                 Err(SdkError::service_error(err, inner))
             })
             .times(1);
@@ -1749,47 +1690,6 @@ mod get_object_stream {
         assert!(is_not_found);
     }
 
-    #[tokio::test]
-    async fn is_unexpected_error() {
-        let bucket = "jps-test-bucket".to_string();
-        let key = "jps-test-key".to_string();
-        let mut mock_ops = MockS3ManagerOps::new();
-        mock_ops
-            .expect_bucket_exists_operation()
-            .returning(|_, _| Ok(true))
-            .times(1);
-
-        mock_ops
-            .expect_get_object_stream_operation()
-            .returning(move |_, _, _| {
-                let meta = ErrorMetadata::builder()
-                    .message("an error has occurred")
-                    .code("500")
-                    .build();
-                let unhandled = Unhandled::builder()
-                    .meta(meta)
-                    .source("an error has occurred")
-                    .build();
-                let err = GetObjectError::Unhandled(unhandled);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
-                Err(SdkError::service_error(err, inner))
-            })
-            .times(1);
-        let s3_manager_result = S3Manager::new_impl(bucket.clone(), &mock_ops).await;
-        let s3_manager = s3_manager_result.ok().unwrap();
-
-        let res = s3_manager.get_object_stream_impl(&key, &mock_ops).await;
-        assert!(res.is_err());
-        let is_unexpected = match res.err().unwrap() {
-            GetObjectStreamError::UnexpectedError(_) => true,
-            _ => false,
-        };
-        assert!(is_unexpected);
-    }
 }
 
 #[cfg(test)]
@@ -1854,10 +1754,8 @@ mod get_upload_stream {
 #[cfg(test)]
 mod remove_object {
     use super::*;
-    use aws_smithy_http::body::SdkBody;
-    use aws_smithy_types::error::metadata::ErrorMetadata;
-    use aws_smithy_types::error::Unhandled;
-    use http;
+    use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata,};
+    use aws_smithy_runtime_api::http::{Response, StatusCode};
 
     #[tokio::test]
     async fn is_ok() {
@@ -1897,16 +1795,11 @@ mod remove_object {
                     .message("an error has occurred")
                     .code("500")
                     .build();
-                let unhandled = Unhandled::builder()
-                    .meta(meta)
-                    .source("an error has occurred")
-                    .build();
-                let err = DeleteObjectError::Unhandled(unhandled);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let err = DeleteObjectError::generic(meta);
+                let inner_status  = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());  
+                let headers = inner.headers_mut();
+                headers.insert("Content-Type",  http::HeaderValue::from_str("application/json").unwrap());
                 Err(SdkError::service_error(err, inner))
             })
             .times(1);
@@ -1926,10 +1819,8 @@ mod remove_object {
 #[cfg(test)]
 mod upload_object {
     use super::*;
-    use aws_smithy_http::body::SdkBody;
-    use aws_smithy_types::error::metadata::ErrorMetadata;
-    use aws_smithy_types::error::Unhandled;
-    use http;
+    use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata,};
+    use aws_smithy_runtime_api::http::{Response, StatusCode};
 
     #[tokio::test]
     async fn is_ok() {
@@ -1971,16 +1862,11 @@ mod upload_object {
                     .message("an error has occurred")
                     .code("500")
                     .build();
-                let unhandled = Unhandled::builder()
-                    .meta(meta)
-                    .source("an error has occurred")
-                    .build();
-                let err = PutObjectError::Unhandled(unhandled);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let err = PutObjectError::generic(meta); 
+                let inner_status  = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());  
+                let headers = inner.headers_mut();
+                headers.insert("Content-Type",  http::HeaderValue::from_str("application/json").unwrap());
                 Err(SdkError::service_error(err, inner))
             })
             .times(1);

@@ -41,10 +41,6 @@ impl GetQueryResultsError {
                         Self::UnexpectedError(error_data)
 
                 },
-                AwsGetQueryResultsError::Unhandled(_) => {
-                        Self::UnexpectedError(error_data) 
-
-                },
                 _ => {
                         Self::UnexpectedError(error_data )
                 }

@@ -15,15 +15,16 @@ use super::{
 };
 //We are re-exporting the types from the aws_sdk_athena crate so that we can use them in the other
 //crates to avoid having to import them in each file.
+use aws_sdk_athena::config::http::HttpResponse as Response;
 pub use aws_sdk_athena::types::error::InternalServerException;
-pub use aws_smithy_http::body::SdkBody;
+use aws_smithy_async::future::pagination_stream::PaginationStream;
 pub use aws_smithy_runtime_api::client::orchestrator::HttpResponse;
-pub use aws_smithy_types::error::ErrorMetadata;
+pub use aws_smithy_types::{body::SdkBody, error::ErrorMetadata};
 use serde_json::Value;
 
 pub struct AthenaStreamIterator {
     results: Box<
-        dyn Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin + Send,
+        PaginationStream<Result<GetQueryResultsOutput, SdkError<GetQueryResultsError, Response>>>,
     >,
     query_output_results: Option<Vec<Value>>,
     query_output_size: usize,
@@ -38,8 +39,9 @@ pub struct AthenaStreamIterator {
 impl AthenaStreamIterator {
     pub fn new(
         results: Box<
-            dyn Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>>
-                + Unpin + Send,
+            PaginationStream<
+                Result<GetQueryResultsOutput, SdkError<GetQueryResultsError, Response>>,
+            >,
         >,
         query_id: &str,
         catalog: &str,
@@ -136,13 +138,15 @@ mod test {
 
     mod constructor {
         use super::*;
+        use aws_smithy_async::future::pagination_stream::fn_stream::FnStream;
 
         #[tokio::test]
         async fn is_ok() {
-            let mock_stream =
-                test_objects::MockStream::new("test_field1", "test_field2", "test_field3", 10);
+            let fn_stream = FnStream::new(|_tx| Box::pin(async move {}));
+            let stream = PaginationStream::new(fn_stream);
+
             let iter = AthenaStreamIterator::new(
-                Box::new(mock_stream),
+                Box::new(stream),
                 "test_query_id",
                 "test_catalog",
                 "test_database",
@@ -163,8 +167,9 @@ mod test {
         use aws_sdk_athena::error::SdkError;
         use aws_sdk_athena::operation::get_query_results::GetQueryResultsError;
         use aws_sdk_athena::types::error::InternalServerException;
-        use aws_smithy_http::body::SdkBody;
-        use aws_smithy_runtime_api::client::orchestrator::HttpResponse;
+        use aws_smithy_async::future::pagination_stream::fn_stream::FnStream;
+        use aws_smithy_runtime_api::http::{Response, StatusCode};
+        use aws_smithy_types::body::SdkBody;
         use aws_smithy_types::error::ErrorMetadata;
 
         #[tokio::test]
@@ -172,19 +177,49 @@ mod test {
             let x_field_name = "test_field1";
             let y_field_name = "test_field2";
             let z_field_name = "test_field3";
-            let mut mock_stream =
-                test_objects::MockStream::new(x_field_name, y_field_name, z_field_name, 10);
+            let fn_stream = FnStream::new(|tx| {
+                Box::pin(async move {
+                    if let Err(_) = tx.send(Ok(test_objects::get_query_results_set(
+                        0,
+                        x_field_name,
+                        y_field_name,
+                        z_field_name,
+                        10,
+                        true,
+                        false,
+                    ))).await {
+                        return;
+                    }
+                    if let Err(_) = tx.send(Ok(test_objects::get_query_results_set(
+                        1,
+                        x_field_name,
+                        y_field_name,
+                        z_field_name,
+                        10,
+                        false,
+                        false,
+                    ))).await {
+                        return;
+                    }
+                    if let Err(_) = tx.send(Ok(test_objects::get_query_results_set(
+                        2,
+                        x_field_name,
+                        y_field_name,
+                        z_field_name,
+                        10,
+                        false,
+                        true,
+                    ))).await {
+                        return;
+                    }
+                })
+            });
 
-            mock_stream.with_closure(Box::new(move |stream| {
-                if stream.state.counter <= 1 {
-                    Some(Ok(stream.get_query_results_set(None)))
-                } else {
-                    Some(Ok(stream.get_query_results_set(Some(())))) //End the stream
-                }
-            }));
+            let stream = PaginationStream::new(fn_stream);
+            test_objects::MockStream::new(x_field_name, y_field_name, z_field_name, 10);
 
             let mut iter = AthenaStreamIterator::new(
-                Box::new(mock_stream),
+                Box::new(stream),
                 "test_query_id",
                 "test_catalog",
                 "test_database",
@@ -216,13 +251,23 @@ mod test {
             let x_field_name = "test_field1";
             let y_field_name = "test_field2";
             let z_field_name = "test_field3";
-            let mut mock_stream =
-                test_objects::MockStream::new(x_field_name, y_field_name, z_field_name, 10);
+            let fn_stream = FnStream::new(|tx| {
+                Box::pin(async move {
+                    if let Err(_) = tx
+                        .send(Ok(test_objects::get_query_results_set(
+                            0,
+                            x_field_name,
+                            y_field_name,
+                            z_field_name,
+                            10,
+                            true,
+                            false,
+                        )))
+                        .await
+                    {
+                        return;
+                    }
 
-            mock_stream.with_closure(Box::new(move |stream| {
-                if stream.state.counter == 0 {
-                    Some(Ok(stream.get_query_results_set(None)))
-                } else {
                     let body = SdkBody::from("An error occurred".to_string());
                     let metadata = ErrorMetadata::builder()
                         .code("500")
@@ -235,15 +280,23 @@ mod test {
 
                     let query_response_error =
                         GetQueryResultsError::InternalServerException(internal_server_exception);
-                    let raw: HttpResponse = HttpResponse::new(body);
+                    let raw: HttpResponse = HttpResponse::new(
+                        StatusCode::from(http::StatusCode::from_u16(200).unwrap()),
+                        body,
+                    );
                     let error: SdkError<GetQueryResultsError> =
                         SdkError::service_error(query_response_error, raw);
-                    Some(Err(error))
-                }
-            }));
+                    if let Err(_) = tx.send(Err(error)).await {
+                        return;
+                    }
+                })
+            });
+
+            let stream = PaginationStream::new(fn_stream);
+            test_objects::MockStream::new(x_field_name, y_field_name, z_field_name, 10);
 
             let mut iter = AthenaStreamIterator::new(
-                Box::new(mock_stream),
+                Box::new(stream),
                 "test_query_id",
                 "test_catalog",
                 "test_database",
@@ -293,19 +346,51 @@ mod test {
             let x_field_name = "test_field1";
             let y_field_name = "test_field2";
             let z_field_name = "test_field3";
-            let mut mock_stream =
-                test_objects::MockStream::new(x_field_name, y_field_name, z_field_name, 10);
 
-            mock_stream.with_closure(Box::new(move |stream| {
-                if stream.state.counter <= 1 {
-                    Some(Ok(stream.get_query_results_set(None)))
-                } else {
-                    Some(Ok(stream.get_query_results_set(Some(())))) //End the stream
-                }
-            }));
+            let fn_stream = FnStream::new(|tx| {
+                Box::pin(async move {
+                    if let Err(_) = tx.send(Ok(test_objects::get_query_results_set(
+                        0,
+                        x_field_name,
+                        y_field_name,
+                        z_field_name,
+                        10,
+                        true,
+                        false,
+                    ))).await {
+                        return;
+                    }
+
+                    if let Err(_) = tx.send(Ok(test_objects::get_query_results_set(
+                        1,
+                        x_field_name,
+                        y_field_name,
+                        z_field_name,
+                        10,
+                        true,
+                        false,
+                    ))).await {
+                        return;
+                    }
+                    if let Err(_) = tx.send(Ok(test_objects::get_query_results_set(
+                        2,
+                        x_field_name,
+                        y_field_name,
+                        z_field_name,
+                        10,
+                        false,
+                        true,
+                    ))).await {
+                        return;
+                    }
+                })
+            });
+
+            let stream = PaginationStream::new(fn_stream);
+            test_objects::MockStream::new(x_field_name, y_field_name, z_field_name, 10);
 
             let mut iter = AthenaStreamIterator::new(
-                Box::new(mock_stream),
+                Box::new(stream),
                 "test_query_id",
                 "test_catalog",
                 "test_database",
@@ -330,7 +415,7 @@ mod test {
 
                 count += 1;
             }
-            assert_eq!(count, 20);
+            assert_eq!(count, 21);
             assert_eq!(iter.exhausted, true);
 
             let result = iter.next().await;
