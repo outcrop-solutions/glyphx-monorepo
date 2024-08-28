@@ -323,7 +323,7 @@ describe('#lib/hashFunctions', () => {
       }
     });
 
-    it.only('checking the filter is included in the payload hash', async () => {
+    it('checking the filter is included in the payload hash', async () => {
       try {
         const project = {
           id: '66c781bf2ad1a468ec1446ac',
@@ -659,7 +659,10 @@ describe('#lib/hashFunctions', () => {
           imageHash: '',
         };
 
+        // "33bbc1ba093c2096dbe8024827f79f7a" - this is what is actually in s3, it is being produced in glyphengine because the
         const hash1 = hashPayload(hashFiles(project.files), project as unknown as databaseTypes.IProject);
+        // '48e165673514843bf5b32dcb0c4f2d55'; - this is the newHash occording to our logs.
+        // conclusion: s3
         const hash2 = hashPayload(hashFiles(project2.files), project2 as unknown as databaseTypes.IProject);
 
         assert.isOk(hash1);
