@@ -28,5 +28,6 @@ rand = "0.8.5"
 serde = "1.0.163"
 serde_json = "1.0.107"
 statrs = "0.16.0" 
+time = "0.3.36"
 tokio = { version = "1", features = ["full"] }
 tokio-stream = "0.1.14"
