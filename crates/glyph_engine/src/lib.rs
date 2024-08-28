@@ -7,7 +7,7 @@ pub mod vector_processer;
 use crate::GlyphEngineResults;
 
 use glyphx_common::{AthenaConnection, Heartbeat, S3Connection};
-use model_common::{Stats, Glyph};
+use model_common::{Glyph, Stats};
 
 use glyphx_core::{
     aws::{
@@ -233,7 +233,7 @@ impl GlyphEngineOperations for GlyphEngineOperationsImpl {
             error.error();
             return Err(error);
         }
-        let results = Box::new(results.unwrap());
+        let results = results.unwrap();
 
         let iterator = AthenaStreamIterator::new(
             results,
@@ -773,7 +773,7 @@ impl GlyphEngine {
     ) -> Result<String, GlyphEngineProcessError> {
         let max_x_rank = x_field_processor.get_max_rank() as u64;
         let x_stats =
-            self.get_stats_for_axis("x", max_x_rank , x_field_processor.get_statistics_vector());
+            self.get_stats_for_axis("x", max_x_rank, x_field_processor.get_statistics_vector());
         let max_y_rank = y_field_processor.get_max_rank() as u64;
         let y_stats =
             self.get_stats_for_axis("y", max_y_rank, y_field_processor.get_statistics_vector());
@@ -934,6 +934,8 @@ pub mod glyph_engine {
         GetQueryResultsOutput, ResultSet, ResultSetMetadata, Row, SdkError,
     };
 
+    use aws_smithy_async::future::pagination_stream::{fn_stream::FnStream, PaginationStream};
+
     static mut S3_CONNECTION_INSTANCE: Lazy<Option<S3Connection>> =
         Lazy::new(|| Some(S3Connection::default()));
 
@@ -1088,10 +1090,10 @@ pub mod glyph_engine {
             .build();
 
         ResultSetMetadata::builder()
-            .column_info(column1)
-            .column_info(column2)
-            .column_info(column3)
-            .column_info(column4)
+            .column_info(column1.unwrap())
+            .column_info(column2.unwrap())
+            .column_info(column3.unwrap())
+            .column_info(column4.unwrap())
             .build()
     }
 
@@ -1124,14 +1126,16 @@ pub mod glyph_engine {
             .build()
     }
 
-    fn get_query_results_set() -> GetQueryResultsOutput {
+    fn get_query_results_set(is_empty: bool) -> GetQueryResultsOutput {
         let metadata = get_result_set_metadata();
         let mut result_set = ResultSet::builder().result_set_metadata(metadata);
-        result_set = result_set.rows(get_header_row());
 
-        for i in 0..10 {
-            let row = get_row_data(i);
-            result_set = result_set.rows(row);
+        if !is_empty {
+            result_set = result_set.rows(get_header_row());
+            for i in 0..10 {
+                let row = get_row_data(i);
+                result_set = result_set.rows(row);
+            }
         }
 
         let result_set = result_set.build();
@@ -1166,19 +1170,6 @@ pub mod glyph_engine {
         let parameters = VectorizerParameters::from_json_string(&INPUT.to_string()).unwrap();
         let mocks = get_setup_mocks();
         GlyphEngine::new_impl(&parameters, &mocks).await.unwrap()
-    }
-
-    fn get_mock_athena_stream_iterator(
-        closure: Box<
-            dyn FnMut(
-                &mut MockStream,
-            )
-                -> Option<Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>>,
-        >,
-    ) -> AthenaStreamIterator {
-        let mut mock_stream = MockStream::new(X_FIELD_NAME, Y_FIELD_NAME, Z_FIELD_NAME, 10);
-        mock_stream.with_closure(closure);
-        AthenaStreamIterator::new(Box::new(mock_stream), "1234", "test", "test")
     }
 
     #[tokio::test]
@@ -1738,6 +1729,7 @@ pub mod glyph_engine {
 
     mod process_query_results {
         use super::*;
+        use aws_smithy_runtime_api::http::{Response, StatusCode};
         use glyphx_core::aws::athena_stream_iterator::{
             ErrorMetadata, GetQueryResultsError, HttpResponse, InternalServerException, SdkBody,
             SdkError,
@@ -1801,14 +1793,19 @@ pub mod glyph_engine {
             );
 
             //5. Mock out our AthenaStream
-            let mut athena_stream = get_mock_athena_stream_iterator(Box::new(move |stream| {
-                if stream.state.counter == 0 {
-                    Some(Ok(get_query_results_set()))
-                } else {
-                    Some(Ok(stream.get_query_results_set(Some(())))) //End the stream
-                }
-            }));
-
+            let fn_stream = FnStream::new(|tx| {
+                Box::pin(async move {
+                    if let Err(_) = tx.send(Ok(get_query_results_set(false))).await {
+                        return;
+                    }
+                    if let Err(_) = tx.send(Ok(get_query_results_set(true))).await {
+                        return;
+                    }
+                })
+            });
+            let stream = PaginationStream::new(fn_stream);
+            let mut athena_stream =
+                AthenaStreamIterator::new(Box::new(stream), "1234", "test", "test");
             let result = glyph_engine
                 .process_query_results(
                     "test_file_name",
@@ -1886,13 +1883,19 @@ pub mod glyph_engine {
             );
 
             //5. Mock out our AthenaStream
-            let mut athena_stream = get_mock_athena_stream_iterator(Box::new(move |stream| {
-                if stream.state.counter == 0 {
-                    Some(Ok(get_query_results_set()))
-                } else {
-                    Some(Ok(stream.get_query_results_set(Some(())))) //End the stream
-                }
-            }));
+            let fn_stream = FnStream::new(|tx| {
+                Box::pin(async move {
+                    if let Err(_) = tx.send(Ok(get_query_results_set(false))).await {
+                        return;
+                    }
+                    if let Err(_) = tx.send(Ok(get_query_results_set(true))).await {
+                        return;
+                    }
+                })
+            });
+            let stream = PaginationStream::new(fn_stream);
+            let mut athena_stream =
+                AthenaStreamIterator::new(Box::new(stream), "1234", "test", "test");
 
             let result = glyph_engine
                 .process_query_results(
@@ -1974,10 +1977,13 @@ pub mod glyph_engine {
             );
 
             //5. Mock out our AthenaStream
-            let mut athena_stream = get_mock_athena_stream_iterator(Box::new(move |stream| {
-                if stream.state.counter == 0 {
-                    Some(Ok(get_query_results_set()))
-                } else {
+
+            let fn_stream = FnStream::new(|tx| {
+                Box::pin(async move {
+                    if let Err(_) = tx.send(Ok(get_query_results_set(false))).await {
+                        return;
+                    }
+
                     let body = SdkBody::from("An error occurred".to_string());
                     let metadata = ErrorMetadata::builder()
                         .code("500")
@@ -1990,12 +1996,19 @@ pub mod glyph_engine {
 
                     let query_response_error =
                         GetQueryResultsError::InternalServerException(internal_server_exception);
-                    let raw: HttpResponse = HttpResponse::new(body);
+                    let status_code = http::StatusCode::from_u16(200).unwrap();
+                    let status_code = StatusCode::from(status_code);
+                    let raw: HttpResponse = HttpResponse::new(status_code, body);
                     let error: SdkError<GetQueryResultsError> =
                         SdkError::service_error(query_response_error, raw);
-                    Some(Err(error))
-                }
-            }));
+                    if let Err(_) = tx.send(Err(error)).await {
+                        return;
+                    }
+                })
+            });
+            let stream = PaginationStream::new(fn_stream);
+            let mut athena_stream =
+                AthenaStreamIterator::new(Box::new(stream), "1234", "test", "test");
 
             let result = glyph_engine
                 .process_query_results(
@@ -2086,13 +2099,19 @@ pub mod glyph_engine {
             );
 
             //5. Mock out our AthenaStream
-            let mut athena_stream = get_mock_athena_stream_iterator(Box::new(move |stream| {
-                if stream.state.counter == 0 {
-                    Some(Ok(get_query_results_set()))
-                } else {
-                    Some(Ok(stream.get_query_results_set(Some(())))) //End the stream
-                }
-            }));
+            let fn_stream = FnStream::new(|tx| {
+                Box::pin(async move {
+                    if let Err(_) = tx.send(Ok(get_query_results_set(false))).await {
+                        return;
+                    }
+                    if let Err(_) = tx.send(Ok(get_query_results_set(true))).await {
+                        return;
+                    }
+                })
+            });
+            let stream = PaginationStream::new(fn_stream);
+            let mut athena_stream =
+                AthenaStreamIterator::new(Box::new(stream), "1234", "test", "test");
 
             let result = glyph_engine
                 .process_query_results(
@@ -2180,13 +2199,19 @@ pub mod glyph_engine {
             );
 
             //5. Mock out our AthenaStream
-            let mut athena_stream = get_mock_athena_stream_iterator(Box::new(move |stream| {
-                if stream.state.counter == 0 {
-                    Some(Ok(get_query_results_set()))
-                } else {
-                    Some(Ok(stream.get_query_results_set(Some(())))) //End the stream
-                }
-            }));
+            let fn_stream = FnStream::new(|tx| {
+                Box::pin(async move {
+                    if let Err(_) = tx.send(Ok(get_query_results_set(false))).await {
+                        return;
+                    }
+                    if let Err(_) = tx.send(Ok(get_query_results_set(true))).await {
+                        return;
+                    }
+                })
+            });
+            let stream = PaginationStream::new(fn_stream);
+            let mut athena_stream =
+                AthenaStreamIterator::new(Box::new(stream), "1234", "test", "test");
 
             let result = glyph_engine
                 .process_query_results(
@@ -2268,13 +2293,19 @@ pub mod glyph_engine {
             );
 
             //5. Mock out our AthenaStream
-            let mut athena_stream = get_mock_athena_stream_iterator(Box::new(move |stream| {
-                if stream.state.counter == 0 {
-                    Some(Ok(get_query_results_set()))
-                } else {
-                    Some(Ok(stream.get_query_results_set(Some(())))) //End the stream
-                }
-            }));
+            let fn_stream = FnStream::new(|tx| {
+                Box::pin(async move {
+                    if let Err(_) = tx.send(Ok(get_query_results_set(false))).await {
+                        return;
+                    }
+                    if let Err(_) = tx.send(Ok(get_query_results_set(true))).await {
+                        return;
+                    }
+                })
+            });
+            let stream = PaginationStream::new(fn_stream);
+            let mut athena_stream =
+                AthenaStreamIterator::new(Box::new(stream), "1234", "test", "test");
 
             let result = glyph_engine
                 .process_query_results(
@@ -2949,6 +2980,7 @@ pub mod glyph_engine {
     }
     mod process {
         use super::*;
+        use aws_smithy_runtime_api::http::{Response, StatusCode};
         use glyphx_core::aws::athena_stream_iterator::{
             ErrorMetadata, GetQueryResultsError, HttpResponse, InternalServerException, SdkBody,
             SdkError,
@@ -3009,7 +3041,10 @@ pub mod glyph_engine {
                             .expect_get_max_vector()
                             .times(0)
                             .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
-                        vector_processer_mock1.expect_get_max_rank().times(1).return_const(9 as usize);
+                        vector_processer_mock1
+                            .expect_get_max_rank()
+                            .times(1)
+                            .return_const(9 as usize);
                         Box::new(vector_processer_mock1)
                     } else {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
@@ -3045,7 +3080,10 @@ pub mod glyph_engine {
                             .expect_get_max_vector()
                             .times(0)
                             .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
-                        vector_processer_mock2.expect_get_max_rank().times(1).return_const(9 as usize);
+                        vector_processer_mock2
+                            .expect_get_max_rank()
+                            .times(1)
+                            .return_const(9 as usize);
                         Box::new(vector_processer_mock2)
                     }
                 });
@@ -3056,13 +3094,20 @@ pub mod glyph_engine {
                 .returning(move |_, _| Ok(AthenaQueryStatus::Succeeded));
 
             mocks.expect_get_query_results().times(1).returning(|_, _| {
-                Ok(get_mock_athena_stream_iterator(Box::new(move |stream| {
-                    if stream.state.counter == 0 {
-                        Some(Ok(get_query_results_set()))
-                    } else {
-                        Some(Ok(stream.get_query_results_set(Some(())))) //End the stream
-                    }
-                })))
+                let fn_stream = FnStream::new(|tx| {
+                    Box::pin(async move {
+                        if let Err(_) = tx.send(Ok(get_query_results_set(false))).await {
+                            return;
+                        }
+                        if let Err(_) = tx.send(Ok(get_query_results_set(true))).await {
+                            return;
+                        }
+                    })
+                });
+                let stream = PaginationStream::new(fn_stream);
+                let mut athena_stream =
+                    AthenaStreamIterator::new(Box::new(stream), "1234", "test", "test");
+                Ok(athena_stream)
             });
 
             mocks
@@ -3586,25 +3631,36 @@ pub mod glyph_engine {
                 });
 
             mocks.expect_get_query_results().times(1).returning(|_, _| {
-                Ok(get_mock_athena_stream_iterator(Box::new(move |_| {
-                    let body = SdkBody::from("An error occurred".to_string());
-                    let metadata = ErrorMetadata::builder()
-                        .code("500")
-                        .message("An error has occurred")
-                        .build();
-                    let internal_server_exception = InternalServerException::builder()
-                        .message("An error has occurred")
-                        .meta(metadata)
-                        .build();
+                let fn_stream = FnStream::new(|tx| {
+                    Box::pin(async move {
+                        let body = SdkBody::from("An error occurred".to_string());
+                        let metadata = ErrorMetadata::builder()
+                            .code("500")
+                            .message("An error has occurred")
+                            .build();
+                        let internal_server_exception = InternalServerException::builder()
+                            .message("An error has occurred")
+                            .meta(metadata)
+                            .build();
 
-                    let query_response_error =
-                        GetQueryResultsError::InternalServerException(internal_server_exception);
-                    let raw: HttpResponse = HttpResponse::new(body);
-                    let error: SdkError<GetQueryResultsError> =
-                        SdkError::service_error(query_response_error, raw);
+                        let query_response_error = GetQueryResultsError::InternalServerException(
+                            internal_server_exception,
+                        );
+                        let status_code = http::StatusCode::from_u16(200).unwrap();
+                        let status_code = StatusCode::from(status_code);
+                        let raw: HttpResponse = HttpResponse::new(status_code, body);
+                        let error: SdkError<GetQueryResultsError> =
+                            SdkError::service_error(query_response_error, raw);
 
-                    Some(Err(error))
-                })))
+                        if let Err(_) = tx.send(Err(error)).await {
+                            return;
+                        }
+                    })
+                });
+                let stream = PaginationStream::new(fn_stream);
+                let athena_stream =
+                    AthenaStreamIterator::new(Box::new(stream), "1234", "test", "test");
+                Ok(athena_stream)
             });
 
             mocks
@@ -3691,7 +3747,10 @@ pub mod glyph_engine {
                             .returning(|| {
                                 vec![1.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0]
                             });
-                        vector_processer_mock1.expect_get_max_rank().times(1).return_const(9 as usize);
+                        vector_processer_mock1
+                            .expect_get_max_rank()
+                            .times(1)
+                            .return_const(9 as usize);
                         Box::new(vector_processer_mock1)
                     } else {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
@@ -3727,7 +3786,10 @@ pub mod glyph_engine {
                             .expect_get_max_vector()
                             .times(0)
                             .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
-                        vector_processer_mock2.expect_get_max_rank().times(1).return_const(9 as usize);
+                        vector_processer_mock2
+                            .expect_get_max_rank()
+                            .times(1)
+                            .return_const(9 as usize);
                         Box::new(vector_processer_mock2)
                     }
                 });
@@ -3738,13 +3800,21 @@ pub mod glyph_engine {
                 .returning(move |_, _| Ok(AthenaQueryStatus::Succeeded));
 
             mocks.expect_get_query_results().times(1).returning(|_, _| {
-                Ok(get_mock_athena_stream_iterator(Box::new(move |stream| {
-                    if stream.state.counter == 0 {
-                        Some(Ok(get_query_results_set()))
-                    } else {
-                        Some(Ok(stream.get_query_results_set(Some(())))) //End the stream
-                    }
-                })))
+                let fn_stream = FnStream::new(|tx| {
+                    Box::pin(async move {
+                        if let Err(_) = tx.send(Ok(get_query_results_set(false))).await {
+                            return;
+                        }
+                        if let Err(_) = tx.send(Ok(get_query_results_set(true))).await {
+                            return;
+                        }
+                    })
+                });
+                let stream = PaginationStream::new(fn_stream);
+                let athena_stream =
+                    AthenaStreamIterator::new(Box::new(stream), "1234", "test", "test");
+
+                Ok(athena_stream)
             });
 
             mocks
@@ -3848,7 +3918,10 @@ pub mod glyph_engine {
                             .expect_get_max_vector()
                             .times(0)
                             .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
-                        vector_processer_mock1.expect_get_max_rank().times(1).return_const(9 as usize);
+                        vector_processer_mock1
+                            .expect_get_max_rank()
+                            .times(1)
+                            .return_const(9 as usize);
                         Box::new(vector_processer_mock1)
                     } else {
                         let mut vector_processer_mock2 = MockVectorValueProcesser::new();
@@ -3884,7 +3957,10 @@ pub mod glyph_engine {
                             .expect_get_max_vector()
                             .times(0)
                             .return_const(Vector::new(VectorOrigionalValue::F64(10.0), 10.0, 9));
-                        vector_processer_mock2.expect_get_max_rank().times(1).return_const(9 as usize);
+                        vector_processer_mock2
+                            .expect_get_max_rank()
+                            .times(1)
+                            .return_const(9 as usize);
                         Box::new(vector_processer_mock2)
                     }
                 });
@@ -3895,13 +3971,20 @@ pub mod glyph_engine {
                 .returning(move |_, _| Ok(AthenaQueryStatus::Succeeded));
 
             mocks.expect_get_query_results().times(1).returning(|_, _| {
-                Ok(get_mock_athena_stream_iterator(Box::new(move |stream| {
-                    if stream.state.counter == 0 {
-                        Some(Ok(get_query_results_set()))
-                    } else {
-                        Some(Ok(stream.get_query_results_set(Some(())))) //End the stream
-                    }
-                })))
+                let fn_stream = FnStream::new(|tx| {
+                    Box::pin(async move {
+                        if let Err(_) = tx.send(Ok(get_query_results_set(false))).await {
+                            return;
+                        }
+                        if let Err(_) = tx.send(Ok(get_query_results_set(true))).await {
+                            return;
+                        }
+                    })
+                });
+                let stream = PaginationStream::new(fn_stream);
+                let mut athena_stream =
+                    AthenaStreamIterator::new(Box::new(stream), "1234", "test", "test");
+                Ok(athena_stream)
             });
 
             mocks

@@ -1,17 +1,19 @@
-//! This model holds our AthenaManager struct for interacting with AWS Athena. 
-//! Since many of the functions in this struct run against AWS services we 
-//! have implemented our impl pattern to inject the AWS calls into the impl methods. 
-//! The purpose of the public functions is to inject the production AWS calls into 
-//! the impl methods.  This allows us to write unit tests against the impl methods and 
-//! to mock the calls -- effectivly allowing us to unit test our logic and not AWS's logic. 
+//! This model holds our AthenaManager struct for interacting with AWS Athena.
+//! Since many of the functions in this struct run against AWS services we
+//! have implemented our impl pattern to inject the AWS calls into the impl methods.
+//! The purpose of the public functions is to inject the production AWS calls into
+//! the impl methods.  This allows us to write unit tests against the impl methods and
+//! to mock the calls -- effectivly allowing us to unit test our logic and not AWS's logic.
 //! Another thing that you may notice is that we have included some of our impl methods in our
-//! implementation of the AthenaManagerOps trait.  This is because some of our methods call 
+//! implementation of the AthenaManagerOps trait.  This is because some of our methods call
 //! other functions on or Athena manager struct.  This also allows us to test those methods.
 //! Full integratiuon tests exist in the tests/aws directory to test theses methods against AWS.
+use aws_sdk_athena::config::http::HttpResponse as Response;
 use aws_sdk_athena::error::ProvideErrorMetadata;
 use aws_sdk_athena::types::{QueryExecutionContext, QueryExecutionState, ResultConfiguration};
 use aws_sdk_athena::Client as AthenaClient;
 use aws_sdk_s3::error::SdkError;
+use aws_smithy_async::future::pagination_stream::PaginationStream;
 
 use aws_sdk_athena::operation::get_query_execution::{
     GetQueryExecutionError, GetQueryExecutionOutput,
@@ -25,14 +27,15 @@ use aws_sdk_athena::operation::get_query_results::{GetQueryResultsError, GetQuer
 use aws_sdk_athena::operation::get_database::{GetDatabaseError, GetDatabaseOutput};
 
 use super::result_set_converter::convert_to_json;
-use async_trait::async_trait;
 pub use crate::types::aws::athena_manager::athena_manager_errors::{
-    ConstructorError, GetQueryPagerError, GetQueryResultsError as GlyphxGetQueryResultsError,
-    GetQueryStatusError, GetTableDescriptionError, RunQueryError, StartQueryError, AthenaStreamIteratorError
+    AthenaStreamIteratorError, ConstructorError, GetQueryPagerError,
+    GetQueryResultsError as GlyphxGetQueryResultsError, GetQueryStatusError,
+    GetTableDescriptionError, RunQueryError, StartQueryError,
 };
 pub use crate::types::aws::athena_manager::query_status::AthenaQueryStatus;
 pub use crate::types::aws::athena_manager::table_description::*;
 pub use crate::types::error::GlyphxErrorData;
+use async_trait::async_trait;
 
 use mockall::*;
 use serde_json::{json, Value};
@@ -78,7 +81,9 @@ trait AthenaManagerOps {
         client: &AthenaClient,
         query_id: &str,
         page_size: Option<i32>,
-    ) -> Box<dyn Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin + Send>;
+    ) -> Box<
+        PaginationStream<Result<GetQueryResultsOutput, SdkError<GetQueryResultsError, Response>>>,
+    >;
 
     async fn start_query_impl(
         &self,
@@ -116,8 +121,8 @@ struct AthenaManagerOpsImpl;
 ///The implementation of our AthenaManaerOps trait with our production method calls.
 #[async_trait]
 impl AthenaManagerOps for AthenaManagerOpsImpl {
-    ///This method calls the AWS Athena get_database method to determine whether or not the 
-    ///database exists. 
+    ///This method calls the AWS Athena get_database method to determine whether or not the
+    ///database exists.
     ///# Arguments
     ///* `client` - The AWS Athena client.
     ///* `catalog` - The AWS catalog.
@@ -151,9 +156,9 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
         output_location: Option<String>,
     ) -> Result<StartQueryExecutionOutput, SdkError<StartQueryExecutionError>> {
         let context = QueryExecutionContext::builder()
-        .catalog(catalog)
-        .database(database)
-        .build();
+            .catalog(catalog)
+            .database(database)
+            .build();
         let mut op = client
             .start_query_execution()
             .query_execution_context(context)
@@ -167,7 +172,7 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
         op.send().await
     }
 
-    ///Once a query has been started the AWS Athena get_query_execution method 
+    ///Once a query has been started the AWS Athena get_query_execution method
     ///is called to determine the status of the query execution.
     ///# Arguments
     ///* `client` - The AWS Athena client.
@@ -212,8 +217,9 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
         client: &AthenaClient,
         query_id: &str,
         page_size: Option<i32>,
-    ) -> Box<dyn Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin + Send>
-    {
+    ) -> Box<
+        PaginationStream<Result<GetQueryResultsOutput, SdkError<GetQueryResultsError, Response>>>,
+    > {
         //1st row is the header row, so we need to add 1 to the page size.
         let page_size = page_size.unwrap_or(1000);
         Box::new(
@@ -311,7 +317,7 @@ pub struct AthenaManager {
 }
 
 ///The impl of the functions for our AthenaManager.  in most cases you will see two versions of the
-///function.  The pub facing part of the API and the private impl.  For example run_query and 
+///function.  The pub facing part of the API and the private impl.  For example run_query and
 ///run_query_impl.  The pub facing part of the API is what is used by consumers and injects the
 ///production AWS calls to the impl which does the actual work.  In this patters, the impls can be
 ///fully tested with mocks without having to actually call AWS.
@@ -410,7 +416,11 @@ impl AthenaManager {
         query_id: &str,
         page_size: Option<i32>,
     ) -> Result<
-        impl Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin + Send,
+        Box<
+            PaginationStream<
+                Result<GetQueryResultsOutput, SdkError<GetQueryResultsError, Response>>,
+            >,
+        >,
         GetQueryPagerError,
     > {
         self.get_paged_query_results_impl(query_id, page_size, &AthenaManagerOpsImpl)
@@ -440,9 +450,9 @@ impl AthenaManager {
         self.drop_table_impl(table_name, &AthenaManagerOpsImpl)
             .await
     }
-   ///This method is used to drop a view from the database.
-   ///# Arguments
-   ///* `view_name` - The name of the view to drop.
+    ///This method is used to drop a view from the database.
+    ///# Arguments
+    ///* `view_name` - The name of the view to drop.
     pub async fn drop_view(&self, view_name: &str) -> Result<(), RunQueryError> {
         self.drop_view_impl(view_name, &AthenaManagerOpsImpl).await
     }
@@ -457,7 +467,6 @@ impl AthenaManager {
         self.get_table_description_impl(table_name, &AthenaManagerOpsImpl)
             .await
     }
-
 
     ///The intrnal implementation of the new method.  This method will make the actual calls to aws
     ///when AthenaManagerOpsImpl is passed as the aws_operations parameter.  For unit tests, a mock
@@ -511,16 +520,6 @@ impl AthenaManager {
                             None,
                         ),
                     ));
-                }
-                GetDatabaseError::Unhandled(e) => {
-                    return Err(ConstructorError::UnexpectedError(GlyphxErrorData::new(
-                        e.to_string(),
-                        Some(json!({
-                            "catalog": catalog,
-                            "database": database,
-                        })),
-                        None,
-                    )));
                 }
                 _ => {
                     return Err(ConstructorError::UnexpectedError(GlyphxErrorData::new(
@@ -609,17 +608,6 @@ impl AthenaManager {
                         None,
                     )));
                 }
-                StartQueryExecutionError::Unhandled(e) => {
-                    return Err(StartQueryError::UnexpectedError(GlyphxErrorData::new(
-                        e.to_string(),
-                        Some(json!({
-                            "catalog": self.catalog,
-                            "database": self.database,
-                            "query": query,
-                        })),
-                        None,
-                    )));
-                }
                 _ => {
                     return Err(StartQueryError::UnexpectedError(GlyphxErrorData::new(
                         "An unknown error has occurred.  Unfortunatly I have no more information to share".to_string(),
@@ -663,14 +651,6 @@ impl AthenaManager {
                 GetQueryExecutionError::InternalServerException(e) => {
                     return Err(
                         GetQueryStatusError::UnexpectedError(GlyphxErrorData::new(e.message().unwrap().to_string(), Some(
-                            json!({"catalog": self.catalog, "database": self.database, "query_id": query_id    }),
-                                    ), None) )
-                        )
-
-                },
-                GetQueryExecutionError::Unhandled(e) => {
-                    return Err(
-                        GetQueryStatusError::UnexpectedError(GlyphxErrorData::new(e.meta().to_string(), Some(
                             json!({"catalog": self.catalog, "database": self.database, "query_id": query_id    }),
                                     ), None) )
                         )
@@ -727,18 +707,17 @@ impl AthenaManager {
                 &self.database,
                 query_id,
             ));
-        } 
-            let res = res.unwrap();
-            let result_set = res.result_set;
-            if result_set.is_none() {
-                return Ok(json!([]));
-            }
-            let result_set = result_set.unwrap();
-            if result_set.rows.is_none() {
-                return Ok(Value::Null);
-            }
-            Ok(convert_to_json(&result_set, results_include_header_row))
-        
+        }
+        let res = res.unwrap();
+        let result_set = res.result_set;
+        if result_set.is_none() {
+            return Ok(json!([]));
+        }
+        let result_set = result_set.unwrap();
+        if result_set.rows.is_none() {
+            return Ok(Value::Null);
+        }
+        Ok(convert_to_json(&result_set, results_include_header_row))
     }
 
     ///An internal helper method that will convert StartQueryErrors to RunQueryErrors.
@@ -986,7 +965,7 @@ impl AthenaManager {
     ///* `query` - The query to run.
     ///* `time_out` - The amount of time in seconds to wait for the query to complete.
     ///* `results_include_header_row` - Indicates whether or not the results include a header row
-    ///which should be excuded from the results. 
+    ///which should be excuded from the results.
     ///* `aws_operations` - The AthenaManagerOps implementation to use to make or mock the aws calls.
     async fn run_query_impl<T: AthenaManagerOps>(
         &self,
@@ -1084,7 +1063,11 @@ impl AthenaManager {
         page_size: Option<i32>,
         aws_operations: &T,
     ) -> Result<
-        impl Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Unpin + Send,
+        Box<
+            PaginationStream<
+                Result<GetQueryResultsOutput, SdkError<GetQueryResultsError, Response>>,
+            >,
+        >,
         GetQueryPagerError,
     > {
         let status = aws_operations.get_query_status_impl(self, query_id).await;
@@ -1149,7 +1132,7 @@ impl AthenaManager {
             Ok(aws_operations.get_query_results_paginator(&self.client, query_id, page_size))
         }
     }
-    
+
     ///Our intenal implementation of our table_exists method.  This method will make the actual calls to aws
     ///when AthenaManagerOpsImpl is passed as the aws_operations parameter.  For unit tests, a mock
     ///of AthenaManagerOps can be passed in to simulate the aws calls.
@@ -1170,7 +1153,11 @@ impl AthenaManager {
             return Err(err);
         }
         let results = results.unwrap();
-        Ok(results.as_array().unwrap().len() > 0)
+        if results.is_null() {
+            Ok(false)
+        } else {
+            Ok(results.as_array().unwrap().len() > 0)
+        }
     }
 
     ///Our intenal implementation of our view_exists method.  This method will make the actual calls to aws
@@ -1193,7 +1180,11 @@ impl AthenaManager {
             return Err(err);
         }
         let results = results.unwrap();
-        Ok(results.as_array().unwrap().len() > 0)
+        if results.is_null() {
+            Ok(false)
+        } else {
+            Ok(results.as_array().unwrap().len() > 0)
+        }
     }
 
     ///Our intenal implementation of our drop_table method.  This method will make the actual calls to aws
@@ -1286,21 +1277,25 @@ impl AthenaManager {
 
 impl Default for AthenaManager {
     fn default() -> Self {
-       let config = aws_config::SdkConfig::builder().build();
+        let config = aws_config::SdkConfig::builder().build();
         let client = AthenaClient::new(&config);
-        AthenaManager { client, database: "mock".to_string(), catalog: "mock".to_string()}
+        AthenaManager {
+            client,
+            database: "mock".to_string(),
+            catalog: "mock".to_string(),
+        }
     }
 }
 
 #[cfg(test)]
 pub mod constructor {
     use super::*;
+    use super::*;
     use aws_sdk_athena::types::error::{
         InternalServerException, InvalidRequestException, MetadataException,
     };
-    use aws_smithy_http::body::SdkBody;
-    use aws_smithy_types::error::metadata::ErrorMetadata;
-    use aws_smithy_types::error::Unhandled;
+    use aws_smithy_runtime_api::http::{Response, StatusCode};
+    use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata};
 
     #[tokio::test]
     async fn is_ok() {
@@ -1333,11 +1328,13 @@ pub mod constructor {
                 .meta(meta)
                 .build();
             let err = GetDatabaseError::MetadataException(metadata_exception);
-            let inner = http::Response::builder()
-                .status(200)
-                .header("Content-Type", "application/json")
-                .body(SdkBody::empty())
-                .unwrap();
+            let inner_status = http::StatusCode::from_u16(200).unwrap();
+            let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+            let headers = inner.headers_mut();
+            headers.insert(
+                "Content-Type",
+                http::HeaderValue::from_str("application/json").unwrap(),
+            );
             Err(SdkError::service_error(err, inner))
         });
 
@@ -1366,11 +1363,13 @@ pub mod constructor {
                 .meta(meta)
                 .build();
             let err = GetDatabaseError::InternalServerException(internal_server_exception);
-            let inner = http::Response::builder()
-                .status(200)
-                .header("Content-Type", "application/json")
-                .body(SdkBody::empty())
-                .unwrap();
+            let inner_status = http::StatusCode::from_u16(200).unwrap();
+            let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+            let headers = inner.headers_mut();
+            headers.insert(
+                "Content-Type",
+                http::HeaderValue::from_str("application/json").unwrap(),
+            );
             Err(SdkError::service_error(err, inner))
         });
 
@@ -1399,44 +1398,13 @@ pub mod constructor {
                 .meta(meta)
                 .build();
             let err = GetDatabaseError::InvalidRequestException(invalid_request_exception);
-            let inner = http::Response::builder()
-                .status(200)
-                .header("Content-Type", "application/json")
-                .body(SdkBody::empty())
-                .unwrap();
-            Err(SdkError::service_error(err, inner))
-        });
-
-        let res = AthenaManager::new_impl(catalog, database, &mocks).await;
-        assert!(res.is_err());
-        let is_unexpected = match res.err().unwrap() {
-            ConstructorError::UnexpectedError(_) => true,
-            _ => false,
-        };
-        assert!(is_unexpected);
-    }
-
-    #[tokio::test]
-    async fn unhandled_error() {
-        let catalog = "catalog";
-        let database = "database";
-
-        let mut mocks = MockAthenaManagerOps::new();
-        mocks.expect_get_database().times(1).returning(|_, _, _| {
-            let meta = ErrorMetadata::builder()
-                .message("an error has occurred")
-                .code("500")
-                .build();
-            let unhandled_exception = Unhandled::builder()
-                .source("an error has occurred")
-                .meta(meta)
-                .build();
-            let err = GetDatabaseError::Unhandled(unhandled_exception);
-            let inner = http::Response::builder()
-                .status(200)
-                .header("Content-Type", "application/json")
-                .body(SdkBody::empty())
-                .unwrap();
+            let inner_status = http::StatusCode::from_u16(200).unwrap();
+            let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+            let headers = inner.headers_mut();
+            headers.insert(
+                "Content-Type",
+                http::HeaderValue::from_str("application/json").unwrap(),
+            );
             Err(SdkError::service_error(err, inner))
         });
 
@@ -1494,12 +1462,12 @@ pub mod accessors {
 #[cfg(test)]
 pub mod start_query {
     use super::*;
+    use super::*;
     use aws_sdk_athena::types::error::{
         InternalServerException, InvalidRequestException, TooManyRequestsException,
     };
-    use aws_smithy_http::body::SdkBody;
-    use aws_smithy_types::error::metadata::ErrorMetadata;
-    use aws_smithy_types::error::Unhandled;
+    use aws_smithy_runtime_api::http::{Response, StatusCode};
+    use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata};
 
     #[tokio::test]
     async fn is_ok() {
@@ -1562,11 +1530,13 @@ pub mod start_query {
                     .build();
                 let err =
                     StartQueryExecutionError::InvalidRequestException(invalid_request_exception);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                let headers = inner.headers_mut();
+                headers.insert(
+                    "Content-Type",
+                    http::HeaderValue::from_str("application/json").unwrap(),
+                );
                 Err(SdkError::service_error(err, inner))
             });
 
@@ -1610,11 +1580,13 @@ pub mod start_query {
                     .build();
                 let err =
                     StartQueryExecutionError::TooManyRequestsException(too_many_request_exception);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                let headers = inner.headers_mut();
+                headers.insert(
+                    "Content-Type",
+                    http::HeaderValue::from_str("application/json").unwrap(),
+                );
                 Err(SdkError::service_error(err, inner))
             });
 
@@ -1658,11 +1630,13 @@ pub mod start_query {
                     .build();
                 let err =
                     StartQueryExecutionError::InternalServerException(internal_server_exception);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                let headers = inner.headers_mut();
+                headers.insert(
+                    "Content-Type",
+                    http::HeaderValue::from_str("application/json").unwrap(),
+                );
                 Err(SdkError::service_error(err, inner))
             });
 
@@ -1700,16 +1674,14 @@ pub mod start_query {
                     .message("an error has occurred")
                     .code("500")
                     .build();
-                let unhandled_exception = Unhandled::builder()
-                    .source("an error has occurred")
-                    .meta(meta)
-                    .build();
-                let err = StartQueryExecutionError::Unhandled(unhandled_exception);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let err = StartQueryExecutionError::generic(meta);
+                let inner_status = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                let headers = inner.headers_mut();
+                headers.insert(
+                    "Content-Type",
+                    http::HeaderValue::from_str("application/json").unwrap(),
+                );
                 Err(SdkError::service_error(err, inner))
             });
 
@@ -1734,9 +1706,8 @@ pub mod get_query_status {
     use super::*;
     use aws_sdk_athena::types::error::{InternalServerException, InvalidRequestException};
     use aws_sdk_athena::types::{AthenaError, QueryExecution, QueryExecutionStatus};
-    use aws_smithy_http::body::SdkBody;
-    use aws_smithy_types::error::metadata::ErrorMetadata;
-    use aws_smithy_types::error::Unhandled;
+    use aws_smithy_runtime_api::http::{Response, StatusCode};
+    use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata};
 
     #[tokio::test]
     async fn is_queued() {
@@ -1989,11 +1960,13 @@ pub mod get_query_status {
                     .build();
                 let err =
                     GetQueryExecutionError::InvalidRequestException(invalid_request_exception);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                let headers = inner.headers_mut();
+                headers.insert(
+                    "Content-Type",
+                    http::HeaderValue::from_str("application/json").unwrap(),
+                );
                 Err(SdkError::service_error(err, inner))
             });
 
@@ -2037,11 +2010,13 @@ pub mod get_query_status {
                     .build();
                 let err =
                     GetQueryExecutionError::InternalServerException(internal_server_exception);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                let headers = inner.headers_mut();
+                headers.insert(
+                    "Content-Type",
+                    http::HeaderValue::from_str("application/json").unwrap(),
+                );
                 Err(SdkError::service_error(err, inner))
             });
 
@@ -2079,16 +2054,14 @@ pub mod get_query_status {
                     .message("an error has occurred")
                     .code("500")
                     .build();
-                let unhandled_exception = Unhandled::builder()
-                    .source("an error has occurred")
-                    .meta(meta)
-                    .build();
-                let err = GetQueryExecutionError::Unhandled(unhandled_exception);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let err = GetQueryExecutionError::generic(meta);
+                let inner_status = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                let headers = inner.headers_mut();
+                headers.insert(
+                    "Content-Type",
+                    http::HeaderValue::from_str("application/json").unwrap(),
+                );
                 Err(SdkError::service_error(err, inner))
             });
 
@@ -2116,9 +2089,8 @@ pub mod get_query_results {
     use aws_sdk_athena::types::{
         ColumnInfo, ColumnNullable, Datum, ResultSet, ResultSetMetadata, Row,
     };
-    use aws_smithy_http::body::SdkBody;
-    use aws_smithy_types::error::metadata::ErrorMetadata;
-    use aws_smithy_types::error::Unhandled;
+    use aws_smithy_runtime_api::http::{Response, StatusCode};
+    use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata};
 
     fn get_result_set_metadata() -> ResultSetMetadata {
         ResultSetMetadata::builder()
@@ -2127,12 +2099,14 @@ pub mod get_query_results {
                     .name("col1".to_string())
                     .r#type("varchar".to_string())
                     .nullable(ColumnNullable::Nullable)
-                    .build(),
+                    .build()
+                    .unwrap(),
                 ColumnInfo::builder()
                     .name("col2".to_string())
                     .r#type("bigint".to_string())
                     .nullable(ColumnNullable::NotNull)
-                    .build(),
+                    .build()
+                    .unwrap(),
             ]))
             .build()
     }
@@ -2373,11 +2347,13 @@ pub mod get_query_results {
                     .meta(meta)
                     .build();
                 let err = GetQueryResultsError::InvalidRequestException(invalid_request_exception);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                let headers = inner.headers_mut();
+                headers.insert(
+                    "Content-Type",
+                    http::HeaderValue::from_str("application/json").unwrap(),
+                );
                 Err(SdkError::service_error(err, inner))
             });
 
@@ -2422,11 +2398,13 @@ pub mod get_query_results {
                     .build();
                 let err =
                     GetQueryResultsError::TooManyRequestsException(too_many_request_exception);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                let headers = inner.headers_mut();
+                headers.insert(
+                    "Content-Type",
+                    http::HeaderValue::from_str("application/json").unwrap(),
+                );
                 Err(SdkError::service_error(err, inner))
             });
 
@@ -2470,11 +2448,13 @@ pub mod get_query_results {
                     .meta(meta)
                     .build();
                 let err = GetQueryResultsError::InternalServerException(internal_server_exception);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                let headers = inner.headers_mut();
+                headers.insert(
+                    "Content-Type",
+                    http::HeaderValue::from_str("application/json").unwrap(),
+                );
                 Err(SdkError::service_error(err, inner))
             });
 
@@ -2513,16 +2493,14 @@ pub mod get_query_results {
                     .message("an error has occurred")
                     .code("500")
                     .build();
-                let unhandled_exception = Unhandled::builder()
-                    .source("an error has occurred")
-                    .meta(meta)
-                    .build();
-                let err = GetQueryResultsError::Unhandled(unhandled_exception);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let err = GetQueryResultsError::generic(meta);
+                let inner_status = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                let headers = inner.headers_mut();
+                headers.insert(
+                    "Content-Type",
+                    http::HeaderValue::from_str("application/json").unwrap(),
+                );
                 Err(SdkError::service_error(err, inner))
             });
 
@@ -2878,12 +2856,14 @@ mod run_query {
                     .name("col1".to_string())
                     .r#type("varchar".to_string())
                     .nullable(ColumnNullable::Nullable)
-                    .build(),
+                    .build()
+                    .unwrap(),
                 ColumnInfo::builder()
                     .name("col2".to_string())
                     .r#type("bigint".to_string())
                     .nullable(ColumnNullable::NotNull)
-                    .build(),
+                    .build()
+                    .unwrap(),
             ]))
             .build()
     }

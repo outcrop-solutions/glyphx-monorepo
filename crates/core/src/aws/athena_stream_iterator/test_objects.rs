@@ -68,22 +68,22 @@ impl MockStream {
             .name("glyphx_id__")
             .r#type("string")
             .nullable(ColumnNullable::NotNull)
-            .build();
+            .build().unwrap();
         let column2 = ColumnInfo::builder()
             .name(&self.state.x_field_name)
             .r#type("string")
             .nullable(ColumnNullable::NotNull)
-            .build();
+            .build().unwrap();
         let column3 = ColumnInfo::builder()
             .name(&self.state.y_field_name)
             .r#type("string")
             .nullable(ColumnNullable::NotNull)
-            .build();
+            .build().unwrap();
         let column4 = ColumnInfo::builder()
             .name(&self.state.z_field_name)
             .r#type("string")
             .nullable(ColumnNullable::NotNull)
-            .build();
+            .build().unwrap();
         ResultSetMetadata::builder()
             .column_info(column1)
             .column_info(column2)
@@ -160,3 +160,85 @@ impl Stream for MockStream {
     }
 }
  unsafe impl Send for MockStream {}
+
+    fn get_result_set_metadata(x_field_name: &str, y_field_name: &str, z_field_name: &str) -> ResultSetMetadata {
+        let column1 = ColumnInfo::builder()
+            .name("glyphx_id__")
+            .r#type("string")
+            .nullable(ColumnNullable::NotNull)
+            .build().unwrap();
+        let column2 = ColumnInfo::builder()
+            .name(x_field_name)
+            .r#type("string")
+            .nullable(ColumnNullable::NotNull)
+            .build().unwrap();
+        let column3 = ColumnInfo::builder()
+            .name(y_field_name)
+            .r#type("string")
+            .nullable(ColumnNullable::NotNull)
+            .build().unwrap();
+        let column4 = ColumnInfo::builder()
+            .name(z_field_name)
+            .r#type("string")
+            .nullable(ColumnNullable::NotNull)
+            .build().unwrap();
+        ResultSetMetadata::builder()
+            .column_info(column1)
+            .column_info(column2)
+            .column_info(column3)
+            .column_info(column4)
+            .build()
+    }
+
+    fn get_header_row(x_field_name: &str, y_field_name: &str, z_field_name: &str) -> Row {
+        let col1 = "glyphx_id__";
+        let col2 = &x_field_name;
+        let col3 = &y_field_name;
+        let col4 = &z_field_name;
+        Row::builder()
+            .data(Datum::builder().var_char_value(col1.to_string()).build())
+            .data(Datum::builder().var_char_value(col2.to_string()).build())
+            .data(Datum::builder().var_char_value(col3.to_string()).build())
+            .data(Datum::builder().var_char_value(col4.to_string()).build())
+            .build()
+    }
+
+    fn get_row_data(counter: usize, row_number: usize, is_multiple_row_ids: bool) -> Row {
+        let count = (counter * 30) + ((row_number * 3) + 1);
+        let col1 = if is_multiple_row_ids {
+            format!("{}|{}", count, count * 100 + count)
+        } else {
+            format!("{}", count)
+        };
+        let col2 = format!("{}", count);
+        let col3 = format!("{}", count + 1);
+        let col4 = format!("{}", count + 2);
+        Row::builder()
+            .data(Datum::builder().var_char_value(col1).build())
+            .data(Datum::builder().var_char_value(col2).build())
+            .data(Datum::builder().var_char_value(col3).build())
+            .data(Datum::builder().var_char_value(col4).build())
+            .build()
+    }
+
+    pub fn get_query_results_set(counter: usize, x_field_name: &str, y_field_name: &str, z_field_name: &str,result_set_size: usize,include_header: bool, is_empty: bool) -> GetQueryResultsOutput {
+        let mut rng = rand::thread_rng();
+        let rand_index = rng.gen_range(1..result_set_size) - 1;
+        let metadata = get_result_set_metadata(x_field_name, y_field_name, z_field_name);
+        let mut result_set = ResultSet::builder().result_set_metadata(metadata);
+        if !is_empty {
+            if include_header {
+                result_set = result_set.rows(get_header_row(x_field_name, y_field_name, z_field_name ));
+            }
+            for i in 0..result_set_size {
+                let row = get_row_data(counter, i, if i == rand_index { true } else { false });
+                result_set = result_set.rows(row);
+            }
+        } else {
+            result_set = result_set.set_rows(Some(Vec::new()));
+        }
+        let result_set = result_set.build();
+        GetQueryResultsOutput::builder()
+            .result_set(result_set)
+            .build()
+    }

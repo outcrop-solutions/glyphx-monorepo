@@ -31,7 +31,7 @@ fn build_find_one(struct_ident: &Ident) -> TokenStream {
           }
 
           let collection = collection.unwrap();
-          collection.find_one(filter, options).await
+          collection.find_one(filter).with_options(options).await
       }
     }
 }
@@ -48,7 +48,7 @@ fn build_count_documents() -> TokenStream {
               return mongodb::error::Result::Err(collection.err().unwrap());
           }
           let collection = collection.unwrap();
-          collection.count_documents(filter, options).await
+          collection.count_documents(filter).with_options(options).await
       }
     }
 }
@@ -65,7 +65,7 @@ fn build_query_documents(struct_ident: &Ident) -> TokenStream {
               return mongodb::error::Result::Err(collection.err().unwrap());
           }
           let collection = collection.unwrap();
-          let res = collection.find(filter, options).await;
+          let res = collection.find(filter).with_options(options).await;
 
           if res.is_err() {
               return mongodb::error::Result::Err(res.err().unwrap());
@@ -92,7 +92,7 @@ fn build_query_ids() -> TokenStream {
           }
           let collection = collection.unwrap();
           let collection = collection.clone_with_type::<crate::models::common::DocumentIds>();
-          let res = collection.find(filter, options).await;
+          let res = collection.find(filter).with_options(options).await;
 
           if res.is_err() {
               return mongodb::error::Result::Err(res.err().unwrap());
@@ -121,7 +121,7 @@ fn build_insert_document() -> TokenStream {
           }
           //We need this support the genric Document struct
           let collection = collection.unwrap().clone_with_type::<mongodb::bson::Document>();
-          let result = collection.insert_one(document, options).await;
+          let result = collection.insert_one(document).with_options(options).await;
           if result.is_err() {
               return crate::models::common::create_one::CreateOneResult::Err(result.err().unwrap());
           }
@@ -147,7 +147,7 @@ fn build_update_document() -> TokenStream {
           }
           let collection = collection.unwrap();
           let result = collection
-              .update_one(filter.clone(), document.clone(), options)
+              .update_one(filter.clone(), document.clone()).with_options(options)
               .await;
           if result.is_err() {
               return crate::models::common::update_one::UpdateOneResult::Err(result.err().unwrap());
@@ -174,7 +174,7 @@ fn build_delete_document() -> TokenStream {
           }
           let collection = collection.unwrap();
           let result = collection
-              .delete_one(filter.clone(), options)
+              .delete_one(filter.clone()).with_options(options)
               .await;
           if result.is_err() {
               return crate::models::common::delete_one::DeleteOneResult::Err(result.err().unwrap());

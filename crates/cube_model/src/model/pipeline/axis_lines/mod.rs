@@ -13,7 +13,7 @@ use wgpu::{
     util::{BufferInitDescriptor, DeviceExt},
     BindGroup, BindGroupLayout, BlendComponent, BlendFactor, BlendOperation, BlendState, Buffer,
     BufferUsages, ColorTargetState, ColorWrites, CommandEncoder, Device, Face, FragmentState,
-    FrontFace, LoadOp, MultisampleState, Operations, PipelineLayoutDescriptor, PolygonMode,
+    FrontFace, LoadOp, MultisampleState, Operations, PipelineCompilationOptions,  PipelineLayoutDescriptor, PolygonMode,
     PrimitiveState, PrimitiveTopology, RenderPassColorAttachment, RenderPassDescriptor,
     RenderPipeline, RenderPipelineDescriptor, ShaderModule, SurfaceConfiguration,
     VertexBufferLayout, VertexState,
@@ -209,6 +209,8 @@ impl AxisLines {
                 module: &shader,
                 entry_point: "vs_main",
                 buffers: &[vertex_buffer_layout],
+                compilation_options: PipelineCompilationOptions::default(),
+                      
             },
             fragment: Some(FragmentState {
                 module: &shader,
@@ -229,6 +231,7 @@ impl AxisLines {
                     }),
                     write_mask: ColorWrites::ALL,
                 })],
+                compilation_options: PipelineCompilationOptions::default(),
             }),
             primitive: PrimitiveState {
                 topology: PrimitiveTopology::TriangleList,
@@ -245,6 +248,7 @@ impl AxisLines {
                 alpha_to_coverage_enabled: false,
             },
             multiview: None,
+            cache: None,
         });
         render_pipeline
     }
@@ -257,10 +261,13 @@ impl AxisLines {
                 resolve_target: None,
                 ops: Operations {
                     load: LoadOp::Load,
-                    store: true,
+                    store: wgpu::StoreOp::Store,
                 },
             })],
             depth_stencil_attachment: None,
+            timestamp_writes: None,
+            occlusion_query_set: None,
+
         });
 
         render_pass.set_pipeline(&self.render_pipeline);

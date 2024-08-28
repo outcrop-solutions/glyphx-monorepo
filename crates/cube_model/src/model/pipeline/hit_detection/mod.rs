@@ -7,10 +7,10 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use wgpu::{
     BindGroup, BindGroupLayout, BlendState, Buffer, ColorTargetState, ColorWrites, CommandEncoder,
-    Device, Face, FragmentState, FrontFace, LoadOp, MultisampleState, Operations,
+    Device, Face, FragmentState, FrontFace, LoadOp, MultisampleState, Operations, PipelineCompilationOptions,
     PipelineLayoutDescriptor, PolygonMode, PrimitiveState, PrimitiveTopology,
     RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline, RenderPipelineDescriptor,
-    ShaderModule, TextureFormat, TextureView, VertexBufferLayout, VertexState,
+    ShaderModule, StoreOp,  TextureFormat, TextureView, VertexBufferLayout, VertexState,
 };
 
 pub fn _encode_glyph_id(glyph_id: u32) -> [f32; 4] {
@@ -81,6 +81,7 @@ impl HitDetection {
                 module: &shader,
                 entry_point: "vs_main",
                 buffers: &[vertex_buffer_layout],
+                compilation_options: PipelineCompilationOptions::default(),
             },
             fragment: Some(FragmentState {
                 module: &shader,
@@ -91,6 +92,7 @@ impl HitDetection {
                     blend: Some(BlendState::REPLACE),
                     write_mask: ColorWrites::ALL,
                 })],
+                compilation_options: PipelineCompilationOptions::default(),
             }),
             primitive: PrimitiveState {
                 topology: PrimitiveTopology::TriangleList,
@@ -107,6 +109,7 @@ impl HitDetection {
                 alpha_to_coverage_enabled: false,
             },
             multiview: None,
+            cache: None,
         });
         render_pipeline
     }
@@ -125,10 +128,12 @@ impl HitDetection {
                 resolve_target: None,
                 ops: Operations {
                     load: LoadOp::Load,
-                    store: true,
+                    store: StoreOp::Store,
                 },
             })],
             depth_stencil_attachment: None,
+            timestamp_writes: None,
+            occlusion_query_set: None,
         });
         render_pass.set_pipeline(&self.render_pipeline);
         render_pass.set_bind_group(0, &self.camera_bind_group, &[]);

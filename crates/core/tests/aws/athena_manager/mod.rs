@@ -1,13 +1,14 @@
 use crate::generate_random_file_name;
 use aws_sdk_athena::operation::get_query_results::{GetQueryResultsError, GetQueryResultsOutput};
 use aws_sdk_s3::error::SdkError;
+use aws_smithy_async::future::pagination_stream::PaginationStream;
+use aws_sdk_athena::config::http::HttpResponse as Response;
 use glyphx_core::aws::athena_manager::AthenaManager;
 use glyphx_core::aws::athena_manager::AthenaQueryStatus;
 use glyphx_core::aws::athena_manager::ColumnDataType;
 use glyphx_core::aws::athena_stream_iterator::AthenaStreamIterator;
 use std::time::{Duration, Instant};
 
-use tokio_stream::{Stream, StreamExt};
 const CATALOG: &str = "AwsDataCatalog";
 const DATABASE: &str = "jpstestdatabase";
 
@@ -86,7 +87,7 @@ async fn validate_table_definition(athena_manager: &AthenaManager, table_name: &
 async fn get_paged_results(
     athena_manager: &AthenaManager,
     table_name: &str,
-) -> Box<dyn Stream<Item = Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>> + Send + Unpin + 'static>
+) -> Box<PaginationStream<Result<GetQueryResultsOutput, SdkError<GetQueryResultsError, Response>>>>
 {
     let query = format!("SELECT * FROM {}", &table_name);
     let query_id = athena_manager.start_query(&query, None).await;
@@ -128,8 +129,7 @@ async fn get_paged_results(
         .get_paged_query_results(&query_id, Some(1))
         .await;
     assert!(pager.is_ok());
-    let pager = pager.unwrap();
-    Box::new(pager)
+    pager.unwrap()
 }
 
 #[tokio::test]
@@ -171,8 +171,8 @@ async fn integration_test() {
         }
         let result = result.unwrap();
         if result.is_some() {
-        let result = result.unwrap();
-        count += 1;
+            let result = result.unwrap();
+            count += 1;
         } else {
             break;
         }

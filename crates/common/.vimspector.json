@@ -5,7 +5,8 @@
       "filetypes": ["rust"],
       "configuration": {
         "request": "launch",
-        "program": "${workspaceRoot}/../../target/debug/deps/glyphx_common-9de71d39b0f359e0",
+        "program": "${workspaceRoot}/../../target/debug/deps/glyphx_common-abf8f65c3e53925c",
+	"args": ["s3_connection::contructor::is_ok","--","--nocapture"],
         "runInTerminal": true,
         "preRunCommands": ["shell cargo test --no-run --features=test --package glyphx_common"]
       }

@@ -19,6 +19,7 @@ pub struct CameraController {
     pub zoom_speed: f32,
     is_drag_rotate: bool,
     is_click: bool,
+
 }
 
 impl CameraController {
@@ -28,6 +29,7 @@ impl CameraController {
             zoom_speed,
             is_drag_rotate: false,
             is_click: false,
+
         }
     }
 
@@ -61,7 +63,7 @@ impl CameraController {
             DeviceEvent::MouseWheel { delta, .. } => {
                 let scroll_amount = -match delta {
                     // A mouse line is about 1 px.
-                    MouseScrollDelta::LineDelta(_, scroll) => scroll * 1.0,
+                    MouseScrollDelta::LineDelta(_, scroll) => scroll * -10.0,
                     MouseScrollDelta::PixelDelta(PhysicalPosition { y: scroll, .. }) => {
                         *scroll as f32
                     }
