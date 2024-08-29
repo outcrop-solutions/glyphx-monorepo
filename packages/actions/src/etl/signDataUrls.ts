@@ -93,6 +93,6 @@ export const signDataUrls = async (projectId: string, stateId: string = '') => {
     console.dir({err}, {depth: null});
 
     e.publish('etl', constants.ERROR_SEVERITY.ERROR);
-    return {error: e.message};
+    return {error: e.data};
   }
 };
