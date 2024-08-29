@@ -89,6 +89,9 @@ export const signDataUrls = async (projectId: string, stateId: string = '') => {
     }
   } catch (err) {
     const e = new error.ActionError('An unexpected error occurred running sign data urls', 'etl', {projectId}, err);
+
+    console.dir({err}, {depth: null});
+
     e.publish('etl', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }
