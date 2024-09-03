@@ -49,7 +49,10 @@ fn vs_main(
     let normal = vec3(model.normal.x, model.normal.y, model.normal.z);
     out.color_code = model.color_code;
     out.world_position = pos;
-    out.world_normal = normal;
+    //move the normals based on instance buffer
+    let normal_v4 = vec4<f32>(model.normal, 0.0);
+    let rotated_normal = camera.view_proj * normal_v4;
+    out.world_normal = vec3<f32>(rotated_normal.x, rotated_normal.y, rotated_normal.z);
 
     out.clip_position = camera.view_proj * vec4<f32>(pos, 1.0);
     return out;
@@ -60,15 +63,12 @@ fn vs_main(
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let color = color_table_buffer.color_table[in.color_code];
-   // We don't need (or want) much ambient light, so 0.1 is fine
     let ambient_strength = light.light_intensity;
     let ambient_color = light.light_color * ambient_strength;
 
-    //return vec4<f32>(color);
-    //return vec4<f32>(1.0, 0.0, 0.0, 1.0);
     let light_dir = normalize(light.light_pos- in.world_position);
     let view_dir = normalize(camera.view_pos.xyz - in.world_position);
-    let half_dir = normalize(view_dir + light_dir);
+    let half_dir = reflect(-light_dir, in.world_position);
 
     let diffuse_strength = max(dot(in.world_normal, light_dir), 0.0);
     let diffuse_color = light.light_color * diffuse_strength;
