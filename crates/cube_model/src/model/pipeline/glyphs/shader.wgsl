@@ -147,7 +147,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let specular_color = specular_strength * light.light_color;
 
     //A second light
-    let light_dir2 = normalize(vec3<f32>(-2.0, -8.0, -8.0) - in.world_position);
+    let light_dir2 = normalize(vec3<f32>(-light.light_pos.x, light.light_pos.y, -light.light_pos.z) - in.world_position);
     let view_dir2 = normalize(camera.view_pos.xyz - in.world_position);
     let half_dir2 = reflect(-light_dir2, in.world_position);
 

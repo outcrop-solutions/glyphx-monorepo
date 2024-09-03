@@ -554,7 +554,7 @@ impl Default for ModelConfiguration {
             //L -- Done
             light_location: [2.0, -8.0, -8.0],
             //I -- Done
-            light_intensity: 0.65,
+            light_intensity: 0.60,
             //S -- Done
             glyph_size: 0.015,
             //G
