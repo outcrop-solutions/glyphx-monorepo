@@ -1,9 +1,9 @@
-mod errors;
 mod color_wheel;
+mod errors;
 
-pub use color_wheel::ColorWheel;
 use crate::assets::color::Color;
 use crate::model::pipeline::glyphs::glyph_uniform_data::{InterpolationType, Order};
+pub use color_wheel::ColorWheel;
 pub use errors::*;
 use glyphx_core_error::GlyphxErrorData;
 use serde::{Deserialize, Serialize};
@@ -68,7 +68,7 @@ macro_rules! parse_json {
             let error_data = GlyphxErrorData::new(message, Some(inner_data), None);
             return Err(FromJsonError::TypeMismatch(error_data));
         }
-        let $var_name = $var_name.as_str().unwrap().to_string() ;
+        let $var_name = $var_name.as_str().unwrap().to_string();
     };
 
     (let $var_name: ident = &$json: ident [$field_name: literal] as bool ) => {
@@ -314,17 +314,17 @@ impl ModelConfiguration {
         parse_json!(let light_intensity = &json["light_intensity"] as f32);
         parse_json!(let glyph_size = &json["glyph_size"] as f32);
         parse_json!(let model_origin = &json["model_origin"] as Array);
-        
+
         parse_json!(let x_interpolation = &json["x_interpolation"] as String);
         parse_json!(let x_order = &json["x_order"] as String);
         let x_interpolation = InterpolationType::from(x_interpolation);
         let x_order = Order::from(x_order);
-        
+
         parse_json!(let y_interpolation = &json["y_interpolation"] as String);
         parse_json!(let y_order = &json["y_order"] as String);
         let y_interpolation = InterpolationType::from(y_interpolation);
         let y_order = Order::from(y_order);
-        
+
         parse_json!(let z_interpolation = &json["z_interpolation"] as String);
         parse_json!(let z_order = &json["z_order"] as String);
         let z_interpolation = InterpolationType::from(z_interpolation);
@@ -379,125 +379,125 @@ impl ModelConfiguration {
                     partial_json!(let min_color = &value as  Array 4);
                     let min_color = Self::color_from_array(min_color)?;
                     self.min_color = min_color;
-                },
+                }
                 "max_color" => {
                     partial_json!(let max_color = &value as  Array 4);
                     let max_color = Self::color_from_array(max_color)?;
                     self.max_color = max_color;
-                },
+                }
                 "background_color" => {
                     partial_json!(let background_color = &value as  Array 4);
                     let background_color = Self::color_from_array(background_color)?;
                     self.background_color = background_color;
-                },
+                }
                 "x_axis_color" => {
                     partial_json!(let x_axis_color = &value as  Array 4);
                     let x_axis_color = Self::color_from_array(x_axis_color)?;
                     self.x_axis_color = x_axis_color;
-                },
+                }
                 "y_axis_color" => {
                     partial_json!(let y_axis_color = &value as  Array 4);
                     let y_axis_color = Self::color_from_array(y_axis_color)?;
                     self.y_axis_color = y_axis_color;
-                },
+                }
                 "z_axis_color" => {
                     partial_json!(let z_axis_color = &value as  Array 4);
                     let z_axis_color = Self::color_from_array(z_axis_color)?;
                     self.z_axis_color = z_axis_color;
-                },
+                }
                 "grid_cylinder_radius" => {
                     partial_json!(let grid_cylinder_radius = &value as f32);
                     self.grid_cylinder_radius = grid_cylinder_radius;
-                },
+                }
                 "grid_cylinder_length" => {
                     partial_json!(let grid_cylinder_length = &value as f32);
                     self.grid_cylinder_length = grid_cylinder_length;
-                },
+                }
                 "grid_cone_length" => {
                     partial_json!(let grid_cone_length = &value as f32);
                     self.grid_cone_length = grid_cone_length;
-                },
+                }
                 "grid_cone_radius" => {
                     partial_json!(let grid_cone_radius = &value as f32);
                     self.grid_cone_radius = grid_cone_radius;
-                },
+                }
                 "glyph_offset" => {
                     partial_json!(let glyph_offset = &value as f32);
                     self.glyph_offset = glyph_offset;
-                },
+                }
                 "z_height_ratio" => {
                     partial_json!(let z_height_ratio = &value as f32);
                     self.z_height_ratio = z_height_ratio;
-                },
+                }
                 "min_glyph_height" => {
                     partial_json!(let min_glyph_height = &value as f32);
                     self.min_glyph_height = min_glyph_height;
-                },
+                }
                 "light_location" => {
                     partial_json!(let light_location = &value as Array 3);
                     let light_location = Self::location_from_array(light_location)?;
                     self.light_location = light_location;
-                },
+                }
                 "light_color" => {
                     partial_json!(let light_color = &value as Array 4);
                     let light_color = Self::color_from_array(light_color)?;
                     self.light_color = light_color;
-                },
+                }
                 "light_intensity" => {
                     partial_json!(let light_intensity = &value as f32);
                     self.light_intensity = light_intensity;
-                },
+                }
                 "glyph_size" => {
                     partial_json!(let glyph_size = &value as f32);
                     self.glyph_size = glyph_size;
-                },
-                
+                }
+
                 "x_interpolation" => {
                     partial_json!(let x_interpolation = &value as String);
                     let x_interpolation = InterpolationType::from(x_interpolation);
                     self.x_interpolation = x_interpolation;
-                },
+                }
 
                 "x_order" => {
                     partial_json!(let x_order = &value as String);
                     let x_order = Order::from(x_order);
                     self.x_order = x_order;
-                },
+                }
 
                 "y_interpolation" => {
                     partial_json!(let y_interpolation = &value as String);
                     let y_interpolation = InterpolationType::from(y_interpolation);
                     self.y_interpolation = y_interpolation;
-                },
+                }
 
                 "y_order" => {
                     partial_json!(let y_order = &value as String);
                     let y_order = Order::from(y_order);
                     self.y_order = y_order;
-                },
+                }
 
                 "z_interpolation" => {
                     partial_json!(let z_interpolation = &value as String);
                     let z_interpolation = InterpolationType::from(z_interpolation);
                     self.z_interpolation = z_interpolation;
-                },
+                }
 
                 "z_order" => {
                     partial_json!(let z_order = &value as String);
                     let z_order = Order::from(z_order);
                     self.z_order = z_order;
-                },
+                }
 
                 "model_origin" => {
                     partial_json!(let model_origin = &value as Array 3);
                     let model_origin = Self::location_from_array(model_origin)?;
                     self.model_origin = model_origin;
-                },
+                }
 
                 "color_flip" => {
                     partial_json!(let color_flip = &value as bool);
                     self.color_flip = color_flip;
-                },
+                }
 
                 value => {
                     let message = format!(
@@ -545,11 +545,16 @@ impl Default for ModelConfiguration {
             //E -- Done
             min_glyph_height: 0.0002,
             //W -- Done
-            light_color: [255.0, 255.0, 255.0, 1.0],
+            //White
+            //light_color: [255.0, 255.0, 155.0, 1.0],
+            //Warm White
+            //light_color: [240.0, 224.0, 192.0, 1.0],
+            //pale yellow
+            light_color: [255.0, 240.0, 200.0, 1.0],
             //L -- Done
-            light_location: [-30.0, -30.0, -30.0],
+            light_location: [2.0, -8.0, -8.0],
             //I -- Done
-            light_intensity: 0.02,
+            light_intensity: 0.60,
             //S -- Done
             glyph_size: 0.015,
             //G

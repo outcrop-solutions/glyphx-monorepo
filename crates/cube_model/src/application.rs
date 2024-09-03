@@ -94,7 +94,7 @@ impl Application {
 impl ApplicationHandler<ModelEvent> for Application {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         let window = event_loop
-            .create_window(Window::default_attributes().with_title("Hello!"))
+            .create_window(Window::default_attributes().with_title("GlyphX"))
             .unwrap();
         let _ = window.request_inner_size(PhysicalSize::new(self.width, self.height));
 
@@ -503,6 +503,7 @@ impl ApplicationHandler<ModelEvent> for Application {
 
                         let mut cf = self.configuration.borrow_mut();
                         cf.light_intensity = cf.light_intensity * modifier;
+                        eprintln!("{}", cf.light_intensity);
                     }
                     WindowEvent::KeyboardInput {
                         event:
@@ -742,8 +743,19 @@ impl ApplicationHandler<ModelEvent> for Application {
                             },
                         ..
                     } => {
-                        let event = ModelEvent::ModelMove(ModelMoveDirection::Up(1.0));
-                        send_event(event);
+                        if self.alt_pressed || self.ctrl_pressed {
+                            let mut cf = self.configuration.borrow_mut();
+                            let modifier = if self.shift_pressed { 1.0 } else { 10.0 };
+                            if self.alt_pressed {
+                                cf.light_location[1] += modifier;
+                            } else {
+                                cf.light_location[2] += modifier;
+                            }
+                            eprintln!("Light Location: {:?}", cf.light_location);
+                        } else {
+                            let event = ModelEvent::ModelMove(ModelMoveDirection::Up(1.0));
+                            send_event(event);
+                        }
                     }
 
                     WindowEvent::KeyboardInput {
@@ -755,8 +767,19 @@ impl ApplicationHandler<ModelEvent> for Application {
                             },
                         ..
                     } => {
-                        let event = ModelEvent::ModelMove(ModelMoveDirection::Down(1.0));
-                        send_event(event);
+                        if self.alt_pressed || self.ctrl_pressed {
+                            let mut cf = self.configuration.borrow_mut();
+                            let modifier = if self.shift_pressed { 1.0 } else { 10.0 };
+                            if self.alt_pressed {
+                                cf.light_location[1] -= modifier;
+                            } else {
+                                cf.light_location[2] -= modifier;
+                            }
+                            eprintln!("Light Location: {:?}", cf.light_location);
+                        } else {
+                            let event = ModelEvent::ModelMove(ModelMoveDirection::Down(1.0));
+                            send_event(event);
+                        }
                     }
 
                     WindowEvent::KeyboardInput {
@@ -768,8 +791,19 @@ impl ApplicationHandler<ModelEvent> for Application {
                             },
                         ..
                     } => {
-                        let event = ModelEvent::ModelMove(ModelMoveDirection::Left(1.0));
-                        send_event(event);
+                        if self.alt_pressed || self.ctrl_pressed {
+                            let mut cf = self.configuration.borrow_mut();
+                            let modifier = if self.shift_pressed { 1.0 } else { 10.0 };
+                            if self.alt_pressed {
+                                cf.light_location[0] -= modifier;
+                            } else {
+                                cf.light_location[0] -= modifier;
+                            }
+                            eprintln!("Light Location: {:?}", cf.light_location);
+                        } else {
+                            let event = ModelEvent::ModelMove(ModelMoveDirection::Left(1.0));
+                            send_event(event);
+                        }
                     }
 
                     WindowEvent::KeyboardInput {
@@ -781,8 +815,19 @@ impl ApplicationHandler<ModelEvent> for Application {
                             },
                         ..
                     } => {
-                        let event = ModelEvent::ModelMove(ModelMoveDirection::Right(1.0));
-                        send_event(event);
+                        if self.alt_pressed || self.ctrl_pressed {
+                            let mut cf = self.configuration.borrow_mut();
+                            let modifier = if self.shift_pressed { 1.0 } else { 10.0 };
+                            if self.alt_pressed {
+                                cf.light_location[0] += modifier;
+                            } else {
+                                cf.light_location[0] += modifier;
+                            }
+                            eprintln!("Light Location: {:?}", cf.light_location);
+                        } else {
+                            let event = ModelEvent::ModelMove(ModelMoveDirection::Right(1.0));
+                            send_event(event);
+                        }
                     }
                     WindowEvent::Resized(physical_size) => {
                         state.resize(physical_size);

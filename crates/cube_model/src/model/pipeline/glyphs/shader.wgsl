@@ -114,7 +114,9 @@ fn vs_main(
     out.world_position = vec3<f32>(x_pos + camera.x_offset, y_pos + camera.y_offset, z_pos + camera.z_offset);
 
     //move the normals based on instance buffer
-    out.world_normal = vec3<f32>(model.normal);
+    let normal_v4 = vec4<f32>(model.normal, 0.0);
+    let rotated_normal = camera.view_proj * normal_v4;
+    out.world_normal = vec3<f32>(rotated_normal.x, rotated_normal.y, rotated_normal.z);
 
     out.color_code = color;
     out.clip_position = camera.view_proj * vec4<f32>(out.world_position[0], out.world_position[1], out.world_position[2], 1.0);
@@ -126,7 +128,6 @@ fn vs_main(
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-   // return vec4<f32>(0.0,0.0,0.0, 1.0);
     var alpha = 1.0;
     if ( in.flags != 1u) {
     	alpha = 0.15;
@@ -135,9 +136,9 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let ambient_strength = light.light_intensity;
     let ambient_color = light.light_color * ambient_strength;
 
-    let light_dir = normalize(light.light_pos - in.world_position);
+    let light_dir = normalize( light.light_pos - in.world_position);
     let view_dir = normalize(camera.view_pos.xyz - in.world_position);
-    let half_dir = normalize(view_dir + light_dir);
+    let half_dir = reflect(-light_dir, in.world_position);
 
     let diffuse_strength = max(dot(in.world_normal, light_dir), 0.0);
     let diffuse_color = light.light_color * diffuse_strength;
@@ -145,9 +146,21 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let specular_strength = pow(max(dot(in.world_normal, half_dir), 0.0), 32.0);
     let specular_color = specular_strength * light.light_color;
 
-    let result = (ambient_color + diffuse_color + specular_color) * color.xyz;
+    //A second light
+    let light_dir2 = normalize(vec3<f32>(-light.light_pos.x, light.light_pos.y, -light.light_pos.z) - in.world_position);
+    let view_dir2 = normalize(camera.view_pos.xyz - in.world_position);
+    let half_dir2 = reflect(-light_dir2, in.world_position);
+
+    let diffuse_strength2 = max(dot(in.world_normal, light_dir2), 0.0);
+    let diffuse_color2 = light.light_color * diffuse_strength2;
+
+    let specular_strength2 = pow(max(dot(in.world_normal, half_dir2), 0.0), 32.0);
+    let specular_color2 = specular_strength2 * light.light_color;
+	
+
+    let result = (ambient_color + diffuse_color +  specular_color+ specular_color2) * color.xyz;
     //TODO: The light needs some work as it relates to the glyphs.  It is making them all yellow
-    //return vec4<f32>(result, 1.0);
-    return vec4<f32>(color[0], color[1], color[2], alpha);
+    return vec4<f32>(result, alpha);
+    //return vec4<f32>(color[0], color[1], color[2], alpha);
 }
  

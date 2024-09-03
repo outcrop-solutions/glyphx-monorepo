@@ -351,11 +351,6 @@ impl ModelRunner {
     pub async fn run(&self, width: u32, height: u32) {
         let el = EventLoop::<ModelEvent>::with_user_event().build().unwrap();
 
-        //        let this_window_id = window.id();
-        //self.is_running = true;
-
-        // let config = self.configuration.clone();
-        // let cm = self.camera_manager.clone();
 
         let mut application = Application::new(
             self.configuration.clone(),
@@ -369,5 +364,6 @@ impl ModelRunner {
         }
 
         let _ = el.run_app(&mut application);
+        
     }
 }
