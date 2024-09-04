@@ -51,4 +51,4 @@ web-sys = { version = "0.3", features = [
     "CustomEvent",
     "CustomEventInit",
 ]}
-wgpu = { version = "0.16", features = ["webgl"]}
+wgpu = { version = "22.1.0", features = ["webgl"]}

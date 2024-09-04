@@ -12,7 +12,6 @@ mod errors;
 mod orientation_manager;
 mod pipeline_manager;
 pub(crate) mod selected_glyph;
-mod wgpu_manager;
 
 //2. Define any imports from the current crate.
 use crate::{
@@ -49,10 +48,9 @@ pub use errors::*;
 use orientation_manager::{Face, OrientationManager};
 use pipeline_manager::PipelineManager;
 pub use selected_glyph::{GlyphDescription, SelectedGlyph};
-use wgpu_manager::WgpuManager;
 
 //4. Define any imports from external Glyphx Crates.
-use model_common::Stats;
+use model_common::{Stats, WgpuManager};
 
 //5. Define any imports from external 3rd party crates.
 use glam::Vec3;
