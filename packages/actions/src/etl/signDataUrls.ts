@@ -3,7 +3,6 @@ import {error, constants} from 'core';
 import {s3Connection} from '../../../business/src/lib';
 import {hashFiles, hashPayload, oldHashFunction} from 'business/src/util/hashFunctions';
 import {projectService, stateService} from 'business';
-import {S3Manager} from 'core/src/aws';
 import {getServerSession} from 'next-auth';
 import {authOptions} from '../auth';
 import {signUrls} from './signUrls';

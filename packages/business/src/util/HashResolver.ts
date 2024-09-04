@@ -1,23 +1,20 @@
-// @ts-ignore
 import {S3Manager} from 'core/src/aws';
 import MD5 from 'crypto-js/md5';
-import {projectService} from 'services';
-import {StateService} from 'services/state';
 import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
 
 export interface HashStrategy {
+  // Must be globally unique to each instance of HashResolver
   version: number;
-
   /**
    * Performs project.files (fileSystem) hashing operation
    * Changes if fileStat.fileName | column.name | column.fieldType changes
    * Checks project.files against project.files
-   * called within hashPayload(hashFileSystem())
+   * called within hashPayload(hashFiles(), project)
    * used within isFilterWritableSelector by it's lonesome to check against IState.fileSystemHash
-   * @param fileStats
+   * @param files
    * @returns
    */
-  hashFiles?: (fileStats: fileIngestionTypes.IFileStats[]) => string;
+  hashFiles: (files: fileIngestionTypes.IFileStats[]) => string;
   /**
    * Performs payload hashing operation
    * This is used to:
@@ -32,6 +29,37 @@ export interface HashStrategy {
   hashPayload: (fileHash: string, project: databaseTypes.IProject) => string;
 }
 
+interface DataPresence {
+  exists: boolean;
+  path: string;
+}
+
+interface Resolution {
+  presence: DataPresence[];
+  version: number;
+  fileHash: string;
+  payloadHash: string;
+}
+
+enum Status {
+  PENDING = 'PENDING',
+  SUCCESS = 'SUCCESS',
+  FAIL = 'FAIL',
+  INCOMPLETE = 'INCOMPLETE',
+}
+
+type ResolveReq = ProjectReq | StateReq;
+
+interface ProjectReq {
+  type: 'project';
+  project: databaseTypes.IProject;
+}
+
+interface StateReq {
+  type: 'state';
+  state: databaseTypes.IState;
+}
+
 // Safe stringification function
 function safeStringify(value: any): string {
   if (value === undefined) return '';
@@ -42,7 +70,14 @@ function safeStringify(value: any): string {
   }
   return String(value);
 }
+
 export class HashResolver {
+  exts = ['sgc', 'sgn', 'sdt'];
+  status: Status;
+  workspaceId: string;
+  projectId: string;
+  basePath: string;
+
   private s3: S3Manager;
   private strategies: Map<number, HashStrategy> = new Map();
 
@@ -58,100 +93,65 @@ export class HashResolver {
     return Math.max(...this.strategies.keys());
   }
 
-  constructor(s3: S3Manager) {
+  // we inject the file manager for flexibility and ease of testing
+  constructor(workspaceId: string, projectId: string, s3: S3Manager) {
     this.s3 = s3;
+    this.workspaceId = workspaceId;
+    this.projectId = projectId;
+    this.basePath = `client/${workspaceId}/${projectId}/output`;
+    this.status = Status.PENDING;
+    // register hash strategies
+    this.register(new LatestHashStrategy());
+    this.register(new HashStrategyV2());
   }
 
-  public async resolve(
-    fileStats: fileIngestionTypes.IFileStats[],
-    project: databaseTypes.IProject,
-    targetVersion?: number
-  ): Promise<{fileHash: string; payloadHash: string; fileHashVersion: number; payloadHashVersion: number} | null> {
-    const versions = targetVersion ? [targetVersion] : Array.from(this.strategies.keys()).sort().reverse();
-
-    const hashChecks = versions.map(async (version) => {
-      const strategy = this.get(version);
-      if (!strategy) return null;
-
-      const fileHash = strategy.hashFiles ? strategy.hashFiles(fileStats) : '';
-      const payloadHash = strategy.hashPayload(fileHash, project);
-
-      try {
-        const exists = await this.checkExists(payloadHash, project.id!, project?.workspace.id!);
-        if (exists) {
-          return {hash: payloadHash, exists, version: strategy.version, fileHash};
+  /**
+   *
+   * @param project
+   * @returns
+   */
+  public async resolve(req: ResolveReq): Promise<Resolution[]> {
+    const versions = Array.from(this.strategies.keys()).sort().reverse();
+    // concurrently check the project against each strategy
+    return await Promise.all(
+      versions.map(async (version) => {
+        const strategy = this.get(version);
+        if (!strategy) {
+          throw new Error(`No strategy found - version:${version}.`);
         }
-      } catch (error) {
-        console.warn(`Hash check failed for version ${version}.`, error);
-      }
-      return null;
-    });
 
-    //   concurrently run all checks
-    const results = await Promise.all(hashChecks);
-    const found = results.find((result) => result?.exists);
+        // get hash for a given request + strategy
+        let fh, ph;
+        if (req.type === 'state') {
+          ph = req.state.payloadHash;
+        } else {
+          fh = strategy.hashFiles(req.project.files);
+          ph = strategy.hashPayload(fh, req.project);
+        }
 
-    if (found) {
-      if (found.version !== this.latestVersion()) {
-        await this.backfill(found.hash, project);
-      }
-      return {
-        fileHash: found.fileHash,
-        payloadHash: found.hash,
-        fileHashVersion: found.version,
-        payloadHashVersion: found.version,
-      };
-    }
+        // build file paths
+        const filePaths = this.exts.map((e) => `${this.basePath}/${ph}.${e}`);
 
-    return null;
-  }
+        // concurrently check existence for a given strategy
+        const presence: DataPresence[] = await Promise.all(
+          filePaths.map(async (path) => {
+            return {exists: await this.s3.fileExists(path), path};
+          })
+        );
 
-  private async checkExists(hash: string, projectId: string, workspaceId: string): Promise<boolean> {
-    try {
-      const checkFile = `client/${workspaceId}/${projectId}/output/${hash}.sgc`;
-      return await this.s3.fileExists(checkFile);
-    } catch (error) {
-      console.error('Error checking resource existence:', error);
-      return false;
-    }
-  }
+        // TODO: check integrity of state payloadHash vs presence
 
-  private async backfill(oldHash: string, project: databaseTypes.IProject) {
-    try {
-      const latestStrategy = this.get(this.latestVersion());
-      if (!latestStrategy) throw new Error('Latest hash strategy not found');
-
-      const newFileHash = latestStrategy.hashFiles ? latestStrategy.hashFiles(project.files) : '';
-      const newHash = latestStrategy.hashPayload(newFileHash, project);
-
-      const projectId = project.id;
-      const workspaceId = project?.workspace.id;
-
-      const oldFile = `client/${workspaceId}/${projectId}/output/${oldHash}.sgc`;
-      const newFile = `client/${workspaceId}/${projectId}/output/${newHash}.sgc`;
-
-      await this.s3.move(oldFile, newFile);
-
-      // Update the state or project with the new hash (implementation depends on your system)
-      // Example:
-      if (stateId) {
-        await StateService.updateState(stateId, {payloadHash: newHash});
-      } else {
-        await projectService.updateProject(projectId, {payloadHash: newHash});
-      }
-
-      console.log(`Backfilled file from ${oldHash} to ${newHash}`);
-    } catch (error) {
-      console.error('Error backfilling to latest version:', error);
-    }
+        // return Resolution object
+        return {presence, version, fileHash: fh, payloadHash: ph};
+      })
+    );
   }
 }
 
-// Concrete implementations (with completed `hash` methods)
-
+// Safe stringify added
 class LatestHashStrategy implements HashStrategy {
   version = 3;
-  hashFiles(fileStats: fileIngestionTypes.IFileStats[]): string {
+  hashFiles(files: fileIngestionTypes.IFileStats[]): string {
     return '';
   }
   hashPayload(fileHash: string, project: databaseTypes.IProject): string {
@@ -202,11 +202,9 @@ class LatestHashStrategy implements HashStrategy {
   }
 }
 
-class HashManagerV2 implements HashStrategy {
+// No safe stringify!
+class HashStrategyV2 implements HashStrategy {
   version = 2;
-
-  constructor(private s3: S3Manager) {}
-
   hashFiles(fileStats: fileIngestionTypes.IFileStats[]): string {
     // moved here from createState action in order to avoid discrepancy
     const fileHashes = fileStats.map(
