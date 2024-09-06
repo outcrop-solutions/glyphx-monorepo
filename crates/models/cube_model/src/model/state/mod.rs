@@ -27,6 +27,7 @@ use crate::{
         model_configuration::ModelConfiguration,
         pipeline::{
             axis_lines::{AxisLineDirection, AxisLines},
+            charms::Charms,
             glyph_data::{GlyphData, InstanceOutput},
             glyphs::{
                 glyph_instance_data::GlyphInstanceData,
@@ -499,6 +500,8 @@ impl State {
         self.pipeline_manager
             .clear_screen(background_color, &*smaa_frame, &mut commands);
 
+        // self.pipeline_manager
+        //     .run_charms_pipeline(&smaa_frame, &mut commands);
         let string_order = self.orientation_manager.z_order();
 
         for name in string_order {

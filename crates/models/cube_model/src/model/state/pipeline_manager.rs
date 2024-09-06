@@ -1,5 +1,5 @@
 use super::{
-    AxisLineDirection, AxisLines, BufferManager, DataManager, GlyphData, GlyphVertexData, Glyphs,
+    AxisLineDirection, AxisLines, BufferManager, Charms,  DataManager, GlyphData, GlyphVertexData, Glyphs,
     HitDetection, ModelConfiguration, Query, Rank, RankDirection, SelectedGlyph, WgpuManager,
 };
 
@@ -24,6 +24,7 @@ pub struct PipelineManager {
     y_axis_line: AxisLines,
     z_axis_line: AxisLines,
     glyphs: Glyphs,
+    charms: Charms,
     glyph_data: GlyphData,
     hit_detection: HitDetection,
 }
@@ -105,6 +106,18 @@ impl PipelineManager {
             bm.glyph_uniform_data(),
         );
 
+        let charms = Charms::new(
+            wm.device(),
+            wm.config(),
+            bm.camera_buffer(),
+            &bm.camera_uniform(),
+            bm.color_table_buffer(),
+            bm.color_table_uniform(),
+            bm.light_buffer(),
+            bm.light_uniform(),
+            model_configuration.clone(),
+        );
+
         let glyph_data = GlyphData::new(
             bm.glyph_uniform_buffer(),
             wm.device(),
@@ -126,6 +139,7 @@ impl PipelineManager {
             y_axis_line,
             z_axis_line,
             glyphs,
+            charms,
             glyph_data,
             hit_detection,
         }
@@ -293,6 +307,24 @@ impl PipelineManager {
             label: Some(format!("{}_encoder", pipeline_name).as_str()),
         });
         pipeline.run_pipeline(&mut encoder, smaa_frame);
+
+        commands.push(encoder.finish());
+    }
+
+    pub fn run_charms_pipeline(
+        &self,
+        smaa_frame: &SmaaFrame,
+        commands: &mut Vec<CommandBuffer>,
+    ) {
+        let wm = self.wgpu_manager.borrow();
+        let device = wm.device();
+        let device = device.borrow();
+
+
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("charm_encoder"),
+        });
+        self.charms.run_pipeline(&mut encoder, smaa_frame);
 
         commands.push(encoder.finish());
     }

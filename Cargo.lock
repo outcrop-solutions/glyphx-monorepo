@@ -1839,6 +1839,42 @@ dependencies = [
 ]
 
 [[package]]
+name = "glyphx_cube_model_4d"
+version = "0.1.0"
+dependencies = [
+ "bincode",
+ "bytemuck",
+ "cfg-if",
+ "cgmath",
+ "chrono",
+ "console_error_panic_hook",
+ "console_log",
+ "env_logger",
+ "getrandom",
+ "glam",
+ "glyphx_core_error",
+ "im",
+ "log",
+ "model_common",
+ "nalgebra 0.32.6",
+ "num-traits",
+ "once_cell",
+ "ordered-float 4.2.2",
+ "pollster",
+ "rand",
+ "serde",
+ "serde-wasm-bindgen",
+ "serde_json",
+ "smaa",
+ "statrs",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
+ "wgpu",
+ "winit",
+]
+
+[[package]]
 name = "glyphx_data_model"
 version = "0.1.0"
 dependencies = [
