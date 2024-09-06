@@ -1,9 +1,10 @@
 import 'mocha';
 import {assert} from 'chai';
-import MD5 from 'crypto-js/md5';
 import {createSandbox} from 'sinon';
+import {s3Connection} from '../../lib';
+import {HashResolver, LatestHashStrategy} from 'util/HashResolver';
 import {hashFiles, hashPayload, oldHashFunction, removePrefix} from '../../util/hashFunctions';
-import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
+import {databaseTypes} from 'types';
 import {
   file1Clean,
   file1Dirty,
@@ -20,7 +21,7 @@ import {
   project8,
 } from './data';
 
-describe('#lib/hashFunctions', () => {
+describe('#util/hash', () => {
   // ModelFooter needs to have a valid payloadHash
   context('hashFileSystem', () => {
     const sandbox = createSandbox();
@@ -240,7 +241,6 @@ describe('#lib/hashFunctions', () => {
       }
     });
   });
-
   context('hashPayload', () => {
     const sandbox = createSandbox();
     afterEach(() => {
@@ -709,6 +709,39 @@ describe('#lib/hashFunctions', () => {
       } catch (error) {
         assert.fail();
       }
+    });
+  });
+});
+
+describe.only('#util/HashResolver', () => {
+  context('constructor', () => {
+    it('should build a hash resolver with the correct setup', async () => {
+      const workspaceId = 'wid';
+      const projectId = 'pid';
+      await s3Connection.init();
+      const s3 = s3Connection.s3Manager;
+      const resolver = new HashResolver(workspaceId, projectId, s3);
+
+      assert.strictEqual(resolver.status, 'PENDING');
+      assert.strictEqual(resolver.workspaceId, workspaceId);
+      assert.strictEqual(resolver.projectId, projectId);
+      assert.strictEqual(resolver.s3, s3);
+      assert.strictEqual(resolver.strategies.size, 2);
+    });
+  });
+  context('register', () => {
+    it.only('should register the hash strategies and set up the getters', async () => {
+      const workspaceId = 'wid';
+      const projectId = 'pid';
+
+      await s3Connection.init();
+      const s3 = s3Connection.s3Manager;
+      const resolver = new HashResolver(workspaceId, projectId, s3);
+      const strat = new LatestHashStrategy();
+
+      resolver.register(strat);
+
+      assert.strictEqual(resolver.strategies.size, 3);
     });
   });
 });

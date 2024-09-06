@@ -1,6 +1,6 @@
 //@ts-ignore
 import MD5 from 'crypto-js/md5';
-import { databaseTypes, fileIngestionTypes, webTypes } from 'types';
+import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
 
 /**
  * Performs payload hashing operation
@@ -38,7 +38,7 @@ export function hashPayload(fileHash: string, project: databaseTypes.IProject): 
           keyRetvals.push(String(word));
         }
       } else {
-        // @ts-ignore
+        // @ts-ignore [Object object] 'undefined'
         keyRetvals.push(String(prop[key]));
       }
     }
@@ -98,8 +98,8 @@ export const oldHashFunction = (fileHash: string, project: databaseTypes.IProjec
  */
 export const hashFiles = (fileStats: fileIngestionTypes.IFileStats[]): string => {
   // moved here from createState action in order to avoid discrepancy
-  const fileHashes = fileStats.map(({ fileName, columns }: { fileName: string; columns: fileIngestionTypes.IColumn[] }) => {
-    const columnHashes = columns.map(({ name, fieldType }) => `${name}${fieldType}`).join('');
+  const fileHashes = fileStats.map(({fileName, columns}: {fileName: string; columns: fileIngestionTypes.IColumn[]}) => {
+    const columnHashes = columns.map(({name, fieldType}) => `${name}${fieldType}`).join('');
     const formattedColHashInput = columnHashes;
     return MD5(`${fileName}${formattedColHashInput}`).toString();
   });
@@ -119,9 +119,9 @@ export const hashFiles = (fileStats: fileIngestionTypes.IFileStats[]): string =>
 export const hashFileStats = (
   fileStats: fileIngestionTypes.IFileStats[],
   existing: boolean
-): { fileColumnsHash: string; columnsHash: string }[] =>
-  fileStats.map(({ fileName, columns }: { fileName: string; columns: fileIngestionTypes.IColumn[] }) => {
-    const columnHashes = columns.map(({ name, fieldType }) => `${name}${fieldType}`).join('');
+): {fileColumnsHash: string; columnsHash: string}[] =>
+  fileStats.map(({fileName, columns}: {fileName: string; columns: fileIngestionTypes.IColumn[]}) => {
+    const columnHashes = columns.map(({name, fieldType}) => `${name}${fieldType}`).join('');
     const formattedColHashInput = existing ? removePrefix(columnHashes, 'glyphx_id__') : columnHashes;
     return {
       fileColumnsHash: MD5(`${fileName}${formattedColHashInput}`).toString(),

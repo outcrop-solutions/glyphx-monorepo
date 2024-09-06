@@ -1,64 +1,6 @@
 import {S3Manager} from 'core/src/aws';
 import MD5 from 'crypto-js/md5';
-import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
-
-export interface HashStrategy {
-  // Must be globally unique to each instance of HashResolver
-  version: number;
-  /**
-   * Performs project.files (fileSystem) hashing operation
-   * Changes if fileStat.fileName | column.name | column.fieldType changes
-   * Checks project.files against project.files
-   * called within hashPayload(hashFiles(), project)
-   * used within isFilterWritableSelector by it's lonesome to check against IState.fileSystemHash
-   * @param files
-   * @returns
-   */
-  hashFiles: (files: fileIngestionTypes.IFileStats[]) => string;
-  /**
-   * Performs payload hashing operation
-   * This is used to:
-   * - download the models in ModelFooter.tsx via the correct data file urls
-   * - create or download model in handleApply in Properties.tsx
-   * - create or download model in useProject.tsx if not currently loaded (this doesn't look right)
-   * - doesStateExistsSelector (determines if state exists in the current recoil project atom, via state.payloadHash comparison)
-   * @param fileHash
-   * @param project
-   * @returns
-   */
-  hashPayload: (fileHash: string, project: databaseTypes.IProject) => string;
-}
-
-interface DataPresence {
-  exists: boolean;
-  path: string;
-}
-
-interface Resolution {
-  presence: DataPresence[];
-  version: number;
-  fileHash: string;
-  payloadHash: string;
-}
-
-enum Status {
-  PENDING = 'PENDING',
-  SUCCESS = 'SUCCESS',
-  FAIL = 'FAIL',
-  INCOMPLETE = 'INCOMPLETE',
-}
-
-type ResolveReq = ProjectReq | StateReq;
-
-interface ProjectReq {
-  type: 'project';
-  project: databaseTypes.IProject;
-}
-
-interface StateReq {
-  type: 'state';
-  state: databaseTypes.IState;
-}
+import {databaseTypes, fileIngestionTypes, hashTypes, webTypes} from 'types';
 
 // Safe stringification function
 function safeStringify(value: any): string {
@@ -73,19 +15,18 @@ function safeStringify(value: any): string {
 
 export class HashResolver {
   exts = ['sgc', 'sgn', 'sdt'];
-  status: Status;
+  status: hashTypes.Status;
   workspaceId: string;
   projectId: string;
   basePath: string;
+  s3: S3Manager;
+  strategies: Map<number, hashTypes.IHashStrategy> = new Map();
 
-  private s3: S3Manager;
-  private strategies: Map<number, HashStrategy> = new Map();
-
-  public register(strategy: HashStrategy) {
+  public register(strategy: hashTypes.IHashStrategy) {
     this.strategies.set(strategy.version, strategy);
   }
 
-  public get(version: number): HashStrategy | undefined {
+  public get(version: number): hashTypes.IHashStrategy | undefined {
     return this.strategies.get(version);
   }
 
@@ -99,7 +40,7 @@ export class HashResolver {
     this.workspaceId = workspaceId;
     this.projectId = projectId;
     this.basePath = `client/${workspaceId}/${projectId}/output`;
-    this.status = Status.PENDING;
+    this.status = hashTypes.Status.PENDING;
     // register hash strategies
     this.register(new LatestHashStrategy());
     this.register(new HashStrategyV2());
@@ -110,7 +51,7 @@ export class HashResolver {
    * @param project
    * @returns
    */
-  public async resolve(req: ResolveReq): Promise<Resolution[]> {
+  public async resolve(req: hashTypes.ResolveReq): Promise<hashTypes.IResolution[]> {
     const versions = Array.from(this.strategies.keys()).sort().reverse();
     // concurrently check the project against each strategy
     return await Promise.all(
@@ -133,14 +74,13 @@ export class HashResolver {
         const filePaths = this.exts.map((e) => `${this.basePath}/${ph}.${e}`);
 
         // concurrently check existence for a given strategy
-        const presence: DataPresence[] = await Promise.all(
+        const presence: hashTypes.IDataPresence[] = await Promise.all(
           filePaths.map(async (path) => {
             return {exists: await this.s3.fileExists(path), path};
           })
         );
 
         // TODO: check integrity of state payloadHash vs presence
-
         // return Resolution object
         return {presence, version, fileHash: fh, payloadHash: ph};
       })
@@ -149,7 +89,7 @@ export class HashResolver {
 }
 
 // Safe stringify added
-class LatestHashStrategy implements HashStrategy {
+export class LatestHashStrategy implements hashTypes.IHashStrategy {
   version = 3;
   hashFiles(files: fileIngestionTypes.IFileStats[]): string {
     return '';
@@ -203,7 +143,7 @@ class LatestHashStrategy implements HashStrategy {
 }
 
 // No safe stringify!
-class HashStrategyV2 implements HashStrategy {
+export class HashStrategyV2 implements hashTypes.IHashStrategy {
   version = 2;
   hashFiles(fileStats: fileIngestionTypes.IFileStats[]): string {
     // moved here from createState action in order to avoid discrepancy
