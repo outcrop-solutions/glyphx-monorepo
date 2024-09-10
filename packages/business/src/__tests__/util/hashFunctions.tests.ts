@@ -2,9 +2,8 @@ import 'mocha';
 import {assert} from 'chai';
 import {createSandbox} from 'sinon';
 import {s3Connection} from '../../lib';
-import {HashResolver, LatestHashStrategy} from 'util/HashResolver';
-import {hashFiles, hashPayload, oldHashFunction, removePrefix} from '../../util/hashFunctions';
-import {databaseTypes} from 'types';
+import {HashResolver} from 'util/HashResolver';
+import {removePrefix} from '../../util/hashFunctions';
 import {
   file1Clean,
   file1Dirty,
@@ -21,672 +20,741 @@ import {
   project8,
 } from './data';
 
-describe('#util/hash', () => {
-  // ModelFooter needs to have a valid payloadHash
-  context('hashFileSystem', () => {
+describe('#util/HashResolver', () => {
+  const sandbox = createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+  context('constructor', () => {
+    it('should build a hash resolver with the correct setup', async () => {
+      const workspaceId = 'wid';
+      const projectId = 'pid';
+      const basePath = `client/${workspaceId}/${projectId}/output`;
+      await s3Connection.init();
+      const s3 = s3Connection.s3Manager;
+      const resolver = new HashResolver(workspaceId, projectId, s3);
+
+      assert.strictEqual(resolver.s3, s3);
+      assert.strictEqual(resolver.workspaceId, workspaceId);
+      assert.strictEqual(resolver.projectId, projectId);
+      assert.strictEqual(resolver.basePath, basePath);
+      assert.strictEqual(resolver.status, 'PENDING');
+      assert.strictEqual(resolver.strategies.size, 7);
+    });
+  });
+  context('fileHash', () => {
     const sandbox = createSandbox();
     afterEach(() => {
       sandbox.restore();
     });
-
-    it('will confirm hash function inequivalence', async () => {
-      try {
-        // No project Id included
-        const project = {
-          id: '652410c0c846774df2839006',
-          createdAt: '2023-10-09T14:40:00.209Z',
-          updatedAt: '2024-07-12T13:37:35.289Z',
-          name: 'Untitled',
-          description: '',
-          currentVersion: 0,
-          workspace: '65240fad8feb2f0e0d519cab',
-          state: {
-            properties: {
-              X: {
-                axis: 'X',
-                accepts: 'COLUMN_DRAG',
-                key: 'hello',
-                dataType: 0,
-                interpolation: 'LIN',
-                direction: 'ASC',
-                filter: {
-                  keywords: [],
-                  min: 0,
-                  max: 0,
-                  id: '669130b7ba41522381fd82d7',
-                },
-                id: '669130b7ba41522381fd82d6',
-              },
-              Y: {
-                axis: 'Y',
-                accepts: 'COLUMN_DRAG',
-                key: 'testing',
-                dataType: 1,
-                interpolation: 'LIN',
-                direction: 'ASC',
-                filter: {
-                  keywords: [],
-                  min: 0,
-                  max: 0,
-                  id: '669130b7ba41522381fd82d9',
-                },
-                id: '669130b7ba41522381fd82d8',
-              },
-              Z: {
-                axis: 'Z',
-                accepts: 'COLUMN_DRAG',
-                key: 'headers',
-                dataType: 0,
-                interpolation: 'LIN',
-                direction: 'ASC',
-                filter: {
-                  keywords: [],
-                  min: 0,
-                  max: 0,
-                  id: '669130b7ba41522381fd82db',
-                },
-                id: '669130b7ba41522381fd82da',
-              },
-              A: {
-                axis: 'A',
-                accepts: 'COLUMN_DRAG',
-                key: 'Column 1',
-                dataType: 0,
-                interpolation: 'LIN',
-                direction: 'ASC',
-                filter: {
-                  keywords: [],
-                  min: 0,
-                  max: 0,
-                  id: '669130b7ba41522381fd82dd',
-                },
-                id: '669130b7ba41522381fd82dc',
-              },
-              B: {
-                axis: 'B',
-                accepts: 'COLUMN_DRAG',
-                key: 'Column 2',
-                dataType: 0,
-                interpolation: 'LIN',
-                direction: 'ASC',
-                filter: {
-                  keywords: [],
-                  min: 0,
-                  max: 0,
-                  id: '669130b7ba41522381fd82df',
-                },
-                id: '669130b7ba41522381fd82de',
-              },
-              C: {
-                axis: 'C',
-                accepts: 'COLUMN_DRAG',
-                key: 'Column 3',
-                dataType: 0,
-                interpolation: 'LIN',
-                direction: 'ASC',
-                filter: {
-                  keywords: [],
-                  min: 0,
-                  max: 0,
-                  id: '669130b7ba41522381fd82e1',
-                },
-                id: '669130b7ba41522381fd82e0',
-              },
-            },
-            id: '669130d3bcc82dbb96e2e61f',
-          },
-          stateHistory: ['6524110fbf4b97489fb99eda', '669130b7ba41522381fd82e7', '6691319fbcc82dbb96e2e67a'],
-          members: ['652410c0c846774df283901d'],
-          tags: [],
-          files: [
-            {
-              fileName: 'book1.csv',
-              tableName: 'book1',
-              numberOfRows: 9,
-              numberOfColumns: 3,
-              columns: [
-                {
-                  name: 'glyphx_id__',
-                  fieldType: 2,
-                  id: '652410e36487641dd617426e',
-                },
-                {
-                  name: 'hello',
-                  fieldType: 0,
-                  id: '652410e36487641dd617426f',
-                },
-                {
-                  name: 'testing',
-                  fieldType: 1,
-                  longestString: 1,
-                  id: '652410e36487641dd6174270',
-                },
-                {
-                  name: 'headers',
-                  fieldType: 0,
-                  id: '652410e36487641dd6174271',
-                },
-              ],
-              fileSize: 370,
-              id: '652410e36487641dd617426d',
-            },
-          ],
-          viewName: 'glyphx_65240fad8feb2f0e0d519cab_652410c0c846774df2839006_view',
-          __v: 4,
-          aspectRatio: {
-            height: 742,
-            width: 1596,
-            id: '6691319fbcc82dbb96e2e687',
-          },
-          imageHash:
-            'iVBORw0KGgoAAAANSUhEUgAABjwAAALmCAYAAAD2cz1RAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAgAElEQVR4nOzdd3iV5fnA8e8ZOdlDAgHBAHUgwz0RV1Uc1aJoHf3VXavWUaVq3dbaulur2OledeHWUicqLhAHQ/YQMGwIJAGSk+SM3x/BIJKdIAS+n+vKRc77PuM+h/zxvLnzPHegx44DkkiSJEmSJEmSJLVjwY0dgCRJkiRJkiRJUmuZ8JAkSZIkSZIkSe2eCQ9JkiRJkiRJktTumfCQJEmSJEmSJEntngkPSZIkSZIkSZLU7pnwkCRJkiRJkiRJ7Z4JD0mSJEmSJEmS1O6Z8JAkSZIkSZIkSe2eCQ9JkiRJkiRJktTumfCQJEmSJEmSJElNEq0oJ5GI/2DzNWeu8AaMQ5IkSZIkSZIkbUbS0jPafMytO1RxQJ8SBvQp5eVPO/H5jGxWR0MABIOhJo9jwkOSJEmSJEmSJG0U2RlxLjp6HqcdugiA3oXlvPFFB/4xfBti8UCzxvJIK0mSJEmSJEmStFH0676K0w5bVPu6T+Fq9t2xjJ16rmr2WO7wkCRJkiRJkiRJG0RORowOWTFSUhJEq4IsLY0QrVq7F6N7pygk1+3Tq1s5iWbu7gATHpIkSZIkSZIkqY317b6a4/svZd/eZWSkJkgmIRhMsnhFhHfGdWDE+K2YuySNqUWZjJuVzW7braztO7Uoc52kSFOZ8JAkSZIkSZIkSW0iHEpy6o8Xc8ZhC9muS8V697frUsGAPqUcvPMKXv20Ey983IlH3tmaXwaSJBIBVkZDPPthZ6YvaH5xdBMekiRJkiRJkiSpTZw9cCHXnTKn7psBao+vOrhfCd3yqwgFkwz7sICv5maSFkmwsjxE0bK0Fs1twkOSJEmSJEmSJLXagf1KOOmAJetcmzQ3ky9mZvPS6E4M7r+M3bdbSWHHKFtlxdh+63J+fuBivpqTyZSizFbPb8JDkiRJkiRJkiS1SnZ6nAuOmU+vbuW11+5+uZB/v96NyuqaehxjZ2WTlpLg2pPncPRexXTMrWaP7Vdy+O4rNp2ER4AIKeGuhIJdCJJBIJhOIJAOQDJZQTJRQYJy4olFVMcWkKSqLaaVJEmS1EKb+hre+CRJkqT2ZYeu5fTqujbZ8dxHBQx9tXC9dtHqIL9/clt+tHWUA3NLAPjxzit48eNOzCtObVUMrUh4BAiHuhIJ70AoUEAgEKi7VSALQlmEgJRQD1LDSeLJJVTFZhCLL6D2wC5JkiRJG9imvoY3PkmSJKm96tdjNR1zqmtfP/R21wbbP/1+Z/p1X02HrGq6d4rSeauqjZPwCAU7kZayC6Fgx2b3DQQChAOdCUc6E08sJVr9FfHE0paEIUmSJKmJNvU1vPFJkiRJ7Vt6JFH7fcmqMEtLUxpsP7kos/ZvgTpmV5MRibc6hmYlPAIESE3ZjUi4V6snhpqHhszUQ6mKTaeyehxJ/9JJkiRJalOb+hre+HwGkiRJ0uYhOz1W+/3y1SmkhhMNtIZIKEGH7JodIUvLUqiKB1sdQ5NHCBAhPXJwmy30vysS7kV65CACRNp8bEmSJGlLtamv4Y3PZyBJkiRtPj6dnlu7q2PbzhX0713WYPuj9iqu/X72onSWr2x9yfEmJTwCRMhMG0g41LnVE9YnHOpCZtpAF/ySJElSG9jU1/DG5zOQJEmSNi+zF6Uxrzit9vWQwUX8qHO0zrZ9CldzwoBlta/jyQBzlqS3OoZQXsfCPzTUIECA9MiBhIIdWj1ZYwKBVELBrYjFv9ngc0mSJEmbq019DW9835nLZyBJkiRtJlZWhMlKi9OnsJzMtDi5GTEO23UFy1elsKwshWQyQH52NT/Zs5g/nTabnp2iEIBlK1O4+ZmezF7c+oRHoMeOAxo8NDYtZfcNsoW7IZWx6VRWj/1B55QkSZI2F5v6Gt741uczkCRJkjYHHXOquffX0xnQp5TvlqubszidYDBJTnqMvKzYOn3+/EJ3/vm/bUi2QXm7Bnd4hIKdSI/s1fpZmikczCeWWEIyWf6Dzy1JkiS1Z5v6Gt746uYzkCRJkjYH5ZUhvpyRQ69u5aSmJMhMqylcnpcVIzczRlpkbSHzqfMyeWVURx58qxvRqtYXLIcGa3gESEvZpUWDHnRgT958/WzefP1sDjygZ+31HXbI54P3z+PDNV/nnbt3vWOkpewMBFo0f3vWp3dv5kz9uN6vQT89utExXnjmYa6/9oo67w2961bu/9df2zrsZvtwxEucd+7ZGzsMSZKkzUzL1/BtofE1vPE1ZEt9BpIkSdLmZfaSNC7+Vy/+MbyQCbOzWLamkPm3PpmayydTc7n9+e7c9lxPSla3vlj5t+odKRzqSijYsdkDnnXGHgy5dH+CwZqF+t+GDuLuez7msSe+JCsrlbzctUVLOnTIqHecULAT4VBXYvH5zY6hPZs79xt+fuZv17t+2i9+xqEH7c0XX45rsP823bqxx669uOGPf9lQIUqSJGkT1dI1fFtpbA1vfA3bUp+BJEmStPlZviqFx0Z0YfiYfHp2idIhu5qtt6pi/rIIS0ojzFqUzupoqM3nrTfhEQnv0KyBIpEQv7/+UI4d1AeABQtXAtB162wuv+wAttuuA//939TmjRnaYYtb7JdXlDP60zHrXOvevTsDf7wPf/374yxYsKDB/scfP4hZcxYwefLkDRmmJEmSNkHNXcNvkBgaWMMbX+O2xGcgSZIkbb6WrUxh2cqUxhu2kTqPtAoEUgkFCpo8SH5+Bg/ef0JtsmPsuIWcfuYwTj9zGGPHLQRg8HF9ueWPRzQruFCwgACRZvXZHN1y09XMmrOAhx5+rNG2xx59CK8Mf7fBNvFYnLPPOo2P3n2ZaePf453XhzF48LHrtRs48FDeeO0ppn81ktEjX13vCKoOHTrwxxuvZuTbLzBt/HuMev8VLhty8XrjnH7az/lwxEvMmDiSd14fxlFHHUF1dWy9do3NN/SuW7lsyMUcdOABjHj9OaZ/NZK999oTgL323INhTz7AxM/fZvKXIxj+ypMcP/i4Rj8vSZKkzUVz1/AbSn1reONrGp+BJEmStLmJpCTYeqsqCjtF6ZRbvUEPca1zh0dKaGsCgaZN23vHTgy956ds3SUbgFdencI9937MLX88HIDLrhjOkEv257hj+9C5c1azggsEAoTDXamOzWlWv83Jccf9lAH77Mzx/3cR8XiiwbZ9+/Rh+x914+WX/9tgu/5770x+hzyuvuFOiouXc8LgY7jrlt8xbep0pkyt2YVzwP4DuG/oTTz4+EtcdtXN7NyvD3+47mJKSsoY9twLAMTjMTp37sQtd/6Lr2fPZv8B+3LTtRcxZdoMXn/9TQCOPGIgN117EX+77xnefOtdttmmG1dedh6dO221TkxNmQ9gnz135qTBh/P3+59k3vyFTJkylUhqhEf+fQfPvvQmN/zxz6SmprHH7juzZMmSZn/ekiRJ7VVz1vAbUn1reONrGp+BJEmStLnYbusKdum5iqP2KKZjbjWJZICOOdVMm5fOR5PzeGdcBxataNs/9qkz4REKdmlS54GHbcctfzqC9PQUEokk9wz9mJEfzObRh06kR488AB596EQuGfIas2YVr1Pbo8kBBrtQzZxm9dlc5OTkcP2VF/LksOFMmDCh0fYnHH8MX46fTtG8eQ22S42kcO6Fl1NaWgbALbdPZdBPDuaA/fetTXj89uJzGPnJWG67o6bA+eTJk9luu55cdP4vahMQpaVlnH/h5bXjzpw5ixOPO4q999ylNuFx4XmnMfytT7h76D9qxpkyhXnz5vO/lx5cJ6amzAewz559OfaUXzPxq0m11zp37kx2dgYvvPhfpk2bDtCkz0uSJGlz0tQ1/Pf1ufQ0nj1kJqcMHs2UNdeOvecSfjX7SY4dWtyiMetaw7csvnyGvHwqv+xRx625Y9aJeaPGN+cNdhkyvfbqsfdcws2se6218UmSJEntyRF7LOeak+fyo4KK9e79qHMFR+25nP36lPLG5/m8Nqbt6ujVeaRVkPqLiX/r/HP34S93Hk16egqrVldxyZDXmDmrmP88fnJtsgOgR488/vP4ycycVcwlQ15j1eqq2nsFnRrf8REMpDflfWyWrrv6tyRice78y98abRsIBBh05MG8MvydRttOmT63NtnxrUVLiinoVPODFQ6nsOsuvXhnxEfrtBk7fiI9tulCZkb9Px/zFy0hNyen9nXvXj15/4NR67SZPGUKZSvLa183Z75J0+ask+wAWLx4Me999CWP3P9nzjrzVLKzsxt6+5IkSZulpqzh6zJl6H+4fs4+XDBozYXe/flVzzFc1cJkB9S9hm9ZfMXcM/hedtn9Xnb5vzHMYRbX777mdQuTHW0e39VjmHPwPgzpveZS7/786uBZXN/CZEd98UmSJEntxVkDF3LbGbPWJjuS37n5nf0Qx+xVzBkDF3H8fkvbbO66a3gE619gp6aGufP2o7jowv4EgwGK5pVy+pnPse22Hfj7vceSnZ26Xp/s7FT+fu+xbLttB04/8zmK5pUCNTtE7rz9KFJT662dDlvoYn+vPffgpMEDufG2v7Fq9epG2+/Xvz/5+bm89t/XG227vKR0vWvJZLL2hy0nJ5twKMiN117IlHHv1X7dc8c1ABR0rjnbePvtt+Oev9zCyHdeYOynb/LFqP9x6EF7146Zm5tDaiSF4uXL15tv5aq1CY+mzgewaPGyOt/Tub++jH8/9Axn/uJ4Ph35Mtddczmpaev/LEqSJG2uGlrDN+bVf4+h5zn96UM+Q27fnnevbnkyoSaY9WNpTXxtri3jmzqaB0d24Je/7gXAsb/eBx4dzattHJ8kSZLUHuzXu5RTf7yY/JzqmgsBmPRNJk+P7MwxN+3Kff/ryoQ5WbVJkL23L+PYfZbRq2t5/YM2Q52ZhkA9C+yCgiyG3v1T+vWt+QX0Z5/P45rr3uLSSwYw6Jjedfb5VjAY4LIhB7DDDh05+5wXuO2WI9h7r2046sheFBbmcelv/8uSJavW77cFLvbDoTC33vQ73v3gc954460m9Tn+uKP4YNQ4VqxY0WjbZDLZ4P1Vq1eRSCS44+6HeP/9j9a7X1Q0n5ycHJ578p98+MlYTjvrUubNn08ymeTRh9buRikrW0lVdYy8vLz1xsjNXvsXdE2Zr7HYY7FqHn3sSR57/CkGDjyUm68fQkHHfC69/NoG36skSdLmor41fJNMHc1V753GBffk0/O91zl2autiqWsN36r42lhbx/fqkDcYOHYfhgzqwKE9x3DVkJbvjoEt8xlIkiRJ7V9GapxLjytih+8kL/72yjY88FZXysprUhGT5maydYdKbj39aw7ZbQUk4ZBdV/DFrGymL2jZrvXvqnOHR30ef+RE+vUtIJmE556fyA2/f5t77jqm0WTHdw06pjf33HUMN/z+bZ57fiLJJPTrW8Djj5zY7OA3Vxf8+pds07WAG266s0ntUyIRjjxsAK+89mabzF9VWcVXk2fRZ8ft+Xr27PW+YrFq+vTeka1ysxj69/spmjePZDJJOBSm13bda8dJJpPM+HoeB+y31zrj9+rVi6ysjGbN11TJZJK33x7BPx96mt13a/rPpSRJ0pZuypsz6Xnwdsz5unW/rN8yTedfj8Iv/7gPcx5q5e4YSZIkqZ3q1a2cHbZeW7Pj3fFbcdfL3WuTHd9auDyVyx/antFTcmt3ehy62wq27lDZ6hjq3OGRTFYQCKxfX+ORx77k6isP4s6/fMiECQt54rGT6dQps9mT7rRTZ5547OTauh9XXnEgjzz2ZZ1tE8n1i5pszrp3785F5/0fr7/1MT26F9Kje+E69+fNm8+8+fPXuTbwsEMIh4K89faINovjrqEP8vC/biVaWckbb75HRTTKNt260qVLAfc/8AizZs+mOhbjjFNP5uHHnqJDhw78+tzTSUlJWWec+x96irtuu5pZX5/DO+9+QNeuXbjmiguoqo41a76GdOnShbPP/AUj3v2ABQsW0qVLZ3523JGMHT+tzT4PSZKkTV19a/imWXOU1e/HcOg5/enzWut+aV/XGr518bWtDRHflDdnMuesfN55rTWR1djSnoEkSZK0edipx+q1R1kBf325e71tl69K4YOJufTvXVN+ISOSYOutqli4vHVlCupOeCQqILT+Yv/ZYRN47/2vWbJkFVdfdXCLkh3f6tQpk0GD+nD7HSMZ8e6sOo+zqglmy1rs77P3nqSlRjh+0CEcP+iQ9e7//f5n+ctf713n2uBBR/DWe59SURFtszg++PAjzjr/an578TmcNPhwABYsXMYzzw8HYNnSZVx+zZ1cfskv+cXJP2HJ0hLue/hZxo2fzPbb9awd55VXh5Of34FzzjiRy39zJvMXLeW+B5/liMMPbNZ8DYlWRNl+2+6cNPhP5GRnUryijPc//Ixbbr+7jT4NSZKkTV99a/gmGdSfX84Zwy6vTefrwy7hjktncGwripbXtYZvVXxtrR3GJ0mSJG3q0lMTtd+vWBVmSWlKA63ho8l5XMk3APTeZjWZqfFWx1BnwiNBOaF6OtSbmGiFhsbc0v666fkXXuL5F15qVp/zL7y8yW3rq2lx/Mm/XO/aRx9/wkcff1LvWK++NpxXX2s8IfHwI0/w8CNPrHPtqWeGNXu++mIvKS3hnPOHNBqHJEnS5qyhNXzDenHvH+H63acDNQXMf/V0f44dOrzFhbfrWsO3PL621x7jkyRJkjZ1uenfOdUnCdt2rmBJSaTe9tt0XHuE1dLSFKrjgVbHUGcNj3hiUasGvfGmd7jsiuFcdsVwbrzpnVaNFWtlLJIkSdKWoGVr+HyGvHwUPR8dvTa5MXU0Vz26FTe/3J8+LYylrjV8a58x2lJ7jE+SJEna1H06PYela3Z1bJUdo3tBwzU5jt9vKazJcZSsTmHFqoZ3hDRFnTs8qmMLSA0nCQRallH58MM5LCuuqcTeMb/lldWTySSx2IIW95ckSZK2FC1bwxdzz+B7ued7V6cM/Q+7DG1ZHPWt4Vv7jMHU0Ry7e8u6fld7jU+SJEna1M1dkkbR0jQ65VZDAC766TzGzcpi+oL1cwQ/3aeYPXcoqy1aXrwyzJylaa2Ooc4dHkmqiCeXtHrw1oonlpCkamOHIUmSJG3yNvU1vPE1jc9AkiRJaq++WZrGm2PzWVwSgST06BTlgUumcsFP5tMtv5K8zBg/6hzlt8d9w99/PY0OWTVHYC0rTeHf/+tGZVWd6YpmqXOHB0BVbAbhSOdWT9AaVfEZG3X+H1q0vDeV5d3I7ThiY4ciSZKkdmhTX8MbX+O2tGcgSZIkbV5e/TSfH++8gs55NX/E06MgylUnzeWkg5bQIauaRBI6ZMdqd3YAvDamIx9PzmuT+etNmcTiC4gnlrXJJC0RTywlFt+ytnKXFh8OxBptJ0mSJNVlU1/DG1/DtsRnIEmSJG1eFi5P5cb//IjRU3NZUrq2YPm2nSvIy4zV7OpIAklYWpbCo+904Z/Dt2mTguXQQMIDkkSrJ9R7d/q0ZSQSyXrvNyaRSDJ9Wv0PEzVzt3z89iha3o2S4r02dhiSJElqtxpew29oja/hja8hW+IzkCRJkjY/0xdkMOSBHXjho06MnZVdW8gcgGTNEVZffZPFdY9vxx3P92RpWeuLlX8r0GPHAQ2uqNNSdicS7tVmEzZFZWw6ldVjf9A5N7ZoeVcWF50JFJOX/yK5HTfeX5ZJkiSpfdvU1/DGt74t8RlIkiRJm79u+ZX8qHOU7buWs3hFhI451Uydl8GsReksX9l2iY5v1VvD41uV1eMIBnIIh7q0+eR1icUXUVU97geZa1NSWrwbsBIoI1oRJHdjByRJkqR2a1NfwxvfurbUZyBJkiS1T9GKciKpqQSDoUbbzi9OZX5xKh9NbvlvvBOJeJPmggaPtKqRJElF1SgSyZUtDqipEsmVVFSNIrmFbeOOlqcSLc8HyoAyouXZGzskSZIktWOb+hre+NbaUp+BJEmS1H4lEnGiFeVUV1Vu8LmqqyqJVpQ3uX0or2PhHxpvFqc6NpdQsAPBYFbLo2tALL6I8soPSFK1QcbflBUvyidWvTUQBVYAiwlQTlqGDz2SJElqqU19DW98W/IzkCRJktqvlEgqKZFUQqFGD5BqtVAoTEoktentm5bwAIgTi88lEEghFMxvWXT1qDmv9lOSxNt03PZidVk3YtWZQAVQAiwhWhEir2P1Ro5MkiRJ7dumvoY3vi31GUiSJEnaEJqR8KgRSywillhCKJhNMJDRqsnjiaVUVI2mOv51q8Zpz6LlSUqLC9e8quDbHR6QIEA+aRlN364jSZIk1WVTX8MbnyRJkqS2EOix44AWnpsUIBzqSiS0A6FgAYFAoEm9kskk8cQSquIziMUXwBZ+Vu3iojjR8r5AKlAJLAUWAVnk5UfI7bhqo8YnSZKkzcmmvoY3PkmSJEkt14qEx3cGIUI43JVwsAvBQDoE0mv+BRLJCkhWkEhW1PxlVGyBZ9R+x9xpWUA+NfXjK4BlQBWQAeTTY8f5GzE6SZIkba429TW88UmSJElqrjZJeKjlouVQWpxDtDwClFNzpFUqkElefsAdHpIkSZIkSZIkNcGGL6OuBqVlQFpGGQBzp90JDKfHjiOB1Rs1LkmSJEmSJEmS2pPgxg5A37ULNcdbSZIkSZIkSZKk5jDhIUmSJEmSJEmS2r02OdIqQISUcFdCwS4EySAQTCewpmBfMllBMlFBgnLiiUVUW7BPkiRJkiRJkiS1sVYkPAKEQ12JhHcgFCggEAjU3SqQBaEsQkBKqAep4STx5BKqYjOIxRcA1kyXJEmSJEmSJEmt06KERyjYibSUXQgFOza7byAQIBzoTDjSmXhiKdHqr4gnlrYkDEmSJEmSJEmSJKCZCY8AAVJTdiMS7tUmk4eCnchMPZSq2HQqq8eRdLeHJEmSJEmSJElqgSYnPAJESI8MIBzq3OZBRMK9CAZyqKgaZX0PSZIkSZIkSZLUbMGmNAoQITNt4AZJdnwrHOpCZtpAAkQ22BySJEmSJEmSJGnz1GjCI0CA9MgAgoHsDR9MIJv0yH4EqLsAuiRJkiRJkiRJUl0aTXikpuy2QXd2fF841IVIym4/2HySJEmSJEmSJKn9azDhEQp2anKB8tzcNILBttmZkRruRSjYqU3GkiRJkiRJkiRJm78GEh4B0lJ2afJAd/35aE4/dfc2CKlGWsrO4NFWkiRJkiRJkiSpCepNeIRDXQkFOzZpkKN/siP77L0Nvz5/HwoKstoksFCwE+FQ1zYZS5IkSZIkSZIkbd7qTXhEwjs0aYDMzAiXX3ZA7fdXrPm+LURCTYtBkiRJkiRJkiRt2epMeAQCqYQCBU0aIB5P8PTT4wGYM2cFzw77qs2CCwULCBBps/EkSZIkSZIkSdLmqc6ER0poawKBptXPiEZjTJi4CIBVq6r44sv5bRZcIBAgHPZYK0mSJEmSJEmS1LBwXRdDwS5tOknXrjlss00OHfMzyc/P4LXXplBSGm1agMEuVDOnTeORJEmSJEmSJEmblzoTHkEy2nSS31y0H8ccvSMAy5dX8OywCU3uGwykt2kskiRJkiRJkiRp81NnwiMQbJskQ25uGhdf2J+jjlxbfPzFlyZSVRVv+iAmPCRJkiRJkiRJUiPqTni0MskQDAY48YSduPji/cjLTSOZhPfe/5q99uzGsOcnNm8sEx6SJEmSJEmSJKkRdSY8WmP33btyzZUH07t3JwBmzSrm9js/4NMxRXTqlMnSpavbekpJkiRJkiRJkrSFqzPhkUxWEAhkNXuwXr068uhDJxIIwMqVlfzrvk95+pkJxOMJgBYlOxLJimb3kSRJkiRJkiRJW5a6Ex6JCgg1PeERDAQAiERCJJPw8iuTuefej1m+vA2SFSY8JEmSJEmSJElSI4J1XUxQ3qxBJk1eUrt7IxCo2enRo8dWrY8Od3hIkiRJkiRJkqTG1bnDI55YREqoR5MHWbmykkGDH+dnJ+zE+efuQ98+BTz60Im89fYM7h76MQsWlLU4wFhiUYv71ietvJRweRkFFaV0BbZe89UFGA/MWtNuVn4hKzJy23x+SZIkSZIkSZLUtkJ5HQv/8P2LiUQ5kXBvAmuOqmqK6uoEEyYs4sWXJ5ORkUKfPp3YYYeOnHTiTqSnhZn7TSnHHN2bSZMWN3nMZDJJtOozIN7kPk0RS0kjrbyMAWVL2a+6kh9XV3J4dSWLqisZX11J+pqvbmVLmdWxsE3nbkhp8WnAF+R1nPKDzSlJkiRJkiRJ0uag7hoeVBFPLiEc6NzsAUtKKrjltvd5ZthX/O7yAxmwX3d+dc7enH3WnsRiCd56ewYrVjTtmKp4YglJqpodQ1OUdSxkYXERewN5wCLgtQ0yU/tVemYR0V1LSfs6F+ZD6mc5UAaUQ1rMnS+SJEmSJEmSpE1HnTs8AJJUkxLq3uKBV6yo4L/DpzJ5yhL22L0rOTlphMNBqqrifPbZvCaNEY2NI5Fc2eIYGh0/I4feZUvpCfwXKAZ6AWcB86j53f6WusNj8c0TWTVoKbEulUR3LSN6bBmrD1rK6p5LWZ25lNKyIkoziijtXERaPIdwZdrGDlmSJEmSJEmStAWrs2g5QCy+gHhiWasnGPnBbGbOWk7RvFJKSqOccHw/mnJSVjyxlFh8Qavnb8iyjFyeyC+kGJi+5loasCNwA3A/cFHRRFLLSzdoHJukVd/5vgpYCWQDGUBkzfUg5K0sJK3M3R6SJEmSJEmSpI2rziOtaiSJVk8gM/XQVk9y4cWvNLtPtHoCkGz13I1Z1LGQ24GuxUUATADOBnYGLgV+V17G78onMSIjh+vyC1m0pRQxnwocTk1yo5qahEcKUEnN1pfVkJdSSG7xD7cDRpIkSZIkSZKk+tS7wwNqdllUxaY31GSDqIxNb5PdJU01sWMhs/LX/uI+BfgwI4f9Cvvxq4wcKoDDyssYXTSJp4smUriZ7viIhkspPbuIxQ9MJHpBGcwEhlHzL9QkOgDNWiwAACAASURBVBYBs6FzdT+THZIkSZIkSZKkTUYDOzxqVFaPIxjIIRzq8kPEQyy+iKrqcT/IXN81q2MhW1XUJDJWpOfW1u54JyOXPkC3ZUW8UFzEfuVlfFg+idEZOfwpv5BJ7XzHR7R7KZWHlVFyYBFsTU1y4wvgEWoyP/sD269pvBjSRuaQu6iQtIr2/b4lSZIkSZIkSZuXRhMeSZJUVI0iM20gwUD2Bg0mkVxJRdUokj/AUVZ1+bxwp3rvze9YSP+OheSVl3JFcRGnlZcxvHwS3wCX5xfy2Q9Y3Ly1Sk8ughwoOb8IFgKzgY+AsZA3oxC2htwZhZSeWUTJwKLafmkf5NB5fP2fkSRJkiRJkiRJG0ugx44DmpRdCBAhPTKAcKjzBgkkFl+0JtlRtUHGb2uR8lIuKS7i4vKy2mt3ZuTwUH4hlS3c9TF32hvA/fTY8cU2inKt0gFF0BdKLiiCImAWNQVL5kHemEJSQzmklawf9+JzJhI9tYy8xwrJfaz9JHUkSZIkSZIkSVuWJic8AAIESE3ZjUi4V5sGURmbTlX1uI22s6M1sspLOb64iJvKy2oLoozIyOHX+YVUNzPx0dYJj9Jji6ALlJyzJskxExhHTZLjq0JSM3JIW+jRVJIkSZIkSZKk9q9ZCY9vhYKdSEvZhVCwY6smjyeWEq2e8IMWKN9QCspL2bW4iHvLy0hfc21URg5X5hdS1MTER1skPEqPK4ICKDm7COYB04CxkDYih7RgLrkr3KUhSZIkSZIkSdr8tCjhsaYr4VBXIqEdCAULCAQCTeqVTCaJJ5ZQFZ9BLL4A2uGujsZ0W1bEi8VFfHv4V1MLnLc04VH68yLIWpPk+AaYCnwBaRNySFuVS+5ykxySJEmSJEmSpM1bo0XL65ckFp9PLD6fABHC4a6Eg10IBtIhkF7zL5BIVkCygkSyglhiEbHYgnZTp6Ol5ncsZN+OhWxVXsrl3ytwfkV+IWPaoMB56elFRPNKiZ5SVlOPYzpwC+SNKIRsyF1mkkOSJEmSJEmStOVoxQ4PNVWkvJRLi4u46DsFzu/IyGFsfiGjv7Pro7EdHqWnFxE9qJTotmU1OzkmA19C3idrkhxLTHJIkiRJkiRJkrZMrdjhoaaqysjlzxm5/Ku8lBOKi/hDeRlXlZdB+aQGC5xH9ymlsl8Z0f1LifYog9nAJOARyBtbCHmQu3BNkqPiB31LkiRJkiRJkiRtUtzhsREUlJeyW3ERQ79X4HxA+TzgfvJuH0rJEUWwFTXHVU0GPoO8iYWwFeTOdyeHJEmSJEmSJEnf5Q6PjWBJRi5vZeTSh5oC55cWFDH5uDJ+/OGtHPzxZ/w3WMQX7wITIG9SIWwNuTPWJDnKN2bkkiRJkiRJkiRtmtpkh0eACCnhroSCXQiSQSCYTmBN0fJksoJkooIE5cQTi6jeAoqWN0VpvyLYD0ouKIJ5wNfAqweS/PeHAMwFftdGBc4lSZIkSZIkSdrctSLhESAc6kokvAOhQAGBQKBJvZLJJPHkEqpiM4jFFwBbzolapYOKoDOU9C+CDsB0YCKwCPI+K6RkzCRyuIZbM55otMC5JEmSJEmSJElaq0UJj1CwE2kpuxAKdmzV5PHEUqLVXxFPLG3VOJuy0uOKoABKzlqzk2MmMA7S3s8hrTqX1Iwc0hbUJDLmTnsDuJ8eO75I1ncKnAfXjPVORg4X5RdSaeJDkiRJkiRJkqR1NCvhESBAaspuRMK92jSIqth0KqvHkdxMdnuUnlIEOVBydhF8A0wFxkPa+BzSSnLJXV73MVXfTXh8q6C8lN2Li7jnewXOf5dfyDwTH5IkSZIkSZIkAc0oWh4gQnpkAOFQ5zYPIhLuRTCQQ0XVqFbV9xj25ANEK6s445cXrXfv6Sf+TXV1vM573/XCMw8zdsJkbr71L82au/T0IsiAktOLagpwTAL+BGkTckiL5pJb3LJaHBfcdgvZWVn0uer3dFtWxEvFRexXXsZH5ZMYnZHDn/ILmWTiQ5IkSZIkSZK0hQs23qQm2ZGZNnCDJDu+FQ51ITNtIAEiLR7jrqH3c9CA3dhrzz3Wub7ffv3pv9dO/PmefzfYf5tu3dhj1168+PL/6rzfs2cPXnz2kdrXpWcUsfjBicx99xNKDiuiZKsi+BPknVNI3gOF9Hh9AJ3n79SkZEfPnj34ZFSH9a5/Pfsbps/4GoD5HQvZZ8cB7F7YjyczcuhfXsbwokmMnPYJ+y4ranQOSZIkSZIkSZI2V43u8AgQID0ygGAge4MHEwxkkx7Zj4qqD1p0vNWnYz7jo9HjuWLI+fz89PNrr19x6Xm89d6nfDXhqwb7H3/8IGbNWcDkyZPrvH/0UYcT7xxl8f0TiW5fBl8Dk4EnIG9MIeRB7sI1yY1o82I/+qjDCQSGrXf9if88s961FRm5XJeRy03lpQwpLuLC8jKeLS6C4iILnEuSJEmSJEmStkiN7vBITdltg+7s+L5wqAuRlN1a3P/Pd/+b/nvvxID99gPgkEMOZvddduCue+5rtO+xRx/CK8PfXedaNFRK6dlFXDvmXK4ccjZ7d9mFioNKSXZNcuyTp5P3TCE9Rg7gZ/ufyaj7P2T6VyMZPfJVzjv37HXG2WvPPRj25ANM/PxtJn85guGvPMnxg48D4Labb+DKIWfTf98YyeTlzJn6MfsPqIl/6F23cv+//lo7ztC7buWaqy7jNxedx3ufvs85y5fy9cy5vHjORSSAq8rLeKZoEo+UFHHnH65i9Aev8fXkD5kz9ePar9NOPaXFny/AySf9jGnj36N79+7rXA+Fgrz+6lPcceuNjY7xwjMPc/21V9R57/vvuTXq+vzaamxJkiRJkiRJ0qajwR0eoWCnFhcoz8/PICsrwty5Jc3umxruRSw+j3hiabP7jh8/gREjP+PyS8/lk1GjuPw35/Dq6x8yffr02jalqUWUbFtEWmkOnRfsBEDfPn3Y/kfdePnl/xLtUUrloWWUXFQES4GZ8NsnLiLaN8r+nQ9g8PUnkzt3GyqiFeTGCzlg/wHcN/QmHnz8JS676mZ27teHP1x3MSUlZQx77gUiqREe+fcdPPvSm9zwxz+TmprGHrvvzJIlSwD44y1/prKyir69TmDgYffQfYdXqYhW1Psez/zFIN4cMZqTT7uAZcXFnHLSz7jxvns5fd5Ssj98g7vLyzj8jttI9urBZwcezC+SqZx45ZX88vTB/PRnv+Lrr2c3+3P9rmHPvcBJx/+EP1x/Ob8879La62edcSoFnfK49Y67G+z/7dFhN/yxeXVSJEmSJEmSJEmqTwMJjwBpKbu0eOBrr/4x3brl8IvTniWRaP7xVGkpO7O68j1owdFWd91zH8NffIBb/nQ9vXv15OLLbqi9t3j7iUS3LoMYRENllK4qIreskGPOPZAxi7/io5eGwUJgNvBP4HPIm10IW0N6VgHB/BRCk7diFatrx/ztxecw8pOx3HZHzc6ByZMns912Pbno/F8w7LkX2CpvK7KzM3jhxf8ybVpN4mXChAm1/SsqolTHYiQSsHJlJatWrx27LtHKKq6+7iYqKmrOzXr8iac496yT6HvYYTwwZx5vAMXH/pTwpZeROX0i7wKfXnYhKWefyDbdujJz5qxmf6bfd+2Nd/C/lx7k0EMP4d1336Njp44MufAMbrjlb5SWljXYt7GjwyRJkiRJkiRJaq56j7QKh7oSCnZs0aD7D+jBwMO2p2+fAk45uWVJk1CwE+FQ1xb1nTxlCm+8M4pTT/oJL7w6gjlz5hLtW8riQyYS3aMMcoAQkICStCK+uWQUg488gidKHoW/AXdD3vWFdH6pHz0mDCB3ZSG50+suPB4Op7DrLr14Z8RH61wfO34iPbbpQmZGBosXL+a9j77kkfv/zFlnnkp2duvqocycVVSb7PjWsuIVdOq09v8rLTODqwu2ZffCfjyVkcO+5SWEEnGemD+lzgLnA5cVcUDRRLoVTWxSDDNmzODhJ17hxmsvJiUS4YarL2PC5Bm8/PKrjfat6+iw74vH4px91ml89O7LTBv/Hu+8PozBg49dP+6Bh/LGa0/Ve5RYUxxyyMG89sLjTJvwPhM+e5u/D72Dzp1/uGPcJEmSJEmSJEmtV2/CIxLeod5OKSkhcnPT6ryXGglxzdUHEwjUvP7NRfvRMT+j7smDAbKzU+udJxKqP4bGPPL4swA8/uRzRHNKWXzMJKJ9yiAFSFBTVHwVUAGHrDyCgmQn/nfpe3R+ux893qtJcqStaLzwd05ONuFQkBuvvZAp496r/brnjmsAKOhcAMC5v76Mfz/0DGf+4ng+Hfky111zOalp9b/3hiwvqXsHxbefOcDIj7/k7NNPInXbHblxuz249y//pnx5CYkPR/JscRFzpn3Cr4sm0r+8lN8XTeTE4iKOKC/jJ+VldKgjIVKXe+79J6FgiL/dfStHDtyP6268o9E+3z06rCH9996Znxx+MFffcCeDT7mA90Z+yl23/I4+vXvXtvn2KLGRH33O4FMu4O6/P8ZvLzqDk0/6WZPiB/jxwQfywN9v5tMvJvDzM4dwyRV/ZJuuBTz7xD/IzKj751aSJEmSJEmStOmp80irQCCVUKCg3k79+hbw+KMnUVkZY/GSVRQVlXLhxa+QTEIwFOT5FyZy2ZADALjv/jEEvvOb+N1378o1Vx5Mfn4GHTqks2DhSo4Z9Fid84SCBQSIkKSq2W+sfE0NjOK+37D4rElQApQBFWv+XbHmKwJn7noOH44aT2JuBnWnceq3avUqEokEd9z9EO+//9F694uK5gMQi1Xz6GNP8tjjTzFw4KHcfP0QCjrmc+nl1zb7vTXF1dfdzPNP3cd7bzxNeUUFk6bM5oTzrqJv7jb8IZbkxvIyri4vY1H5JOYA5dRsfNkaGFRcxMtAace6d7V8q6Iiyh1/vZ+//eU6HnjsRebMmdtoXCccfwxfjp9O0bx5DbZLjaRw7oWX1x6PdcvtUxn0k4M5YP99mTJ1KtD4UWJN8dvfnMNbI0Zz861r64l8OXY8o957kZ+f8jMeeuSJJo0jSZIkSZIkSdq46tzhkRLaep0kxfeNG7+QWV8vJzU1TPfCPLKyIuTm1KQKKiqqGTFibY2It0fMZOmytTUpqipj/GjbDnTqlEloTXKkPoFAgHC4ZcdafWvlzxZBjJrdHCuAJdTU6FgCpEIkO5VjDziKV157s9GxKiur1tuVUVVZxVeTZ9Fnx+35evbs9b5isep12ieTSd5+ewT/fOhpdt+t9zpjp6W36q2uY889dycWi7Hnfsew535Hc8YvL2LqtGmszsjl0cKd2LewHxdk5DCfmmRHjJofhkygC/DT4iKymrDT4+AD+1MRreKQg/YlHGqgJAw1/5+DjjyYV4a/0+i4U6bPXa8WyKIlxRSsObarKUeJNSYlEmGnPtsx4v2P17leVlbGp19OZt99dm90DEmSJEmSJEnSpqHOhEco2KXRjsOe+6r2+1132ZrXXjmD//v5rgSDdSdK8vLSuf66Q3jyiVNIjYQAiEZjvPjSpAbnCTchlrpU9VpV800JMB+YA8wEplGT+Miq+Ro08ATC4RBvvT2i0TEnT53Bjtt156gjD6dwm23Iy80D4K6hD3L8Tw/hTzddy/4D9mOPPXbn2EHH1NaT6NKlC9dcdRn77L0X23Trxl577sHPjjuSseOnrTP2zv1iHP+zndYZu6X67LgDVbE4u+66M7vttit9+/YlJyen9v6SjFxeL9yJ2Ws+jjJqTvlKAKlAAXBccRHp5aX1zrHnnrtz7NEH839nDSE3J4tzf3VmgzHt178/+fm5vPbf1xuNf3nJ+vMmk0lY8+PV1KPEGpKdlUUoFKR4+fL1519ewla5OXX0kiRJkiRJkiRtiur8k/wgjf91/GuvTeHQQ7blnRGzuOiCfcnLS+eaqw7mxBN24smnx62dIBTkFz/flQt+vW9t3Y+pU5fyv9en0blzFqWl0fqmqIkl0LJtD5HpWQB0vWt3Vs/IIhop/fbNUZldBgmIppVy1v6/4p0Rn61XBLwur7/+JsMG7M2dN19JKBjgvN/cwMefjOKDDz/irPOv5rcXn8NJgw8HYMHCZTzz/HAAohVRtt+2OycN/hM52ZkUryjj/Q8/45bb715n7If63sTDD1aQknJQ7dgtNf6rSVx8/v/x9KN/rb0Wiyd49MlX1jm+aTY19dtTaj4aAkByzb1s4OSiSTy244D1xg+Fgtx84+94/OnXGDduPH++5yH+cO1FvPzq/1i4cGGdMR1/3FF8MGocK1asaDT+ZDLZ4P2mHiXWkJKSEmLxBB3z89e712GrXErKVjY6hiRJkiRJkiRp0xDoseOA9X6znJV2DMFAVpMHyclJ5cIL+nPKSTsTCgVJJtcW0F6woIyuXWv+Un7Figr+9o9RvPjSJBKJhn+h/a14ciWro/9rcizt2dxpbwD302PHF1s1zlFHHcEfr7+U839zHRMmTCAeT5CensaPf3ww/7r79xx53NlMmzYdgD2mfUIOkEbNzo5UarJgYWoSIHHgs/xCpn6vnsc5Z5/O+ef8nEOPPJlVq1cTCAR49fnHmLdwCRdcfMV6MaVEInzx8XBu+NM9vPLq8AbjH3rXraRnpHHeBZetc/2lYQ/z+dhJ3HLbXQC88vyjTJ85l99dfWOTx/r+62eeuI8VpSvXiTkrK4tR773E3+57kvsffLTBWCVJkiRJkiRJm4Z6ipY3b1dFWVklt98xkueen8jVVx7Evvus/eV41645xGIJnn3uK/75r9GsXFnZrLFbusNjS3b0kYfy4SdfMnbs2p02FRVRPv54FMlkkpzs7Nrrkwv7kVtcRJya46wSQISaxEc6NYmQaqBDeSnLM3IB6NSpE7+96Ax+f8s/WLW6pj5LMpnk9zf/lRef+jsHHXgAH3y47q6LgYcdQjgUbNLRYU1119AHefhftxKtrOSNN9+jIhplm25d6dKlgPsfeKRJY/zlnvt46tG7ufrK3/Lqa2+Qk5PNZZecS0nZKp565vk2i1WSJEmSJEmStGE1XGW6mebPL2Xc+IXstWc3QqG15UFWlFQwbtyCZic71DITJ0/jV2eeyAH7D2DCVxNJiaSw4w69uPSis1mwuIgD9/sv+/ePMXpMDqPH5BJdk8hoquuvuYzps+bx4ksvr3N97NhxvDJ8JH+8YQiH/3QM1VVVtfcGDzqCt977tElHhzVVY0eJNcXnX3zJmedeyRVDzuesU4+lqirGh6PGcukVv2fVqlVtFqskSZIkSZIkacNqkyOtAI46sheXDdmfLl2y17leXR0nJaWmSPnnX8znjjtHMm36siaP65FWzRcMBvnNRedzwrED6dK5pj7FwkXL+FHWK0xZcCNjP10CwFdjYXV1Dq+M3Km1oUuSJEmSJEmStFHVmfDIjBxKKNSp0c4nn7gzy4rLOf203dhzj24AVFRU89p/p3LySTsDcNY5z/Pzk3fhyCN6EQhAIpHk+RcmMm78QjrmZ/Do4182OEc8sYTVle+15L21O22V8KjPlKGf8NxIeH7kutcnFK9flFySJEmSJEmSpPakziOtEpQTaqRjv74FXH3VwYTDNUdXJZPwxpvT+es9HxFJCdUmPBYtWsWVV7/BM8MmcPXvDqZ3706cfNLOnHzSzpSWRnn2ua+oqKiud55EsqJl70zrGTMzByjb2GFIkiRJkiRJktTmgnVdjCcWNdgpNTXMLTcfUZvsmDptKWed8zxXXfMGixfXXffgyy8X8PNTn+FPt7xLPJ4AIDc3jROO79fgXLFGYlHTjZmZS98e61/PTCn94YORJEmSJEmSJKkN1ZnwqI4tIJlc76SrWqf+Yle2/VGH2tejRxcxduwCANLTUzjssO1q7x1+2PZ06pgJ1BxnNXPWclauqqpNepx+6m71zpNMJonFFjTj7agx/Xqufy0r7K4PSZIkSZIkSVL7VueRVkmqiCeXEA50rrPTw498wbBhX1FQkEVBQSaxWKL2XiKe4MSfrS2Cff55+zD8f1NrX48du4CDfnw/AJmZEdLT6gwBqKnfkaSqee9I9fpsRg4ctbGjkCRJkiRJkiSp7dW5wwOgKjajwY6rVlfx9ezljP60iM+/mF97vbIqzm23j+TbDSJ/+8colhWX1znG6tVV9d4DqIo3HINa5vvHWnmklSRJkiRJkiSpvas34RGLLyCeWNaiQT/+ZC7vjJjJ5ClLeHbYhBaNEU8sJRb3OKu2NGZmLgB9e657PSvFI60kSZIkSZIkSe1b/edJkSRaPYHM1ENbNPCtt79PVlaERKL+WiANiVZPAFrWV/UbMzMHMMEhSZIkSZIkSdq81LvDA2p2WVTFprdo4OLicubOLWlR38rY9BbvLlHDxszMpV+P9a97rJUkSZIkSZIkqT1rMOEBUFk9jlh80Q8RCwCx+CKqqsf9YPOpRlbYXR+SJEmSJEmSpPar0YRHkiQVVaNIJFdu8GASyZVUVI0i6VFWG9T3a3hIkiRJkiRJktTeNZrwAEhSxeroO8TiizdYILH4IlZH3yFJ1QabQ/DZjBwA+n7vWCuPtJIkSZIkSZIktWdNSnhATdKjompki2t6NKQyNp2Kqg9MdvwAxszMBdbf5ZGV4pFWkiRJkiRJkqT2K9ycxkmSRKvHUh2fR1rKLoSCHVs1eTyxlGj1BAuU/8DGzMwBTHBIkiRJkiRJkjYfzUp4fCueWMrqyncJh7oSCe1AKFhAIBBoUt9kMkk8sYSq+Axi8QVgvY4f3JiZuXROXz/hkZlSyurq3I0QkSRJkiRJkiRJrdOihEeNJLH4fGLx+QSIEA53JRzsQjCQDoH0mn+BRLICkhUkkhXEEouIxRZ4dNUmoF8PeP5717LCZSY8JEmSJEmSJEntUisSHmslqaI6Nodq5rTFcPoBfL+GhyRJkiRJkiRJ7VmTi5Zr8/HZjBwA+vZY93pmSulGiEaSJEmSJEmSpNYz4bEFGjOz5tiq7+/yyEqxkLkkSZIkSZIkqX0y4bGFGjMzZ2OHIEmSJEmSJElSm2mTGh558RiHrV7BgatL6FpdSUG8ioJYNQBLwiksCUVYkJLKh5l5jMjcipJQm0yrVhgzM5fO6evv6MhMKbVwuSRJkiRJkiSp3Wlx5iEADFy1nLNXLGTf8jJCJOts17MqTk+iUAGDy5YSJ8CnGTk8stXWvJPVoZ5e+iH06wHPf+9aVrjMhIckSZIkSZIkqd1pUcJjr4qVXLN0DntWrGx23xBJBpSXMqC8lM/Ts7m9U08+T89uSRhqpe/X8JAkSZIkSZIkqb0K5XUs/ENTG4eTSW5YOofbFs+ia6yq1ZN3jVVxcukSchMxPs7IIxEItHrM9qZ02YEsLjqA0uIc4GDgC0qLA1RWdCKcsoRwyob5TALA8fsuZfIcWFq67r0VlQUbZE5JkiRJkiRJkjaUJu/wyIvH+MeCaexfXtp442Y6e8VCdqgs5+KuO25x9T1Kii/+zqsE0Bs4hWg5RMuhx46nbJB5x8ys+9iqrJT163pIkiRJkiRJkrSpCzalUV48xovffLVBkh3fOqC8lBe/+Yq8eGyDzbEpyst/FUhd81UF7LPm+wrSMm7b4PN7rJUkSZIkSZIkaXPQaMIjnEzyjwXT2LaqYoMHs21VBX9fMI3/Z+/O4xu763v/vyVL46Nljjwzns2OPQ6ZYRYP4UJoSgKEm0DJwgXC1v5uaS9tuSXlNim3lPYHBX69ZeulQAOFlrWEpRRIgIalrElIyGolkCaQxI40MBnNPmNbR7ZHx2Nb+v1xrOVY8tiyJR9Lfj0fD8fj47H1nUw0k8d56/35BPJraZX5uKTNZW8hSSclPaDYpocb+sjxpFn1eiTYuGALAAAAAAAAAIBGWDDweMepgw1tdsz1/DOW/vrUwRV7PK/FOr8l6ZeSDkk6IOlxSY/KCN8mI9zYnSbxZEz9OyqvRwOMtQIAAAAAAAAANJdzBh7PyY7pD0ePrdRZiv5o9Jiekx1b8cf1Ssemf5QTejw++/ZLSckVeWxGWgEAAAAAAAAAWsG8gYdP0ts9bFq87dRBNbbfsHrEOh+T9Kikx2bffqnYpsY/7oMJRloBAAAAAAAAAFrDvIHHi8dHdNESWxZ5v1/5tjbnzb+ovegVnpMd04vHR5b0tc3ICA/IaXc8JiN8Wka48Y8ZT8YkSfvmjLWKBhlpBQAAAAAAAABoLvOmEUsZZZXfu1f5n/5U05kxTVrO25Q1pvwddyi/c2fN3+8PPBin5RUjdEJO4DGq2Ka2FX1sxloBAAAAAAAAAJpd1cBjw8y0fvNMba/yzweDyn/nOxr791uV6+qSf0un/Fs6levp1pk775K+/W2pxrbHc89k1DEzXdPXNKtYp09SRFJYRnhmxR43nmSsFQAAAAAAAACg+QWqXbxiYlRtyp/zC3MXX6z8618vXzgin6RcLKaps9Na/5Eb5cuXfe2ZM8q/9z2aeeMfy/+1r8k3MaG8JN/4uPS5m+T7+c/mfYw25XXFxKi+aW5eyq+t6XRsCsjOtkuyV+wx48mYrtiT0dfnXI8GMpqYiq3YOQAAAAAAAAAAWI6qgccLJtLn/KLcnj06+93v6eyHPqi2U6edDed5yf+hD7nDjlm+XE7Tv/d7mnnaBaWLXV0ybr9Nvosukv9Xv5r3sV4wkV4zgYe0TrFNkyv+qIy0AgAAAAAAAAA0u6qBR9fUuW+65y+/XNN33KH1f/8B5V/8YvmeGJTvyOHS58Nh5Z/1LCmfl+/hh+XLZmXcead0552lnyPp7AteoOBll0nnCDy6plc+APBKrHPll4U/mDClq1b8YQEAAAAAAAAAqKuqSzW2zJw991e1taltakqSNP2n12vyec8rfmrmTW/SzMGndPZDH9bZGz+i3MGnlHvDGyq+hU+SJieVazv3gu4t0wucBcsSTzpjq/btcF9nhwcAAAAAAAAAoJlUbXhsmZ5a1Bf7JAVf9criGKvp332dJzKn7wAAIABJREFUZv78LcpfdpnahwadFseFFyrw7e9Io6Pyf/ObNR9wsWfB8uzrkx5/qvRxNLjybRMAAAAAAAAAAJaqasNjMXy+2fezYUdeku/tb1fu+utlDD4hXz4vfz4v45FHlHvLW5R/29sXWIMOr8STZtXrtDwAAAAAAAAAAM2iauBxMhCs+Rvl29rk27VTgQfjFZ/zDTwg3+6nK19ISWqwlLOgNvFkTP07Kq9HA7Q8AAAAAAAAAADNoXrg0bau5m/ky+Wkw4fle8YzKj+5f79mfn2w2AapxclA7WdB7fb1eX0CAAAAAAAAAACWrmrgcTTYXvM38uXzyn30o/J97OPKbd9evD59Xo9yH/qwZj7yEdXe75COBmo/C2rzYKL6SCsAAAAAAAAAAJpF1aXld0c6dG3mVM3frO3jH9fUlq1q+8UvNX3P3ZLPr5lLLtHMjTcq9IXPL+mAd0c6lvR1WLx4MiZJ2rfDvbg8ErSkbI9HpwIAAAAAAAAAYPGqBh63RzZoRj61zbdmfGZGMoyKy758XsF3vVPTn/ykcpdeIuXy8l13nULHj1Vtd+Tb26XpmXkPNyOf7ohsWNQvBMvkc8ZalQce0SA7PAAAAAAAAAAAzaFq4JFuC2ggbOrSM1b1r7rjDq17//s19Zd/KT11qOpPaSv847LLVC3SmLngAvmf8xzpujfOe7gHwqbSbVWPiDqLJ0xJBBwAAAAAAAAAgOY0b5pw04bt8wYebUNDmrrmGuXfeJ1yz71E+Xze6YLkJZ9Pknzy+Qo/nlUoi8xe86XT0pUvUeDgwXkP9/kN2+f9HOornozpij0ZfX3O9UjQ0sRUzJMzAQAAAAAAAACwWPMGHrdFN+pnofW6KDtW9fPB++9X/v77l/Xg51pi/lBovW6LblzW98fi+eSMtJorGsgQeAAAAAAAAAAAVj3/fJ/IS/q7zX3n/GLfMt/O5e829823QQQNEE+YC/+mAAAAAAAAAACwSs0beEhOy+ImD8ZKfW7Ddv0stH7FH3ctiyedFse+He7rkeA8e1wAAAAAAAAAAFhFzhl4SNL7NvfpnvDKjTS6JxzT+xdolqBx5o61igZZZA4AAAAAAAAAWP0WDDymfT5d37Vbv1oXavhhfrUupOu7dmvax2wlLzyYML0+AgAAAAAAAAAAS7Jg4CFJ6baAXtX7DN3bwKbHPeGYXtX7DKXb5t2jjgaLJ2Pq76u8zlgrAAAAAAAAAMBqt6jAQ3JCj9eft68hOz0+t2G7/uC8fYQdq8DckVaSFA0w1goAAAAAAAAAsLotOvCQnPFWf7vlfL2m9xl1WSr+UGi9Xt37DL17y/mMsVoF4oy0AgAAAAAAAAA0qZoCj4KHQuv1mt5n6I+79+jecEwzWnxYMSOf7g3H9Mfde/TaOgUnqI94MiafpH073NcZaQUAAAAAAAAAWO2WPEMqL+nH0Y36cXSjOmamdcXEqF4wkVbX9KS2TJ/VlukpSdLJQFAnA+t0NNCuuyMduiOygdFVq9y+Punxp0ofR4OMtAIAAAAAAAAArG51SR7SbQF909ysb5qb6/Ht4CFnrBUBB9Aoz73Y0nMvdp5jD8RNPRCPeXwiAAAAAAAAoDUsaaQVWlc8GVN/X+V1xloBy/O630/pwYH79NUvPqbLX5jSxk0pXXP1Y9q4KeX10QAAAAAAAICWwGwpVKgWeEQDGU1M8Up0YKkeiJu661HpoXuln91Xuh4OWRpRj3cHAwAAAAAAAFoEDQ+4OCOtAAAAAAAAAABoLgQecIknnRbHvj73dUZaActzYMh5bnX1uq+HwuzMAQAAAAAAAOqBwANV7dvh/jga5KYsAAAAAAAAAGD1IvBABcZaAY3hk9TFug4AAAAAAACgIQg8UCGejFVdXM5YK2B5DgxVDxNDIZ5bAAAAAAAAwHIReKCqaoFHNMBYK2A5koU9HnNaHuzxAAAAAAAAAJaPwAMVGGkFNIjP6wMAAAAAAAAArYvAAxXiSedV6Pv63NcZaQUsn0/SdvZ4AAAAAAAAAHVH4IF59e9wfxwNMnYHWI75dniE2eEBAAAAAAAALBuBB6pirBUAAAAAAAAAoJkQeKCqwliruRhrBSzdgaGY5JO6et3XWVoOAAAAAAAALB+BB+Y1d4eHJEUD3JgFAAAAAAAAAKw+BB6oKp4w1d/n9SmA1tTN0nIAaHo3f/kz+uLn/qnq577ypU/O+7ly3/jq5/TOv35rvY+2ZH/zrr/Shz7wbq+PAQAAAABLRuCBqgojrea2PBhpBSzPfIvLQywuB4Cm8uGPflqXXfpf9JyLnu26fsklz9Vzn7NfH/zIJ8/59ed1d+vZz3y6vnnr96p+vq9vh775tZvqdt7FfO9f/fqQnkz8qiGPCQAAAAArgcAD59S/w/1xNMhIK2A5kkNOmNhFywMAmtpA/EHd88Ajeuv/vs51/a1vfqN+9JMB/eLRX5zz61/5ypfpwMGjevzxx6t+/pqrfks+X75u513M9/7Sv35Vn/7s5xvymAAAAACwEgJeHwCrVzxhSiLgAOrOV3kpFM4om42t/FkAAEv2wRs/qW997RO69JJLdN/99+vyy1+oZ124S1dd+4YFv/bl11yub/3HHVU/93fvfZf++2uukiQdHLxXkvS6P3qr7r3vfknSi198hd765v+pp/V1a2TE0uf+9d/16c+UGhvPuejZ+qu3vEn7dvfJ7/fr16nj+uxNN+vfb/3WOb/3Rz/8foXCht74prdIkj764ffr+MnTGh8f1//zmpeqc6Op1NFT+vin/lW33vrt4uNFo1G9421/rssvu1hbOjvk95deU/XO9/yj/vXLX1v0v1MAAAAAWA4CD8wrnoxpa6gy8IgELU1McWMWWI6uHuloyutTAACW45FHHtXtdz2ov3jzH+u+++/XX9zwBn37+3frySefPOfX7du7VzvP79att3636uff/b4PanLyrJ71zL163ev/VJKUtbOSpOc/71J96qN/q89+8d/1lv/3vXpG/179n3dcr3Q6o5tv+YbWta/TTZ/8gL727z/Uu979QbW3G3r2s56hkydPLvi9q3n9775MP7z9Af32771Jp4eH9TuvfbU+/L6/1NDgk3picFCS9Dfv/Evtffr5euXvvFEjoyN68/V/oj/6/Wv13179P/WrX/26tn+pAAAAALAMjLTCOc3d4SFJ0QCtD2Cp5tvhAQBoTh/+yKf07Gc+Xe97zzu15+l9+sjHPrXg17zqlS/Vzx95UqnDh6t+Ppu1NTU9rVwup/GJCY1PTGhmJidJ+vPr36C77ntYf/eBf9Djjz+ur93yDX3pq9/Vn173u5KkDR0btH59WN/45nc1NPSkHn30UX3+C18utkPO9b2rsSfP6m3v+FsdOXJUk/akvvilf9PR46f1/Of9ZvHnvPjy5+qzX/y6jh07pkl7Uv9w4z8pEAjovO4u5XLzf28AAAAAqDcCD5xTf5/XJwDWhjBLywGgKT3+xBP6wW3363WvvVrf+PbtOnjwqXP+fJ/Pp5dd+UJ96z9uq/mxAoGgnnnh03Xb7fe4rj/8yC+147xtioTDOnHihH5yz89106c/qD94/eu0fv36mh+nXPJAStms7bp2enhUmzd3Fj8Oh9o1Mz1d/DivnPL5nOSrMsMRAAAAABqIwAPzcnZ4VG95AFiaA4Wl5b3u66EwzSkAaFY3fdHZUfHFL9+y4M+95LnP1aZNMX3nu9+v+XFMc70CbX79zV//Lz3xnz8pvn3kA2+XJG3ZukWS9Md/8hZ98l++qtf/7is1cNetesfb/0LtRnvNjydJI+nqfz+VZxl33ftz/eHvv1bbtm1TcN06Xf+/rtNoelwPPfTzJT0mAAAAACwVOzwwr3jSuTHbv0N6/GDpeiRoSdkebw4FAACwypyZ3YFx9uzUgj/3la+4Sj+9/z81Ojpa8+OMT4wrl8vpAzf+i+68856Kz6dSRyRJ09NT+vwXvqwvfPHf9OIXX6H3vvN/a0vnJr35L/665sdcjLe94736+r99Sj/5wVd0JpvVY0/8Wv/jDW/R+Ph4Qx4PAAAAAOZD4IFzcloe7lf2RYO8Eh1YrrkNDwBA6wuuW6crX3Sp3vWejyz4cycnz1a0Ms5OntUvHj+gvbt36nM3fWnB75HP5/XjH9+uru1b9YbXv+ac33s5LrroWZqentZFl7xUZ7Jn6vZ9AQAAAKBWBB44p3gypq2hyoAjErQ0MRXz4ERA8zswZOqC3ZXPq1DIUjbL8woAGsnusWRdmnI+2C7FftojTUrGY43/8/fFL7pcgTa/fvTj2xf8uY8PJvSmN/y2rrryt/TYY09obGxcaSutD3/0s/rcJ94ve3JSP/jhT5S1bZ3X3aVt27bo05+5Sdu2bdMfvv53dfsdP9XRo8e0bdtWvfoVV+rhR4YW/N5LtXf3Lp2dntEzn/kMZW1bZ89O6fDhw8pkeJEMAAAAgJVF4IEF7euTdJf7WjSQIfAAlig5FNMFuzPq6pGOprw+DQCsLdalKdk9pRvx9h89JoUlnZKMn5kynoip/bApY7T+/59z7cteoh/9ZKBiCXg13//+D3Xzpb+hv3/vX6nN79Mbb3iX7r3vfv307nv0B9e9TX9+/Rv02mt/S5J09NhpffXr/+H8erK2dj6tV6+99j0y10c0PJrRnXc/qPf93xsX/N5L9cgvHtP11/13feXz/1C8Nj2T0+e//C299/0fWvL3BQAAAIBa+XbsvjTv9SGwel1/dUrXX53Sb/+t+/qJMz06wR4PYEle8vKUrnx5St/+ijvwGB7u0cgwzysAaBS7x9KJ33ms8hOmpLSkk5JOzb4/KRmjpox8TO0zpoyzvNCjmquueone/c4367ob3qFHH31UMzM5hUKG/ut/faE+ceP/pytf8YcaGnrS62MCAAAAWCP8Xh8Aq5uzwwNAI7DHAwBW1mTPPCOWRiUdm/M2JtnhjNIdKZ3Y9pisjVTyqrnmyit0930/18MP/6dmZnKSpGzW1r333q98Pi9z/XqPTwgAAABgLSHwwDnFk86rGff1ua9HgtbKHwZoEQeGCBIBYKXZF1uyX2FJz5b0G5L2Sirs7W6TdLTsLTv7uXXO+46JHsVGaOBV88vHh/SCS5+t5z/vUpmmqU2dm3TpJZfoM//8IR04eFQPP/yI10cEAAAAsIawwwMLiidM9e/I6PGDpWvRIEsogXoLhyyNiBtqAFAP1vVOI8Pea8nuzEiHJR2R9DM5ocYxOaOrrpv9gsnZz7epFHaskzoyPYoxbnBen/2XLyhkGHrf//kLbdu6SZJ07Php3Xn3g/rHf/qMpmemPT4hAAAAgLWEwAMLiidj2hoi4ADq5cCQ05zqmnP/LBTmeQYAS2FfbGny4oyUk9LXpJzg4rCcYOM7KjU3puUKM3Re2Tcx5Pyf8eznjBlTsRM9MibY3XEuuVxOH/3YJ/TRj33C66MAAAAAAIEHFmdfn6S73NciQUsTU9wEAAAAK6vY3tg1p71xXNL75IQboyoFG+skbZzzcVBS+S6lgJzQIyh1jNPqAAAAAIBmROCBRenvq7wWDWQIPIBlYGk5ACys2N6YltJXpUrNjSOSvqtSe0Mq7twotjeCKjU2JkwZYzHZWyzZuzNSZM4DDTtf2zFG2AEAAAAAzYrAAwuKJ0zpaq9PAbSWA0OmLthdOcIqFLKUzRIkAlibiuGGJPtpluxNmdJ4qhOS3i8n3MjIPZpqiyraG8aEKcOKqf2wKWO49Odq7ECPnnr2fZUPvm52Oflpwg4AAAAAaFYEHlhQPOncJNjXJ9fi8kjQkrLcFACWIjkU0wW7M+rqkY6mvD4NAHijEHDYPZbsCzKl5sbc9kbZbg0Zkky5w40zpoxMTLKlWGLh/zfpuK9H6UtLf/gaD5vaOrC/zr86AAAAAMBKI/DAovXvcAce0SALloF6C4UzNDwAtCRXe6PPkr0hUwo37pF0s5xw44xKYUa7pO2qaG90HO6Rzkrto+72xmLF7utRe8rUZE+m+DEAAAAAoPkReGBR4glTzvwIAPXU1UvDA0BrKi4W3zu7WLwQbhyR9KikY7Nv5Xs3onKWi8/dvVFDe2OxjFRMRoqAGQAAAABaCYEHFiWejOnyvRnpLvf1SNBicTmwBAeGTK+PAAB1U2xv5KT0S2cXix+R09j4D5VGU52Vu61xnlzNDbVLHYd6pMmltzcAAAAAAGsXgQcWrb+v8lo0kCHwAOooHLI0IkarAFjdiu2NXZbszZlSwFFYLH5M0im5w42Yqi8Wz8SkM1IsyZ99AAAAAIDlIfDAosQTpnS116cAWseBISco7OL+HoBVrtjemJLSV6dKzY2jkr5X9uMZlUZTFdobZaOptI72BgAAAACgsQg8sCjxpHNTYl+fe3F5JGhJWe7YAvUSCrMrB4B3XIvFnzZn98YpSf9XTntjVO62xiaVxlIVdm+M094AAAAAAKwsAg/UpH+HO/CIBrk5CyxHV6/XJwCwlhUCDvs8S/bOTKmtcUTO7o3CYnHJHXB0q3L3xlM9kl9qHzFljNDeAAAAAACsPAIPLFo8YUoi4ADq5cCQqQt2Vz6nQiFL2Sw3CwHUl6u90WfJ3ljW3rhf0jfkhBsZlcKMdkmbVX33hhWTfLQ3AAAAAACrB4EHFi2ejOnyvRnpLvf1SNBicTmwBMmhmC7YnVFXj3Q05fVpALSa4mLxvbOLxQvhxlFJv1SpvRFQKcwwJJmq3L3xVI9k094AAAAAAKxuBB6oSX9f5bVoIEPgASyBb57roXCGhgeAmhTbGzkp/dI5i8W/P/v+mKQzcrc1tsu9eyMoGWdMGWnaGwAAAACA5kPggUWLJ02vjwC0pK5eGh4AalNsb+wqa28Udm8UFosflzvciEjaoMrRVJmY1Ca1D9PeAAAAAAA0NwIPLFo84dwE2dfnXlweCVpSlleAArVKDpl6ideHALDqFdsbU1L66lSpuXFU0g9Uam+clTvgOE/u0VRluzfaR00Zw4QbAAAAAIDWQuCBmvgk9e9wBx7RIIvMgXoKhyyNiBARWItci8WfNmf3xrCkv5cTbpyWO9yIqXI01YQpYyzm7N6gvQEAAAAAWAMIPFCTeMKURMAB1MOBoZh8krrINoA1qxBw2Pst2Z0ZJ8wo371RWCw+I3fA0a3qAQftDQAAAADAGkbggZoMJGO6fG9Gust9PRK0WFwOLEWVzeWhMKEi0IrK2xvp30hJOZV2b/xQpdFUabnDjY1yjaXSurLdG34pliA1BQAAAABAIvDAEvT3VV6LBjIEHsASdfV6fQIAjVBcLL7Xkr2lbDTVUUlfUKm94VNle6OsuaGg1HG4R5oU7Q0AAAAAAM6BwAM1iSfNai9IB7BEySFTFzy9stERClnKZrmpCTSLYnsjJ6VfWrZY/Ijc7Y0xucONLao+mioTk7K0NwAAAAAAqAWBB2oSTzg3YPf1uReXR4KWlOWmDFCrA4Mx7awSeABY3YrtjV1l7Y1CyPH3ko7LCTgCKoUbhiRT7oBjndRxqEfy094AAAAAAGC5CDxQO5/Uv8MdeESD3LAFlsznLC4/mipdCoUzNDyAVaLY3piS0teknHCjMI7qh7Pvj0s6I3d7Y7vco6nWScb4bHvDJ8WSvFAAAAAAAIB6IvBAzeIJUxIBB1BPXb3uwAOAN8oXi9tPs2RvzpRGU41K+qCccOO43OFGRNIGuQOOdqnjqR7Jpr0BAAAAAMBKIPBAzQYSMV2xN6Nb7nJfjwQtFpcDNUoOmbrS60MAa1gh4LD3z4Ybx1RqcJS3N87KPYqqW9V3b1i0NwAAAAAA8AqBB5akv6/yWjSQIfAA6iQcsjQibpgC9VTe3kj/RkrKqbR340cqhRun5W5vxFQxmkrrZtsbfql9xJQxwt9/AAAAAAB4jcADNYsnTcnn9SmA1nBgyLlJ2t0rPXSvx4cBWkxxsfheZ7H4tSFJY9KejdKtt0qDd8sJOWbkDji65Q44aG8AAAAAANAUCDxQs3jCuUG7r8+9uDwStKQsN4GAegiF2ZMD1KLY3shJ6ZemnNbGMUlHpac/JD2/X9p7kbR5p3T3V6TnbZFOnZGGN6piNFWxvZGlvQEAAAAAQDMh8MCS9e9wBx7RIDdogaXq6vX6BEBzKbY3djntjeJoqqOSPiRnNNUxOY3E50inNkqnvis9+Z3S9wiHpOFNs+2NNO0NAAAAAACaHYEHliSeMCURcAD1kBwytXN35fMpFLKUzfLKcqDY3piS0tekis0NHZP0Y5V2b4zJPZpqi6SgNDxd/fsalqkdj+1fgV8BAAAAAABYCQQeWJKBRExX7Mvolrvc1yNBi8XlQI0ODMaqBh7AWlS+WNzeacnuLGtvnJL0YZXaG+VjqAxJpqrv3pBESA8AAAAAQOsj8MCS9fdVXosGMgQewBJ19UpHD5U+DoUzNDzQ8oqjqfZbsjdnnDDjiJz3P1SpvZFVqbkRlLRdFbs3jAlTRibm7N4YLu3eiPRY0rMfq3hsP7tyAAAAAABoKQQeWJJ40vT6CEDL6epxBx5Aqylvb6R/IyXlVWpv3KZSuHFC7tFUUUkb5GpuFAMOK6b2UVPG8OLCwdAmKTtc118WAAAAAABYJQg8sCTxhHNjqb9Peuygp0cBml5yyNSVXh8CaIBie2Nv2WLxwv6NL6s0mmpK7rZGt6qPpsrEJL8US9S2WHwiRVMKAAAAAIC1gMADy7Kvzx14RIKWlK3tRhSA6sIhSyPi+YTmUGxv5KT0f0u5w43y9saw3KOpYqoYTaWg1JHqkWzV1N4AAAAAAABrG4EHliyeMDV3CWw0yDx0oFYHhpybud290kP3enwYYJGK7Y1dluytZYvFj8m9WDwn93iqLrlHU62TjPHZ9oZPiiUJ+QAAAAAAwNIQeGDJBhIxXbEvo1vmXI8ELRaXA3UQYqEyVolie2NaSl+dcoKMwtvtKrU3LJWaGuskbVJFc0PtUsdTPZLfm/ZGeM4OD3/IUi7L31kAAAAAALQCAg8sS39f5bVoIEPgASxBV6/XJwDci8XtnZbszrLdG6cl3Sgn3DguySf3OKouVe7eWCXtjfGUqWgPISIAAAAAAK2MwANLFk+aXh8BaBnJIVM7d1fejA2FLGV59TkaqDiaar8le3PGCTKOynn/Y5XaG+Nyj6barIrRVFo3297IsnsDAAAAAACsPAIPLFk84dzI6u9zLy4HULsDg7GqgQdQT8X2Rl5KX5yS8iqNprpDpXDjuJz/QyiEGyFJptwBR1AyJkwZlvftDQAAAAAAAInAA3Wwr88deESClpTlxhewFF290tFDpY9D4QwNDyxZsb2xt2yxeCHg+IpK4UZW7tFU21W5e2Nd2e6NEVPGSGv8d+kPZ9jhAQAAAABAiyDwwLLEE6Yk96vSo0FepQ4sVVePO/AAFqvY3piR0i8rWyx+VM5i8UK4cVLu0VQRSRtUuXtjwpSRbp32xkQqpmhPRqFOSU96fRoAAAAAANAIBB5YloFETFvDBBzAciWHTF3p9SHQVIrtjV1z2hvH5V4sflbugKNLlbs3gq3Z3gAAAAAAAGsLgQeWrb9PumXOtUjQ0sQUN8yA5QqHLI2o+V9dj+UptDfsp1myd2ZK7Y3C7o3jkk5IGlYp2AhKiqki2GjF9gYAAAAAAIBE4IFliidN3XBN5fVoIEPgAdTgwJDzfOnulR661+PDwFPF0VSS7J2W7M1l7Y0HJX1XpfZGTu6Ao0sVAYcxYcrIxKSs1D5MewMAAAAAALQuAg8sSzzh3Djr73MvLgdQHyFGxrW84miq/ZbsLRknyCiMprpNpfaGpVKQsU7SRlWOpgrMBhxWTO2jpoxhwo25wpvcH/tDlkSLCgAAAACAlkDggbrY1+cOPCJBS8pyAwmoVVev1ydAIxXbG3kp/YqUezTVT1RqbpyQ5FMp0FgnabvcAUd5e8NPe2Mh44dNbfX6EAAAAAAAoKEIPLBs8YQpyf0q9GiQV6UDtUoOmdq5m+dOKym2N/bOLhYvDzhulBNsHJc0Lvdoqs2qunujIzW7WJz2Rs18Xh8AAAAAAAA0HIEHlm0gEdNWxu4Ay3ZgKFY18AiFLGWz3Nxe7YrtjRkp/bJUaSzVUZXaG4WAI6BSwGFIMlW5e2O81N6IJWjMAQAAAAAALITAA3XR3yfdMudaJGixuBxYgq5e6eih0sehcIbAYxUqtjd2WbK3zS4WL+zf+IhK4YYt92iqbaoYTaV2qeMp2hte8BPYAwAAAADQMgg8sGzxpKkbrqm8Hg1kCDyAJejqcQce8F6hvWGfb8neVbZY/JikO1Vqb5yUezRVVNIGVe7eKLQ3fFIsSXtjJYynSn8fhTZJ2WEPDwMAAAAAABqCwAPLFk84N5H6+9yLywHU5sCgKb3c61OgOJpKkr3Tkr25bPfGzyV9T6X2xpTcAUeXKndvrKO9sVr4JOW9PgQAAAAAAGgYAg/Uzb4+d+ARCVpSllcuA8sVDlkaEc+lRimOptpvyd6SccKMwv6NO1Rqb4zIPZoqpsrRVLQ3AAAAAAAAPEPggbqIJ0xJ7jno0SBz0YFaJIecm+TdvdJD93p9mtZUbG/kpfQryhaLH5N01+z7E7NvObkDju2qDDhobwAAAAAAAKwaBB6oi4FETFtZ/Aosm6/KtRDPrSUrtjf2WrK3ZkoBx3FJH1WpvZGRewzVRlWOpiq0NyzaG01rdqZVeM4OD3/IUi5LWAUAAAAAQLMj8EBd+OTs8LhlzvVI0GJxOVCjrl6vT9Cciu2NGSn9slSpuXFcTnujEG4cl+SXO8zYrormhoJl7Y0RU8YIf5Y1u/GUqeh5BIgAAAAAALQqAg/UTX9f5bVoIEPgAdQgOWjqgt3ckF2MYntjlyV7W8Y9nuofVQo3JuQeTbVZ1XdvTJgy0rQ3AAAAAAAAmhWBB+piIGnqeq8PAbSA5FBMF+ypDDxCIUvZNTxyp9DesM+3ZO/KlMZSHZP0U5XaGyfk/M1WCDS/jPoxAAAgAElEQVRCkkzNv3vDR3sDAAAAAACgVRB4oC7iCedmYX+f9NjB0vVI0JKyvFIaqIVPzliro4e8Pok3iqOpJNk7LdmbM6Vw42FJP1Ap3LDlbm9sU+XujQDtDZSpsijHH86wwwMAAAAAgBZA4IG6iSdM7evLuAKPaJDRPMBSdPW4A49QONOyDY/iaKr9luwtGemkSuOp7lSpvXFKTohRCDKikjao+miqTMzZvTFMewMl46mYoj0ZhTul4Se9Pg0AAAAAAKg3Ag/UTTwR05YwAQewHAcGTekVXp+icYrtjbyUfkWVxeInyt6m5A44tqv67o1xU4YVU/uoKWOYcAMAAAAAAGCtIvBAXfX3SbfMuRYJWiwuB2pVZexOMyq2N/bOWSx+XNLHVGpvjMo9miqmytFUhXCD9gYAAAAAAACqIPBAXfX3VV6LBjIEHsAiJYec50p3r/RQ2fVwyNKIVvfuiWJ7Y0ZKvyxVCjaOq7RY/KScgCMnd1tjuyqaGwpKHakeKSvaGwAAAAAAAFgQgQfqZiBp6gavDwG0qNAqGxfnWiy+a7a9UR5wfFyl0VQZuZsaG1U13Ci2N1gsjgYLd7o/9ocsaZUHigAAAAAAYGEEHqibeMJ59XV/n1yLyyNBS8pyIwmoRXev1ydwKwQc9vmW7F0ZJ8gohBt3y717wy93wLFNlbs31kkdT/U4o6lob2CFTKRMr48AAAAAAAAaiMADdTWQMLWvL+MKPKLB1fXKdGC1Sw6a2rnHu+eNq72x05K9pWz3xiOSfqRSuDEh9+6NzarcvRGgvQEAAAAAAIDGI/BAXcUTMW1ZZaN3gGaTHIpVDTxCIUvZbP2bEMXF4v2W7K0ZZ89Gob1xl0rhxkk5f2sUgoyQJFOV46lobwAAAAAAAMADBB6ou/190i1zrkWCFovLgRp19UpHD9X3exbbG3kpfW2q1Nw4LukeuUdTTcrd1NiqytFUQckYo72B5hPeJJ0Zdn7sJ6gHAAAAAKAlEHig7vr7Kq9FAxkCD6BG3XMCj1A4U3PDo9je2Du7WPyYSvs3PqZSc+OU3KOpopI2qGrAUWxvjJgyRnheo3mMp/jvFQAAAACAVkbggboaSJq6wetDAE3uwKApvaL2ryu2N2ak9MtTpeZG+WLxk7Pvp+QOOLarcjRVUDImTBlp2hsAAAAAAABY/Qg8UFfxhPPq2f4+uRaXR4KWlOVmKVAvrsXiuyzZ2+e0Nz6uUsAxKvdoqpiqhhu0NwAAAAAAANDMCDxQdwMJU/19GVfgEQ0yHx1YrOSQEzR09bqv+1+Y0onnWbJ3ZUp7No5Lunf2faG9kZc74NimytFUAdobWNtCnaUdHgAAAAAAoDUQeADAKmNfbFW9vuGXkr0+I92mUuAxJne4sVHV2xvrZtsbPtobWNvGU6aiPZUhvD9kKVfjjhwAAAAAALC6EHig7uKJmK7YV3kzKRK0WFwOVFFcLN4/u1j8pHO9u7fKT/62XCGGtqn67o1xp73RPkq4AQAAAAAAgLWBwAP153N2eMwVDWQIPLDmFXdv5KX0tXMWi9+r4liqX75c2n9+lW9QJeAwxk0ZmZize2OYgAMAAAAAAABrE4EH6m4gYeqGq70+BbA6FNsbe2YXix9XaffGP6m0WPyEXKOpHjtUPfDY0CFlz5oyrBijqQAAAAAAAIAyBB6ou3jCuQHb3yfX4nKg1RXbGzNS+uUpd7hxn9zhxqQqF4uXNzeizvfs6pWOHio9xtb/7FeWPQPAko2nYtV3eIQz7PAAAAAAAKDJEXigYeYGHpGgJWV7vDoOUFfFcEOSvWtOe+OEpH9WKeA4rVKwUQgzNqhy90ZA6kj1SH4pdljSRSl1zwk8QuEMgQdQB+FN0rDXhwDWiF27piVJGzbOKJkIaGSkzeMTAQAAAGhVBB5oiIGkKcn9CtposPIVtUCzKAQc9jNnF4sXgo257Y2TkqbkDji2q2q4Udy94ZNiSXcYeCBgrdCvDACAxli/Pq/f/M1JBYP54rVNv3lWyWRQw8M+gg8AAAAAdUfggYaIJ2K6Ym9lwBEJWiwux6pX3t5IvyAl5VRqbxQWixdGU6XlHk1lln0cUCngWCd1POW0N9pHTRnDPA8AAK1vdNQvSfL7pcmzPtlZv3w+ybb9Hp8MAAAAQCsi8EDD9PdVXosGMgQeWHWKi8X7LdldcxaL3yJ3eyOvc+/emH0zxuZvbyxGctB5nnT1uq+HQ5ZGxGg4YLnCnV6fAFhbzk45YQcAAAAANBKBBxpiIGHqhqu9PgVQqdjeyEvpa6ssFj9Z9jYmV0NDG1U13FCQ9gbQ7PwhSyJMBAAAAACgqRF4oCHiCeeV7XMXlwMrrdje2FPW3jguJ9D4Z7kDDr/cQcbc9sbsiCpjwpSRXnp7Y9F8UvechkcozC4cYDkmUqbXRwDWFJ+cciQAAAAArAQCDzTU3MAjErSkLK+gRWMU2xszUvrlqcrF4qdUGk91Ru7F4p1auL0xYsoYWbn2RnLQ1M7dBBwAAAAAAADAYhB4oGEGEqYk983aaJCbt6iP8sXi9q45uzdOSPqE3O2N8r0bIZWWi89pcKxYe2MRkoOxqoFHKGQpm2VsFgBg9Wt7zQnlJbW99qTy+bxyv4hq+svbpcO0rQAAAADUH4EHGiaeiOmKvQQcqI9CwGE/05K9LVNqahyXdL/c4cak3Ls3qi0WDzif6zjoTXujFl290tFDXp8CaA3jqdLzPLxJOjPs4WGANSD+6yPa0OvXpoM+Tf/SJx0a1+S2hKSLvD4aAAAAgBZE4IGG6j+/8lokaGlianXeWMbqUN7eSL8gJeVU2rtRCDdOyBlRdVru0VRRSRtUsXdDQckYXz3tjcXwFf/hFgpnaHgAdeZnPw7QMKOHchr+haRfl/5Si3h3HAAAAAAtjMADDTOQMHVDlevRQIbAAy7FxeL9s6OpyndvfEOlNsdJSdNyBxzV2hvluzd8q7u9cS7JIVNXyllcTsMDqCO2KAOeOJ2ekSR1drR5fBIAAAAArYrAAw0TTzg3mOcuLsfaVmxv5KX0talSsHFC0gNyj6ZKy717I6bq4Uag1N5oH23OcAMAgFYWNfw6rZwiRpXqIgAAAADUCYEHGm5u4BEJWlJ29Y8TQn0U2xt7ytobhfFUn1RpNNVJOa+4PtfujdnxVMa4KcOKrfrdG8uVHKz+6wqHLI2I5xCwXKFOdngAjba+3a+xyZzGJ52wI2T4CT0AAAAANAyBBxpqIGFKcs9FjwaZk96qiu2NGSn98lRpNFW19sa43GHGRrn2bVRtb7RwuDEfn6SuHZLu8fokQOsYT5mKnlf5d5E/ZCnHfhyg7ta3+xXq8GmsI6+w4ZcknfH4TAAAAABaE4EHGiqeiOmKfRnpTq9PgnorXyxu75ptbxSaGyckfUrugKNN7vbGVs0fbmRiTb17o966e90fh1iuDCwfLzAHVlwh7AAAAACARiHwQMP191VeiwQtFpc3meJoqmdasrdlSsHGCUkDco+mOiP3YvHNqhpuKCh1HOpp+dFUy5EcNHXBHgIOAEBzGpvMaX27X8fTM1Lap4jhI/gAAAAA0DAEHmiogYSpG6pcjwYyBB6rWHl7I31ZSpqRE2iclHs0VSHgKA8yQpJMVQQbCkrG2OzuDZ8US7KDYjGSg7GqgUcoZCnL6B0AQBMohB4n7RlJfk3YM4p4fSgAAAAALYnAAw0VTzg3ZOcuLsfqUmxv7J+zWPyEpG/IPZrqrNwBR7XRVLNvHU/NtjdGTRnD3JxfKp+krl7p6CGvTwK0hvFDMUV7Mgpvksp3lvvDGXZ4AA2wvt0vK5PThJ13wg7DR+ABAAAAoCEIPLAi5gYekaAlZXmFvxeK7Y28lL62bLF4tfbGsNyjqaKadzQV7Y2VFQpnaHgAy8UeD2BFFBoep5VTxPApxEgrAAAAAA1C4IGGG0iYktwjeaJBdhKslGJ7Y09Ze6PwVlgsXhhNNS13wLFNVcMN2hsrJzlkSnIWl9PwAAA0m/XtfpmGT6nUTDHsiBikjQAAAAAag8ADDRdPxHTFvox0p9cnaX3F9saMlH55qnKxeCHYOCnJkhNeFAKOmKoGGwpIxoQpI017AwAA1C5j57Wto03HjVxxafkZrw8FAAAAoCUReGBF9PdVXosELRaXL0P5YnF7V1l7oxByfFql9sYpSXktvHsjIGmd1HFwtr0xYsoY4ffIS8nB6v/+wyFLIyJ8ApYj3On1CYC1wTR8SmfyxbADAAAAABqFwAMNF0+YVa9HAxkCjxoUR1M905K9LVNqapyQFJd798a43EHGBs2/e2Oc9kYz6N4hPXiP16cAWsNEqvrfSwDqb2wyJ9No09hkTrJ9mrBnJIml5QAAAAAagsADDTeQcEKNuYvLMb/y9kb6spSUU6m9UT6aqvC+TaUgY53c7Y3y8VSF3Rs+2hvNprvX/XEozB4coN78IUuiOQXU1fp2v45YM1rf7tev09OSpIjhI/AAAAAA0BAEHlgRPlUGHpGgJWW5sSSVtTf2V1ks/k25R1OdkXv3xmZVDTYUoL3RKpKDpnbuIeAAADSfscmc1rf7ZWVyxWshxloBAAAAaBACD6yIgYQpyX3DNhpcmzdwi+2NnJR+Zdli8WrtjVNyhxiGpPWadzwVuzdaU3IwVjXwCIUsZbP8PgMAVq/uWFux4ZE18oQdAAAAABqKwAMrYiAR09bQ2gw4iu2NPbPtjULAcULSZ+TevXFW514sHpC7vTEaU/so4cZa0d0rHTnk9SmA5jeeKv2ZGe6Uzpz28DDAGtAda9PUmNPsiBg+r48DAAAAoIUReGDF9J8v6U73tUjQaqnF5YX2hr3Lkv30KovFT5W9jcgdZkRVfe9GIdywYuzegEsonKHhAdSRn904QENk7LxC8ili+BSebXic8fhMAAAAAFoTgQdWRDxh6s+uqbweDWSaNvAoXyxu77Jkd5ft3nhC0k/lHk01rdLejfL2xpxwQ0HJGHN2bxBuQJKSQ6YkqYuGBwCgCZmGT6lTM5Lt04Q9o80dbV4fCQAAAECLIvDAihhIODft5y4ubybF0VQXlo2mKrQ3HpT0PZUCDkvu9oapefduGGO0NwAAQGvK2HmZhk/r2/0aU16SdCo9o4jH5wIAAADQmgg8sKLmBh6RoCVle7w6zrzK2xvpy1JSTqXF4g+pFHacnn0vzb97Y06Do+MQi8VRm+Rg9f9OwiFLI1p9zx+gmYQ2scMDaLSM7QQdp9MzxWsEHgAAAAAagcADK2YgYUpyz0ePBlfHvPRie6N/djRVoblxUtKtco+mGpc73Nio+XdvlLU3YkluTGN5undID97j9SmA1jCeMhXtqfw7yB+ylGM3DlA3Y5M5rW/3u645i8vzklhgDgAAAKC+CDywYgYSMW0NeR9wFNsbOSn9qlRp70ahvfE9uZeLt6kUYqyTtEVVR1MpKHU8NdveGDVlDHPDDPXV3ev+OMSCZQDAKtcdc/Z1pDNOyyNi+BQy/Of6EgAAAABYMgIPrKj950s33+m+FglaDV1cXmxv7ClbLF4YSfUZudsbWbnDjE5VDzcCkjHuLBanvYGVkBwytXM3AQcAoDlFQj51zi4r39zRpjMenwcAAABAayLwwIqJJ0z92TWV16OBTN0Cj0J7w95lyX56xgkxytsb31dp98YpucOMkNzLxcvCDa2TOg7S3oB3koOxqoFHKGQpy/gdAEATiBg+hQ0/g6wAAAAANAyBB1bMQMK5KTt3cflSlS8Wt3fNaW8MSrpb7tFUZ1V9sficvRsK0t7A6tXdKx055PUpgOY3fiimaE9G4U5peKh03R/OsMMDqKMj1oy6Y206np6RbJ+kHIEHAAAAgIYh8MCKmxt4RIKWlF04VCiOprrQkt2VKY2iKm9vFMKNUbnDjajcwcbc3RuF9saIKWOEG11oHqFwhoYHsATccAVWxvp2vzK2s78ja+fkk7O/I+zloQAAAAC0LAIPrKiBhCnJPZYnGqwc01Pe3ki/OuWEGoX2xs8k/UDu3RszcocZ8y0WL+zeGKW9geaSHDSla6UuGh4AgCa0vt2v0/a0JuwZSdIOj88DAAAAoDUReGBFDSRi2hqqDDiK7Y1+S/Z5cxaLf1buvRuW3GFGTFVbG4Uf094AAFSg4gGsiLHJnPZuDepQxgk6Cns8dNjjgwEAAABoSQQeWHH7z5duvtN9rS2Q0nBI7vZGIeCQFrd7g/YGWlhysHpYFw5ZGhH/rQNL4ZMU7vT6FEBr6461KWPnJJWFHQAAAADQIAQeaCjXYvE9lr7dmdGfna78eZtulYYnJU3IHW5sVPXdG4GyxeK0N7CGdO+QHrzH61MAzW/8kCld6vUpgNaXsfMyDZ8iISfsiBhOvSrv8bkAAAAAtCYCD9RVIeCwd1myd2dKY6lmd2/89JSkq6p84RlJIUkRVd27oaBkjDmhRvso4QbWru45Q89D4coRcQCWzh+yJFpTQN2YswHHRNaJOAoNjwnPTgQAAACglRF4YMlc7Y1dluzusoBjSNK9co+mysoJMK6S+vukxw6WfbOIpE65ww3LGU1FewNwJAdN7dxDwAHUjU+8zBxosELDY2wyJ598OpWeKbY8AAAAAKDeCDywaMXF4hdasrsyTohxUs77n0n64eyPT8kJOcrHUIUkmZIC0l1HKwOPzpx0crSHcAM4h+RgjMADqDNuuwIr51TaWVx+xvCJ9TkAAAAAGoHAA1WVtzfSr065R1P9XO5w45SkKbkDji2q3Lsx+z5+0FSv3DdtN41LsWFGiACL0d0rHTlU+jgUspTNEhQCtRhPlZ4z4U7pTJX9UgDqI2Pntb7dr9NylpdP2HkCDwAAAAANQeABSWXtjX5L9nlzdm/8i9zNjVG5g4yoKoONsh93PNXjWizefk1K+/dldPOd7jNEgpYmprhpC9QqFM4QeAB14mcvDlBXpuGTafj12KkpSVLEcJaX67DHBwMAAADQkgg81qBieyMnpV91jvZGYffGjKq3N+aGGwHJGDdlpJ3dG7Fk9cZGPGHqz66pvB4NZAg8gHNIDpqSpK4d7oYHgGVgphWwYgphR8TwsT4HAAAAQEMQeLQ412LxPbOLxQu7N8rbG4VwIyN3uBHTvOGGq70xasoYJqwAAABApW0dbTph5Iqhx4TXBwIAAADQkgg8Wkwh4LB3WbJ3zwk3fi7pR3KPp5Lm370RcL83xkwZo+dubyzGQMIJRuYuLgdwbsnBWNUXo4dDlkbEDhygVuOHTEV7MwpvYocH0GjH0zPK2nlJfoUNr08DAAAAoFUReDQxV3tjtyV7e1nA8aSk++QONybkDjM2aN5wQ0Gp42Dj2hsDCVP9fRlX4BEJWlKWm7bAQrp7pQe9PgQAAIuUsXPFH5+xczqVlsIengcAAABA6yLwaCLFxeIXWrK7MqUw45Skh1QaS3V69s2vUqCxTlJE1cONwu6NOrQ3FmsgEdPWkHsxbDTIolhgMbp3uD8OsWQZWJ451Sl/yFIuy5hGoB4ydl7ndbRpfXtep+1pSdKEPaMdC3wdAAAAACwFgccqVd7eSL96drF4ob3xsEqjqQohhy33aKpOVe7dKHtfbG+MmDJGvLmps/986eY7PXlooGklB01dsIeAAwDQPA6nZzQ2mVv4JwIAAADAMhF4rBLF9ka/Jfu8TGnvxilJn5O7uXFa7nAjLMlU9XDDg/bGYvX3VV6LBC1NTPGqWmA+icGYdhJ4AHUxnoop2svzCWgk0/DJNPyyTjmBR8Soto0KAAAAAOqDwMMDxfZGTkq/KuUONx6W9GO52xtTcocZ8y0WX0XtjYXEE2bV69FAhsADWITuXunIodLHoZClLCN4gCUJd3p9AqB1mYa/uMMjYvgUNvyKGD7lPT4XAAAAgNZE4NFgrsXie6q0N26Se7F4Wu4gI6qKZeLFcKPQ3hhZfe2NhQwknBuz/X1yLS4HsDShcIbAA6gTfzjDDg+gjkzDr/XteWU1I0kKG35NeHwmAAAAAK2JwKPOCgGHvdOSvSdT2rtRrb1xWtKM3OOptqjqUnEFJWNsdjTVKm9vLNZA0lR/X8YVeESClpRtnuAGWGnJQacd1b3D3fAAAGA1KrQ7ynd4nLHZ5wEAAACgMQg8lsG1WPxFKSmnUriRlPSA3OFGRu5wY769G7PvCwFHK4Qb1Qw8GdPWkHt2ejTILHUAAIBWUT7SasLOa8Ke0SlJO7w9FgAAAIAWReBRg+Ji8Qst2V2Z0o6NU5K+rcrF4lL13RvzhRtpZzRVqwYc1ew/X7r5Tq9PATSP5GD1PxvCIUsjoh0F1GL8kCk9jx0eQCMdTs/ovI42rW/P67RodgAAAABoLAKPebjaG69OuUdT/aek2+QOOCbkDjE2aN5wYy20NxbDJ2eHx1yRoMXicmAB3b1enwAAgIWd19GmjJ1zjbQCAAAAgEYh8JhVbG/0zy4WLw84blKpzVEIONpUam+skxRW9fFUa7i9sZCBhKkbfJXXo4EMgQewgO45s0BCYcbBAfXiD1kSjSmgLjJ2Tqbhl2YXlkcMnybsvLeHAgAAANCy1mTgUWxv5KT0qxbR3rDl3r3RqXnDDQWljqd6WmaxeCMNJJx/N/19ci0uB3BuyUFTO/cQcAAAVr/CDo/17X5ljbzChl9hQ9Jhr08GAAAAoBW1fOBRPprK3lOlvfF5ucONYbnDjJBKy8XnhhsByRh3RlPJJ8WSvBq0VvGEqf6+jCvwiAQtKcu/S2A+icEYgQdQB+MpXpQArATT8Cs92/CQpM0dbZrw8DwAAAAAWlfLBR6FgMN+liW7e3axeCHceEROe6N8sfiU3GHGlrIfz2luKCh1HKS9UU8DT8a0JeS+cRsNciMXWIzuXunIodLHoZClbJY/l4ClCHdKZ057fQqgNc3d4XHGZp8HAAAAgMZo6sDDtVj8RSkpp1J7ozCaqjzcSMsdZkRVfan47PvCYnHaG421/3zp5ju9PgUAAA4/O3GAuirs8Jiw85qwZ3TG8KnT60MBAAAAaElNFXgUF4tfWKW98R2VFosPz/54Ru7dG5t17t0btDc80X9+5bVI0GJxOTCP5KAp+ZzF5a6GRzhDwwMAsOoUdnicltPsmLDzBB7ACrAvbtPkxQG1x6dlxGcW/gIAAIAWsGoDD1d749Wzi8ULb49Iul3u3RtjcocZ1fZulAUcxvhsqEF7w1MDCVN/VuV6NJAh8AAAAGgRR6xpr48ArBn2lkmd+GJE6gvPXmmXEZ9W7E9OyzgTPufXAgAANLtVE3gU2xv9luyeTKm5UVgsfnrOm0/z796gvdE0BhLO70V/n1yLywHMLznIn2FAvYwfMhXtzbDDA2gUnzPSyjSchkfE8GnCznt9KqClTW49K31xWNoRll7YKT2Qlv21o9LmkIynCDwAAEBr8yTwKLY3clL6VanS3o3TKrU3ysONM3Lv3tio+cMN2htNqf98d+ARCVpSlt874Fy6e90fh0OWRsTzBgCwuhRGWmWNvMKGX2FD0mGvTwWsAU+dkf7511Ii6/VJAAAAVkzDA4/y0VT2Hkv2eRn3eKovqLK90aZSuNEuKaJ5mxsKSh2/pr3RzAYSpiT3gthokIWxwEK6+9wfh1i0DNSNP2Qpx04cYNkydk6m4Vdqcmq22ZHTjm1BTXh9MAAAAAAtqe6BR3E01bPKFosXwo1HJd0h92JxW+7dG52aP9wISMYY7Y1WM/BkTFfsy+hmrw8CNJHkoKmdewg4gGXzeX0AoLWZhl+anWAVMZwn3Kn0jBiqAzSOvWWy6nVjgmceAABofcsKPFyLxV+UknJyLxYvhBun5QQcw3KHGyE5y8XnWyw+ZspIO+EG7Y3Wtv/8ymuRoMXicmAeiSdiBB5AHYwfiinaw3MJaKjZYLGwu2PCntEOD48DAAAAoHXVFHgU2xsXVmlvfFelkVSF9saUFr9YvKy9QbixtjgjrSpFAxkCD2AB3b3SkUOlj0MhS1nG8AA1C3d6fQKgdWXsnNdHANausRmvTwAAALCi5g08iu2NvJR+Tcq9d6PQ3ijfu2HJvVg8qoXDjVHaG5AGEs7vfX+fe3E5gEVgHM//3969x8dVl/kDf5ImzTRNJ6XQlJ8tpSzIRWBd5I5XWBREUVhBXUCuC6jggqCICiIsl0W5CuoCglAXVBC5yYLI/SJEkKu2pSmXQotQaGnT2yRNm98fKW2TTJqkbXLmm7zfr5evl3PmzJknZ2aAM5/5Pg+svSKfo/LqRjM8YB147+Ml9AAAAPrDisBjxeqNredFYaPlg8VnRVuYcV2sXLXx3gqOpdG+PdXoKDpzw+oNemqbTdoHHsMr50UsNqcFipk2pW1l1NjxETOnr9w+rLrRCg8ASko+Vx75XHm8E22hx+iRQyJmZFwUDEJVi4ZlXQIAQJ+rmH7vn1eu3Hgn2gaLPxDtB4vPj/bhRj5WH24sWLl6w2BxeqKtrVX7Huo1lXqqAwAMBCOWBx7Dc2UxPFf23hxzoA8UxjSvvLFASysAYHCpiInRefZGWRSfvVGsRVVlxMhXN4oo15qKNVc/tTb2+ICAA3pq2hT/rIV1YcHrbaulzPCAvjVfSysAAKAfVMSt0X72xnpRNNQoNnvD6g3WpW026bxteOU8g8thNcZuHBGPrLxdPWxezAn/bIZeMw8H+syqH6+FhdZY+GZLbJxZNQAAwEBWEaOj6+HiVm/QT9paWnVWU9Eo8IAuFPt+dli1lVKwLpQPmxchPIS11lhYFvlceTQ2WeEBAAD0vYrYINrP3phj9Qb9r76hLdTYekL7weVA1xqm5GOzLQUcAJSufK48GrWzgn5TqGvq8r7coup+rAQAIBsVI2dvZPUGJWObTdoHHsMr50UsFr5BMdMm1wo8YC0teM1//wAwgBlaDgAMMuW10zYSdlASirW1qqn0ZS50Z2yHRujDhs3LphBInMHl0HfyVeURETE8VxbDc4bmAAAAfaM86wLgPfVTa2PrCbECMoEAACAASURBVFlXAWnxlRH0jXLzcGCdyefKY0Su7bKjelh51I0cknFFAADAQCXwoKRss0nnbcMr/VodimmY0rYqauz49tsNLgeg1MxfPsfj7Xe114Es5BYNy7oEAIB+IfCgZBRraRURUVPhy1sA+p6WVtA/Zs0VekBfaRrTvPKG+R0AwCAk8KBk1De0zZLR1gp6ZtoU85dgXVjwWvHAHegbCwutWZcAAAAMUAIPSk6xtlZA18Z1GFpebWg5ACWksbAsGpuWZV0GAAAwCAg8KCnF2lqZ4QFAFsqFhwAMELmF1VmXAADQLwQelJT6qZ1b9NRUmuEBXWmYko+xHVZ4GFoOQCnJ58ojX9V22TE8V5ZxNTCwFeqasi4BACBTAg9KTrEZHlZ5QHHmeMDaW/CazxH0pcbCynZWCwutMXq9IRlWA4PIfEPLAYDBR+BBSalvyBed4VFT4RfrsDqdVnloxQO9Vj066wpgYMrnVl5yWOEBAAD0JYEHJaW+oe1XtsVWeQBAfyrXHg7WuYWF1nj7Xb86h/5WtWhY1iUAAPQLgQclqdgqD6Czhin5iLKIsePbbzfHA4BS0VhYFo1Ny7rfEQAAYC0JPCg59Q35TtvM8AAAAFi9wpjmlTcWWE0FAAw+Ag9KTv3UzsNjayr9Wh2KmTbZsGVYWwtebwvaqzfIuBAYoPK58shXuewAAAD6nisPSpIZHtA74ya0v11taDkAJaKxoJ0VAADQPwQelJz6hnzRGR7aWgHQV8qKbCsXHMI6kc+1v+QYniv2iQP6Um5RddYlAAD0C4EHJae+oa1FT8dVHjUV2lpBMQ2T8zF24/bbDC0HoFQtLLRmXQIMSIW6pqxLAADInMCDklVslQfQ2bQp5njA2ljwWu2KJR7meEDfaGzS1gr6naHlAMAgJPCgJP2lId9pm5ZWsHqdVnloxwO9oskO9A0zPAAAgP4i8KAkPTG18y/Wayq16AGg/5RrDQfAAJBbNCzrEgAA+o3Ag9JU1nmGB1Bcw5S2FVHmeABQiuaZ2QEAAPQTgQclqX5qPrYtMsNDWyvoTBseWHsLXstHlJnhAX2hNuffVNAfmsY0r7xhfgcAMEgJPChJ9Q3FhzDXVPjFOnTUMNnQcgBKVz5XHvmqlZcdwwUgAABAHxF4ULq0tYJeGdehpVW1oeUAlICOQ8sXanEFAAD0EYEHJat+aj626dDWSksrAPpUhx+elwsOYZ1obFrW/U7AWinUNRXdnltU3c+VAABkR+BByXqiSFurmkotraCYaZPzhpbDWpj/mtZwAAAAkDqBByVtmwlZVwBpaJjiy1pYF4YbWg7AQDDf0HIAYHASeFCy6qfmY5t/6rxdWyvoWqdVHtrxAAAMXmURVQuHZV0FAEC/EXhQsuqLtLSKiKip0KYHgP5RrjUcrBP5qpWXHcNzZavZEwAAYM0JPCh52lpB96ZNyUdZFFnh4ctaADKWz7W/5FhYaM2oEhjYCmOaV95YsDRCtggADEICD0pa/dR8bL1J+21aWgGwri14LR8REdWjMy4EBqDX5y6NxqZlWZcBAAAMAgIPStoTRdpa1VT6xTp01DDZ0HIASlOtFlYAAEA/EXhQ8rbZpPt9gDbjOrS0qja0HABg8FklZ8wtqs6uDgCAfibwoKTVT80XDTy0tYIi/IAW1rlyoSEACSjUNWVdAgBASRB4UNLqi7S0ioioqdDWCjpqmJzvtMLD0HLomQWvaQsHfSlf5bID+tWCpVlXAACQCVceJEFbK+ieOR6wblRvkHUFAAAAwJoQeFDy6qfmY+sJ7bdpaQVdKOs8x2OYljwAZKUsIp9zyQFZyS0clnUJAAD9ytUHJe+JIm2taiq16QGg75VrCwfrRGPTsqxLAAAABgGBB0nQ0gq6N21KPiIixprjAUAJaSwIO6CvNY1pXnnD/A4AYBATeJCEYoGHtlYArEsLXmsLDatHZ1wIDDRlPdoEAACw1gQelLz6qfmi22sq/GodVmVoOQClaF6hNesSAACAQULgQcmrXz7DQ1sr6JmxE9rfrja0HIAM1eas54Cs5BZVZ10CDDqFncZlXQLAoCbwIAn1U/Ox9YT227S0AmCd6uI72XKhIQAlrlDXlHUJMOjNO36XmD7lxHhr4gHx1sQDBB8AGRF4kIQnGjq36qmp1NIKOmqYnI9xhpbDGpk/XVs46Cv5nMsO6DeGlkO/m7dtdcwdMT/i1bciXn0rCjuNi7cOHB9vnbZr1qUBDDoVWRcAPbXNJhG/fSDrKqC0NUyujfdvJeCAtTF8g4h3si4CBpB5hdZoLCzLugwYlKoWDsu6BBgUCnVDI6bPiph4b9uGdxZENLdEzDXHCqC/+akVySg2w0NbKyiu4yoPAMiKGR4AAEB/EXiQhPqp+aLbayr8kh16YpgZBNAzRb6XLdcWDgCA3mhqiYiI3FwrHAH6m8CDJNQvn+FRbJUHsNK0KW3h4FhzPAAoEfMK2nlAXyuMaV55wwwP6HeFMZXtNyz/EU2VllYA/U7gQTLqp+Zj6wlZVwHAQLXgtbbAsHp0xoXAAKOlFQCDyvLVHQBkQ+BBMt5b5bEqMzygvYbJnT8nQC/5bhaAASK3qDrrEmDAK9RVdr8TAP1G4EFSOra0qqnUpgeKGTuh/e1qMzwA6GfvZYdaWgEwqDSvXOGR09IKoN8JPEhKsRkeVnkA0JfKBYYAlLBCXVPWJQBFCDsAsiHwIBlPTM0X3V5TYZUHrGra5HyMM7Qcem3Ba1rCQV8wwwP6maHl0K+aOg4sN8MDIFMCD5JR31AbZVF8lQewkjkesPYMLod1oyy0tIKs5BYOy7oEGBQKdUOzLgGAVQg8SM7WE7KuANLQcZUHAAAAfWz5DI/c3GUZFwIwOAk8SEqxtlZmeEAHXXQOGWYOAayRci3hYK1oaQXAYFRlhgdAJgQeJKW+oTa27dDSqqbSF1GwqobJ+SiLiLFWeABQAhoLrZHPueyAvtI0pnnlDfM7oN8VVp3hYX4HQOZceZAcMzxgzRhcDt1b8FrbSsLqDTIuBAaYxoK2HgAAQN8TeJCUYi2tIrS1glU1TK7tsq0VAPQ3qzsgG7lF1VmXAANeoa6yi3vKIqelFUAmXH2QlPqG2nhiar7dKo8FS4qHIDDYjZuQdQUAAACDSLOWVgBZq8i6AOitgy7ZZsWKjoVLajOuBtJRPWxezImNsi4DStr86bVRM75z+7fyYfNi2WL/zoE1oZ0V9K1CXdPKG2Z4QL9qGtNhhcfyGR65uf7dB5AVKzxI0sIltcIOWI2GyfkY12FouRkeAACDR9XCYVmXAIOU/sIAWRJ4AAxA5njA2hk+OusKYOAwwwOAgapQNzTrEgDowNUHwADWcZUHAPS3xsIyoQcAg0Pzey2tDCwHyIorD4BBZNiweVmXACWtq4VR5VrCwVoxxwP6iRke0K8KHWd4LP+vySozPAAyI/AAGIAaJucjImLshGzrgORoBQfrnNUd0LcKY5qzLgGIWDGwHIBsufoAGIAaJteuCD3es3hRvou9gffMn972Oak2wwOAxOUWVWddAgxohbqOqzsAKAUVWRcAQN+49JxtYtiweTGsujHmzN4o63IgGWURoesyrDvaWQEwKDSvXOFhhgdAdgQeAAPY4sW1sXhxbdZlQFokHgAArKHcPEE/QJa0tAIAAPqMGR7Qdwp1Te03GFoO/aap48DyJp8/gFLg6gMAYLkFr7WtiOo4u7x82Lz+LwYGCC2toP/lFg7LugQY8Ap1Q7MuAYAiBB4AAEUYXA4AQI81t0SUReTe1RsVIEsCDwCAjjou8QDWmJZWAABAf3H1AQCwivnT81mXAAPKzHktWZcAg4P5HdCvCqvO8GhqWfGDmaq5WjkCZKki6wIAAEpJw/XbRM34eVG5/uvRMrs2li3Kx7LFtVmXBckaUVUe74Yvf6AvNI1pzroEAICSIvAAAOhgwWu1Ea8JOQBIU25RddYlwIBWqKvs8r7cXDM8ALKkpRUAAAAArKlm7RsBSoXAAwAAABJUqGvKugQgIqK5bYZOzvwOgMwJPAAAACB17w0tL8u2DBgMmsZ03dIKgGwJPAAAgD4xr0kfc8hC1aJhWZcAA1qhbmjWJQDQBYEHAADQJ2pzfmoOwCCwfIZH7l1BP0DWKrIuAAAAGJhyT/xTDBn9RkTMi4iIjcvGarcDfcnnCzJVZYYHQOYEHgAAQJ8onz08Npv9/hiZmx9V5bVRtvzL2OnZlgUDRmFM88ob783wAPpcYdUZHstXdwBQGrS0AgAA+tR6C/NZlwAD3yqrO3ILq7OrAwAgQwIPAACgz5VptQPAAFCoq+zyvtxcMzwAsibwAAAAAIA10aSlFUApEXgAAABAYgp1Te03mOEB/aJpTIcVHs1tn72cgeUAJUHgAQAArHON88tiypTKaJzf/pLj7XfKY+EilyHQV3ILh2VdAgBAZiqyLgAAABiYGueXReOUisiPaI2lS1sFHbAO5WZVRe6toVEY09x+u4Hl0KcKdUOLbs+9a34HQCkQeAAAAH2qcX5ZRJhaDuvamPs2iEJdU8zbdn7kZq0fVYuGCTygvzWb4QFQSgQeAAAAkKjcrKrI3VeVdRkwaBRWneGxSthRZYYHQEmwphwAAAAAAEiewAMAAAAAulGoq+zyvtxcMzwASoHAAwAAAAB6q8n8DoBSI/AAAAAAgDWUM78DoGQIPAAAAACgG01jOrS0al6aTSEAdEngAQAAAADdqHprSeTeWtJ+Y5n5HQClpCLrAgAAAACg1OVmLYncfXMjom2AeVP1sqh91SoPgFIi8AAAAACAXsjNWhK5rIsAoBOBBwAAAAAAyZh3/JERETH3+KMi95dnovbyqyP3l2cyropSMGTkBhv9MOsiAAAAAACgO4W6UTF7l22i8KndI0aOjJax/y8W7r9PNLUuiYqyIVEx882sSyRDVngAAAAAAJCO6dMjJk5s+/8bbxyx5ZZRaG2OMVZ5DHoCDwAAAAAAktA0Zr32G2bOjJg3L3IzZ2VTECWlPOsCAAAAAACgJwp1o7IugRJmhQcAAAAAAEmofeGlyM2aE4W6UVEYMyqiou0r7ton/55xZZSCso232K016yIAAAAAAKA3CnWjomns6Kh95sWsS6FEWOEBAAAAAEBycrPmRG7WnKzLoISY4QEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEAAAAAACRP4AEA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',
-        };
-
-        if (project) {
-          const payloadHash = hashPayload(hashFiles(project.files), project as any);
-          const oldPayloadHash = oldHashFunction(hashFiles(project.files), project as any);
-          assert.strictEqual(payloadHash, oldPayloadHash);
-          assert.fail();
-        }
-      } catch (error) {}
-    });
     it('will create the same hash regardless of extraneous properties in the fileStats array members', async () => {
       try {
-        const hash1 = hashFiles([file1Clean]);
-        const hash2 = hashFiles([file1Dirty]);
-        assert.strictEqual(hash1, hash2);
+        const workspaceId = 'wid';
+        const projectId = 'pid';
+        await s3Connection.init();
+        const s3Stub = sandbox.stub().resolves(true);
+        const s3 = {fileExists: s3Stub};
 
-        const hash3 = hashFiles([file2Clean]);
-        const hash4 = hashFiles([file2Dirty]);
-        assert.strictEqual(hash3, hash4);
+        const resolver = new HashResolver(workspaceId, projectId, s3 as any);
+
+        const req1 = {
+          type: 'project',
+          project: {...project1, files: [file1Clean]},
+        };
+        const req2 = {
+          type: 'project',
+          project: {
+            ...project1,
+            files: [file1Dirty],
+          },
+        };
+
+        const retval = await resolver.resolve(req1 as any);
+        assert.strictEqual(s3Stub.callCount, 3);
+
+        const retval2 = await resolver.resolve(req2 as any);
+        assert.strictEqual(s3Stub.callCount, 6);
+        assert.strictEqual(retval?.fileHash, retval2?.fileHash);
+
+        const req3 = {
+          type: 'project',
+          project: {...project1, files: [file2Clean]},
+        };
+        const req4 = {
+          type: 'project',
+          project: {
+            ...project1,
+            files: [file2Dirty],
+          },
+        };
+        const retval3 = await resolver.resolve(req3 as any);
+        assert.strictEqual(s3Stub.callCount, 9);
+
+        const retval4 = await resolver.resolve(req4 as any);
+        assert.strictEqual(s3Stub.callCount, 12);
+        assert.strictEqual(retval3?.fileHash, retval4?.fileHash);
       } catch (error) {
         assert.fail();
       }
     });
     it('will create a different hash regardless of extraneous properties in the fileStats array members', async () => {
       try {
-        const hash1 = hashFiles([file1Clean]);
-        const hash2 = hashFiles([file2Dirty]);
-        assert.notEqual(hash1, hash2);
+        const workspaceId = 'wid';
+        const projectId = 'pid';
+        await s3Connection.init();
+        const s3Stub = sandbox.stub().resolves(true);
+        const s3 = {fileExists: s3Stub};
 
-        const hash3 = hashFiles([file2Clean]);
-        const hash4 = hashFiles([file1Dirty]);
-        assert.notEqual(hash3, hash4);
+        const resolver = new HashResolver(workspaceId, projectId, s3 as any);
+
+        const req1 = {
+          type: 'project',
+          project: {...project1, files: [file1Clean]},
+        };
+        const req2 = {
+          type: 'project',
+          project: {
+            ...project1,
+            files: [file2Dirty],
+          },
+        };
+
+        const retval = await resolver.resolve(req1 as any);
+        assert.strictEqual(s3Stub.callCount, 3);
+
+        const retval2 = await resolver.resolve(req2 as any);
+        assert.strictEqual(s3Stub.callCount, 6);
+        assert.notEqual(retval?.fileHash, retval2?.fileHash);
+
+        const req3 = {
+          type: 'project',
+          project: {...project1, files: [file2Clean]},
+        };
+        const req4 = {
+          type: 'project',
+          project: {
+            ...project1,
+            files: [file1Dirty],
+          },
+        };
+        const retval3 = await resolver.resolve(req3 as any);
+        assert.strictEqual(s3Stub.callCount, 9);
+
+        const retval4 = await resolver.resolve(req4 as any);
+        assert.strictEqual(s3Stub.callCount, 12);
+        assert.notEqual(retval3?.fileHash, retval4?.fileHash);
       } catch (error) {
         assert.fail();
       }
     });
     it('will create a different hash for same files, different file order', async () => {
       try {
-        const hash1 = hashFiles([file1Clean, file2Clean]);
-        const hash2 = hashFiles([file2Clean, file1Clean]);
+        const workspaceId = 'wid';
+        const projectId = 'pid';
+        await s3Connection.init();
+        const s3Stub = sandbox.stub().resolves(true);
+        const s3 = {fileExists: s3Stub};
 
-        assert.notEqual(hash1, hash2);
+        const resolver = new HashResolver(workspaceId, projectId, s3 as any);
 
-        const hash3 = hashFiles([file1Dirty, file2Dirty]);
-        const hash4 = hashFiles([file2Dirty, file1Dirty]);
-        assert.notEqual(hash3, hash4);
+        const req1 = {
+          type: 'project',
+          project: {...project1, files: [file1Clean, file2Clean]},
+        };
+        const req2 = {
+          type: 'project',
+          project: {
+            ...project1,
+            files: [file2Clean, file1Clean],
+          },
+        };
+
+        const retval = await resolver.resolve(req1 as any);
+        assert.strictEqual(s3Stub.callCount, 3);
+
+        const retval2 = await resolver.resolve(req2 as any);
+        assert.strictEqual(s3Stub.callCount, 6);
+        assert.notEqual(retval?.fileHash, retval2?.fileHash);
+
+        const req3 = {
+          type: 'project',
+          project: {...project1, files: [file1Dirty, file2Dirty]},
+        };
+        const req4 = {
+          type: 'project',
+          project: {
+            ...project1,
+            files: [file2Dirty, file1Dirty],
+          },
+        };
+        const retval3 = await resolver.resolve(req3 as any);
+        assert.strictEqual(s3Stub.callCount, 9);
+
+        const retval4 = await resolver.resolve(req4 as any);
+        assert.strictEqual(s3Stub.callCount, 12);
+        assert.notEqual(retval3?.fileHash, retval4?.fileHash);
       } catch (error) {
         assert.fail();
       }
     });
     it('will create a different hash for same file, different column order', async () => {
       try {
-        const hash1 = hashFiles([file2Clean]);
-        // this file has different column order
-        const hash2 = hashFiles([file3Clean]);
-        assert.notEqual(hash1, hash2);
+        const workspaceId = 'wid';
+        const projectId = 'pid';
+        await s3Connection.init();
+        const s3Stub = sandbox.stub().resolves(true);
+        const s3 = {fileExists: s3Stub};
+
+        const resolver = new HashResolver(workspaceId, projectId, s3 as any);
+
+        const req1 = {
+          type: 'project',
+          project: {...project1, files: [file2Clean]},
+        };
+        const req2 = {
+          type: 'project',
+          project: {
+            ...project1,
+            files: [file3Clean], // this file has different column order
+          },
+        };
+
+        const retval = await resolver.resolve(req1 as any);
+        assert.strictEqual(s3Stub.callCount, 3);
+
+        const retval2 = await resolver.resolve(req2 as any);
+        assert.strictEqual(s3Stub.callCount, 6);
+        assert.notEqual(retval?.fileHash, retval2?.fileHash);
       } catch (error) {
         assert.fail();
       }
     });
   });
-  context('hashPayload', () => {
-    const sandbox = createSandbox();
-    afterEach(() => {
-      sandbox.restore();
-    });
-
-    /**
-     * The following format is used to denote which project/files are in the core data combinations
-     * files can either be clean (only include the keys we care about) or dirty (includes extra object properties which should not affect the hash)
-     * We is
-     * 1,[1,2] denotes...
-     * project:
-     * {
-     *    files: [file1, file2]
-     *    state: defaultState
-     * }
-     *
-     * The fileSystem and column variant differentiations are denoted [fileVariant, fileVariant] for easy reference to keep this logic on the straight and narrow
-     */
-
+  /**
+   * The following format is used to denote which project/files are in the core data combinations
+   * files can either be clean (only include the keys we care about) or dirty (includes extra object properties which should not affect the hash)
+   * Were
+   * 1,[1,2] denotes...
+   * project:
+   * {
+   *    files: [file1, file2]
+   *    state: defaultState
+   * }
+   *
+   * The fileSystem and column variant differentiations are denoted [fileVariant, fileVariant] for easy reference to keep this logic on the straight and narrow
+   */
+  context('payloadHash', () => {
     // [1,[1,2]]
     it('will create the same hash regardless of extraneous properties in the fileStats array members', async () => {
       try {
         // equivalent states, [clean, clean] = [dirty, dirty]
-        // @ts-ignore
-        const hash1 = hashPayload(hashFiles(project1.files), project1);
-        // @ts-ignore
-        const hash2 = hashPayload(hashFiles(project2.files), project2);
-        assert.strictEqual(hash1, hash2);
+        const workspaceId = 'wid';
+        const projectId = 'pid';
+        await s3Connection.init();
+        const s3Stub = sandbox.stub().resolves(true);
+        const s3 = {fileExists: s3Stub};
+
+        const resolver = new HashResolver(workspaceId, projectId, s3 as any);
+
+        const req1 = {
+          type: 'project',
+          project: project1,
+        };
+        const req2 = {
+          type: 'project',
+          project: project2,
+        };
+
+        const retval = await resolver.resolve(req1 as any);
+        // called s3 stub appropriately
+        assert.strictEqual(s3Stub.callCount, 3);
+
+        const retval2 = await resolver.resolve(req2 as any);
+        // called s3 stub appropriately
+        assert.strictEqual(s3Stub.callCount, 6);
+
+        assert.strictEqual(retval?.fileHash, retval2?.fileHash);
+        assert.strictEqual(retval?.payloadHash, retval2?.payloadHash);
       } catch (error) {
         assert.fail();
       }
     });
-
     // [1, [1,2]]
     it('will create the same hash regardless of extraneous properties in the fileStats array members', async () => {
       try {
         // equivalent states, [clean/dirty] = [dirty/clean]
-        // @ts-ignore
-        const hash1 = hashPayload(hashFiles(project3.files), project3);
-        // @ts-ignore
-        const hash2 = hashPayload(hashFiles(project4.files), project4);
-        assert.strictEqual(hash1, hash2);
+        const workspaceId = 'wid';
+        const projectId = 'pid';
+        await s3Connection.init();
+        const s3Stub = sandbox.stub().resolves(true);
+        const s3 = {fileExists: s3Stub};
+        const resolver = new HashResolver(workspaceId, projectId, s3 as any);
+
+        const req1 = {
+          type: 'project',
+          project: project3,
+        };
+        const req2 = {
+          type: 'project',
+          project: project4,
+        };
+
+        const retval = await resolver.resolve(req1 as any);
+        // called s3 stub appropriately
+        assert.strictEqual(s3Stub.callCount, 3);
+
+        const retval2 = await resolver.resolve(req2 as any);
+        // called s3 stub appropriately
+        assert.strictEqual(s3Stub.callCount, 6);
+
+        assert.strictEqual(retval?.fileHash, retval2?.fileHash);
+        assert.strictEqual(retval?.payloadHash, retval2?.payloadHash);
       } catch (error) {
         assert.fail();
       }
     });
-
     it('will create a different hash due to changes to the X.key', async () => {
       try {
-        // @ts-ignore
-        const hash1 = hashPayload(hashFiles(project5.files), project5);
-        // @ts-ignore
-        const hash2 = hashPayload(hashFiles(project6.files), project6);
-        assert.notEqual(hash1, hash2);
+        const workspaceId = 'wid';
+        const projectId = 'pid';
+        await s3Connection.init();
+        const s3Stub = sandbox.stub().resolves(true);
+        const s3 = {fileExists: s3Stub};
+        const resolver = new HashResolver(workspaceId, projectId, s3 as any);
+
+        const req1 = {
+          type: 'project',
+          project: project5,
+        };
+        const req2 = {
+          type: 'project',
+          project: project6,
+        };
+
+        const retval = await resolver.resolve(req1 as any);
+        // called s3 stub appropriately
+        assert.strictEqual(s3Stub.callCount, 3);
+
+        const retval2 = await resolver.resolve(req2 as any);
+        // called s3 stub appropriately
+        assert.strictEqual(s3Stub.callCount, 6);
+
+        //  assert.strictEqual(retval?.fileHash, retval2?.fileHash);
+        assert.notEqual(retval?.payloadHash, retval2?.payloadHash);
       } catch (error) {
         assert.fail();
       }
     });
-    it('will create the same hash because change is an erroneous property', async () => {
+    it('will create the same hash because "change" is an erroneous property', async () => {
       try {
-        // @ts-ignore
-        const hash1 = hashPayload(hashFiles(project5.files), project5);
-        // @ts-ignore
-        const hash2 = hashPayload(hashFiles(project7.files), project7);
-        assert.strictEqual(hash1, hash2);
+        const workspaceId = 'wid';
+        const projectId = 'pid';
+        await s3Connection.init();
+        const s3Stub = sandbox.stub().resolves(true);
+        const s3 = {fileExists: s3Stub};
+        const resolver = new HashResolver(workspaceId, projectId, s3 as any);
+
+        const req1 = {
+          type: 'project',
+          project: project5,
+        };
+        const req2 = {
+          type: 'project',
+          project: project7,
+        };
+
+        const retval = await resolver.resolve(req1 as any);
+        // called s3 stub appropriately
+        assert.strictEqual(s3Stub.callCount, 3);
+
+        const retval2 = await resolver.resolve(req2 as any);
+        // called s3 stub appropriately
+        assert.strictEqual(s3Stub.callCount, 6);
+
+        assert.strictEqual(retval?.fileHash, retval2?.fileHash);
+        assert.strictEqual(retval?.payloadHash, retval2?.payloadHash);
       } catch (error) {
         assert.fail();
       }
     });
     it('will create a different hash based on a change in projectId', async () => {
       try {
-        // @ts-ignore
-        const hash1 = hashPayload(hashFiles(project1.files), project5);
-        // @ts-ignore
-        const hash2 = hashPayload(hashFiles(project2.files), project8);
-        assert.notEqual(hash1, hash2);
+        const workspaceId = 'wid';
+        const projectId = 'pid';
+        await s3Connection.init();
+        const s3Stub = sandbox.stub().resolves(true);
+        const s3 = {fileExists: s3Stub};
+        const resolver = new HashResolver(workspaceId, projectId, s3 as any);
+
+        const req1 = {
+          type: 'project',
+          project: project5,
+        };
+        const req2 = {
+          type: 'project',
+          project: project8,
+        };
+
+        const retval = await resolver.resolve(req1 as any);
+        // called s3 stub appropriately
+        assert.strictEqual(s3Stub.callCount, 3);
+
+        const retval2 = await resolver.resolve(req2 as any);
+        // called s3 stub appropriately
+        assert.strictEqual(s3Stub.callCount, 6);
+
+        assert.notEqual(retval?.payloadHash, retval2?.payloadHash);
       } catch (error) {
         assert.fail();
       }
     });
-
-    it('checking the filter is included in the payload hash', async () => {
+    it('this is here for retro-active debugging purposes', async () => {
       try {
-        const project = {
-          id: '66c781bf2ad1a468ec1446ac',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          name: '8_22_requirement_validation_time',
-          docId: 'pTUye-aPBiWzuE6YqfzJO',
-          description: '',
-          currentVersion: 0,
-          workspace: '66b66a4faa83b6d2b3deb8f3',
-          state: {
-            properties: {
-              X: {
-                axis: 'X',
-                accepts: 'COLUMN_DRAG',
-                key: 'mml_type',
-                dataType: 1,
-                interpolation: 'LIN',
-                direction: 'ASC',
-                filter: {
-                  keywords: ['MATERIAL'],
-                },
-              },
-              Y: {
-                axis: 'Y',
-                accepts: 'COLUMN_DRAG',
-                key: 'date_requested',
-                dataType: 3,
-                interpolation: 'LIN',
-                direction: 'ASC',
-                filter: {
-                  keywords: [],
-                },
-                dateGrouping: 'qualified_day_of_year',
-              },
-              Z: {
-                axis: 'Z',
-                accepts: 'COLUMN_DRAG',
-                key: 'requirement_validation_timedifference_in_days_created_to_requested',
-                dataType: 0,
-                interpolation: 'LIN',
-                direction: 'ASC',
-                filter: {
-                  min: 0,
-                  max: 3,
-                },
-                accumulatorType: 'AVG',
-              },
-              A: {
-                axis: 'A',
-                accepts: 'COLUMN_DRAG',
-                key: 'Column 1',
-                dataType: 0,
-                interpolation: 'LIN',
-                direction: 'ASC',
-                filter: {
-                  min: 0,
-                  max: 0,
-                },
-              },
-              B: {
-                axis: 'B',
-                accepts: 'COLUMN_DRAG',
-                key: 'Column 2',
-                dataType: 0,
-                interpolation: 'LIN',
-                direction: 'ASC',
-                filter: {
-                  min: 0,
-                  max: 0,
-                },
-              },
-              C: {
-                axis: 'C',
-                accepts: 'COLUMN_DRAG',
-                key: 'Column 3',
-                dataType: 0,
-                interpolation: 'LIN',
-                direction: 'ASC',
-                filter: {
-                  min: 0,
-                  max: 0,
-                },
-              },
-            },
-          },
-          stateHistory: ['66c78221f96dc936be9901f2', '66cf226fec20160bc7386a1e'],
-          members: ['66c781bf2ad1a468ec1446c1'],
-          tags: [],
-          files: [
-            {
-              fileName: 'cwt_jlt_8_22_mod_2.csv',
-              tableName: 'cwt_jlt_8_22_mod_2',
-              numberOfRows: 3025,
-              numberOfColumns: 13,
-              columns: [
-                {
-                  name: 'glyphx_id__',
-                  fieldType: 2,
-                },
-                {
-                  name: 's_no',
-                  fieldType: 0,
-                },
-                {
-                  name: 'mml_type',
-                  fieldType: 1,
-                  longestString: 18,
-                },
-                {
-                  name: 'date_created',
-                  fieldType: 3,
-                },
-                {
-                  name: 'date_requested',
-                  fieldType: 3,
-                },
-                {
-                  name: 'xdate_ordered',
-                  fieldType: 1,
-                  longestString: 9,
-                },
-                {
-                  name: 'date_desired_ep',
-                  fieldType: 3,
-                },
-                {
-                  name: 'xdate_rcvd',
-                  fieldType: 1,
-                  longestString: 9,
-                },
-                {
-                  name: 'total_procurement_time_requirement_created_to_delivery',
-                  fieldType: 0,
-                },
-                {
-                  name: 'delivery_performance_difference_in_days_between_delivered_and_desired_date',
-                  fieldType: 0,
-                },
-                {
-                  name: 'requirement_validation_timedifference_in_days_created_to_requested',
-                  fieldType: 0,
-                },
-                {
-                  name: 'order_processing_time_difference_b_w_requested_and_ordered',
-                  fieldType: 0,
-                },
-                {
-                  name: 'order_fulfillment_time_difference_b_w_ordered_and_received',
-                  fieldType: 0,
-                },
-                {
-                  name: 'internal_delivery_time_difference_b_w_received_and_delivered',
-                  fieldType: 0,
-                },
-              ],
-              fileSize: 1772688,
-            },
-          ],
-          viewName: 'glyphx_66b66a4faa83b6d2b3deb8f3_66c781bf2ad1a468ec1446ac_view',
-          aspectRatio: {
-            height: 1376,
-            width: 1722,
-            id: '66cf2270ec20160bc7386a35',
-          },
-          imageHash: '',
-        };
-
-        const project2 = {
-          id: '66c781bf2ad1a468ec1446ac',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          name: '8_22_requirement_validation_time',
-          docId: 'pTUye-aPBiWzuE6YqfzJO',
-          description: '',
-          currentVersion: 0,
-          workspace: '66b66a4faa83b6d2b3deb8f3',
-          state: {
-            properties: {
-              X: {
-                axis: 'X',
-                accepts: 'COLUMN_DRAG',
-                key: 'mml_type',
-                dataType: 1,
-                interpolation: 'LIN',
-                direction: 'ASC',
-                filter: {
-                  keywords: [],
-                },
-              },
-              Y: {
-                axis: 'Y',
-                accepts: 'COLUMN_DRAG',
-                key: 'date_requested',
-                dataType: 3,
-                interpolation: 'LIN',
-                direction: 'ASC',
-                filter: {
-                  keywords: [],
-                },
-                dateGrouping: 'qualified_day_of_year',
-              },
-              Z: {
-                axis: 'Z',
-                accepts: 'COLUMN_DRAG',
-                key: 'requirement_validation_timedifference_in_days_created_to_requested',
-                dataType: 0,
-                interpolation: 'LIN',
-                direction: 'ASC',
-                filter: {
-                  min: 0,
-                  max: 3,
-                },
-                accumulatorType: 'AVG',
-              },
-              A: {
-                axis: 'A',
-                accepts: 'COLUMN_DRAG',
-                key: 'Column 1',
-                dataType: 0,
-                interpolation: 'LIN',
-                direction: 'ASC',
-                filter: {
-                  min: 0,
-                  max: 0,
-                },
-              },
-              B: {
-                axis: 'B',
-                accepts: 'COLUMN_DRAG',
-                key: 'Column 2',
-                dataType: 0,
-                interpolation: 'LIN',
-                direction: 'ASC',
-                filter: {
-                  min: 0,
-                  max: 0,
-                },
-              },
-              C: {
-                axis: 'C',
-                accepts: 'COLUMN_DRAG',
-                key: 'Column 3',
-                dataType: 0,
-                interpolation: 'LIN',
-                direction: 'ASC',
-                filter: {
-                  min: 0,
-                  max: 0,
-                },
-              },
-            },
-          },
-          stateHistory: ['66c78221f96dc936be9901f2', '66cf226fec20160bc7386a1e'],
-          members: ['66c781bf2ad1a468ec1446c1'],
-          tags: [],
-          files: [
-            {
-              fileName: 'cwt_jlt_8_22_mod_2.csv',
-              tableName: 'cwt_jlt_8_22_mod_2',
-              numberOfRows: 3025,
-              numberOfColumns: 13,
-              columns: [
-                {
-                  name: 'glyphx_id__',
-                  fieldType: 2,
-                },
-                {
-                  name: 's_no',
-                  fieldType: 0,
-                },
-                {
-                  name: 'mml_type',
-                  fieldType: 1,
-                  longestString: 18,
-                },
-                {
-                  name: 'date_created',
-                  fieldType: 3,
-                },
-                {
-                  name: 'date_requested',
-                  fieldType: 3,
-                },
-                {
-                  name: 'xdate_ordered',
-                  fieldType: 1,
-                  longestString: 9,
-                },
-                {
-                  name: 'date_desired_ep',
-                  fieldType: 3,
-                },
-                {
-                  name: 'xdate_rcvd',
-                  fieldType: 1,
-                  longestString: 9,
-                },
-                {
-                  name: 'total_procurement_time_requirement_created_to_delivery',
-                  fieldType: 0,
-                },
-                {
-                  name: 'delivery_performance_difference_in_days_between_delivered_and_desired_date',
-                  fieldType: 0,
-                },
-                {
-                  name: 'requirement_validation_timedifference_in_days_created_to_requested',
-                  fieldType: 0,
-                },
-                {
-                  name: 'order_processing_time_difference_b_w_requested_and_ordered',
-                  fieldType: 0,
-                },
-                {
-                  name: 'order_fulfillment_time_difference_b_w_ordered_and_received',
-                  fieldType: 0,
-                },
-                {
-                  name: 'internal_delivery_time_difference_b_w_received_and_delivered',
-                  fieldType: 0,
-                },
-              ],
-              fileSize: 1772688,
-            },
-          ],
-          viewName: 'glyphx_66b66a4faa83b6d2b3deb8f3_66c781bf2ad1a468ec1446ac_view',
-          aspectRatio: {
-            height: 1376,
-            width: 1722,
-            id: '66cf2270ec20160bc7386a35',
-          },
-          imageHash: '',
-        };
-
+        // const project = {
+        //   id: '66c781bf2ad1a468ec1446ac',
+        //   createdAt: new Date(),
+        //   updatedAt: new Date(),
+        //   name: '8_22_requirement_validation_time',
+        //   docId: 'pTUye-aPBiWzuE6YqfzJO',
+        //   description: '',
+        //   currentVersion: 0,
+        //   workspace: '66b66a4faa83b6d2b3deb8f3',
+        //   state: {
+        //     properties: {
+        //       X: {
+        //         axis: 'X',
+        //         accepts: 'COLUMN_DRAG',
+        //         key: 'mml_type',
+        //         dataType: 1,
+        //         interpolation: 'LIN',
+        //         direction: 'ASC',
+        //         filter: {
+        //           keywords: ['MATERIAL'],
+        //         },
+        //       },
+        //       Y: {
+        //         axis: 'Y',
+        //         accepts: 'COLUMN_DRAG',
+        //         key: 'date_requested',
+        //         dataType: 3,
+        //         interpolation: 'LIN',
+        //         direction: 'ASC',
+        //         filter: {
+        //           keywords: [],
+        //         },
+        //         dateGrouping: 'qualified_day_of_year',
+        //       },
+        //       Z: {
+        //         axis: 'Z',
+        //         accepts: 'COLUMN_DRAG',
+        //         key: 'requirement_validation_timedifference_in_days_created_to_requested',
+        //         dataType: 0,
+        //         interpolation: 'LIN',
+        //         direction: 'ASC',
+        //         filter: {
+        //           min: 0,
+        //           max: 3,
+        //         },
+        //         accumulatorType: 'AVG',
+        //       },
+        //       A: {
+        //         axis: 'A',
+        //         accepts: 'COLUMN_DRAG',
+        //         key: 'Column 1',
+        //         dataType: 0,
+        //         interpolation: 'LIN',
+        //         direction: 'ASC',
+        //         filter: {
+        //           min: 0,
+        //           max: 0,
+        //         },
+        //       },
+        //       B: {
+        //         axis: 'B',
+        //         accepts: 'COLUMN_DRAG',
+        //         key: 'Column 2',
+        //         dataType: 0,
+        //         interpolation: 'LIN',
+        //         direction: 'ASC',
+        //         filter: {
+        //           min: 0,
+        //           max: 0,
+        //         },
+        //       },
+        //       C: {
+        //         axis: 'C',
+        //         accepts: 'COLUMN_DRAG',
+        //         key: 'Column 3',
+        //         dataType: 0,
+        //         interpolation: 'LIN',
+        //         direction: 'ASC',
+        //         filter: {
+        //           min: 0,
+        //           max: 0,
+        //         },
+        //       },
+        //     },
+        //   },
+        //   stateHistory: ['66c78221f96dc936be9901f2', '66cf226fec20160bc7386a1e'],
+        //   members: ['66c781bf2ad1a468ec1446c1'],
+        //   tags: [],
+        //   files: [
+        //     {
+        //       fileName: 'cwt_jlt_8_22_mod_2.csv',
+        //       tableName: 'cwt_jlt_8_22_mod_2',
+        //       numberOfRows: 3025,
+        //       numberOfColumns: 13,
+        //       columns: [
+        //         {
+        //           name: 'glyphx_id__',
+        //           fieldType: 2,
+        //         },
+        //         {
+        //           name: 's_no',
+        //           fieldType: 0,
+        //         },
+        //         {
+        //           name: 'mml_type',
+        //           fieldType: 1,
+        //           longestString: 18,
+        //         },
+        //         {
+        //           name: 'date_created',
+        //           fieldType: 3,
+        //         },
+        //         {
+        //           name: 'date_requested',
+        //           fieldType: 3,
+        //         },
+        //         {
+        //           name: 'xdate_ordered',
+        //           fieldType: 1,
+        //           longestString: 9,
+        //         },
+        //         {
+        //           name: 'date_desired_ep',
+        //           fieldType: 3,
+        //         },
+        //         {
+        //           name: 'xdate_rcvd',
+        //           fieldType: 1,
+        //           longestString: 9,
+        //         },
+        //         {
+        //           name: 'total_procurement_time_requirement_created_to_delivery',
+        //           fieldType: 0,
+        //         },
+        //         {
+        //           name: 'delivery_performance_difference_in_days_between_delivered_and_desired_date',
+        //           fieldType: 0,
+        //         },
+        //         {
+        //           name: 'requirement_validation_timedifference_in_days_created_to_requested',
+        //           fieldType: 0,
+        //         },
+        //         {
+        //           name: 'order_processing_time_difference_b_w_requested_and_ordered',
+        //           fieldType: 0,
+        //         },
+        //         {
+        //           name: 'order_fulfillment_time_difference_b_w_ordered_and_received',
+        //           fieldType: 0,
+        //         },
+        //         {
+        //           name: 'internal_delivery_time_difference_b_w_received_and_delivered',
+        //           fieldType: 0,
+        //         },
+        //       ],
+        //       fileSize: 1772688,
+        //     },
+        //   ],
+        //   viewName: 'glyphx_66b66a4faa83b6d2b3deb8f3_66c781bf2ad1a468ec1446ac_view',
+        //   aspectRatio: {
+        //     height: 1376,
+        //     width: 1722,
+        //     id: '66cf2270ec20160bc7386a35',
+        //   },
+        //   imageHash: '',
+        // };
+        // const project2 = {
+        //   id: '66c781bf2ad1a468ec1446ac',
+        //   createdAt: new Date(),
+        //   updatedAt: new Date(),
+        //   name: '8_22_requirement_validation_time',
+        //   docId: 'pTUye-aPBiWzuE6YqfzJO',
+        //   description: '',
+        //   currentVersion: 0,
+        //   workspace: '66b66a4faa83b6d2b3deb8f3',
+        //   state: {
+        //     properties: {
+        //       X: {
+        //         axis: 'X',
+        //         accepts: 'COLUMN_DRAG',
+        //         key: 'mml_type',
+        //         dataType: 1,
+        //         interpolation: 'LIN',
+        //         direction: 'ASC',
+        //         filter: {
+        //           keywords: [],
+        //         },
+        //       },
+        //       Y: {
+        //         axis: 'Y',
+        //         accepts: 'COLUMN_DRAG',
+        //         key: 'date_requested',
+        //         dataType: 3,
+        //         interpolation: 'LIN',
+        //         direction: 'ASC',
+        //         filter: {
+        //           keywords: [],
+        //         },
+        //         dateGrouping: 'qualified_day_of_year',
+        //       },
+        //       Z: {
+        //         axis: 'Z',
+        //         accepts: 'COLUMN_DRAG',
+        //         key: 'requirement_validation_timedifference_in_days_created_to_requested',
+        //         dataType: 0,
+        //         interpolation: 'LIN',
+        //         direction: 'ASC',
+        //         filter: {
+        //           min: 0,
+        //           max: 3,
+        //         },
+        //         accumulatorType: 'AVG',
+        //       },
+        //       A: {
+        //         axis: 'A',
+        //         accepts: 'COLUMN_DRAG',
+        //         key: 'Column 1',
+        //         dataType: 0,
+        //         interpolation: 'LIN',
+        //         direction: 'ASC',
+        //         filter: {
+        //           min: 0,
+        //           max: 0,
+        //         },
+        //       },
+        //       B: {
+        //         axis: 'B',
+        //         accepts: 'COLUMN_DRAG',
+        //         key: 'Column 2',
+        //         dataType: 0,
+        //         interpolation: 'LIN',
+        //         direction: 'ASC',
+        //         filter: {
+        //           min: 0,
+        //           max: 0,
+        //         },
+        //       },
+        //       C: {
+        //         axis: 'C',
+        //         accepts: 'COLUMN_DRAG',
+        //         key: 'Column 3',
+        //         dataType: 0,
+        //         interpolation: 'LIN',
+        //         direction: 'ASC',
+        //         filter: {
+        //           min: 0,
+        //           max: 0,
+        //         },
+        //       },
+        //     },
+        //   },
+        //   stateHistory: ['66c78221f96dc936be9901f2', '66cf226fec20160bc7386a1e'],
+        //   members: ['66c781bf2ad1a468ec1446c1'],
+        //   tags: [],
+        //   files: [
+        //     {
+        //       fileName: 'cwt_jlt_8_22_mod_2.csv',
+        //       tableName: 'cwt_jlt_8_22_mod_2',
+        //       numberOfRows: 3025,
+        //       numberOfColumns: 13,
+        //       columns: [
+        //         {
+        //           name: 'glyphx_id__',
+        //           fieldType: 2,
+        //         },
+        //         {
+        //           name: 's_no',
+        //           fieldType: 0,
+        //         },
+        //         {
+        //           name: 'mml_type',
+        //           fieldType: 1,
+        //           longestString: 18,
+        //         },
+        //         {
+        //           name: 'date_created',
+        //           fieldType: 3,
+        //         },
+        //         {
+        //           name: 'date_requested',
+        //           fieldType: 3,
+        //         },
+        //         {
+        //           name: 'xdate_ordered',
+        //           fieldType: 1,
+        //           longestString: 9,
+        //         },
+        //         {
+        //           name: 'date_desired_ep',
+        //           fieldType: 3,
+        //         },
+        //         {
+        //           name: 'xdate_rcvd',
+        //           fieldType: 1,
+        //           longestString: 9,
+        //         },
+        //         {
+        //           name: 'total_procurement_time_requirement_created_to_delivery',
+        //           fieldType: 0,
+        //         },
+        //         {
+        //           name: 'delivery_performance_difference_in_days_between_delivered_and_desired_date',
+        //           fieldType: 0,
+        //         },
+        //         {
+        //           name: 'requirement_validation_timedifference_in_days_created_to_requested',
+        //           fieldType: 0,
+        //         },
+        //         {
+        //           name: 'order_processing_time_difference_b_w_requested_and_ordered',
+        //           fieldType: 0,
+        //         },
+        //         {
+        //           name: 'order_fulfillment_time_difference_b_w_ordered_and_received',
+        //           fieldType: 0,
+        //         },
+        //         {
+        //           name: 'internal_delivery_time_difference_b_w_received_and_delivered',
+        //           fieldType: 0,
+        //         },
+        //       ],
+        //       fileSize: 1772688,
+        //     },
+        //   ],
+        //   viewName: 'glyphx_66b66a4faa83b6d2b3deb8f3_66c781bf2ad1a468ec1446ac_view',
+        //   aspectRatio: {
+        //     height: 1376,
+        //     width: 1722,
+        //     id: '66cf2270ec20160bc7386a35',
+        //   },
+        //   imageHash: '',
+        // };
         // "33bbc1ba093c2096dbe8024827f79f7a" - this is what is actually in s3, it is being produced in glyphengine because the project is updated AFTER the payloadhash is calculated
-        const hash1 = hashPayload(hashFiles(project.files), project as unknown as databaseTypes.IProject);
+        // const hash1 = hashPayload(hashFiles(project.files), project as unknown as databaseTypes.IProject);
         // '48e165673514843bf5b32dcb0c4f2d55'; - this is the newHash occording to our logs.
         // conclusion: glyphengine and signDataUrls get pre vs. post filter application payload hashes, resulting in the string filter error
-        const hash2 = hashPayload(hashFiles(project2.files), project2 as unknown as databaseTypes.IProject);
-
-        assert.isOk(hash1);
-        assert.isOk(hash2);
-        assert.notEqual(hash1, hash2);
+        // const hash2 = hashPayload(hashFiles(project2.files), project2 as unknown as databaseTypes.IProject);
+        // assert.isOk(hash1);
+        // assert.isOk(hash2);
+        // assert.notEqual(hash1, hash2);
       } catch (error) {
         assert.fail();
       }
     });
   });
-
-  context('hashFileStats', () => {
-    const sandbox = createSandbox();
-    afterEach(() => {
-      sandbox.restore();
-    });
-    it('will correctly hash fileStats', async () => {
-      try {
-      } catch (error) {
-        assert.fail();
-      }
-    });
-  });
-
   context('removePrefix', () => {
     const sandbox = createSandbox();
     afterEach(() => {
@@ -709,39 +777,6 @@ describe('#util/hash', () => {
       } catch (error) {
         assert.fail();
       }
-    });
-  });
-});
-
-describe.only('#util/HashResolver', () => {
-  context('constructor', () => {
-    it('should build a hash resolver with the correct setup', async () => {
-      const workspaceId = 'wid';
-      const projectId = 'pid';
-      await s3Connection.init();
-      const s3 = s3Connection.s3Manager;
-      const resolver = new HashResolver(workspaceId, projectId, s3);
-
-      assert.strictEqual(resolver.status, 'PENDING');
-      assert.strictEqual(resolver.workspaceId, workspaceId);
-      assert.strictEqual(resolver.projectId, projectId);
-      assert.strictEqual(resolver.s3, s3);
-      assert.strictEqual(resolver.strategies.size, 2);
-    });
-  });
-  context('register', () => {
-    it.only('should register the hash strategies and set up the getters', async () => {
-      const workspaceId = 'wid';
-      const projectId = 'pid';
-
-      await s3Connection.init();
-      const s3 = s3Connection.s3Manager;
-      const resolver = new HashResolver(workspaceId, projectId, s3);
-      const strat = new LatestHashStrategy();
-
-      resolver.register(strat);
-
-      assert.strictEqual(resolver.strategies.size, 3);
     });
   });
 });

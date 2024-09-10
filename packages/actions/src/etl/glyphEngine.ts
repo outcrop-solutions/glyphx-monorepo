@@ -10,8 +10,7 @@ import {databaseTypes, fileIngestionTypes, glyphEngineTypes, webTypes} from 'typ
 import {getServerSession} from 'next-auth';
 import {authOptions} from '../auth';
 import {revalidatePath} from 'next/cache';
-import {hashFileSystem} from 'business';
-import {hashFiles, hashPayload} from 'business/src/util/hashFunctions';
+import {HashResolver} from 'business/src/util/HashResolver';
 
 /**
  * Call Glyph Engine
@@ -31,11 +30,22 @@ export const glyphEngine = async (project) => {
 
         // (this no longer happens anywhere else)
         const updatedProject = await projectService.updateProjectState(project.id, project.state);
-        // THIS PAYLOAD HASH ENDS UP IN S3, it is currently not seeing the state with the included filter, it used to run before the project is updated
-        const payloadHash = hashPayload(hashFiles(updatedProject.files), updatedProject);
+
+        // THIS PAYLOAD HASH ENDS UP IN S3, it was being calculated BEFORE the project was updated, it is now calculated afterwards so that the hashes match
+        // const s = new LatestHashStrategy();
+        // const payloadHash = s.hashPayload(s.hashFiles(updatedProject.files), updatedProject);
+
+        await s3Connection.init();
+        const s3 = s3Connection.s3Manager;
+        const resolver = new HashResolver(project.workspace.id, project.id, s3);
+        const retval = await resolver.resolve({
+          type: 'project',
+          project,
+        });
+
         const payload = {
           model_id: project.id,
-          payload_hash: payloadHash,
+          payload_hash: retval.payloadHash,
           client_id: project?.workspace.id,
           x_axis: properties[webTypes.constants.AXIS.X]['key'],
           x_date_grouping:

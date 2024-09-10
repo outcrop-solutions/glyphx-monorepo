@@ -1,8 +1,7 @@
 import {atom, selector} from 'recoil';
 import {projectAtom} from './project';
 import {databaseTypes, webTypes} from 'types';
-import {hashPayload, hashFiles} from 'business/src/util/hashFunctions';
-
+import {HashResolver, LatestHashStrategy} from 'business/src/util/HashResolver';
 // controls styling of state list items
 export const activeStateAtom = atom<string>({
   key: 'activeStateAtom',
@@ -45,7 +44,10 @@ export const doesStateExistSelector = selector<boolean>({
   get: ({get}) => {
     const project = get(projectAtom);
     if (!project?.files) return false;
-    const currentPayloadHash = hashPayload(hashFiles(project.files), project);
+
+    // this and the 'isFilterWriteableSelector' is the exception to the HashResolver because we can't expose the s3 connection details to the client here unfortunately
+    const s = new LatestHashStrategy();
+    const currentPayloadHash = s.hashPayload(s.hashFiles(project.files), project);
     const exists = project?.stateHistory?.filter((state) => state?.payloadHash === currentPayloadHash);
     return exists.length > 0;
   },
@@ -62,6 +64,8 @@ export const isFilterWritableSelector = selector<boolean>({
   get: ({get}) => {
     const state = get(stateSelector);
     const project = get(projectAtom);
-    return state?.fileSystemHash === hashFiles(project?.files);
+    // this and the 'doesStateExistSelector' is the exception to the HashResolver because we can't expose the s3 connection details to the client here unfortunately
+    const s = new LatestHashStrategy();
+    return state?.fileSystemHash === s.hashFiles(project?.files);
   },
 });

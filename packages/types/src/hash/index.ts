@@ -3,7 +3,7 @@ import {IFileStats} from '../fileIngestion';
 
 export interface IHashStrategy {
   // Must be globally unique to each instance of HashResolver
-  version: number;
+  version: string;
   /**
    * Performs project.files (fileSystem) hashing operation
    * Changes if fileStat.fileName | column.name | column.fieldType changes
@@ -27,16 +27,19 @@ export interface IHashStrategy {
    */
   hashPayload: (fileHash: string, project: IProject) => string;
 }
+
 export interface IDataPresence {
   exists: boolean;
   path: string;
 }
+
 export interface IResolution {
   presence: IDataPresence[];
-  version: number;
+  version: string;
   fileHash: string;
   payloadHash: string;
 }
+
 export enum Status {
   PENDING = 'PENDING',
   SUCCESS = 'SUCCESS',
