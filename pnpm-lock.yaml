@@ -1502,6 +1502,9 @@ importers:
       dotenv:
         specifier: ^16.0.3
         version: 16.4.5
+      fs-extra:
+        specifier: ^11.1.1
+        version: 11.2.0
       mongoose:
         specifier: 6.11.5
         version: 6.11.5(aws-crt@1.21.3(bufferutil@4.0.8)(utf-8-validate@5.0.10))
@@ -1512,6 +1515,9 @@ importers:
       '@aws-sdk/types':
         specifier: 3.292.0
         version: 3.292.0
+      '@types/fs-extra':
+        specifier: ^11.0.1
+        version: 11.0.4
       '@types/node':
         specifier: ^18.11.7
         version: 18.19.42
