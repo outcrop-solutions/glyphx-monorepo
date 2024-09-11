@@ -754,6 +754,60 @@ describe('#util/HashResolver', () => {
         assert.fail();
       }
     });
+    it('will fallback to the previous hash strategy if the first one does not exist and still produce a consistent result', async () => {
+      try {
+        // equivalent states, [clean, clean] = [dirty, dirty]
+        const workspaceId = 'wid';
+        const projectId = 'pid';
+        await s3Connection.init();
+        const s3Stub = sandbox.stub().onCall(0).resolves(true);
+        // first strategy (none exist)
+        s3Stub.onCall(0).resolves(true);
+        s3Stub.onCall(1).resolves(true);
+        s3Stub.onCall(2).resolves(false);
+
+        // second strategy (all exist)
+        s3Stub.onCall(3).resolves(true);
+        s3Stub.onCall(4).resolves(true);
+        s3Stub.onCall(5).resolves(true);
+
+        // first strategy (none exist)
+        s3Stub.onCall(6).resolves(true);
+        s3Stub.onCall(7).resolves(true);
+        s3Stub.onCall(8).resolves(false);
+
+        // second strategy (all exist)
+        s3Stub.onCall(9).resolves(true);
+        s3Stub.onCall(10).resolves(true);
+        s3Stub.onCall(11).resolves(true);
+
+        const s3 = {fileExists: s3Stub};
+
+        const resolver = new HashResolver(workspaceId, projectId, s3 as any);
+
+        const req1 = {
+          type: 'project',
+          project: project1,
+        };
+        const req2 = {
+          type: 'project',
+          project: project2,
+        };
+
+        const retval = await resolver.resolve(req1 as any);
+        // called s3 stub appropriately
+        assert.strictEqual(s3Stub.callCount, 6);
+
+        const retval2 = await resolver.resolve(req2 as any);
+        // called s3 stub appropriately
+        assert.strictEqual(s3Stub.callCount, 12);
+
+        assert.strictEqual(retval?.fileHash, retval2?.fileHash);
+        assert.strictEqual(retval?.payloadHash, retval2?.payloadHash);
+      } catch (error) {
+        assert.fail();
+      }
+    });
   });
   context('removePrefix', () => {
     const sandbox = createSandbox();

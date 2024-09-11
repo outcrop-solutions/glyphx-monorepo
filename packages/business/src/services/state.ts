@@ -1,8 +1,7 @@
 import {databaseTypes, webTypes} from 'types';
 import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
-import {HashResolver} from '../util/HashResolver';
-import {s3Connection} from '../lib';
+import {LatestHashStrategy} from '../util/HashResolver';
 
 export class StateService {
   public static async getState(stateId: string): Promise<databaseTypes.IState | null> {
@@ -62,14 +61,10 @@ export class StateService {
       const user = await mongoDbConnection.models.UserModel.getUserById(userId);
       const image = imageHash ? {imageHash} : {};
 
-      await s3Connection.init();
-      const s3 = s3Connection.s3Manager;
+      const s = new LatestHashStrategy();
+      const fileHash = s.hashFiles(project.files);
+      const payloadHash = s.hashPayload(fileHash, project);
 
-      const resolver = new HashResolver(workspace.id as any, project.id as any, s3);
-      const retval = await resolver.resolve({
-        type: 'project',
-        project,
-      });
       const input = {
         ...image,
         createdBy: {...user},
@@ -79,8 +74,8 @@ export class StateService {
         camera: {...camera},
         aspectRatio: {...aspectRatio},
         properties: {...project.state.properties},
-        fileSystemHash: retval.fileHash,
-        payloadHash: retval.payloadHash,
+        fileSystemHash: fileHash,
+        payloadHash: payloadHash,
         workspace: {...workspace},
         project: {...project},
         fileSystem: [...project.files],

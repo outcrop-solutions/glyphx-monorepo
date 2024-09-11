@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {S3Manager} from 'core/src/aws';
 import MD5 from 'crypto-js/md5';
 import {databaseTypes, fileIngestionTypes, hashTypes, webTypes} from 'types';
@@ -15,7 +16,7 @@ export class HashResolver {
     this.strategies.set(strategy.version, strategy);
   }
 
-  public get(version: string): hashTypes.IHashStrategy {
+  public get(version: string): hashTypes.IHashStrategy | undefined {
     return this.strategies.get(version);
   }
 

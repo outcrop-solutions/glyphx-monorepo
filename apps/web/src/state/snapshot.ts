@@ -1,7 +1,7 @@
 import {atom, selector} from 'recoil';
 import {projectAtom} from './project';
 import {databaseTypes, webTypes} from 'types';
-import {HashResolver, LatestHashStrategy} from 'business/src/util/HashResolver';
+import {LatestHashStrategy} from 'business/src/util/HashResolver';
 // controls styling of state list items
 export const activeStateAtom = atom<string>({
   key: 'activeStateAtom',
