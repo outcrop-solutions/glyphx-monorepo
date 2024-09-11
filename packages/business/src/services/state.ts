@@ -1,7 +1,7 @@
 import {databaseTypes, webTypes} from 'types';
 import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
-import {HashResolver} from 'util/HashResolver';
+import {HashResolver} from '../util/HashResolver';
 import {s3Connection} from '../lib';
 
 export class StateService {

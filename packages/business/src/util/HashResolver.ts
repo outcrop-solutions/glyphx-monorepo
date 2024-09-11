@@ -1,4 +1,3 @@
-import {error} from 'core';
 import {S3Manager} from 'core/src/aws';
 import MD5 from 'crypto-js/md5';
 import {databaseTypes, fileIngestionTypes, hashTypes, webTypes} from 'types';
@@ -16,7 +15,7 @@ export class HashResolver {
     this.strategies.set(strategy.version, strategy);
   }
 
-  public get(version: string): hashTypes.IHashStrategy | undefined {
+  public get(version: string): hashTypes.IHashStrategy {
     return this.strategies.get(version);
   }
 
@@ -75,9 +74,7 @@ export class HashResolver {
       }
     }
     // if we haven't returns a result, throw an error
-    throw new error.DataNotFoundError('No payloadHash resolved', 'HashResolver', 'resolve', {
-      req,
-    });
+    throw new Error('no payload hash');
   }
 }
 
