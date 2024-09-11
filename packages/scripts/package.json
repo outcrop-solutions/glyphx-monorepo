@@ -13,7 +13,8 @@
     "lint": "eslint .",
     "fix": "eslint . --fix",
     "count": "npx cloc .  -exclude-ext=csv --by-file-by-lang --exclude-dir=scripts,node_modules,build,.nyc_output,docs,dist",
-    "copyAthenaDatabase": "ts-node ./src/copyAthenaDatabase.ts"
+    "copyAthenaDatabase": "ts-node ./src/copyAthenaDatabase.ts",
+    "migrate": "ts-node ./src/updateHashValues.ts"
   },
   "engines": {
     "node": ">=16.0.0"
