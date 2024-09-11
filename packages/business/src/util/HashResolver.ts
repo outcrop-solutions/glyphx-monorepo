@@ -9,6 +9,7 @@ export class HashResolver {
   workspaceId: string;
   projectId: string;
   basePath: string;
+  mode: 'first' | 'all';
   s3: S3Manager;
   strategies: Map<string, hashTypes.IHashStrategy> = new Map();
 
@@ -25,7 +26,7 @@ export class HashResolver {
   }
 
   // we inject the file manager for flexibility and ease of testing
-  constructor(workspaceId: string, projectId: string, s3: S3Manager) {
+  constructor(workspaceId: string, projectId: string, s3: S3Manager, mode: 'first' | 'all' = 'first') {
     this.s3 = s3;
     this.workspaceId = workspaceId;
     this.projectId = projectId;
@@ -47,35 +48,32 @@ export class HashResolver {
    * @param project
    * @returns
    */
-  public async resolve(req: hashTypes.ResolveReq): Promise<hashTypes.IResolution> {
+  public async resolve(req: hashTypes.IHashPayload): Promise<hashTypes.IResolution> {
     const versions = Array.from(this.strategies.keys()).sort().reverse();
     // concurrently check the project against each strategy
     for (const version of versions) {
       const strategy = this.get(version);
       // get hash for a given request + strategy
-      let fh, ph;
-      if (req.type === 'state') {
-        ph = req.state.payloadHash;
-      } else {
-        fh = strategy?.hashFiles(req.project.files);
-        ph = strategy?.hashPayload(fh, req.project);
-      }
+      const fh = strategy?.hashFiles(req.files);
+      const ph = strategy?.hashPayload(fh, req);
+
       // build file paths
       const filePaths = this.exts.map((e) => `${this.basePath}/${ph}.${e}`);
       // concurrently check existence for a given strategy
       const presence: hashTypes.IDataPresence[] = await Promise.all(
         filePaths.map(async (path) => {
-          return {exists: await this.s3.fileExists(path), path};
+          const exists = await this.s3.fileExists(path);
+          return {exists, path};
         })
       );
       // Check if all files exist for this version
-      const allFilesExist = presence.every((p) => p.exists);
-      if (allFilesExist) {
-        return {presence, version, fileHash: fh, payloadHash: ph};
+      const success = presence.every((p) => p.exists);
+      if (success) {
+        return {presence, version, fileHash: fh, payloadHash: ph, success};
+      } else {
+        continue;
       }
     }
-    // if we haven't returns a result, throw an error
-    throw new Error('no payload hash');
   }
 }
 
@@ -102,13 +100,13 @@ export class LatestHashStrategy implements hashTypes.IHashStrategy {
     const combinedHash = MD5(fileHashes.join('')).toString();
     return combinedHash;
   }
-  hashPayload(fileHash: string, project: databaseTypes.IProject): string {
+  hashPayload(fileHash: string, payload: hashTypes.IHashPayload): string {
     const relevantProps = ['X', 'Y', 'Z', 'A', 'B', 'C'];
     const relevantKeys = ['key', 'dataType', 'interpolation', 'direction', 'filter', 'accumulatorType', 'dateGrouping'];
     const propRetvals = [] as string[];
 
     for (const propKey of relevantProps) {
-      const prop = project.state.properties[propKey];
+      const prop = payload.properties[propKey];
 
       const sortedProp = Object.keys(prop)
         .sort()
@@ -140,8 +138,8 @@ export class LatestHashStrategy implements hashTypes.IHashStrategy {
       propRetvals.push(keyRetvals.join(''));
     }
 
-    if (project.id) {
-      propRetvals.push(project.id);
+    if (payload.projectId) {
+      propRetvals.push(payload.projectId);
     }
     const stateHash = MD5(propRetvals.join('')).toString();
     const payloadHash = MD5(`${fileHash}${stateHash}`).toString();
@@ -176,11 +174,11 @@ export class HashStrategy_486f205 implements hashTypes.IHashStrategy {
     const combinedHash = MD5(fileHashes.join('')).toString();
     return combinedHash;
   }
-  hashPayload(fileHash: string, project: databaseTypes.IProject): string {
-    const projectStateProperties = JSON.stringify(project.state.properties);
-    const payload = `${fileHash}${projectStateProperties}`;
+  hashPayload(fileHash: string, payload: hashTypes.IHashPayload): string {
+    const projectStateProperties = JSON.stringify(payload.properties);
+    const retval = `${fileHash}${projectStateProperties}`;
 
-    return MD5(payload).toString();
+    return MD5(retval).toString();
   }
 }
 
@@ -201,33 +199,33 @@ export class HashStrategy_c540f1f implements hashTypes.IHashStrategy {
     const combinedHash = MD5(fileHashes.join('')).toString();
     return combinedHash;
   }
-  hashPayload(fileHash, project): string {
-    let proj = {...project};
+  hashPayload(fileHash, payload: hashTypes.IHashPayload): string {
+    let req = {id: payload.projectId, ...payload};
     // clean ids
-    delete proj.state.properties['X'].id;
-    delete proj.state.properties['Y'].id;
-    delete proj.state.properties['Z'].id;
-    delete proj.state.properties['A'].id;
-    delete proj.state.properties['B'].id;
-    delete proj.state.properties['C'].id;
+    delete req.properties['X'].id;
+    delete req.properties['Y'].id;
+    delete req.properties['Z'].id;
+    delete req.properties['A'].id;
+    delete req.properties['B'].id;
+    delete req.properties['C'].id;
     // clean filter ids
-    delete proj.state.properties['X'].filter.id;
-    delete proj.state.properties['Y'].filter.id;
-    delete proj.state.properties['Z'].filter.id;
-    delete proj.state.properties['A'].filter.id;
-    delete proj.state.properties['B'].filter.id;
-    delete proj.state.properties['C'].filter.id;
+    delete req.properties['X'].filter.id;
+    delete req.properties['Y'].filter.id;
+    delete req.properties['Z'].filter.id;
+    delete req.properties['A'].filter.id;
+    delete req.properties['B'].filter.id;
+    delete req.properties['C'].filter.id;
 
-    for (const key of Object.keys(proj.state.properties)) {
-      const keywords = proj.state.properties[key].keywords;
+    for (const key of Object.keys(req.properties)) {
+      const keywords = req.properties[key].keywords;
       if (keywords && keywords.length === 0) {
-        delete proj.state.properties[key].filter.keywords;
+        delete req.properties[key].filter.keywords;
       }
     }
-    const projectStateProperties = JSON.stringify(proj.state.properties);
-    const payload = `${fileHash}${projectStateProperties}`;
+    const projectStateProperties = JSON.stringify(req.properties);
+    const retval = `${fileHash}${projectStateProperties}`;
 
-    return MD5(payload).toString();
+    return MD5(retval).toString();
   }
 }
 
@@ -239,42 +237,51 @@ export class HashStrategy_c540f1f implements hashTypes.IHashStrategy {
 export class HashStrategy_7e06423 implements hashTypes.IHashStrategy {
   version = '7e06423';
   hashFiles(files: fileIngestionTypes.IFileStats[]): string {
-    const fileHashes = files.map(({fileName, columns}: {fileName: string; columns: fileIngestionTypes.IColumn[]}) => {
-      const columnHashes = columns.map(({name, fieldType}) => `${name}${fieldType}`).join('');
-      const formattedColHashInput = columnHashes;
-      return MD5(`${fileName}${formattedColHashInput}`).toString();
-    });
-    // Combine all the individual file hashes into a single hash
-    const combinedHash = MD5(fileHashes.join('')).toString();
-    return combinedHash;
-  }
-  hashPayload(fileHash: string, project: databaseTypes.IProject): string {
-    const relevantProps = ['X', 'Y', 'Z'];
-    const relevantKeys = ['key', 'dataType', 'interpolation', 'direction', 'filter', 'keywords'];
-    const propRetvals = [] as string[];
-
-    for (const propKey of relevantProps) {
-      const prop = project.state.properties[propKey];
-      const keyRetvals = [] as string[];
-      const dataType = prop.dataType;
-      for (const key of relevantKeys) {
-        if (key === 'filter' && dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER) {
-          keyRetvals.push(String((prop[key] as webTypes.INumbericFilter).min) ?? '');
-          keyRetvals.push(String((prop[key] as webTypes.INumbericFilter).max) ?? '');
-        } else if (key === 'keywords') {
-          for (const word of prop[key]) {
-            keyRetvals.push(String(word));
-          }
-        } else {
-          keyRetvals.push(String(prop[key]));
-        }
-      }
-      propRetvals.push(keyRetvals.join(''));
+    // this strategy throws an error, which is why we changed it, so we trap it and return ''
+    try {
+      const fileHashes = files.map(({fileName, columns}: {fileName: string; columns: fileIngestionTypes.IColumn[]}) => {
+        const columnHashes = columns.map(({name, fieldType}) => `${name}${fieldType}`).join('');
+        const formattedColHashInput = columnHashes;
+        return MD5(`${fileName}${formattedColHashInput}`).toString();
+      });
+      // Combine all the individual file hashes into a single hash
+      const combinedHash = MD5(fileHashes.join('')).toString();
+      return combinedHash;
+    } catch (error) {
+      return '';
     }
+  }
+  hashPayload(fileHash: string, payload: hashTypes.IHashPayload): string {
+    try {
+      const relevantProps = ['X', 'Y', 'Z'];
+      const relevantKeys = ['key', 'dataType', 'interpolation', 'direction', 'filter', 'keywords'];
+      const propRetvals = [] as string[];
 
-    const stateHash = MD5(propRetvals.join('')).toString();
-    const payloadHash = MD5(`${fileHash}${stateHash}`);
-    return payloadHash;
+      for (const propKey of relevantProps) {
+        const prop = payload.properties[propKey];
+        const keyRetvals = [] as string[];
+        const dataType = prop.dataType;
+        for (const key of relevantKeys) {
+          if (key === 'filter' && dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER) {
+            keyRetvals.push(String((prop[key] as webTypes.INumbericFilter).min) ?? '');
+            keyRetvals.push(String((prop[key] as webTypes.INumbericFilter).max) ?? '');
+          } else if (key === 'keywords') {
+            for (const word of prop[key]) {
+              keyRetvals.push(String(word));
+            }
+          } else {
+            keyRetvals.push(String(prop[key]));
+          }
+        }
+        propRetvals.push(keyRetvals.join(''));
+      }
+
+      const stateHash = MD5(propRetvals.join('')).toString();
+      const payloadHash = MD5(`${fileHash}${stateHash}`);
+      return payloadHash;
+    } catch (error) {
+      return '';
+    }
   }
 }
 
@@ -294,13 +301,13 @@ export class HashStrategy_4a8005c implements hashTypes.IHashStrategy {
     const combinedHash = MD5(fileHashes.join('')).toString();
     return combinedHash;
   }
-  hashPayload(fileHash: string, project: databaseTypes.IProject): string {
+  hashPayload(fileHash: string, payload: hashTypes.IHashPayload): string {
     const relevantProps = ['X', 'Y', 'Z', 'A', 'B', 'C']; // this is added
     const relevantKeys = ['key', 'dataType', 'interpolation', 'direction', 'filter', 'keywords'];
     const propRetvals = [] as string[];
 
     for (const propKey of relevantProps) {
-      const prop = project.state.properties[propKey];
+      const prop = payload.properties[propKey];
       const keyRetvals = [] as string[];
       const dataType = prop.dataType;
       for (const key of relevantKeys) {
@@ -341,13 +348,13 @@ export class HashStrategy_47bcf33 implements hashTypes.IHashStrategy {
     const combinedHash = MD5(fileHashes.join('')).toString();
     return combinedHash;
   }
-  hashPayload(fileHash: string, project: databaseTypes.IProject): string {
+  hashPayload(fileHash: string, payload: hashTypes.IHashPayload): string {
     const relevantProps = ['X', 'Y', 'Z', 'A', 'B', 'C'];
     const relevantKeys = ['key', 'dataType', 'interpolation', 'direction', 'filter', 'accumulatorType', 'dateGrouping'];
     const propRetvals = [] as string[];
 
     for (const propKey of relevantProps) {
-      const prop = project.state.properties[propKey];
+      const prop = payload.properties[propKey];
       const keyRetvals = [] as string[];
       const dataType = prop.dataType;
       for (const key of relevantKeys) {
@@ -389,12 +396,12 @@ export class HashStrategy_0dc9da4 implements hashTypes.IHashStrategy {
     const combinedHash = MD5(fileHashes.join('')).toString();
     return combinedHash;
   }
-  hashPayload(fileHash: string, project: databaseTypes.IProject): string {
+  hashPayload(fileHash: string, payload: hashTypes.IHashPayload): string {
     const relevantProps = ['X', 'Y', 'Z', 'A', 'B', 'C'];
     const relevantKeys = ['key', 'dataType', 'interpolation', 'direction', 'filter', 'accumulatorType', 'dateGrouping'];
     const propRetvals = [] as string[];
     for (const propKey of relevantProps) {
-      const prop = project.state.properties[propKey];
+      const prop = payload.properties[propKey];
       const keyRetvals = [] as string[];
       const dataType = prop.dataType;
       for (const key of relevantKeys) {
@@ -412,8 +419,8 @@ export class HashStrategy_0dc9da4 implements hashTypes.IHashStrategy {
       propRetvals.push(keyRetvals.join(''));
     }
     // this is added
-    if (project.id) {
-      propRetvals.push(project.id);
+    if (payload.projectId) {
+      propRetvals.push(payload.projectId);
     }
     const stateHash = MD5(propRetvals.join('')).toString();
     const payloadHash = MD5(`${fileHash}${stateHash}`).toString();

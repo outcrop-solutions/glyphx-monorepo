@@ -47,7 +47,12 @@ export const doesStateExistSelector = selector<boolean>({
 
     // this and the 'isFilterWriteableSelector' is the exception to the HashResolver because we can't expose the s3 connection details to the client here unfortunately
     const s = new LatestHashStrategy();
-    const currentPayloadHash = s.hashPayload(s.hashFiles(project.files), project);
+    const payload = {
+      projectId: project.id!,
+      files: project.files,
+      properties: project.state.properties,
+    };
+    const currentPayloadHash = s.hashPayload(s.hashFiles(project.files), payload);
     const exists = project?.stateHistory?.filter((state) => state?.payloadHash === currentPayloadHash);
     return exists.length > 0;
   },

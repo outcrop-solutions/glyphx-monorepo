@@ -32,7 +32,12 @@ export const glyphEngine = async (project) => {
 
         // THIS PAYLOAD HASH ENDS UP IN S3, it was being calculated BEFORE the project was updated, it is now calculated afterwards so that the hashes match. We can't use the resolver was we have not created the assets yet at this point in the generation cycle
         const s = new LatestHashStrategy();
-        const payloadHash = s.hashPayload(s.hashFiles(updatedProject.files), updatedProject);
+        const hashPayload = {
+          projectId: updatedProject.id!,
+          files: updatedProject.files,
+          properties: updatedProject.state.properties,
+        };
+        const payloadHash = s.hashPayload(s.hashFiles(updatedProject.files), hashPayload);
 
         const payload = {
           model_id: project.id,

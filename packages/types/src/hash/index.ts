@@ -25,7 +25,13 @@ export interface IHashStrategy {
    * @param project
    * @returns
    */
-  hashPayload: (fileHash: string, project: IProject) => string;
+  hashPayload: (fileHash: string, payload: IHashPayload) => string;
+}
+
+export interface IHashPayload {
+  projectId: string;
+  files: IProject['files'];
+  properties: IProject['state']['properties'];
 }
 
 export interface IDataPresence {
@@ -38,6 +44,7 @@ export interface IResolution {
   version: string;
   fileHash: string;
   payloadHash: string;
+  success: boolean;
 }
 
 export enum Status {
@@ -46,12 +53,8 @@ export enum Status {
   FAIL = 'FAIL',
   INCOMPLETE = 'INCOMPLETE',
 }
-export interface IProjectReq {
-  type: 'project';
-  project: IProject;
-}
+
 export interface IStateReq {
   type: 'state';
   state: IState;
 }
-export type ResolveReq = IProjectReq | IStateReq;

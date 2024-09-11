@@ -9,16 +9,16 @@ const DUMP_STATES = true;
 const DUMP_STATS = true;
 
 async function main() {
-  const versionMap = new Map();
   const s3 = new S3Manager(TARGET_S3_BUCKET_NAME);
   await s3.init();
   // get iterables from mongo
   const connection = new MongoDbConnection();
   await connection.init();
+  // const states: any[] = [];
   const states = (await connection.models.StateModel.find({
     payloadHash: {$ne: null},
   })
-    .select('payloadHash fileSystemHash project workspace') // Ensure these fields are included
+    .select('properties fileSystem payloadHash fileSystemHash project workspace') // Ensure these fields are included
     .populate('project') // Populate references if needed
     .populate('workspace') // Populate references if needed
     .lean()) as databaseTypes.IState[]; // Cast to IState[]
@@ -26,27 +26,46 @@ async function main() {
   const exts = ['.sgc', '.sdt', '.sgn'];
   const files = await s3.listObjects('client/');
 
-  const resolutions = [];
+  const retvals: Retval[] = [];
+  const invalidParams: Params[] = [];
 
   // Determine state integrity
-  for (const state of states) {
-    const params = getParams(state);
-    if (params) {
-      const {workspaceId, projectId} = params;
-      try {
-        const resolver = new HashResolver(workspaceId as any, projectId as any, s3);
-        const resolution = await resolver.resolve({type: 'state', state});
-        const retval = await processResolution(exts, params, state, resolution, connection, s3);
-        resolutions.push(retval);
-      } catch (error) {
-        console.log({error});
+  await Promise.all(
+    states.map(async (state: databaseTypes.IState) => {
+      // @ts-ignore
+      // const state = (await connection.models.StateModel.findById('64ca724c7a1452ba4c0e6e74')
+      //   .select('properties fileSystem fileSystemHash payloadHash project workspace') // Ensure these fields are included
+      //   .populate('project') // Populate references if needed
+      //   .populate('workspace') // Populate references if needed
+      //   .lean()) as databaseTypes.IState; // Cast to IState;
+
+      const params = getParams(state);
+      if (params.ok) {
+        const {workspaceId, projectId, stateId, payloadHash, files, properties} = params;
+        try {
+          const resolver = new HashResolver(workspaceId as any, projectId as any, s3);
+          const resolution = await resolver.resolve({
+            projectId,
+            files,
+            properties,
+          });
+          // const retval = await processResolution(exts, params, state, resolution, connection, s3);
+          if (typeof resolution !== 'undefined') {
+            retvals.push({stateId, projectId, workspaceId, payloadHash, resolution});
+            return resolution;
+          }
+        } catch (error) {
+          console.log({error});
+        }
+      } else {
+        invalidParams.push(params);
       }
-    }
-  }
+    })
+  );
 
   // dump stats to debug results
   if (DUMP_STATS) {
-    await dumpStats(files, states, versionMap, resolutions as any, exts);
+    await dumpStats(files, states, invalidParams, retvals, exts);
   }
   // dump states for faster access on re-run
   if (DUMP_STATES) {
@@ -62,30 +81,30 @@ async function main() {
  */
 async function processResolution(
   exts: string[],
-  params: Record<string, string>,
+  params: Record<string, any>,
   state: databaseTypes.IState,
   resolution: hashTypes.IResolution,
   db: any,
   s3: S3Manager
 ) {
   try {
-    const {workspaceId, projectId, stateId} = params;
+    const {workspaceId, projectId, stateId, files, properties} = params;
     if (resolution.version !== 'latest') {
-      // recreate project structure for payloadHash construction
-      const project = {
-        id: projectId,
-        state,
-      } as unknown as databaseTypes.IProject;
-
       const s = new LatestHashStrategy();
       const fileSystemHash = s.hashFiles(state.fileSystem);
-      const payloadHash = s.hashPayload(fileSystemHash, project);
+      const payload = {
+        projectId,
+        files,
+        properties,
+      };
+      const payloadHash = s.hashPayload(fileSystemHash, payload);
 
       // build file paths
       const basePath = `client/${workspaceId}/${projectId}/output`;
       const oldFilePaths = exts.map((e) => `${basePath}/${state.payloadHash}.${e}`);
       const filePaths = exts.map((e) => `${basePath}/${payloadHash}.${e}`);
-      // concurrently check success of migration
+
+      // concurrently check success of s3 migration
       const success: hashTypes.IDataPresence[] = await Promise.all(
         filePaths.map(async (newPath, idx) => {
           const oldPath = oldFilePaths[idx];
@@ -93,6 +112,7 @@ async function processResolution(
           return {exists: await s3.fileExists(newPath), path: newPath};
         })
       );
+
       // if s3 migration successful, update state
       const allFilesExist = success.every((p) => p.exists);
       if (allFilesExist) {
@@ -108,66 +128,184 @@ async function processResolution(
   }
 }
 
-function getParams(
-  state: databaseTypes.IState
-): {workspaceId: string; projectId: string; stateId: string; payloadHash: string} | null {
-  const stateId = state?._id?.toString();
-  const workspaceId = state?.workspace?._id?.toString(); // Assume `workspaceId` is part of state
-  const projectId = state?.project?._id?.toString(); // Assume `projectId` is part of state
-  // const retval = await StateService.getState(stateId);
-  const payloadHash = state?.payloadHash; // Assume `payloadHash` is part of state
+type Params = {
+  ok: boolean;
+  workspaceId: string;
+  projectId: string;
+  stateId: string;
+  payloadHash: string;
+  fileHash: string;
+  files: databaseTypes.IProject['files'];
+  properties: databaseTypes.IProject['state']['properties'];
+};
 
+/**
+ * Validate and extract state parameters
+ * @param state
+ * @returns
+ */
+function getParams(state: databaseTypes.IState): Params {
+  // ids
+  const stateId = state?._id?.toString();
+  const workspaceId = state?.workspace?._id?.toString();
+  const projectId = state?.project?._id?.toString();
+  // data
+  const files = state?.fileSystem;
+  const properties = state?.properties;
+  // hash values
+  const fileHash = state?.fileSystemHash;
+  const payloadHash = state?.payloadHash;
+  // check ids
   if (!stateId || typeof stateId !== 'string') {
     console.log(`No state id found. stateId: ${stateId}, stateId: ${stateId}`);
-    return null;
+    // @ts-ignore
+    return {
+      ok: false,
+      // @ts-ignore
+      stateId,
+      // @ts-ignore
+      projectId,
+      // @ts-ignore
+      workspaceId,
+      files,
+      properties,
+      fileHash,
+      payloadHash,
+    };
   }
   if (!workspaceId || typeof workspaceId !== 'string') {
     console.log(`No workspace id found. stateId: ${stateId}, workspaceId: ${workspaceId}`);
-    return null;
+    return {
+      ok: false,
+      stateId,
+      // @ts-ignore
+      projectId,
+      // @ts-ignore
+      workspaceId,
+      files,
+      properties,
+      fileHash,
+      payloadHash,
+    };
   }
   if (!projectId || typeof projectId !== 'string') {
     console.log(`No project id found. stateId: ${stateId}, projectId: ${projectId}`);
-    return null;
+    return {
+      ok: false,
+      stateId,
+      // @ts-ignore
+      projectId,
+      workspaceId,
+      files,
+      properties,
+      fileHash,
+      payloadHash,
+    };
+  }
+  // check data
+  if (!Array.isArray(files) || files.length === 0) {
+    console.log(`No files found. stateId: ${stateId}, files: ${JSON.stringify(files)}`);
+    return {
+      ok: false,
+      stateId,
+      projectId,
+      workspaceId,
+      files,
+      properties,
+      fileHash,
+      payloadHash,
+    };
+  }
+  if (typeof properties !== 'object' || Object.keys(properties).length === 0) {
+    console.log(`No properties found. stateId: ${stateId}, files: ${JSON.stringify(files)}`);
+    return {
+      ok: false,
+      stateId,
+      projectId,
+      workspaceId,
+      files,
+      properties,
+      fileHash,
+      payloadHash,
+    };
+  }
+  // check hash values
+  if (!fileHash || typeof fileHash !== 'string') {
+    console.log(`No fileHash found. stateId: ${stateId}, fileHash: ${fileHash}`);
+    return {
+      ok: false,
+      stateId,
+      projectId,
+      workspaceId,
+      files,
+      properties,
+      fileHash,
+      payloadHash,
+    };
   }
   if (!payloadHash || typeof payloadHash !== 'string') {
-    console.log(`No workspace id found. stateId: ${stateId}, payloadHash: ${payloadHash}`);
-    return null;
+    console.log(`No payloadHash found. stateId: ${stateId}, payloadHash: ${payloadHash}`);
+    return {
+      ok: false,
+      stateId,
+      projectId,
+      workspaceId,
+      files,
+      properties,
+      fileHash,
+      payloadHash,
+    };
   }
 
   return {
+    ok: true,
     stateId,
     projectId,
     workspaceId,
+    files,
+    properties,
+    fileHash,
     payloadHash,
   };
 }
 
+type Retval = {
+  stateId: string;
+  projectId: string;
+  workspaceId: string;
+  payloadHash: string;
+  resolution: hashTypes.IResolution;
+};
+
 async function dumpStats(
   files: string[],
   states: databaseTypes.IState[],
-  versionMap: Map<string, hashTypes.IResolution>,
-  resolutions: {
-    projectId: string;
-    workspaceId: string;
-    payloadHash: string;
-    resolution: hashTypes.IResolution | false;
-  }[],
+  invalid: Params[],
+  retvals: Retval[],
   exts: string[]
 ) {
   const filesToRemove = [];
   const corruptedProjects: string[] = [];
   console.log(`Total number of files: ${files.length}`); // 2037
-  console.log(`Total number of states: ${states.length}`); // 573 of 585 have payload hash
-  console.log(`Total number of payload versions present: ${versionMap.size}`);
-  for (const key of versionMap.keys()) {
-    console.log(`PayloadHash Version: ${key}`);
+  console.log(`Total number of states that have a payloadHash: ${states.length}`); // 573 of 585 have payload hash
+
+  const numVersions = new Set(retvals.map((r) => r.resolution.version));
+  console.log(`Total number of payload versions present: ${numVersions.size}`); // 3
+  for (const item of numVersions.values()) {
+    console.log(`PayloadHash Version: ${item}`);
   }
 
   // Split states based on integrity
-  const fullStates = resolutions.filter((p) => p.resolution);
-  const corruptedStates = resolutions.filter((p) => !p.resolution);
-  console.log(`Total number of currently resolvable states: ${fullStates.length}`); // 373
-  console.log(`Total number of incomplete states: ${corruptedStates.length}`); // 200
+  const fullStates = retvals.length;
+  const corruptedStates = states.length - fullStates;
+
+  console.log(`Resolvable states: ${retvals.length}`); // 373
+  // TODO: find number of states whose hash values are incorrect vs their file does not exist but it is calculated properly
+
+  console.log(`Unresolvable states: ${states.length - retvals.length}`); // 200
+  console.log(`Total number of invalid states: ${invalid.length}`); // ?
+
+  // console.log(`Full State 1 ${retvals.stateId}`);
 
   // Filter files based on extensions, excluding 'undefined' files
   const datafiles = files.filter((f) => {
@@ -178,7 +316,7 @@ async function dumpStats(
       corruptedProjects.push(projectId);
     }
     // apply filter
-    return exts.some((ext) => f.endsWith(ext) && !f.includes(`undefined${ext}`));
+    return exts.some((ext) => !f.includes(`undefined${ext}`));
   });
 
   console.log(`Total number of partially corrupted projects: ${corruptedProjects.length}`); //
@@ -197,12 +335,12 @@ async function dumpStats(
     numberDataOutputFiles: datafiles.length,
     numberDataInputFiles: files.length - datafiles.length,
     numberStates: states.length,
-    numberStatesIntactBefore: fullStates.length,
-    numberStatesCorruptBefore: corruptedStates.length,
+    numberStatesIntactBefore: fullStates,
+    numberStatesCorruptBefore: corruptedStates,
     numberCorruptProjects: corruptedProjects.length,
   };
   await writeFile(`./migrationData/migration-stats.json`, JSON.stringify(stats));
-  await writeFile(`./migrationData/resolutions.json`, JSON.stringify(resolutions));
+  await writeFile(`./migrationData/resolutions.json`, JSON.stringify(retvals));
 }
 // Execute the main function
 main();

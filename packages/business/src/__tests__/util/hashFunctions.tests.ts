@@ -47,7 +47,7 @@ describe('#util/HashResolver', () => {
     afterEach(() => {
       sandbox.restore();
     });
-    it('will create the same hash regardless of extraneous properties in the fileStats array members', async () => {
+    it.only('will create the same hash regardless of extraneous properties in the fileStats array members', async () => {
       try {
         const workspaceId = 'wid';
         const projectId = 'pid';
@@ -58,15 +58,14 @@ describe('#util/HashResolver', () => {
         const resolver = new HashResolver(workspaceId, projectId, s3 as any);
 
         const req1 = {
-          type: 'project',
-          project: {...project1, files: [file1Clean]},
+          ...project1,
+          projectId: project1.id,
+          files: [file1Clean],
         };
         const req2 = {
-          type: 'project',
-          project: {
-            ...project1,
-            files: [file1Dirty],
-          },
+          ...project1,
+          projectId: project1.id,
+          files: [file1Dirty],
         };
 
         const retval = await resolver.resolve(req1 as any);
@@ -77,15 +76,15 @@ describe('#util/HashResolver', () => {
         assert.strictEqual(retval?.fileHash, retval2?.fileHash);
 
         const req3 = {
-          type: 'project',
-          project: {...project1, files: [file2Clean]},
+          ...project1,
+          projectId: project1.id,
+          files: [file2Clean],
         };
+
         const req4 = {
-          type: 'project',
-          project: {
-            ...project1,
-            files: [file2Dirty],
-          },
+          ...project1,
+          projectId: project1.id,
+          files: [file2Dirty],
         };
         const retval3 = await resolver.resolve(req3 as any);
         assert.strictEqual(s3Stub.callCount, 9);

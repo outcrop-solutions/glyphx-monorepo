@@ -44,9 +44,11 @@ export const signDataUrls = async (projectId: string, stateId: string = '') => {
         }
         const resolver = new HashResolver(workspaceId, projectId, s3);
         const retval = await resolver.resolve({
-          type: 'state',
-          state,
+          projectId,
+          files: state.fileSystem,
+          properties: state.properties,
         });
+
         if (!retval) {
           throw new ActionError('No file found for state', 'signDataUrls', {
             workspaceId,
@@ -59,9 +61,11 @@ export const signDataUrls = async (projectId: string, stateId: string = '') => {
         // this hash is calculated after the project has included the state, and so was different than the one calculated in glyphengine
         const resolver = new HashResolver(workspaceId, projectId, s3);
         const retval = await resolver.resolve({
-          type: 'project',
-          project,
+          files: project.files,
+          properties: project.state.properties,
+          projectId: project.id!,
         });
+
         if (!retval) {
           throw new ActionError('No file found for project', 'signDataUrls', {
             workspaceId,

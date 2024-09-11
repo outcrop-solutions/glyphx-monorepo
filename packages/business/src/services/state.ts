@@ -63,7 +63,12 @@ export class StateService {
 
       const s = new LatestHashStrategy();
       const fileHash = s.hashFiles(project.files);
-      const payloadHash = s.hashPayload(fileHash, project);
+      const payload = {
+        projectId: project.id!,
+        files: project.files,
+        properties: project.state.properties,
+      };
+      const payloadHash = s.hashPayload(fileHash, payload);
 
       const input = {
         ...image,
