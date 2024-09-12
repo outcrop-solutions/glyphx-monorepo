@@ -1,18 +1,18 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { StateList } from './StateList';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { projectAtom, rowIdsAtom } from 'state/project';
-import { PlusIcon } from '@heroicons/react/outline';
-import { CreateStateInput } from './CreateStateInput';
-import { activeStateAtom, cameraAtom, imageHashAtom, viewerPositionSelector } from 'state';
-import { useSWRConfig } from 'swr';
-import { webTypes } from 'types';
+import React, {useEffect, useState} from 'react';
+import {StateList} from './StateList';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+import {projectAtom, rowIdsAtom} from 'state/project';
+import {PlusIcon} from '@heroicons/react/outline';
+import {CreateStateInput} from './CreateStateInput';
+import {activeStateAtom, cameraAtom, imageHashAtom, viewerPositionSelector} from 'state';
+import {useSWRConfig} from 'swr';
+import {webTypes} from 'types';
 import useApplyState from 'services/useApplyState';
-import { createState } from 'actions';
+import {createState} from 'actions';
 
 export const States = () => {
-  const { mutate } = useSWRConfig();
+  const {mutate} = useSWRConfig();
   const project = useRecoilValue(projectAtom);
   const rowIds = useRecoilValue(rowIdsAtom);
   const [isCollapsed, setCollapsed] = useState(false);
@@ -20,7 +20,7 @@ export const States = () => {
   const [camera, setCamera] = useRecoilState(cameraAtom);
   const [image, setImage] = useRecoilState(imageHashAtom);
   const setProject = useSetRecoilState(projectAtom);
-  const setActiveState = useSetRecoilState(activeStateAtom)
+  const setActiveState = useSetRecoilState(activeStateAtom);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState('Initial State');
   const viewerPosition = useRecoilValue(viewerPositionSelector);
@@ -35,16 +35,20 @@ export const States = () => {
         };
         const rows = (rowIds ? rowIds : []) as unknown as number[];
         const retval = await createState(name, camera as webTypes.Camera, project, image.imageHash, aspect, rows);
-        console.log('callCreateState', { retval })
+        console.log('callCreateState', {retval});
         if (retval?.state?.id) {
           setActiveState(retval?.state.id);
           setName('Initial State');
           setIsSubmitting(false);
           setAddState(false);
+          setCamera({});
+          setImage({
+            imageHash: false,
+          });
         }
       }
     } catch (error) {
-      console.log('call create state error', { error });
+      console.log('call create state error', {error});
     }
   };
 

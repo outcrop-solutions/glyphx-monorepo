@@ -47,12 +47,12 @@ export const callCreateModel = async ({
         project,
         session,
         url,
-        isCreate: true,
         setLoading,
         setDrawer,
-        setResize,
         setImageHash,
         setCamera,
+        setResize,
+        isCreate: true,
       });
     } else {
       console.log('failed to generate model');

@@ -114,10 +114,21 @@ async function main() {
     await Promise.all(
       [...invalidStates, ...corruptStates]
         .filter((s) => s.stateId)
-        .map(async ({stateId}) => {
-          await db.models.StateModel.updateStateById(stateId, {
+        // @ts-ignore
+        .map(async ({stateId, projectId}) => {
+          // soft-delete the state
+          const state = await db.models.StateModel.updateStateById(stateId, {
             deletedAt: new Date(),
           });
+          const project = await db.models.ProjectModel.findById(projectId);
+          // if project imageHash is the same as the state, remove it
+          if (project?.imageHash === state.imageHash) {
+            await db.models.ProjectModel.updateProjectById(projectId, {
+              imageHash: undefined,
+            });
+          }
+          // remove the state from the stateHistory
+          await db.models.ProjectModel.removeStates(projectId, [stateId]);
         })
     );
 
