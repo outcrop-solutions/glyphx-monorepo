@@ -63,7 +63,6 @@ export const ModelFooter = () => {
   return (
     isClient &&
     viewer &&
-    doesStateExist &&
     !(Object.keys(loading).length > 0) && (
       <div
         style={{

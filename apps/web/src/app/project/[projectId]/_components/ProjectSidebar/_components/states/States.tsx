@@ -14,8 +14,8 @@ export const States = () => {
   const rowIds = useRecoilValue(rowIdsAtom);
   const [isCollapsed, setCollapsed] = useState(false);
   const [addState, setAddState] = useState(false);
-  const [camera, setCamera] = useRecoilState(cameraAtom);
-  const [image, setImage] = useRecoilState(imageHashAtom);
+  const camera = useRecoilValue(cameraAtom);
+  const image = useRecoilValue(imageHashAtom);
   const setActiveState = useSetRecoilState(activeStateAtom);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState('Initial State');
@@ -47,7 +47,7 @@ export const States = () => {
   useEffect(() => {
     callCreateState(camera, image, project);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [camera, image]);
+  }, [camera, image, project]);
 
   return (
     <div className="group flex flex-col grow">
