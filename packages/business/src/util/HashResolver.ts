@@ -25,8 +25,12 @@ export class HashResolver {
     return this.strategies.size;
   }
 
+  get versions() {
+    return Array.from(this.strategies.keys()).sort().reverse();
+  }
+
   // we inject the file manager for flexibility and ease of testing
-  constructor(workspaceId: string, projectId: string, s3: S3Manager, mode: 'first' | 'all' = 'first') {
+  constructor(workspaceId: string, projectId: string, s3: S3Manager) {
     this.s3 = s3;
     this.workspaceId = workspaceId;
     this.projectId = projectId;
@@ -44,29 +48,26 @@ export class HashResolver {
   }
 
   /**
-   *
+   * Resolves when data for a given payload can be found in s3
    * @param project
    * @returns
    */
   public async resolve(req: hashTypes.IHashPayload): Promise<hashTypes.IResolution> {
-    const versions = Array.from(this.strategies.keys()).sort().reverse();
     // concurrently check the project against each strategy
-    for (const version of versions) {
+    for (const version of this.versions) {
       const strategy = this.get(version);
       // get hash for a given request + strategy
       const fh = strategy?.hashFiles(req.files);
       const ph = strategy?.hashPayload(fh, req);
-
       // build file paths
       const filePaths = this.exts.map((e) => `${this.basePath}/${ph}.${e}`);
-      // concurrently check existence for a given strategy
+      // concurrently check existence of complete data set for a given strategy
       const presence: hashTypes.IDataPresence[] = await Promise.all(
         filePaths.map(async (path) => {
           const exists = await this.s3.fileExists(path);
           return {exists, path};
         })
       );
-      // Check if all files exist for this version
       const success = presence.every((p) => p.exists);
       if (success) {
         return {presence, version, fileHash: fh, payloadHash: ph, success};
@@ -74,6 +75,32 @@ export class HashResolver {
         continue;
       }
     }
+  }
+
+  /**
+   * Returns true if the expected values can be derived from any of the strategies
+   */
+  public check(expectedFileHash: string, expectedPayloadHash: string, req: hashTypes.IHashPayload) {
+    let retval = {ok: false, version: ''};
+    // check each strategy for possible match
+    for (const version of this.versions) {
+      const strategy = this.get(version);
+
+      // get hash for a given request + strategy
+      const fh = strategy?.hashFiles(req.files);
+      const ph = strategy?.hashPayload(fh, req);
+
+      // check integrity
+      if (fh !== expectedFileHash) {
+        continue;
+      }
+      if (ph !== expectedPayloadHash) {
+        continue;
+      }
+      // both hash values match!
+      retval = {ok: true, version};
+    }
+    return retval;
   }
 }
 

@@ -30,7 +30,7 @@ async function main() {
   // const states: any[] = [];
   const states = (await db.models.StateModel.find({
     payloadHash: {$ne: null},
-    deletedAt: {$ne: undefined},
+    deletedAt: {$eq: null},
   })
     .select('properties fileSystem payloadHash fileSystemHash project workspace') // Ensure these fields are included
     .populate('project') // Populate references if needed
@@ -303,6 +303,8 @@ async function main() {
   if (DUMP_STATES) {
     await writeFile(`./migrationData/states.json`, JSON.stringify(states));
   }
+
+  // process.exit(1);
 }
 
 /**
@@ -406,24 +408,23 @@ async function dumpStats(
   corruptStates: Omit<hashTypes.IStateRetval, 'resolution'>[]
 ) {
   // setup
-  const filesToRemove: string[] = [];
+  // const filesToRemove: string[] = [];
   const corruptedProjects: string[] = [];
   const numVersions = new Set(soundStates.map((r) => r.resolution.version));
-  // // Exclude corrupted files/projects
-  for (const f of files) {
-    // take advantage of already looping through files once to populate corrupt projects list
-    if (f.includes('undefined')) {
-      filesToRemove.push(f);
-      const projectId = f.split('/')[2];
-      corruptedProjects.push(projectId);
-    }
-    // apply filter
-    return EXTS.some((ext) => !f.includes(`undefined${ext}`));
-  }
-
+  // // Exclude corrupted files/projects (this is slow but can be uncommented for debug)
+  // for (const f of files) {
+  //   // take advantage of already looping through files once to populate corrupt projects list
+  //   if (f.includes('undefined')) {
+  //     filesToRemove.push(f);
+  //     const projectId = f.split('/')[2];
+  //     corruptedProjects.push(projectId);
+  //   }
+  //   // apply filter
+  //   return EXTS.some((ext) => !f.includes(`undefined${ext}`));
+  // }
   // calcs
   const filesLength = files.length;
-  const corruptFiles = filesToRemove.length;
+  // const corruptFiles = filesToRemove.length;
   const statesLength = states.length;
   const invalid = invalidStates.length;
   const sound = soundStates.length;
@@ -437,7 +438,7 @@ async function dumpStats(
 
   // logs
   console.log(`# files: ${filesLength}`); // 2037
-  console.log(`# corrupted files: ${corruptFiles}`);
+  // console.log(`# corrupted files: ${corruptFiles}`);
   console.log(`# non-deleted states w/ payloadHash: ${statesLength}`); // 573 of 585 have payload hash
   for (const item of numVersions.values()) {
     console.log(`PayloadHash Version: ${item}`);
@@ -455,11 +456,10 @@ async function dumpStats(
 
   // dump
   const stats = {
-    // corruptedProjects,
-    // files,
     '#AddsUp': doesItAddup,
     '#files': filesLength,
-    // states,
+    // '#corruptFiles': corruptFiles,
+    // '#corruptProjects': corruptPs,
     '#states': statesLength,
     '#versions': numVs,
     '#resolvableStates': sound,
@@ -467,7 +467,6 @@ async function dumpStats(
     '#unresolvableStates': unresolved,
     '#corruptResolveable': corruptedResolveable,
     '#corrupt': corrupt,
-    '#corruptProjects': corruptPs,
   };
   await writeFile(`./migrationData/migration-stats.json`, JSON.stringify(stats));
   await writeFile(`./migrationData/resolutions.json`, JSON.stringify(soundStates));

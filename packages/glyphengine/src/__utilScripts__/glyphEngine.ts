@@ -100,8 +100,7 @@ export const generateFilter = (prop: webTypes.Property) => {
   return generateSegment(name, prop);
 };
 
-export const generateFilterQuery = (project: databaseTypes.IProject) => {
-  const properties = project.state.properties;
+export const generateFilterQuery = (properties: databaseTypes.IProject['state']['properties']) => {
   const axes = Object.values(webTypes.constants.AXIS);
 
   const segments: string[] = [];
@@ -474,7 +473,7 @@ function getArgsMap(project: databaseTypes.IProject): Map<string, string> {
   data.set('z_func', project.state.properties.Z.interpolation as string);
   data.set('z_direction', project.state.properties.Z.direction as string);
   data.set('accumulatorType', project.state.properties.Z.accumulatorType as string);
-  data.set('filter', generateFilterQuery(project));
+  data.set('filter', generateFilterQuery(project.state.properties));
   return data;
 }
 async function buildGlyphEngine(project: databaseTypes.IProject, inputArgs: Map<string, string>) {

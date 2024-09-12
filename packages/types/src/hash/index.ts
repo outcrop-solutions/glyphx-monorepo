@@ -58,3 +58,31 @@ export interface IStateReq {
   type: 'state';
   state: IState;
 }
+
+interface IValidParams {
+  ok: true;
+  workspaceId: string;
+  projectId: string;
+  stateId: string;
+  payloadHash: string;
+  fileHash: string;
+  files: IProject['files'];
+  properties: IProject['state']['properties'];
+}
+
+export type StateParams = IValidParams | {ok: false; stateId: string};
+
+export interface IStateRetval {
+  stateId: string;
+  projectId: string;
+  workspaceId: string;
+  payloadHash: string;
+  fileHash: string;
+  files: IProject['files'];
+  properties: IProject['state']['properties'];
+  resolution: IResolution;
+  integrity: {
+    ok: boolean;
+    version: string; // the version of the integrity check pass
+  };
+}

@@ -43,6 +43,18 @@
     "build": {
       "outputs": [".next/**", "dist/**", "build/**", "**/*.node"]
     },
+    "migrate": {
+      "outputs": ["migrationData/**"]
+    },
+    "dev:migrate": {
+      "outputs": ["migrationData/**"]
+    },
+    "demo:migrate": {
+      "outputs": ["migrationData/**"]
+    },
+    "prod:migrate": {
+      "outputs": ["migrationData/**"]
+    },
     "dev:build": {
       "outputs": [".next/**", "dist/**", "build/**"]
     },

@@ -4,7 +4,7 @@ import {FUNCTION, TYPE, SHAPE} from '../constants';
 import {MinMaxCalculator} from './minMaxCalulator';
 import {TextColumnToNumberConverter} from './textToNumberConverter';
 import {aws} from 'core';
-import {ISdtDocument} from 'interfaces/sdt';
+import {ISdtDocument} from '../interfaces/sdt';
 import {glyphEngineTypes} from 'types';
 
 export interface IInputFields {
@@ -204,6 +204,7 @@ export class SdtParser {
 
     if (!property) return null;
 
+    // @ts-ignore
     const subProperty = property[axis];
     if (!subProperty) return null;
 

@@ -63,7 +63,7 @@ export const glyphEngine = async (project) => {
           x_direction: properties[webTypes.constants.AXIS.X]['direction'],
           y_direction: properties[webTypes.constants.AXIS.Y]['direction'],
           z_direction: properties[webTypes.constants.AXIS.Z]['direction'],
-          filter: generateFilterQuery(project),
+          filter: generateFilterQuery(properties),
         };
 
         // Setup process tracking
