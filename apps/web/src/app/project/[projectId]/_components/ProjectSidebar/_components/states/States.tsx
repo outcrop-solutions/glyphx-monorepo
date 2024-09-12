@@ -6,20 +6,16 @@ import {projectAtom, rowIdsAtom} from 'state/project';
 import {PlusIcon} from '@heroicons/react/outline';
 import {CreateStateInput} from './CreateStateInput';
 import {activeStateAtom, cameraAtom, imageHashAtom, viewerPositionSelector} from 'state';
-import {useSWRConfig} from 'swr';
 import {webTypes} from 'types';
-import useApplyState from 'services/useApplyState';
 import {createState} from 'actions';
 
 export const States = () => {
-  const {mutate} = useSWRConfig();
   const project = useRecoilValue(projectAtom);
   const rowIds = useRecoilValue(rowIdsAtom);
   const [isCollapsed, setCollapsed] = useState(false);
   const [addState, setAddState] = useState(false);
   const [camera, setCamera] = useRecoilState(cameraAtom);
   const [image, setImage] = useRecoilState(imageHashAtom);
-  const setProject = useSetRecoilState(projectAtom);
   const setActiveState = useSetRecoilState(activeStateAtom);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState('Initial State');
@@ -51,7 +47,7 @@ export const States = () => {
   useEffect(() => {
     callCreateState(camera, image, project);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [camera, setCamera, setProject, mutate, image, setImage, setAddState]);
+  }, [camera, image]);
 
   return (
     <div className="group flex flex-col grow">
