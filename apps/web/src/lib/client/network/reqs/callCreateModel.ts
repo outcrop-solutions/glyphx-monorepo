@@ -41,7 +41,7 @@ export const callCreateModel = async ({
     // create model
     const retval = await glyphEngine(cleanProject);
     //  download it
-    if (retval?.project) {
+    if (!retval?.error) {
       console.log('called download model in callCreateModel');
       await callDownloadModel({
         project,

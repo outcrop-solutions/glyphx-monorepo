@@ -25,7 +25,7 @@ export const stateSnapshotsSelector = selector<databaseTypes.IState[]>({
   key: 'stateSnapshotsSelector',
   get: ({get}) => {
     const project = get(projectAtom);
-    return project?.stateHistory;
+    return project?.stateHistory.filter((state) => !state.deletedAt);
   },
 });
 
