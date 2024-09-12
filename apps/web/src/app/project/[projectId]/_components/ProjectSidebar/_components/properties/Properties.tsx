@@ -62,7 +62,6 @@ export const Properties = () => {
           setResize,
         });
       }
-      setLoading({});
     },
     [doesStateExist, project, properties, session, setCamera, setDrawer, setImageHash, setLoading, setResize, url]
   );

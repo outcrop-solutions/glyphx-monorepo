@@ -32,11 +32,11 @@ export const callDownloadModel = async ({
   rowIds?: any[];
   camera?: any;
 }) => {
-  // setLoading(
-  //   produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-  //     draft.processName = 'Fetching Data...';
-  //   })
-  // );
+  setLoading(
+    produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
+      draft.processName = 'Fetching Data...';
+    })
+  );
   console.log('callDownloadModel', {
     project,
     session,
@@ -57,6 +57,7 @@ export const callDownloadModel = async ({
   // @ts-ignore
   if (!retval?.error) {
     if (window?.core) {
+      setLoading({});
       setResize(150);
       setDrawer(true);
       window?.core?.OpenProject(
@@ -88,5 +89,4 @@ export const callDownloadModel = async ({
     });
     setCamera({});
   }
-  setTimeout(() => setLoading({}), 1000);
 };
