@@ -76,7 +76,7 @@ export const ProjectProvider = ({
       // rectify mongo scalar array
       const newFormattedProject = produce(project, (draft) => {
         draft.files = draft.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
-
+        draft.stateHistory = draft.stateHistory.filter((s) => !s.deletedAt);
         Object.values(draft.state.properties).forEach((prop: webTypes.Property) => {
           if (
             prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING ||
