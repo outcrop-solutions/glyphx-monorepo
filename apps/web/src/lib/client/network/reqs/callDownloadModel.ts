@@ -32,11 +32,11 @@ export const callDownloadModel = async ({
   rowIds?: any[];
   camera?: any;
 }) => {
-  setLoading(
-    produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-      draft.processName = 'Fetching Data...';
-    })
-  );
+  // setLoading(
+  //   produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
+  //     draft.processName = 'Fetching Data...';
+  //   })
+  // );
   console.log('callDownloadModel', {
     project,
     session,
@@ -74,11 +74,6 @@ export const callDownloadModel = async ({
           isNullCam ? undefined : camera
         )
       );
-      setImageHash({
-        imageHash: false,
-      });
-      setCamera({});
-      setLoading({});
     }
   } else {
     setLoading(
@@ -93,4 +88,5 @@ export const callDownloadModel = async ({
     });
     setCamera({});
   }
+  setTimeout(() => setLoading({}), 1000);
 };

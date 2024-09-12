@@ -30,7 +30,6 @@ import {useFeatureIsOn} from '@growthbook/growthbook-react';
 import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
 import {useSession} from 'next-auth/react';
 import {useUrl} from 'lib/client/hooks';
-import {openFirstFile} from 'services/openFile';
 
 export const ProjectProvider = ({
   children,
