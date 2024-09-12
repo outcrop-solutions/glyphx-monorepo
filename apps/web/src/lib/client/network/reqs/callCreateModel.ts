@@ -19,11 +19,10 @@ export const callCreateModel = async ({
   project: databaseTypes.IProject;
   session: any;
   url: string;
-  setLoadingisFilter?: boolean;
   setLoading: any;
-  setDrawer: any;
   setImageHash: any;
   setCamera: any;
+  setDrawer: any;
   setResize: any;
 }) => {
   try {

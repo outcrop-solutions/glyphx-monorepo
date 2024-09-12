@@ -122,169 +122,169 @@ async function main() {
     );
 
     // try regenerating the state and putting it in s3, otherwise delete
-    // await Promise.all(
-    //   unresolvedStates.map(
-    //     async ({stateId, projectId, workspaceId, files, properties, fileHash, payloadHash, integrity}) => {
-    //       try {
-    //         let ph: string = payloadHash;
-    //         let fh: string = fileHash;
+    await Promise.all(
+      unresolvedStates.map(
+        async ({stateId, projectId, workspaceId, files, properties, fileHash, payloadHash, integrity}) => {
+          try {
+            let ph: string = payloadHash;
+            let fh: string = fileHash;
 
-    //         // integrity may be sound, but if it is not up to date, we re-calculate it
-    //         // note: we cannot get this from the resolution object because by definition, these states do not resolve
-    //         if (integrity.version !== 'latest' || !integrity.ok) {
-    //           const s = new LatestHashStrategy();
-    //           const hashPayload = {
-    //             projectId,
-    //             files,
-    //             properties,
-    //           };
-    //           fh = s.hashFiles(files);
-    //           ph = s.hashPayload(fh, hashPayload);
-    //         }
+            // integrity may be sound, but if it is not up to date, we re-calculate it
+            // note: we cannot get this from the resolution object because by definition, these states do not resolve
+            if (integrity.version !== 'latest' || !integrity.ok) {
+              const s = new LatestHashStrategy();
+              const hashPayload = {
+                projectId,
+                files,
+                properties,
+              };
+              fh = s.hashFiles(files);
+              ph = s.hashPayload(fh, hashPayload);
+            }
 
-    //         /**
-    //          * THIS IS COPIED FROM THE ACTIONS PACKAGE
-    //          * to avoid having to change the actions GE to fit out needs
-    //          */
-    //         const payload = {
-    //           model_id: projectId,
-    //           payload_hash: ph,
-    //           client_id: workspaceId,
-    //           x_axis: properties[webTypes.constants.AXIS.X]['key'],
-    //           x_date_grouping:
-    //             properties[webTypes.constants.AXIS.X]['dataType'] === fileIngestionTypes.constants.FIELD_TYPE.DATE &&
-    //             !properties[webTypes.constants.AXIS.X]['dateGrouping']
-    //               ? glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR
-    //               : properties[webTypes.constants.AXIS.X]['dateGrouping'],
-    //           y_axis: properties[webTypes.constants.AXIS.Y]['key'],
-    //           y_date_grouping:
-    //             properties[webTypes.constants.AXIS.Y]['dataType'] === fileIngestionTypes.constants.FIELD_TYPE.DATE &&
-    //             !properties[webTypes.constants.AXIS.Y]['dateGrouping']
-    //               ? glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR
-    //               : properties[webTypes.constants.AXIS.Y]['dateGrouping'],
-    //           z_axis: properties[webTypes.constants.AXIS.Z]['key'],
-    //           accumulatorType: properties[webTypes.constants.AXIS.Z]['accumulatorType'],
-    //           x_func: properties[webTypes.constants.AXIS.X]['interpolation'],
-    //           y_func: properties[webTypes.constants.AXIS.Y]['interpolation'],
-    //           z_func: properties[webTypes.constants.AXIS.Z]['interpolation'],
-    //           x_direction: properties[webTypes.constants.AXIS.X]['direction'],
-    //           y_direction: properties[webTypes.constants.AXIS.Y]['direction'],
-    //           z_direction: properties[webTypes.constants.AXIS.Z]['direction'],
-    //           filter: generateFilterQuery(properties),
-    //         };
-    //         // Setup process tracking
-    //         const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
-    //         const PROCESS_NAME = 'testingProcessUnique';
-    //         await ProcessTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
+            /**
+             * THIS IS COPIED FROM THE ACTIONS PACKAGE
+             * to avoid having to change the actions GE to fit out needs
+             */
+            const payload = {
+              model_id: projectId,
+              payload_hash: ph,
+              client_id: workspaceId,
+              x_axis: properties[webTypes.constants.AXIS.X]['key'],
+              x_date_grouping:
+                properties[webTypes.constants.AXIS.X]['dataType'] === fileIngestionTypes.constants.FIELD_TYPE.DATE &&
+                !properties[webTypes.constants.AXIS.X]['dateGrouping']
+                  ? glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR
+                  : properties[webTypes.constants.AXIS.X]['dateGrouping'],
+              y_axis: properties[webTypes.constants.AXIS.Y]['key'],
+              y_date_grouping:
+                properties[webTypes.constants.AXIS.Y]['dataType'] === fileIngestionTypes.constants.FIELD_TYPE.DATE &&
+                !properties[webTypes.constants.AXIS.Y]['dateGrouping']
+                  ? glyphEngineTypes.constants.DATE_GROUPING.QUALIFIED_DAY_OF_YEAR
+                  : properties[webTypes.constants.AXIS.Y]['dateGrouping'],
+              z_axis: properties[webTypes.constants.AXIS.Z]['key'],
+              accumulatorType: properties[webTypes.constants.AXIS.Z]['accumulatorType'],
+              x_func: properties[webTypes.constants.AXIS.X]['interpolation'],
+              y_func: properties[webTypes.constants.AXIS.Y]['interpolation'],
+              z_func: properties[webTypes.constants.AXIS.Z]['interpolation'],
+              x_direction: properties[webTypes.constants.AXIS.X]['direction'],
+              y_direction: properties[webTypes.constants.AXIS.Y]['direction'],
+              z_direction: properties[webTypes.constants.AXIS.Z]['direction'],
+              filter: generateFilterQuery(properties),
+            };
+            // Setup process tracking
+            const PROCESS_ID = generalPurposeFunctions.processTracking.getProcessId();
+            const PROCESS_NAME = 'testingProcessUnique';
+            await ProcessTrackingService.createProcessTracking(PROCESS_ID, PROCESS_NAME);
 
-    //         const glyphEngine = new GlyphEngine(s3, s3, athenaConnection.connection, PROCESS_ID);
-    //         await glyphEngine.init();
+            const glyphEngine = new GlyphEngine(s3, s3, athenaConnection.connection, PROCESS_ID);
+            await glyphEngine.init();
 
-    //         let data: Map<string, string>;
-    //         // @ts-ignore
-    //         data = new Map<string, string>([
-    //           // axes
-    //           ['x_axis', payload['x_axis']],
-    //           ['y_axis', payload['y_axis']],
-    //           ['z_axis', payload['z_axis']],
-    //           // interpolation
-    //           ['x_func', payload['x_func']],
-    //           ['y_func', payload['y_func']],
-    //           ['z_func', payload['z_func']],
-    //           // direction
-    //           ['x_direction', payload['x_direction']],
-    //           ['y_direction', payload['y_direction']],
-    //           ['z_direction', payload['z_direction']],
-    //           // dates and accumulator
-    //           ['x_date_grouping', payload['x_date_grouping']],
-    //           ['y_date_grouping', payload['y_date_grouping']],
-    //           ['accumulatorType', payload['accumulatorType']],
-    //           // model info
-    //           ['model_id', payload['model_id']],
-    //           ['client_id', payload['client_id']],
-    //           ['payload_hash', payload['payload_hash']],
-    //           // filter
-    //           ['filter', payload['filter']],
-    //         ]);
-    //         // process glyph engine
-    //         const retval = await glyphEngine.process(data);
-    //         // END OF ACTIONS PACKAGE GE COPY
+            let data: Map<string, string>;
+            // @ts-ignore
+            data = new Map<string, string>([
+              // axes
+              ['x_axis', payload['x_axis']],
+              ['y_axis', payload['y_axis']],
+              ['z_axis', payload['z_axis']],
+              // interpolation
+              ['x_func', payload['x_func']],
+              ['y_func', payload['y_func']],
+              ['z_func', payload['z_func']],
+              // direction
+              ['x_direction', payload['x_direction']],
+              ['y_direction', payload['y_direction']],
+              ['z_direction', payload['z_direction']],
+              // dates and accumulator
+              ['x_date_grouping', payload['x_date_grouping']],
+              ['y_date_grouping', payload['y_date_grouping']],
+              ['accumulatorType', payload['accumulatorType']],
+              // model info
+              ['model_id', payload['model_id']],
+              ['client_id', payload['client_id']],
+              ['payload_hash', payload['payload_hash']],
+              // filter
+              ['filter', payload['filter']],
+            ]);
+            // process glyph engine
+            const retval = await glyphEngine.process(data);
+            // END OF ACTIONS PACKAGE GE COPY
 
-    //         // sync up state depending on GE outcome
-    //         if (retval) {
-    //           await db.models.StateModel.updateStateById(stateId, {
-    //             fileSystemHash: fh,
-    //             payloadHash: ph,
-    //           });
-    //         } else {
-    //           // this might be unecessary
-    //           await db.models.StateModel.updateStateById(stateId, {
-    //             deletedAt: new Date(),
-    //           });
-    //         }
-    //       } catch (error) {
-    //         errors.push({case: 'unresolved', stateId, errMsg: JSON.stringify(error)});
-    //         // If we can't re-generate the data, we soft-delete
-    //         await db.models.StateModel.updateStateById(stateId, {
-    //           deletedAt: new Date(),
-    //         });
-    //       }
-    //     }
-    //   )
-    // );
+            // sync up state depending on GE outcome
+            if (retval) {
+              await db.models.StateModel.updateStateById(stateId, {
+                fileSystemHash: fh,
+                payloadHash: ph,
+              });
+            } else {
+              // this might be unecessary
+              await db.models.StateModel.updateStateById(stateId, {
+                deletedAt: new Date(),
+              });
+            }
+          } catch (error) {
+            errors.push({case: 'unresolved', stateId, errMsg: JSON.stringify(error)});
+            // If we can't re-generate the data, we soft-delete
+            await db.models.StateModel.updateStateById(stateId, {
+              deletedAt: new Date(),
+            });
+          }
+        }
+      )
+    );
 
     // restore self-referential integrity, and then rename the old, resolveable data files
-    // await Promise.all(
-    //   corruptResolvableStates.map(
-    //     async ({stateId, projectId, workspaceId, files, properties, fileHash, payloadHash, resolution}) => {
-    //       try {
-    //         let ph: string = payloadHash;
-    //         let fh: string = fileHash;
+    await Promise.all(
+      corruptResolvableStates.map(
+        async ({stateId, projectId, workspaceId, files, properties, fileHash, payloadHash, resolution}) => {
+          try {
+            let ph: string = payloadHash;
+            let fh: string = fileHash;
 
-    //         // state may resolve, but if it is not up to date, we re-calculate it
-    //         // note: we cannot get this from the integroty object because by definition, these states are corrupt self-referentially
-    //         if (resolution.version !== 'latest') {
-    //           const s = new LatestHashStrategy();
-    //           const hashPayload = {
-    //             projectId,
-    //             files,
-    //             properties,
-    //           };
-    //           fh = s.hashFiles(files);
-    //           ph = s.hashPayload(fh, hashPayload);
-    //         }
+            // state may resolve, but if it is not up to date, we re-calculate it
+            // note: we cannot get this from the integroty object because by definition, these states are corrupt self-referentially
+            if (resolution.version !== 'latest') {
+              const s = new LatestHashStrategy();
+              const hashPayload = {
+                projectId,
+                files,
+                properties,
+              };
+              fh = s.hashFiles(files);
+              ph = s.hashPayload(fh, hashPayload);
+            }
 
-    //         // build file paths
-    //         const basePath = `client/${workspaceId}/${projectId}/output`;
-    //         const oldFilePaths = EXTS.map((e) => `${basePath}/${payloadHash}.${e}`);
-    //         const filePaths = EXTS.map((e) => `${basePath}/${payloadHash}.${e}`);
+            // build file paths
+            const basePath = `client/${workspaceId}/${projectId}/output`;
+            const oldFilePaths = EXTS.map((e) => `${basePath}/${payloadHash}.${e}`);
+            const filePaths = EXTS.map((e) => `${basePath}/${payloadHash}.${e}`);
 
-    //         // concurrently rename data files in s3 and return status
-    //         const success: hashTypes.IDataPresence[] = await Promise.all(
-    //           filePaths.map(async (newPath, idx) => {
-    //             const oldPath = oldFilePaths[idx];
-    //             await s3.copyObject(oldPath, newPath);
-    //             return {exists: await s3.fileExists(newPath), path: newPath};
-    //           })
-    //         );
+            // concurrently rename data files in s3 and return status
+            const success: hashTypes.IDataPresence[] = await Promise.all(
+              filePaths.map(async (newPath, idx) => {
+                const oldPath = oldFilePaths[idx];
+                await s3.copyObject(oldPath, newPath);
+                return {exists: await s3.fileExists(newPath), path: newPath};
+              })
+            );
 
-    //         // if s3 migration successful, update state
-    //         const allFilesExist = success.every((p) => p.exists);
-    //         if (allFilesExist) {
-    //           // update state
-    //           await db.models.StateModel.updateStateById(stateId, {
-    //             fileSystemHash: fh,
-    //             payloadHash: ph,
-    //           });
-    //         } else {
-    //           errors.push({case: 'corrupt', stateId, errMsg: 'not all files exist'});
-    //         }
-    //       } catch (error) {
-    //         errors.push({case: 'corrupt', stateId, errMsg: JSON.stringify(error)});
-    //       }
-    //     }
-    //   )
-    // );
+            // if s3 migration successful, update state
+            const allFilesExist = success.every((p) => p.exists);
+            if (allFilesExist) {
+              // update state
+              await db.models.StateModel.updateStateById(stateId, {
+                fileSystemHash: fh,
+                payloadHash: ph,
+              });
+            } else {
+              errors.push({case: 'corrupt', stateId, errMsg: 'not all files exist'});
+            }
+          } catch (error) {
+            errors.push({case: 'corrupt', stateId, errMsg: JSON.stringify(error)});
+          }
+        }
+      )
+    );
   }
 
   // dump stats to debug results
@@ -446,7 +446,10 @@ async function dumpStats(
   console.log(`# invalid states properties (params): ${invalid}`); // ?
   console.log(`# sound states: ${sound}`); // 373
   console.log(`# uresolvable states: ${unresolved}`); // 200
-  console.log(`# corrupt state (no self-referencial strategy): ${corruptedResolveable}`); // ?
+  console.log(`# corrupt but resolveable state (no self-referencial strategy): ${corruptedResolveable}`); // ?
+  for (const {stateId} of corruptResolveableStates) {
+    console.log(`corrupt resolveable state: ${stateId}`);
+  }
   console.log(`# corrupt and unresolveable states: ${corrupt}`); // ?
   console.log(`# partially corrupted projects: ${corruptPs}`); // 4
   for (const pid of corruptedProjects) {

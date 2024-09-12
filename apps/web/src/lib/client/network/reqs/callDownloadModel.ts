@@ -2,7 +2,7 @@ import {databaseTypes} from 'types';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {_createOpenProject} from '../../mutations';
-import {signDataUrls, updateProjectState} from 'actions';
+import {signDataUrls} from 'actions';
 import {isNullCamera} from 'lib/utils/isNullCamera';
 
 export const callDownloadModel = async ({
@@ -15,7 +15,7 @@ export const callDownloadModel = async ({
   setCamera,
   setResize,
   isCreate = false,
-  stateId = '',
+  stateId,
   rowIds = [],
   camera = {},
 }: {
@@ -24,9 +24,9 @@ export const callDownloadModel = async ({
   url: string;
   setLoading: any;
   setDrawer: any;
-  setResize: any;
   setImageHash: any;
   setCamera: any;
+  setResize: any;
   isCreate?: boolean;
   stateId?: string;
   rowIds?: any[];
@@ -37,14 +37,6 @@ export const callDownloadModel = async ({
       draft.processName = 'Fetching Data...';
     })
   );
-  // // replace project state
-  // setProject(
-  //   produce((draft: any) => {
-  //     // set axes and filters
-  //     draft.state.properties = properties;
-  //     draft.stateHistory = filteredStates;
-  //   })
-  // );
   console.log('callDownloadModel', {
     project,
     session,

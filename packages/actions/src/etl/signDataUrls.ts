@@ -15,7 +15,7 @@ import {ActionError} from 'core/src/error';
  * @param payloadHash
  * @returns
  */
-export const signDataUrls = async (projectId: string, stateId: string = '') => {
+export const signDataUrls = async (projectId: string, stateId?: string) => {
   try {
     const session = await getServerSession(authOptions);
     if (session) {
@@ -53,6 +53,7 @@ export const signDataUrls = async (projectId: string, stateId: string = '') => {
           throw new ActionError('No file found for state', 'signDataUrls', {
             workspaceId,
             projectId,
+            retval,
           });
         }
         const {payloadHash} = retval;
@@ -61,15 +62,16 @@ export const signDataUrls = async (projectId: string, stateId: string = '') => {
         // this hash is calculated after the project has included the state, and so was different than the one calculated in glyphengine
         const resolver = new HashResolver(workspaceId, projectId, s3);
         const retval = await resolver.resolve({
+          projectId: project.id!,
           files: project.files,
           properties: project.state.properties,
-          projectId: project.id!,
         });
 
         if (!retval) {
           throw new ActionError('No file found for project', 'signDataUrls', {
             workspaceId,
             projectId,
+            retval,
           });
         }
         const {payloadHash} = retval;
