@@ -74,10 +74,6 @@ export const callDownloadModel = async ({
           isNullCam ? undefined : camera
         )
       );
-      setImageHash({
-        imageHash: false,
-      });
-      setCamera({});
       setLoading({});
     }
   } else {

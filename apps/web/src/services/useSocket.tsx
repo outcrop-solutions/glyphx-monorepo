@@ -1,12 +1,12 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
-import { QWebChannel } from 'qwebchannel';
-import { useSetRecoilState } from 'recoil';
-import { cameraAtom, imageHashAtom, pageNumberAtom, rowIdsAtom } from 'state';
-import { webTypes } from 'types';
+import {useState, useEffect, useRef} from 'react';
+import {QWebChannel} from 'qwebchannel';
+import {useSetRecoilState} from 'recoil';
+import {cameraAtom, imageHashAtom, pageNumberAtom, rowIdsAtom} from 'state';
+import {webTypes} from 'types';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
-import { debounce } from 'lodash';
+import {WritableDraft} from 'immer/dist/internal';
+import {debounce} from 'lodash';
 
 export const useSocket = () => {
   const [channel, setChannel] = useState(null);
@@ -16,7 +16,7 @@ export const useSocket = () => {
   const setImage = useSetRecoilState(imageHashAtom);
   const setCamera = useSetRecoilState(cameraAtom);
   const isMounted = useRef(false); // Ref to track component mount status
-  const payload = useRef({ isSent: false }); // Using useRef to persist payload across renders
+  const payload = useRef({isSent: false}); // Using useRef to persist payload across renders
 
   const setRows = debounce((rowIds) => {
     setRowIds(rowIds);
@@ -43,8 +43,8 @@ export const useSocket = () => {
               });
               window.core.SendCameraPosition.connect((json: string) => {
                 const jsonCamera = `{${json}}`;
-                const { camera } = JSON.parse(jsonCamera);
-                console.log('camera in socket', { camera });
+                const {camera} = JSON.parse(jsonCamera);
+                console.log('camera in socket', {camera});
                 const newCamera: webTypes.Camera = {
                   pos: {
                     x: camera.position[0],
@@ -64,15 +64,15 @@ export const useSocket = () => {
                 };
                 setCamera(
                   produce((draft: WritableDraft<webTypes.Camera>) => {
-                    draft.pos = { x: newCamera.pos.x, y: newCamera.pos.y, z: newCamera.pos.z };
-                    draft.dir = { x: newCamera.dir.x, y: newCamera.dir.y, z: newCamera.dir.z };
-                    draft.center = { x: newCamera.center!.x, y: newCamera.center!.y, z: newCamera.center!.z };
+                    draft.pos = {x: newCamera.pos.x, y: newCamera.pos.y, z: newCamera.pos.z};
+                    draft.dir = {x: newCamera.dir.x, y: newCamera.dir.y, z: newCamera.dir.z};
+                    draft.center = {x: newCamera.center!.x, y: newCamera.center!.y, z: newCamera.center!.z};
                   })
                 );
               });
               window.core.SendScreenShot.connect((json: string) => {
                 const imageHash = JSON.parse(json);
-                console.log('send screenshot in socket', { imageHash });
+                console.log('send screenshot in socket', {imageHash});
                 setImage(
                   produce((draft: WritableDraft<webTypes.ImageHash>) => {
                     draft.imageHash = imageHash.imageData;
@@ -81,10 +81,11 @@ export const useSocket = () => {
               });
               window.core.OpenProjectComplete.connect((json: string) => {
                 const msg = JSON.parse(json);
+                console.log('open project complete', {msg, isSent: payload.current.isSent});
                 if (!payload.current.isSent && msg.isCreate) {
-                  console.log({ msg, isSent: payload.current.isSent })
+                  console.log({msg, isSent: payload.current.isSent});
                   console.log('set isSet to true');
-                  console.log('state snapshot taken', { msg });
+                  console.log('state snapshot taken', {msg});
                   payload.current.isSent = true;
                   window?.core?.GetCameraPosition(true);
                   window?.core?.TakeScreenShot('');
@@ -93,7 +94,7 @@ export const useSocket = () => {
             });
 
             setChannel(channel);
-          } catch (error) { }
+          } catch (error) {}
         };
 
         // ws.onerror = (error) => {};
@@ -106,12 +107,12 @@ export const useSocket = () => {
               console.warn('Connection died');
               // TODO: Implement a reconnect mechanism here if needed
             }
-          } catch (error) { }
+          } catch (error) {}
         };
 
         ws.onmessage = (event) => {
           try {
-          } catch (error) { }
+          } catch (error) {}
         };
 
         setSocket(ws);
@@ -122,10 +123,10 @@ export const useSocket = () => {
           isMounted.current = false;
           if (socket && socket.readyState === WebSocket.OPEN) {
           }
-        } catch (error) { }
+        } catch (error) {}
       };
     } catch (error) {
-      console.log({ error });
+      console.log({error});
     }
     // Using channel and socket in dependency array to clarify that the effect
     // should run when either of them changes, even if the core logic only runs once.

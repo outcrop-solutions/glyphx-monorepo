@@ -37,14 +37,14 @@ export const States = () => {
         const retval = await createState(name, camera as webTypes.Camera, project, image.imageHash, aspect, rows);
         console.log('callCreateState', {retval});
         if (retval?.state?.id) {
-          setActiveState(retval?.state.id);
-          setName('Initial State');
-          setIsSubmitting(false);
-          setAddState(false);
           setCamera({});
           setImage({
             imageHash: false,
           });
+          setActiveState(retval?.state.id);
+          setName('Initial State');
+          setIsSubmitting(false);
+          setAddState(false);
         }
       }
     } catch (error) {
