@@ -546,15 +546,16 @@ impl Default for ModelConfiguration {
             min_glyph_height: 0.0002,
             //W -- Done
             //White
+            //light_color: [255.0, 255.0, 255.0, 1.0],
             //light_color: [255.0, 255.0, 155.0, 1.0],
             //Warm White
-            //light_color: [240.0, 224.0, 192.0, 1.0],
+            light_color: [240.0, 224.0, 192.0, 1.0],
             //pale yellow
-            light_color: [255.0, 240.0, 200.0, 1.0],
+            //light_color: [255.0, 240.0, 200.0, 1.0],
             //L -- Done
-            light_location: [2.0, -8.0, -8.0],
+            light_location: [-500.0, 500.0, -500.0],
             //I -- Done
-            light_intensity: 0.60,
+            light_intensity: 0.4,
             //S -- Done
             glyph_size: 0.015,
             //G

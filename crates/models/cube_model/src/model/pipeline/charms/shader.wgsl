@@ -44,17 +44,23 @@ struct VertexOutput {
 fn vs_main(
     model: VertexInput,
 ) -> VertexOutput {
+    var scale_matrix = mat4x4<f32>(
+        vec4<f32>(0.01, 0.0, 0.0, 0.0),
+        vec4<f32>(0.0, 0.01, 0.0, 0.0),
+        vec4<f32>(0.0, 0.0, 0.01, 0.0),
+        vec4<f32>(0.0, 0.0, 0.0, 1.0),
+    );
     var out: VertexOutput;
     let pos = vec3(model.position.x + camera.x_offset, model.position.y + camera.y_offset, model.position.z + camera.z_offset);
     let normal = vec3(model.normal.x, model.normal.y, model.normal.z);
     out.color_code = model.color_code;
     out.world_position = pos;
-    //move the normals based on instance buffer
-    let normal_v4 = vec4<f32>(model.normal, 0.0);
-    let rotated_normal = camera.view_proj * normal_v4;
-    out.world_normal = vec3<f32>(rotated_normal.x, rotated_normal.y, rotated_normal.z);
 
-    out.clip_position = camera.view_proj * vec4<f32>(pos, 1.0);
+    //rotate our normals 
+    out.world_normal = (camera.view_proj * vec4<f32>(model.normal, 1.0)).xyz;
+  
+    //rotate our position
+    out.clip_position = camera.view_proj * vec4<f32>(pos, 1.0); 
     return out;
 }
 
@@ -62,10 +68,15 @@ fn vs_main(
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    let color = vec4<f32>(1.0, 0.0, 0.0, 1.0); //color_table_buffer.color_table[in.color_code];
+    var color = vec4<f32>(0.0, 1.0, 0.0, 1.0); //color_table_buffer.color_table[in.color_code];
+    var alpha = 1.0;
+    if in.color_code == 1 {
+
+        color = vec4<f32>(0.0,0.0,0.0,0.0);
+        alpha = 0.3;
+    }
     let ambient_strength = light.light_intensity;
     let ambient_color = light.light_color * ambient_strength;
-
     let light_dir = normalize(light.light_pos- in.world_position);
     let view_dir = normalize(camera.view_pos.xyz - in.world_position);
     let half_dir = reflect(-light_dir, in.world_position);
@@ -76,8 +87,20 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     let specular_strength = pow(max(dot(in.world_normal, half_dir), 0.0), 32.0);
     let specular_color = specular_strength * light.light_color;
 
+
+    let light_pos2 = vec3<f32>(light.light_pos.x * -1.0, light.light_pos.y, light.light_pos.z);
+    let light_dir2 = normalize(light_pos2 - in.world_position);
+    let half_dir2 = reflect(-light_dir2, in.world_position);
+
+    let diffuse_strength2 = max(dot(in.world_normal, light_dir2), 0.0);
+    let diffuse_color2 = light.light_color * diffuse_strength2;
+
+    let specular_strength2 = pow(max(dot(in.world_normal, half_dir2), 0.0), 32.0);
+    let specular_color2 = specular_strength2 * light.light_color;
+
     let result = (ambient_color + diffuse_color + specular_color) * color.xyz;
 
-    return vec4<f32>(result, 1.0);
+    return vec4<f32>(result, alpha);
+//return color;
 }
  

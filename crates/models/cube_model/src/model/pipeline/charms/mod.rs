@@ -1,9 +1,13 @@
 use crate::{
-    assets::{charm::create_charm, shape_vertex::ShapeVertex},
+    assets::{
+        charm::create_charm, rectangular_prism::create_rectangular_prism, shape_vertex::ShapeVertex,
+    },
     camera::uniform_buffer::CameraUniform,
     light::light_uniform::LightUniform,
     model::{color_table_uniform::ColorTableUniform, model_configuration::ModelConfiguration},
 };
+
+use model_common::WgpuManager;
 
 use bytemuck;
 use smaa::SmaaFrame;
@@ -13,12 +17,12 @@ use wgpu::{
     util::{BufferInitDescriptor, DeviceExt},
     BindGroup, BindGroupLayout, BlendComponent, BlendFactor, BlendOperation, BlendState, Buffer,
     BufferUsages, ColorTargetState, ColorWrites, CommandEncoder, Device, Face, FragmentState,
-    FrontFace, LoadOp, MultisampleState, Operations, PipelineCompilationOptions,  PipelineLayoutDescriptor, PolygonMode,
-    PrimitiveState, PrimitiveTopology, RenderPassColorAttachment, RenderPassDescriptor,
-    RenderPipeline, RenderPipelineDescriptor, ShaderModule, SurfaceConfiguration,
-    VertexBufferLayout, VertexState,
+    FrontFace, LoadOp, MultisampleState, Operations, PipelineCompilationOptions,
+    PipelineLayoutDescriptor, PolygonMode, PrimitiveState, PrimitiveTopology,
+    RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline, RenderPipelineDescriptor,
+    Sampler, ShaderModule, SurfaceConfiguration, Texture, TextureView, VertexBufferLayout,
+    VertexState,
 };
-
 
 pub struct Charms {
     render_pipeline: RenderPipeline,
@@ -29,6 +33,9 @@ pub struct Charms {
     light_bind_group: BindGroup,
     model_configuration: Rc<RefCell<ModelConfiguration>>,
     device: Rc<RefCell<Device>>,
+    depth_texture: Texture,
+    depth_view: TextureView,
+    depth_sampler: Sampler,
 }
 
 impl Charms {
@@ -42,10 +49,9 @@ impl Charms {
         light_buffer: &Buffer,
         light_uniform: &LightUniform,
         model_configuration: Rc<RefCell<ModelConfiguration>>,
+        wgpu_manager: &WgpuManager,
     ) -> Charms {
-        let vertex_data = Self::build_verticies(
-            &model_configuration.borrow(),
-        );
+        let vertex_data = Self::build_verticies(&model_configuration.borrow());
 
         let d = device.clone();
         let d = d.borrow();
@@ -72,6 +78,9 @@ impl Charms {
             config,
         );
 
+        let (depth_texture, depth_view, depth_sampler) =
+            wgpu_manager.create_depth_texture("Charms depth texture");
+
         Charms {
             device,
             render_pipeline,
@@ -81,27 +90,28 @@ impl Charms {
             color_table_bind_group,
             model_configuration,
             light_bind_group,
+            depth_texture,
+            depth_view,
+            depth_sampler,
         }
     }
 
-    pub fn build_verticies(
-        model_configuration: &ModelConfiguration,
-    ) -> Vec<ShapeVertex> {
+
+    pub fn build_verticies(model_configuration: &ModelConfiguration) -> Vec<ShapeVertex> {
         let length = (model_configuration.grid_cylinder_length
             * model_configuration.z_height_ratio)
             + model_configuration.grid_cone_length;
-        let vertex_data = 
-        create_charm(
-            model_configuration.glyph_size ,
-            length,
-        );
+        let vertex_data = create_rectangular_prism(1.0, length);
+
+        // create_charm(
+        //     model_configuration.glyph_size ,
+        //     length,
+        // );
         vertex_data
     }
 
     pub fn update_vertex_buffer(&mut self) {
-        self.vertex_data = Self::build_verticies(
-            &self.model_configuration.borrow(),
-        );
+        self.vertex_data = Self::build_verticies(&self.model_configuration.borrow());
 
         let d = self.device.as_ref().borrow();
         self.vertex_buffer = d.create_buffer_init(&BufferInitDescriptor {
@@ -152,7 +162,6 @@ impl Charms {
                 entry_point: "vs_main",
                 buffers: &[vertex_buffer_layout],
                 compilation_options: PipelineCompilationOptions::default(),
-                      
             },
             fragment: Some(FragmentState {
                 module: &shader,
@@ -183,7 +192,13 @@ impl Charms {
                 polygon_mode: PolygonMode::Fill,
                 ..Default::default()
             },
-            depth_stencil: None,
+            depth_stencil: Some(wgpu::DepthStencilState {
+                format: WgpuManager::DEPTH_FORMAT,
+                depth_write_enabled: true,
+                depth_compare: wgpu::CompareFunction::Less, // 1.
+                stencil: wgpu::StencilState::default(),     // 2.
+                bias: wgpu::DepthBiasState::default(),
+            }),
             multisample: MultisampleState {
                 count: 1,
                 mask: !0,
@@ -195,21 +210,28 @@ impl Charms {
         render_pipeline
     }
 
-    pub fn run_pipeline(&self, encoder: &mut CommandEncoder, smaa_frame: &SmaaFrame) {
+    pub fn run_pipeline(&self, encoder: &mut CommandEncoder, view: &wgpu::TextureView) {
         let mut render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
             label: Some("Render Pass"),
             color_attachments: &[Some(RenderPassColorAttachment {
-                view: &*smaa_frame,
+                view: &*view,
                 resolve_target: None,
                 ops: Operations {
                     load: LoadOp::Load,
                     store: wgpu::StoreOp::Store,
                 },
             })],
-            depth_stencil_attachment: None,
+            depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
+                view: &self.depth_view,
+                depth_ops: Some(wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(1.0),
+                    store: wgpu::StoreOp::Store,
+                }),
+                stencil_ops: None,
+            }),
+
             timestamp_writes: None,
             occlusion_query_set: None,
-
         });
 
         render_pass.set_pipeline(&self.render_pipeline);

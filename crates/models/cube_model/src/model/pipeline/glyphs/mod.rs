@@ -13,6 +13,8 @@ use crate::{
 use glyph_uniform_data::GlyphUniformData;
 use glyph_vertex_data::GlyphVertexData;
 
+use model_common::WgpuManager;
+
 use smaa::*;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -22,7 +24,7 @@ use wgpu::{
     MultisampleState, Operations, PipelineCompilationOptions, PipelineLayoutDescriptor,
     PolygonMode, PrimitiveState, PrimitiveTopology, RenderPassColorAttachment,
     RenderPassDescriptor, RenderPipeline, RenderPipelineDescriptor, ShaderModule, StoreOp,
-    SurfaceConfiguration, VertexBufferLayout, VertexState,
+    SurfaceConfiguration, Texture, TextureView, Sampler, VertexBufferLayout, VertexState,
 };
 
 pub struct Glyphs {
@@ -31,6 +33,9 @@ pub struct Glyphs {
     color_table_bind_group: BindGroup,
     light_bind_group: BindGroup,
     glyph_uniform_bind_group: BindGroup,
+    depth_texture: Texture,
+    depth_view: TextureView,
+    depth_sampler: Sampler,
 }
 
 impl Glyphs {
@@ -45,6 +50,7 @@ impl Glyphs {
         light_uniform: &LightUniform,
         glyph_uniform_buffer: &Buffer,
         glyph_uniform: &GlyphUniformData,
+        wgpu_manager: &WgpuManager,
     ) -> Glyphs {
         let d = device.clone();
         let d = d.borrow();
@@ -62,6 +68,8 @@ impl Glyphs {
         let (color_table_bind_group_layout, color_table_bind_group) =
             color_table_uniform.configure_color_table_uniform(color_table_buffer, &d);
 
+        let (depth_texture, depth_view, depth_sampler) =
+            wgpu_manager.create_depth_texture("Charms depth texture");
         let render_pipeline = Self::configure_render_pipeline(
             &d,
             camera_bind_group_layout,
@@ -79,6 +87,9 @@ impl Glyphs {
             color_table_bind_group,
             light_bind_group,
             glyph_uniform_bind_group,
+            depth_texture,
+            depth_view,
+            depth_sampler,
         }
     }
 
@@ -141,7 +152,13 @@ impl Glyphs {
                 polygon_mode: PolygonMode::Fill,
                 ..Default::default()
             },
-            depth_stencil: None,
+            depth_stencil: Some(wgpu::DepthStencilState {
+                format: WgpuManager::DEPTH_FORMAT,
+                depth_write_enabled: true,
+                depth_compare: wgpu::CompareFunction::Less, // 1.
+                stencil: wgpu::StencilState::default(),     // 2.
+                bias: wgpu::DepthBiasState::default(),
+            }),
             multisample: MultisampleState {
                 count: 1,
                 mask: !0,
@@ -156,21 +173,29 @@ impl Glyphs {
     pub fn run_pipeline(
         &self,
         encoder: &mut CommandEncoder,
-        smaa_frame: &SmaaFrame,
+        view: &wgpu::TextureView,
         vertex_data_buffer: &Buffer,
         vertex_buffer_length: u32,
     ) {
         let mut render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
             label: Some("Render Pass"),
             color_attachments: &[Some(RenderPassColorAttachment {
-                view: &*smaa_frame,
+                view,
                 resolve_target: None,
                 ops: Operations {
                     load: LoadOp::Load,
                     store: StoreOp::Store,
                 },
             })],
-            depth_stencil_attachment: None,
+
+            depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
+                view: &self.depth_view,
+                depth_ops: Some(wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(1.0),
+                    store: wgpu::StoreOp::Store,
+                }),
+                stencil_ops: None,
+            }),
             timestamp_writes: None,
             occlusion_query_set: None,
         });

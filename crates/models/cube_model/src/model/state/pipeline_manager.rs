@@ -104,6 +104,7 @@ impl PipelineManager {
             bm.light_uniform(),
             bm.glyph_uniform_buffer(),
             bm.glyph_uniform_data(),
+            &wm,
         );
 
         let charms = Charms::new(
@@ -116,6 +117,7 @@ impl PipelineManager {
             bm.light_buffer(),
             bm.light_uniform(),
             model_configuration.clone(),
+            &wm
         );
 
         let glyph_data = GlyphData::new(
@@ -264,7 +266,7 @@ impl PipelineManager {
         selected_glyphs: &Vec<SelectedGlyph>,
         rank: Rank,
         rank_direction: RankDirection,
-        smaa_frame: &SmaaFrame,
+        view: &wgpu::TextureView,
         commands: &mut Vec<CommandBuffer>,
     ) {
         let wm = self.wgpu_manager.borrow();
@@ -282,7 +284,7 @@ impl PipelineManager {
 
             let vertex_buffer = Self::build_vertex_buffer(&rank, Some(selected_glyphs), &device);
             self.glyphs
-                .run_pipeline(&mut encoder, smaa_frame, &vertex_buffer, rank.len() as u32);
+                .run_pipeline(&mut encoder, view, &vertex_buffer, rank.len() as u32);
             commands.push(encoder.finish());
         }
     }
@@ -290,7 +292,7 @@ impl PipelineManager {
     pub fn run_axis_pipeline(
         &self,
         axis_direction: AxisLineDirection,
-        smaa_frame: &SmaaFrame,
+        view: &wgpu::TextureView,
         commands: &mut Vec<CommandBuffer>,
     ) {
         let wm = self.wgpu_manager.borrow();
@@ -306,14 +308,14 @@ impl PipelineManager {
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some(format!("{}_encoder", pipeline_name).as_str()),
         });
-        pipeline.run_pipeline(&mut encoder, smaa_frame);
+        pipeline.run_pipeline(&mut encoder, view);
 
         commands.push(encoder.finish());
     }
 
     pub fn run_charms_pipeline(
         &self,
-        smaa_frame: &SmaaFrame,
+        view: &wgpu::TextureView,
         commands: &mut Vec<CommandBuffer>,
     ) {
         let wm = self.wgpu_manager.borrow();
@@ -324,7 +326,7 @@ impl PipelineManager {
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("charm_encoder"),
         });
-        self.charms.run_pipeline(&mut encoder, smaa_frame);
+        self.charms.run_pipeline(&mut encoder, view);
 
         commands.push(encoder.finish());
     }

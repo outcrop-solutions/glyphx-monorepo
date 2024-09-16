@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc, sync::Arc};
 use wgpu::{
     Adapter, Backends, Device, DeviceDescriptor, Features, Instance, InstanceDescriptor, Limits,
-    PowerPreference, Queue, RequestAdapterOptions, Surface, SurfaceConfiguration, TextureUsages,
+    PowerPreference, Queue, RequestAdapterOptions, Surface, SurfaceConfiguration, Texture, TextureView, TextureUsages, Sampler
 };
 use winit::{dpi::PhysicalSize, window::Window};
 
@@ -16,6 +16,7 @@ pub struct WgpuManager {
 }
 
 impl WgpuManager {
+    pub const DEPTH_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Depth32Float;
     pub async fn new(window: Window) -> Self {
         let size = window.inner_size();
         let window_arc = Arc::new(window);
@@ -133,14 +134,16 @@ impl WgpuManager {
         device: &Device,
     ) -> SurfaceConfiguration {
         // Get the capabilities of our surface
+        
         let surface_caps = surface.get_capabilities(&adapter);
         // Shader code in this crate assumes an sRGB surface texture. Using a different
         // one will result all the colors coming out darker.
+
         let surface_format = surface_caps
             .formats
             .iter()
             .copied()
-            .find(|f| f.is_srgb())
+            .find(|f|  f.is_srgb())
             .unwrap_or(surface_caps.formats[0]);
 
         let config = SurfaceConfiguration {
@@ -156,5 +159,45 @@ impl WgpuManager {
         //and apply it to our surface
         surface.configure(device, &config);
         config
+    }
+
+    pub fn create_depth_texture(
+        &self,
+        texture_name: &str,
+    ) -> (Texture, TextureView, Sampler) {
+        let d = self.device().clone();
+        let d = d.borrow();
+        let size = wgpu::Extent3d {
+            width: self.config.width,
+            height: self.config.height,
+            depth_or_array_layers: 1,
+        };
+        let description = wgpu::TextureDescriptor {
+            label: Some(texture_name),
+            size,
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: Self::DEPTH_FORMAT,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
+            view_formats: &[],
+        };
+
+        let texture = d.create_texture(&description);
+        let view = texture.create_view(&wgpu::TextureViewDescriptor::default());
+
+        let sampler = d.create_sampler(&wgpu::SamplerDescriptor {
+            address_mode_u: wgpu::AddressMode::ClampToEdge,
+            address_mode_v: wgpu::AddressMode::ClampToEdge,
+            address_mode_w: wgpu::AddressMode::ClampToEdge,
+            mag_filter: wgpu::FilterMode::Linear,
+            min_filter: wgpu::FilterMode::Linear,
+            mipmap_filter: wgpu::FilterMode::Nearest,
+            compare: Some(wgpu::CompareFunction::LessEqual),
+            lod_min_clamp: 0.0,
+            lod_max_clamp: 100.0,
+            ..Default::default()
+        });
+        (texture, view, sampler)
     }
 }

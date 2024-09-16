@@ -1,5 +1,6 @@
-# Blender 4.2.0
+# Blender 4.2.1 LTS
 # www.blender.org
+mtllib charm.mtl
 o Gem
 v 0.000000 0.040000 0.000000
 v 0.000000 0.690000 0.000000

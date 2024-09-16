@@ -491,7 +491,8 @@ impl State {
         let output = wgpu_manager.surface().get_current_texture()?;
         let view = output
             .texture
-            .create_view(&TextureViewDescriptor::default());
+            .create_view(&TextureViewDescriptor{ 
+                ..Default::default()});
 
         let smaa_frame = self.smaa_target.start_frame(&device, queue, &view);
 
@@ -500,8 +501,8 @@ impl State {
         self.pipeline_manager
             .clear_screen(background_color, &*smaa_frame, &mut commands);
 
-        // self.pipeline_manager
-        //     .run_charms_pipeline(&smaa_frame, &mut commands);
+          // self.pipeline_manager
+          //     .run_charms_pipeline(&*smaa_frame, &mut commands);
         let string_order = self.orientation_manager.z_order();
 
         for name in string_order {
@@ -512,7 +513,7 @@ impl State {
                     &self.selected_glyphs,
                     self.orientation_manager.rank(),
                     self.orientation_manager.rank_direction(),
-                    &smaa_frame,
+                    &*smaa_frame,
                     &mut commands,
                 );
             } else if self.axis_visible {
@@ -523,7 +524,7 @@ impl State {
                     _ => panic!("Unknown pipeline name"),
                 };
                 self.pipeline_manager
-                    .run_axis_pipeline(pipeline, &smaa_frame, &mut commands);
+                    .run_axis_pipeline(pipeline, &*smaa_frame, &mut commands);
             }
         }
 

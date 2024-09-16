@@ -193,7 +193,7 @@ impl AxisLines {
         config: &SurfaceConfiguration,
     ) -> RenderPipeline {
         let render_pipeline_layout = device.create_pipeline_layout(&PipelineLayoutDescriptor {
-            label: Some("Render Pipeline Layout"),
+            label: Some("Axis Render Pipeline Layout"),
             bind_group_layouts: &[
                 &camera_bind_group_layout,
                 &color_table_bind_group_layout,
@@ -203,7 +203,7 @@ impl AxisLines {
         });
 
         let render_pipeline = device.create_render_pipeline(&RenderPipelineDescriptor {
-            label: Some("Render Pipeline"),
+            label: Some("Axis Render Pipeline"),
             layout: Some(&render_pipeline_layout),
             vertex: VertexState {
                 module: &shader,
@@ -253,11 +253,11 @@ impl AxisLines {
         render_pipeline
     }
 
-    pub fn run_pipeline(&self, encoder: &mut CommandEncoder, smaa_frame: &SmaaFrame) {
+    pub fn run_pipeline(&self, encoder: &mut CommandEncoder, view: &wgpu::TextureView) {
         let mut render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
-            label: Some("Render Pass"),
+            label: Some("Axis Render Pass"),
             color_attachments: &[Some(RenderPassColorAttachment {
-                view: &*smaa_frame,
+                view,
                 resolve_target: None,
                 ops: Operations {
                     load: LoadOp::Load,

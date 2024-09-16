@@ -255,6 +255,11 @@ fn main(
     if flags.flip_color {
         color = 60.0 - color;
     }
+
+    if model.color_code == 1u {
+        color = color + 60.0;
+    }
+
     var out_index = index_y * size_of_x + index_x;
     var out_data: InstanceOutput;
     out_data.glyph_id = instance.glyph_id;
