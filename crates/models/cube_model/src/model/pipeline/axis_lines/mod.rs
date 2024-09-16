@@ -4,19 +4,20 @@ use crate::{
     light::light_uniform::LightUniform,
     model::{color_table_uniform::ColorTableUniform, model_configuration::ModelConfiguration},
 };
+use model_common::WgpuManager;
 
 use bytemuck;
-use smaa::SmaaFrame;
 use std::cell::RefCell;
 use std::rc::Rc;
 use wgpu::{
     util::{BufferInitDescriptor, DeviceExt},
     BindGroup, BindGroupLayout, BlendComponent, BlendFactor, BlendOperation, BlendState, Buffer,
     BufferUsages, ColorTargetState, ColorWrites, CommandEncoder, Device, Face, FragmentState,
-    FrontFace, LoadOp, MultisampleState, Operations, PipelineCompilationOptions,  PipelineLayoutDescriptor, PolygonMode,
-    PrimitiveState, PrimitiveTopology, RenderPassColorAttachment, RenderPassDescriptor,
-    RenderPipeline, RenderPipelineDescriptor, ShaderModule, SurfaceConfiguration,
-    VertexBufferLayout, VertexState,
+    FrontFace, LoadOp, MultisampleState, Operations, PipelineCompilationOptions,
+    PipelineLayoutDescriptor, PolygonMode, PrimitiveState, PrimitiveTopology,
+    RenderPassColorAttachment, RenderPassDescriptor, RenderPipeline, RenderPipelineDescriptor,
+    Sampler, ShaderModule, SurfaceConfiguration, Texture, TextureView, VertexBufferLayout,
+    VertexState,
 };
 
 pub enum AxisLineDirection {
@@ -38,6 +39,9 @@ pub struct AxisLines {
     axis_start: f32,
     min_axis_value: f32,
     max_axis_value: f32,
+    _depth_texture: Texture,
+    depth_view: TextureView,
+    _depth_sampler: Sampler,
 }
 
 impl AxisLines {
@@ -55,6 +59,7 @@ impl AxisLines {
         axis_start: f32,
         min_axis_value: f32,
         max_axis_value: f32,
+        wgpu_manager: &WgpuManager,
     ) -> AxisLines {
         let vertex_data = Self::build_verticies(
             &model_configuration.borrow(),
@@ -79,6 +84,9 @@ impl AxisLines {
         let (color_table_bind_group_layout, color_table_bind_group) =
             color_table_uniform.configure_color_table_uniform(color_table_buffer, &d);
 
+        let (depth_texture, depth_view, depth_sampler) =
+            wgpu_manager.create_depth_texture("Charms depth texture");
+
         let render_pipeline = Self::configure_render_pipeline(
             &d,
             camera_bind_group_layout,
@@ -102,6 +110,9 @@ impl AxisLines {
             axis_start,
             min_axis_value,
             max_axis_value,
+            _depth_texture: depth_texture,
+            depth_view,
+            _depth_sampler: depth_sampler,
         }
     }
     pub fn set_axis_start(&mut self, axis_start: f32) {
@@ -210,7 +221,6 @@ impl AxisLines {
                 entry_point: "vs_main",
                 buffers: &[vertex_buffer_layout],
                 compilation_options: PipelineCompilationOptions::default(),
-                      
             },
             fragment: Some(FragmentState {
                 module: &shader,
@@ -241,7 +251,13 @@ impl AxisLines {
                 polygon_mode: PolygonMode::Fill,
                 ..Default::default()
             },
-            depth_stencil: None,
+            depth_stencil: Some(wgpu::DepthStencilState {
+                format: WgpuManager::DEPTH_FORMAT,
+                depth_write_enabled: true,
+                depth_compare: wgpu::CompareFunction::Less, // 1.
+                stencil: wgpu::StencilState::default(),     // 2.
+                bias: wgpu::DepthBiasState::default(),
+            }),
             multisample: MultisampleState {
                 count: 1,
                 mask: !0,
@@ -264,10 +280,16 @@ impl AxisLines {
                     store: wgpu::StoreOp::Store,
                 },
             })],
-            depth_stencil_attachment: None,
+            depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
+                view: &self.depth_view,
+                depth_ops: Some(wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(1.0),
+                    store: wgpu::StoreOp::Store,
+                }),
+                stencil_ops: None,
+            }),
             timestamp_writes: None,
             occlusion_query_set: None,
-
         });
 
         render_pass.set_pipeline(&self.render_pipeline);

@@ -33,9 +33,9 @@ pub struct Glyphs {
     color_table_bind_group: BindGroup,
     light_bind_group: BindGroup,
     glyph_uniform_bind_group: BindGroup,
-    depth_texture: Texture,
+    _depth_texture: Texture,
     depth_view: TextureView,
-    depth_sampler: Sampler,
+    _depth_sampler: Sampler,
 }
 
 impl Glyphs {
@@ -87,9 +87,9 @@ impl Glyphs {
             color_table_bind_group,
             light_bind_group,
             glyph_uniform_bind_group,
-            depth_texture,
+            _depth_texture: depth_texture,
             depth_view,
-            depth_sampler,
+            _depth_sampler: depth_sampler,
         }
     }
 

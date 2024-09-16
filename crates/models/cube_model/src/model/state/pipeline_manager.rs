@@ -59,6 +59,7 @@ impl PipelineManager {
             mc.model_origin[0],
             bm.glyph_uniform_data().min_interp_x,
             bm.glyph_uniform_data().max_interp_x,
+            &wm,
         );
 
         let y_axis_line = AxisLines::new(
@@ -75,6 +76,7 @@ impl PipelineManager {
             mc.model_origin[1],
             bm.glyph_uniform_data().min_interp_y,
             bm.glyph_uniform_data().max_interp_y,
+            &wm,
         );
 
         let z_axis_line = AxisLines::new(
@@ -91,6 +93,7 @@ impl PipelineManager {
             mc.model_origin[2],
             bm.glyph_uniform_data().min_interp_z,
             bm.glyph_uniform_data().max_interp_z,
+            &wm,
         );
 
         let glyphs = Glyphs::new(
