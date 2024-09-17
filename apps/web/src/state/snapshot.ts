@@ -1,7 +1,6 @@
 import {atom, selector} from 'recoil';
 import {projectAtom} from './project';
 import {databaseTypes, webTypes} from 'types';
-import {LatestHashStrategy} from 'business/src/util/HashResolver';
 // controls styling of state list items
 export const activeStateAtom = atom<string>({
   key: 'activeStateAtom',
@@ -38,39 +37,7 @@ export const stateSelector = selector({
   },
 });
 
-// does current project's payload hash exist in it's stateHistory
-export const doesStateExistSelector = selector<boolean>({
-  key: 'doesStateExistSelector',
-  get: ({get}) => {
-    const project = get(projectAtom);
-    if (!project?.files) return false;
-
-    // this and the 'isFilterWriteableSelector' is the exception to the HashResolver because we can't expose the s3 connection details to the client here unfortunately
-    const s = new LatestHashStrategy();
-    const payload = {
-      projectId: project.id!,
-      files: project.files,
-      properties: project.state.properties,
-    };
-    const currentPayloadHash = s.hashPayload(s.hashFiles(project.files), payload);
-    const exists = project?.stateHistory?.filter((state) => state?.payloadHash === currentPayloadHash);
-    return exists.length > 0;
-  },
-});
-
 export const hasDrawerBeenShownAtom = atom({
   key: 'hasDrawerBeenShownAtom',
   default: false,
-});
-
-// is active state fileHash the same as project fileHash
-export const isFilterWritableSelector = selector<boolean>({
-  key: 'isFilterWritableSelector',
-  get: ({get}) => {
-    const state = get(stateSelector);
-    const project = get(projectAtom);
-    // this and the 'doesStateExistSelector' is the exception to the HashResolver because we can't expose the s3 connection details to the client here unfortunately
-    const s = new LatestHashStrategy();
-    return state?.fileSystemHash === s.hashFiles(project?.files);
-  },
 });

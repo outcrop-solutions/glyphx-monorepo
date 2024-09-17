@@ -16,7 +16,6 @@ import {
   showLoadingAtom,
   splitPaneSizeAtom,
   templatesAtom,
-  workspaceAtom,
 } from 'state';
 import {useSendPosition, useWindowSize} from 'services';
 import {useCloseViewerOnModalOpen} from 'services/useCloseViewerOnModalOpen';
@@ -27,8 +26,6 @@ import {LiveMap} from '@liveblocks/client';
 import {InitialDocumentProvider} from 'collab/lib/client';
 import {RoomProvider} from 'liveblocks.config';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
-import {useSession} from 'next-auth/react';
-import {useUrl} from 'lib/client/hooks';
 import {callGlyphEngine} from 'lib/client/network/reqs/callGlyphEngine';
 
 export const ProjectProvider = ({
@@ -41,8 +38,6 @@ export const ProjectProvider = ({
   project: databaseTypes.IProject;
 }) => {
   const {data: templateData, isLoading: templateLoading} = useTemplates();
-  const session = useSession();
-  const url = useUrl();
   const projectViewRef = useRef(null);
 
   // keeps track of whether we have opened the first state
@@ -57,7 +52,6 @@ export const ProjectProvider = ({
   useCloseViewerOnModalOpen();
   useCloseViewerOnLoading();
 
-  const setWorkspace = useSetRecoilState(workspaceAtom);
   const setRowIds = useSetRecoilState(rowIdsAtom);
   const setProject = useSetRecoilState(projectAtom);
   const setTemplates = useSetRecoilState(templatesAtom);
@@ -71,7 +65,7 @@ export const ProjectProvider = ({
 
   // hydrate recoil state
   useEffect(() => {
-    if (!templateLoading) {
+    if (!templateLoading && templateData) {
       // rectify mongo scalar array
       const newFormattedProject = produce(project, (draft) => {
         draft.files = draft.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
@@ -109,18 +103,8 @@ export const ProjectProvider = ({
         })
       );
     }
-  }, [
-    templateLoading,
-    setProject,
-    setRightSidebarControl,
-    setWorkspace,
-    setTemplates,
-    templateData,
-    project,
-    setRowIds,
-    setCamera,
-    setImageHash,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [templateLoading, templateData, project]);
 
   const openLastState = useCallback(async () => {
     const filtered = project.stateHistory.filter((s) => !s.deletedAt);

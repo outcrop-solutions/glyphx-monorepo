@@ -76,6 +76,10 @@ export const callGlyphEngine = async ({
     }
   } catch (error) {
     setLoading({});
+    setImageHash({
+      imageHash: false,
+    });
+    setCamera({});
     console.log({error});
   }
 };
