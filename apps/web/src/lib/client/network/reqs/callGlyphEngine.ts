@@ -42,9 +42,10 @@ export const callGlyphEngine = async ({
     };
     // create model
     const retval = await glyphEngine(cleanProject, stateId);
-    // open the project
     // @ts-ignore
-    if (!retval?.error) {
+    const error = retval?.error;
+    // open the project
+    if (!error) {
       if (window?.core) {
         setLoading({});
         setResize(150);
@@ -61,7 +62,7 @@ export const callGlyphEngine = async ({
         );
       }
     } else {
-      console.log('failed to generate model');
+      console.log(`failed to generate model, error: ${error}`);
       setLoading(
         produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
           draft.processName = 'Failed to Generate Model';
@@ -80,6 +81,6 @@ export const callGlyphEngine = async ({
       imageHash: false,
     });
     setCamera({});
-    console.log({error});
+    console.log('callGlyphEngineError', {error});
   }
 };

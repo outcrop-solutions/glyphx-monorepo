@@ -1,7 +1,7 @@
 'use client';
-import {Route} from 'next';
-import {useParams, useRouter} from 'next/navigation';
 import React from 'react';
+import {Route} from 'next';
+import {useRouter} from 'next/navigation';
 import {useRecoilState, useSetRecoilState} from 'recoil';
 import {cameraAtom, drawerOpenAtom, imageHashAtom, projectAtom} from 'state';
 import BackBtnIcon from 'svg/back-button-icon.svg';

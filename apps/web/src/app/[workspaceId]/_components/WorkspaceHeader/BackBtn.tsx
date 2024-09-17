@@ -25,12 +25,16 @@ export const BackBtn = () => {
   };
 
   return (
-    <div
-      onClick={backPressed}
-      className="flex items-center justify-center rounded-lg border border-transparent ml-4 pr-4 pl-2 pt-1 pb-1 hover:border-white"
-    >
-      <BackBtnIcon />
-      <span className="text-light-gray font-roboto font-medium text-[14px] leading-[16px] text-center ml-2">Back</span>
-    </div>
+    project?.workspace?.id && (
+      <div
+        onClick={backPressed}
+        className="flex items-center justify-center rounded-lg border border-transparent ml-4 pr-4 pl-2 pt-1 pb-1 hover:border-white"
+      >
+        <BackBtnIcon />
+        <span className="text-light-gray font-roboto font-medium text-[14px] leading-[16px] text-center ml-2">
+          Back
+        </span>
+      </div>
+    )
   );
 };
