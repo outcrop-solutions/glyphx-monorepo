@@ -207,4 +207,12 @@ impl Glyphs {
         render_pass.set_vertex_buffer(0, vertex_data_buffer.slice(..));
         render_pass.draw(0..vertex_buffer_length, 0..1);
     }
+
+    pub fn update_depth_texture(&mut self, wgpu_manager: &WgpuManager) {
+        let (depth_texture, depth_view, depth_sampler) =
+            wgpu_manager.create_depth_texture("glyphs depth texture");
+        self._depth_texture = depth_texture;
+        self.depth_view = depth_view;
+        self._depth_sampler = depth_sampler;
+    }
 }

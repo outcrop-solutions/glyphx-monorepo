@@ -503,4 +503,12 @@ impl PipelineManager {
         });
         (output_buffer, padded_bytes_per_row)
     }
+    pub fn update_depth_textures(&mut self) {
+        let wm = self.wgpu_manager.clone();
+        let wm = wm.borrow();
+        self.glyphs.update_depth_texture(&wm);
+        self.x_axis_line.update_depth_texture(&wm);
+        self.y_axis_line.update_depth_texture(&wm);
+        self.z_axis_line.update_depth_texture(&wm);
+    }
 }

@@ -186,6 +186,7 @@ impl State {
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
         if new_size.width > 0 && new_size.height > 0 {
             self.wgpu_manager.borrow_mut().set_size(new_size);
+            self.pipeline_manager.update_depth_textures();
         }
     }
 
