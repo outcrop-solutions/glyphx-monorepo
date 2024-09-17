@@ -40,8 +40,6 @@ export const _uploadFile = (acceptedFile: ArrayBuffer, url: string): webTypes.IF
 export const _createOpenProject = (
   data: {sdtUrl: string; sgnUrl: string; sgcUrl: string; isCreate: boolean},
   project: databaseTypes.IProject,
-  session: Omit<databaseTypes.ISession & {status}, 'jwt' | 'user' | 'expires' | 'sessionToken'>,
-  url: string,
   rowIds: any[],
   camera?: {
     pos: {

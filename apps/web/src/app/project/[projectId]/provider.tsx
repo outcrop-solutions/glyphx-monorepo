@@ -131,8 +131,6 @@ export const ProjectProvider = ({
         setActiveState(id);
         await callGlyphEngine({
           project,
-          session,
-          url,
           setLoading,
           setDrawer,
           setResize,

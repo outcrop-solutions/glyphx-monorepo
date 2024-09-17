@@ -52,7 +52,7 @@ export const ModelFooter = () => {
     } else {
       // open drawer
       console.log('called GlyphEngine in ModelFooter');
-      await callGlyphEngine({project, session, url, setLoading, setDrawer, setResize, setImageHash, setCamera});
+      await callGlyphEngine({project, setLoading, setDrawer, setResize, setImageHash, setCamera});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drawer, project, session, setDrawer, setLoading, setOrientation, setResize, url, windowSize.height]);

@@ -34,8 +34,6 @@ export const Properties = () => {
       console.log('called GlyphEngine in properties');
       await callGlyphEngine({
         project,
-        session,
-        url,
         setLoading,
         setDrawer,
         setResize,
@@ -43,7 +41,7 @@ export const Properties = () => {
         setCamera,
       });
     },
-    [project, session, setCamera, setDrawer, setImageHash, setLoading, setResize, url]
+    [project, setCamera, setDrawer, setImageHash, setLoading, setResize]
   );
 
   return (

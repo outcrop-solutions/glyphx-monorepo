@@ -8,8 +8,6 @@ import {isNullCamera} from 'lib/utils/isNullCamera';
 
 export const callGlyphEngine = async ({
   project,
-  session,
-  url,
   setLoading,
   setImageHash,
   setCamera,
@@ -20,8 +18,6 @@ export const callGlyphEngine = async ({
   camera = {},
 }: {
   project: databaseTypes.IProject;
-  session: any;
-  url: string;
   setLoading: any;
   setImageHash: any;
   setCamera: any;
@@ -59,8 +55,6 @@ export const callGlyphEngine = async ({
             // @ts-ignore
             retval,
             project,
-            session,
-            url,
             rowIds,
             isNullCam ? undefined : camera
           )

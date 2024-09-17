@@ -46,8 +46,6 @@ const useApplyState = () => {
 
         await callGlyphEngine({
           project,
-          session,
-          url,
           setLoading,
           setDrawer,
           setImageHash,
