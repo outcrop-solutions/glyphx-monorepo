@@ -15,7 +15,6 @@ export const callGlyphEngine = async ({
   setCamera,
   setDrawer,
   setResize,
-  isCreate = false,
   stateId,
   rowIds = [],
   camera = {},
@@ -28,7 +27,6 @@ export const callGlyphEngine = async ({
   setCamera: any;
   setDrawer: any;
   setResize: any;
-  isCreate?: boolean;
   stateId?: string;
   rowIds?: any[];
   camera?: any;
@@ -37,7 +35,7 @@ export const callGlyphEngine = async ({
     // set initial loading state
     setLoading(
       produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-        draft.processName = 'Generating Data Model...';
+        draft.processName = 'Loading Model...';
         draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
         draft.processStartTime = new Date();
       })
@@ -58,15 +56,11 @@ export const callGlyphEngine = async ({
         const isNullCam = isNullCamera(camera);
         window?.core?.OpenProject(
           _createOpenProject(
-            retval as {
-              sdtUrl: any;
-              sgcUrl: any;
-              sgnUrl: any;
-            },
+            // @ts-ignore
+            retval,
             project,
             session,
             url,
-            isCreate,
             rowIds,
             isNullCam ? undefined : camera
           )
@@ -87,6 +81,7 @@ export const callGlyphEngine = async ({
       setCamera({});
     }
   } catch (error) {
+    setLoading({});
     console.log({error});
   }
 };

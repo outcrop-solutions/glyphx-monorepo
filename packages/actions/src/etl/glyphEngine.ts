@@ -19,7 +19,18 @@ import {signUrls} from './signUrls';
  * @param payloadHash
  * @returns
  */
-export const glyphEngine = async (project: databaseTypes.IProject, stateId?: string) => {
+export const glyphEngine = async (
+  project: databaseTypes.IProject,
+  stateId?: string
+): Promise<
+  | {
+      sdtUrl: string;
+      sgcUrl: string;
+      sgnUrl: string;
+      isCreate: boolean;
+    }
+  | {error: string}
+> => {
   try {
     // validate session
     const session = await getServerSession(authOptions);
@@ -30,7 +41,6 @@ export const glyphEngine = async (project: databaseTypes.IProject, stateId?: str
     // initialize vars
     const workspaceId = project?.workspace.id;
     const projectId = project?.id;
-
     if (!workspaceId || !projectId) {
       return {error: `Invalid project. projectId: ${projectId}, workspaceId: ${workspaceId}`};
     }
@@ -55,7 +65,7 @@ export const glyphEngine = async (project: databaseTypes.IProject, stateId?: str
       }
       const {payloadHash} = retval;
       const urls = await signUrls(workspaceId, projectId, payloadHash, s3);
-      return {...urls, isCreate: true};
+      return {...urls, isCreate: false};
     }
 
     // CASE 2: project state exists in its stateHistory and can be resolved
@@ -78,7 +88,7 @@ export const glyphEngine = async (project: databaseTypes.IProject, stateId?: str
     if (retval) {
       const {payloadHash} = retval;
       const urls = await signUrls(workspaceId, projectId, payloadHash, s3);
-      return {...urls, isCreate: true};
+      return {...urls, isCreate: false};
     }
 
     // CASE 3: GlyphEngine needs to be run
