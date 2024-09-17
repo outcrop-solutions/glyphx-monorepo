@@ -36,6 +36,7 @@ export const Properties = () => {
         project,
         session,
         url,
+        isCreate: true,
         setLoading,
         setDrawer,
         setResize,
