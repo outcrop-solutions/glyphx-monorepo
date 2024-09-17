@@ -9,7 +9,6 @@ export interface IHashStrategy {
    * Changes if fileStat.fileName | column.name | column.fieldType changes
    * Checks project.files against project.files
    * called within hashPayload(hashFiles(), project)
-   * used within isFilterWritableSelector by it's lonesome to check against IState.fileSystemHash
    * @param files
    * @returns
    */
@@ -19,8 +18,6 @@ export interface IHashStrategy {
    * This is used to:
    * - download the models in ModelFooter.tsx via the correct data file urls
    * - create or download model in handleApply in Properties.tsx
-   * - create or download model in useProject.tsx if not currently loaded (this doesn't look right)
-   * - doesStateExistsSelector (determines if state exists in the current recoil project atom, via state.payloadHash comparison)
    * @param fileHash
    * @param project
    * @returns

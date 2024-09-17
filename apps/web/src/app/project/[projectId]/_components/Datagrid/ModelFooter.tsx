@@ -11,10 +11,10 @@ import {
   viewerPositionSelector,
   windowSizeAtom,
 } from 'state';
-import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
 import {useSession} from 'next-auth/react';
 import {useUrl} from 'lib/client/hooks';
-import {cameraAtom, doesStateExistSelector, imageHashAtom} from 'state/snapshot';
+import {cameraAtom, imageHashAtom} from 'state/snapshot';
+import {callGlyphEngine} from 'lib/client/network/reqs/callGlyphEngine';
 
 export const ModelFooter = () => {
   // const { mutate } = useSWRConfig();
@@ -32,7 +32,6 @@ export const ModelFooter = () => {
   const session = useSession();
   const url = useUrl();
   const viewer = useRecoilValue(viewerPositionSelector);
-  const doesStateExist = useRecoilValue(doesStateExistSelector);
   const project = useRecoilValue(projectAtom);
   const windowSize = useRecoilValue(windowSizeAtom);
   const [drawer, setDrawer] = useRecoilState(drawerOpenAtom);
@@ -52,10 +51,8 @@ export const ModelFooter = () => {
       setDrawer(true);
     } else {
       // open drawer
-      console.log('called download model in ModelFooter');
-      if (doesStateExist) {
-        await callDownloadModel({project, session, url, setLoading, setDrawer, setResize, setImageHash, setCamera});
-      }
+      console.log('called GlyphEngine in ModelFooter');
+      await callGlyphEngine({project, session, url, setLoading, setDrawer, setResize, setImageHash, setCamera});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drawer, project, session, setDrawer, setLoading, setOrientation, setResize, url, windowSize.height]);

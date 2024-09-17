@@ -4,9 +4,9 @@ import {databaseTypes} from 'types';
 import {WritableDraft} from 'immer/dist/internal';
 import {_createOpenProject} from 'lib/client/mutations';
 import {glyphEngine} from 'actions';
-import {callDownloadModel} from './callDownloadModel';
+import {isNullCamera} from 'lib/utils/isNullCamera';
 
-export const callCreateModel = async ({
+export const callGlyphEngine = async ({
   project,
   session,
   url,
@@ -15,6 +15,10 @@ export const callCreateModel = async ({
   setCamera,
   setDrawer,
   setResize,
+  isCreate = false,
+  stateId,
+  rowIds = [],
+  camera = {},
 }: {
   project: databaseTypes.IProject;
   session: any;
@@ -24,6 +28,10 @@ export const callCreateModel = async ({
   setCamera: any;
   setDrawer: any;
   setResize: any;
+  isCreate?: boolean;
+  stateId?: string;
+  rowIds?: any[];
+  camera?: any;
 }) => {
   try {
     // set initial loading state
@@ -39,21 +47,31 @@ export const callCreateModel = async ({
       stateHistory: [],
     };
     // create model
-    const retval = await glyphEngine(cleanProject);
-    //  download it
+    const retval = await glyphEngine(cleanProject, stateId);
+    // open the project
+    // @ts-ignore
     if (!retval?.error) {
-      console.log('called download model in callCreateModel');
-      await callDownloadModel({
-        project,
-        session,
-        url,
-        setLoading,
-        setDrawer,
-        setImageHash,
-        setCamera,
-        setResize,
-        isCreate: true,
-      });
+      if (window?.core) {
+        setLoading({});
+        setResize(150);
+        setDrawer(true);
+        const isNullCam = isNullCamera(camera);
+        window?.core?.OpenProject(
+          _createOpenProject(
+            retval as {
+              sdtUrl: any;
+              sgcUrl: any;
+              sgnUrl: any;
+            },
+            project,
+            session,
+            url,
+            isCreate,
+            rowIds,
+            isNullCam ? undefined : camera
+          )
+        );
+      }
     } else {
       console.log('failed to generate model');
       setLoading(

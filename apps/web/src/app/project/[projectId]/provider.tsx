@@ -27,9 +27,9 @@ import {LiveMap} from '@liveblocks/client';
 import {InitialDocumentProvider} from 'collab/lib/client';
 import {RoomProvider} from 'liveblocks.config';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
-import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
 import {useSession} from 'next-auth/react';
 import {useUrl} from 'lib/client/hooks';
+import {callGlyphEngine} from 'lib/client/network/reqs/callGlyphEngine';
 
 export const ProjectProvider = ({
   children,
@@ -129,7 +129,7 @@ export const ProjectProvider = ({
       const {id, camera, rowIds} = filtered[idx];
       if (id) {
         setActiveState(id);
-        await callDownloadModel({
+        await callGlyphEngine({
           project,
           session,
           url,

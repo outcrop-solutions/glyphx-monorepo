@@ -1,9 +1,9 @@
 'use client';
 import React, {useCallback, useState} from 'react';
-import {useRecoilState, useRecoilValue} from 'recoil';
+import {useRecoilState} from 'recoil';
 import produce from 'immer';
 
-import {isFilterWritableSelector, projectAtom} from 'state';
+import {projectAtom} from 'state';
 
 import FilterTypeIcon from 'svg/filter-type-icon.svg';
 import ShowIcon from 'svg/show-visibility.svg';
