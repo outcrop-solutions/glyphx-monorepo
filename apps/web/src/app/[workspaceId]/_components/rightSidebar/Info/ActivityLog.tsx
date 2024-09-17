@@ -1,12 +1,9 @@
 'use client';
 import useProjectLogs from 'lib/client/hooks/useProjectLogs';
 import React from 'react';
-import {useRecoilValue} from 'recoil';
-import {rightSidebarControlAtom} from 'state';
 
 export const ActivityLog = () => {
-  const sidebarControl = useRecoilValue(rightSidebarControlAtom);
-  const {isLoading, data} = useProjectLogs(sidebarControl.data.id);
+  const {isLoading, data} = useProjectLogs();
 
   return !isLoading ? (
     <div className="mt-4 pl-4 pr-4 font-roboto">

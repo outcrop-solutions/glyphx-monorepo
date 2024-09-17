@@ -13,21 +13,20 @@ export const BackBtn = () => {
   const setCamera = useSetRecoilState(cameraAtom);
   const setImageHash = useSetRecoilState(imageHashAtom);
 
-  const backPressed = () => {
-    router.push(`/${project?.workspace.id}` as Route);
-    setDrawer(false);
-    window?.core?.ToggleDrawer(false);
-    setProject(null);
-    setImageHash({
-      imageHash: false,
-    });
-    setCamera({});
-  };
-
   return (
     project?.workspace?.id && (
       <div
-        onClick={backPressed}
+        onClick={() => {
+          console.log({pid: project?.workspace.id});
+          setDrawer(false);
+          window?.core?.ToggleDrawer(false);
+          setProject(null);
+          setImageHash({
+            imageHash: false,
+          });
+          setCamera({});
+          router.push(`/${project?.workspace.id}` as Route);
+        }}
         className="flex items-center justify-center rounded-lg border border-transparent ml-4 pr-4 pl-2 pt-1 pb-1 hover:border-white"
       >
         <BackBtnIcon />

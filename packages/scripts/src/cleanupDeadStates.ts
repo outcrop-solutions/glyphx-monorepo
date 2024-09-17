@@ -23,21 +23,25 @@ async function main() {
         const workspaceId = state?.workspace?._id?.toString();
         const projectId = state?.project?._id?.toString();
 
-        const project = await db.models.ProjectModel.findById(projectId).select('imageHash');
+        if (projectId && workspaceId) {
+          const project = await db.models.ProjectModel.findById(projectId).select('imageHash');
 
-        // remove state from the project
-        if (projectId && stateId) {
-          await db.models.ProjectModel.removeStates(projectId, [stateId]);
-        }
-        // remove state from workpace
-        if (workspaceId && stateId) {
-          await db.models.WorkspaceModel.removeStates(workspaceId, [stateId]);
-        }
-        // if project imageHash is the same as the state, remove it
-        if (projectId && project?.imageHash === state.imageHash) {
-          await db.models.ProjectModel.updateProjectById(projectId, {
-            imageHash: undefined,
-          });
+          // remove state from the project
+          if (projectId && stateId) {
+            await db.models.ProjectModel.removeStates(projectId, [stateId]);
+          }
+          // remove state from workpace
+          if (workspaceId && stateId) {
+            await db.models.WorkspaceModel.removeStates(workspaceId, [stateId]);
+          }
+          // if project imageHash is the same as the state, remove it
+          if (projectId && project?.imageHash === state.imageHash) {
+            await db.models.ProjectModel.updateProjectById(projectId, {
+              imageHash: undefined,
+            });
+          }
+        } else {
+          errors.push(state?._id?.toString() as string);
         }
       } catch (error) {
         errors.push(state?._id?.toString() as string);
