@@ -11,7 +11,6 @@ import {
   splitPaneSizeAtom,
 } from 'state';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {_createOpenProject} from 'lib';
 import {useUrl} from 'lib/client/hooks';
 import {callGlyphEngine} from 'lib/client/network/reqs/callGlyphEngine';
 

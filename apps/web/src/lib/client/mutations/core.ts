@@ -73,18 +73,6 @@ export const _createOpenProject = (
     viewName: project?.viewName,
     isCreate: data.isCreate,
     rowIds: rows,
-    apiLocation: `${url}/api`,
-    sessionInformation:
-      session.status === 'unauthenticated'
-        ? {
-            user: {
-              name: 'James Graham',
-              email: 'james@glyphx.co',
-              userId: '645aa1458d6a87808abf59db',
-            },
-            expires: '2024-05-10T14:29:38.896Z',
-          }
-        : session,
   });
 
   return JSON.stringify({
@@ -97,17 +85,5 @@ export const _createOpenProject = (
     viewName: project?.viewName,
     isCreate: data.isCreate,
     rowIds: rows,
-    apiLocation: `${url}/api`,
-    sessionInformation:
-      session.status === 'unauthenticated'
-        ? {
-            user: {
-              name: 'James Graham',
-              email: 'james@glyphx.co',
-              userId: '645aa1458d6a87808abf59db',
-            },
-            expires: '2024-05-10T14:29:38.896Z',
-          }
-        : session,
   });
 };
