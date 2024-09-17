@@ -92,19 +92,20 @@ export const useSocket = () => {
                 }
               });
             });
-
             setChannel(channel);
           } catch (error) {}
         };
 
-        // ws.onerror = (error) => {};
+        ws.onerror = (error) => {
+          console.error({error});
+        };
 
         ws.onclose = (event) => {
           try {
             if (event.wasClean) {
               console.info(`Connection closed cleanly, code=${event.code}, reason=${event.reason}`);
             } else {
-              console.warn('Connection died');
+              console.warn(`Connection died, code=${event.code}, reason=${event.reason}`, {event});
               // TODO: Implement a reconnect mechanism here if needed
             }
           } catch (error) {}
@@ -112,6 +113,7 @@ export const useSocket = () => {
 
         ws.onmessage = (event) => {
           try {
+            console.info({event});
           } catch (error) {}
         };
 
