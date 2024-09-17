@@ -4,8 +4,8 @@ import {produce} from 'immer';
 import SearchIcon from 'svg/search-icon.svg';
 import ShowIcon from 'svg/show-visibility.svg';
 import HideIcon from 'svg/hide-visibility.svg';
-import {isFilterWritableSelector, projectAtom} from 'state';
-import {useRecoilState, useRecoilValue} from 'recoil';
+import {projectAtom} from 'state';
+import {useRecoilState} from 'recoil';
 import {WritableDraft} from 'immer/dist/internal';
 import {webTypes} from 'types';
 

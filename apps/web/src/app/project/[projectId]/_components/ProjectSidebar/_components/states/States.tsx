@@ -1,26 +1,22 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { StateList } from './StateList';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { projectAtom, rowIdsAtom } from 'state/project';
-import { PlusIcon } from '@heroicons/react/outline';
-import { CreateStateInput } from './CreateStateInput';
-import { activeStateAtom, cameraAtom, imageHashAtom, viewerPositionSelector } from 'state';
-import { useSWRConfig } from 'swr';
-import { webTypes } from 'types';
-import useApplyState from 'services/useApplyState';
-import { createState } from 'actions';
+import React, {useEffect, useState} from 'react';
+import {StateList} from './StateList';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+import {projectAtom, rowIdsAtom} from 'state/project';
+import {PlusIcon} from '@heroicons/react/outline';
+import {CreateStateInput} from './CreateStateInput';
+import {activeStateAtom, cameraAtom, imageHashAtom, viewerPositionSelector} from 'state';
+import {webTypes} from 'types';
+import {createState} from 'actions';
 
 export const States = () => {
-  const { mutate } = useSWRConfig();
   const project = useRecoilValue(projectAtom);
   const rowIds = useRecoilValue(rowIdsAtom);
   const [isCollapsed, setCollapsed] = useState(false);
   const [addState, setAddState] = useState(false);
   const [camera, setCamera] = useRecoilState(cameraAtom);
   const [image, setImage] = useRecoilState(imageHashAtom);
-  const setProject = useSetRecoilState(projectAtom);
-  const setActiveState = useSetRecoilState(activeStateAtom)
+  const setActiveState = useSetRecoilState(activeStateAtom);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState('Initial State');
   const viewerPosition = useRecoilValue(viewerPositionSelector);
@@ -34,9 +30,13 @@ export const States = () => {
           height: (viewerPosition as webTypes.IViewerPosition).h || 200,
         };
         const rows = (rowIds ? rowIds : []) as unknown as number[];
-        const retval = await createState(name, camera as webTypes.Camera, project, image.imageHash, aspect, rows);
-        console.log('callCreateState', { retval })
+        const retval = await createState(name, camera as webTypes.Camera, project.id, image.imageHash, aspect, rows);
+        console.log('callCreateState', {retval});
         if (retval?.state?.id) {
+          setImage({
+            imageHash: false,
+          });
+          setCamera({});
           setActiveState(retval?.state.id);
           setName('Initial State');
           setIsSubmitting(false);
@@ -44,14 +44,14 @@ export const States = () => {
         }
       }
     } catch (error) {
-      console.log('call create state error', { error });
+      console.log('call create state error', {error});
     }
   };
 
   useEffect(() => {
     callCreateState(camera, image, project);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [camera, setCamera, setProject, mutate, image, setImage, setAddState]);
+  }, [camera, setCamera, setImage, image, project.id]);
 
   return (
     <div className="group flex flex-col grow">

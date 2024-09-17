@@ -1,7 +1,7 @@
-import { databaseTypes, webTypes } from 'types';
-import { error, constants } from 'core';
+import {databaseTypes, webTypes} from 'types';
+import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
-import { hashFiles, hashPayload } from '../util/hashFunctions';
+import {LatestHashStrategy} from '../util/HashResolver';
 
 export class StateService {
   public static async getState(stateId: string): Promise<databaseTypes.IState | null> {
@@ -17,7 +17,7 @@ export class StateService {
           'An unexpected error occurred while getting the state. See the inner error for additional details',
           'state',
           'getState',
-          { stateId },
+          {stateId},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);
@@ -36,23 +36,53 @@ export class StateService {
     imageHash?: string
   ): Promise<databaseTypes.IState | null> {
     try {
+      const workspaceId = project?.workspace.id;
+      const projectId = project?.id;
+      if (!workspaceId) {
+        throw new error.DataNotFoundError('No workspace id found', 'state', 'createState', {
+          project,
+          userId,
+          name,
+          camera,
+          aspectRatio,
+        });
+      }
+      if (!projectId) {
+        throw new error.DataNotFoundError('No project id found', 'state', 'createState', {
+          project,
+          userId,
+          name,
+          camera,
+          aspectRatio,
+        });
+      }
+
       const workspace = await mongoDbConnection.models.WorkspaceModel.getWorkspaceById(project?.workspace.id!);
       const user = await mongoDbConnection.models.UserModel.getUserById(userId);
-      const image = imageHash ? { imageHash } : {};
+      const image = imageHash ? {imageHash} : {};
+
+      const s = new LatestHashStrategy();
+      const fileHash = s.hashFiles(project.files);
+      const payload = {
+        projectId: project.id!,
+        files: project.files,
+        properties: project.state.properties,
+      };
+      const payloadHash = s.hashPayload(fileHash, payload);
 
       const input = {
         ...image,
-        createdBy: { ...user },
+        createdBy: {...user},
         name: name,
         version: 0,
         static: true,
-        camera: { ...camera },
-        aspectRatio: { ...aspectRatio },
-        properties: { ...project.state.properties },
-        fileSystemHash: hashFiles(project.files),
-        payloadHash: hashPayload(hashFiles(project.files), project),
-        workspace: { ...workspace },
-        project: { ...project },
+        camera: {...camera},
+        aspectRatio: {...aspectRatio},
+        properties: {...project.state.properties},
+        fileSystemHash: fileHash,
+        payloadHash: payloadHash,
+        workspace: {...workspace},
+        project: {...project},
         fileSystem: [...project.files],
         rowIds: rowIds,
       };
@@ -77,7 +107,7 @@ export class StateService {
           'An unexpected error occurred while creating the state. See the inner error for additional details',
           'state',
           'createState',
-          { project, userId, name, camera, aspectRatio },
+          {project, userId, name, camera, aspectRatio},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);
@@ -102,7 +132,7 @@ export class StateService {
           'An unexpected error occurred while updating the State. See the inner error for additional details',
           'state',
           'updateState',
-          { stateId },
+          {stateId},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);
@@ -113,8 +143,8 @@ export class StateService {
 
   public static async updateState(stateId: string, name?: string, imageHash?: string): Promise<databaseTypes.IState> {
     try {
-      const image = imageHash ? { imageHash } : {};
-      const nameObj = name ? { name } : {};
+      const image = imageHash ? {imageHash} : {};
+      const nameObj = name ? {name} : {};
       const state = await mongoDbConnection.models.StateModel.updateStateById(stateId, {
         ...image,
         ...nameObj,
@@ -130,7 +160,7 @@ export class StateService {
           'An unexpected error occurred while updating the state. See the inner error for additional details',
           'state',
           'updateState',
-          { stateId },
+          {stateId},
           err
         );
         e.publish('', constants.ERROR_SEVERITY.ERROR);

@@ -1,9 +1,9 @@
 'use client';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, {useCallback, useEffect, useRef} from 'react';
 import produce from 'immer';
-import { WritableDraft } from 'immer/dist/internal';
-import { databaseTypes, fileIngestionTypes, webTypes } from 'types';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import {WritableDraft} from 'immer/dist/internal';
+import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
+import {useRecoilState, useSetRecoilState} from 'recoil';
 import {
   activeStateAtom,
   cameraAtom,
@@ -16,21 +16,17 @@ import {
   showLoadingAtom,
   splitPaneSizeAtom,
   templatesAtom,
-  workspaceAtom,
 } from 'state';
-import { useSendPosition, useWindowSize } from 'services';
-import { useCloseViewerOnModalOpen } from 'services/useCloseViewerOnModalOpen';
-import { useCloseViewerOnLoading } from 'services/useCloseViewerOnLoading';
+import {useSendPosition, useWindowSize} from 'services';
+import {useCloseViewerOnModalOpen} from 'services/useCloseViewerOnModalOpen';
+import {useCloseViewerOnLoading} from 'services/useCloseViewerOnLoading';
 import useTemplates from 'lib/client/hooks/useTemplates';
 // Live Page Structure
-import { LiveMap } from '@liveblocks/client';
-import { InitialDocumentProvider } from 'collab/lib/client';
-import { RoomProvider } from 'liveblocks.config';
-import { useFeatureIsOn } from '@growthbook/growthbook-react';
-import { callDownloadModel } from 'lib/client/network/reqs/callDownloadModel';
-import { useSession } from 'next-auth/react';
-import { useUrl } from 'lib/client/hooks';
-import { openFirstFile } from 'services/openFile';
+import {LiveMap} from '@liveblocks/client';
+import {InitialDocumentProvider} from 'collab/lib/client';
+import {RoomProvider} from 'liveblocks.config';
+import {useFeatureIsOn} from '@growthbook/growthbook-react';
+import {callGlyphEngine} from 'lib/client/network/reqs/callGlyphEngine';
 
 export const ProjectProvider = ({
   children,
@@ -41,9 +37,7 @@ export const ProjectProvider = ({
   doc: any;
   project: databaseTypes.IProject;
 }) => {
-  const { data: templateData, isLoading: templateLoading } = useTemplates();
-  const session = useSession();
-  const url = useUrl();
+  const {data: templateData, isLoading: templateLoading} = useTemplates();
   const projectViewRef = useRef(null);
 
   // keeps track of whether we have opened the first state
@@ -58,35 +52,30 @@ export const ProjectProvider = ({
   useCloseViewerOnModalOpen();
   useCloseViewerOnLoading();
 
-  const setWorkspace = useSetRecoilState(workspaceAtom);
   const setRowIds = useSetRecoilState(rowIdsAtom);
   const setProject = useSetRecoilState(projectAtom);
   const setTemplates = useSetRecoilState(templatesAtom);
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
-  const setCamera = useSetRecoilState(cameraAtom);
+  const setCamera = useRecoilState(cameraAtom);
   const setImageHash = useSetRecoilState(imageHashAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
   const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setActiveState = useSetRecoilState(activeStateAtom);
 
-
-
   // hydrate recoil state
   useEffect(() => {
-    if (!templateLoading) {
+    if (!templateLoading && templateData) {
       // rectify mongo scalar array
       const newFormattedProject = produce(project, (draft) => {
-        draft.files = draft.files.map((file, idx) =>
-          idx === 0 ? { ...file, selected: true, open: true } : file
-        );
-
+        draft.files = draft.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
+        draft.stateHistory = draft.stateHistory.filter((s) => !s.deletedAt);
         Object.values(draft.state.properties).forEach((prop: webTypes.Property) => {
           if (
             prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING ||
             prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE
           ) {
-            const { keywords } = prop.filter as unknown as webTypes.IStringFilter;
+            const {keywords} = prop.filter as unknown as webTypes.IStringFilter;
             if (keywords && keywords.length > 0) {
               draft.state.properties[prop.axis] = {
                 ...draft.state.properties[prop.axis],
@@ -104,7 +93,7 @@ export const ProjectProvider = ({
         });
       });
 
-      console.log({ project, newFormattedProject })
+      console.log({project, newFormattedProject});
       setProject(newFormattedProject);
       setRowIds(false);
       setTemplates(templateData);
@@ -114,29 +103,18 @@ export const ProjectProvider = ({
         })
       );
     }
-  }, [
-    templateLoading,
-    setProject,
-    setRightSidebarControl,
-    setWorkspace,
-    setTemplates,
-    templateData,
-    project,
-    setRowIds,
-    setCamera,
-    setImageHash,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [templateLoading, templateData, project]);
 
   const openLastState = useCallback(async () => {
-    if (Array.isArray(project.stateHistory) && project.stateHistory?.length > 0) {
-      const idx = project.stateHistory.length - 1;
-      const { id, camera, rowIds } = project.stateHistory[idx];
+    const filtered = project.stateHistory.filter((s) => !s.deletedAt);
+    if (Array.isArray(filtered) && filtered?.length > 0) {
+      const idx = filtered.length - 1;
+      const {id, camera, rowIds} = filtered[idx];
       if (id) {
         setActiveState(id);
-        await callDownloadModel({
+        await callGlyphEngine({
           project,
-          session,
-          url,
           setLoading,
           setDrawer,
           setResize,
@@ -146,7 +124,7 @@ export const ProjectProvider = ({
           camera,
           rowIds,
         });
-        console.log('openLastState', { stateId: id })
+        console.log('openLastState', {stateId: id});
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -168,8 +146,8 @@ export const ProjectProvider = ({
   return enabled && project?.docId ? (
     <RoomProvider
       id={project?.docId as string}
-      initialPresence={{ cursor: null }}
-      initialStorage={{ notes: new LiveMap() }}
+      initialPresence={{cursor: null}}
+      initialStorage={{notes: new LiveMap()}}
     >
       <InitialDocumentProvider initialDocument={doc}>
         <div ref={projectViewRef} className="flex w-full h-full">

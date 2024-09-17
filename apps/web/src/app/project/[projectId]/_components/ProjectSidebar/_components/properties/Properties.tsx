@@ -1,34 +1,27 @@
 'use client';
-import React, { useCallback, useState } from 'react';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { Property } from './Property';
+import React, {useCallback, useState} from 'react';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {Property} from './Property';
 import {
   imageHashAtom,
   cameraAtom,
-  doesStateExistSelector,
   drawerOpenAtom,
   projectAtom,
   propertiesSelector,
   showLoadingAtom,
   splitPaneSizeAtom,
 } from 'state';
-import { useSession } from 'next-auth/react';
-import { useSWRConfig } from 'swr';
-import { callCreateModel } from 'lib/client/network/reqs/callCreateModel';
-import toast from 'react-hot-toast';
-import { useUrl } from 'lib/client/hooks';
-import { isValidPayload } from 'lib/utils/isValidPayload';
-import { callDownloadModel } from 'lib/client/network/reqs/callDownloadModel';
+import {useSession} from 'next-auth/react';
+import {callGlyphEngine} from 'lib/client/network/reqs/callGlyphEngine';
+import {useUrl} from 'lib/client/hooks';
 
 export const Properties = () => {
   const session = useSession();
-  const { mutate } = useSWRConfig();
   const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
   const setCamera = useSetRecoilState(cameraAtom);
   const setImageHash = useSetRecoilState(imageHashAtom);
-  const doesStateExist = useRecoilValue(doesStateExistSelector);
   const url = useUrl();
   const properties = useRecoilValue(propertiesSelector);
   const [isCollapsed, setCollapsed] = useState(false);
@@ -38,35 +31,17 @@ export const Properties = () => {
     async (event: any) => {
       //Our apply button is wrapped in the summary element, and the click handler is bubbling up. so we need to stop propagation.  This will keep our axes control in the open state when pressing apply.
       event.stopPropagation();
-      if (!isValidPayload(properties)) {
-        toast.success('Generate a model before applying filters!');
-      } else if (doesStateExist) {
-        console.log('called download model in properties')
-        await callDownloadModel({
-          project,
-          session,
-          url,
-          setLoading,
-          setDrawer,
-          setResize,
-          setImageHash,
-          setCamera,
-        });
-      } else {
-        await callCreateModel({
-          project,
-          session,
-          url,
-          setImageHash,
-          setCamera,
-          setLoading,
-          setDrawer,
-          setResize,
-        });
-      }
-      setLoading({});
+      console.log('called GlyphEngine in properties');
+      await callGlyphEngine({
+        project,
+        setLoading,
+        setDrawer,
+        setResize,
+        setImageHash,
+        setCamera,
+      });
     },
-    [doesStateExist, project, properties, session, setCamera, setDrawer, setImageHash, setLoading, setResize, url]
+    [project, setCamera, setDrawer, setImageHash, setLoading, setResize]
   );
 
   return (

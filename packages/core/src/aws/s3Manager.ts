@@ -256,6 +256,45 @@ export class S3Manager {
   }
 
   /**
+   * This function will non-destructively copy objects from one path to another path within the same bucket
+   * @param fileName
+   * @returns
+   */
+  public async copyObject(oldFileName: string, newFileName: string) {
+    try {
+      return await this.bucket.copyObject({
+        Bucket: this.bucketName,
+        CopySource: `${this.bucketName}/${oldFileName}`,
+        Key: newFileName,
+      });
+    } catch (err) {
+      throw new error.InvalidOperationError(
+        `An error occurred while copying the object from the key: ${oldFileName} to the path: ${newFileName}. Are you sure that it exists and that you have access to update it?  See the inner error for additional information`,
+        {newFileName, oldFileName},
+        err
+      );
+    }
+  }
+
+  /**
+   * This function will destructively copy the old path to the new path
+   * @param oldFileName
+   * @param newFileName
+   */
+  public async moveObject(oldFileName: string, newFileName: string) {
+    try {
+      await this.copyObject(oldFileName, newFileName);
+      await this.removeObject(oldFileName);
+    } catch (err) {
+      throw new error.InvalidOperationError(
+        `An error occurred while moving the object from the key: ${oldFileName} to the path: ${newFileName}. Are you sure that it exists and that you have access to update it?  See the inner error for additional information`,
+        {newFileName, oldFileName},
+        err
+      );
+    }
+  }
+
+  /**
    * Checks our underlying S3 bucket to determine whether or not the file exists.
    *
    * @param fileName -- the name (key) of the file to check

@@ -1,8 +1,6 @@
 import {atom, selector} from 'recoil';
 import {projectAtom} from './project';
 import {databaseTypes, webTypes} from 'types';
-import {hashPayload, hashFiles} from 'business/src/util/hashFunctions';
-
 // controls styling of state list items
 export const activeStateAtom = atom<string>({
   key: 'activeStateAtom',
@@ -39,29 +37,7 @@ export const stateSelector = selector({
   },
 });
 
-// does current project's payload hash exist in it's stateHistory
-export const doesStateExistSelector = selector<boolean>({
-  key: 'doesStateExistSelector',
-  get: ({get}) => {
-    const project = get(projectAtom);
-    if (!project?.files) return false;
-    const currentPayloadHash = hashPayload(hashFiles(project.files), project);
-    const exists = project?.stateHistory?.filter((state) => state?.payloadHash === currentPayloadHash);
-    return exists.length > 0;
-  },
-});
-
 export const hasDrawerBeenShownAtom = atom({
   key: 'hasDrawerBeenShownAtom',
   default: false,
-});
-
-// is active state fileHash the same as project fileHash
-export const isFilterWritableSelector = selector<boolean>({
-  key: 'isFilterWritableSelector',
-  get: ({get}) => {
-    const state = get(stateSelector);
-    const project = get(projectAtom);
-    return state?.fileSystemHash === hashFiles(project?.files);
-  },
 });

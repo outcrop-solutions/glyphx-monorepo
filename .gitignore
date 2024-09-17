@@ -43,6 +43,7 @@ yarn-error.log*
 
 # test data for integration tests
 testData
+migrationData
 test_data
 
 #code coverage output
@@ -67,3 +68,4 @@ Foo.bar
 **/index.node
 packages/codegen/src/output
 **/glyph_engine.node
+.env*.local

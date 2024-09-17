@@ -7,6 +7,9 @@
     "packages/**"
   ],
   "scripts": {
+    "dev:migrate": "vercel env pull .env && dotenv -- turbo migrate --remote-only=false --summarize=false",
+    "demo:migrate": "vercel env pull --environment=preview --git-branch=demo .env && dotenv -- turbo migrate --remote-only=false --summarize=false",
+    "prod:migrate": "vercel env pull --environment=production .env && dotenv -- turbo migrate --remote-only=false --summarize=false",
     "dev:build": "dotenv -- turbo build --remote-only=false --summarize=false",
     "demo:build": "vercel env pull --environment=preview --git-branch=demo .env && dotenv -- turbo build --remote-only=false --summarize=false",
     "prod:build": "vercel env pull --environment=production .env && dotenv -- turbo build --remote-only=false --summarize=false",

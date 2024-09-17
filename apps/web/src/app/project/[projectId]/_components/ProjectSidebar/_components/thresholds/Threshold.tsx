@@ -2,7 +2,6 @@
 import {PencilIcon, TrashIcon} from '@heroicons/react/outline';
 import {activeStateAtom, showLoadingAtom} from 'state';
 import {useRecoilState, useSetRecoilState} from 'recoil';
-import {_createOpenProject} from 'lib';
 import StateIcon from 'svg/state.svg';
 import ActiveStateIcon from 'svg/active-state.svg';
 import Image from 'next/image';

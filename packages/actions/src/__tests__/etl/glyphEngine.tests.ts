@@ -4,7 +4,6 @@ import {createSandbox} from 'sinon';
 describe('#etl/signDataUrls', () => {
   context('signDataUrls', () => {
     const sandbox = createSandbox();
-
     beforeEach(() => {});
     afterEach(() => {
       sandbox.restore();

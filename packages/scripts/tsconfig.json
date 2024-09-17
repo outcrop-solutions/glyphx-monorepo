@@ -1,11 +1,12 @@
 {
-  "extends": "@glyphx/tsconfig/node18.json",
+  "extends": "tsconfig/node18.json",
   "include": ["next-env.d.ts", "**/*.ts"],
   "exclude": ["node_modules"],
   "compilerOptions": {
     "target": "es2019" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', or 'ESNEXT'. */,
     "module": "commonjs" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */,
     "allowJs": true /* Allow javascript files to be compiled. */,
+    "noImplicitAny": false,
     "declaration": true /* Generates corresponding '.d.ts' file. */,
     "sourceMap": true /* Generates corresponding '.map' file. */,
     "strict": true /* Enable all strict type-checking options. */,

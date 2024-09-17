@@ -1,36 +1,37 @@
 'use client';
 import produce from 'immer';
-import { databaseTypes } from 'types';
-import { WritableDraft } from 'immer/dist/internal';
-import { _createOpenProject } from 'lib/client/mutations';
-import { glyphEngine, signDataUrls } from 'actions';
-import { callDownloadModel } from './callDownloadModel';
+import {databaseTypes} from 'types';
+import {WritableDraft} from 'immer/dist/internal';
+import {_createOpenProject} from 'lib/client/mutations';
+import {glyphEngine} from 'actions';
+import {isNullCamera} from 'lib/utils/isNullCamera';
 
-export const callCreateModel = async ({
+export const callGlyphEngine = async ({
   project,
-  session,
-  url,
   setLoading,
   setImageHash,
   setCamera,
   setDrawer,
   setResize,
+  stateId,
+  rowIds = [],
+  camera = {},
 }: {
   project: databaseTypes.IProject;
-  session: any;
-  url: string;
-  setLoadingisFilter?: boolean;
   setLoading: any;
-  setDrawer: any;
   setImageHash: any;
   setCamera: any;
+  setDrawer: any;
   setResize: any;
+  stateId?: string;
+  rowIds?: any[];
+  camera?: any;
 }) => {
   try {
     // set initial loading state
     setLoading(
       produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-        draft.processName = 'Generating Data Model...';
+        draft.processName = 'Loading Model...';
         draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
         draft.processStartTime = new Date();
       })
@@ -40,21 +41,25 @@ export const callCreateModel = async ({
       stateHistory: [],
     };
     // create model
-    const retval = await glyphEngine(cleanProject);
-    //  download it
+    const retval = await glyphEngine(cleanProject, stateId);
+    // open the project
+    // @ts-ignore
     if (!retval?.error) {
-      console.log('called download model in callCreateModel')
-      await callDownloadModel({
-        project,
-        session,
-        url,
-        isCreate: true,
-        setLoading,
-        setDrawer,
-        setResize,
-        setImageHash,
-        setCamera,
-      });
+      if (window?.core) {
+        setLoading({});
+        setResize(150);
+        setDrawer(true);
+        const isNullCam = isNullCamera(camera);
+        window?.core?.OpenProject(
+          _createOpenProject(
+            // @ts-ignore
+            retval,
+            project,
+            rowIds,
+            isNullCam ? undefined : camera
+          )
+        );
+      }
     } else {
       console.log('failed to generate model');
       setLoading(
@@ -70,6 +75,11 @@ export const callCreateModel = async ({
       setCamera({});
     }
   } catch (error) {
-    console.log({ error });
+    setLoading({});
+    setImageHash({
+      imageHash: false,
+    });
+    setCamera({});
+    console.log({error});
   }
 };

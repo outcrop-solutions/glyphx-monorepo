@@ -1,4 +1,4 @@
-import { webTypes, databaseTypes } from 'types';
+import {webTypes, databaseTypes} from 'types';
 /******************** INGESTION *********************/
 
 /**
@@ -38,11 +38,8 @@ export const _uploadFile = (acceptedFile: ArrayBuffer, url: string): webTypes.IF
  * @returns stringified Qt Open Project payload
  */
 export const _createOpenProject = (
-  data: { sdtUrl: string; sgnUrl: string; sgcUrl: string },
+  data: {sdtUrl: string; sgnUrl: string; sgcUrl: string; isCreate: boolean},
   project: databaseTypes.IProject,
-  session: Omit<databaseTypes.ISession & { status }, 'jwt' | 'user' | 'expires' | 'sessionToken'>,
-  url: string,
-  isCreate: boolean,
   rowIds: any[],
   camera?: {
     pos: {
@@ -65,50 +62,26 @@ export const _createOpenProject = (
   const cam = camera || {};
   const rows = rowIds || [];
   console.log('open project call', {
-    camera: { ...cam },
+    camera: {...cam},
     projectId: project?.id,
     workspaceId: project?.workspace.id,
     sdtUrl: data.sdtUrl,
     sgnUrl: data.sgnUrl,
     sgcUrl: data.sgcUrl,
     viewName: project?.viewName,
-    isCreate,
+    isCreate: data.isCreate,
     rowIds: rows,
-    apiLocation: `${url}/api`,
-    sessionInformation:
-      session.status === 'unauthenticated'
-        ? {
-          user: {
-            name: 'James Graham',
-            email: 'james@glyphx.co',
-            userId: '645aa1458d6a87808abf59db',
-          },
-          expires: '2024-05-10T14:29:38.896Z',
-        }
-        : session,
   });
 
   return JSON.stringify({
-    camera: { ...cam },
+    camera: {...cam},
     projectId: project?.id,
     workspaceId: project?.workspace.id,
     sdtUrl: data.sdtUrl,
     sgnUrl: data.sgnUrl,
     sgcUrl: data.sgcUrl,
     viewName: project?.viewName,
-    isCreate,
+    isCreate: data.isCreate,
     rowIds: rows,
-    apiLocation: `${url}/api`,
-    sessionInformation:
-      session.status === 'unauthenticated'
-        ? {
-          user: {
-            name: 'James Graham',
-            email: 'james@glyphx.co',
-            userId: '645aa1458d6a87808abf59db',
-          },
-          expires: '2024-05-10T14:29:38.896Z',
-        }
-        : session,
   });
 };

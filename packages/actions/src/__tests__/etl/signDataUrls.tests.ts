@@ -1,9 +1,9 @@
 import 'mocha';
-import { assert } from 'chai';
-import { createSandbox } from 'sinon';
+import {assert} from 'chai';
+import {createSandbox} from 'sinon';
 import proxyquire from 'proxyquire';
-import { projectService, s3Connection, stateService } from 'business';
-import { databaseTypes } from 'types';
+import {projectService, s3Connection, stateService} from 'business';
+import {databaseTypes} from 'types';
 import mongoose from 'mongoose';
 
 describe('#etl/signDataUrls', () => {
@@ -40,7 +40,7 @@ describe('#etl/signDataUrls', () => {
     stateHistory: [
       {
         id: new mongoose.Types.ObjectId().toString(),
-        camera: { id: new mongoose.Types.ObjectId().toString() },
+        camera: {id: new mongoose.Types.ObjectId().toString()},
         payloadHash: 'payloadHashTest',
       },
     ] as unknown as databaseTypes.IState,
@@ -84,9 +84,9 @@ describe('#etl/signDataUrls', () => {
     mockSessionStub = sandbox.stub();
 
     signDataUrls = proxyquire('../../etl/signDataUrls', {
-      'next/cache': { revalidatePath: revalidatePathStub },
-      'next/navigation': { redirect: redirectStub },
-      'next-auth': { getServerSession: mockSessionStub },
+      'next/cache': {revalidatePath: revalidatePathStub},
+      'next/navigation': {redirect: redirectStub},
+      'next-auth': {getServerSession: mockSessionStub},
       'business/src/util/hashFunctions': {
         hashFiles: hashFileSystemStub,
         hashPayload: hashPayloadStub,
@@ -211,7 +211,7 @@ describe('#etl/signDataUrls', () => {
           } catch (error) {
             assert.fail();
           }
-        } catch (error) { }
+        } catch (error) {}
       });
       // state error path
       it('should throw an error when the state does not exist', async () => {
@@ -260,7 +260,7 @@ describe('#etl/signDataUrls', () => {
           } catch (error) {
             assert.fail();
           }
-        } catch (error) { }
+        } catch (error) {}
       });
     });
 
@@ -478,6 +478,6 @@ describe('#etl/signDataUrls', () => {
         assert.fail();
       }
     });
-    it('should throw an error when S3Manager fails', () => { });
+    it('should throw an error when S3Manager fails', () => {});
   });
 });
