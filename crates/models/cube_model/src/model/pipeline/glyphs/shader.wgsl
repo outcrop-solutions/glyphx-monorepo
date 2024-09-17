@@ -157,19 +157,27 @@ fn get_lights(light_pos: vec3<f32>) -> array<vec3<f32>, 4> {
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
     var alpha = 1.0;
     var color = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+    if in.flags == 0u {
+        alpha = 0.15;
+	if in.color_code > 60u {
+	    let color_code = in.color_code - 60u;
+	    color = color_table_buffer.color_table[color_code];
+	} else {
+	    color = color_table_buffer.color_table[in.color_code];
+	}
+	return vec4<f32>(color.xyz, alpha);
+    }
+
+
     if in.color_code > 60u {
 	//For our second material (the edges) the compute shader is adding 
 	//60 to it so that we know we need to adjust the shading.
         let color_code = in.color_code - 60u;
-        color = color_table_buffer.color_table[color_code];
-        alpha = 0.5;
+        //color = color_table_buffer.color_table[color_code];
+        color = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+        alpha = 0.25;
     } else {
         color = color_table_buffer.color_table[in.color_code];
-    }
-
-    if in.flags == 0u {
-        alpha = 0.15;
-        return vec4<f32>(color.xyz, alpha);
     }
 
     let ambient_color = light.light_color * light.light_intensity;
