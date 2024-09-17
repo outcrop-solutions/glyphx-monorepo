@@ -23,8 +23,8 @@ use wgpu::{
     ColorTargetState, ColorWrites, CommandEncoder, Device, Face, FragmentState, FrontFace, LoadOp,
     MultisampleState, Operations, PipelineCompilationOptions, PipelineLayoutDescriptor,
     PolygonMode, PrimitiveState, PrimitiveTopology, RenderPassColorAttachment,
-    RenderPassDescriptor, RenderPipeline, RenderPipelineDescriptor, ShaderModule, StoreOp,
-    SurfaceConfiguration, Texture, TextureView, Sampler, VertexBufferLayout, VertexState,
+    RenderPassDescriptor, RenderPipeline, RenderPipelineDescriptor, Sampler, ShaderModule, StoreOp,
+    SurfaceConfiguration, Texture, TextureView, VertexBufferLayout, VertexState,
 };
 
 pub struct Glyphs {
