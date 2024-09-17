@@ -30,7 +30,7 @@ export const States = () => {
           height: (viewerPosition as webTypes.IViewerPosition).h || 200,
         };
         const rows = (rowIds ? rowIds : []) as unknown as number[];
-        const retval = await createState(name, camera as webTypes.Camera, project, image.imageHash, aspect, rows);
+        const retval = await createState(name, camera as webTypes.Camera, project.id, image.imageHash, aspect, rows);
         console.log('callCreateState', {retval});
         if (retval?.state?.id) {
           setImage({
@@ -51,7 +51,7 @@ export const States = () => {
   useEffect(() => {
     callCreateState(camera, image, project);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [camera, setCamera, setImage, image, project]);
+  }, [camera, setCamera, setImage, image, project.id]);
 
   return (
     <div className="group flex flex-col grow">
