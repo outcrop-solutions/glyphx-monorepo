@@ -23,8 +23,8 @@ use wgpu::{
     ColorTargetState, ColorWrites, CommandEncoder, Device, Face, FragmentState, FrontFace, LoadOp,
     MultisampleState, Operations, PipelineCompilationOptions, PipelineLayoutDescriptor,
     PolygonMode, PrimitiveState, PrimitiveTopology, RenderPassColorAttachment,
-    RenderPassDescriptor, RenderPipeline, RenderPipelineDescriptor, ShaderModule, StoreOp,
-    SurfaceConfiguration, Texture, TextureView, Sampler, VertexBufferLayout, VertexState,
+    RenderPassDescriptor, RenderPipeline, RenderPipelineDescriptor, Sampler, ShaderModule, StoreOp,
+    SurfaceConfiguration, Texture, TextureView, VertexBufferLayout, VertexState,
 };
 
 pub struct Glyphs {
@@ -206,5 +206,13 @@ impl Glyphs {
         render_pass.set_bind_group(3, &self.glyph_uniform_bind_group, &[]);
         render_pass.set_vertex_buffer(0, vertex_data_buffer.slice(..));
         render_pass.draw(0..vertex_buffer_length, 0..1);
+    }
+
+    pub fn update_depth_texture(&mut self, wgpu_manager: &WgpuManager) {
+        let (depth_texture, depth_view, depth_sampler) =
+            wgpu_manager.create_depth_texture("glyphs depth texture");
+        self._depth_texture = depth_texture;
+        self.depth_view = depth_view;
+        self._depth_sampler = depth_sampler;
     }
 }
