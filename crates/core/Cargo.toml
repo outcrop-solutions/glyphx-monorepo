@@ -22,6 +22,7 @@ aws-smithy-runtime-api = "1.6.3"
 backtrace = "0.3.67"
 bytes = "1.4.0"
 chrono = "0.4.24"
+derive_builder = "0.20.1"
 glyphx_core_error = {path = "../error"}
 http = "0.2.9"
 json5 = "0.4.1"

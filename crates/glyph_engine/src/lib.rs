@@ -6,7 +6,7 @@ pub mod vector_processer;
 
 use crate::GlyphEngineResults;
 
-use glyphx_common::{AthenaConnection, Heartbeat, S3Connection};
+use glyphx_common::{AthenaConnection, Heartbeat, IHeartbeat, S3Connection};
 use model_common::{Glyph, Stats};
 
 use glyphx_core::{
@@ -72,7 +72,7 @@ macro_rules! process_error {
 
 #[automock]
 #[async_trait]
-trait GlyphEngineOperations {
+pub trait GlyphEngineOperations {
     async fn build_s3_connection(&self) -> Result<&'static S3Connection, GlyphEngineInitError>;
     async fn build_athena_connection(
         &self,
@@ -80,8 +80,8 @@ trait GlyphEngineOperations {
     async fn build_mongo_connection(
         &self,
     ) -> Result<&'static MongoDbConnection, GlyphEngineInitError>;
-    async fn build_heartbeat(&self) -> Result<Heartbeat, GlyphEngineInitError>;
-    fn stop_heartbeat(&self, heartbeat: &mut Heartbeat) -> ();
+    async fn build_heartbeat(&self) -> Result<Box<dyn IHeartbeat>, GlyphEngineInitError>;
+    fn stop_heartbeat(&self, heartbeat: &mut Box<dyn IHeartbeat>) -> ();
     fn get_vector_processer(
         &self,
         axis: &str,
@@ -135,7 +135,7 @@ trait GlyphEngineOperations {
     ) -> Result<(), UpdateDocumentError>;
 }
 
-struct GlyphEngineOperationsImpl;
+pub struct GlyphEngineOperationsImpl;
 
 #[async_trait]
 impl GlyphEngineOperations for GlyphEngineOperationsImpl {
@@ -155,11 +155,11 @@ impl GlyphEngineOperations for GlyphEngineOperationsImpl {
         handle_error!(let mongo_db_connection = MongoDbConnection::build_singleton().await; GlyphEngineInitError);
         Ok(mongo_db_connection)
     }
-    async fn build_heartbeat(&self) -> Result<Heartbeat, GlyphEngineInitError> {
+    async fn build_heartbeat(&self) -> Result<Box<dyn IHeartbeat>, GlyphEngineInitError> {
         //1 minute heartbeat
         let mut heartbeat = Heartbeat::new("GlyphEngine".to_string(), 60000);
         handle_error!(let _result = heartbeat.start().await; GlyphEngineInitError);
-        Ok(heartbeat)
+        Ok(Box::new(heartbeat))
     }
     fn get_vector_processer(
         &self,
@@ -312,14 +312,14 @@ impl GlyphEngineOperations for GlyphEngineOperationsImpl {
         }
     }
 
-    fn stop_heartbeat(&self, heartbeat: &mut Heartbeat) -> () {
+    fn stop_heartbeat(&self, heartbeat: &mut Box<dyn IHeartbeat>) -> () {
         heartbeat.stop();
     }
 }
 
 pub struct GlyphEngine {
     parameters: VectorizerParameters,
-    heartbeat: Heartbeat,
+    heartbeat: Box<dyn IHeartbeat>,
     athena_connection: &'static AthenaConnection,
     s3_connection: &'static S3Connection,
     operations: Box<dyn GlyphEngineOperations>,
@@ -352,7 +352,7 @@ impl GlyphEngine {
         operations: &Box<dyn GlyphEngineOperations>,
     ) -> Result<
         (
-            Heartbeat,
+            Box<dyn IHeartbeat>,
             &'static S3Connection,
             &'static AthenaConnection,
             &'static MongoDbConnection,
@@ -797,7 +797,7 @@ impl GlyphEngine {
     }
 
     async fn process_error(
-        heartbeat: &mut Heartbeat,
+        heartbeat: &mut Box<dyn IHeartbeat>,
         error: &GlyphEngineProcessError,
         operations: &Box<dyn GlyphEngineOperations>,
     ) {
@@ -1158,7 +1158,7 @@ pub mod glyph_engine {
 
         mocks
             .expect_build_heartbeat()
-            .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }));
+            .returning(|| Ok(unsafe { Box::new(HEARTBEAT_INSTANCE.as_ref().unwrap().clone()) }));
 
         mocks
     }
@@ -1189,7 +1189,7 @@ pub mod glyph_engine {
 
         mocks
             .expect_build_heartbeat()
-            .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }));
+            .returning(|| Ok(unsafe { Box::new(HEARTBEAT_INSTANCE.as_ref().unwrap().clone()) }));
 
         let result = GlyphEngine::new_impl(&parameters, Box::new(mocks)).await;
         assert!(result.is_ok());
@@ -1222,7 +1222,7 @@ pub mod glyph_engine {
                 .times(0);
             mocks
                 .expect_build_heartbeat()
-                .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }))
+                .returning(|| Ok(unsafe { Box::new(HEARTBEAT_INSTANCE.as_ref().unwrap().clone()) }))
                 .times(0);
 
             let result = GlyphEngine::new_impl(&parameters, Box::new(mocks)).await;
@@ -1264,7 +1264,7 @@ pub mod glyph_engine {
 
             mocks
                 .expect_build_heartbeat()
-                .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }))
+                .returning(|| Ok(unsafe { Box::new(HEARTBEAT_INSTANCE.as_ref().unwrap().clone()) }))
                 .times(0);
 
             let result = GlyphEngine::new_impl(&parameters, Box::new(mocks)).await;
@@ -1306,7 +1306,7 @@ pub mod glyph_engine {
 
             mocks
                 .expect_build_heartbeat()
-                .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }))
+                .returning(|| Ok(unsafe { Box::new(HEARTBEAT_INSTANCE.as_ref().unwrap().clone()) }))
                 .times(0);
 
             let result = GlyphEngine::new_impl(&parameters, Box::new(mocks)).await;
@@ -1380,9 +1380,9 @@ pub mod glyph_engine {
                 .expect_build_mongo_connection()
                 .returning(|| Ok(unsafe { &MONGO_CONNECTION_INSTANCE.as_ref().unwrap() }));
 
-            mocks
-                .expect_build_heartbeat()
-                .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }));
+            mocks.expect_build_heartbeat().returning(|| {
+                Ok(unsafe { Box::new(HEARTBEAT_INSTANCE.as_ref().unwrap().clone()) })
+            });
 
             mocks
                 .expect_get_vector_processer()
@@ -1466,9 +1466,9 @@ pub mod glyph_engine {
                 .expect_build_mongo_connection()
                 .returning(|| Ok(unsafe { &MONGO_CONNECTION_INSTANCE.as_ref().unwrap() }));
 
-            mocks
-                .expect_build_heartbeat()
-                .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }));
+            mocks.expect_build_heartbeat().returning(|| {
+                Ok(unsafe { Box::new(HEARTBEAT_INSTANCE.as_ref().unwrap().clone()) })
+            });
 
             mocks
                .expect_get_vector_processer()
@@ -1555,9 +1555,9 @@ pub mod glyph_engine {
                 .expect_build_mongo_connection()
                 .returning(|| Ok(unsafe { &MONGO_CONNECTION_INSTANCE.as_ref().unwrap() }));
 
-            mocks
-                .expect_build_heartbeat()
-                .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }));
+            mocks.expect_build_heartbeat().returning(|| {
+                Ok(unsafe { Box::new(HEARTBEAT_INSTANCE.as_ref().unwrap().clone()) })
+            });
 
             mocks
                .expect_get_vector_processer()
@@ -1645,9 +1645,9 @@ pub mod glyph_engine {
                 .expect_build_mongo_connection()
                 .returning(|| Ok(unsafe { &MONGO_CONNECTION_INSTANCE.as_ref().unwrap() }));
 
-            mocks
-                .expect_build_heartbeat()
-                .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }));
+            mocks.expect_build_heartbeat().returning(|| {
+                Ok(unsafe { Box::new(HEARTBEAT_INSTANCE.as_ref().unwrap().clone()) })
+            });
 
             mocks
                 .expect_start_athena_query()
@@ -1695,9 +1695,9 @@ pub mod glyph_engine {
                 .expect_build_mongo_connection()
                 .returning(|| Ok(unsafe { &MONGO_CONNECTION_INSTANCE.as_ref().unwrap() }));
 
-            mocks
-                .expect_build_heartbeat()
-                .returning(|| Ok(unsafe { HEARTBEAT_INSTANCE.as_ref().unwrap().clone() }));
+            mocks.expect_build_heartbeat().returning(|| {
+                Ok(unsafe { Box::new(HEARTBEAT_INSTANCE.as_ref().unwrap().clone()) })
+            });
 
             mocks.expect_start_athena_query().returning(|_, _| {
                Err(GlyphEngineProcessError::QueryProcessingError(
@@ -4430,7 +4430,7 @@ pub mod glyph_engine {
             async fn is_ok() {
                 let axis_name = "x";
                 let vectors = vec![1.0, 3.0, 6.0, 9.0, 12.0, 15.0, 18.0, 21.0, 24.0, 27.0];
-                let result =GlyphEngine::get_stats_for_axis(axis_name, 9, vectors);
+                let result = GlyphEngine::get_stats_for_axis(axis_name, 9, vectors);
                 assert_eq!(result.axis, axis_name);
                 assert_ne!(result.min, f64::NAN);
                 assert_ne!(result.max, f64::NAN);

@@ -7,6 +7,10 @@ edition = "2021"
 [lib]
 test = true
 
+[[bin]]
+name = "glyph_engine_local_tester"
+path = "src/bin/local_tester/main.rs"
+
 [dependencies]
 aws-smithy-async = "1.2.1"
 aws-smithy-runtime-api = "1.6.3"
