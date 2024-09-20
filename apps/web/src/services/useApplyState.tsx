@@ -16,11 +16,10 @@ import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
 import {useUrl} from 'lib/client/hooks';
-import {isNullCamera} from 'lib/utils/isNullCamera';
 import {databaseTypes, webTypes} from 'types';
-import {signDataUrls, signRustFiles} from 'actions';
-import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
+import {signRustFiles} from 'actions';
 import init, {ModelRunner} from '../../public/pkg/glyphx_cube_model';
+
 const useApplyState = () => {
   const session = useSession();
   const url = useUrl();
@@ -28,8 +27,6 @@ const useApplyState = () => {
   const payloadHash = useRecoilValue(payloadHashSelector);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setResize = useSetRecoilState(splitPaneSizeAtom);
-  const setCamera = useSetRecoilState(cameraAtom);
-  const setImageHash = useSetRecoilState(imageHashAtom);
   const [project, setProject] = useRecoilState(projectAtom);
   const loading = useRecoilValue(showLoadingAtom);
   const [activeState, setActiveState] = useRecoilState(activeStateAtom);
@@ -165,26 +162,23 @@ const useApplyState = () => {
   );
 
   const applyState = useCallback(
-    async (idx: number, newProject: any) => {
-      if (activeState === idx) {
-        setActiveState(-1);
+    async (state) => {
+      if (activeState === state.id) {
+        setActiveState('');
         return;
       }
-      setActiveState(idx);
+      setActiveState(state.id);
       setDrawer(true);
 
       // only apply state if not loading
       if (!(Object.keys(loading).length > 0)) {
-        const filteredStates = newProject
-          ? newProject.stateHistory?.filter((state) => !state.deletedAt)
-          : project.stateHistory.filter((state) => !state.deletedAt);
-
-        const state = filteredStates[idx];
+        const filteredStates = project.stateHistory?.filter((state) => !state.deletedAt);
+        const state = filteredStates.find();
         const payloadHash = state.payloadHash;
         const properties = state.properties;
         const camera = state.camera;
         const ids = state.rowIds ?? [];
-        const rowIds = convertRowIds(ids);
+        // const rowIds = convertRowIds(ids);
 
         const signedUrls = await signRustFiles(project?.workspace.id, project?.id, payloadHash);
 
@@ -208,7 +202,7 @@ const useApplyState = () => {
               draft.processEndTime = new Date();
             })
           );
-          setActiveState(-1);
+          setActiveState('');
         }
       }
     },

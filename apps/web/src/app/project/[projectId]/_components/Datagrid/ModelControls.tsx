@@ -3,12 +3,13 @@ import React from 'react';
 import {useRecoilValue} from 'recoil';
 import {modelRunnerAtom} from 'state';
 import {CameraIcon, HomeIcon, RefreshIcon} from '@heroicons/react/outline';
+// @ts-ignore
 import {Move3D} from 'lucide-react';
 import {screenshotModel} from '../Model/utils';
 
 export const ModelControls = () => {
   const modelRunnerState = useRecoilValue(modelRunnerAtom);
-  console.log({modelRunnerState, controls: true});
+  // console.log({...modelRunnerState, controls: true});
   return (
     modelRunnerState.initialized && (
       <>

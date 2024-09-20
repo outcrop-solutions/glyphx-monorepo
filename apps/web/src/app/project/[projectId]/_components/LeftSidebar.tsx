@@ -7,7 +7,8 @@ import SmallLogo from 'svg/small-logo.svg';
 import {ArrowLeftIcon, CubeIcon, EyeIcon, FolderIcon} from '@heroicons/react/outline';
 import {useParams} from 'next/navigation';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {drawerOpenAtom, projectAtom, projectSegmentAtom} from 'state';
+
+import {cameraAtom, drawerOpenAtom, imageHashAtom, projectSegmentAtom, projectAtom} from 'state';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
 
 const LeftSidebar = () => {
@@ -19,6 +20,8 @@ const LeftSidebar = () => {
   // check if feature is enabled from growthbook endpoint
   const isAIEnabled = useFeatureIsOn('ai');
   const isWebGPUEnabled = useFeatureIsOn('webgpu');
+  const setCamera = useSetRecoilState(cameraAtom);
+  const setImageHash = useSetRecoilState(imageHashAtom);
 
   return (
     <aside

@@ -4,7 +4,6 @@ import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {Property} from './Property';
 import init, {ModelRunner} from '../../../../../../../../public/pkg/glyphx_cube_model';
 import {
-  dataGridPayloadSelector,
   doesStateExistSelector,
   drawerOpenAtom,
   modelDataAtom,
@@ -12,74 +11,22 @@ import {
   payloadHashSelector,
   projectAtom,
   propertiesSelector,
-  showLoadingAtom,
-  splitPaneSizeAtom,
+  dataGridPayloadSelector,
 } from 'state';
-import {useSession} from 'next-auth/react';
-import {useSWRConfig} from 'swr';
-import {callCreateModel} from 'lib/client/network/reqs/callCreateModel';
-import toast from 'react-hot-toast';
-import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
-import {useUrl} from 'lib/client/hooks';
-import {isValidPayload} from 'lib/utils/isValidPayload';
-import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
 import {runGlyphEngineAction, updateProjectState} from 'actions';
-import {useFeatureIsOn} from '@growthbook/growthbook-react';
 import {webTypes} from 'types';
 
 export const Properties = () => {
-  const session = useSession();
-  const {mutate} = useSWRConfig();
   const [modelRunnerState, setModelRunnerState] = useRecoilState(modelRunnerAtom);
   const [modelData, setModelData] = useRecoilState(modelDataAtom);
-  const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
-  const setLoading = useSetRecoilState(showLoadingAtom);
   const urlRef = useRef('');
   const payloadHash = useRecoilValue(payloadHashSelector);
   const doesStateExist = useRecoilValue(doesStateExistSelector);
   const {workspaceId, projectId, tableName} = useRecoilValue(dataGridPayloadSelector);
-  const url = useUrl();
   const properties = useRecoilValue(propertiesSelector);
   const [isCollapsed, setCollapsed] = useState(false);
   const project = useRecoilValue(projectAtom);
-
-  const handleApply = useCallback(
-    async (event: any) => {
-      //Our apply button is wrapped in the summary element, and the click handler is bubbling up. so we need to stop propagation.  This will keep our axes control in the open state when pressing apply.
-      event.stopPropagation();
-      // project already contains filter state, no deepMerge necessary
-      const payloadHash = hashPayload(hashFileSystem(project.files), project);
-
-      if (!isValidPayload(properties)) {
-        toast.success('Generate a model before applying filters!');
-      } else if (doesStateExist) {
-        await updateProjectState(project.id, project.state);
-        await callDownloadModel({
-          project,
-          payloadHash,
-          session,
-          url,
-          setLoading,
-          setDrawer,
-        });
-      } else {
-        await callCreateModel({
-          isFilter: true,
-          project,
-          payloadHash,
-          session,
-          url,
-          setLoading,
-          setDrawer,
-          setResize,
-          mutate,
-        });
-      }
-      setLoading({});
-    },
-    [doesStateExist, mutate, project, properties, session, setDrawer, setLoading, setResize, url]
-  );
 
   /**
    * Generic stream handler.
@@ -125,7 +72,7 @@ export const Properties = () => {
       while (offset < buffer.length) {
         // Ensure the buffer is long enough to read the initial length value
         if (buffer.length < 8) {
-          console.error('Buffer too short to read data length');
+          // console.error('Buffer too short to read data length');
           return buffer; // Return the original buffer if it's too short
         }
 
@@ -135,11 +82,10 @@ export const Properties = () => {
 
         // Check if the full data specified by totalDataLength is available in the buffer
         if (offset + Number(totalDataLength) > buffer.length) {
-          console.error('Not enough data in buffer');
+          // console.error('Not enough data in buffer');
           // using subarray to avoid copying the buffer
           return buffer.subarray(offset); // Return the buffer starting from the length value for reprocessing
         }
-
         // Extract the relevant data for processing
         const dataToProcess = buffer.subarray(offset, offset + Number(totalDataLength));
 
@@ -200,7 +146,9 @@ export const Properties = () => {
       setDrawer(true);
       // const width = canvasParent!.clientWidth;
       // const height = canvasParent!.clientHeight;
+      console.log('set modeRunner state');
       setModelRunnerState({initialized: true, modelRunner, lastPayloadHash: payloadHash});
+      console.log('call modeRunner.run()');
       await modelRunner.run();
     },
     [handleStream, payloadHash, processData, setDrawer, setModelRunnerState]
@@ -214,31 +162,24 @@ export const Properties = () => {
     async (event) => {
       event.stopPropagation();
       try {
-        const {lastPayloadHash} = modelRunnerState;
-        // only run if ppayload has changed
-        // if (lastPayloadHash !== payloadHash) {
-        if (!isValidPayload(properties)) {
-          toast.success('Generate a model before applying filters!');
-        } else if (doesStateExist) {
-          // restore project to state properties
-          await updateProjectState(project.id, project.state);
-          await downloadModel(modelData);
-        } else {
-          await updateProjectState(project.id, project.state);
-          // run Rust glyph engine to feed into ModelRunner
-          const retval = await runGlyphEngineAction(project);
-          // TODO: need a discriminated union to remove @ts ignore comments
+        console.log('updating project state');
+        await updateProjectState(project.id, project.state);
+        // run Rust glyph engine to feed into ModelRunner
+        console.log('running glyphengine');
+        const retval = await runGlyphEngineAction(project);
+        // TODO: need a discriminated union to remove @ts ignore comments
+        // @ts-ignore
+        if (retval && !retval?.error) {
+          console.log('downloading model');
           // @ts-ignore
-          if (retval && !retval?.error) {
-            // @ts-ignore
-            await downloadModel(retval);
-          }
+          await downloadModel(retval);
         }
+        // }
       } catch (error) {
         console.log({error});
       }
     },
-    [doesStateExist, downloadModel, modelData, modelRunnerState, project, properties]
+    [downloadModel, project]
   );
 
   return (

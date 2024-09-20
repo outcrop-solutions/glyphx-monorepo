@@ -95,11 +95,11 @@ export const Datagrid = () => {
     }
   }, 100);
 
-  return data.rows?.length > 0 ? (
+  return data.rows.length > 0 && !isLoading ? (
     <div className="h-full w-full bg-primary-dark-blue" ref={ref}>
       <ReactDataGrid
-        onScroll={(e) => debouncedScroll(e)}
         // @ts-ignore
+        onScroll={(e) => debouncedScroll(e)}
         columns={draggableColumns}
         rows={data.rows}
         rowGetter={(i) => data.rows[i]}

@@ -1,20 +1,19 @@
 'use client';
 import {PencilIcon, TrashIcon} from '@heroicons/react/outline';
 import {useCallback} from 'react';
-import {activeStateAtom, modalsAtom, projectSegmentAtom} from 'state';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+import {modalsAtom, projectSegmentAtom} from 'state';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
 import StateIcon from 'svg/state.svg';
-import ActiveStateIcon from 'svg/active-state.svg';
+import ActiveStateIcon from '../../../../../../../svg/active-state.svg';
 import Image from 'next/image';
 import {webTypes} from 'types';
 import useApplyState from 'services/useApplyState';
 
-export const State = ({item, idx}) => {
+export const State = ({item, activeState}) => {
   const segment = useRecoilValue(projectSegmentAtom);
   const setModals = useSetRecoilState(modalsAtom);
-  const [activeState, _] = useRecoilState(activeStateAtom);
 
   const {applyState} = useApplyState();
 
@@ -68,14 +67,14 @@ export const State = ({item, idx}) => {
         </div>
       </div>
       <div className="flex items-center justify-center h-6 w-6">
-        {activeState === idx ? <ActiveStateIcon /> : <StateIcon className="" />}
+        {activeState === item.id ? <ActiveStateIcon /> : <StateIcon className="" />}
       </div>
       <div
-        onClick={() => applyState(idx, undefined)}
+        onClick={() => applyState(item)}
         className="block group-states-hover:text-white transition duration-150 truncate grow ml-2"
       >
         <span
-          className={`w-full text-left text-gray text-sm ${activeState === idx ? 'text-white' : ''} font-medium z-0`}
+          className={`w-full text-left text-gray text-sm ${activeState === item.id ? 'text-white' : ''} font-medium z-0`}
         >
           {item.name}
         </span>

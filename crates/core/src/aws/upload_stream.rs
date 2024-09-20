@@ -14,8 +14,8 @@ use aws_sdk_s3::operation::create_multipart_upload::{
 use aws_sdk_s3::operation::upload_part::{UploadPartError, UploadPartOutput};
 use aws_sdk_s3::types::{CompletedMultipartUpload, CompletedPart};
 use aws_sdk_s3::Client;
-use aws_smithy_http::byte_stream::ByteStream;
-
+//use aws_smithy_http::byte_stream::ByteStream;
+use aws_smithy_types::byte_stream::ByteStream;
 use async_trait::async_trait;
 use mockall::*;
 pub use crate::types::aws::upload_stream::*;
@@ -572,9 +572,8 @@ where {
 #[cfg(test)]
 mod constructor {
     use super::*;
-    use aws_smithy_http::body::SdkBody;
-    use aws_smithy_types::error::metadata::ErrorMetadata;
-    use http;
+    use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata,};
+    use aws_smithy_runtime_api::http::{Response, StatusCode};
 
     #[tokio::test]
     async fn is_ok() {
@@ -622,11 +621,10 @@ mod constructor {
                     .code("500")
                     .build();
                 let err = CreateMultipartUploadError::generic(meta);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status  = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());  
+                let headers = inner.headers_mut();
+                headers.insert("Content-Type",  http::HeaderValue::from_str("application/json").unwrap());
                 Err(SdkError::service_error(err, inner))
             })
             .times(1);
@@ -651,8 +649,8 @@ mod constructor {
 #[cfg(test)]
 mod flush {
     use super::*;
-    use aws_smithy_http::body::SdkBody;
-    use aws_smithy_types::error::metadata::ErrorMetadata;
+    use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata};
+    use aws_smithy_runtime_api::http::{Response, StatusCode};
     use http;
 
     #[tokio::test]
@@ -777,11 +775,10 @@ mod flush {
                     .code("500")
                     .build();
                 let err = UploadPartError::generic(meta);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status  = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                let headers = inner.headers_mut();
+                headers.insert("Content-Type",  http::HeaderValue::from_str("application/json").unwrap());
                 Err(SdkError::service_error(err, inner))
             })
             .times(1);
@@ -811,9 +808,8 @@ mod flush {
 #[cfg(test)]
 mod write {
     use super::*;
-    use aws_smithy_http::body::SdkBody;
-    use aws_smithy_types::error::metadata::ErrorMetadata;
-    use http;
+    use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata,};
+    use aws_smithy_runtime_api::http::{Response, StatusCode};
 
     #[tokio::test]
     async fn is_ok_with_data_no_flush() {
@@ -975,11 +971,10 @@ mod write {
                     .code("500")
                     .build();
                 let err = UploadPartError::generic(meta);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status  = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());  
+                let headers = inner.headers_mut();
+                headers.insert("Content-Type",  http::HeaderValue::from_str("application/json").unwrap());
                 Err(SdkError::service_error(err, inner))
             })
             .times(1);
@@ -1097,9 +1092,8 @@ mod write {
 #[cfg(test)]
 mod finish {
     use super::*;
-    use aws_smithy_http::body::SdkBody;
-    use aws_smithy_types::error::metadata::ErrorMetadata;
-    use http;
+    use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata,};
+    use aws_smithy_runtime_api::http::{Response, StatusCode};
 
     #[tokio::test]
     async fn is_ok_no_data_to_flush() {
@@ -1209,11 +1203,10 @@ mod finish {
                     .code("500")
                     .build();
                 let err = CompleteMultipartUploadError::generic(meta);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status  = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());  
+                let headers = inner.headers_mut();
+                headers.insert("Content-Type",  http::HeaderValue::from_str("application/json").unwrap());
                 Err(SdkError::service_error(err, inner))
             })
             .times(1);
@@ -1304,11 +1297,10 @@ mod finish {
                     .code("500")
                     .build();
                 let err = UploadPartError::generic(meta);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status  = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());  
+                let headers = inner.headers_mut();
+                headers.insert("Content-Type",  http::HeaderValue::from_str("application/json").unwrap());
                 Err(SdkError::service_error(err, inner))
             })
             .times(1);
@@ -1365,11 +1357,10 @@ mod finish {
                     .code("500")
                     .build();
                 let err = UploadPartError::generic(meta);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status  = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());  
+                let headers = inner.headers_mut();
+                headers.insert("Content-Type",  http::HeaderValue::from_str("application/json").unwrap());
                 Err(SdkError::service_error(err, inner))
             })
             .times(0);
@@ -1419,11 +1410,10 @@ mod finish {
                     .code("500")
                     .build();
                 let err = UploadPartError::generic(meta);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status  = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());  
+                let headers = inner.headers_mut();
+                headers.insert("Content-Type",  http::HeaderValue::from_str("application/json").unwrap());
                 Err(SdkError::service_error(err, inner))
             })
             .times(0);
@@ -1450,9 +1440,8 @@ mod finish {
 #[cfg(test)]
 pub mod abort {
     use super::*;
-    use aws_smithy_http::body::SdkBody;
-    use aws_smithy_types::error::metadata::ErrorMetadata;
-    use http;
+    use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata,};
+    use aws_smithy_runtime_api::http::{Response, StatusCode};
 
     #[tokio::test]
     async fn is_ok() {
@@ -1517,11 +1506,10 @@ pub mod abort {
                     .code("500")
                     .build();
                 let err = AbortMultipartUploadError::generic(meta);
-                let inner = http::Response::builder()
-                    .status(200)
-                    .header("Content-Type", "application/json")
-                    .body(SdkBody::empty())
-                    .unwrap();
+                let inner_status  = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());  
+                let headers = inner.headers_mut();
+                headers.insert("Content-Type",  http::HeaderValue::from_str("application/json").unwrap());
                 Err(SdkError::service_error(err, inner))
         }).times(1);
         let mut upload_manager = UploadStream::new_impl(bucket_name, file_name, client, &mock_ops)

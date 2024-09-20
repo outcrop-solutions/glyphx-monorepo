@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({children, params}: {children: React.ReactNode; params: any}) {
   const session = await getServerSession(authOptions);
   try {
-    await growthbook.loadFeatures();
+    // await growthbook.loadFeatures();
   } catch (error) {}
 
   return (

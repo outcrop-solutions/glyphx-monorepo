@@ -8,7 +8,7 @@ import {webTypes} from 'types';
 import {LinkDropDown} from './LinkDropDown';
 import {MemberList} from './MemberList';
 import Link from 'next/link';
-import {drawerOpenAtom, projectAtom, rightSidebarControlAtom} from 'state';
+import {cameraAtom, drawerOpenAtom, imageHashAtom, projectAtom, rightSidebarControlAtom} from 'state';
 
 import CloseProjectInfoIcon from 'svg/close-project-info.svg';
 import CopyToClipboardIcon from 'svg/copy-to-clipboard.svg';
@@ -86,7 +86,7 @@ export const Share = () => {
             </p>
           </div>
           <div>
-            <Link href={`/${workspaceId}/settings/team` as Route}>
+            <Link href={`/workspace/${workspaceId}/settings/team` as Route}>
               <button className="text-secondary-space-blue font-roboto font-medium text-[14px] leading-[16px] rounded-xl border bg-primary-yellow hover:bg-primary-yellow-hover py-1 px-2">
                 Send Invite
               </button>

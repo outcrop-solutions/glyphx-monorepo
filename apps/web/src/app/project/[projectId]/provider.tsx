@@ -14,6 +14,7 @@ import {
   rightSidebarControlAtom,
   rowIdsAtom,
   showLoadingAtom,
+  splitPaneSizeAtom,
   templatesAtom,
   workspaceAtom,
 } from 'state';
@@ -24,17 +25,9 @@ import {LiveMap} from '@liveblocks/client';
 import {InitialDocumentProvider} from 'collab/lib/client';
 import {RoomProvider} from 'liveblocks.config';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
-import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
 import {useSession} from 'next-auth/react';
 import {useUrl} from 'lib/client/hooks';
-
-const openFirstFile = (projData) => {
-  const newFiles = projData?.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
-  return {
-    ...projData,
-    files: [...newFiles],
-  };
-};
+import {callGlyphEngine} from 'lib/client/network/reqs/callGlyphEngine';
 
 export const ProjectProvider = ({
   children,
@@ -46,9 +39,6 @@ export const ProjectProvider = ({
   project: databaseTypes.IProject;
 }) => {
   const {data: templateData, isLoading: templateLoading} = useTemplates();
-
-  // const {data, isLoading} = useProject();
-
   const session = useSession();
   const url = useUrl();
   const projectViewRef = useRef(null);
@@ -72,42 +62,40 @@ export const ProjectProvider = ({
   const setLoading = useSetRecoilState(showLoadingAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setActiveState = useSetRecoilState(activeStateAtom);
+  const setResize = useSetRecoilState(splitPaneSizeAtom);
 
   // hydrate recoil state
   useEffect(() => {
     if (!templateLoading) {
-      const projectData = openFirstFile(project);
-
-      let formattedProject = {...projectData};
       // rectify mongo scalar array
-      Object.values(projectData.state.properties).forEach((prop: webTypes.Property) => {
-        if (
-          prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING ||
-          prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE
-        ) {
-          const {keywords} = prop.filter as unknown as webTypes.IStringFilter;
-          if (keywords && keywords.length > 0) {
-            formattedProject.state.properties[prop.axis].filter.keywords = [
-              ...keywords.map((word) => {
-                return Object.values(word).join('');
-              }),
-            ];
+      const newFormattedProject = produce(project, (draft) => {
+        draft.files = draft.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
+
+        Object.values(draft.state.properties).forEach((prop: webTypes.Property) => {
+          if (
+            prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING ||
+            prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE
+          ) {
+            const {keywords} = prop.filter as unknown as webTypes.IStringFilter;
+            if (keywords && keywords.length > 0) {
+              draft.state.properties[prop.axis] = {
+                ...draft.state.properties[prop.axis],
+                filter: {
+                  ...draft.state.properties[prop.axis].filter,
+                  keywords: [
+                    ...keywords.map((word) => {
+                      return Object.values(word).join('');
+                    }),
+                  ],
+                },
+              };
+            }
           }
-        }
+        });
       });
-      setProject(formattedProject);
 
-      // open latest state if it exists
-      // if (project.stateHistory.length > 0) {
-      //   const latestState = project.stateHistory[project.stateHistory.length - 1];
-      //   const camera = latestState.camera || {};
-      //   const imageHash = latestState.imageHash || false;
-      //   setCamera(camera);
-      //   setImageHash({
-      //     imageHash: imageHash,
-      //   });
-      // }
-
+      console.log({project, newFormattedProject});
+      setProject(newFormattedProject);
       setRowIds(false);
       setTemplates(templateData);
       setRightSidebarControl(
@@ -130,38 +118,38 @@ export const ProjectProvider = ({
   ]);
 
   const openLastState = useCallback(async () => {
-    if (Array.isArray(project.stateHistory) && project.stateHistory?.length > 0) {
-      const idx = project.stateHistory.length - 1;
-      const lastState = project.stateHistory[idx];
-      const payloadHash = lastState.payloadHash;
-      const camera = lastState.camera;
-
-      await callDownloadModel({
-        project,
-        payloadHash,
-        session,
-        url,
-        setLoading,
-        setDrawer,
-        camera,
-      });
-      setActiveState(idx);
+    const filtered = project.stateHistory.filter((s) => !s.deletedAt);
+    if (Array.isArray(filtered) && filtered?.length > 0) {
+      const idx = filtered.length - 1;
+      const {id, camera, rowIds} = filtered[idx];
+      if (id) {
+        setActiveState(id);
+        await callGlyphEngine({
+          project,
+          setLoading,
+          setDrawer,
+          setResize,
+          setImageHash,
+          setCamera,
+          stateId: id,
+          camera,
+          rowIds,
+        });
+        console.log('openLastState', {stateId: id});
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [project]);
+  }, []);
 
   useEffect(() => {
     if (!hasDrawerBeenShown) {
       // Logic to show the drawer
       openLastState();
-      // Then update the state to reflect that the drawer has been shown
       setHasDrawerBeenShown(true);
     }
     return () => {
       setHasDrawerBeenShown(false);
     };
-    // This effect should only run once on mount, hence the empty dependency array.
-    // Make sure to not include variables that change on update unless you intentionally want to trigger the effect.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

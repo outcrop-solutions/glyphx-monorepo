@@ -1,7 +1,7 @@
 import {databaseTypes, rustGlyphEngineTypes, webTypes} from 'types';
 import {error, constants} from 'core';
 import mongoDbConnection from '../lib/databaseConnection';
-import {hashFileSystem, hashPayload} from '../util/hashFunctions';
+import {LatestHashStrategy} from '../util/HashResolver';
 
 export class StateService {
   public static async getState(stateId: string): Promise<databaseTypes.IState | null> {
@@ -36,9 +36,37 @@ export class StateService {
     imageHash?: string
   ): Promise<databaseTypes.IState | null> {
     try {
-      const workspace = await mongoDbConnection.models.WorkspaceModel.getWorkspaceById(project?.workspace.id!);
+      const workspaceId = project?.workspace.id;
+      const projectId = project?.id;
+      if (!workspaceId) {
+        throw new error.DataNotFoundError('No workspace id found', 'state', 'createState', {
+          project,
+          userId,
+          name,
+          camera,
+          aspectRatio,
+        });
+      }
+      if (!projectId) {
+        throw new error.DataNotFoundError('No project id found', 'state', 'createState', {
+          project,
+          userId,
+          name,
+          camera,
+          aspectRatio,
+        });
+      }
+      const workspace = await mongoDbConnection.models.WorkspaceModel.getWorkspaceById(workspaceId);
       const user = await mongoDbConnection.models.UserModel.getUserById(userId);
       const image = imageHash ? {imageHash} : {};
+      const s = new LatestHashStrategy();
+      const fileHash = s.hashFiles(project.files);
+      const payload = {
+        projectId: project.id!,
+        files: project.files,
+        properties: project.state.properties,
+      };
+      const payloadHash = s.hashPayload(fileHash, payload);
 
       const cleanFiles = project.files.map((f) => {
         delete f.selected;
@@ -58,8 +86,8 @@ export class StateService {
         camera: {...camera},
         aspectRatio: {...aspectRatio},
         properties: {...project.state.properties},
-        fileSystemHash: hashFileSystem(cleanFiles),
-        payloadHash: hashPayload(hashFileSystem(cleanFiles), project),
+        fileSystemHash: fileHash,
+        payloadHash: payloadHash,
         workspace: {...workspace},
         project: {...project},
         fileSystem: [...cleanFiles],

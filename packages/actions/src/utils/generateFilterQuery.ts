@@ -54,8 +54,7 @@ export const generateFilter = (prop: webTypes.Property) => {
   return generateSegment(name, prop);
 };
 
-export const generateFilterQuery = (project: databaseTypes.IProject) => {
-  const properties = project.state.properties;
+export const generateFilterQuery = (properties: databaseTypes.IProject['state']['properties']) => {
   const axes = Object.values(webTypes.constants.AXIS);
 
   const segments: string[] = [];

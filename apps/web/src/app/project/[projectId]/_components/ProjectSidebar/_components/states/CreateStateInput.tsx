@@ -4,7 +4,7 @@ import StateIcon from 'svg/state.svg';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {CameraIcon} from '@heroicons/react/outline';
 import {useRecoilState, useRecoilValue} from 'recoil';
-import {cameraAtom, modelRunnerAtom, projectAtom, rowIdsAtom} from 'state';
+import {modelRunnerAtom, projectAtom, rowIdsAtom} from 'state';
 import {createState} from 'actions';
 import {webTypes} from 'types';
 import useApplyState from 'services/useApplyState';
@@ -22,6 +22,7 @@ export const CreateStateInput = ({name, setName, setAddState}) => {
   // local state
   const handleNameChange = (event) => setName(event.target.value);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   // mutations
   const createStateHandler = async (event) => {
     event.preventDefault();
@@ -35,21 +36,14 @@ export const CreateStateInput = ({name, setName, setAddState}) => {
         };
 
         const image = stateSnapshot();
-
         const camera = JSON.parse(modelRunnerState.modelRunner.get_camera_data());
-
-        console.log({camera});
 
         if (image) {
           const rows = (rowIds ? rowIds : []) as unknown as number[];
-          const newProject = await createState(name, camera, project, image, aspect, rows);
+          const retval = await createState(name, camera, project, image, aspect, rows);
 
-          if (newProject) {
-            // @ts-ignore
-            const filteredStates = newProject.stateHistory?.filter((state) => !state.deletedAt);
-            const idx = filteredStates.length - 1;
-
-            applyState(idx, newProject);
+          if (retval?.state) {
+            applyState(retval?.state);
             setName('Initial State');
             setIsSubmitting(false);
             setAddState(false);

@@ -1,7 +1,6 @@
-import {hashFileSystem, hashPayload} from 'business/src/util/hashFunctions';
 import {atom, selector} from 'recoil';
 import {projectAtom} from './project';
-
+import {LatestHashStrategy} from 'business/src/util/HashResolver';
 // model runner!
 export const modelRunnerAtom = atom<any>({
   key: 'modelRunnerAtom',
@@ -12,7 +11,15 @@ export const payloadHashSelector = selector<string>({
   key: 'paylodHashSelector',
   get: ({get}) => {
     const project = get(projectAtom);
-    return hashPayload(hashFileSystem(project.files), project);
+    const s = new LatestHashStrategy();
+    const fileHash = s.hashFiles(project.files);
+    const payload = {
+      projectId: project.id!,
+      files: project.files,
+      properties: project.state.properties,
+    };
+
+    return s.hashPayload(fileHash, payload);
   },
 });
 

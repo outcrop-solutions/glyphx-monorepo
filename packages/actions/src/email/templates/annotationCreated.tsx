@@ -1,9 +1,9 @@
-'use client';
 /* eslint-disable @next/next/no-img-element */
 import React from 'react';
 import {Tailwind, Body, Container, Head, Html, Img, Row, Section, Text, Button} from '@react-email/components';
 import {emailTypes} from 'types';
 import {getEnvSpecificStateUrl} from '../../utils/getUrls';
+import {getUrlKey} from '../../utils';
 
 export const AnnotationCreatedTemplate = ({
   projectId,
@@ -33,10 +33,7 @@ export const AnnotationCreatedTemplate = ({
         }}
       >
         <Container className="bg-secondary-dark-blue h-screen px-4 flex flex-col justify-center items-center space-y-2 w-[380px]">
-          <Img
-            className="mx-auto mt-4"
-            src={`https://aqhswtcebhzai9us.public.blob.vercel-storage.com/email-logo-lMNRUtVWULQczrDDjf06zIeVxv34Fh.png`}
-          />
+          <Img className="mx-auto mt-4" src={`https://${getUrlKey()}.public.blob.vercel-storage.com/logo.png`} />
           <Text className="text-white mb-2">A thread was created</Text>
           <Section
             className="mx-auto"

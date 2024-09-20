@@ -1,4 +1,4 @@
-import {webTypes, databaseTypes} from 'types';
+import {webTypes} from 'types';
 /******************** INGESTION *********************/
 
 /**

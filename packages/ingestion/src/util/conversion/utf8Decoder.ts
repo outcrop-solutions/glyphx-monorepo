@@ -9,11 +9,15 @@ export class Utf8Decoder implements IBufferDecoder {
 
     const firstByte = buffer[offset];
     let charactersToConsume = this.getNumberOfCharactersToConsume(firstByte);
-    if (offset + charactersToConsume <= buffer.length) {
-      const bytes = buffer.slice(offset, offset + charactersToConsume);
-      return [bytes.toString('utf8'), charactersToConsume];
+    if (charactersToConsume === -1) {
+      return [String.fromCharCode(firstByte), 1];
     } else {
-      return undefined;
+      if (offset + charactersToConsume <= buffer.length) {
+        const bytes = buffer.slice(offset, offset + charactersToConsume);
+        return [bytes.toString('utf8'), charactersToConsume];
+      } else {
+        return undefined;
+      }
     }
   }
   private getNumberOfCharactersToConsume(firstByte: number): number {
@@ -31,12 +35,13 @@ export class Utf8Decoder implements IBufferDecoder {
       case 0b11110000:
         return 4;
       default:
-        // Handle invalid sequence (throw error or replace with ?)
-        throw new error.InvalidArgumentError(
-          `The UTF Sequence: 0b${firstByte.toString(2).padStart(8, '0')} is not a valid UTF-8 sequence`,
-          'firstByte',
-          firstByte.toString(2).padStart(8, '0')
-        );
+        return -1;
+      // // Handle invalid sequence (throw error or replace with ?)
+      // throw new error.InvalidArgumentError(
+      //   `The UTF Sequence: 0b${firstByte.toString(2).padStart(8, '0')} is not a valid UTF-8 sequence`,
+      //   'firstByte',
+      //   firstByte.toString(2).padStart(8, '0')
+      // );
     }
   }
 }

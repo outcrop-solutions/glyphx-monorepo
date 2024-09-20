@@ -69,7 +69,6 @@ export class GlyphxError extends Error {
         serialized[prop] = value;
       }
     }
-    console.log({obj});
 
     //we have to enumerate our functions, through the prototype
     //to look for our get accessors

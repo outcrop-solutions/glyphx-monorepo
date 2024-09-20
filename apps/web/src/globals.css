@@ -81,13 +81,13 @@ div[class='rdg-last--frozen'] {
 }
 
 div[data-type='number'] {
-  @apply bg-cyan text-white rounded text-center;
+  @apply bg-cyan text-white rounded text-center !important;
 }
 div[data-type='string'] {
-  @apply bg-blue text-white rounded text-center;
+  @apply bg-blue text-white rounded text-center !important;
 }
 div[data-type='date'] {
-  @apply bg-primary-yellow text-white rounded text-center;
+  @apply bg-primary-yellow text-white rounded text-center !important;
 }
 div[data-type='0'] {
   @apply bg-cyan text-white rounded text-center;

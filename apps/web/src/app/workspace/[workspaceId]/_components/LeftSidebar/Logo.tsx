@@ -12,6 +12,7 @@ export const Logo = () => {
   const workspaceId = params?.workspaceId;
   const projectId = params?.projectId;
   const setDrawer = useSetRecoilState(drawerOpenAtom);
+
   return (
     <Link href={`/${projectId ?? workspaceId ?? ''}`}>
       <div

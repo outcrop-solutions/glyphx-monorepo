@@ -1,12 +1,12 @@
 import {atom, selector} from 'recoil';
 import {projectAtom} from './project';
 import {databaseTypes, webTypes} from 'types';
-import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
+import {hashPayload, hashFiles} from 'business/src/util/hashFunctions';
 
 // controls styling of state list items
-export const activeStateAtom = atom<number>({
+export const activeStateAtom = atom<string>({
   key: 'activeStateAtom',
-  default: -1,
+  default: '',
 });
 
 export const imageHashAtom = atom<webTypes.ImageHash>({
@@ -34,8 +34,8 @@ export const stateSelector = selector({
   key: 'activeSnapshotSelector',
   get: ({get}) => {
     const project = get(projectAtom);
-    const activeStateIndex = get(activeStateAtom);
-    return project?.stateHistory[activeStateIndex];
+    const activeStateId = get(activeStateAtom);
+    return project?.stateHistory.find((state) => state.id === activeStateId);
   },
 });
 
@@ -45,7 +45,7 @@ export const doesStateExistSelector = selector<boolean>({
   get: ({get}) => {
     const project = get(projectAtom);
     if (!project?.files) return false;
-    const currentPayloadHash = hashPayload(hashFileSystem(project.files), project);
+    const currentPayloadHash = hashPayload(hashFiles(project.files), project);
     const exists = project?.stateHistory?.filter((state) => state?.payloadHash === currentPayloadHash);
     return exists.length > 0;
   },
@@ -62,6 +62,6 @@ export const isFilterWritableSelector = selector<boolean>({
   get: ({get}) => {
     const state = get(stateSelector);
     const project = get(projectAtom);
-    return state?.fileSystemHash === hashFileSystem(project?.files);
+    return state?.fileSystemHash === hashFiles(project?.files);
   },
 });

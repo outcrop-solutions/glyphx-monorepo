@@ -1,11 +1,11 @@
 'use client';
-import {useDropzone} from 'react-dropzone';
-import {PlusIcon} from '@heroicons/react/solid';
-import {useFileSystem} from 'services/useFileSystem';
+import { useDropzone } from 'react-dropzone';
+import { PlusIcon } from '@heroicons/react/solid';
+import { useFileSystem } from 'services/useFileSystem';
 import DropFileIcon from 'svg/drop-file-icon.svg';
 export const MainDropzone = () => {
-  const {onDrop} = useFileSystem();
-  const {getRootProps, getInputProps, isDragActive} = useDropzone({
+  const { onDrop } = useFileSystem();
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: ['.csv', 'application/vnd.ms-excel', 'text/csv', 'text/plain'],
     multiple: true,

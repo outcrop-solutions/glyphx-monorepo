@@ -1,25 +1,17 @@
 'use client';
 import {useCallback, useEffect, useState} from 'react';
 import {useRecoilState, useRecoilValue} from 'recoil';
-import {
-  drawerOpenAtom,
-  modelRunnerAtom,
-  orientationAtom,
-  projectAtom,
-  showLoadingAtom,
-  splitPaneSizeAtom,
-  windowSizeAtom,
-} from 'state';
-import {callDownloadModel} from 'lib/client/network/reqs/callDownloadModel';
-import {hashPayload, hashFileSystem} from 'business/src/util/hashFunctions';
+import {drawerOpenAtom, modelRunnerAtom, orientationAtom, projectAtom, showLoadingAtom, windowSizeAtom} from 'state';
 import {useSession} from 'next-auth/react';
 import {useUrl} from 'lib/client/hooks';
 
 export const ModelFooter = () => {
-  // const { mutate } = useSWRConfig();
   // ensures we don't pre-render the server
   const [isClient, setIsClient] = useState(false);
   const {modelRunner} = useRecoilValue(modelRunnerAtom);
+
+  // const setCamera = useSetRecoilState(cameraAtom);
+  // const setImageHash = useSetRecoilState(imageHashAtom);
 
   useEffect(() => {
     setIsClient(true);
@@ -41,8 +33,17 @@ export const ModelFooter = () => {
     } else {
       // if closed, open the model
       setDrawer(true);
-      const payloadHash = hashPayload(hashFileSystem(project.files), project);
-      await callDownloadModel({project, payloadHash, session, url, setLoading, setDrawer});
+      // await callGlyphEngine({
+      //     project,
+      //     setLoading,
+      //     setDrawer,
+      //     setResize,
+      //     setImageHash,
+      //     setCamera,
+      //     stateId: id,
+      //     camera,
+      //     rowIds,
+      //   });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drawer, project, session, setDrawer, setLoading, setOrientation, url, windowSize.height]);

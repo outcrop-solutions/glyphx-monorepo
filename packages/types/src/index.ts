@@ -5,6 +5,7 @@ export * as webTypes from './web';
 export * as databaseTypes from './database';
 export * as emailTypes from './email';
 export * as glyphEngineTypes from './glyphEngine';
+export * as hashTypes from './hash';
 export * as vectorizerTypes from './glyphEngine';
 export * as rustGlyphEngineTypes from './rustGlyphEngine';
 export type {IQueryResult} from './iQueryResult';

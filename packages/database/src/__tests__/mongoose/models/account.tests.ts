@@ -491,7 +491,7 @@ describe('#mongoose/models/account', () => {
         await AccountModel.allAccountIdsExist(accountIds);
       } catch (err: any) {
         assert.instanceOf(err, error.DataNotFoundError);
-        assert.strictEqual(err.data.value[0].toString(), accountIds[1].toString());
+        assert.strictEqual((err as any).data.value[0].toString(), accountIds[1].toString());
         errored = true;
       }
       assert.isTrue(errored);

@@ -3,8 +3,6 @@ name = "glyphx_core"
 version = "0.1.0"
 edition = "2021"
 
-[profile.test]
-features = ["test"]
 
 [lib]
 test = true
@@ -13,13 +11,14 @@ test = true
 [dependencies]
 async-recursion = "1.0.4"
 async-trait = "0.1.68"
-aws-config = "0.56.1"
-aws-sdk-athena = "0.33.0"
-aws-sdk-s3 = "0.33.0"
-aws-sdk-secretsmanager = "0.33.0"
-aws-smithy-http = "0.56.1"
-aws-smithy-types = "0.56.1"
-aws-smithy-runtime-api = "0.56.1"
+aws-config = { version = "1.5.5", features = ["behavior-version-latest"] }
+aws-sdk-athena = { version = "1.41.0", features = ["behavior-version-latest"] }
+aws-sdk-s3 = { version = "1.46.0", features = ["behavior-version-latest"] }
+aws-sdk-secretsmanager = { version = "1.43.0", features = ["behavior-version-latest"] }
+aws-smithy-async = "1.2.1"
+aws-smithy-http = "0.60.0"
+aws-smithy-types = "1.2.2"
+aws-smithy-runtime-api = "1.6.3"
 backtrace = "0.3.67"
 bytes = "1.4.0"
 chrono = "0.4.24"
