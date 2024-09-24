@@ -941,94 +941,100 @@ impl ApplicationHandler<ModelEvent> for Application {
     }
 
     fn user_event(&mut self, event_loop: &ActiveEventLoop, event: ModelEvent) {
-        let state = self.state.as_mut().unwrap();
-        match event {
-            ModelEvent::StateReady(new_state) => {
-                self.state = Some(new_state);
-            }
-            ModelEvent::Redraw => {
-                state.update_config();
-                match state.render() {
-                    Ok(_) => {}
-                    // Reconfigure the surface if lost
-                    Err(wgpu::SurfaceError::Lost) => {
-                        let size = state.size().clone();
-                        state.resize(size)
+        if self.state.is_some() {
+            let state = self.state.as_mut().unwrap();
+            match event {
+                ModelEvent::Redraw => {
+                    state.update_config();
+                    match state.render() {
+                        Ok(_) => {}
+                        // Reconfigure the surface if lost
+                        Err(wgpu::SurfaceError::Lost) => {
+                            let size = state.size().clone();
+                            state.resize(size)
+                        }
+                        // The system is out of memory, we should probably quit
+                        Err(wgpu::SurfaceError::OutOfMemory) => event_loop.exit(),
+                        // All other errors (Outdated, Timeout) should be resolved by the next frame
+                        Err(e) => eprintln!("{:?}", e),
                     }
-                    // The system is out of memory, we should probably quit
-                    Err(wgpu::SurfaceError::OutOfMemory) => event_loop.exit(),
-                    // All other errors (Outdated, Timeout) should be resolved by the next frame
-                    Err(e) => eprintln!("{:?}", e),
                 }
-            }
-            ModelEvent::ToggleAxisLines => {
-                state.toggle_axis_visibility();
-            }
-            ModelEvent::ModelMove(ModelMoveDirection::Pitch(amount)) => {
-                state.move_camera("pitch", amount);
-            }
-            ModelEvent::ModelMove(ModelMoveDirection::Yaw(amount)) => {
-                state.move_camera("yaw", amount);
-            }
-            ModelEvent::ModelMove(ModelMoveDirection::Distance(amount)) => {
-                state.move_camera("distance", amount);
-            }
-            ModelEvent::ModelMove(ModelMoveDirection::Up(amount)) => {
-                state.move_camera("up", amount);
-            }
-            ModelEvent::ModelMove(ModelMoveDirection::Down(amount)) => {
-                state.move_camera("down", amount);
-            }
-            ModelEvent::ModelMove(ModelMoveDirection::Left(amount)) => {
-                state.move_camera("left", amount);
-            }
-            ModelEvent::ModelMove(ModelMoveDirection::Right(amount)) => {
-                state.move_camera("right", amount);
-            }
-            ModelEvent::ModelMove(ModelMoveDirection::X) => {
-                state.move_camera("x_axis", 0.0);
-            }
-            ModelEvent::ModelMove(ModelMoveDirection::Z) => {
-                state.move_camera("z_axis", 0.0);
-            }
-            ModelEvent::ModelMove(ModelMoveDirection::Y) => {
-                state.move_camera("y_axis", 0.0);
-            }
-            ModelEvent::ModelMove(ModelMoveDirection::Reset) => {
-                state.reset_camera();
-            }
-            ModelEvent::SelectGlyph {
-                x_pos,
-                y_pos,
-                multi_select,
-            } => {
-                let res = state.hit_detection(x_pos as u32, y_pos as u32, multi_select);
-                let values = res.iter().map(|v| v.to_json()).collect::<Vec<Value>>();
-                emit_event(&ModelEvent::SelectedGlyphs(values));
-            }
-
-            ModelEvent::SelectGlyphs(selected_glyphs) => {
-                let glyphs = state.update_selected_glyphs(selected_glyphs);
-                let values = glyphs.iter().map(|v| v.to_json()).collect::<Vec<Value>>();
-                emit_event(&ModelEvent::SelectedGlyphs(values));
-
-                {
-                    let event = ModelEvent::Redraw;
-                    send_event(event);
+                ModelEvent::ToggleAxisLines => {
+                    state.toggle_axis_visibility();
                 }
-            }
-
-            ModelEvent::UpdateModelFilter(model_filter) => {
-                state.update_model_filter(model_filter);
-                state.update_config();
-                //Once our state is updated we need to force a redraw
-                {
-                    let event = ModelEvent::Redraw;
-                    send_event(event);
+                ModelEvent::ModelMove(ModelMoveDirection::Pitch(amount)) => {
+                    state.move_camera("pitch", amount);
                 }
-            }
+                ModelEvent::ModelMove(ModelMoveDirection::Yaw(amount)) => {
+                    state.move_camera("yaw", amount);
+                }
+                ModelEvent::ModelMove(ModelMoveDirection::Distance(amount)) => {
+                    state.move_camera("distance", amount);
+                }
+                ModelEvent::ModelMove(ModelMoveDirection::Up(amount)) => {
+                    state.move_camera("up", amount);
+                }
+                ModelEvent::ModelMove(ModelMoveDirection::Down(amount)) => {
+                    state.move_camera("down", amount);
+                }
+                ModelEvent::ModelMove(ModelMoveDirection::Left(amount)) => {
+                    state.move_camera("left", amount);
+                }
+                ModelEvent::ModelMove(ModelMoveDirection::Right(amount)) => {
+                    state.move_camera("right", amount);
+                }
+                ModelEvent::ModelMove(ModelMoveDirection::X) => {
+                    state.move_camera("x_axis", 0.0);
+                }
+                ModelEvent::ModelMove(ModelMoveDirection::Z) => {
+                    state.move_camera("z_axis", 0.0);
+                }
+                ModelEvent::ModelMove(ModelMoveDirection::Y) => {
+                    state.move_camera("y_axis", 0.0);
+                }
+                ModelEvent::ModelMove(ModelMoveDirection::Reset) => {
+                    state.reset_camera();
+                }
+                ModelEvent::SelectGlyph {
+                    x_pos,
+                    y_pos,
+                    multi_select,
+                } => {
+                    let res = state.hit_detection(x_pos as u32, y_pos as u32, multi_select);
+                    let values = res.iter().map(|v| v.to_json()).collect::<Vec<Value>>();
+                    emit_event(&ModelEvent::SelectedGlyphs(values));
+                }
 
-            _ => {}
+                ModelEvent::SelectGlyphs(selected_glyphs) => {
+                    let glyphs = state.update_selected_glyphs(selected_glyphs);
+                    let values = glyphs.iter().map(|v| v.to_json()).collect::<Vec<Value>>();
+                    emit_event(&ModelEvent::SelectedGlyphs(values));
+
+                    {
+                        let event = ModelEvent::Redraw;
+                        send_event(event);
+                    }
+                }
+
+                ModelEvent::UpdateModelFilter(model_filter) => {
+                    state.update_model_filter(model_filter);
+                    state.update_config();
+                    //Once our state is updated we need to force a redraw
+                    {
+                        let event = ModelEvent::Redraw;
+                        send_event(event);
+                    }
+                }
+
+                _ => {}
+            }
+        } else {
+            match event {
+                ModelEvent::StateReady(new_state) => {
+                    self.state = Some(new_state);
+                }
+                _ => {}
+            }
         }
     }
 }

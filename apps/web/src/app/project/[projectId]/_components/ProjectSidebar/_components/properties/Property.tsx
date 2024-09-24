@@ -2,7 +2,7 @@
 import {useCallback} from 'react';
 import {useDrop} from 'react-dnd';
 import {useRecoilState, useRecoilValue} from 'recoil';
-import {webTypes, fileIngestionTypes, glyphEngineTypes} from 'types';
+import {webTypes, fileIngestionTypes} from 'types';
 import {AxesIcons} from '../icons/AxesIcons';
 import {useProject} from 'services';
 import {handleDataType} from 'lib/client/helpers/handleDataType';
@@ -16,12 +16,13 @@ import SwapLeftIcon from 'svg/swap-left-icon.svg';
 import SwapRightIcon from 'svg/swap-right-icon.svg';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
-import {showLoadingAtom} from 'state';
+import {modelRunnerAtom, showLoadingAtom} from 'state';
 import AccumulatorType from './AccumulatorListbox';
 import DateGroupingListbox from './DateGroupListbox';
 
 export const Property = ({axis}) => {
   const [project, setProject] = useRecoilState(projectAtom);
+  const {initialized, modelRunner} = useRecoilValue(modelRunnerAtom);
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
   const {handleDrop} = useProject();
 
@@ -65,18 +66,37 @@ export const Property = ({axis}) => {
             : webTypes.constants.INTERPOLATION_TYPE.LIN;
       })
     );
-  }, [axis, setProject, prop]);
+    if (initialized) {
+      // NOTE: rust has a different casing for the value
+      const config = {
+        [`${axis.toLowerCase()}_interpolation`]:
+          prop.interpolation === webTypes.constants.INTERPOLATION_TYPE.LIN ? 1 : 0,
+        // prop.interpolation === webTypes.constants.INTERPOLATION_TYPE.LIN ? 'Log' : 'Linear',
+      };
+      console.log({...config});
+      modelRunner.update_configuration(JSON.stringify(config), true);
+    }
+  }, [setProject, initialized, axis, prop.interpolation, modelRunner]);
 
   const ascDesc = useCallback(() => {
     setProject(
       produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
         draft.state.properties[`${axis}`].direction =
-          draft.state.properties[`${axis}`].direction === webTypes.constants.DIRECTION_TYPE.ASC
+          prop.direction === webTypes.constants.DIRECTION_TYPE.ASC
             ? webTypes.constants.DIRECTION_TYPE.DESC
             : webTypes.constants.DIRECTION_TYPE.ASC;
       })
     );
-  }, [axis, setProject]);
+    if (initialized) {
+      // NOTE: rust has a different casing for the value
+      const config = {
+        [`${axis.toLowerCase()}_order`]: prop.direction === webTypes.constants.DIRECTION_TYPE.ASC ? 1 : 0,
+        // [`${axis.toLowerCase()}_order`]: prop.direction === webTypes.constants.DIRECTION_TYPE.ASC ? 'Desc' : 'Asc',
+      };
+      console.log({...config});
+      modelRunner.update_configuration(JSON.stringify(config), true);
+    }
+  }, [axis, initialized, modelRunner, prop.direction, setProject]);
 
   return (
     <li

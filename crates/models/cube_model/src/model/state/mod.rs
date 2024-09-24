@@ -218,7 +218,7 @@ impl State {
                     self.cursor_position.y as u32,
                     is_shift_pressed,
                 );
-                true 
+                true
             }
             MouseEvent::MouseScroll => true,
             MouseEvent::Handled => false,
@@ -490,10 +490,9 @@ impl State {
         );
 
         let output = wgpu_manager.surface().get_current_texture()?;
-        let view = output
-            .texture
-            .create_view(&TextureViewDescriptor{ 
-                ..Default::default()});
+        let view = output.texture.create_view(&TextureViewDescriptor {
+            ..Default::default()
+        });
 
         let smaa_frame = self.smaa_target.start_frame(&device, queue, &view);
 
@@ -502,8 +501,8 @@ impl State {
         self.pipeline_manager
             .clear_screen(background_color, &*smaa_frame, &mut commands);
 
-          // self.pipeline_manager
-          //     .run_charms_pipeline(&*smaa_frame, &mut commands);
+        // self.pipeline_manager
+        //     .run_charms_pipeline(&*smaa_frame, &mut commands);
         let string_order = self.orientation_manager.z_order();
 
         for name in string_order {
@@ -540,12 +539,21 @@ impl State {
     pub fn run_compute_pipeline(&mut self) {
         let output_buffer = self.pipeline_manager.run_glyph_data_pipeline();
         let buffer_slice = output_buffer.slice(..);
-        buffer_slice.map_async(MapMode::Read, |_| {});
+        buffer_slice.map_async(MapMode::Read, |result| {
+            log::info!("map async complete :{:?}", result);
+        });
 
         let d = self.wgpu_manager.borrow().device();
         let d = d.borrow();
+        log::info!("about to poll");
+        let d_poll = d.poll(Maintain::Wait);
 
-        d.poll(Maintain::Wait);
+        log::info!("after poll");
+
+        match d_poll {
+            wgpu::MaintainResult::Ok => log::info!("d_poll ok"),
+            wgpu::MaintainResult::SubmissionQueueEmpty => log::info!("d_poll empty"),
+        }
 
         let view = buffer_slice.get_mapped_range();
         //our data is already in the correct order so we can

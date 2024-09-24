@@ -83,8 +83,8 @@ struct VertexOutput {
     @builtin(position) clip_position: vec4<f32>,
     @location(0) world_position: vec3<f32>,
     @location(1) world_normal: vec3<f32>,
-    @location(2) color_code: u32,
-    @location(3) flags: u32,
+    @location(2) @interpolate(flat) color_code: u32,
+    @location(3) @interpolate(flat) flags: u32,
 };
 
 fn parse_flags(flags: u32) -> Flags {

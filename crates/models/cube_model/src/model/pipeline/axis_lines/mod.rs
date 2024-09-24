@@ -85,7 +85,7 @@ impl AxisLines {
             color_table_uniform.configure_color_table_uniform(color_table_buffer, &d);
 
         let (depth_texture, depth_view, depth_sampler) =
-            wgpu_manager.create_depth_texture("Charms depth texture");
+            wgpu_manager.create_depth_texture("Axis lines depth texture");
 
         let render_pipeline = Self::configure_render_pipeline(
             &d,

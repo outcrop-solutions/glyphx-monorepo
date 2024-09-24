@@ -57,7 +57,7 @@ pub fn emit_event(event: &ModelEvent) {
             event_init.set_detail(&js_value);
             let event = web_sys::CustomEvent::new_with_event_init_dict(
                 "model-event",
-                &mut event_init, 
+                &mut event_init,
             ).unwrap();
             window
                 .dispatch_event(&event)
@@ -351,7 +351,6 @@ impl ModelRunner {
     pub async fn run(&self, width: u32, height: u32) {
         let el = EventLoop::<ModelEvent>::with_user_event().build().unwrap();
 
-
         let mut application = Application::new(
             self.configuration.clone(),
             self.data_manager.clone(),
@@ -364,6 +363,5 @@ impl ModelRunner {
         }
 
         let _ = el.run_app(&mut application);
-        
     }
 }

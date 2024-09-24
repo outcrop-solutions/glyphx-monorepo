@@ -278,7 +278,7 @@ export const buildRustPayload = (
           fieldType: 'accumulated',
           accumulatedFieldDefinition: {
             // this is different in the types!
-            fieldName: properties[webTypes.constants.AXIS.Z]['key'], // TODO: @jp-burford do accumulated field definitions not have field names?
+            fieldName: properties[webTypes.constants.AXIS.Z]['key'], // TODO: @jp-burford do accumulated field definitions not have field type as a value?
             fieldType: getFieldType(webTypes.constants.AXIS.Z, properties),
             // should this be included in the  IAccumulatedFieldDefinition interface
             ...zDateGrouping,

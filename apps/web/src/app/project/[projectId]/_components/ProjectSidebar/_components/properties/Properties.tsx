@@ -92,7 +92,7 @@ export const Properties = () => {
         switch (processor) {
           case 'vector':
             console.log(`Processing ${axis} vector data`, {modelRunner, dataToProcess});
-            await modelRunner.add_vector(axis, dataToProcess);
+            await modelRunner.add_vector(axis.toLowerCase(), dataToProcess);
             break;
           case 'stats':
             console.log('Processing stats data', {modelRunner, dataToProcess});
@@ -149,7 +149,7 @@ export const Properties = () => {
       console.log('set modeRunner state');
       setModelRunnerState({initialized: true, modelRunner, lastPayloadHash: payloadHash});
       console.log('call modeRunner.run()');
-      await modelRunner.run();
+      await modelRunner.run(1000, 1000);
     },
     [handleStream, payloadHash, processData, setDrawer, setModelRunnerState]
   );

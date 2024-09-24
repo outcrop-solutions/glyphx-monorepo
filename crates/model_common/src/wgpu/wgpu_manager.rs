@@ -1,10 +1,10 @@
 use std::{cell::RefCell, rc::Rc, sync::Arc};
 use wgpu::{
     Adapter, Backends, Device, DeviceDescriptor, Features, Instance, InstanceDescriptor, Limits,
-    PowerPreference, Queue, RequestAdapterOptions, Surface, SurfaceConfiguration, Texture, TextureView, TextureUsages, Sampler
+    PowerPreference, Queue, RequestAdapterOptions, Sampler, Surface, SurfaceConfiguration, Texture,
+    TextureUsages, TextureView,
 };
 use winit::{dpi::PhysicalSize, window::Window};
-
 
 pub struct WgpuManager {
     window: Arc<Window>,
@@ -29,7 +29,7 @@ impl WgpuManager {
         //manager, etc
         let device = Rc::new(RefCell::new(device));
         WgpuManager {
-            window : window_arc,
+            window: window_arc,
             size,
             surface,
             device,
@@ -82,13 +82,12 @@ impl WgpuManager {
             backends: Backends::all(),
             ..Default::default()
         });
-
         // The Surface is our connection to the window on which we are drawing.
         // # Safety
         //
         // The surface needs to live as long as the window that created it.
         // State owns the window so this should be safe.
-        let surface =  instance.create_surface(arc_window.clone()).unwrap();
+        let surface = instance.create_surface(arc_window.clone()).unwrap();
 
         // The adapter is a handle to a physical GPU device.
         let adapter = instance
@@ -134,7 +133,7 @@ impl WgpuManager {
         device: &Device,
     ) -> SurfaceConfiguration {
         // Get the capabilities of our surface
-        
+
         let surface_caps = surface.get_capabilities(&adapter);
         // Shader code in this crate assumes an sRGB surface texture. Using a different
         // one will result all the colors coming out darker.
@@ -143,7 +142,7 @@ impl WgpuManager {
             .formats
             .iter()
             .copied()
-            .find(|f|  f.is_srgb())
+            .find(|f| f.is_srgb())
             .unwrap_or(surface_caps.formats[0]);
 
         let config = SurfaceConfiguration {
@@ -154,22 +153,21 @@ impl WgpuManager {
             present_mode: surface_caps.present_modes[0],
             alpha_mode: surface_caps.alpha_modes[0],
             view_formats: vec![],
-            desired_maximum_frame_latency: 2
+            desired_maximum_frame_latency: 2,
         };
         //and apply it to our surface
         surface.configure(device, &config);
         config
     }
 
-    pub fn create_depth_texture(
-        &self,
-        texture_name: &str,
-    ) -> (Texture, TextureView, Sampler) {
+    pub fn create_depth_texture(&self, texture_name: &str) -> (Texture, TextureView, Sampler) {
         let d = self.device().clone();
         let d = d.borrow();
         let size = wgpu::Extent3d {
-            width: self.config.width,
-            height: self.config.height,
+            width: 1000,
+            height: 1000,
+            // width: self.config.width,
+            // height: self.config.height,
             depth_or_array_layers: 1,
         };
         let description = wgpu::TextureDescriptor {
