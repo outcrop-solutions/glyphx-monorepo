@@ -258,12 +258,11 @@ impl VectorValueProcesser for VectorProcesser {
     }
 
     fn get_max_vector(&self) -> Option<Vector> {
-
         let vec = self.vectors.get_max();
         if vec.is_none() {
             None
         } else {
-            let( _, vector) = vec.unwrap();
+            let (_, vector) = vec.unwrap();
             Some(vector.clone())
         }
     }
@@ -271,7 +270,6 @@ impl VectorValueProcesser for VectorProcesser {
     fn get_max_rank(&self) -> usize {
         self.max_rank
     }
-    
 }
 
 impl VectorProcesser {
@@ -325,7 +323,7 @@ impl VectorProcesser {
         (field_name, query)
     }
     fn start_impl<T: ThreadOperations + Sync>(&mut self, thread_operations: &'static T) {
-        let ( field_name, query) = self.build_query();
+        let (field_name, query) = self.build_query();
         let s3_file_name = self.s3_file_name.clone();
         let (sender, receiver) = channel::<Result<Vector, VectorCalculationError>>();
         self.receiver = Some(receiver);
@@ -433,10 +431,12 @@ mod tests {
     use super::*;
     mod helper_functions {
         use super::*;
-        use crate::field_definition_type::FieldDefinitionType;
-        use crate::types::vectorizer_parameters::{FieldDefinition, StandardFieldDefinition};
-        use crate::FieldType;
-        use glyphx_core::aws::S3Manager;
+        use crate::{
+            field_definition_type::FieldDefinitionType,
+            types::vectorizer_parameters::{FieldDefinition, StandardFieldDefinition},
+            FieldType,
+        };
+        use glyphx_core::{aws::S3Manager, BlockStorageManager};
 
         pub struct StringMocks1;
         #[async_trait]
@@ -1298,7 +1298,7 @@ mod tests {
         }
     }
 
-    mod get_max_value{
+    mod get_max_value {
         use super::*;
 
         #[test]
@@ -1340,7 +1340,7 @@ mod tests {
             let s3_file_name = "s3_file_name";
             let field_definition =
                 helper_functions::get_standard_field_definition("Test", "field_name");
-            let  vector_processer =
+            let vector_processer =
                 VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
             assert_eq!(vector_processer.axis_name, axis_name);
             assert_eq!(vector_processer.table_name, table_name);
@@ -1350,7 +1350,6 @@ mod tests {
             assert!(vector_processer.join_handle.is_none());
             assert_eq!(vector_processer.task_status, TaskStatus::Pending);
 
-
             let max = vector_processer.get_max_vector();
             assert!(max.is_none());
         }
@@ -1359,8 +1358,7 @@ mod tests {
         use super::*;
 
         #[tokio::test]
-       async fn is_ok() {
-
+        async fn is_ok() {
             let axis_name = "test_axis";
             let table_name = "test_table";
             let s3_file_name = "s3_file_name";
@@ -1376,82 +1374,91 @@ mod tests {
             assert!(vector_processer.join_handle.is_none());
             assert_eq!(vector_processer.task_status, TaskStatus::Pending);
 
-            let result = vector_processer.run_sync_impl(&helper_functions::StringMocks1).await;
+            let result = vector_processer
+                .run_sync_impl(&helper_functions::StringMocks1)
+                .await;
             assert_eq!(result, TaskStatus::Complete);
             assert_eq!(vector_processer.max_rank, 4);
         }
 
-       #[tokio::test]
-       async fn query_error() {
+        #[tokio::test]
+        async fn query_error() {
+            let axis_name = "test_axis";
+            let table_name = "test_table";
+            let s3_file_name = "s3_file_name";
+            let field_definition =
+                helper_functions::get_standard_field_definition("Test", "field_name");
+            let mut vector_processer =
+                VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
+            assert_eq!(vector_processer.axis_name, axis_name);
+            assert_eq!(vector_processer.table_name, table_name);
+            assert!(vector_processer.field_definition.is_standard());
+            assert!(vector_processer.receiver.is_none());
+            assert!(vector_processer.vectors.is_empty());
+            assert!(vector_processer.join_handle.is_none());
+            assert_eq!(vector_processer.task_status, TaskStatus::Pending);
 
-           let axis_name = "test_axis";
-           let table_name = "test_table";
-           let s3_file_name = "s3_file_name";
-           let field_definition =
-               helper_functions::get_standard_field_definition("Test", "field_name");
-           let mut vector_processer =
-               VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
-           assert_eq!(vector_processer.axis_name, axis_name);
-           assert_eq!(vector_processer.table_name, table_name);
-           assert!(vector_processer.field_definition.is_standard());
-           assert!(vector_processer.receiver.is_none());
-           assert!(vector_processer.vectors.is_empty());
-           assert!(vector_processer.join_handle.is_none());
-           assert_eq!(vector_processer.task_status, TaskStatus::Pending);
+            let result = vector_processer
+                .run_sync_impl(&helper_functions::MocksRunAthenaError)
+                .await;
+            match result {
+                TaskStatus::Errored(VectorCalculationError::AthenaQueryError(_)) => assert!(true),
+                _ => assert!(false),
+            }
+        }
 
-           let result = vector_processer.run_sync_impl(&helper_functions::MocksRunAthenaError).await;
-           match result {
-               TaskStatus::Errored(VectorCalculationError::AthenaQueryError(_)) => assert!(true),
-               _ => assert!(false),
-           }
-       }
+        #[tokio::test]
+        async fn get_upload_stream_fails() {
+            let axis_name = "test_axis";
+            let table_name = "test_table";
+            let s3_file_name = "s3_file_name";
+            let field_definition =
+                helper_functions::get_standard_field_definition("Test", "field_name");
+            let mut vector_processer =
+                VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
+            assert_eq!(vector_processer.axis_name, axis_name);
+            assert_eq!(vector_processer.table_name, table_name);
+            assert!(vector_processer.field_definition.is_standard());
+            assert!(vector_processer.receiver.is_none());
+            assert!(vector_processer.vectors.is_empty());
+            assert!(vector_processer.join_handle.is_none());
+            assert_eq!(vector_processer.task_status, TaskStatus::Pending);
 
-       #[tokio::test]
-       async fn get_upload_stream_fails() {
-           let axis_name = "test_axis";
-           let table_name = "test_table";
-           let s3_file_name = "s3_file_name";
-           let field_definition =
-               helper_functions::get_standard_field_definition("Test", "field_name");
-           let mut vector_processer =
-               VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
-           assert_eq!(vector_processer.axis_name, axis_name);
-           assert_eq!(vector_processer.table_name, table_name);
-           assert!(vector_processer.field_definition.is_standard());
-           assert!(vector_processer.receiver.is_none());
-           assert!(vector_processer.vectors.is_empty());
-           assert!(vector_processer.join_handle.is_none());
-           assert_eq!(vector_processer.task_status, TaskStatus::Pending);
+            let result = vector_processer
+                .run_sync_impl(&helper_functions::MocksStartUploadError)
+                .await;
+            match result {
+                TaskStatus::Errored(VectorCalculationError::GetS3UploadStreamError(_)) => {
+                    assert!(true)
+                }
+                _ => assert!(false),
+            }
+        }
 
-           let result = vector_processer.run_sync_impl(&helper_functions::MocksStartUploadError).await;
-           match result {
-               TaskStatus::Errored(VectorCalculationError::GetS3UploadStreamError(_)) => assert!(true),
-               _ => assert!(false),
-           }
-       }
+        #[tokio::test]
+        async fn write_upload_fails() {
+            let axis_name = "test_axis";
+            let table_name = "test_table";
+            let s3_file_name = "s3_file_name";
+            let field_definition =
+                helper_functions::get_standard_field_definition("Test", "field_name");
+            let mut vector_processer =
+                VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
+            assert_eq!(vector_processer.axis_name, axis_name);
+            assert_eq!(vector_processer.table_name, table_name);
+            assert!(vector_processer.field_definition.is_standard());
+            assert!(vector_processer.receiver.is_none());
+            assert!(vector_processer.vectors.is_empty());
+            assert!(vector_processer.join_handle.is_none());
+            assert_eq!(vector_processer.task_status, TaskStatus::Pending);
 
-       #[tokio::test]
-       async fn write_upload_fails() {
-           let axis_name = "test_axis";
-           let table_name = "test_table";
-           let s3_file_name = "s3_file_name";
-           let field_definition =
-               helper_functions::get_standard_field_definition("Test", "field_name");
-           let mut vector_processer =
-               VectorProcesser::new(axis_name, table_name, s3_file_name, field_definition);
-           assert_eq!(vector_processer.axis_name, axis_name);
-           assert_eq!(vector_processer.table_name, table_name);
-           assert!(vector_processer.field_definition.is_standard());
-           assert!(vector_processer.receiver.is_none());
-           assert!(vector_processer.vectors.is_empty());
-           assert!(vector_processer.join_handle.is_none());
-           assert_eq!(vector_processer.task_status, TaskStatus::Pending);
-
-           let result = vector_processer.run_sync_impl(&helper_functions::MocksWriteUploadError).await;
-           match result {
-               TaskStatus::Errored(VectorCalculationError::WriteUploadError(_)) => assert!(true),
-               _ => assert!(false),
-           }
-       }
+            let result = vector_processer
+                .run_sync_impl(&helper_functions::MocksWriteUploadError)
+                .await;
+            match result {
+                TaskStatus::Errored(VectorCalculationError::WriteUploadError(_)) => assert!(true),
+                _ => assert!(false),
+            }
+        }
     }
 }

@@ -1,5 +1,12 @@
 ///Our internal/production implementation of the S3ManagerOps trait.
-pub use crate::types::error::GlyphxErrorData;
+use crate::{
+    aws::upload_stream::{UploadStream, UploadStreamConstructorOptionsBuilder},
+    traits::S3ManagerOps,
+    types::{
+        aws::{s3_manager::*, upload_stream::*},
+        error::GlyphxErrorData,
+    },
+};
 use async_trait::async_trait;
 
 use aws_sdk_s3::{
@@ -15,10 +22,6 @@ use aws_sdk_s3::{
     Client as S3Client,
 };
 
-use crate::traits::S3ManagerOps;
-use crate::aws::upload_stream::UploadStream;
-pub use crate::types::aws::s3_manager::*;
-pub use crate::types::aws::upload_stream::*;
 use http::Request;
 use log::warn;
 use serde_json::json;
@@ -46,15 +49,14 @@ impl S3ManagerOps for S3ManagerOpsImpl {
             let e = e.into_service_error();
             if e.is_not_found() {
                 return Ok(false);
-            } else {
-                let msg = e.meta().message().unwrap().to_string();
-                let data = json!({ "bucket_name": bucket });
-                warn!(
-                    "Error calling head_bucket for bucket {}, error : {} ",
-                    bucket, e
-                );
-                Err(GlyphxErrorData::new(msg, Some(data), None))
             }
+            let msg = e.meta().message().unwrap().to_string();
+            let data = json!({ "bucket_name": bucket });
+            warn!(
+                "Error calling head_bucket for bucket {}, error : {} ",
+                bucket, e
+            );
+            Err(GlyphxErrorData::new(msg, Some(data), None))
         } else {
             Ok(true)
         }
@@ -80,15 +82,14 @@ impl S3ManagerOps for S3ManagerOpsImpl {
             let e = e.into_service_error();
             if e.is_not_found() {
                 return Ok(false);
-            } else {
-                let msg = e.meta().message().unwrap().to_string();
-                let data = json!({ "bucket_name": bucket, "key": key });
-                warn!(
-                    "Error calling head_bucket for bucket {}, error : {} ",
-                    bucket, e
-                );
-                Err(GlyphxErrorData::new(msg, Some(data), None))
             }
+            let msg = e.meta().message().unwrap().to_string();
+            let data = json!({ "bucket_name": bucket, "key": key });
+            warn!(
+                "Error calling head_bucket for bucket {}, error : {} ",
+                bucket, e
+            );
+            Err(GlyphxErrorData::new(msg, Some(data), None))
         } else {
             Ok(true)
         }
@@ -139,14 +140,13 @@ impl S3ManagerOps for S3ManagerOpsImpl {
                         Some(json!({ "bucket_name": bucket })),
                         None,
                     )));
-                } else {
-                    let msg = e.meta().to_string();
-                    return Err(ListObjectsError::UnexpectedError(GlyphxErrorData::new(
-                        msg,
-                        Some(json!({ "bucket_name": bucket })),
-                        None,
-                    )));
                 }
+                let msg = e.meta().to_string();
+                return Err(ListObjectsError::UnexpectedError(GlyphxErrorData::new(
+                    msg,
+                    Some(json!({ "bucket_name": bucket })),
+                    None,
+                )));
             }
         }
     }
@@ -210,7 +210,13 @@ impl S3ManagerOps for S3ManagerOpsImpl {
         bucket_name: &str,
         key: &str,
     ) -> Result<UploadStream, UploadStreamConstructorError> {
-        UploadStream::new(bucket_name, key, client.clone()).await
+        let options = UploadStreamConstructorOptionsBuilder::default()
+            .bucket_name(bucket_name)
+            .file_name(key)
+            .client(client.clone())
+            .build()
+            .unwrap();
+        UploadStream::new(options).await
     }
 
     ///Will handle the calls to delete_object to delete an object from S3.

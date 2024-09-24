@@ -5,24 +5,17 @@ pub use crate::types::error::GlyphxErrorData;
 use async_trait::async_trait;
 
 use aws_sdk_s3::{
-    error::SdkError,
-    operation::{
-        delete_object::{DeleteObjectError, DeleteObjectOutput},
-        get_object::{GetObjectError, GetObjectOutput},
-        head_object::{HeadObjectError, HeadObjectOutput},
-        put_object::{PutObjectError, PutObjectOutput},
-    },
-    presigning::PresigningConfig,
-    primitives::ByteStream,
-    Client as S3Client,
+    operation::get_object::GetObjectError, primitives::ByteStream,
 };
-
+pub use aws_sdk_s3::Client as S3Client;
 use crate::aws::upload_stream::UploadStream;
 use crate::traits::{BlockStorageManager, S3ManagerOps};
 pub use crate::types::aws::s3_manager::*;
 pub use crate::types::aws::upload_stream::*;
 use log::warn;
-pub use s3_manager_constructor_options::S3ManagerContructorOptions;
+pub use s3_manager_constructor_options::{
+    S3ManagerContructorOptions, S3ManagerContructorOptionsBuilder,
+};
 pub use s3_manager_ops_impl::S3ManagerOpsImpl;
 use serde_json::json;
 use std::sync::Arc;
@@ -365,7 +358,7 @@ impl S3Manager {
     /// test the new logic with no down stream effects.  This function just wraps our impl call.
     /// # Arguments
     /// * `bucket` - A String that represents the bucket name that we want to operate on.
-    async fn new(options: S3ManagerContructorOptions) -> Result<Self, ConstructorError> {
+    pub async fn new(options: S3ManagerContructorOptions) -> Result<Self, ConstructorError> {
         let config = ::aws_config::from_env().region("us-east-2").load().await;
         let client = S3Client::new(&config);
         let result = options
@@ -418,11 +411,13 @@ mod unit_tests {
     use crate::traits::MockS3ManagerOps;
     pub use s3_manager_constructor_options::S3ManagerContructorOptionsBuilder;
     use std::future::ready;
+
     macro_rules! future {
         ($e:expr) => {
             Box::pin(ready($e))
         };
     }
+
     mod constructor {
         use super::*;
         #[tokio::test]
@@ -524,7 +519,6 @@ mod unit_tests {
     #[cfg(test)]
     mod accessors {
         use super::*;
-        use std::future::ready;
 
         #[tokio::test]
         async fn get_bucket_name() {
@@ -1037,8 +1031,12 @@ mod unit_tests {
     #[cfg(test)]
     pub mod get_file_information {
         use super::*;
-        use aws_sdk_s3::primitives::{DateTime, DateTimeFormat};
-        use aws_sdk_s3::types::error::NotFound;
+        use aws_sdk_s3::{
+            error::SdkError,
+            operation::head_object::{HeadObjectError, HeadObjectOutput},
+            primitives::{DateTime, DateTimeFormat},
+            types::error::NotFound,
+        };
         use aws_smithy_runtime_api::http::{Response, StatusCode};
         use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata};
 
@@ -1132,6 +1130,7 @@ mod unit_tests {
     #[cfg(test)]
     mod get_signed_upload_url {
         use super::*;
+        use aws_sdk_s3::{error::SdkError, operation::put_object::PutObjectError};
         use aws_smithy_runtime_api::http::{Response, StatusCode};
         use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata};
 
@@ -1181,6 +1180,7 @@ mod unit_tests {
             let url = res.unwrap();
             assert_eq!(url, uri);
         }
+
         #[tokio::test]
         async fn unhandled_error() {
             let bucket = "jps-test-bucket".to_string();
@@ -1236,7 +1236,11 @@ mod unit_tests {
     #[cfg(test)]
     mod get_object_stream {
         use super::*;
-        use aws_sdk_s3::types::error::{InvalidObjectState, NoSuchKey};
+        use aws_sdk_s3::{
+            error::SdkError,
+            operation::get_object::GetObjectOutput,
+            types::error::{InvalidObjectState, NoSuchKey},
+        };
         use aws_smithy_runtime_api::http::{Response, StatusCode};
         use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata};
 
@@ -1385,6 +1389,7 @@ mod unit_tests {
     #[cfg(test)]
     mod get_upload_stream {
         use super::*;
+        use aws_sdk_s3::operation::delete_object::DeleteObjectOutput;
 
         #[tokio::test]
         async fn is_ok() {
@@ -1454,6 +1459,10 @@ mod unit_tests {
     #[cfg(test)]
     mod remove_object {
         use super::*;
+        use aws_sdk_s3::{
+            error::SdkError,
+            operation::delete_object::{DeleteObjectError, DeleteObjectOutput},
+        };
         use aws_smithy_runtime_api::http::{Response, StatusCode};
         use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata};
 
@@ -1531,6 +1540,10 @@ mod unit_tests {
     #[cfg(test)]
     mod upload_object {
         use super::*;
+        use aws_sdk_s3::{
+            error::SdkError,
+            operation::put_object::{PutObjectError, PutObjectOutput},
+        };
         use aws_smithy_runtime_api::http::{Response, StatusCode};
         use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata};
 

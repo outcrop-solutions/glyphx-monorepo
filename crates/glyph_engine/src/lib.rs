@@ -30,6 +30,7 @@ use glyphx_database::{
 use async_trait::async_trait;
 use bincode::serialize;
 use bson::{doc, DateTime};
+use derive_builder::Builder;
 use im::OrdSet;
 use mockall::automock;
 use model_common::vectors::{Vector, VectorOrigionalValue};
@@ -317,6 +318,14 @@ impl GlyphEngineOperations for GlyphEngineOperationsImpl {
     }
 }
 
+#[derive(Builder)]
+#[builder(pattern = "owned")]
+pub struct GlyphEngineConstructorOptions {
+    pub parameters: VectorizerParameters,
+    #[builder(default = "Box::new(GlyphEngineOperationsImpl)")]
+    pub dependencies: Box<dyn GlyphEngineOperations>,
+}
+
 pub struct GlyphEngine {
     parameters: VectorizerParameters,
     heartbeat: Box<dyn IHeartbeat>,
@@ -330,17 +339,21 @@ impl GlyphEngine {
     pub async fn new(
         parameters: &VectorizerParameters,
     ) -> Result<GlyphEngine, GlyphEngineInitError> {
-        Self::new_impl(parameters, Box::new(GlyphEngineOperationsImpl)).await
+        let options = GlyphEngineConstructorOptionsBuilder::default()
+            .parameters(parameters.clone())
+            .build()
+            .unwrap();
+        Self::with_options(options).await
     }
 
-    async fn new_impl(
-        parameters: &VectorizerParameters,
-        operations: Box<dyn GlyphEngineOperations>,
+    async fn with_options(
+        options: GlyphEngineConstructorOptions,
     ) -> Result<GlyphEngine, GlyphEngineInitError> {
+        let operations = options.dependencies;
         let (heartbeat, s3_connection, athena_connection, _mongo_connection) =
             Self::init(&operations).await?;
         Ok(GlyphEngine {
-            parameters: parameters.clone(),
+            parameters: options.parameters,
             heartbeat,
             s3_connection,
             athena_connection,
@@ -1165,7 +1178,11 @@ pub mod glyph_engine {
 
     async fn get_glyph_engine(operations: Box<dyn GlyphEngineOperations>) -> GlyphEngine {
         let parameters = VectorizerParameters::from_json_string(&INPUT.to_string()).unwrap();
-        GlyphEngine::new_impl(&parameters, operations)
+        let options = GlyphEngineConstructorOptionsBuilder::default()
+            .dependencies(operations)
+            .parameters(parameters)
+            .build().unwrap();
+        GlyphEngine::with_options(options)
             .await
             .unwrap()
     }
@@ -1173,7 +1190,7 @@ pub mod glyph_engine {
     #[tokio::test]
     async fn is_ok() {
         let parameters = VectorizerParameters::default();
-        let mut mocks = MockGlyphEngineOperations::new();
+        let mut mocks =Box::new(MockGlyphEngineOperations::new());
 
         mocks
             .expect_build_s3_connection()
@@ -1191,7 +1208,11 @@ pub mod glyph_engine {
             .expect_build_heartbeat()
             .returning(|| Ok(unsafe { Box::new(HEARTBEAT_INSTANCE.as_ref().unwrap().clone()) }));
 
-        let result = GlyphEngine::new_impl(&parameters, Box::new(mocks)).await;
+        let options = GlyphEngineConstructorOptionsBuilder::default()
+            .dependencies(mocks)
+            .parameters(parameters)
+            .build().unwrap();
+        let result = GlyphEngine::with_options(options).await;
         assert!(result.is_ok());
     }
 
@@ -1202,7 +1223,7 @@ pub mod glyph_engine {
         #[tokio::test]
         async fn s3_connections_errors() {
             let parameters = VectorizerParameters::default();
-            let mut mocks = MockGlyphEngineOperations::new();
+            let mut mocks = Box::new(MockGlyphEngineOperations::new());
             mocks.expect_build_s3_connection().returning(|| {
                 Err(GlyphEngineInitError::S3ConnectionError(
                     GlyphxErrorData::new(
@@ -1225,7 +1246,11 @@ pub mod glyph_engine {
                 .returning(|| Ok(unsafe { Box::new(HEARTBEAT_INSTANCE.as_ref().unwrap().clone()) }))
                 .times(0);
 
-            let result = GlyphEngine::new_impl(&parameters, Box::new(mocks)).await;
+        let options = GlyphEngineConstructorOptionsBuilder::default()
+            .dependencies(mocks)
+            .parameters(parameters)
+            .build().unwrap();
+            let result = GlyphEngine::with_options(options).await;
             assert!(result.is_err());
             let error = result.err().unwrap();
             match error {
@@ -1237,7 +1262,7 @@ pub mod glyph_engine {
         #[tokio::test]
         async fn athena_connections_errors() {
             let parameters = VectorizerParameters::default();
-            let mut mocks = MockGlyphEngineOperations::new();
+            let mut mocks = Box::new(MockGlyphEngineOperations::new());
             mocks
                 .expect_build_s3_connection()
                 .returning(|| Ok(unsafe { &S3_CONNECTION_INSTANCE.as_ref().unwrap() }))
@@ -1267,7 +1292,11 @@ pub mod glyph_engine {
                 .returning(|| Ok(unsafe { Box::new(HEARTBEAT_INSTANCE.as_ref().unwrap().clone()) }))
                 .times(0);
 
-            let result = GlyphEngine::new_impl(&parameters, Box::new(mocks)).await;
+        let options = GlyphEngineConstructorOptionsBuilder::default()
+            .dependencies(mocks)
+            .parameters(parameters)
+            .build().unwrap();
+            let result = GlyphEngine::with_options(options).await;
             assert!(result.is_err());
             let error = result.err().unwrap();
             match error {
@@ -1279,7 +1308,7 @@ pub mod glyph_engine {
         #[tokio::test]
         async fn mongodb_connections_errors() {
             let parameters = VectorizerParameters::default();
-            let mut mocks = MockGlyphEngineOperations::new();
+            let mut mocks = Box::new(MockGlyphEngineOperations::new());
             mocks
                 .expect_build_s3_connection()
                 .returning(|| Ok(unsafe { &S3_CONNECTION_INSTANCE.as_ref().unwrap() }))
@@ -1309,7 +1338,11 @@ pub mod glyph_engine {
                 .returning(|| Ok(unsafe { Box::new(HEARTBEAT_INSTANCE.as_ref().unwrap().clone()) }))
                 .times(0);
 
-            let result = GlyphEngine::new_impl(&parameters, Box::new(mocks)).await;
+        let options = GlyphEngineConstructorOptionsBuilder::default()
+            .dependencies(mocks)
+            .parameters(parameters)
+            .build().unwrap();
+            let result = GlyphEngine::with_options(options).await;
             assert!(result.is_err());
             let error = result.err().unwrap();
             match error {
@@ -1321,7 +1354,7 @@ pub mod glyph_engine {
         #[tokio::test]
         async fn heartbeat_errors() {
             let parameters = VectorizerParameters::default();
-            let mut mocks = MockGlyphEngineOperations::new();
+            let mut mocks = Box::new(MockGlyphEngineOperations::new());
             mocks
                 .expect_build_s3_connection()
                 .returning(|| Ok(unsafe { &S3_CONNECTION_INSTANCE.as_ref().unwrap() }))
@@ -1348,7 +1381,11 @@ pub mod glyph_engine {
                 })
                 .times(1);
 
-            let result = GlyphEngine::new_impl(&parameters, Box::new(mocks)).await;
+        let options = GlyphEngineConstructorOptionsBuilder::default()
+            .dependencies(mocks)
+            .parameters(parameters)
+            .build().unwrap();
+            let result = GlyphEngine::with_options(options).await;
             assert!(result.is_err());
             let error = result.err().unwrap();
             match error {
@@ -1366,7 +1403,7 @@ pub mod glyph_engine {
         #[tokio::test]
         async fn is_ok() {
             static mut CALL_NUMBER: i32 = 0;
-            let mut mocks = MockGlyphEngineOperations::new();
+            let mut mocks = Box::new(MockGlyphEngineOperations::new());
 
             mocks
                 .expect_build_s3_connection()
@@ -1435,7 +1472,11 @@ pub mod glyph_engine {
             let x_file_name = "test_x_file";
             let y_field_definition = parameters.get_field_definition("yaxis").unwrap();
             let y_file_name = "test_y_file";
-            let glyph_engine = GlyphEngine::new_impl(&parameters, Box::new(mocks))
+        let options = GlyphEngineConstructorOptionsBuilder::default()
+            .dependencies(mocks)
+            .parameters(parameters)
+            .build().unwrap();
+            let glyph_engine = GlyphEngine::with_options(options)
                 .await
                 .unwrap();
             let result = GlyphEngine::process_vectors(
@@ -1453,7 +1494,7 @@ pub mod glyph_engine {
         #[tokio::test]
         async fn x_axis_fails() {
             static mut CALL_NUMBER: i32 = 0;
-            let mut mocks = MockGlyphEngineOperations::new();
+            let mut mocks = Box::new(MockGlyphEngineOperations::new());
             mocks
                 .expect_build_s3_connection()
                 .returning(|| Ok(unsafe { &S3_CONNECTION_INSTANCE.as_ref().unwrap() }));
@@ -1515,7 +1556,11 @@ pub mod glyph_engine {
             let x_file_name = "test_x_file";
             let y_field_definition = parameters.get_field_definition("yaxis").unwrap();
             let y_file_name = "test_y_file";
-            let glyph_engine = GlyphEngine::new_impl(&parameters, Box::new(mocks))
+        let options = GlyphEngineConstructorOptionsBuilder::default()
+            .dependencies(mocks)
+            .parameters(parameters)
+            .build().unwrap();
+            let glyph_engine = GlyphEngine::with_options(options)
                 .await
                 .unwrap();
 
@@ -1541,7 +1586,7 @@ pub mod glyph_engine {
         #[tokio::test]
         async fn y_axis_fails() {
             static mut CALL_NUMBER: i32 = 0;
-            let mut mocks = MockGlyphEngineOperations::new();
+            let mut mocks = Box::new(MockGlyphEngineOperations::new());
 
             mocks
                 .expect_build_s3_connection()
@@ -1603,7 +1648,11 @@ pub mod glyph_engine {
             let x_file_name = "test_x_file";
             let y_field_definition = parameters.get_field_definition("yaxis").unwrap();
             let y_file_name = "test_y_file";
-            let glyph_engine = GlyphEngine::new_impl(&parameters, Box::new(mocks))
+        let options = GlyphEngineConstructorOptionsBuilder::default()
+            .dependencies(mocks)
+            .parameters(parameters)
+            .build().unwrap();
+            let glyph_engine = GlyphEngine::with_options(options)
                 .await
                 .unwrap();
 
@@ -1631,7 +1680,7 @@ pub mod glyph_engine {
 
         #[tokio::test]
         async fn is_ok() {
-            let mut mocks = MockGlyphEngineOperations::new();
+            let mut mocks = Box::new(MockGlyphEngineOperations::new());
 
             mocks
                 .expect_build_s3_connection()
@@ -1657,7 +1706,11 @@ pub mod glyph_engine {
             let x_field_definition = parameters.get_field_definition("xaxis").unwrap();
             let y_field_definition = parameters.get_field_definition("yaxis").unwrap();
             let z_field_definition = parameters.get_field_definition("zaxis").unwrap();
-            let glyph_engine = GlyphEngine::new_impl(&parameters, Box::new(mocks))
+        let options = GlyphEngineConstructorOptionsBuilder::default()
+            .dependencies(mocks)
+            .parameters(parameters)
+            .build().unwrap();
+            let glyph_engine = GlyphEngine::with_options(options)
                 .await
                 .unwrap();
             let filter: Option<String> = None;
@@ -1681,7 +1734,7 @@ pub mod glyph_engine {
 
         #[tokio::test]
         async fn start_query_fails() {
-            let mut mocks = MockGlyphEngineOperations::new();
+            let mut mocks = Box::new(MockGlyphEngineOperations::new());
 
             mocks
                 .expect_build_s3_connection()
@@ -1714,7 +1767,11 @@ pub mod glyph_engine {
             let x_field_definition = parameters.get_field_definition("xaxis").unwrap();
             let y_field_definition = parameters.get_field_definition("yaxis").unwrap();
             let z_field_definition = parameters.get_field_definition("zaxis").unwrap();
-            let glyph_engine = GlyphEngine::new_impl(&parameters, Box::new(mocks))
+        let options = GlyphEngineConstructorOptionsBuilder::default()
+            .dependencies(mocks)
+            .parameters(parameters)
+            .build().unwrap();
+            let glyph_engine = GlyphEngine::with_options(options)
                 .await
                 .unwrap();
             let filter: Option<String> = None;
@@ -1753,7 +1810,7 @@ pub mod glyph_engine {
         async fn is_ok() {
             //
             //1. Mock out our GlyhEngineOperations
-            let mut mocks = get_setup_mocks();
+            let mut mocks = Box::new(get_setup_mocks());
 
             mocks
                 .expect_get_upload_stream()
@@ -1773,7 +1830,6 @@ pub mod glyph_engine {
                 .times(1)
                 .returning(|_| Ok(()));
 
-            let mocks = Box::new(mocks);
             //2. Get our glyph_engine
             let glyph_engine = get_glyph_engine(mocks).await; //  GlyphEngine::new_impl(&parameters, &mocks).await.unwrap();
 
@@ -1844,7 +1900,7 @@ pub mod glyph_engine {
         #[tokio::test]
         async fn get_upload_stream_fails() {
             //1. Mock out our GlyhEngineOperations
-            let mut mocks = get_setup_mocks();
+            let mut mocks = Box::new(get_setup_mocks());
 
             mocks.expect_get_upload_stream().times(1).returning(|_, _| {
                 Err(GetUploadStreamError::UnexpectedError(GlyphxErrorData::new(
@@ -1864,7 +1920,6 @@ pub mod glyph_engine {
                 .times(0)
                 .returning(|_| Ok(()));
 
-            let mocks = Box::new(mocks);
             //2. Get our glyph_engine
             let glyph_engine = get_glyph_engine(mocks).await;
 
@@ -3189,7 +3244,7 @@ pub mod glyph_engine {
         #[tokio::test]
         async fn no_x_axis() {
             //1. Mock out our GlyhEngineOperations
-            let mut mocks = get_setup_mocks();
+            let mut mocks = Box::new(get_setup_mocks());
 
             mocks
                 .expect_add_process_tracking_error()
@@ -3202,7 +3257,6 @@ pub mod glyph_engine {
                 .returning(|_, _, _| Ok(()));
 
             mocks.expect_stop_heartbeat().times(1).return_const(());
-            let mocks = Box::new(mocks);
 
             //2. Get our glyph_engine
 
@@ -3211,7 +3265,11 @@ pub mod glyph_engine {
             input["xAxis"].take();
 
             let parameters = VectorizerParameters::from_json_string(&input.to_string()).unwrap();
-            let mut glyph_engine = GlyphEngine::new_impl(&parameters, mocks).await.unwrap();
+        let options = GlyphEngineConstructorOptionsBuilder::default()
+            .dependencies(mocks)
+            .parameters(parameters)
+            .build().unwrap();
+            let mut glyph_engine = GlyphEngine::with_options(options).await.unwrap();
             let result = glyph_engine.process().await;
 
             assert!(result.is_err());
@@ -3232,7 +3290,7 @@ pub mod glyph_engine {
         #[tokio::test]
         async fn no_y_axis() {
             //1. Mock out our GlyhEngineOperations
-            let mut mocks = get_setup_mocks();
+            let mut mocks = Box::new(get_setup_mocks());
 
             mocks
                 .expect_add_process_tracking_error()
@@ -3245,7 +3303,6 @@ pub mod glyph_engine {
                 .returning(|_, _, _| Ok(()));
 
             mocks.expect_stop_heartbeat().times(1).return_const(());
-            let mocks = Box::new(mocks);
             //2. Get our glyph_engine
 
             let mut input = INPUT.clone();
@@ -3253,7 +3310,11 @@ pub mod glyph_engine {
             input["yAxis"].take();
 
             let parameters = VectorizerParameters::from_json_string(&input.to_string()).unwrap();
-            let mut glyph_engine = GlyphEngine::new_impl(&parameters, mocks).await.unwrap();
+        let options = GlyphEngineConstructorOptionsBuilder::default()
+            .dependencies(mocks)
+            .parameters(parameters)
+            .build().unwrap();
+            let mut glyph_engine = GlyphEngine::with_options(options).await.unwrap();
             let result = glyph_engine.process().await;
 
             assert!(result.is_err());
@@ -3274,7 +3335,7 @@ pub mod glyph_engine {
         #[tokio::test]
         async fn no_z_axis() {
             //1. Mock out our GlyhEngineOperations
-            let mut mocks = get_setup_mocks();
+            let mut mocks = Box::new(get_setup_mocks());
 
             mocks
                 .expect_add_process_tracking_error()
@@ -3288,7 +3349,6 @@ pub mod glyph_engine {
 
             mocks.expect_stop_heartbeat().times(1).return_const(());
 
-            let mocks = Box::new(mocks);
             //2. Get our glyph_engine
 
             let mut input = INPUT.clone();
@@ -3296,7 +3356,11 @@ pub mod glyph_engine {
             input["zAxis"].take();
 
             let parameters = VectorizerParameters::from_json_string(&input.to_string()).unwrap();
-            let mut glyph_engine = GlyphEngine::new_impl(&parameters, mocks).await.unwrap();
+        let options = GlyphEngineConstructorOptionsBuilder::default()
+            .dependencies(mocks)
+            .parameters(parameters)
+            .build().unwrap();
+            let mut glyph_engine = GlyphEngine::with_options(options).await.unwrap();
             let result = glyph_engine.process().await;
 
             assert!(result.is_err());

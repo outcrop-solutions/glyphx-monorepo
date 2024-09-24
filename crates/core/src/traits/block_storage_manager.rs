@@ -9,7 +9,7 @@ use mockall::*;
 //location(url) or something similar.
 #[async_trait]
 #[automock]
-pub trait BlockStorageManager {
+pub trait BlockStorageManager  : std::fmt::Debug + Send + Sync{
     fn get_bucket_name(&self) -> String;
     fn get_client(&self) -> S3Client;
     async fn bucket_exists(&self) -> Result<(), BucketExistsError>;
