@@ -164,7 +164,7 @@ impl WgpuManager {
         let d = self.device().clone();
         let d = d.borrow();
         let size = wgpu::Extent3d {
-            width: 1500,
+            width: 1000,
             height: 1000,
             // width: self.config.width,
             // height: self.config.height,

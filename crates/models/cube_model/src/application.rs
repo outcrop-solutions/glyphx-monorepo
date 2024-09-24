@@ -374,6 +374,7 @@ impl ApplicationHandler<ModelEvent> for Application {
                         if self.ctrl_pressed {
                             if self.filter_on {
                                 state.update_model_filter(Query::default());
+                                
                             } else {
                                 let json_value = json!({
                                 "x": {
@@ -1020,7 +1021,6 @@ impl ApplicationHandler<ModelEvent> for Application {
 
                 ModelEvent::UpdateModelFilter(model_filter) => {
                     state.update_model_filter(model_filter);
-                    state.update_config();
                     //Once our state is updated we need to force a redraw
                     {
                         let event = ModelEvent::Redraw;
