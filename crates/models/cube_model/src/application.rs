@@ -135,7 +135,7 @@ impl ApplicationHandler<ModelEvent> for Application {
         window_id: WindowId,
         event: WindowEvent,
     ) {
-        //        eprintln!("Window Event: {:?}", event);
+        eprintln!("Window Event: {:?}", event);
         if self.state.is_some() {
             let state = self.state.as_mut().unwrap();
             let mut redraw = true;
@@ -853,6 +853,7 @@ impl ApplicationHandler<ModelEvent> for Application {
                             // All other errors (Outdated, Timeout) should be resolved by the next frame
                             Err(e) => eprintln!("{:?}", e),
                         }
+                        redraw = false;
                     }
                     WindowEvent::MouseInput {
                         state: element_state,
@@ -920,7 +921,7 @@ impl ApplicationHandler<ModelEvent> for Application {
         _device_id: DeviceId,
         event: DeviceEvent,
     ) {
-        //eprintln!("Device Event: {:?}", event);
+        eprintln!("Device Event: {:?}", event);
         if self.state.is_some() {
             let state = self.state.as_mut().unwrap();
             if state.input(&event, self.shift_pressed) {
@@ -941,11 +942,12 @@ impl ApplicationHandler<ModelEvent> for Application {
     }
 
     fn user_event(&mut self, event_loop: &ActiveEventLoop, event: ModelEvent) {
+        eprintln!("User Event: {:?}", event);
         if self.state.is_some() {
             let state = self.state.as_mut().unwrap();
             match event {
                 ModelEvent::Redraw => {
-                    state.update_config();
+                    //state.update_config();
                     match state.render() {
                         Ok(_) => {}
                         // Reconfigure the surface if lost
@@ -1024,6 +1026,14 @@ impl ApplicationHandler<ModelEvent> for Application {
                         let event = ModelEvent::Redraw;
                         send_event(event);
                     }
+                }
+                ModelEvent::GlyphsUpdated(glyphs) => {
+                    let dm = &mut self.data_manager.borrow_mut();
+                    dm.clear_glyphs();
+                    for glyph in glyphs {
+                        dm.add_ranked_glyph(glyph);
+                    }
+                    send_event(ModelEvent::Redraw);
                 }
 
                 _ => {}

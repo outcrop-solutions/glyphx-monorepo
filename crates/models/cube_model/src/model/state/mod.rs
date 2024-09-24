@@ -387,6 +387,8 @@ impl State {
 
     pub fn update_model_filter(&mut self, model_filter: Query) {
         self.model_filter = model_filter;
+        //Required so that the vertexes can be updated with the new filter.
+        self.update_config();
     }
 
     pub fn update_config(&mut self) {
@@ -408,6 +410,7 @@ impl State {
         self.pipeline_manager
             .upate_glyph_data_verticies(&self.model_filter);
 
+        eprintln!("Running compute pipeline from update_config");
         self.run_compute_pipeline();
 
         let config = self.model_configuration.borrow();
@@ -449,8 +452,11 @@ impl State {
 
     pub fn render(&mut self) -> Result<(), SurfaceError> {
         if self.first_render {
-            self.run_compute_pipeline();
+            eprintln!("First Render");
             self.first_render = false;
+            self.run_compute_pipeline();
+            //This will get run again once the compute pipeline is finished
+            return Ok(());
         }
         let buffer_manager = self.buffer_manager.borrow();
         let wgpu_manager = self.wgpu_manager.borrow();
@@ -538,37 +544,36 @@ impl State {
 
     pub fn run_compute_pipeline(&mut self) {
         let output_buffer = self.pipeline_manager.run_glyph_data_pipeline();
-        let buffer_slice = output_buffer.slice(..);
-        buffer_slice.map_async(MapMode::Read, |result| {
-            log::info!("map async complete :{:?}", result);
-        });
+        let output_buffer = std::sync::Arc::new(output_buffer);
+        let capturable = output_buffer.clone();
 
-        let d = self.wgpu_manager.borrow().device();
-        let d = d.borrow();
-        log::info!("about to poll");
-        let d_poll = d.poll(Maintain::Wait);
+        output_buffer
+            .slice(..)
+            .map_async(MapMode::Read, move |result| {
+                log::info!("map async complete :{:?}", result);
+                if result.is_ok() {
+                    let view = capturable.slice(..).get_mapped_range();
+                    //our data is already in the correct order so we can
+                    //just push the verticies into a traingle list and attach
+                    //the normals
+                    let output_data: Vec<InstanceOutput> = bytemuck::cast_slice(&view).to_vec();
 
-        log::info!("after poll");
+                    let data: Vec<GlyphVertexData> = output_data
+                        .iter()
+                        .map(|x| GlyphVertexData::from(x))
+                        .collect();
+                    unsafe {
+                        let _ = crate::EVENT_LOOP_PROXY
+                            .as_ref()
+                            .unwrap()
+                            .send_event(crate::ModelEvent::GlyphsUpdated(data));
+                    }
+                    drop(view);
+                }
 
-        match d_poll {
-            wgpu::MaintainResult::Ok => log::info!("d_poll ok"),
-            wgpu::MaintainResult::SubmissionQueueEmpty => log::info!("d_poll empty"),
-        }
+                capturable.unmap();
+            });
 
-        let view = buffer_slice.get_mapped_range();
-        //our data is already in the correct order so we can
-        //just push the verticies into a traingle list and attach
-        //the normals
-        let output_data: Vec<InstanceOutput> = bytemuck::cast_slice(&view).to_vec();
-
-        let dm = &mut self.data_manager.borrow_mut();
-        dm.clear_glyphs();
-
-        for glyph_instance in output_data.iter() {
-            let _ = dm.add_ranked_glyph(GlyphVertexData::from(glyph_instance));
-        }
-        drop(view);
-        output_buffer.unmap();
     }
 
     fn run_hit_detection_pipeline(

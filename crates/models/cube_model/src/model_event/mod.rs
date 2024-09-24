@@ -3,7 +3,7 @@ mod add_statistics;
 mod add_vector;
 mod model_move_direction;
 
-use crate::model::{filtering::Query, state::State};
+use crate::model::{filtering::Query, state::State, pipeline::glyphs::glyph_vertex_data::GlyphVertexData};
 
 pub(crate) use add_glyphs::AddGlyphData;
 pub(crate) use add_statistics::AddStatisticData;
@@ -28,7 +28,40 @@ pub enum ModelEvent {
     SelectedGlyphs(Vec<Value>),
     SelectGlyphs(Vec<u32>),
     UpdateModelFilter(Query),
+    GlyphsUpdated(Vec<GlyphVertexData>),
 }
+ impl std::fmt::Debug for ModelEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ModelEvent::StateReady(_state) => write!(f, "StateReady"),
+            ModelEvent::ModelMove(model_move_direction) => {
+                write!(f, "ModelMove({:?})", model_move_direction)
+            }
+            ModelEvent::AddVector(add_vector_data) => {
+                write!(f, "AddVector({:?})", add_vector_data)
+            }
+            ModelEvent::AddStatistic(add_statistic_data) => {
+                write!(f, "AddStatistic({:?})", add_statistic_data)
+            }
+            ModelEvent::AddGlyph(add_glyph_data) => write!(f, "AddGlyph({:?})", add_glyph_data),
+            ModelEvent::Redraw => write!(f, "Redraw"),
+            ModelEvent::ToggleAxisLines => write!(f, "ToggleAxisLines"),
+            ModelEvent::SelectGlyph {
+                x_pos,
+                y_pos,
+                multi_select,
+            } => write!(
+                f,
+                "SelectGlyph(x_pos: {}, y_pos: {}, multi_select: {})",
+                x_pos, y_pos, multi_select
+            ),
+            ModelEvent::SelectedGlyphs(glyphs) => write!(f, "SelectedGlyphs({:?})", glyphs),
+            ModelEvent::SelectGlyphs(glyphs) => write!(f, "SelectGlyphs({:?})", glyphs),
+            ModelEvent::UpdateModelFilter(query) => write!(f, "UpdateModelFilter({:?})", query),
+            ModelEvent::GlyphsUpdated(glyphs) => write!(f, "GlyphsUpdated"),
+        }
+    }
+ }
 
 //So our State cannot be serialized due to the fact that many of the WGPU structs are
 //not marked as Serialize.  We have to include a value in our enum to hold state --
@@ -80,6 +113,7 @@ impl From<&ModelEvent> for JsSafeModelEvent {
             ModelEvent::SelectedGlyphs(glyphs) => Self::SelectedGlyphs(glyphs.clone()),
             ModelEvent::SelectGlyphs(glyphs) => Self::SelectGlyphs(glyphs.clone()),
             ModelEvent::UpdateModelFilter(query) => Self::UpdateModelFilter(query.clone()),
+            ModelEvent::GlyphsUpdated(_glyphs) => Self::Other("GlyphsUpdated".to_string()),
         }
     }
 }

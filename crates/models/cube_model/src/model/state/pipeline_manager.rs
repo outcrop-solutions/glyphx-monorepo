@@ -275,7 +275,9 @@ impl PipelineManager {
         let device = device.borrow();
 
         let dm = self.data_manager.borrow();
-        let ranked_glyph_data = dm.get_glyphs().unwrap();
+        let ranked_glyph_data = dm.get_glyphs();
+        if ranked_glyph_data.is_none() { return;} 
+        let ranked_glyph_data = ranked_glyph_data.unwrap();
         let iter = ranked_glyph_data.iter(rank, rank_direction);
 
         for rank in iter {
