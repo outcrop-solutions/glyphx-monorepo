@@ -286,7 +286,7 @@ export const buildRustPayload = (
           accumulator: properties[webTypes.constants.AXIS.Z]['accumulatorType']?.toLowerCase() || 'sum', // convert between accumulatorType casing in rust glyphengine
         },
       },
-      // filter: generateFilterQuery(project.state.properties),
+      filter: generateFilterQuery(project.state.properties),
     };
 
     // checks for validity of naively created payload before returning

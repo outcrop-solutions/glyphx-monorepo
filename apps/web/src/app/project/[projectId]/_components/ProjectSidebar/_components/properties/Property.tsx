@@ -67,11 +67,10 @@ export const Property = ({axis}) => {
       })
     );
     if (initialized) {
-      // NOTE: rust has a different casing for the value
+      // NOTE: rust has integer values instead of the ts enum values
       const config = {
         [`${axis.toLowerCase()}_interpolation`]:
           prop.interpolation === webTypes.constants.INTERPOLATION_TYPE.LIN ? 1 : 0,
-        // prop.interpolation === webTypes.constants.INTERPOLATION_TYPE.LIN ? 'Log' : 'Linear',
       };
       console.log({...config});
       modelRunner.update_configuration(JSON.stringify(config), true);
@@ -88,10 +87,9 @@ export const Property = ({axis}) => {
       })
     );
     if (initialized) {
-      // NOTE: rust has a different casing for the value
+      // NOTE: rust has integer values instead of the ts enum values
       const config = {
         [`${axis.toLowerCase()}_order`]: prop.direction === webTypes.constants.DIRECTION_TYPE.ASC ? 1 : 0,
-        // [`${axis.toLowerCase()}_order`]: prop.direction === webTypes.constants.DIRECTION_TYPE.ASC ? 'Desc' : 'Asc',
       };
       console.log({...config});
       modelRunner.update_configuration(JSON.stringify(config), true);

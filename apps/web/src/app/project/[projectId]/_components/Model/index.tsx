@@ -1,5 +1,5 @@
 'use client';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {useRecoilState} from 'recoil';
 import {modelRunnerAtom} from 'state';
 import {useHotkeys} from 'react-hotkeys-hook';
@@ -48,8 +48,7 @@ export const Model = () => {
 
       console.log('within conditional', {modelRunnerState});
 
-      // Update the canvas size to maintain the aspect ratio and fit its container
-
+      let handleHitDetection;
       let handleMouseMove;
       let handleMouseUp;
       let handleMouseDown;
@@ -66,6 +65,12 @@ export const Model = () => {
           // // Call this function to resize the canvas whenever the window is resized
           // await modelRunnerState.modelRunner.run(1000, 1500);
 
+          handleHitDetection = (e) => {
+            const x = e.clientX; // X position of the click
+            const y = e.clientY; // Y position of the click
+            console.log(`Clicked at: x=${x}, y=${y}`);
+            modelRunnerState.modelRunner.select_glyph(x, y, false);
+          };
           // Function to handle mouse down events on the canvas.
           handleMouseDown = () => {
             isDragRotate = true;
@@ -93,6 +98,7 @@ export const Model = () => {
             modelRunnerState.modelRunner.add_distance(-e.deltaY);
           };
 
+          canvas.addEventListener('click', handleHitDetection);
           canvas.addEventListener('mousedown', handleMouseDown);
           canvas.addEventListener('mousemove', handleMouseMove);
           canvas.addEventListener('mouseup', handleMouseUp);
@@ -111,6 +117,7 @@ export const Model = () => {
       return () => {
         const canvas = document.getElementById('glyphx-cube-model') as HTMLCanvasElement;
         if (canvas) {
+          canvas.removeEventListener('click', handleHitDetection);
           canvas.removeEventListener('mousedown', handleMouseDown);
           canvas.removeEventListener('mousemove', handleMouseMove);
           canvas.removeEventListener('mouseup', handleMouseUp);
