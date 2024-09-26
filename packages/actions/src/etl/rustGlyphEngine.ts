@@ -244,6 +244,8 @@ export const buildRustPayload = (
           }
         : {};
 
+    const filter = generateFilterQuery(project.state.properties);
+    let filterObj = filter ? {filter} : {};
     // build payload
     const retval = {
       workspace_id: project.workspace.id as string,
@@ -286,7 +288,7 @@ export const buildRustPayload = (
           accumulator: properties[webTypes.constants.AXIS.Z]['accumulatorType']?.toLowerCase() || 'sum', // convert between accumulatorType casing in rust glyphengine
         },
       },
-      filter: generateFilterQuery(project.state.properties),
+      ...filterObj,
     };
 
     // checks for validity of naively created payload before returning

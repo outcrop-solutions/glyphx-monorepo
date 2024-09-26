@@ -12,14 +12,17 @@ export const payloadHashSelector = selector<string>({
   get: ({get}) => {
     const project = get(projectAtom);
     const s = new LatestHashStrategy();
-    const fileHash = s.hashFiles(project.files);
-    const payload = {
-      projectId: project.id!,
-      files: project.files,
-      properties: project.state.properties,
-    };
-
-    return s.hashPayload(fileHash, payload);
+    if (project?.files) {
+      const fileHash = s.hashFiles(project.files);
+      const payload = {
+        projectId: project.id!,
+        files: project.files,
+        properties: project.state.properties,
+      };
+      return s.hashPayload(fileHash, payload);
+    } else {
+      return '';
+    }
   },
 });
 
