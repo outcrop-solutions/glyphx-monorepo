@@ -66,8 +66,10 @@ export const Model = () => {
           // await modelRunnerState.modelRunner.run(1000, 1500);
 
           handleHitDetection = (e) => {
-            const x = e.clientX; // X position of the click
-            const y = e.clientY; // Y position of the click
+            // we substract the canvas position from the viewport position to get the values relative to the top left corner of the canvas
+            const canvas = e.target.getBoundingClientRect();
+            const x = e.clientX - canvas.left; // X position relative to the canvas
+            const y = e.clientY - canvas.top; // Y position relative to the canvas
             console.log(`Clicked at: x=${x}, y=${y}`);
             modelRunnerState.modelRunner.select_glyph(x, y, false);
           };
