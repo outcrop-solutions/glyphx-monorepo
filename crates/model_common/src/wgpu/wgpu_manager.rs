@@ -17,8 +17,8 @@ pub struct WgpuManager {
 
 impl WgpuManager {
     pub const DEPTH_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Depth32Float;
-    pub async fn new(window: Window) -> Self {
-        let size = window.inner_size();
+    pub async fn new(window: Window, width: u32, height: u32) -> Self {
+        let size = winit::dpi::PhysicalSize::new(width, height);
         let window_arc = Arc::new(window);
         let (surface, adapter) = Self::init_wgpu(&window_arc).await;
         let (device, queue) = Self::init_device(&adapter).await;
@@ -60,6 +60,9 @@ impl WgpuManager {
 
     pub fn config(&self) -> &SurfaceConfiguration {
         &self.config
+    }
+    pub fn get_config_size(&self) -> PhysicalSize<u32> {
+        PhysicalSize::new(self.config.width, self.config.height)
     }
 
     pub fn set_size(&mut self, size: PhysicalSize<u32>) {
@@ -164,10 +167,8 @@ impl WgpuManager {
         let d = self.device().clone();
         let d = d.borrow();
         let size = wgpu::Extent3d {
-            width: 1000,
-            height: 1000,
-            // width: self.config.width,
-            // height: self.config.height,
+            width: self.config.width,
+            height: self.config.height,
             depth_or_array_layers: 1,
         };
         let description = wgpu::TextureDescriptor {

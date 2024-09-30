@@ -144,12 +144,13 @@ export const Properties = () => {
       console.log('set resize');
       console.log('set drawer');
       setDrawer(true);
-      // const width = canvasParent!.clientWidth;
-      // const height = canvasParent!.clientHeight;
+      const canvasParent = document.getElementById('glyphx-cube-model');
+      const width = canvasParent!.clientWidth;
+      const height = canvasParent!.clientHeight;
       console.log('set modeRunner state');
       setModelRunnerState({initialized: true, modelRunner, lastPayloadHash: payloadHash});
-      console.log('call modeRunner.run()');
-      await modelRunner.run(1000, 1000);
+      console.log(`call modeRunner.run() with width: ${width} and height: ${height}`);
+      await modelRunner.run(width, height);
     },
     [handleStream, payloadHash, processData, setDrawer, setModelRunnerState]
   );

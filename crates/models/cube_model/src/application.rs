@@ -41,6 +41,8 @@ pub struct Application {
     color_wheel: ColorWheel,
     height: u32,
     width: u32,
+    window_sized: bool,
+    glyphs_updated: bool,
 }
 
 impl Application {
@@ -69,6 +71,8 @@ impl Application {
             color_wheel: ColorWheel::new(),
             height,
             width,
+            window_sized: false,
+            glyphs_updated: false,
         }
     }
 
@@ -93,11 +97,16 @@ impl Application {
 
 impl ApplicationHandler<ModelEvent> for Application {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
+        let l_s = winit::dpi::LogicalSize::new(self.width, self.height);
         let window = event_loop
-            .create_window(Window::default_attributes().with_title("GlyphX"))
+            .create_window(
+                Window::default_attributes()
+                    .with_title("GlyphX")
+                    .with_inner_size(l_s)
+                    .with_max_inner_size(l_s)
+                    .with_resizable(false),
+            )
             .unwrap();
-        let _ = window.request_inner_size(PhysicalSize::new(self.width, self.height));
-
         #[cfg(target_arch = "wasm32")]
         {
             self.configure_canvas(&window);
@@ -106,6 +115,8 @@ impl ApplicationHandler<ModelEvent> for Application {
                 self.configuration.clone(),
                 self.data_manager.clone(),
                 self.camera_manager.clone(),
+                self.width,
+                self.height,
             );
             let future = async move {
                 let state = state_future.await;
@@ -123,6 +134,8 @@ impl ApplicationHandler<ModelEvent> for Application {
                     self.configuration.clone(),
                     self.data_manager.clone(),
                     self.camera_manager.clone(),
+                    self.width,
+                    self.height,
                 )
                 .block_on(),
             );
@@ -135,8 +148,8 @@ impl ApplicationHandler<ModelEvent> for Application {
         window_id: WindowId,
         event: WindowEvent,
     ) {
-        eprintln!("Window Event: {:?}", event);
-        if self.state.is_some() {
+
+        if self.state.is_some() && self.glyphs_updated {
             let state = self.state.as_mut().unwrap();
             let mut redraw = true;
             if window_id == state.get_window_id() {
@@ -374,7 +387,6 @@ impl ApplicationHandler<ModelEvent> for Application {
                         if self.ctrl_pressed {
                             if self.filter_on {
                                 state.update_model_filter(Query::default());
-                                
                             } else {
                                 let json_value = json!({
                                 "x": {
@@ -831,13 +843,14 @@ impl ApplicationHandler<ModelEvent> for Application {
                         }
                     }
                     WindowEvent::Resized(physical_size) => {
-                        state.resize(physical_size);
+                        //state.resize(physical_size);
+                        redraw = false;
                     }
 
                     WindowEvent::ScaleFactorChanged { .. } => {
                         // new_inner_size is &&mut so we have to dereference it twice
                         let size = state.size();
-                        state.resize(size);
+                        //state.resize(size);
                     }
 
                     WindowEvent::RedrawRequested => {
@@ -874,7 +887,7 @@ impl ApplicationHandler<ModelEvent> for Application {
                                 // Reconfigure the surface if lost
                                 Err(wgpu::SurfaceError::Lost) => {
                                     let size = state.size().clone();
-                                    state.resize(size)
+                                    //state.resize(size)
                                 }
                                 // The system is out of memory, we should probably quit
                                 Err(wgpu::SurfaceError::OutOfMemory) => event_loop.exit(),
@@ -922,7 +935,6 @@ impl ApplicationHandler<ModelEvent> for Application {
         _device_id: DeviceId,
         event: DeviceEvent,
     ) {
-        eprintln!("Device Event: {:?}", event);
         if self.state.is_some() {
             let state = self.state.as_mut().unwrap();
             if state.input(&event, self.shift_pressed) {
@@ -931,7 +943,7 @@ impl ApplicationHandler<ModelEvent> for Application {
                     // Reconfigure the surface if lost
                     Err(wgpu::SurfaceError::Lost) => {
                         let size = state.size().clone();
-                        state.resize(size)
+                        //state.resize(size)
                     }
                     // The system is out of memory, we should probably quit
                     Err(wgpu::SurfaceError::OutOfMemory) => event_loop.exit(),
@@ -943,18 +955,20 @@ impl ApplicationHandler<ModelEvent> for Application {
     }
 
     fn user_event(&mut self, event_loop: &ActiveEventLoop, event: ModelEvent) {
-        eprintln!("User Event: {:?}", event);
+        //eprintln!("User Event: {:?}", event);
+        let mut redraw = true;
         if self.state.is_some() {
             let state = self.state.as_mut().unwrap();
             match event {
                 ModelEvent::Redraw => {
                     //state.update_config();
+                    redraw = false;
                     match state.render() {
-                        Ok(_) => {}
+                        Ok(_) => { }
                         // Reconfigure the surface if lost
                         Err(wgpu::SurfaceError::Lost) => {
                             let size = state.size().clone();
-                            state.resize(size)
+                            //state.resize(size)
                         }
                         // The system is out of memory, we should probably quit
                         Err(wgpu::SurfaceError::OutOfMemory) => event_loop.exit(),
@@ -1009,6 +1023,7 @@ impl ApplicationHandler<ModelEvent> for Application {
                 }
 
                 ModelEvent::SelectGlyphs(selected_glyphs) => {
+                    redraw = false;
                     let glyphs = state.update_selected_glyphs(selected_glyphs);
                     let values = glyphs.iter().map(|v| v.to_json()).collect::<Vec<Value>>();
                     emit_event(&ModelEvent::SelectedGlyphs(values));
@@ -1031,18 +1046,26 @@ impl ApplicationHandler<ModelEvent> for Application {
                     let dm = &mut self.data_manager.borrow_mut();
                     dm.clear_glyphs();
                     for glyph in glyphs {
-                        dm.add_ranked_glyph(glyph);
+                        let _ = dm.add_ranked_glyph(glyph);
                     }
-                    send_event(ModelEvent::Redraw);
+                    self.glyphs_updated = true;
                 }
 
                 _ => {}
             }
+            if redraw {
+                send_event(ModelEvent::Redraw);
+            }
         } else {
             match event {
-                ModelEvent::StateReady(new_state) => {
-                    self.state = Some(new_state);
+                ModelEvent::StateReady(mut new_state) => {
+                    {
+                        new_state.resize(new_state.get_windows_size().0);
+                        self.state = Some(new_state);
+                    }
+                    send_event(ModelEvent::Redraw);
                 }
+
                 _ => {}
             }
         }

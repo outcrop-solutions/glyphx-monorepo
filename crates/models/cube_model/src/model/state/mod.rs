@@ -82,13 +82,21 @@ pub struct State {
 }
 
 impl State {
+    pub fn get_windows_size(&self) -> (PhysicalSize<u32>, PhysicalSize<u32>) {
+        let wm = self.wgpu_manager.borrow();
+        let inner_size = wm.window().inner_size();
+        let outer_size = wm.window().outer_size();
+        (inner_size, outer_size)
+    }
     pub async fn new(
         window: Window,
         model_configuration: Rc<RefCell<ModelConfiguration>>,
         data_manager: Rc<RefCell<DataManager>>,
         camera_manager: Rc<RefCell<CameraManager>>,
+        width: u32,
+        height: u32,
     ) -> State {
-        let wgpu_manager = Rc::new(RefCell::new(WgpuManager::new(window).await));
+        let wgpu_manager = Rc::new(RefCell::new(WgpuManager::new(window, width, height).await));
         //Make a local version that we can use to pass to our configuration functions
         //Anytime we clone, we need to assign the clone to a local variable so that it does not
         //get dropped.
@@ -450,14 +458,23 @@ impl State {
             .update_glyph_uniform_y_offset(config.min_glyph_height);
     }
 
+    pub fn resolve_picking_textures(&mut self) {
+        let window_size = self.get_windows_size();
+        let config_size = self.wgpu_manager.as_ref().borrow().get_config_size();
+        if window_size.0.width != config_size.width || window_size.0.height != config_size.height {
+            self.wgpu_manager.borrow_mut().set_size(window_size.0);
+            self.pipeline_manager.update_depth_textures();
+        }
+    }
     pub fn render(&mut self) -> Result<(), SurfaceError> {
         if self.first_render {
-            eprintln!("First Render");
             self.first_render = false;
             self.run_compute_pipeline();
             //This will get run again once the compute pipeline is finished
             return Ok(());
         }
+        //self.resolve_picking_textures();
+
         let buffer_manager = self.buffer_manager.borrow();
         let wgpu_manager = self.wgpu_manager.borrow();
         let queue = wgpu_manager.queue();
@@ -507,21 +524,22 @@ impl State {
         self.pipeline_manager
             .clear_screen(background_color, &*smaa_frame, &mut commands);
 
-        // self.pipeline_manager
-        //     .run_charms_pipeline(&*smaa_frame, &mut commands);
+        //// self.pipeline_manager
+        ////     .run_charms_pipeline(&*smaa_frame, &mut commands);
+
         let string_order = self.orientation_manager.z_order();
 
         for name in string_order {
             //Glyphs has it's own logic to render in rank order so we can't really use the pipeline
             //manager trait to render it.  So, we will handle it directly.
             if name == "glyphs" {
-                self.pipeline_manager.run_glyph_pipeline(
-                    &self.selected_glyphs,
-                    self.orientation_manager.rank(),
-                    self.orientation_manager.rank_direction(),
-                    &*smaa_frame,
-                    &mut commands,
-                );
+                       self.pipeline_manager.run_glyph_pipeline(
+                           &self.selected_glyphs,
+                           self.orientation_manager.rank(),
+                           self.orientation_manager.rank_direction(),
+                           &*smaa_frame,
+                           &mut commands,
+                       );
             } else if self.axis_visible {
                 let pipeline = match name {
                     "x-axis-line" => AxisLineDirection::X,
@@ -538,7 +556,6 @@ impl State {
 
         smaa_frame.resolve();
         output.present();
-
         Ok(())
     }
 
@@ -550,7 +567,6 @@ impl State {
         output_buffer
             .slice(..)
             .map_async(MapMode::Read, move |result| {
-                log::info!("map async complete :{:?}", result);
                 if result.is_ok() {
                     let view = capturable.slice(..).get_mapped_range();
                     //our data is already in the correct order so we can
@@ -573,7 +589,6 @@ impl State {
 
                 capturable.unmap();
             });
-
     }
 
     fn run_hit_detection_pipeline(

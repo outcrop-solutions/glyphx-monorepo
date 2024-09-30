@@ -466,11 +466,11 @@ impl PipelineManager {
         device: &Device,
     ) -> (Texture, TextureView) {
         let picking_texture_desc = TextureDescriptor {
-            label: Some("Picking Texture"),
+            label: Some("Hit Detection Picking Texture"),
             size: Extent3d {
-                width: config.width,
-                height: config.height,
-                depth_or_array_layers: 1,
+               width: config.width,
+               height: config.height,
+               depth_or_array_layers: 1,
             },
             mip_level_count: 1,
             sample_count: 1,

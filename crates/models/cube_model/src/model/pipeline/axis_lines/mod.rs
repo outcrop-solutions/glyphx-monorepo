@@ -270,6 +270,7 @@ impl AxisLines {
     }
 
     pub fn run_pipeline(&self, encoder: &mut CommandEncoder, view: &wgpu::TextureView) {
+
         let mut render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
             label: Some("Axis Render Pass"),
             color_attachments: &[Some(RenderPassColorAttachment {

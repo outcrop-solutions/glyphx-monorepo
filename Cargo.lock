@@ -2660,6 +2660,7 @@ name = "model_common"
 version = "0.1.0"
 dependencies = [
  "bincode",
+ "log",
  "serde",
  "serde_json",
  "wgpu",
