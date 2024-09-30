@@ -6,7 +6,7 @@ import {Datagrid} from './DataGrid';
 import {GridHeader} from './GridHeader';
 import {ModelFooter} from './ModelFooter';
 import {filesOpenSelector} from 'state/files';
-import {modelRunnerAtom, orientationAtom, splitPaneSizeAtom, windowSizeAtom} from 'state';
+import {orientationAtom, splitPaneSizeAtom, windowSizeAtom} from 'state';
 import SplitPane from 'react-split-pane';
 import {Model} from '../Model';
 import {debounce} from 'lodash';

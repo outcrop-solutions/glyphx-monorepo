@@ -28,6 +28,7 @@ import {useFeatureIsOn} from '@growthbook/growthbook-react';
 import {useSession} from 'next-auth/react';
 import {useUrl} from 'lib/client/hooks';
 import {callGlyphEngine} from 'lib/client/network/reqs/callGlyphEngine';
+import useApplyState from 'services/useApplyState';
 
 export const ProjectProvider = ({
   children,
@@ -39,9 +40,8 @@ export const ProjectProvider = ({
   project: databaseTypes.IProject;
 }) => {
   const {data: templateData, isLoading: templateLoading} = useTemplates();
-  const session = useSession();
-  const url = useUrl();
   const projectViewRef = useRef(null);
+  const {applyState} = useApplyState();
 
   // keeps track of whether we have opened the first state
   const [hasDrawerBeenShown, setHasDrawerBeenShown] = useRecoilState(hasDrawerBeenShownAtom);
@@ -59,10 +59,6 @@ export const ProjectProvider = ({
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
   const setCamera = useSetRecoilState(cameraAtom);
   const setImageHash = useSetRecoilState(imageHashAtom);
-  const setLoading = useSetRecoilState(showLoadingAtom);
-  const setDrawer = useSetRecoilState(drawerOpenAtom);
-  const setActiveState = useSetRecoilState(activeStateAtom);
-  const setResize = useSetRecoilState(splitPaneSizeAtom);
 
   // hydrate recoil state
   useEffect(() => {
@@ -94,7 +90,6 @@ export const ProjectProvider = ({
         });
       });
 
-      console.log({project, newFormattedProject});
       setProject(newFormattedProject);
       setRowIds(false);
       setTemplates(templateData);
@@ -121,21 +116,9 @@ export const ProjectProvider = ({
     const filtered = project.stateHistory.filter((s) => !s.deletedAt);
     if (Array.isArray(filtered) && filtered?.length > 0) {
       const idx = filtered.length - 1;
-      const {id, camera, rowIds} = filtered[idx];
-      if (id) {
-        setActiveState(id);
-        await callGlyphEngine({
-          project,
-          setLoading,
-          setDrawer,
-          setResize,
-          setImageHash,
-          setCamera,
-          stateId: id,
-          camera,
-          rowIds,
-        });
-        console.log('openLastState', {stateId: id});
+      const state = filtered[idx];
+      if (state) {
+        applyState(state);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

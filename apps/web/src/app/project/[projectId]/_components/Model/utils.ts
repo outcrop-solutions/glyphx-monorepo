@@ -1,3 +1,7 @@
+/**
+ * This is different in that it created a link to download the model screenshot to your desktop
+ * @returns {void}
+ */
 export const screenshotModel = () => {
   const canvas = document.getElementById('cube_model') as HTMLCanvasElement;
   const gl = canvas.getContext('webgl2', {preserveDrawingBuffer: true});
@@ -38,6 +42,7 @@ export const screenshotModel = () => {
 
       // Download or use the image data as needed
       const dataUrl = tempCanvas.toDataURL('image/png');
+
       const link = document.createElement('a');
       link.href = dataUrl;
       link.download = 'canvas-screenshot.png';
@@ -49,6 +54,10 @@ export const screenshotModel = () => {
   });
 };
 
+/**
+ * This returns the data for the screenshot to be passed into the createState action - we can probably clean this up to be more DRY but it works so I'm not touching it for now
+ * @returns
+ */
 export const stateSnapshot = () => {
   const canvas = document.getElementById('cube_model') as HTMLCanvasElement;
   const gl = canvas.getContext('webgl2', {preserveDrawingBuffer: true});
@@ -67,7 +76,6 @@ export const stateSnapshot = () => {
 
     if (pixels.some((byte) => byte !== 0)) {
       console.log('Data captured!');
-
       // WebGL's coordinate system starts from the bottom left corner, while the typical image and canvas coordinate systems start from the top left corner. To correct this, you need to flip the image data vertically after capturing it but before using it
 
       // Flip the image data vertically

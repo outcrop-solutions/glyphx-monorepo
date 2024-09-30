@@ -6,7 +6,6 @@ import {CameraIcon} from '@heroicons/react/outline';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {modelRunnerAtom, projectAtom, rowIdsAtom} from 'state';
 import {createState} from 'actions';
-import {webTypes} from 'types';
 import useApplyState from 'services/useApplyState';
 import {stateSnapshot} from '../../../Model/utils';
 
