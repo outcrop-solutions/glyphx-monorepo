@@ -1017,11 +1017,14 @@ impl ApplicationHandler<ModelEvent> for Application {
                     y_pos,
                     multi_select,
                 } => {
-                    let res = state.hit_detection(x_pos as u32, y_pos as u32, multi_select);
+                    redraw = false;
+                    state.hit_detection(x_pos as u32, y_pos as u32, multi_select);
+                }
+                ModelEvent::HitDetection(hit) => {
+                    let res = state.process_hit(hit); 
                     let values = res.iter().map(|v| v.to_json()).collect::<Vec<Value>>();
                     emit_event(&ModelEvent::SelectedGlyphs(values));
                 }
-
                 ModelEvent::SelectGlyphs(selected_glyphs) => {
                     redraw = false;
                     let glyphs = state.update_selected_glyphs(selected_glyphs);

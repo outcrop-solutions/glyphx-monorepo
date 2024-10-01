@@ -3,7 +3,11 @@ mod add_statistics;
 mod add_vector;
 mod model_move_direction;
 
-use crate::model::{filtering::Query, state::State, pipeline::glyphs::glyph_vertex_data::GlyphVertexData};
+use crate::model::{
+    filtering::Query,
+    pipeline::{glyphs::glyph_vertex_data::GlyphVertexData, hit_detection::Hit},
+    state::State,
+};
 
 pub(crate) use add_glyphs::AddGlyphData;
 pub(crate) use add_statistics::AddStatisticData;
@@ -29,8 +33,9 @@ pub enum ModelEvent {
     SelectGlyphs(Vec<u32>),
     UpdateModelFilter(Query),
     GlyphsUpdated(Vec<GlyphVertexData>),
+    HitDetection(Hit),
 }
- impl std::fmt::Debug for ModelEvent {
+impl std::fmt::Debug for ModelEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ModelEvent::StateReady(_state) => write!(f, "StateReady"),
@@ -58,10 +63,11 @@ pub enum ModelEvent {
             ModelEvent::SelectedGlyphs(glyphs) => write!(f, "SelectedGlyphs({:?})", glyphs),
             ModelEvent::SelectGlyphs(glyphs) => write!(f, "SelectGlyphs({:?})", glyphs),
             ModelEvent::UpdateModelFilter(query) => write!(f, "UpdateModelFilter({:?})", query),
-            ModelEvent::GlyphsUpdated(glyphs) => write!(f, "GlyphsUpdated"),
+            ModelEvent::GlyphsUpdated(_glyphs) => write!(f, "GlyphsUpdated"),
+            ModelEvent::HitDetection(hit) => write!(f, "HitDetection({:?})", hit),
         }
     }
- }
+}
 
 //So our State cannot be serialized due to the fact that many of the WGPU structs are
 //not marked as Serialize.  We have to include a value in our enum to hold state --
@@ -84,6 +90,7 @@ pub enum JsSafeModelEvent {
     SelectedGlyphs(Vec<Value>),
     SelectGlyphs(Vec<u32>),
     UpdateModelFilter(Query),
+    HitDetection(Hit),
     Other(String),
 }
 
@@ -114,6 +121,7 @@ impl From<&ModelEvent> for JsSafeModelEvent {
             ModelEvent::SelectGlyphs(glyphs) => Self::SelectGlyphs(glyphs.clone()),
             ModelEvent::UpdateModelFilter(query) => Self::UpdateModelFilter(query.clone()),
             ModelEvent::GlyphsUpdated(_glyphs) => Self::Other("GlyphsUpdated".to_string()),
+            ModelEvent::HitDetection(hit) => Self::HitDetection(hit.clone()),
         }
     }
 }

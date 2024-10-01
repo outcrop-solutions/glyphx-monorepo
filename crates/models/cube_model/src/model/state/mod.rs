@@ -36,7 +36,7 @@ use crate::{
                 ranked_glyph_data::{Rank, RankDirection, RankedGlyphData},
                 Glyphs,
             },
-            hit_detection::{decode_glyph_id, HitDetection},
+            hit_detection::{decode_glyph_id, HitDetection, Hit},
         },
     },
     Order,
@@ -255,13 +255,12 @@ impl State {
         x_pos: u32,
         y_pos: u32,
         is_shift_pressed: bool,
-    ) -> &Vec<SelectedGlyph> {
+    ) {
         let device = self.wgpu_manager.borrow().device();
         let device = device.borrow();
 
         //TODO: we should really react to an error here.
         let _ = self.run_hit_detection_pipeline(&device, x_pos, y_pos, is_shift_pressed);
-        &self.selected_glyphs
     }
 
     pub fn move_camera(&mut self, direction: &str, amount: f32) {
@@ -590,6 +589,36 @@ impl State {
                 capturable.unmap();
             });
     }
+    pub fn process_hit(&mut self, hit: Hit) -> &Vec<SelectedGlyph> {
+        if hit.glyph_id != 16777215 {
+            let glyph_desc = self
+                .data_manager
+                .borrow()
+                .get_glyph_description(hit.glyph_id)
+                .unwrap();
+            if !self
+                .selected_glyphs
+                .iter()
+                .any(|sg| sg.glyph_id == hit.glyph_id)
+            {
+                if !hit.shift_pressed {
+                    self.selected_glyphs.clear();
+                }
+                self.selected_glyphs.push(glyph_desc);
+            } else {
+                let index = self
+                    .selected_glyphs
+                    .iter()
+                    .position(|r| r.glyph_id == hit.glyph_id);
+                if let Some(index) = index {
+                    self.selected_glyphs.remove(index);
+                }
+            }
+        } else if !hit.shift_pressed {
+            self.selected_glyphs.clear();
+        }
+        &self.selected_glyphs
+    }
 
     fn run_hit_detection_pipeline(
         &mut self,
@@ -602,45 +631,35 @@ impl State {
             self.orientation_manager.rank(),
             self.orientation_manager.rank_direction(),
         );
-        let buffer_slice = output_buffer.slice(..);
-        buffer_slice.map_async(MapMode::Read, |_| {});
-        device.poll(Maintain::Wait);
+        let output_buffer = std::sync::Arc::new(output_buffer);
+        let captuable = output_buffer.clone();
 
-        let view = buffer_slice.get_mapped_range();
-        let pixel_pos = (y_pos as u32 * bytes_per_row + x_pos as u32 * 4) as usize;
-        let val = &view[pixel_pos..pixel_pos + 4];
+        output_buffer.slice(..).map_async(MapMode::Read, move |result| {
+            let mut glyph_id = 0;
+            let mut send_event = false;
+            if result.is_ok() {
+                let view = captuable.slice(..).get_mapped_range();
+                let pixel_pos = (y_pos as u32 * bytes_per_row + x_pos as u32 * 4) as usize;
+                let val = &view[pixel_pos..pixel_pos + 4];
 
-        let glyph_id = decode_glyph_id([val[0], val[1], val[2], val[3]]);
-        if glyph_id != 16777215 {
-            let glyph_desc = self
-                .data_manager
-                .borrow()
-                .get_glyph_description(glyph_id)
-                .unwrap();
-            if !self
-                .selected_glyphs
-                .iter()
-                .any(|sg| sg.glyph_id == glyph_id)
-            {
-                if !is_shift_pressed {
-                    self.selected_glyphs.clear();
-                }
-                self.selected_glyphs.push(glyph_desc);
-            } else {
-                let index = self
-                    .selected_glyphs
-                    .iter()
-                    .position(|r| r.glyph_id == glyph_id);
-                if let Some(index) = index {
-                    self.selected_glyphs.remove(index);
+                glyph_id = decode_glyph_id([val[0], val[1], val[2], val[3]]);
+                drop(view);
+                send_event = true;
+            }
+
+            captuable.unmap();
+            if send_event {
+                unsafe {
+                    let _ = crate::EVENT_LOOP_PROXY
+                        .as_ref()
+                        .unwrap()
+                        .send_event(crate::ModelEvent::HitDetection(Hit {
+                            glyph_id,
+                            shift_pressed: is_shift_pressed,
+                        }));
                 }
             }
-        } else if !is_shift_pressed {
-            self.selected_glyphs.clear();
-        }
-        drop(view);
-        output_buffer.unmap();
-
+        });
         Ok(())
     }
 
