@@ -10,46 +10,50 @@
 //! Full integratiuon tests exist in the tests/aws directory to test theses methods against AWS.
 mod athena_manager_constructor_options;
 mod athena_manager_ops_impl;
-use aws_sdk_athena::config::http::HttpResponse as Response;
-use aws_sdk_athena::error::ProvideErrorMetadata;
-use aws_sdk_athena::types::{QueryExecutionContext, QueryExecutionState, ResultConfiguration};
-use aws_sdk_athena::Client as AthenaClient;
-use aws_sdk_s3::error::SdkError;
-use aws_smithy_async::future::pagination_stream::PaginationStream;
 
-use aws_sdk_athena::operation::get_query_execution::{
-    GetQueryExecutionError, GetQueryExecutionOutput,
+pub use crate::{
+    traits::{AthenaManagerOps, IDatabase},
+    types::{
+        aws::athena_manager::{
+            athena_manager_errors::{
+                AthenaStreamIteratorError, ConstructorError, GetQueryPagerError,
+                GetQueryResultsError as GlyphxGetQueryResultsError, GetQueryStatusError,
+                GetTableDescriptionError, RunQueryError, StartQueryError,
+            },
+            query_status::AthenaQueryStatus,
+            table_description::*,
+        },
+        error::GlyphxErrorData,
+    },
 };
-use aws_sdk_athena::operation::start_query_execution::{
-    StartQueryExecutionError, StartQueryExecutionOutput,
-};
-
-use aws_sdk_athena::operation::get_query_results::{GetQueryResultsError, GetQueryResultsOutput};
-
-use aws_sdk_athena::operation::get_database::{GetDatabaseError, GetDatabaseOutput};
 
 use super::result_set_converter::convert_to_json;
-use crate::traits::{AthenaManagerOps, IDatabase};
-
-pub use crate::types::aws::athena_manager::athena_manager_errors::{
-    AthenaStreamIteratorError, ConstructorError, GetQueryPagerError,
-    GetQueryResultsError as GlyphxGetQueryResultsError, GetQueryStatusError,
-    GetTableDescriptionError, RunQueryError, StartQueryError,
-};
-pub use crate::types::aws::athena_manager::query_status::AthenaQueryStatus;
-pub use crate::types::aws::athena_manager::table_description::*;
-pub use crate::types::error::GlyphxErrorData;
-
-use async_trait::async_trait;
 
 pub use athena_manager_constructor_options::{
     AthenaManagerConstructorOptions, AthenaManagerConstructorOptionsBuilder,
 };
 use athena_manager_ops_impl::AthenaManagerOpsImpl;
+
+use async_trait::async_trait;
+use aws_sdk_athena::{
+    config::http::HttpResponse as Response,
+    error::{ProvideErrorMetadata, SdkError},
+    operation::{
+        get_database::{GetDatabaseError, GetDatabaseOutput},
+        get_query_execution::{GetQueryExecutionError, GetQueryExecutionOutput},
+        get_query_results::{GetQueryResultsError, GetQueryResultsOutput},
+        start_query_execution::{StartQueryExecutionError, StartQueryExecutionOutput},
+    },
+    types::{QueryExecutionContext, QueryExecutionState, ResultConfiguration},
+    Client as AthenaClient,
+};
+
+use aws_smithy_async::future::pagination_stream::PaginationStream;
 use mockall::*;
 use serde_json::{json, Value};
 use std::time::{Duration, Instant};
 use tokio_stream::Stream;
+
 ///The AthenaManager is used to execute queries against AWS Athena.
 #[derive(Debug)]
 pub struct AthenaManager {
@@ -374,6 +378,7 @@ impl AthenaManager {
         }
     }
 }
+
 
 impl Default for AthenaManager {
     fn default() -> Self {
@@ -849,13 +854,19 @@ mod unit_tests {
     use super::*;
     use crate::traits::MockAthenaManagerOps;
 
-    pub mod constructor {
-        use super::*;
-        use aws_sdk_athena::types::error::{
+    use aws_sdk_athena::types::{
+        error::{
             InternalServerException, InvalidRequestException, MetadataException,
-        };
-        use aws_smithy_runtime_api::http::{Response, StatusCode};
-        use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata};
+            TooManyRequestsException,
+        },
+        AthenaError, ColumnInfo, ColumnNullable, Datum, QueryExecution, QueryExecutionStatus,
+        ResultSet, ResultSetMetadata, Row,
+    };
+    use aws_smithy_runtime_api::http::{Response, StatusCode};
+    use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata};
+
+    mod constructor {
+        use super::*;
 
         #[tokio::test]
         async fn is_ok() {
@@ -1001,8 +1012,7 @@ mod unit_tests {
         }
     }
 
-    #[cfg(test)]
-    pub mod accessors {
+    mod accessors {
         use super::*;
 
         #[tokio::test]
@@ -1054,14 +1064,8 @@ mod unit_tests {
         }
     }
 
-    #[cfg(test)]
-    pub mod start_query {
+    mod start_query {
         use super::*;
-        use aws_sdk_athena::types::error::{
-            InternalServerException, InvalidRequestException, TooManyRequestsException,
-        };
-        use aws_smithy_runtime_api::http::{Response, StatusCode};
-        use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata};
 
         #[tokio::test]
         async fn is_ok() {
@@ -1318,13 +1322,8 @@ mod unit_tests {
         }
     }
 
-    #[cfg(test)]
-    pub mod get_query_status {
+    mod get_query_status {
         use super::*;
-        use aws_sdk_athena::types::error::{InternalServerException, InvalidRequestException};
-        use aws_sdk_athena::types::{AthenaError, QueryExecution, QueryExecutionStatus};
-        use aws_smithy_runtime_api::http::{Response, StatusCode};
-        use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata};
 
         #[tokio::test]
         async fn is_queued() {
@@ -1745,17 +1744,8 @@ mod unit_tests {
         }
     }
 
-    #[cfg(test)]
-    pub mod get_query_results {
+    mod get_query_results {
         use super::*;
-        use aws_sdk_athena::types::error::{
-            InternalServerException, InvalidRequestException, TooManyRequestsException,
-        };
-        use aws_sdk_athena::types::{
-            ColumnInfo, ColumnNullable, Datum, ResultSet, ResultSetMetadata, Row,
-        };
-        use aws_smithy_runtime_api::http::{Response, StatusCode};
-        use aws_smithy_types::{body::SdkBody, error::metadata::ErrorMetadata};
 
         fn get_result_set_metadata() -> ResultSetMetadata {
             ResultSetMetadata::builder()
@@ -2352,7 +2342,6 @@ mod unit_tests {
         }
     }
 
-    #[cfg(test)]
     mod convert_get_query_status_error_to_run_query_error {
         use super::*;
 
@@ -2450,7 +2439,6 @@ mod unit_tests {
         }
     }
 
-    #[cfg(test)]
     mod convert_get_query_results_error_to_run_query_error {
         use super::*;
 
@@ -2592,11 +2580,6 @@ mod unit_tests {
     mod run_query {
         use super::*;
 
-        use aws_sdk_athena::types::QueryExecution;
-        use aws_sdk_athena::types::QueryExecutionStatus;
-        use aws_sdk_athena::types::{
-            AthenaError, ColumnInfo, ColumnNullable, Datum, ResultSet, ResultSetMetadata, Row,
-        };
         fn get_result_set_metadata() -> ResultSetMetadata {
             ResultSetMetadata::builder()
                 .set_column_info(Some(vec![
@@ -2656,6 +2639,7 @@ mod unit_tests {
             let query_id = "query_id";
 
             let mut mocks = Box::new(MockAthenaManagerOps::new());
+
             mocks.expect_get_database().times(1).returning(|_, _, _| {
                 let output = GetDatabaseOutput::builder().build();
                 Ok(output)
@@ -2676,7 +2660,7 @@ mod unit_tests {
                 .times(1)
                 .returning(move |_, _| {
                     let query_execution_status = QueryExecutionStatus::builder()
-                        .state(QueryExecutionState::Queued)
+                        .state(QueryExecutionState::Succeeded)
                         .build();
 
                     let query_execution = QueryExecution::builder()
@@ -2830,23 +2814,20 @@ mod unit_tests {
                     Ok(output)
                 });
 
-            mocks
-                .expect_get_query_execution()
-                .times(1)
-                .returning(move |_, _| {
-                    let query_execution_status = QueryExecutionStatus::builder()
-                        .state(QueryExecutionState::Running)
-                        .build();
+            mocks.expect_get_query_execution().returning(move |_, _| {
+                let query_execution_status = QueryExecutionStatus::builder()
+                    .state(QueryExecutionState::Running)
+                    .build();
 
-                    let query_execution = QueryExecution::builder()
-                        .status(query_execution_status)
-                        .build();
+                let query_execution = QueryExecution::builder()
+                    .status(query_execution_status)
+                    .build();
 
-                    let output = GetQueryExecutionOutput::builder()
-                        .query_execution(query_execution)
-                        .build();
-                    Ok(output)
-                });
+                let output = GetQueryExecutionOutput::builder()
+                    .query_execution(query_execution)
+                    .build();
+                Ok(output)
+            });
 
             mocks
                 .expect_get_query_results()
@@ -2897,32 +2878,49 @@ mod unit_tests {
             //NOTE: you need to find an example of returning an error her.  See the expectation
             //name in the a register.
             mocks
-                .expect_start_query_impl()
+                .expect_start_query_execution()
                 .times(1)
-                .returning(move |_, _, _| {
-                    Err(StartQueryError::UnexpectedError(GlyphxErrorData::new(
-                        String::from("An Unexpected Error has Occurred"),
-                        None,
-                        None,
-                    )))
+                .returning(move |_, _, _, _, _| {
+                    let meta = ErrorMetadata::builder()
+                        .message("an error has occurred")
+                        .code("500")
+                        .build();
+                    let too_many_request_exception = TooManyRequestsException::builder()
+                        .message("an error has occurred")
+                        .meta(meta)
+                        .build();
+                    let err = StartQueryExecutionError::TooManyRequestsException(
+                        too_many_request_exception,
+                    );
+                    let inner_status = http::StatusCode::from_u16(200).unwrap();
+                    let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                    let headers = inner.headers_mut();
+                    headers.insert(
+                        "Content-Type",
+                        http::HeaderValue::from_str("application/json").unwrap(),
+                    );
+                    Err(SdkError::service_error(err, inner))
                 });
 
             mocks
-                .expect_get_query_status_impl()
+                .expect_get_query_execution()
                 .times(0)
                 .returning(|_, _| {
-                    let output = AthenaQueryStatus::Running;
+                    let query_execution_status = QueryExecutionStatus::builder()
+                        .state(QueryExecutionState::Queued)
+                        .build();
+
+                    let query_execution = QueryExecution::builder()
+                        .status(query_execution_status)
+                        .build();
+
+                    let output = GetQueryExecutionOutput::builder()
+                        .query_execution(query_execution)
+                        .build();
                     Ok(output)
                 });
 
-            mocks
-                .expect_get_query_results_impl()
-                .times(0)
-                .returning(|_, _, _| {
-                    let output = get_result_set();
-
-                    Ok(convert_to_json(&output, None))
-                });
+            mocks.expect_get_query_results().times(0);
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
                 .catalog(catalog)
@@ -2941,7 +2939,7 @@ mod unit_tests {
 
             let err = result.unwrap_err();
             let is_unexpected = match err {
-                RunQueryError::UnexpectedError(_) => true,
+                RunQueryError::RequestWasThrottled(_) => true,
                 _ => false,
             };
 
@@ -2963,30 +2961,35 @@ mod unit_tests {
             });
 
             mocks
-                .expect_start_query_impl()
+                .expect_start_query_execution()
                 .times(1)
-                .returning(move |_, _, _| Ok(query_id_clone.clone()));
+                .returning(move |_, _, _, _, _| {
+                    let output = StartQueryExecutionOutput::builder()
+                        .query_execution_id(query_id_clone.clone())
+                        .build();
+                    Ok(output)
+                });
 
             mocks
-                .expect_get_query_status_impl()
+                .expect_get_query_execution()
                 .times(1)
                 .returning(|_, _| {
-                    let output = GetQueryStatusError::UnexpectedError(GlyphxErrorData::new(
-                        String::from("An Unexpected Error has Occurred"),
-                        None,
-                        None,
-                    ));
-                    Err(output)
+                    let meta = ErrorMetadata::builder()
+                        .message("an error has occurred")
+                        .code("500")
+                        .build();
+                    let err = GetQueryExecutionError::generic(meta);
+                    let inner_status = http::StatusCode::from_u16(200).unwrap();
+                    let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                    let headers = inner.headers_mut();
+                    headers.insert(
+                        "Content-Type",
+                        http::HeaderValue::from_str("application/json").unwrap(),
+                    );
+                    Err(SdkError::service_error(err, inner))
                 });
 
-            mocks
-                .expect_get_query_results_impl()
-                .times(0)
-                .returning(|_, _, _| {
-                    let output = get_result_set();
-
-                    Ok(convert_to_json(&output, None))
-                });
+            mocks.expect_get_query_results().times(0);
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
                 .catalog(catalog)
@@ -3027,31 +3030,39 @@ mod unit_tests {
             });
 
             mocks
-                .expect_start_query_impl()
+                .expect_start_query_execution()
                 .times(1)
-                .returning(move |_, _, _| Ok(query_id_clone.clone()));
-
-            mocks
-                .expect_get_query_status_impl()
-                .times(1)
-                .returning(|_, _| {
-                    let output = AthenaQueryStatus::Failed(
-                        AthenaError::builder()
-                            .error_message("Your query has failed")
-                            .build(),
-                    );
-
+                .returning(move |_, _, _, _, _| {
+                    let output = StartQueryExecutionOutput::builder()
+                        .query_execution_id(query_id_clone.clone())
+                        .build();
                     Ok(output)
                 });
 
             mocks
-                .expect_get_query_results_impl()
-                .times(0)
-                .returning(|_, _, _| {
-                    let output = get_result_set();
+                .expect_get_query_execution()
+                .times(1)
+                .returning(|_, _| {
+                    let query_execution_status = QueryExecutionStatus::builder()
+                        .state(QueryExecutionState::Failed)
+                        .athena_error(
+                            AthenaError::builder()
+                                .error_message("Your query has failed")
+                                .build(),
+                        )
+                        .build();
 
-                    Ok(convert_to_json(&output, None))
+                    let query_execution = QueryExecution::builder()
+                        .status(query_execution_status)
+                        .build();
+
+                    let output = GetQueryExecutionOutput::builder()
+                        .query_execution(query_execution)
+                        .build();
+                    Ok(output)
                 });
+
+            mocks.expect_get_query_results().times(0);
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
                 .catalog(catalog)
@@ -3086,33 +3097,41 @@ mod unit_tests {
 
             let query_id_clone = query_id.to_string();
             let mut mocks = Box::new(MockAthenaManagerOps::new());
+
             mocks.expect_get_database().times(1).returning(|_, _, _| {
                 let output = GetDatabaseOutput::builder().build();
                 Ok(output)
             });
 
             mocks
-                .expect_start_query_impl()
+                .expect_start_query_execution()
                 .times(1)
-                .returning(move |_, _, _| Ok(query_id_clone.clone()));
-
-            mocks
-                .expect_get_query_status_impl()
-                .times(1)
-                .returning(|_, _| {
-                    let output = AthenaQueryStatus::Cancelled;
-
+                .returning(move |_, _, _, _, _| {
+                    let output = StartQueryExecutionOutput::builder()
+                        .query_execution_id(query_id_clone.clone())
+                        .build();
                     Ok(output)
                 });
 
             mocks
-                .expect_get_query_results_impl()
-                .times(0)
-                .returning(|_, _, _| {
-                    let output = get_result_set();
+                .expect_get_query_execution()
+                .times(1)
+                .returning(|_, _| {
+                    let query_execution_status = QueryExecutionStatus::builder()
+                        .state(QueryExecutionState::Cancelled)
+                        .build();
 
-                    Ok(convert_to_json(&output, None))
+                    let query_execution = QueryExecution::builder()
+                        .status(query_execution_status)
+                        .build();
+
+                    let output = GetQueryExecutionOutput::builder()
+                        .query_execution(query_execution)
+                        .build();
+                    Ok(output)
                 });
+
+            mocks.expect_get_query_results().times(0);
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
                 .catalog(catalog)
@@ -3153,30 +3172,48 @@ mod unit_tests {
             });
 
             mocks
-                .expect_start_query_impl()
+                .expect_start_query_execution()
                 .times(1)
-                .returning(move |_, _, _| Ok(query_id_clone.clone()));
-
-            mocks
-                .expect_get_query_status_impl()
-                .times(1)
-                .returning(|_, _| {
-                    let output = AthenaQueryStatus::Succeeded;
+                .returning(move |_, _, _, _, _| {
+                    let output = StartQueryExecutionOutput::builder()
+                        .query_execution_id(query_id_clone.clone())
+                        .build();
                     Ok(output)
                 });
 
             mocks
-                .expect_get_query_results_impl()
+                .expect_get_query_execution()
                 .times(1)
-                .returning(|_, _, _| {
-                    let output = GlyphxGetQueryResultsError::UnexpectedError(GlyphxErrorData::new(
-                        String::from("An Unexpected Error has Occurred"),
-                        None,
-                        None,
-                    ));
+                .returning(|_, _| {
+                    let query_execution_status = QueryExecutionStatus::builder()
+                        .state(QueryExecutionState::Succeeded)
+                        .build();
 
-                    Err(output)
+                    let query_execution = QueryExecution::builder()
+                        .status(query_execution_status)
+                        .build();
+
+                    let output = GetQueryExecutionOutput::builder()
+                        .query_execution(query_execution)
+                        .build();
+                    Ok(output)
                 });
+
+            mocks.expect_get_query_results().times(1).returning(|_, _| {
+                let meta = ErrorMetadata::builder()
+                    .message("an error has occurred")
+                    .code("500")
+                    .build();
+                let err = GetQueryResultsError::generic(meta);
+                let inner_status = http::StatusCode::from_u16(200).unwrap();
+                let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                let headers = inner.headers_mut();
+                headers.insert(
+                    "Content-Type",
+                    http::HeaderValue::from_str("application/json").unwrap(),
+                );
+                Err(SdkError::service_error(err, inner))
+            });
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
                 .catalog(catalog)
@@ -3201,7 +3238,6 @@ mod unit_tests {
         }
     }
 
-    #[cfg(test)]
     mod convert_get_query_status_error_to_get_query_pager_error {
         use super::*;
 
@@ -3301,9 +3337,8 @@ mod unit_tests {
         }
     }
 
-    pub mod get_paged_query_results {
+    mod get_paged_query_results {
         use super::*;
-        use aws_sdk_athena::types::AthenaError;
 
         #[tokio::test]
         async fn is_ok() {
@@ -3312,16 +3347,27 @@ mod unit_tests {
             let query_id = "query_id";
 
             let mut mocks = Box::new(MockAthenaManagerOps::new());
+
             mocks.expect_get_database().times(1).returning(|_, _, _| {
                 let output = GetDatabaseOutput::builder().build();
                 Ok(output)
             });
 
             mocks
-                .expect_get_query_status_impl()
+                .expect_get_query_execution()
                 .times(1)
-                .returning(|_, _| {
-                    let output = AthenaQueryStatus::Succeeded;
+                .returning(move |_, _| {
+                    let query_execution_status = QueryExecutionStatus::builder()
+                        .state(QueryExecutionState::Succeeded)
+                        .build();
+
+                    let query_execution = QueryExecution::builder()
+                        .status(query_execution_status)
+                        .build();
+
+                    let output = GetQueryExecutionOutput::builder()
+                        .query_execution(query_execution)
+                        .build();
                     Ok(output)
                 });
 
@@ -3336,7 +3382,6 @@ mod unit_tests {
                     //trouble of mocking the paginator.
                     AthenaManagerOpsImpl.get_query_results_paginator(client, query_id, page_size)
                 });
-
             let options = AthenaManagerConstructorOptionsBuilder::default()
                 .catalog(catalog)
                 .database(database)
@@ -3365,27 +3410,29 @@ mod unit_tests {
             });
 
             mocks
-                .expect_get_query_status_impl()
+                .expect_get_query_execution()
                 .times(1)
-                .returning(|_, _| {
-                    let athena_error = AthenaError::builder()
-                        .error_message("An Unexpected Error has Occurred")
+                .returning(move |_, _| {
+                    let query_execution_status = QueryExecutionStatus::builder()
+                        .state(QueryExecutionState::Failed)
+                        .athena_error(
+                            AthenaError::builder()
+                                .error_message("Your query has failed")
+                                .build(),
+                        )
                         .build();
-                    let output = AthenaQueryStatus::Failed(athena_error);
+
+                    let query_execution = QueryExecution::builder()
+                        .status(query_execution_status)
+                        .build();
+
+                    let output = GetQueryExecutionOutput::builder()
+                        .query_execution(query_execution)
+                        .build();
                     Ok(output)
                 });
 
-            mocks
-                .expect_get_query_results_paginator()
-                .times(0)
-                .returning(|client, query_id, page_size| {
-                    //Currently this function wraps the call to get query
-                    //results into the pager without calling out to AWS.
-                    //So, there is no harm in just returing the actual
-                    //call here.  If this changes we will have to go to the
-                    //trouble of mocking the paginator.
-                    AthenaManagerOpsImpl.get_query_results_paginator(client, query_id, page_size)
-                });
+            mocks.expect_get_query_results_paginator().times(0);
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
                 .catalog(catalog)
@@ -3420,24 +3467,24 @@ mod unit_tests {
             });
 
             mocks
-                .expect_get_query_status_impl()
+                .expect_get_query_execution()
                 .times(1)
-                .returning(|_, _| {
-                    let output = AthenaQueryStatus::Cancelled;
+                .returning(move |_, _| {
+                    let query_execution_status = QueryExecutionStatus::builder()
+                        .state(QueryExecutionState::Cancelled)
+                        .build();
+
+                    let query_execution = QueryExecution::builder()
+                        .status(query_execution_status)
+                        .build();
+
+                    let output = GetQueryExecutionOutput::builder()
+                        .query_execution(query_execution)
+                        .build();
                     Ok(output)
                 });
 
-            mocks
-                .expect_get_query_results_paginator()
-                .times(0)
-                .returning(|client, query_id, page_size| {
-                    //Currently this function wraps the call to get query
-                    //results into the pager without calling out to AWS.
-                    //So, there is no harm in just returing the actual
-                    //call here.  If this changes we will have to go to the
-                    //trouble of mocking the paginator.
-                    AthenaManagerOpsImpl.get_query_results_paginator(client, query_id, page_size)
-                });
+            mocks.expect_get_query_results_paginator().times(0);
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
                 .catalog(catalog)
@@ -3472,24 +3519,24 @@ mod unit_tests {
             });
 
             mocks
-                .expect_get_query_status_impl()
+                .expect_get_query_execution()
                 .times(1)
-                .returning(|_, _| {
-                    let output = AthenaQueryStatus::Running;
+                .returning(move |_, _| {
+                    let query_execution_status = QueryExecutionStatus::builder()
+                        .state(QueryExecutionState::Running)
+                        .build();
+
+                    let query_execution = QueryExecution::builder()
+                        .status(query_execution_status)
+                        .build();
+
+                    let output = GetQueryExecutionOutput::builder()
+                        .query_execution(query_execution)
+                        .build();
                     Ok(output)
                 });
 
-            mocks
-                .expect_get_query_results_paginator()
-                .times(0)
-                .returning(|client, query_id, page_size| {
-                    //Currently this function wraps the call to get query
-                    //results into the pager without calling out to AWS.
-                    //So, there is no harm in just returing the actual
-                    //call here.  If this changes we will have to go to the
-                    //trouble of mocking the paginator.
-                    AthenaManagerOpsImpl.get_query_results_paginator(client, query_id, page_size)
-                });
+            mocks.expect_get_query_results_paginator().times(0);
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
                 .catalog(catalog)
@@ -3524,76 +3571,24 @@ mod unit_tests {
             });
 
             mocks
-                .expect_get_query_status_impl()
+                .expect_get_query_execution()
                 .times(1)
-                .returning(|_, _| {
-                    let output = AthenaQueryStatus::Queued;
+                .returning(move |_, _| {
+                    let query_execution_status = QueryExecutionStatus::builder()
+                        .state(QueryExecutionState::Queued)
+                        .build();
+
+                    let query_execution = QueryExecution::builder()
+                        .status(query_execution_status)
+                        .build();
+
+                    let output = GetQueryExecutionOutput::builder()
+                        .query_execution(query_execution)
+                        .build();
                     Ok(output)
                 });
 
-            mocks
-                .expect_get_query_results_paginator()
-                .times(0)
-                .returning(|client, query_id, page_size| {
-                    //Currently this function wraps the call to get query
-                    //results into the pager without calling out to AWS.
-                    //So, there is no harm in just returing the actual
-                    //call here.  If this changes we will have to go to the
-                    //trouble of mocking the paginator.
-                    AthenaManagerOpsImpl.get_query_results_paginator(client, query_id, page_size)
-                });
-
-            let options = AthenaManagerConstructorOptionsBuilder::default()
-                .catalog(catalog)
-                .database(database)
-                .operations(mocks)
-                .build()
-                .unwrap();
-            let athena_manager = AthenaManager::new(options).await;
-            assert!(athena_manager.is_ok());
-            let athena_manager = athena_manager.unwrap();
-
-            let result = athena_manager.get_paged_query_results(query_id, None).await;
-
-            assert!(result.is_err());
-            let is_not_finished = match result.err().unwrap() {
-                GetQueryPagerError::QueryNotFinished(_) => true,
-                _ => false,
-            };
-            assert!(is_not_finished);
-        }
-
-        #[tokio::test]
-        async fn query_status_unknown() {
-            let catalog = "catalog";
-            let database = "database";
-            let query_id = "query_id";
-
-            let mut mocks = Box::new(MockAthenaManagerOps::new());
-            mocks.expect_get_database().times(1).returning(|_, _, _| {
-                let output = GetDatabaseOutput::builder().build();
-                Ok(output)
-            });
-
-            mocks
-                .expect_get_query_status_impl()
-                .times(1)
-                .returning(|_, _| {
-                    let output = AthenaQueryStatus::Unknown;
-                    Ok(output)
-                });
-
-            mocks
-                .expect_get_query_results_paginator()
-                .times(0)
-                .returning(|client, query_id, page_size| {
-                    //Currently this function wraps the call to get query
-                    //results into the pager without calling out to AWS.
-                    //So, there is no harm in just returing the actual
-                    //call here.  If this changes we will have to go to the
-                    //trouble of mocking the paginator.
-                    AthenaManagerOpsImpl.get_query_results_paginator(client, query_id, page_size)
-                });
+            mocks.expect_get_query_results_paginator().times(0);
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
                 .catalog(catalog)
@@ -3628,28 +3623,29 @@ mod unit_tests {
             });
 
             mocks
-                .expect_get_query_status_impl()
+                .expect_get_query_execution()
                 .times(1)
                 .returning(|_, _| {
-                    let output = GetQueryStatusError::UnexpectedError(GlyphxErrorData::new(
-                        String::from("An Error has Occurred"),
-                        None,
-                        None,
-                    ));
-                    Err(output)
+                    let meta = ErrorMetadata::builder()
+                        .message("an error has occurred")
+                        .code("500")
+                        .build();
+                    let invalid_request_exception = InvalidRequestException::builder()
+                        .message("an error has occurred")
+                        .meta(meta)
+                        .build();
+                    let err =
+                        GetQueryExecutionError::InvalidRequestException(invalid_request_exception);
+                    let inner_status = http::StatusCode::from_u16(200).unwrap();
+                    let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                    let headers = inner.headers_mut();
+                    headers.insert(
+                        "Content-Type",
+                        http::HeaderValue::from_str("application/json").unwrap(),
+                    );
+                    Err(SdkError::service_error(err, inner))
                 });
-
-            mocks
-                .expect_get_query_results_paginator()
-                .times(0)
-                .returning(|client, query_id, page_size| {
-                    //Currently this function wraps the call to get query
-                    //results into the pager without calling out to AWS.
-                    //So, there is no harm in just returing the actual
-                    //call here.  If this changes we will have to go to the
-                    //trouble of mocking the paginator.
-                    AthenaManagerOpsImpl.get_query_results_paginator(client, query_id, page_size)
-                });
+            mocks.expect_get_query_results_paginator().times(0);
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
                 .catalog(catalog)
@@ -3665,7 +3661,7 @@ mod unit_tests {
 
             assert!(result.is_err());
             let is_unexpected = match result.err().unwrap() {
-                GetQueryPagerError::UnexpectedError(_) => true,
+                GetQueryPagerError::QueryDoesNotExist(_) => true,
                 _ => false,
             };
             assert!(is_unexpected);
@@ -3680,6 +3676,8 @@ mod unit_tests {
             let catalog = "catalog";
             let database = "database";
             let table = "table";
+            let query_id = "query_id".to_string();
+            let clone_query_id = query_id.clone();
 
             let mut mocks = Box::new(MockAthenaManagerOps::new());
             mocks.expect_get_database().times(1).returning(|_, _, _| {
@@ -3688,11 +3686,61 @@ mod unit_tests {
             });
 
             mocks
-                .expect_run_query_impl()
+                .expect_start_query_execution()
                 .times(1)
-                .returning(|_, _, _, _| {
-                    let output = json!([1]);
+                .returning(move |_, _, _, _, _| {
+                    let output = StartQueryExecutionOutput::builder()
+                        .query_execution_id(String::from(clone_query_id.clone()))
+                        .build();
                     Ok(output)
+                });
+
+            mocks
+                .expect_get_query_execution()
+                .times(1)
+                .returning(move |_, _| {
+                    let query_execution_status = QueryExecutionStatus::builder()
+                        .state(QueryExecutionState::Succeeded)
+                        .build();
+
+                    let query_execution = QueryExecution::builder()
+                        .status(query_execution_status)
+                        .build();
+
+                    let output = GetQueryExecutionOutput::builder()
+                        .query_execution(query_execution)
+                        .build();
+                    Ok(output)
+                });
+
+            mocks
+                .expect_get_query_results()
+                .times(1)
+                .returning(move |_, _| {
+                    let meta_data = ResultSetMetadata::builder()
+                        .set_column_info(Some(vec![ColumnInfo::builder()
+                            .name("".to_string())
+                            .r#type("varchar".to_string())
+                            .nullable(ColumnNullable::NotNull)
+                            .build()
+                            .unwrap()]))
+                        .build();
+
+                    let mut result_set = ResultSet::builder().result_set_metadata(meta_data);
+
+                    result_set = result_set.rows(
+                        Row::builder()
+                            .set_data(Some(vec![Datum::builder()
+                                .set_var_char_value(Some("abc".to_string()))
+                                .build()]))
+                            .build(),
+                    );
+
+                    let result_set = result_set.build();
+                    let result_set = GetQueryResultsOutput::builder()
+                        .result_set(result_set)
+                        .build();
+                    Ok(result_set)
                 });
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
@@ -3701,6 +3749,7 @@ mod unit_tests {
                 .operations(mocks)
                 .build()
                 .unwrap();
+
             let athena_manager = AthenaManager::new(options).await;
             assert!(athena_manager.is_ok());
             let athena_manager = athena_manager.unwrap();
@@ -3715,6 +3764,8 @@ mod unit_tests {
             let catalog = "catalog";
             let database = "database";
             let table = "table";
+            let query_id = "query_id".to_string();
+            let clone_query_id = query_id.clone();
 
             let mut mocks = Box::new(MockAthenaManagerOps::new());
             mocks.expect_get_database().times(1).returning(|_, _, _| {
@@ -3723,11 +3774,53 @@ mod unit_tests {
             });
 
             mocks
-                .expect_run_query_impl()
+                .expect_start_query_execution()
                 .times(1)
-                .returning(|_, _, _, _| {
-                    let output = json!([]);
+                .returning(move |_, _, _, _, _| {
+                    let output = StartQueryExecutionOutput::builder()
+                        .query_execution_id(String::from(clone_query_id.clone()))
+                        .build();
                     Ok(output)
+                });
+
+            mocks
+                .expect_get_query_execution()
+                .times(1)
+                .returning(move |_, _| {
+                    let query_execution_status = QueryExecutionStatus::builder()
+                        .state(QueryExecutionState::Succeeded)
+                        .build();
+
+                    let query_execution = QueryExecution::builder()
+                        .status(query_execution_status)
+                        .build();
+
+                    let output = GetQueryExecutionOutput::builder()
+                        .query_execution(query_execution)
+                        .build();
+                    Ok(output)
+                });
+
+            mocks
+                .expect_get_query_results()
+                .times(1)
+                .returning(move |_, _| {
+                    let meta_data = ResultSetMetadata::builder()
+                        .set_column_info(Some(vec![ColumnInfo::builder()
+                            .name("".to_string())
+                            .r#type("varchar".to_string())
+                            .nullable(ColumnNullable::NotNull)
+                            .build()
+                            .unwrap()]))
+                        .build();
+
+                    let mut result_set = ResultSet::builder().result_set_metadata(meta_data);
+
+                    let result_set = result_set.build();
+                    let result_set = GetQueryResultsOutput::builder()
+                        .result_set(result_set)
+                        .build();
+                    Ok(result_set)
                 });
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
@@ -3758,14 +3851,33 @@ mod unit_tests {
             });
 
             mocks
-                .expect_run_query_impl()
+                .expect_start_query_execution()
                 .times(1)
-                .returning(|_, _, _, _| {
-                    let glypx_error_data =
-                        GlyphxErrorData::new(String::from("An Error has Occurred"), None, None);
-                    let output = RunQueryError::UnexpectedError(glypx_error_data);
-                    Err(output)
+                .returning(move |_, _, _, _, _| {
+                    let meta = ErrorMetadata::builder()
+                        .message("an error has occurred")
+                        .code("500")
+                        .build();
+                    let invalid_request_exception = InvalidRequestException::builder()
+                        .message("an error has occurred")
+                        .meta(meta)
+                        .build();
+                    let err = StartQueryExecutionError::InvalidRequestException(
+                        invalid_request_exception,
+                    );
+                    let inner_status = http::StatusCode::from_u16(200).unwrap();
+                    let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                    let headers = inner.headers_mut();
+                    headers.insert(
+                        "Content-Type",
+                        http::HeaderValue::from_str("application/json").unwrap(),
+                    );
+                    Err(SdkError::service_error(err, inner))
                 });
+
+            mocks.expect_get_query_execution().times(0);
+
+            mocks.expect_get_query_results().times(0);
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
                 .catalog(catalog)
@@ -3779,8 +3891,9 @@ mod unit_tests {
 
             let result = athena_manager.table_exists(table).await;
             assert!(result.is_err());
+
             let is_unexpected = match result.err().unwrap() {
-                RunQueryError::UnexpectedError(_) => true,
+                RunQueryError::DatabaseDoesNotExist(_) => true,
                 _ => false,
             };
             assert!(is_unexpected);
@@ -3795,6 +3908,8 @@ mod unit_tests {
             let catalog = "catalog";
             let database = "database";
             let view = "view";
+            let query_id = "query_id".to_string();
+            let clone_query_id = query_id.clone();
 
             let mut mocks = Box::new(MockAthenaManagerOps::new());
             mocks.expect_get_database().times(1).returning(|_, _, _| {
@@ -3803,11 +3918,61 @@ mod unit_tests {
             });
 
             mocks
-                .expect_run_query_impl()
+                .expect_start_query_execution()
                 .times(1)
-                .returning(|_, _, _, _| {
-                    let output = json!([1]);
+                .returning(move |_, _, _, _, _| {
+                    let output = StartQueryExecutionOutput::builder()
+                        .query_execution_id(String::from(clone_query_id.clone()))
+                        .build();
                     Ok(output)
+                });
+
+            mocks
+                .expect_get_query_execution()
+                .times(1)
+                .returning(move |_, _| {
+                    let query_execution_status = QueryExecutionStatus::builder()
+                        .state(QueryExecutionState::Succeeded)
+                        .build();
+
+                    let query_execution = QueryExecution::builder()
+                        .status(query_execution_status)
+                        .build();
+
+                    let output = GetQueryExecutionOutput::builder()
+                        .query_execution(query_execution)
+                        .build();
+                    Ok(output)
+                });
+
+            mocks
+                .expect_get_query_results()
+                .times(1)
+                .returning(move |_, _| {
+                    let meta_data = ResultSetMetadata::builder()
+                        .set_column_info(Some(vec![ColumnInfo::builder()
+                            .name("".to_string())
+                            .r#type("varchar".to_string())
+                            .nullable(ColumnNullable::NotNull)
+                            .build()
+                            .unwrap()]))
+                        .build();
+
+                    let mut result_set = ResultSet::builder().result_set_metadata(meta_data);
+
+                    result_set = result_set.rows(
+                        Row::builder()
+                            .set_data(Some(vec![Datum::builder()
+                                .set_var_char_value(Some("abc".to_string()))
+                                .build()]))
+                            .build(),
+                    );
+
+                    let result_set = result_set.build();
+                    let result_set = GetQueryResultsOutput::builder()
+                        .result_set(result_set)
+                        .build();
+                    Ok(result_set)
                 });
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
@@ -3830,6 +3995,8 @@ mod unit_tests {
             let catalog = "catalog";
             let database = "database";
             let view = "view";
+            let query_id = "query_id".to_string();
+            let clone_query_id = query_id.clone();
 
             let mut mocks = Box::new(MockAthenaManagerOps::new());
             mocks.expect_get_database().times(1).returning(|_, _, _| {
@@ -3838,11 +4005,53 @@ mod unit_tests {
             });
 
             mocks
-                .expect_run_query_impl()
+                .expect_start_query_execution()
                 .times(1)
-                .returning(|_, _, _, _| {
-                    let output = json!([]);
+                .returning(move |_, _, _, _, _| {
+                    let output = StartQueryExecutionOutput::builder()
+                        .query_execution_id(String::from(clone_query_id.clone()))
+                        .build();
                     Ok(output)
+                });
+
+            mocks
+                .expect_get_query_execution()
+                .times(1)
+                .returning(move |_, _| {
+                    let query_execution_status = QueryExecutionStatus::builder()
+                        .state(QueryExecutionState::Succeeded)
+                        .build();
+
+                    let query_execution = QueryExecution::builder()
+                        .status(query_execution_status)
+                        .build();
+
+                    let output = GetQueryExecutionOutput::builder()
+                        .query_execution(query_execution)
+                        .build();
+                    Ok(output)
+                });
+
+            mocks
+                .expect_get_query_results()
+                .times(1)
+                .returning(move |_, _| {
+                    let meta_data = ResultSetMetadata::builder()
+                        .set_column_info(Some(vec![ColumnInfo::builder()
+                            .name("".to_string())
+                            .r#type("varchar".to_string())
+                            .nullable(ColumnNullable::NotNull)
+                            .build()
+                            .unwrap()]))
+                        .build();
+
+                    let mut result_set = ResultSet::builder().result_set_metadata(meta_data);
+
+                    let result_set = result_set.build();
+                    let result_set = GetQueryResultsOutput::builder()
+                        .result_set(result_set)
+                        .build();
+                    Ok(result_set)
                 });
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
@@ -3851,6 +4060,7 @@ mod unit_tests {
                 .operations(mocks)
                 .build()
                 .unwrap();
+
             let athena_manager = AthenaManager::new(options).await;
             assert!(athena_manager.is_ok());
             let athena_manager = athena_manager.unwrap();
@@ -3873,14 +4083,33 @@ mod unit_tests {
             });
 
             mocks
-                .expect_run_query_impl()
+                .expect_start_query_execution()
                 .times(1)
-                .returning(|_, _, _, _| {
-                    let glypx_error_data =
-                        GlyphxErrorData::new(String::from("An Error has Occurred"), None, None);
-                    let output = RunQueryError::UnexpectedError(glypx_error_data);
-                    Err(output)
+                .returning(move |_, _, _, _, _| {
+                    let meta = ErrorMetadata::builder()
+                        .message("an error has occurred")
+                        .code("500")
+                        .build();
+                    let invalid_request_exception = InvalidRequestException::builder()
+                        .message("an error has occurred")
+                        .meta(meta)
+                        .build();
+                    let err = StartQueryExecutionError::InvalidRequestException(
+                        invalid_request_exception,
+                    );
+                    let inner_status = http::StatusCode::from_u16(200).unwrap();
+                    let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                    let headers = inner.headers_mut();
+                    headers.insert(
+                        "Content-Type",
+                        http::HeaderValue::from_str("application/json").unwrap(),
+                    );
+                    Err(SdkError::service_error(err, inner))
                 });
+
+            mocks.expect_get_query_execution().times(0);
+
+            mocks.expect_get_query_results().times(0);
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
                 .catalog(catalog)
@@ -3888,6 +4117,7 @@ mod unit_tests {
                 .operations(mocks)
                 .build()
                 .unwrap();
+
             let athena_manager = AthenaManager::new(options).await;
             assert!(athena_manager.is_ok());
             let athena_manager = athena_manager.unwrap();
@@ -3895,7 +4125,7 @@ mod unit_tests {
             let result = athena_manager.view_exists(view).await;
             assert!(result.is_err());
             let is_unexpected = match result.err().unwrap() {
-                RunQueryError::UnexpectedError(_) => true,
+                RunQueryError::DatabaseDoesNotExist(_) => true,
                 _ => false,
             };
             assert!(is_unexpected);
@@ -3910,19 +4140,71 @@ mod unit_tests {
             let catalog = "catalog";
             let database = "database";
             let table = "table";
+            let query_id = "query_id";
 
             let mut mocks = Box::new(MockAthenaManagerOps::new());
+
             mocks.expect_get_database().times(1).returning(|_, _, _| {
                 let output = GetDatabaseOutput::builder().build();
                 Ok(output)
             });
 
             mocks
-                .expect_run_query_impl()
+                .expect_start_query_execution()
                 .times(1)
-                .returning(|_, _, _, _| {
-                    let output = json!([1]);
+                .returning(move |_, _, _, _, _| {
+                    let output = StartQueryExecutionOutput::builder()
+                        .query_execution_id(String::from(query_id))
+                        .build();
                     Ok(output)
+                });
+
+            mocks
+                .expect_get_query_execution()
+                .times(1)
+                .returning(move |_, _| {
+                    let query_execution_status = QueryExecutionStatus::builder()
+                        .state(QueryExecutionState::Succeeded)
+                        .build();
+
+                    let query_execution = QueryExecution::builder()
+                        .status(query_execution_status)
+                        .build();
+
+                    let output = GetQueryExecutionOutput::builder()
+                        .query_execution(query_execution)
+                        .build();
+                    Ok(output)
+                });
+
+            mocks
+                .expect_get_query_results()
+                .times(1)
+                .returning(move |_, _| {
+                    let meta_data = ResultSetMetadata::builder()
+                        .set_column_info(Some(vec![ColumnInfo::builder()
+                            .name("".to_string())
+                            .r#type("varchar".to_string())
+                            .nullable(ColumnNullable::NotNull)
+                            .build()
+                            .unwrap()]))
+                        .build();
+
+                    let mut result_set = ResultSet::builder().result_set_metadata(meta_data);
+
+                    result_set = result_set.rows(
+                        Row::builder()
+                            .set_data(Some(vec![Datum::builder()
+                                .set_var_char_value(Some("abc".to_string()))
+                                .build()]))
+                            .build(),
+                    );
+
+                    let result_set = result_set.build();
+                    let result_set = GetQueryResultsOutput::builder()
+                        .result_set(result_set)
+                        .build();
+                    Ok(result_set)
                 });
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
@@ -3931,6 +4213,7 @@ mod unit_tests {
                 .operations(mocks)
                 .build()
                 .unwrap();
+
             let athena_manager = AthenaManager::new(options).await;
             assert!(athena_manager.is_ok());
             let athena_manager = athena_manager.unwrap();
@@ -3952,14 +4235,33 @@ mod unit_tests {
             });
 
             mocks
-                .expect_run_query_impl()
+                .expect_start_query_execution()
                 .times(1)
-                .returning(|_, _, _, _| {
-                    let glypx_error_data =
-                        GlyphxErrorData::new(String::from("An Error has Occurred"), None, None);
-                    let output = RunQueryError::UnexpectedError(glypx_error_data);
-                    Err(output)
+                .returning(move |_, _, _, _, _| {
+                    let meta = ErrorMetadata::builder()
+                        .message("an error has occurred")
+                        .code("500")
+                        .build();
+                    let invalid_request_exception = InvalidRequestException::builder()
+                        .message("an error has occurred")
+                        .meta(meta)
+                        .build();
+                    let err = StartQueryExecutionError::InvalidRequestException(
+                        invalid_request_exception,
+                    );
+                    let inner_status = http::StatusCode::from_u16(200).unwrap();
+                    let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                    let headers = inner.headers_mut();
+                    headers.insert(
+                        "Content-Type",
+                        http::HeaderValue::from_str("application/json").unwrap(),
+                    );
+                    Err(SdkError::service_error(err, inner))
                 });
+
+            mocks.expect_get_query_execution().times(0);
+
+            mocks.expect_get_query_results().times(0);
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
                 .catalog(catalog)
@@ -3974,7 +4276,7 @@ mod unit_tests {
             let result = athena_manager.drop_table(table).await;
             assert!(result.is_err());
             let is_unexpected = match result.err().unwrap() {
-                RunQueryError::UnexpectedError(_) => true,
+                RunQueryError::DatabaseDoesNotExist(_) => true,
                 _ => false,
             };
             assert!(is_unexpected);
@@ -3989,19 +4291,71 @@ mod unit_tests {
             let catalog = "catalog";
             let database = "database";
             let view = "view";
+            let query_id = "query_id";
 
             let mut mocks = Box::new(MockAthenaManagerOps::new());
+
             mocks.expect_get_database().times(1).returning(|_, _, _| {
                 let output = GetDatabaseOutput::builder().build();
                 Ok(output)
             });
 
             mocks
-                .expect_run_query_impl()
+                .expect_start_query_execution()
                 .times(1)
-                .returning(|_, _, _, _| {
-                    let output = json!([1]);
+                .returning(move |_, _, _, _, _| {
+                    let output = StartQueryExecutionOutput::builder()
+                        .query_execution_id(String::from(query_id))
+                        .build();
                     Ok(output)
+                });
+
+            mocks
+                .expect_get_query_execution()
+                .times(1)
+                .returning(move |_, _| {
+                    let query_execution_status = QueryExecutionStatus::builder()
+                        .state(QueryExecutionState::Succeeded)
+                        .build();
+
+                    let query_execution = QueryExecution::builder()
+                        .status(query_execution_status)
+                        .build();
+
+                    let output = GetQueryExecutionOutput::builder()
+                        .query_execution(query_execution)
+                        .build();
+                    Ok(output)
+                });
+
+            mocks
+                .expect_get_query_results()
+                .times(1)
+                .returning(move |_, _| {
+                    let meta_data = ResultSetMetadata::builder()
+                        .set_column_info(Some(vec![ColumnInfo::builder()
+                            .name("".to_string())
+                            .r#type("varchar".to_string())
+                            .nullable(ColumnNullable::NotNull)
+                            .build()
+                            .unwrap()]))
+                        .build();
+
+                    let mut result_set = ResultSet::builder().result_set_metadata(meta_data);
+
+                    result_set = result_set.rows(
+                        Row::builder()
+                            .set_data(Some(vec![Datum::builder()
+                                .set_var_char_value(Some("abc".to_string()))
+                                .build()]))
+                            .build(),
+                    );
+
+                    let result_set = result_set.build();
+                    let result_set = GetQueryResultsOutput::builder()
+                        .result_set(result_set)
+                        .build();
+                    Ok(result_set)
                 });
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
@@ -4031,14 +4385,33 @@ mod unit_tests {
             });
 
             mocks
-                .expect_run_query_impl()
+                .expect_start_query_execution()
                 .times(1)
-                .returning(|_, _, _, _| {
-                    let glypx_error_data =
-                        GlyphxErrorData::new(String::from("An Error has Occurred"), None, None);
-                    let output = RunQueryError::UnexpectedError(glypx_error_data);
-                    Err(output)
+                .returning(move |_, _, _, _, _| {
+                    let meta = ErrorMetadata::builder()
+                        .message("an error has occurred")
+                        .code("500")
+                        .build();
+                    let invalid_request_exception = InvalidRequestException::builder()
+                        .message("an error has occurred")
+                        .meta(meta)
+                        .build();
+                    let err = StartQueryExecutionError::InvalidRequestException(
+                        invalid_request_exception,
+                    );
+                    let inner_status = http::StatusCode::from_u16(200).unwrap();
+                    let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                    let headers = inner.headers_mut();
+                    headers.insert(
+                        "Content-Type",
+                        http::HeaderValue::from_str("application/json").unwrap(),
+                    );
+                    Err(SdkError::service_error(err, inner))
                 });
+
+            mocks.expect_get_query_execution().times(0);
+
+            mocks.expect_get_query_results().times(0);
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
                 .catalog(catalog)
@@ -4053,7 +4426,7 @@ mod unit_tests {
             let result = athena_manager.drop_view(view).await;
             assert!(result.is_err());
             let is_unexpected = match result.err().unwrap() {
-                RunQueryError::UnexpectedError(_) => true,
+                RunQueryError::DatabaseDoesNotExist(_) => true,
                 _ => false,
             };
             assert!(is_unexpected);
@@ -4393,7 +4766,6 @@ mod unit_tests {
         }
     }
 
-    #[cfg(test)]
     mod get_table_description {
         use super::*;
 
@@ -4402,6 +4774,7 @@ mod unit_tests {
             let catalog = "catalog";
             let database = "database";
             let table_name = "table";
+            let query_id = "query_id";
 
             let mut mocks = Box::new(MockAthenaManagerOps::new());
             mocks.expect_get_database().times(1).returning(|_, _, _| {
@@ -4410,17 +4783,92 @@ mod unit_tests {
             });
 
             mocks
-                .expect_run_query_impl()
+                .expect_start_query_execution()
                 .times(1)
-                .returning(|_, _, _, _| {
-                    let output = json!([
-                        { "col_name" : "col1\tvarchar(50)"},
-                        { "col_name" :"col2\tstring"},
-                        { "col_name" :"col3\tbigint"},
-                        { "col_name" :"col4\tdouble"},
-                        { "col_name" :"col5\tboolean"}
-                    ]);
+                .returning(move |_, _, _, _, _| {
+                    let output = StartQueryExecutionOutput::builder()
+                        .query_execution_id(String::from(query_id))
+                        .build();
                     Ok(output)
+                });
+
+            mocks
+                .expect_get_query_execution()
+                .times(1)
+                .returning(move |_, _| {
+                    let query_execution_status = QueryExecutionStatus::builder()
+                        .state(QueryExecutionState::Succeeded)
+                        .build();
+
+                    let query_execution = QueryExecution::builder()
+                        .status(query_execution_status)
+                        .build();
+
+                    let output = GetQueryExecutionOutput::builder()
+                        .query_execution(query_execution)
+                        .build();
+                    Ok(output)
+                });
+
+            mocks
+                .expect_get_query_results()
+                .times(1)
+                .returning(move |_, _| {
+                    let meta_data = ResultSetMetadata::builder()
+                        .set_column_info(Some(vec![ColumnInfo::builder()
+                            .name("col_name".to_string())
+                            .r#type("varchar)".to_string())
+                            .nullable(ColumnNullable::NotNull)
+                            .build()
+                            .unwrap()]))
+                        .build();
+
+                    let mut result_set = ResultSet::builder().result_set_metadata(meta_data);
+
+                    result_set = result_set.rows(
+                        Row::builder()
+                            .set_data(Some(vec![Datum::builder()
+                                .set_var_char_value(Some("col1\tvarchar(50)".to_string()))
+                                .build()]))
+                            .build(),
+                    );
+
+                    result_set = result_set.rows(
+                        Row::builder()
+                            .set_data(Some(vec![Datum::builder()
+                                .set_var_char_value(Some("col2\tstring".to_string()))
+                                .build()]))
+                            .build(),
+                    );
+
+                    result_set = result_set.rows(
+                        Row::builder()
+                            .set_data(Some(vec![Datum::builder()
+                                .set_var_char_value(Some("col3\tbigint".to_string()))
+                                .build()]))
+                            .build(),
+                    );
+
+                    result_set = result_set.rows(
+                        Row::builder()
+                            .set_data(Some(vec![Datum::builder()
+                                .set_var_char_value(Some("col4\tdouble".to_string()))
+                                .build()]))
+                            .build(),
+                    );
+
+                    result_set = result_set.rows(
+                        Row::builder()
+                            .set_data(Some(vec![Datum::builder()
+                                .set_var_char_value(Some("col5\tboolean".to_string()))
+                                .build()]))
+                            .build(),
+                    );
+                    let result_set = result_set.build();
+                    let result_set = GetQueryResultsOutput::builder()
+                        .result_set(result_set)
+                        .build();
+                    Ok(result_set)
                 });
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
@@ -4488,17 +4936,33 @@ mod unit_tests {
             });
 
             mocks
-            .expect_run_query_impl()
-            .times(1)
-            .returning(move |_, _, _, _| {
-                let glyphx_data = GlyphxErrorData::new(
-                    String::from("The database does not exist."),
-                    Some(json!({"catalog": catalog, "database": database, "table_name": table_name })),
-                    None,
-                );
-                let output = RunQueryError::DatabaseDoesNotExist(glyphx_data);
-                Err(output)
-            });
+                .expect_start_query_execution()
+                .times(1)
+                .returning(move |_, _, _, _, _| {
+                    let meta = ErrorMetadata::builder()
+                        .message("an error has occurred")
+                        .code("500")
+                        .build();
+                    let invalid_request_exception = InvalidRequestException::builder()
+                        .message("an error has occurred")
+                        .meta(meta)
+                        .build();
+                    let err = StartQueryExecutionError::InvalidRequestException(
+                        invalid_request_exception,
+                    );
+                    let inner_status = http::StatusCode::from_u16(200).unwrap();
+                    let mut inner = Response::new(StatusCode::from(inner_status), SdkBody::empty());
+                    let headers = inner.headers_mut();
+                    headers.insert(
+                        "Content-Type",
+                        http::HeaderValue::from_str("application/json").unwrap(),
+                    );
+                    Err(SdkError::service_error(err, inner))
+                });
+
+            mocks.expect_get_query_execution().times(0);
+
+            mocks.expect_get_query_results().times(0);
 
             let options = AthenaManagerConstructorOptionsBuilder::default()
                 .catalog(catalog)
