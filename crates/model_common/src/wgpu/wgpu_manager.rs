@@ -149,7 +149,9 @@ impl WgpuManager {
             .unwrap_or(surface_caps.formats[0]);
 
         let config = SurfaceConfiguration {
-            usage: TextureUsages::RENDER_ATTACHMENT,
+            usage: TextureUsages::RENDER_ATTACHMENT
+                | TextureUsages::COPY_SRC
+                | TextureUsages::COPY_DST,
             format: surface_format,
             width: size.width,
             height: size.height,

@@ -3,6 +3,9 @@
     "target": "ES2015",
     "lib": ["dom", "dom.iterable", "esnext"],
     "baseUrl": "./src",
+    "types": [
+      "@webgpu/types"
+    ],
     "paths": {
       "@/email/*": ["src/email/*"],
       "@/app/*": ["src/app/*"],
