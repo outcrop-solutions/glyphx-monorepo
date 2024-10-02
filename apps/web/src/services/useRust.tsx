@@ -1,4 +1,4 @@
-import {useCallback} from 'react';
+import {useCallback, useRef} from 'react';
 import {webTypes} from 'types';
 import init, {ModelRunner} from '../../public/pkg/glyphx_cube_model';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
@@ -10,6 +10,7 @@ export const useRust = () => {
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const project = useRecoilValue(projectAtom);
   const payloadHash = useRecoilValue(payloadHashSelector);
+  const urlRef = useRef('');
   /**
    * Generic stream handler.
    * Provides continuity across chunks for data processData
@@ -109,7 +110,6 @@ export const useRust = () => {
       console.log('ModelRunner created');
       const {GLY_URL, STS_URL, X_VEC, Y_VEC} = modelData;
       // First, handle statistics and vectors concurrently
-      // @ts-ignore
       urlRef.current = GLY_URL;
       // @ts-ignore
       await handleStream(STS_URL, processData(undefined, 'stats', modelRunner));
@@ -152,7 +152,9 @@ export const useRust = () => {
       event?.stopPropagation();
       try {
         await updateProjectState(project.id, project.state);
+        // console.log('updated project state');
         const retval = await runGlyphEngineAction(project);
+        // console.log('ran glyph engine');
         // @ts-ignore
         if (retval && !retval?.error) {
           // @ts-ignore
