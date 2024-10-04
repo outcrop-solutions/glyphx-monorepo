@@ -34,6 +34,7 @@ pub enum ModelEvent {
     UpdateModelFilter(Query),
     GlyphsUpdated(Vec<GlyphVertexData>),
     HitDetection(Hit),
+    TakeScreenshot,
 }
 impl std::fmt::Debug for ModelEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -65,6 +66,7 @@ impl std::fmt::Debug for ModelEvent {
             ModelEvent::UpdateModelFilter(query) => write!(f, "UpdateModelFilter({:?})", query),
             ModelEvent::GlyphsUpdated(_glyphs) => write!(f, "GlyphsUpdated"),
             ModelEvent::HitDetection(hit) => write!(f, "HitDetection({:?})", hit),
+            ModelEvent::TakeScreenshot=> write!(f, "TakeScreenshot"),
         }
     }
 }
@@ -74,7 +76,7 @@ impl std::fmt::Debug for ModelEvent {
 //this is required to get wasm_bindgen working.  Since we use the same ModelEvent to
 //both control flow nternally and communicate with the client we have to build a
 //ModelEvent structure that can be serliazed so it can be sent back to javascript.
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub enum JsSafeModelEvent {
     ModelMove(ModelMoveDirection),
     AddVector(AddVectorData),
@@ -91,6 +93,7 @@ pub enum JsSafeModelEvent {
     SelectGlyphs(Vec<u32>),
     UpdateModelFilter(Query),
     HitDetection(Hit),
+    TakeScreenshot,
     Other(String),
 }
 
@@ -122,6 +125,7 @@ impl From<&ModelEvent> for JsSafeModelEvent {
             ModelEvent::UpdateModelFilter(query) => Self::UpdateModelFilter(query.clone()),
             ModelEvent::GlyphsUpdated(_glyphs) => Self::Other("GlyphsUpdated".to_string()),
             ModelEvent::HitDetection(hit) => Self::HitDetection(hit.clone()),
+            ModelEvent::TakeScreenshot => Self::TakeScreenshot,
         }
     }
 }

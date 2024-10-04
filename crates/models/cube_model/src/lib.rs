@@ -151,30 +151,30 @@ impl ModelRunner {
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn select_glyph(&self, x_pos: u32, y_pos: u32, multi_select: bool) {
-        let event = ModelEvent::SelectGlyph {
-            x_pos: x_pos as f32,
-            y_pos: y_pos as f32,
-            multi_select,
-        };
-        emit_event(&event);
-        send_event(event);
+        // let event = ModelEvent::SelectGlyph {
+        //     x_pos: x_pos as f32,
+        //     y_pos: y_pos as f32,
+        //     multi_select,
+        // };
+        // emit_event(&event);
+        // send_event(event);
     }
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn add_yaw(&self, amount: f32) {
-        let event = ModelEvent::ModelMove(ModelMoveDirection::Yaw(amount));
-        emit_event(&event);
-        send_event(event);
+        // let event = ModelEvent::ModelMove(ModelMoveDirection::Yaw(amount));
+        // emit_event(&event);
+        // send_event(event);
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn raise_model(&self, amount: f32) {
-        let event = if amount > 0.0 {
-            ModelEvent::ModelMove(ModelMoveDirection::Up(amount))
-        } else {
-            ModelEvent::ModelMove(ModelMoveDirection::Down(amount * -1.0))
-        };
-        emit_event(&event);
-        send_event(event);
+        // let event = if amount > 0.0 {
+        //     ModelEvent::ModelMove(ModelMoveDirection::Up(amount))
+        // } else {
+        //     ModelEvent::ModelMove(ModelMoveDirection::Down(amount * -1.0))
+        // };
+        // emit_event(&event);
+        // send_event(event);
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
@@ -219,15 +219,15 @@ impl ModelRunner {
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn add_pitch(&self, amount: f32) {
-        let event = ModelEvent::ModelMove(ModelMoveDirection::Pitch(amount));
-        emit_event(&event);
-        send_event(event);
+        // let event = ModelEvent::ModelMove(ModelMoveDirection::Pitch(amount));
+        // emit_event(&event);
+        // send_event(event);
     }
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn add_distance(&self, amount: f32) {
-        let event = ModelEvent::ModelMove(ModelMoveDirection::Distance(amount));
-        emit_event(&event);
-        send_event(event);
+        // let event = ModelEvent::ModelMove(ModelMoveDirection::Distance(amount));
+        // emit_event(&event);
+        // send_event(event);
     }
 
     ///Adding a vector will update internal state but it

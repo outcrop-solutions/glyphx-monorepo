@@ -5,6 +5,7 @@ use winit::{
 
 use crate::model::state::CameraManager;
 
+#[derive(Debug)]
 pub enum MouseEvent {
     MouseDown,
     MouseMotion,
@@ -61,7 +62,7 @@ impl CameraController {
             DeviceEvent::MouseWheel { delta, .. } => {
                 let scroll_amount = -match delta {
                     // A mouse line is about 1 px.
-                    MouseScrollDelta::LineDelta(_, scroll) => scroll * -10.0,
+                    MouseScrollDelta::LineDelta(_, scroll) => scroll * -5.0,
                     MouseScrollDelta::PixelDelta(PhysicalPosition { y: scroll, .. }) => {
                         *scroll as f32
                     }
@@ -76,8 +77,11 @@ impl CameraController {
                     camera_manager.add_yaw(-delta.0 as f32 * self.rotate_speed);
                     camera_manager.add_pitch(delta.1 as f32 * self.rotate_speed);
                     camera_manager.update();
+                    MouseEvent::MouseMotion
                 }
-                MouseEvent::MouseMotion
+                else {
+                    MouseEvent::Unhandled
+                }
             }
             _ => MouseEvent::Unhandled,
         }

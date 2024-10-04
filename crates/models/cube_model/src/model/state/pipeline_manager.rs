@@ -363,9 +363,9 @@ impl PipelineManager {
         let config = wm.config();
         let queue = wm.queue();
 
-        let (texture, texture_view) = Self::get_hit_detection_texture(config, &d);
+        let (texture, texture_view) = Self::get_hit_detection_texture(config, &d, (wm.window().inner_size().width, wm.window().inner_size().height));
 
-        let (output_buffer, bytes_per_row) = Self::get_hit_detection_output_buffer(config, &d);
+        let (output_buffer, bytes_per_row) = Self::get_hit_detection_output_buffer(config, &d, (wm.window().inner_size().width, wm.window().inner_size().height));
 
         queue.write_buffer(&bm.camera_buffer(), 0, cast_slice(&[bm.camera_uniform()]));
 
@@ -464,12 +464,13 @@ impl PipelineManager {
     fn get_hit_detection_texture(
         config: &SurfaceConfiguration,
         device: &Device,
+        window_size: (u32, u32),
     ) -> (Texture, TextureView) {
         let picking_texture_desc = TextureDescriptor {
             label: Some("Hit Detection Picking Texture"),
             size: Extent3d {
-               width: config.width,
-               height: config.height,
+               width: window_size.0, //config.width,
+               height: window_size.1, //config.height,
                depth_or_array_layers: 1,
             },
             mip_level_count: 1,
@@ -488,11 +489,14 @@ impl PipelineManager {
     fn get_hit_detection_output_buffer(
         config: &SurfaceConfiguration,
         device: &Device,
+        window_size: (u32, u32),
     ) -> (Buffer, u32) {
         let align = COPY_BYTES_PER_ROW_ALIGNMENT;
-        let padded_bytes_per_row = ((4 * config.width + align - 1) / align) * align;
+        let padded_bytes_per_row = ((4 *  window_size.0 + align - 1) / align) * align;
+        //let padded_bytes_per_row = ((4 * config.width + align - 1) / align) * align;
         // Round up to nearest multiple of align
-        let buffer_size = (config.height * padded_bytes_per_row) as BufferAddress;
+        //let buffer_size = (config.height * padded_bytes_per_row) as BufferAddress;
+        let buffer_size = (window_size.1 * padded_bytes_per_row) as BufferAddress;
         // Assuming Rgba8Unorm format
         let output_buffer = device.create_buffer(&BufferDescriptor {
             label: Some("Output Buffer"),

@@ -42,7 +42,8 @@ impl CameraManager {
         let mut camera =
             OrbitCamera::new(distance, pitch, yaw, Vec3::new(0.0, 0.0, 0.0), aspect_ratio);
 
-        camera.bounds.min_distance = Some(1.1);
+        camera.bounds.min_distance = None;
+        //camera.bounds.min_distance = Some(1.1);
         let mut camera_uniform = CameraUniform::default();
         camera_uniform.y_offset = y_offset;
         camera_uniform.update_view_proj(&camera);

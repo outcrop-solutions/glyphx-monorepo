@@ -36,7 +36,7 @@ use crate::{
                 ranked_glyph_data::{Rank, RankDirection, RankedGlyphData},
                 Glyphs,
             },
-            hit_detection::{decode_glyph_id, HitDetection, Hit},
+            hit_detection::{decode_glyph_id, Hit, HitDetection},
         },
     },
     Order,
@@ -221,12 +221,13 @@ impl State {
                 true
             }
             MouseEvent::MouseClick => {
-                self.hit_detection(
-                    self.cursor_position.x as u32,
-                    self.cursor_position.y as u32,
-                    is_shift_pressed,
-                );
-                true
+                log::info!("Mouse Click, x: {}, y: {}", self.cursor_position.x, self.cursor_position.y);
+                 self.hit_detection(
+                     self.cursor_position.x as u32,
+                     self.cursor_position.y as u32,
+                     is_shift_pressed,
+                 );
+               true 
             }
             MouseEvent::MouseScroll => true,
             MouseEvent::Handled => false,
@@ -250,17 +251,14 @@ impl State {
         &self.selected_glyphs
     }
 
-    pub fn hit_detection(
-        &mut self,
-        x_pos: u32,
-        y_pos: u32,
-        is_shift_pressed: bool,
-    ) {
+    //TODO: For now we are going to use the internal coordinates that we are tracking in state,
+    //there seems to be a diconect between the internal winit window and the external browser.
+    pub fn hit_detection(&mut self, x_pos: u32, y_pos: u32, is_shift_pressed: bool) {
         let device = self.wgpu_manager.borrow().device();
         let device = device.borrow();
 
         //TODO: we should really react to an error here.
-        let _ = self.run_hit_detection_pipeline(&device, x_pos, y_pos, is_shift_pressed);
+        let _ = self.run_hit_detection_pipeline(&device, self.cursor_position.x as u32, self.cursor_position.y as u32, is_shift_pressed);
     }
 
     pub fn move_camera(&mut self, direction: &str, amount: f32) {
@@ -532,13 +530,13 @@ impl State {
             //Glyphs has it's own logic to render in rank order so we can't really use the pipeline
             //manager trait to render it.  So, we will handle it directly.
             if name == "glyphs" {
-                       self.pipeline_manager.run_glyph_pipeline(
-                           &self.selected_glyphs,
-                           self.orientation_manager.rank(),
-                           self.orientation_manager.rank_direction(),
-                           &*smaa_frame,
-                           &mut commands,
-                       );
+                self.pipeline_manager.run_glyph_pipeline(
+                    &self.selected_glyphs,
+                    self.orientation_manager.rank(),
+                    self.orientation_manager.rank_direction(),
+                    &*smaa_frame,
+                    &mut commands,
+                );
             } else if self.axis_visible {
                 let pipeline = match name {
                     "x-axis-line" => AxisLineDirection::X,
@@ -590,6 +588,7 @@ impl State {
             });
     }
     pub fn process_hit(&mut self, hit: Hit) -> &Vec<SelectedGlyph> {
+        let mut reprocess = false;
         if hit.glyph_id != 16777215 {
             let glyph_desc = self
                 .data_manager
@@ -605,6 +604,7 @@ impl State {
                     self.selected_glyphs.clear();
                 }
                 self.selected_glyphs.push(glyph_desc);
+                reprocess = true;
             } else {
                 let index = self
                     .selected_glyphs
@@ -612,11 +612,19 @@ impl State {
                     .position(|r| r.glyph_id == hit.glyph_id);
                 if let Some(index) = index {
                     self.selected_glyphs.remove(index);
+                    reprocess = true;
                 }
             }
         } else if !hit.shift_pressed {
-            self.selected_glyphs.clear();
+            if self.selected_glyphs.len() > 0 {
+                reprocess = true;
+                self.selected_glyphs.clear();
+            }
         }
+        if reprocess == true {
+            self.run_compute_pipeline();
+        }
+
         &self.selected_glyphs
     }
 
@@ -627,6 +635,7 @@ impl State {
         y_pos: u32,
         is_shift_pressed: bool,
     ) -> Result<(), SurfaceError> {
+        log::info!("Running Hit Detection Pipeline with x: {} y: {}", x_pos, y_pos);
         let (output_buffer, bytes_per_row) = self.pipeline_manager.run_hit_detection_pipeline(
             self.orientation_manager.rank(),
             self.orientation_manager.rank_direction(),
@@ -634,32 +643,34 @@ impl State {
         let output_buffer = std::sync::Arc::new(output_buffer);
         let captuable = output_buffer.clone();
 
-        output_buffer.slice(..).map_async(MapMode::Read, move |result| {
-            let mut glyph_id = 0;
-            let mut send_event = false;
-            if result.is_ok() {
-                let view = captuable.slice(..).get_mapped_range();
-                let pixel_pos = (y_pos as u32 * bytes_per_row + x_pos as u32 * 4) as usize;
-                let val = &view[pixel_pos..pixel_pos + 4];
+        output_buffer
+            .slice(..)
+            .map_async(MapMode::Read, move |result| {
+                let mut glyph_id = 0;
+                let mut send_event = false;
+                if result.is_ok() {
+                    let view = captuable.slice(..).get_mapped_range();
+                    let pixel_pos = (y_pos as u32 * bytes_per_row + x_pos as u32 * 4) as usize;
+                    let val = &view[pixel_pos..pixel_pos + 4];
 
-                glyph_id = decode_glyph_id([val[0], val[1], val[2], val[3]]);
-                drop(view);
-                send_event = true;
-            }
-
-            captuable.unmap();
-            if send_event {
-                unsafe {
-                    let _ = crate::EVENT_LOOP_PROXY
-                        .as_ref()
-                        .unwrap()
-                        .send_event(crate::ModelEvent::HitDetection(Hit {
-                            glyph_id,
-                            shift_pressed: is_shift_pressed,
-                        }));
+                    glyph_id = decode_glyph_id([val[0], val[1], val[2], val[3]]);
+                    drop(view);
+                    send_event = true;
                 }
-            }
-        });
+
+                captuable.unmap();
+                if send_event {
+                    unsafe {
+                        log::info!("Sending Hit Detection Event from closure ");
+                        let _ = crate::EVENT_LOOP_PROXY.as_ref().unwrap().send_event(
+                            crate::ModelEvent::HitDetection(Hit {
+                                glyph_id,
+                                shift_pressed: is_shift_pressed,
+                            }),
+                        );
+                    }
+                }
+            });
         Ok(())
     }
 
