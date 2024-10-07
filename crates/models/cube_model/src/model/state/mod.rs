@@ -75,7 +75,7 @@ pub struct State {
     model_configuration: Rc<RefCell<ModelConfiguration>>,
     smaa_target: SmaaTarget,
     axis_visible: bool,
-    first_render: bool,
+    render_count: u32,
     cursor_position: PhysicalPosition<f64>,
     selected_glyphs: Vec<SelectedGlyph>,
     model_filter: Query,
@@ -159,7 +159,7 @@ impl State {
             smaa_target,
             data_manager,
             axis_visible: true,
-            first_render: true,
+            render_count: 0,
             //This should be updated pretty quickly after the model loads.
             cursor_position: PhysicalPosition { x: 0.0, y: 0.0 },
             selected_glyphs: Vec::new(),
@@ -464,13 +464,13 @@ impl State {
         }
     }
     pub fn render(&mut self) -> Result<(), SurfaceError> {
-        if self.first_render {
-            self.first_render = false;
+        if self.render_count == 0 {
+            self.render_count += 1;
             self.run_compute_pipeline();
             //This will get run again once the compute pipeline is finished
             return Ok(());
         }
-        //self.resolve_picking_textures();
+
 
         let buffer_manager = self.buffer_manager.borrow();
         let wgpu_manager = self.wgpu_manager.borrow();
