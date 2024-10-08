@@ -80,14 +80,21 @@ impl Application {
     fn configure_canvas(&self, window: &Window) {
         // Winit prevents sizing with CSS, so we have to set
         // the size manually when on web.
-        use super::WEB_ELEMENT_NAME;
+        let _ = window.request_inner_size(winit::dpi::PhysicalSize::new(self.width, self.height));
+        log::info!("Configuring canvas for web with a window of size: {:?}.", window.inner_size());
         use winit::platform::web::WindowExtWebSys;
+        log::info!("Window Canvas: {:?}", window.canvas());
+        use super::WEB_ELEMENT_NAME;
+      //  use winit::platform::web::WindowExtWebSys;
         web_sys::window()
             .and_then(|win| win.document())
-            .and_then(|doc| {
+           .and_then(|doc| {
                 let dst = doc.get_element_by_id(WEB_ELEMENT_NAME)?;
                 let canvas = web_sys::Element::from(window.canvas().unwrap());
+         
                 canvas.set_attribute("id", "cube_model").ok()?;
+                canvas.set_attribute("width", &self.width.to_string()).ok()?;
+                canvas.set_attribute("height", &self.height.to_string()).ok()?;
                 dst.append_child(&canvas).ok()?;
                 Some(())
             })
@@ -97,16 +104,17 @@ impl Application {
 
 impl ApplicationHandler<ModelEvent> for Application {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
-        let l_s = winit::dpi::LogicalSize::new(self.width, self.height);
+        let l_s = winit::dpi::PhysicalSize::new(self.width, self.height);
+        log::info!("Resumed with a size of {:?}", l_s);
         let window = event_loop
             .create_window(
                 Window::default_attributes()
                     .with_title("GlyphX")
                     .with_inner_size(l_s)
-                    .with_max_inner_size(l_s)
-                    .with_resizable(false),
+                    .with_resizable(true),
             )
             .unwrap();
+        log::info!("The window has been created with a size of {:?} and a scale factor of {:?}", window.inner_size(), window.scale_factor());
         #[cfg(target_arch = "wasm32")]
         {
             self.configure_canvas(&window);
@@ -342,7 +350,8 @@ impl ApplicationHandler<ModelEvent> for Application {
 
                     WindowEvent::Resized(physical_size) => {
                         //state.resize(physical_size);
-                        redraw = false;
+                        log::info!("Resized to after state {:?}", physical_size);
+                        redraw = true;
                     }
 
                     WindowEvent::ScaleFactorChanged { .. } => {
@@ -423,6 +432,13 @@ impl ApplicationHandler<ModelEvent> for Application {
                     let event = ModelEvent::Redraw;
                     //send_event(event);
                 }
+            }
+        } else {
+            match event {
+                WindowEvent::Resized(physical_size) => {
+                    log::info!("Resized to before state {:?}", physical_size);
+                }
+                _ => {}
             }
         }
     }

@@ -472,6 +472,7 @@ impl State {
         }
 
 
+        log::info!("Rendering with height: {} width: {}", self.wgpu_manager.borrow().window().inner_size().height, self.wgpu_manager.borrow().window().inner_size().width);
         let buffer_manager = self.buffer_manager.borrow();
         let wgpu_manager = self.wgpu_manager.borrow();
         let queue = wgpu_manager.queue();
