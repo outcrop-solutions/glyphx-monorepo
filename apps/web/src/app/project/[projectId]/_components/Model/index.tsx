@@ -1,12 +1,42 @@
 'use client';
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useRecoilState} from 'recoil';
 import {modelRunnerAtom} from 'state';
 import {useHotkeys} from 'react-hotkeys-hook';
+import {useDebounceCallback, useResizeObserver} from 'usehooks-ts';
+
+type Size = {
+  width?: number;
+  height?: number;
+};
 
 export const Model = () => {
   const [modelRunnerState, setModelRunnerState] = useRecoilState(modelRunnerAtom);
   const initializingRef = useRef(false); // Reference to track whether mouse events have been setup
+
+  // get debounced size changes
+  const ref = useRef<HTMLDivElement>(null);
+  const [{width, height}, setSize] = useState<Size>({
+    width: undefined,
+    height: undefined,
+  });
+
+  // debounce observer every 200 ms
+  const onResize = useDebounceCallback(setSize, 200);
+  useResizeObserver({
+    ref,
+    onResize,
+  });
+
+  // pass resize events on each render
+  useEffect(() => {
+    if (modelRunnerState.initialized) {
+      if (width && height) {
+        console.log(`Resize event - width: ${width}, height: ${height}`);
+        modelRunnerState.modelRunner.resize_window(width, height);
+      }
+    }
+  }, [width, height, modelRunnerState]);
 
   useEffect(() => {
     console.log('monitoring', {modelRunnerState});
@@ -135,7 +165,11 @@ export const Model = () => {
 
   return (
     <div className="relative h-full w-full flex items-center justify-center">
-      <div id="glyphx-cube-model" className="flex items-center justify-center h-full w-full bg-[#414d66]"></div>
+      <div
+        ref={ref}
+        id="glyphx-cube-model"
+        className="flex items-center justify-center h-full w-full bg-[#414d66]"
+      ></div>
     </div>
   );
 };
