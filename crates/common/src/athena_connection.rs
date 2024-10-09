@@ -1,21 +1,38 @@
-use async_trait::async_trait;
-use glyphx_core::aws::athena_manager::AthenaManager;
-use glyphx_core::aws::athena_manager::ConstructorError as AthenaManagerConstructorError;
-use glyphx_core::SecretBoundError;
-use glyphx_core::SecretBoundSingleton;
-use mockall::automock;
+
 use crate::types::athena_connection_errors::ConstructorError;
+
+use glyphx_core::{
+    aws::athena_manager::{AthenaManager, ConstructorError as AthenaManagerConstructorError, AthenaManagerConstructorOptionsBuilder},
+    traits::IDatabase,
+    SecretBoundError, SecretBoundSingleton,
+};
+
+use async_trait::async_trait;
+use derive_builder::Builder;
+use mockall::automock;
+
 #[automock]
 #[async_trait]
-trait AthenaConnectionOps: Sized {
+pub trait AthenaConnectionOps: std::fmt::Debug + Send + Sync {
     async fn build_athena_manager(
         &self,
-        catalog_name: String,
-        database_name: String,
-    ) -> Result<AthenaManager, AthenaManagerConstructorError>;
+        options: AthenaConnectionConstructorOptions
+    ) -> Result<Box<dyn IDatabase>, AthenaManagerConstructorError>;
 }
 
-#[derive(SecretBoundSingleton, Debug, Clone)]
+#[derive(Builder)]
+#[builder(pattern = "owned")]
+pub struct AthenaConnectionConstructorOptions {
+    #[builder(setter(into))]
+    pub catalog_name: String,
+    #[builder(setter(into))]
+    pub database_name: String,
+    #[builder(default = "Box::new(AthenaConnectionOpsImpl)")]
+    pub dependencies: Box<dyn AthenaConnectionOps>,
+}
+
+
+#[derive(SecretBoundSingleton, Debug)]
 #[secret_binder({"secret_name" : "db/athena", "initializer": "new", "initializer_error": "ConstructorError"})]
 pub struct AthenaConnection {
     #[bind_field({"secret_name" : "catalogName" })]
@@ -23,24 +40,37 @@ pub struct AthenaConnection {
     #[bind_field({"secret_name": "databaseName" })]
     database_name: String,
     #[bind_field({"is_bound": false})]
-    athena_manager: AthenaManager,
+    athena_manager: Box<dyn IDatabase>,
+    #[bind_field({"is_bound": false})]
+    dependencies: Box<dyn AthenaConnectionOps>,
 }
 
-struct AthenaConnectionOpsImpl {}
+#[derive(Debug, Clone)]
+struct AthenaConnectionOpsImpl;
 
 #[async_trait]
 impl AthenaConnectionOps for AthenaConnectionOpsImpl {
     async fn build_athena_manager(
         &self,
-        catalog_name: String,
-        database_name: String,
-    ) -> Result<AthenaManager, AthenaManagerConstructorError> {
-        AthenaManager::new(&catalog_name, &database_name).await
+         options: AthenaConnectionConstructorOptions    ) -> Result<Box<dyn IDatabase>, AthenaManagerConstructorError> {
+         let athena_manager_options = AthenaManagerConstructorOptionsBuilder::default()
+            .catalog(options.catalog_name)
+            .database(options.database_name)
+            .build()
+            .unwrap();
+             let athena_manager = AthenaManager::new(athena_manager_options).await;
+         if athena_manager.is_err() {
+             return Err(athena_manager.err().unwrap());
+         }
+         Ok(Box::new(athena_manager.unwrap()))
+
+
     }
 }
 
 impl AthenaConnection {
-    pub fn get_athena_manager(&self) -> &AthenaManager {
+    pub fn get_athena_manager(&self) -> &Box<dyn IDatabase> {
+        
         &self.athena_manager
     }
 
@@ -55,30 +85,21 @@ impl AthenaConnection {
     //Will return Err(AthenaManagerConstructorError) if something fails.  The T is
     //required to make the compiler happy, but it will always be AthenaManagerConstructorError
     //which is defined in the attribute on the struct.
-    pub async fn new<T>(catalog_name: String, bucket_name: String) -> Result<Self, T>
+    pub async fn new<T>(options: AthenaConnectionConstructorOptions) -> Result<Self, T>
     where
         T: SecretBoundError,
     {
-        Self::new_impl(catalog_name, bucket_name, &AthenaConnectionOpsImpl {}).await
-    }
-
-    async fn new_impl<T, T2>(
-        catalog_name: String,
-        database_name: String,
-        ops: &T,
-    ) -> Result<Self, T2>
-    where
-        T: AthenaConnectionOps,
-        T2: SecretBoundError,
-    {
-        let athena_manager = ops
-            .build_athena_manager(catalog_name.clone(), database_name.clone())
+        let dependecies = options.dependencies;
+        let catalog_name = options.catalog_name.clone();
+        let database_name = options.database_name.clone();
+        let athena_manager = dependecies 
+            .build_athena_manager(dependecies)
             .await;
         if athena_manager.is_err() {
             let err = athena_manager.err().unwrap();
             let variant = err.parse_error_type();
             let error_data = err.get_glyphx_error_data();
-            let err = T2::from_str(&variant, error_data.clone());
+            let err = T::from_str(&variant, error_data.clone());
 
             err.error();
             return Err(err);
@@ -86,10 +107,12 @@ impl AthenaConnection {
         Ok(Self {
             catalog_name,
             database_name,
-            athena_manager: athena_manager.unwrap(),
+            athena_manager: Box::new(athena_manager.unwrap()),
+            dependencies: dependecies,
         })
     }
 }
+
 impl Default for AthenaConnection {
     fn default() -> Self {
         Self {

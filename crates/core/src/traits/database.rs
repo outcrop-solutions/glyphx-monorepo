@@ -17,7 +17,7 @@ use aws_smithy_async::future::pagination_stream::PaginationStream;
 use serde_json::Value;
 
 #[async_trait]
-pub trait IDatabase: Send + Sync {
+pub trait IDatabase: std::fmt::Debug +  Send + Sync {
     fn get_database(&self) -> &str;
     fn get_catalog(&self) -> &str;
     async fn start_query(
