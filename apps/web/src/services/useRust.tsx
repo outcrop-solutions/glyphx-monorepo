@@ -132,12 +132,14 @@ export const useRust = () => {
         console.log('Canvas not found');
         return;
       }
-      console.log('Canvas obtained', canvas);
       const width = canvas!.clientWidth;
       const height = canvas!.clientHeight;
+      console.log('Canvas obtained in useRust', {canvas, width, height});
+
       console.log('set modeRunner state');
       setModelRunnerState({initialized: true, modelRunner, lastPayloadHash: payloadHash});
       console.log('call modeRunner.run()');
+      // const h = height - 44;
       await modelRunner.run(width, height);
     },
     [handleStream, payloadHash, processData, setDrawer, setModelRunnerState]

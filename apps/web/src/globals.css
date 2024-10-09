@@ -41,7 +41,7 @@ div[class='react-grid-Canvas'] {
   /* @apply bg-primary-dark-blue h-full text-white rounded w-full p-0 text-center; */
 }
 canvas {
-  background-color: black;
+  /* background-color: black; */
 }
 
 div[class='react-grid-Grid'] {
@@ -108,7 +108,7 @@ div[role='grid'] {
 }
 
 canvas {
-  @apply w-full h-full;
+  /* @apply w-full h-full; */
 }
 
 ::-webkit-scrollbar {
