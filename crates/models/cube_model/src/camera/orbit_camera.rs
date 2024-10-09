@@ -193,6 +193,11 @@ impl OrbitCamera {
         ));
         //eprintln!("camera: {:?}", self);
     }
+
+    pub fn update_aspect(&mut self, aspect: f32) {
+        self.aspect = aspect;
+        self.update();
+    }
 }
 
 /// The boundaries for how an [OrbitCamera] can be rotated.

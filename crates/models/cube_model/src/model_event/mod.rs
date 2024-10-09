@@ -35,6 +35,10 @@ pub enum ModelEvent {
     GlyphsUpdated(Vec<GlyphVertexData>),
     HitDetection(Hit),
     TakeScreenshot,
+    ResizeWindow {
+        width: u32,
+        height: u32,
+    },
 }
 impl std::fmt::Debug for ModelEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -67,6 +71,9 @@ impl std::fmt::Debug for ModelEvent {
             ModelEvent::GlyphsUpdated(_glyphs) => write!(f, "GlyphsUpdated"),
             ModelEvent::HitDetection(hit) => write!(f, "HitDetection({:?})", hit),
             ModelEvent::TakeScreenshot=> write!(f, "TakeScreenshot"),
+            ModelEvent::ResizeWindow { width, height } => {
+                write!(f, "ResizeWindow(width: {}, height: {})", width, height)
+            }
         }
     }
 }
@@ -95,6 +102,10 @@ pub enum JsSafeModelEvent {
     HitDetection(Hit),
     TakeScreenshot,
     Other(String),
+    ResizeWindow {
+        width: u32,
+        height: u32,
+    },
 }
 
 impl From<&ModelEvent> for JsSafeModelEvent {
@@ -126,6 +137,12 @@ impl From<&ModelEvent> for JsSafeModelEvent {
             ModelEvent::GlyphsUpdated(_glyphs) => Self::Other("GlyphsUpdated".to_string()),
             ModelEvent::HitDetection(hit) => Self::HitDetection(hit.clone()),
             ModelEvent::TakeScreenshot => Self::TakeScreenshot,
+            ModelEvent::ResizeWindow { width, height } => {
+                Self::ResizeWindow {
+                    width: *width,
+                    height: *height,
+                }
+            }
         }
     }
 }

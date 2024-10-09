@@ -8,6 +8,11 @@ export class ModelRunner {
 */
   constructor();
 /**
+* @param {number} width
+* @param {number} height
+*/
+  resize_window(width: number, height: number): void;
+/**
 * @param {string} filter
 */
   update_model_filter(filter: string): void;
@@ -263,6 +268,7 @@ export interface InitOutput {
   readonly __wbg_get_orbitcamerabounds_max_yaw: (a: number, b: number) => void;
   readonly __wbg_set_orbitcamerabounds_max_yaw: (a: number, b: number, c: number) => void;
   readonly modelrunner_new: () => number;
+  readonly modelrunner_resize_window: (a: number, b: number, c: number, d: number) => void;
   readonly modelrunner_update_model_filter: (a: number, b: number, c: number, d: number) => void;
   readonly modelrunner_update_configuration: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly modelrunner_toggle_axis_lines: (a: number) => void;

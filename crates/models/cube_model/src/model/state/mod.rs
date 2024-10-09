@@ -178,6 +178,9 @@ impl State {
         let id = self.wgpu_manager.as_ref().borrow().window().id();
         id
     }
+     pub fn set_window_size(&mut self, width: u32, height: u32) {
+        self.wgpu_manager.borrow_mut().resize_window(width, height);
+     }
 
     pub fn request_window_redraw(&self) {
         let wm = self.wgpu_manager.borrow();
@@ -192,9 +195,20 @@ impl State {
     }
 
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
+        log::info!("Resizing window to width: {} height: {}", new_size.width, new_size.height);
         if new_size.width > 0 && new_size.height > 0 {
             self.wgpu_manager.borrow_mut().set_size(new_size);
             self.pipeline_manager.update_depth_textures();
+            self.camera_manager.borrow_mut().update_aspect_ratio(new_size.width as f32 / new_size.height as f32);
+        let smaa_target = SmaaTarget::new(
+            &self.wgpu_manager.borrow().device().borrow(),
+            self.wgpu_manager.borrow().queue(),
+            self.wgpu_manager.borrow().window().inner_size().width,
+            self.wgpu_manager.borrow().window().inner_size().height,
+            self.wgpu_manager.borrow().config().format,
+            SmaaMode::Smaa1X,
+        );
+        self.smaa_target = smaa_target;
         }
     }
 
@@ -486,6 +500,7 @@ impl State {
         //it is wrapped in () and is dropped after the borrow is executed.
         let cm = (&mut self.camera_manager).borrow();
 
+        log::info!("Camera Uniform is {:?}", cm.get_camera_uniform());
         queue.write_buffer(
             &buffer_manager.camera_buffer(),
             0,
