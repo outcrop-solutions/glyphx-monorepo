@@ -30,11 +30,9 @@ export const Model = () => {
 
   // pass resize events on each render
   useEffect(() => {
-    if (modelRunnerState.initialized) {
-      if (width && height) {
-        console.log(`Resize event - width: ${width}, height: ${height}`);
-        modelRunnerState.modelRunner.resize_window(width, height);
-      }
+    if (width && height) {
+      console.log(`Resize event - width: ${width}, height: ${height}`);
+      modelRunnerState.modelRunner.resize_window(width, height);
     }
   }, [width, height, modelRunnerState]);
 
