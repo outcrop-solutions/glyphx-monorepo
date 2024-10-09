@@ -52,7 +52,7 @@ export const ModelFooter = () => {
     isClient &&
     !(Object.keys(loading).length > 0) && (
       <div
-        className={`z-60 w-full h-[44px] ${
+        className={`absolute z-60 w-full h-[44px] ${
           orientation === 'vertical' ? 'border-b-none border-r-none border-b border-gray' : 'border border-gray'
         } bg-primary-dark-blue text-xs flex items-center`}
       >

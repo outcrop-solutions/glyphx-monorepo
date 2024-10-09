@@ -100,6 +100,7 @@ export const Datagrid = () => {
       <ReactDataGrid
         // @ts-ignore
         onScroll={(e) => debouncedScroll(e)}
+        // @ts-ignore
         columns={draggableColumns}
         rows={data.rows}
         rowGetter={(i) => data.rows[i]}

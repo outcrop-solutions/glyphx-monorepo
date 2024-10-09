@@ -7,7 +7,7 @@ import {useRecoilState, useRecoilValue} from 'recoil';
 import {modelRunnerAtom, projectAtom, rowIdsAtom} from 'state';
 import {createState} from 'actions';
 import useApplyState from 'services/useApplyState';
-import {stateSnapshot} from '../../../Model/utils';
+// import {stateSnapshot} from '../../../Model/utils';
 
 export const maxDuration = 300;
 
@@ -27,28 +27,29 @@ export const CreateStateInput = ({name, setName, setAddState}) => {
     event.preventDefault();
     try {
       setIsSubmitting(true);
-      const canvas = document.getElementById('glyphx-cube-model');
-      if (canvas) {
-        const aspect = {
-          width: canvas?.clientWidth,
-          height: canvas?.clientHeight,
-        };
+      // TODO: re-implement when rust is ready
+      // const canvas = document.getElementById('glyphx-cube-model');
+      // if (canvas) {
+      //   const aspect = {
+      //     width: canvas?.clientWidth,
+      //     height: canvas?.clientHeight,
+      //   };
 
-        const image = stateSnapshot();
-        const camera = JSON.parse(modelRunnerState.modelRunner.get_camera_data());
+      //   // const image = stateSnapshot();
+      //   const camera = JSON.parse(modelRunnerState.modelRunner.get_camera_data());
 
-        if (image) {
-          const rows = (rowIds ? rowIds : []) as unknown as number[];
-          const retval = await createState(name, camera, project, image, aspect, rows);
+      //   if (image) {
+      //     const rows = (rowIds ? rowIds : []) as unknown as number[];
+      //     const retval = await createState(name, camera, project, image, aspect, rows);
 
-          if (retval?.state) {
-            applyState(retval?.state);
-            setName('Initial State');
-            setIsSubmitting(false);
-            setAddState(false);
-          }
-        }
-      }
+      //     if (retval?.state) {
+      //       applyState(retval?.state);
+      //       setName('Initial State');
+      //       setIsSubmitting(false);
+      //       setAddState(false);
+      //     }
+      //   }
+      // }
     } catch (error) {
       console.log(error);
     }

@@ -61,7 +61,7 @@ export const Model = () => {
             console.log('Canvas not found');
             return;
           }
-          console.log('Canvas obtained', canvas);
+          console.log('Canvas obtained in Model', {canvas});
           // // Call this function to resize the canvas whenever the window is resized
           // await modelRunnerState.modelRunner.run(1000, 1500);
 
@@ -70,6 +70,7 @@ export const Model = () => {
             const canvas = e.target.getBoundingClientRect();
             const x = e.clientX - canvas.left; // X position relative to the canvas
             const y = e.clientY - canvas.top; // Y position relative to the canvas
+            console.log('Canvas in Hit detection', {canvas, x, y});
             console.log(`Clicked at: x=${x}, y=${y}`);
             modelRunnerState.modelRunner.select_glyph(x, y, false);
           };
