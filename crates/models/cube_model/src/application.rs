@@ -349,7 +349,8 @@ impl ApplicationHandler<ModelEvent> for Application {
                     }
 
                     WindowEvent::Resized(physical_size) => {
-                        //state.resize(physical_size);
+                        let new_size = PhysicalSize::new(physical_size.width, physical_size.height);
+                        state.resize(physical_size);
                         log::info!("Resized to after state {:?}", physical_size);
                         redraw = true;
                     }
@@ -430,7 +431,7 @@ impl ApplicationHandler<ModelEvent> for Application {
             if redraw {
                 {
                     let event = ModelEvent::Redraw;
-                    //send_event(event);
+                    send_event(event);
                 }
             }
         } else {
@@ -477,7 +478,9 @@ impl ApplicationHandler<ModelEvent> for Application {
                 ModelEvent::Redraw => {
                     //state.update_config();
                     redraw = false;
-                    match state.render() {
+                    let result = state.render();
+                    log::info!("Redraw result: {:?}", result);
+                    match result {
                         Ok(_) => {}
                         // Reconfigure the surface if lost
                         Err(wgpu::SurfaceError::Lost) => {

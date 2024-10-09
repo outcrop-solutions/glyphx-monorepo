@@ -56,6 +56,19 @@ impl CameraManager {
          camera_uniform_clone
     }
 
+ pub fn update_aspect_ratio(&mut self, aspect_ratio: f32) {
+        if self.camera.is_none() {
+            return;
+        }
+        let camera = self.camera.as_ref().unwrap();
+        let mut camera = camera.clone();
+        camera.update_aspect(aspect_ratio);
+        let mut camera_uniform = CameraUniform::default();
+        camera_uniform.update_view_proj(&camera);
+        self.camera = Some(camera);
+        self.camera_uniform = Some(camera_uniform);
+    }
+
     pub fn get_camera_data(&self) -> String {
         let camera_data = if self.camera.is_none() {
             CameraData {

@@ -70,7 +70,7 @@ export const GridContainer = () => {
             )}
           </div>
           <div className="h-full w-full relative">
-            <ModelFooter />
+            {/**<ModelFooter /> **/}
             <div className="h-full w-full relative">
               <ModelControls />
               <Model />
