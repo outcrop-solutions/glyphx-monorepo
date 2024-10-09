@@ -178,6 +178,9 @@ impl State {
         let id = self.wgpu_manager.as_ref().borrow().window().id();
         id
     }
+     pub fn set_window_size(&mut self, width: u32, height: u32) {
+        self.wgpu_manager.borrow_mut().resize_window(width, height);
+     }
 
     pub fn request_window_redraw(&self) {
         let wm = self.wgpu_manager.borrow();

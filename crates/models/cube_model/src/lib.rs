@@ -86,6 +86,13 @@ impl ModelRunner {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn resize_window(&self, width: u32, height: u32) -> Result<(), String> {
+         let event = ModelEvent::ResizeWindow { width, height };
+        send_event(event);
+        Ok(())
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn update_model_filter(&self, filter: &str) -> Result<(), String> {
         let json_value = from_str::<Value>(filter);
         if json_value.is_err() {

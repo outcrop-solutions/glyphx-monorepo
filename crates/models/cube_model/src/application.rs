@@ -571,6 +571,9 @@ impl ApplicationHandler<ModelEvent> for Application {
                         let _ = dm.add_ranked_glyph(glyph);
                     }
                     self.glyphs_updated = true;
+                },
+                ModelEvent::ResizeWindow { width, height } => {
+                    self.state.as_mut().unwrap().set_window_size(width, height);
                 }
 
                 _ => {}
