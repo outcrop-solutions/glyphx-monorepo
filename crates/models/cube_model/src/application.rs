@@ -65,9 +65,7 @@ impl Application {
         // Winit prevents sizing with CSS, so we have to set
         // the size manually when on web.
         let _ = window.request_inner_size(winit::dpi::PhysicalSize::new(self.width, self.height));
-        log::info!("Configuring canvas for web with a window of size: {:?}.", window.inner_size());
         use winit::platform::web::WindowExtWebSys;
-        log::info!("Window Canvas: {:?}", window.canvas());
         use super::WEB_ELEMENT_NAME;
       //  use winit::platform::web::WindowExtWebSys;
         web_sys::window()
@@ -79,6 +77,7 @@ impl Application {
                 canvas.set_attribute("id", "cube_model").ok()?;
                 canvas.set_attribute("width", &self.width.to_string()).ok()?;
                 canvas.set_attribute("height", &self.height.to_string()).ok()?;
+                canvas.set_attribute("style", "width: 100%; height: 100%;").ok()?;
                 dst.append_child(&canvas).ok()?;
                 Some(())
             })
@@ -89,7 +88,6 @@ impl Application {
 impl ApplicationHandler<ModelEvent> for Application {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         let l_s = winit::dpi::PhysicalSize::new(self.width, self.height);
-        log::info!("Resumed with a size of {:?}", l_s);
         let window = event_loop
             .create_window(
                 Window::default_attributes()
@@ -98,7 +96,6 @@ impl ApplicationHandler<ModelEvent> for Application {
                     .with_resizable(true),
             )
             .unwrap();
-        log::info!("The window has been created with a size of {:?} and a scale factor of {:?}", window.inner_size(), window.scale_factor());
         #[cfg(target_arch = "wasm32")]
         {
             self.configure_canvas(&window);
@@ -335,7 +332,6 @@ impl ApplicationHandler<ModelEvent> for Application {
                     WindowEvent::Resized(physical_size) => {
                         let new_size = PhysicalSize::new(physical_size.width, physical_size.height);
                         state.resize(physical_size);
-                        log::info!("Resized to after state {:?}", physical_size);
                         redraw = true;
                     }
 
@@ -421,7 +417,6 @@ impl ApplicationHandler<ModelEvent> for Application {
         } else {
             match event {
                 WindowEvent::Resized(physical_size) => {
-                    log::info!("Resized to before state {:?}", physical_size);
                 }
                 _ => {}
             }
@@ -463,7 +458,6 @@ impl ApplicationHandler<ModelEvent> for Application {
                     //state.update_config();
                     redraw = false;
                     let result = state.render();
-                    log::info!("Redraw result: {:?}", result);
                     match result {
                         Ok(_) => {}
                         // Reconfigure the surface if lost
@@ -522,7 +516,6 @@ impl ApplicationHandler<ModelEvent> for Application {
                     state.hit_detection(x_pos as u32, y_pos as u32, multi_select);
                 }
                 ModelEvent::HitDetection(hit) => {
-                    log::info!("Hit: {:?}", hit);
                     let res = state.process_hit(hit);
                     let values = res.iter().map(|v| v.to_json()).collect::<Vec<Value>>();
                     redraw = false;

@@ -195,7 +195,6 @@ impl State {
     }
 
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
-        log::info!("Resizing window to width: {} height: {}", new_size.width, new_size.height);
         if new_size.width > 0 && new_size.height > 0 {
             self.wgpu_manager.borrow_mut().set_size(new_size);
             self.pipeline_manager.update_depth_textures();
@@ -235,7 +234,6 @@ impl State {
                 true
             }
             MouseEvent::MouseClick => {
-                log::info!("Mouse Click, x: {}, y: {}", self.cursor_position.x, self.cursor_position.y);
                  self.hit_detection(
                      self.cursor_position.x as u32,
                      self.cursor_position.y as u32,
@@ -486,7 +484,6 @@ impl State {
         }
 
 
-        log::info!("Rendering with height: {} width: {}", self.wgpu_manager.borrow().window().inner_size().height, self.wgpu_manager.borrow().window().inner_size().width);
         let buffer_manager = self.buffer_manager.borrow();
         let wgpu_manager = self.wgpu_manager.borrow();
         let queue = wgpu_manager.queue();
@@ -500,7 +497,6 @@ impl State {
         //it is wrapped in () and is dropped after the borrow is executed.
         let cm = (&mut self.camera_manager).borrow();
 
-        log::info!("Camera Uniform is {:?}", cm.get_camera_uniform());
         queue.write_buffer(
             &buffer_manager.camera_buffer(),
             0,
@@ -651,7 +647,6 @@ impl State {
         y_pos: u32,
         is_shift_pressed: bool,
     ) -> Result<(), SurfaceError> {
-        log::info!("Running Hit Detection Pipeline with x: {} y: {}", x_pos, y_pos);
         let (output_buffer, bytes_per_row) = self.pipeline_manager.run_hit_detection_pipeline(
             self.orientation_manager.rank(),
             self.orientation_manager.rank_direction(),
@@ -677,7 +672,6 @@ impl State {
                 captuable.unmap();
                 if send_event {
                     unsafe {
-                        log::info!("Sending Hit Detection Event from closure ");
                         let _ = crate::EVENT_LOOP_PROXY.as_ref().unwrap().send_event(
                             crate::ModelEvent::HitDetection(Hit {
                                 glyph_id,

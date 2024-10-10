@@ -131,7 +131,6 @@ impl BufferManager {
         glyph_uniform_data: &GlyphUniformData,
         config: &SurfaceConfiguration,
     ) -> CameraUniform {
-        log::info!("Building camera and uniform with config: {:?}", config);
         let distance = (glyph_uniform_data.max_interp_x - glyph_uniform_data.min_interp_x) * 0.9;
         let y_offset = (glyph_uniform_data.max_interp_y - glyph_uniform_data.min_interp_y) / 2.0;
         let y_offset = (glyph_uniform_data.min_interp_y + y_offset) * -1.0;
