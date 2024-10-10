@@ -70,7 +70,9 @@ export const Property = ({axis}) => {
       // NOTE: rust has integer values instead of the ts enum values
       const config = {
         [`${axis.toLowerCase()}_interpolation`]:
-          prop.interpolation === webTypes.constants.INTERPOLATION_TYPE.LIN ? 1 : 0,
+          prop.interpolation === webTypes.constants.INTERPOLATION_TYPE.LIN
+            ? webTypes.constants.INTERPOLATION_TYPE.LOG
+            : webTypes.constants.INTERPOLATION_TYPE.LIN,
       };
       console.log({...config});
       modelRunner.update_configuration(JSON.stringify(config), true);
@@ -89,7 +91,10 @@ export const Property = ({axis}) => {
     if (initialized) {
       // NOTE: rust has integer values instead of the ts enum values
       const config = {
-        [`${axis.toLowerCase()}_order`]: prop.direction === webTypes.constants.DIRECTION_TYPE.ASC ? 1 : 0,
+        [`${axis.toLowerCase()}_order`]:
+          prop.direction === webTypes.constants.DIRECTION_TYPE.ASC
+            ? webTypes.constants.DIRECTION_TYPE.DESC
+            : webTypes.constants.DIRECTION_TYPE.ASC,
       };
       console.log({...config});
       modelRunner.update_configuration(JSON.stringify(config), true);

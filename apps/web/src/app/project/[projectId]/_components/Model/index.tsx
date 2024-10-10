@@ -143,7 +143,7 @@ export const Model = () => {
 
       // Clean-up function to remove event listeners and other potential states.
       return () => {
-        const canvas = document.getElementById('glyphx-cube-model') as HTMLCanvasElement;
+        const canvas = document.getElementById('glyphx-cube-model') as HTMLDivElement;
         if (canvas) {
           canvas.removeEventListener('click', handleHitDetection);
           canvas.removeEventListener('mousedown', handleMouseDown);
@@ -157,6 +157,15 @@ export const Model = () => {
       };
     }
   }, [modelRunnerState, setModelRunnerState]);
+
+  useEffect(() => {
+    if (modelRunnerState.initialized) {
+      const canvas = document.getElementById('cube-model') as HTMLCanvasElement;
+      canvas?.focus();
+    }
+
+    return () => {};
+  }, [modelRunnerState.initialized]);
 
   return (
     <div className="relative h-full w-full flex items-center justify-center">
