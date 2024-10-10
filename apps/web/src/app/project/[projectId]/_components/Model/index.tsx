@@ -163,7 +163,7 @@ export const Model = () => {
       <div
         ref={ref}
         id="glyphx-cube-model"
-        className="flex items-center justify-center h-full w-full bg-[#414d66]"
+        className="flex items-center justify-center h-full w-full bg-[#0d0f21]"
       ></div>
     </div>
   );
