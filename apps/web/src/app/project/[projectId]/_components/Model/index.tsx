@@ -158,13 +158,12 @@ export const Model = () => {
     }
   }, [modelRunnerState, setModelRunnerState]);
 
+  // ensure canvas takes focus if it exists
   useEffect(() => {
-    if (modelRunnerState.initialized) {
-      const canvas = document.getElementById('cube-model') as HTMLCanvasElement;
+    const canvas = document.getElementById('cube-model') as HTMLCanvasElement;
+    if (canvas && modelRunnerState.initialized) {
       canvas?.focus();
     }
-
-    return () => {};
   }, [modelRunnerState.initialized]);
 
   return (

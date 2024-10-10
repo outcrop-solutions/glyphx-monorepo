@@ -37,3 +37,12 @@ export const canvasSizeAtom = atom<Size>({
     height: undefined,
   },
 });
+
+export const selectedGlyphsAtom = atom({
+  key: 'selectedGlyphsAtom',
+  default: {
+    x: 0,
+    y: 0,
+    z: 0,
+  },
+});
