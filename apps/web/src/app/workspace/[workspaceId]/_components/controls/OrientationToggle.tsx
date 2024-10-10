@@ -30,6 +30,7 @@ export const OrientationToggle = () => {
       if (orientation === 'horizontal') {
         setDrawer(true);
         setPaneSize(400);
+      } else {
         modelRunnerState.modelRunner.resize_window(size.width, 400);
       }
       setOrientation(
