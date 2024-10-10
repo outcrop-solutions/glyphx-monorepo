@@ -1,7 +1,7 @@
 'use client';
 import React, {useEffect, useRef, useState} from 'react';
 import {useRecoilState} from 'recoil';
-import {modelRunnerAtom} from 'state';
+import {canvasSizeAtom, modelRunnerAtom} from 'state';
 import {useHotkeys} from 'react-hotkeys-hook';
 import {useDebounceCallback, useResizeObserver} from 'usehooks-ts';
 
@@ -16,10 +16,7 @@ export const Model = () => {
 
   // get debounced size changes
   const ref = useRef<HTMLDivElement>(null);
-  const [{width, height}, setSize] = useState<Size>({
-    width: undefined,
-    height: undefined,
-  });
+  const [{width, height}, setSize] = useRecoilState<Size>(canvasSizeAtom);
 
   // debounce observer every 200 ms
   const onResize = useDebounceCallback(setSize, 200);

@@ -24,3 +24,16 @@ export const drawerOpenAtom = atom<boolean>({
   key: 'drawerOpen',
   default: false,
 });
+
+type Size = {
+  width?: number;
+  height?: number;
+};
+
+export const canvasSizeAtom = atom<Size>({
+  key: 'canvasSizeAtom',
+  default: {
+    width: undefined,
+    height: undefined,
+  },
+});
