@@ -143,7 +143,7 @@ impl ModelRunner {
             return Err(serde_json::to_string(&result.unwrap_err()).unwrap());
         }
         if is_running {
-            let event = ModelEvent::Redraw;
+            let event = ModelEvent::ConfigurationUpdated;
             emit_event(&event);
             send_event(event);
         }

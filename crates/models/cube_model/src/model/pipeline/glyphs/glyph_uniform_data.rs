@@ -10,9 +10,9 @@ pub enum InterpolationType {
 
 impl From<String> for InterpolationType {
     fn from(s: String) -> Self {
-        match s.as_str() {
-            "Lin" => InterpolationType::Linear,
-            "Log" => InterpolationType::Log,
+        match s.to_lowercase().as_str() {
+            "lin" => InterpolationType::Linear,
+            "log" => InterpolationType::Log,
             _ => InterpolationType::Linear,
         }
     }
@@ -26,9 +26,9 @@ pub enum Order {
 
 impl From<String> for Order {
     fn from(s: String) -> Self {
-        match s.as_str() {
-            "Asc" => Order::Ascending,
-            "Desc" => Order::Descending,
+        match s.to_lowercase().as_str() {
+            "asc"   => Order::Ascending,
+            "desc" => Order::Descending,
             _ => Order::Ascending,
         }
     }
