@@ -39,6 +39,7 @@ pub enum ModelEvent {
         width: u32,
         height: u32,
     },
+    ConfigurationUpdated,
 }
 impl std::fmt::Debug for ModelEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -74,6 +75,7 @@ impl std::fmt::Debug for ModelEvent {
             ModelEvent::ResizeWindow { width, height } => {
                 write!(f, "ResizeWindow(width: {}, height: {})", width, height)
             }
+            ModelEvent::ConfigurationUpdated => write!(f, "ConfigurationUpdated"),
         }
     }
 }
@@ -106,6 +108,7 @@ pub enum JsSafeModelEvent {
         width: u32,
         height: u32,
     },
+    ConfigurationUpdated,
 }
 
 impl From<&ModelEvent> for JsSafeModelEvent {
@@ -143,6 +146,7 @@ impl From<&ModelEvent> for JsSafeModelEvent {
                     height: *height,
                 }
             }
+            ModelEvent::ConfigurationUpdated => Self::ConfigurationUpdated,
         }
     }
 }

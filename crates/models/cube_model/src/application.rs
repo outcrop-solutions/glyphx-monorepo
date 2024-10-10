@@ -547,10 +547,18 @@ impl ApplicationHandler<ModelEvent> for Application {
                     for glyph in glyphs {
                         let _ = dm.add_ranked_glyph(glyph);
                     }
+                    if self.glyphs_updated {
+                        let event = ModelEvent::Redraw;
+                        send_event(event);
+                    }
                     self.glyphs_updated = true;
                 },
                 ModelEvent::ResizeWindow { width, height } => {
                     self.state.as_mut().unwrap().set_window_size(width, height);
+                },
+                ModelEvent::ConfigurationUpdated => {
+                    let state = self.state.as_mut().unwrap();
+                    state.update_config();
                 }
 
                 _ => {}

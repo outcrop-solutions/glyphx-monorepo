@@ -178,9 +178,9 @@ impl State {
         let id = self.wgpu_manager.as_ref().borrow().window().id();
         id
     }
-     pub fn set_window_size(&mut self, width: u32, height: u32) {
+    pub fn set_window_size(&mut self, width: u32, height: u32) {
         self.wgpu_manager.borrow_mut().resize_window(width, height);
-     }
+    }
 
     pub fn request_window_redraw(&self) {
         let wm = self.wgpu_manager.borrow();
@@ -198,16 +198,18 @@ impl State {
         if new_size.width > 0 && new_size.height > 0 {
             self.wgpu_manager.borrow_mut().set_size(new_size);
             self.pipeline_manager.update_depth_textures();
-            self.camera_manager.borrow_mut().update_aspect_ratio(new_size.width as f32 / new_size.height as f32);
-        let smaa_target = SmaaTarget::new(
-            &self.wgpu_manager.borrow().device().borrow(),
-            self.wgpu_manager.borrow().queue(),
-            self.wgpu_manager.borrow().window().inner_size().width,
-            self.wgpu_manager.borrow().window().inner_size().height,
-            self.wgpu_manager.borrow().config().format,
-            SmaaMode::Smaa1X,
-        );
-        self.smaa_target = smaa_target;
+            self.camera_manager
+                .borrow_mut()
+                .update_aspect_ratio(new_size.width as f32 / new_size.height as f32);
+            let smaa_target = SmaaTarget::new(
+                &self.wgpu_manager.borrow().device().borrow(),
+                self.wgpu_manager.borrow().queue(),
+                self.wgpu_manager.borrow().window().inner_size().width,
+                self.wgpu_manager.borrow().window().inner_size().height,
+                self.wgpu_manager.borrow().config().format,
+                SmaaMode::Smaa1X,
+            );
+            self.smaa_target = smaa_target;
         }
     }
 
@@ -234,12 +236,12 @@ impl State {
                 true
             }
             MouseEvent::MouseClick => {
-                 self.hit_detection(
-                     self.cursor_position.x as u32,
-                     self.cursor_position.y as u32,
-                     is_shift_pressed,
-                 );
-               true 
+                self.hit_detection(
+                    self.cursor_position.x as u32,
+                    self.cursor_position.y as u32,
+                    is_shift_pressed,
+                );
+                true
             }
             MouseEvent::MouseScroll => true,
             MouseEvent::Handled => false,
@@ -270,7 +272,12 @@ impl State {
         let device = device.borrow();
 
         //TODO: we should really react to an error here.
-        let _ = self.run_hit_detection_pipeline(&device, self.cursor_position.x as u32, self.cursor_position.y as u32, is_shift_pressed);
+        let _ = self.run_hit_detection_pipeline(
+            &device,
+            self.cursor_position.x as u32,
+            self.cursor_position.y as u32,
+            is_shift_pressed,
+        );
     }
 
     pub fn move_camera(&mut self, direction: &str, amount: f32) {
@@ -417,6 +424,7 @@ impl State {
         //buffer manager and referencing it instead of borrowing mut every time.  The reason
         //is that run compute pipeline also borrows the buffer manager mutably.  And it can
         //be called from several different places.  So for now we will just borrow mut every time.
+
         self.buffer_manager
             .borrow_mut()
             .update_glyph_uniform_buffer(
@@ -427,10 +435,8 @@ impl State {
         self.pipeline_manager
             .upate_glyph_data_verticies(&self.model_filter);
 
-        eprintln!("Running compute pipeline from update_config");
-        self.run_compute_pipeline();
-
-        let config = self.model_configuration.borrow();
+        let config = self.model_configuration.clone();
+        let config = config.borrow();
         self.buffer_manager.borrow_mut().update_color_table(
             config.x_axis_color,
             config.y_axis_color,
@@ -465,6 +471,9 @@ impl State {
         self.buffer_manager
             .borrow_mut()
             .update_glyph_uniform_y_offset(config.min_glyph_height);
+
+        log::info!("running compute pipeline from update_config");
+        self.run_compute_pipeline();
     }
 
     pub fn resolve_picking_textures(&mut self) {
@@ -482,7 +491,6 @@ impl State {
             //This will get run again once the compute pipeline is finished
             return Ok(());
         }
-
 
         let buffer_manager = self.buffer_manager.borrow();
         let wgpu_manager = self.wgpu_manager.borrow();
