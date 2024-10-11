@@ -16,7 +16,8 @@ use mockall::automock;
 pub trait AthenaConnectionOps: std::fmt::Debug + Send + Sync {
     async fn build_athena_manager(
         &self,
-        options: AthenaConnectionConstructorOptions
+        catalog: String,
+        database: String,
     ) -> Result<Box<dyn IDatabase>, AthenaManagerConstructorError>;
 }
 
@@ -33,7 +34,7 @@ pub struct AthenaConnectionConstructorOptions {
 
 
 #[derive(SecretBoundSingleton, Debug)]
-#[secret_binder({"secret_name" : "db/athena", "initializer": "new", "initializer_error": "ConstructorError"})]
+#[secret_binder({"secret_name" : "db/athena", "initializer": "from_secret", "initializer_error": "ConstructorError"})]
 pub struct AthenaConnection {
     #[bind_field({"secret_name" : "catalogName" })]
     catalog_name: String,
@@ -52,13 +53,10 @@ struct AthenaConnectionOpsImpl;
 impl AthenaConnectionOps for AthenaConnectionOpsImpl {
     async fn build_athena_manager(
         &self,
-         options: AthenaConnectionConstructorOptions    ) -> Result<Box<dyn IDatabase>, AthenaManagerConstructorError> {
-         let athena_manager_options = AthenaManagerConstructorOptionsBuilder::default()
-            .catalog(options.catalog_name)
-            .database(options.database_name)
-            .build()
-            .unwrap();
-             let athena_manager = AthenaManager::new(athena_manager_options).await;
+         catalog: String,
+         database: String ) -> Result<Box<dyn IDatabase>, AthenaManagerConstructorError> {
+        let athena_manager_constructor_options = AthenaManagerConstructorOptionsBuilder::default().catalog(catalog).database(database).build().unwrap();
+             let athena_manager = AthenaManager::new(athena_manager_constructor_options).await;
          if athena_manager.is_err() {
              return Err(athena_manager.err().unwrap());
          }
@@ -93,7 +91,7 @@ impl AthenaConnection {
         let catalog_name = options.catalog_name.clone();
         let database_name = options.database_name.clone();
         let athena_manager = dependecies 
-            .build_athena_manager(dependecies)
+            .build_athena_manager(catalog_name.clone(), database_name.clone())
             .await;
         if athena_manager.is_err() {
             let err = athena_manager.err().unwrap();
@@ -107,9 +105,21 @@ impl AthenaConnection {
         Ok(Self {
             catalog_name,
             database_name,
-            athena_manager: Box::new(athena_manager.unwrap()),
+            athena_manager: athena_manager.unwrap(),
             dependencies: dependecies,
         })
+    }
+
+    pub async fn from_secret<T>(catalog_name: String, database_name: String) -> Result<Self, T>
+    where
+        T: SecretBoundError,
+    {
+        let options = AthenaConnectionConstructorOptionsBuilder::default()
+            .catalog_name(catalog_name)
+            .database_name(database_name)
+            .build()
+            .unwrap();
+        Self::new(options).await
     }
 }
 
@@ -118,7 +128,8 @@ impl Default for AthenaConnection {
         Self {
             catalog_name: "".to_string(),
             database_name: "".to_string(),
-            athena_manager: AthenaManager::default(),
+            athena_manager: Box::new(AthenaManager::default()),
+            dependencies: Box::new(AthenaConnectionOpsImpl),
         }
     }
 }
@@ -139,10 +150,16 @@ mod contructor {
             .expect_build_athena_manager()
             .withf(move |arg1, arg2| arg1 == &clone_catalog_name && arg2 == &clone_database_name)
             .times(1)
-            .returning(|_, _| Ok(AthenaManager::default()));
+            .returning(|_, _| Ok(Box::new(AthenaManager::default())));
 
+        let options = AthenaConnectionConstructorOptionsBuilder::default()
+            .catalog_name(catalog_name.clone())
+            .database_name(database_name.clone())
+            .dependencies(Box::new(mock_ops))
+            .build()
+            .unwrap();
         let athena_connection: Result<AthenaConnection, AthenaManagerConstructorError> =
-            AthenaConnection::new_impl(catalog_name.clone(), database_name.clone(), &mock_ops)
+            AthenaConnection::new(options)
                 .await;
         assert!(athena_connection.is_ok());
         let athena_connection = athena_connection.unwrap();
@@ -175,8 +192,14 @@ mod contructor {
                 ))
             });
 
+        let options = AthenaConnectionConstructorOptionsBuilder::default()
+            .catalog_name(catalog_name.clone())
+            .database_name(database_name.clone())
+            .dependencies(Box::new(mock_ops))
+            .build()
+            .unwrap();
         let athena_connection: Result<AthenaConnection, AthenaManagerConstructorError> =
-            AthenaConnection::new_impl(catalog_name.clone(), database_name.clone(), &mock_ops)
+            AthenaConnection::new(options)
                 .await;
         assert!(athena_connection.is_err());
         let athena_connection = athena_connection.err().unwrap();
