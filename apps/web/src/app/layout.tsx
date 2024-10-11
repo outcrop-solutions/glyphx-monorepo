@@ -10,16 +10,10 @@ export const metadata: Metadata = {
   description: 'Welcome to Glyphx',
 };
 
-declare global {
-  interface Window {
-    core: any | undefined;
-  }
-}
-
 export default async function RootLayout({children, params}: {children: React.ReactNode; params: any}) {
   const session = await getServerSession(authOptions);
   try {
-    await growthbook.loadFeatures();
+    // await growthbook.loadFeatures();
   } catch (error) {}
 
   return (

@@ -2,13 +2,19 @@ mod add_glyphs;
 mod add_statistics;
 mod add_vector;
 mod model_move_direction;
+mod screenshot;
 
-use crate::model::{filtering::Query, state::State};
+use crate::model::{
+    filtering::Query,
+    pipeline::{glyphs::glyph_vertex_data::GlyphVertexData, hit_detection::Hit},
+    state::State,
+};
 
 pub(crate) use add_glyphs::AddGlyphData;
 pub(crate) use add_statistics::AddStatisticData;
 pub(crate) use add_vector::AddVectorData;
 pub(crate) use model_move_direction::ModelMoveDirection;
+pub(crate) use screenshot::Screenshot;
 
 use serde::Serialize;
 use serde_json::Value;
@@ -28,6 +34,54 @@ pub enum ModelEvent {
     SelectedGlyphs(Vec<Value>),
     SelectGlyphs(Vec<u32>),
     UpdateModelFilter(Query),
+    GlyphsUpdated(Vec<GlyphVertexData>),
+    HitDetection(Hit),
+    TakeScreenshot,
+    ScreenshotTaken(Screenshot),
+    ResizeWindow {
+        width: u32,
+        height: u32,
+    },
+    ConfigurationUpdated,
+}
+impl std::fmt::Debug for ModelEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ModelEvent::StateReady(_state) => write!(f, "StateReady"),
+            ModelEvent::ModelMove(model_move_direction) => {
+                write!(f, "ModelMove({:?})", model_move_direction)
+            }
+            ModelEvent::AddVector(add_vector_data) => {
+                write!(f, "AddVector({:?})", add_vector_data)
+            }
+            ModelEvent::AddStatistic(add_statistic_data) => {
+                write!(f, "AddStatistic({:?})", add_statistic_data)
+            }
+            ModelEvent::AddGlyph(add_glyph_data) => write!(f, "AddGlyph({:?})", add_glyph_data),
+            ModelEvent::Redraw => write!(f, "Redraw"),
+            ModelEvent::ToggleAxisLines => write!(f, "ToggleAxisLines"),
+            ModelEvent::SelectGlyph {
+                x_pos,
+                y_pos,
+                multi_select,
+            } => write!(
+                f,
+                "SelectGlyph(x_pos: {}, y_pos: {}, multi_select: {})",
+                x_pos, y_pos, multi_select
+            ),
+            ModelEvent::SelectedGlyphs(glyphs) => write!(f, "SelectedGlyphs({:?})", glyphs),
+            ModelEvent::SelectGlyphs(glyphs) => write!(f, "SelectGlyphs({:?})", glyphs),
+            ModelEvent::UpdateModelFilter(query) => write!(f, "UpdateModelFilter({:?})", query),
+            ModelEvent::GlyphsUpdated(_glyphs) => write!(f, "GlyphsUpdated"),
+            ModelEvent::HitDetection(hit) => write!(f, "HitDetection({:?})", hit),
+            ModelEvent::TakeScreenshot=> write!(f, "TakeScreenshot"),
+            ModelEvent::ScreenshotTaken(screenshot) => write!(f, "ScreenShotTaken({:?})", screenshot),
+            ModelEvent::ResizeWindow { width, height } => {
+                write!(f, "ResizeWindow(width: {}, height: {})", width, height)
+            }
+            ModelEvent::ConfigurationUpdated => write!(f, "ConfigurationUpdated"),
+        }
+    }
 }
 
 //So our State cannot be serialized due to the fact that many of the WGPU structs are
@@ -35,7 +89,7 @@ pub enum ModelEvent {
 //this is required to get wasm_bindgen working.  Since we use the same ModelEvent to
 //both control flow nternally and communicate with the client we have to build a
 //ModelEvent structure that can be serliazed so it can be sent back to javascript.
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub enum JsSafeModelEvent {
     ModelMove(ModelMoveDirection),
     AddVector(AddVectorData),
@@ -51,7 +105,15 @@ pub enum JsSafeModelEvent {
     SelectedGlyphs(Vec<Value>),
     SelectGlyphs(Vec<u32>),
     UpdateModelFilter(Query),
+    HitDetection(Hit),
+    TakeScreenshot,
+    ScreenShotTaken(Screenshot),
     Other(String),
+    ResizeWindow {
+        width: u32,
+        height: u32,
+    },
+    ConfigurationUpdated,
 }
 
 impl From<&ModelEvent> for JsSafeModelEvent {
@@ -80,6 +142,17 @@ impl From<&ModelEvent> for JsSafeModelEvent {
             ModelEvent::SelectedGlyphs(glyphs) => Self::SelectedGlyphs(glyphs.clone()),
             ModelEvent::SelectGlyphs(glyphs) => Self::SelectGlyphs(glyphs.clone()),
             ModelEvent::UpdateModelFilter(query) => Self::UpdateModelFilter(query.clone()),
+            ModelEvent::GlyphsUpdated(_glyphs) => Self::Other("GlyphsUpdated".to_string()),
+            ModelEvent::HitDetection(hit) => Self::HitDetection(hit.clone()),
+            ModelEvent::TakeScreenshot => Self::TakeScreenshot,
+            ModelEvent::ScreenshotTaken(screenshot) => Self::ScreenShotTaken(screenshot.clone()),
+            ModelEvent::ResizeWindow { width, height } => {
+                Self::ResizeWindow {
+                    width: *width,
+                    height: *height,
+                }
+            }
+            ModelEvent::ConfigurationUpdated => Self::ConfigurationUpdated,
         }
     }
 }

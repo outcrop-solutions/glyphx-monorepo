@@ -33,7 +33,6 @@ export const GridHeader = () => {
         ',',
         '"'
       );
-      window?.core?.SendCsv(csv);
     }
   }, [gridPayload.tableName, project.id, project.workspace.id, rowIds]);
 
@@ -48,7 +47,7 @@ export const GridHeader = () => {
           </>
         )}
       </div>
-      {rowIds && window && window?.core && (
+      {rowIds && (
         <div
           onClick={() => exportCsv()}
           className="group cursor-pointer flex items-center justify-between px-4 bg-gray hover:bg-yellow border-r border-t border-l border-white hover:text-black h-full"

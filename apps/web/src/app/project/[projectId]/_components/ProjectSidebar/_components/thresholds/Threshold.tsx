@@ -1,15 +1,13 @@
 'use client';
 import {PencilIcon, TrashIcon} from '@heroicons/react/outline';
-import {activeStateAtom, showLoadingAtom} from 'state';
-import {useRecoilState, useSetRecoilState} from 'recoil';
-import {_createOpenProject} from 'lib';
+import {activeStateAtom} from 'state';
+import {useRecoilValue} from 'recoil';
 import StateIcon from 'svg/state.svg';
 import ActiveStateIcon from 'svg/active-state.svg';
 import Image from 'next/image';
 
 export const Threshold = ({item, idx}) => {
-  const [activeState, setActiveState] = useRecoilState(activeStateAtom);
-  const setLoading = useSetRecoilState(showLoadingAtom);
+  const activeState = useRecoilValue(activeStateAtom);
 
   return (
     <li

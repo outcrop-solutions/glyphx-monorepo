@@ -29,7 +29,7 @@ struct VertexInput {
 struct VertexOutput {
     @builtin(position) clip_position: vec4<f32>,
     @location(0) world_position: vec3<f32>,
-    @location(1) glyph_id: u32,
+    @location(1) @interpolate(flat) glyph_id: u32,
 };
 
 

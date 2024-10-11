@@ -3,9 +3,12 @@ import ModuleLoader from '../utils/moduleLoader';
 import {error, constants} from 'core';
 import {databaseTypes, fileIngestionTypes, glyphEngineTypes, rustGlyphEngineTypes, webTypes} from 'types';
 import {generalPurposeFunctions as sharedFunctions} from 'core';
-import {hashFileSystem, hashPayload} from 'business/src/util/hashFunctions';
 import {s3Connection} from '../../../business/src/lib';
-import {generateFilterQuery} from '../utils/generateFilterQuery';
+import {getServerSession} from 'next-auth';
+import {authOptions} from '../auth';
+import {HashResolver, LatestHashStrategy} from 'business/src/util/HashResolver';
+import {projectService, stateService} from 'business';
+import {generateFilterQuery, isValidPayload} from '../utils';
 
 // WASM BINDINGS SETUP
 interface IBindings {
@@ -28,10 +31,14 @@ class Bindings extends ModuleLoader<IBindings> {
   public async runGlyphEngine(
     args: rustGlyphEngineTypes.IGlyphEngineArgs
   ): Promise<rustGlyphEngineTypes.IGlyphEngineResults | error.ActionError> {
+    console.log('Bindings', {args});
     let result: rustGlyphEngineTypes.IGlyphEngineResults;
     try {
       result = await internalModule.exports.glyph_engine(args);
     } catch (e) {
+      console.log(e);
+      // @ts-ignore
+      console.log(JSON.stringify(e?.ConfigurationError.innerError.JsonParsingError));
       // TODO: parse error as JSON?
       let er = new error.ActionError(
         'An error occurred while running the glyph_engine. See the inner error for additional information',
@@ -44,11 +51,13 @@ class Bindings extends ModuleLoader<IBindings> {
     }
     return result;
   }
+
   public hello(): string {
     return internalModule.exports.hello();
   }
 
   public convertNeonValue(value: any): string {
+    console.log('neonValue', value);
     return internalModule.exports.convertNeonValue(value);
   }
 
@@ -74,6 +83,7 @@ export async function hello() {
 }
 
 export async function convertNeonValue(value: any): Promise<string> {
+  console.log('neonValue', value);
   return bindings.convertNeonValue(value);
 }
 
@@ -92,20 +102,25 @@ export async function convertGlyphxError(): Promise<any> {
  * @param properties
  * @returns
  */
-export async function runGlyphEngineAction(
-  project: databaseTypes.IProject,
-  properties: databaseTypes.IProject['state']['properties']
-) {
+export async function runGlyphEngineAction(project: databaseTypes.IProject, stateId?: string) {
   try {
+    // validate session
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return {error: 'Not Authorized'};
+    }
     // validate input
-    if (typeof project?.workspace?.id !== 'string' || project?.workspace?.id?.length === 0) {
-      throw new error.InvalidArgumentError('No workspace id provided', 'project.workspace.id', project);
+    const workspaceId = project?.workspace.id;
+    const projectId = project?.id;
+    if (!workspaceId || !projectId) {
+      return {error: `Invalid project. projectId: ${projectId}, workspaceId: ${workspaceId}`};
     }
-    if (typeof project?.id !== 'string' || project?.workspace?.id?.length === 0) {
-      throw new error.InvalidArgumentError('No project id provided', 'project.id', project);
-    }
+
+    // init S3 client
+    await s3Connection.init();
+    const s3 = s3Connection.s3Manager;
+
     if (project.files.length === 0) {
-      console.log('3');
       throw new error.InvalidArgumentError(
         'No files present, upload a file and drop columns before running glyph engine',
         'project',
@@ -113,23 +128,71 @@ export async function runGlyphEngineAction(
       );
     }
 
-    const workspaceId = project.workspace.id;
-    const projectId = project.id;
-    const payloadHash = hashPayload(hashFileSystem(project.files), project);
-    const payload = buildRustPayload(project, properties);
+    // CASE 1: download existing state
+    if (stateId) {
+      console.log('CASE 1: state download');
+      const state = await stateService.getState(stateId);
+      if (!state) {
+        return {error: 'No state found for stateId'};
+      }
+      const resolver = new HashResolver(workspaceId, projectId, s3);
+      const retval = await resolver.resolve({
+        projectId,
+        files: state.fileSystem,
+        properties: state.properties,
+      });
+      console.log(`state resolution: ${JSON.stringify(retval)}`);
+      if (!retval) {
+        return {error: 'No file found for state'};
+      }
+      const {payloadHash} = retval;
+      return await signRustFiles(workspaceId, projectId, payloadHash);
+    }
 
+    // CASE 2: project state exists in its stateHistory and can be resolved
+    // validate payload
+    if (!isValidPayload(project.state.properties)) {
+      return {error: 'Invalid Payload'};
+    }
+
+    const updatedProject = await projectService.updateProjectState(projectId, project.state);
+    const properties = updatedProject.state.properties;
+    const resolver = new HashResolver(workspaceId, projectId, s3);
+    const retval = await resolver.resolve({
+      projectId,
+      files: updatedProject.files,
+      properties: properties,
+    });
+
+    console.log(`project resolution: ${JSON.stringify(retval)}`);
+    // project state is already generated, download it
+    if (retval) {
+      const {payloadHash} = retval;
+      return await signRustFiles(workspaceId, projectId, payloadHash);
+    }
+
+    // CASE 3: GlyphEngine needs to be run
+    // We can't use the resolver as we have not created the assets yet at this point in the generation cycle
+    const s = new LatestHashStrategy();
+    const hashPayload = {
+      projectId: updatedProject.id!,
+      files: updatedProject.files,
+      properties: updatedProject.state.properties,
+    };
+    const payloadHash = s.hashPayload(s.hashFiles(updatedProject.files), hashPayload);
+    const payload = buildRustPayload(updatedProject, payloadHash);
+    console.log('built rust payload');
+    console.log(payload);
+    console.log(payload.zAxis.fieldDefinition);
     const result = await runGlyphEngine(payload);
+    console.log('ran rustGlyphEngine', result);
     if (result) {
       // TODO: handle error here
       return await signRustFiles(workspaceId, projectId, payloadHash);
     }
   } catch (err) {
-    const e = new error.ActionError(
-      'An unexpected error occurred running the rust glyphengine',
-      'etl',
-      {project, properties},
-      err
-    );
+    console.log(err);
+    const e = new error.ActionError('An unexpected error occurred running the rust glyphengine', 'etl', {project}, err);
     e.publish('etl', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};
   }
@@ -143,9 +206,10 @@ export async function runGlyphEngineAction(
  */
 export const buildRustPayload = (
   project: databaseTypes.IProject,
-  properties: databaseTypes.IProject['state']['properties']
+  payloadHash: string
 ): rustGlyphEngineTypes.IGlyphEngineArgs => {
   try {
+    const properties = project?.state?.properties;
     // we assume that the values exist and then check the payload once it's formed
     // we could also do the reverse and consolidate the above conditional into the check performed before submitting the payload to the wasm module
     const fullTableName = sharedFunctions.fileIngestion.getFullTableName(
@@ -153,7 +217,6 @@ export const buildRustPayload = (
       project?.id as string,
       project?.files[0].tableName as string
     );
-    const payloadHash = hashPayload(hashFileSystem(project.files), project);
 
     // This is done so that we don't erroneously include undefined dateGrouping members in non date field definitions
     const xDateGrouping =
@@ -181,6 +244,8 @@ export const buildRustPayload = (
           }
         : {};
 
+    const filter = generateFilterQuery(project.state.properties);
+    let filterObj = filter ? {filter} : {};
     // build payload
     const retval = {
       workspace_id: project.workspace.id as string,
@@ -215,16 +280,15 @@ export const buildRustPayload = (
           fieldType: 'accumulated',
           accumulatedFieldDefinition: {
             // this is different in the types!
-            fieldName: properties[webTypes.constants.AXIS.Z]['key'], // TODO: @jp-burford do accumulated field definitions not ahve field names?
+            fieldName: properties[webTypes.constants.AXIS.Z]['key'], // TODO: @jp-burford do accumulated field definitions not have field type as a value?
             fieldType: getFieldType(webTypes.constants.AXIS.Z, properties),
             // should this be included in the  IAccumulatedFieldDefinition interface
             ...zDateGrouping,
           },
           accumulator: properties[webTypes.constants.AXIS.Z]['accumulatorType']?.toLowerCase() || 'sum', // convert between accumulatorType casing in rust glyphengine
-          // accumulatorType: properties[webTypes.constants.AXIS.Z]['accumulatorType']?.toLowerCase() || 'sum', // convert between accumulatorType casing in rust glyphengine
         },
       },
-      // filter: generateFilterQuery(project),
+      ...filterObj,
     };
 
     // checks for validity of naively created payload before returning
@@ -236,10 +300,11 @@ export const buildRustPayload = (
       throw new error.ActionError('Rust glyphengine payload is invalid', 'etl', {project, properties}, {});
     }
   } catch (err) {
+    console.log('payload error', err);
     throw new error.ActionError(
       'An unexpected error occurred building the rust glyphengine payload',
       'etl',
-      {project, properties},
+      {project},
       err
     );
   }

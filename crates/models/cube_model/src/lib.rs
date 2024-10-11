@@ -57,7 +57,7 @@ pub fn emit_event(event: &ModelEvent) {
             event_init.set_detail(&js_value);
             let event = web_sys::CustomEvent::new_with_event_init_dict(
                 "model-event",
-                &mut event_init, 
+                &mut event_init,
             ).unwrap();
             window
                 .dispatch_event(&event)
@@ -83,6 +83,19 @@ impl ModelRunner {
             data_manager: Rc::new(RefCell::new(DataManager::new())),
             camera_manager: Rc::new(RefCell::new(CameraManager::new())),
         }
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn take_screenshot(&self) -> Result<(), String> {
+         let event = ModelEvent::TakeScreenshot;
+        send_event(event);
+        Ok(())
+    }
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn resize_window(&self, width: u32, height: u32) -> Result<(), String> {
+         let event = ModelEvent::ResizeWindow { width, height };
+        send_event(event);
+        Ok(())
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
@@ -136,7 +149,7 @@ impl ModelRunner {
             return Err(serde_json::to_string(&result.unwrap_err()).unwrap());
         }
         if is_running {
-            let event = ModelEvent::Redraw;
+            let event = ModelEvent::ConfigurationUpdated;
             emit_event(&event);
             send_event(event);
         }
@@ -151,30 +164,30 @@ impl ModelRunner {
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn select_glyph(&self, x_pos: u32, y_pos: u32, multi_select: bool) {
-        let event = ModelEvent::SelectGlyph {
-            x_pos: x_pos as f32,
-            y_pos: y_pos as f32,
-            multi_select,
-        };
-        emit_event(&event);
-        send_event(event);
+        // let event = ModelEvent::SelectGlyph {
+        //     x_pos: x_pos as f32,
+        //     y_pos: y_pos as f32,
+        //     multi_select,
+        // };
+        // emit_event(&event);
+        // send_event(event);
     }
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn add_yaw(&self, amount: f32) {
-        let event = ModelEvent::ModelMove(ModelMoveDirection::Yaw(amount));
-        emit_event(&event);
-        send_event(event);
+        // let event = ModelEvent::ModelMove(ModelMoveDirection::Yaw(amount));
+        // emit_event(&event);
+        // send_event(event);
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn raise_model(&self, amount: f32) {
-        let event = if amount > 0.0 {
-            ModelEvent::ModelMove(ModelMoveDirection::Up(amount))
-        } else {
-            ModelEvent::ModelMove(ModelMoveDirection::Down(amount * -1.0))
-        };
-        emit_event(&event);
-        send_event(event);
+        // let event = if amount > 0.0 {
+        //     ModelEvent::ModelMove(ModelMoveDirection::Up(amount))
+        // } else {
+        //     ModelEvent::ModelMove(ModelMoveDirection::Down(amount * -1.0))
+        // };
+        // emit_event(&event);
+        // send_event(event);
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
@@ -219,15 +232,15 @@ impl ModelRunner {
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn add_pitch(&self, amount: f32) {
-        let event = ModelEvent::ModelMove(ModelMoveDirection::Pitch(amount));
-        emit_event(&event);
-        send_event(event);
+        // let event = ModelEvent::ModelMove(ModelMoveDirection::Pitch(amount));
+        // emit_event(&event);
+        // send_event(event);
     }
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn add_distance(&self, amount: f32) {
-        let event = ModelEvent::ModelMove(ModelMoveDirection::Distance(amount));
-        emit_event(&event);
-        send_event(event);
+        // let event = ModelEvent::ModelMove(ModelMoveDirection::Distance(amount));
+        // emit_event(&event);
+        // send_event(event);
     }
 
     ///Adding a vector will update internal state but it
@@ -351,7 +364,6 @@ impl ModelRunner {
     pub async fn run(&self, width: u32, height: u32) {
         let el = EventLoop::<ModelEvent>::with_user_event().build().unwrap();
 
-
         let mut application = Application::new(
             self.configuration.clone(),
             self.data_manager.clone(),
@@ -364,6 +376,5 @@ impl ModelRunner {
         }
 
         let _ = el.run_app(&mut application);
-        
     }
 }

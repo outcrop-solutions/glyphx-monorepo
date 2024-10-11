@@ -11,8 +11,6 @@ export const useProject = () => {
 
   const handleDrop = useCallback(
     (axis: webTypes.constants.AXIS, column: any, project: webTypes.IHydratedProject, isFilter: boolean) => {
-      // we can compose these for a one liner
-      // callETL(axis, column, project, isFilter);
       setProject(
         produce((draft: WritableDraft<webTypes.IHydratedProject>) => {
           draft.state.properties[`${axis}`].key = column.key;

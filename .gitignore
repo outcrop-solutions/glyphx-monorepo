@@ -43,6 +43,7 @@ yarn-error.log*
 
 # test data for integration tests
 testData
+migrationData
 results
 test_data
 

@@ -36,9 +36,10 @@ use crate::{
                 ranked_glyph_data::{Rank, RankDirection, RankedGlyphData},
                 Glyphs,
             },
-            hit_detection::{decode_glyph_id, HitDetection},
+            hit_detection::{decode_glyph_id, Hit, HitDetection},
         },
     },
+    model_event::Screenshot,
     Order,
 };
 
@@ -75,20 +76,28 @@ pub struct State {
     model_configuration: Rc<RefCell<ModelConfiguration>>,
     smaa_target: SmaaTarget,
     axis_visible: bool,
-    first_render: bool,
+    render_count: u32,
     cursor_position: PhysicalPosition<f64>,
     selected_glyphs: Vec<SelectedGlyph>,
     model_filter: Query,
 }
 
 impl State {
+    pub fn get_windows_size(&self) -> (PhysicalSize<u32>, PhysicalSize<u32>) {
+        let wm = self.wgpu_manager.borrow();
+        let inner_size = wm.window().inner_size();
+        let outer_size = wm.window().outer_size();
+        (inner_size, outer_size)
+    }
     pub async fn new(
         window: Window,
         model_configuration: Rc<RefCell<ModelConfiguration>>,
         data_manager: Rc<RefCell<DataManager>>,
         camera_manager: Rc<RefCell<CameraManager>>,
+        width: u32,
+        height: u32,
     ) -> State {
-        let wgpu_manager = Rc::new(RefCell::new(WgpuManager::new(window).await));
+        let wgpu_manager = Rc::new(RefCell::new(WgpuManager::new(window, width, height).await));
         //Make a local version that we can use to pass to our configuration functions
         //Anytime we clone, we need to assign the clone to a local variable so that it does not
         //get dropped.
@@ -134,8 +143,8 @@ impl State {
         let smaa_target = SmaaTarget::new(
             &d,
             wm.queue(),
-            wm.window().inner_size().width,
-            wm.window().inner_size().height,
+            wm.size().width,
+            wm.size().height,
             wm.config().format,
             SmaaMode::Smaa1X,
         );
@@ -151,7 +160,7 @@ impl State {
             smaa_target,
             data_manager,
             axis_visible: true,
-            first_render: true,
+            render_count: 0,
             //This should be updated pretty quickly after the model loads.
             cursor_position: PhysicalPosition { x: 0.0, y: 0.0 },
             selected_glyphs: Vec::new(),
@@ -170,6 +179,9 @@ impl State {
         let id = self.wgpu_manager.as_ref().borrow().window().id();
         id
     }
+    pub fn set_window_size(&mut self, width: u32, height: u32) {
+        self.wgpu_manager.borrow_mut().resize_window(width, height);
+    }
 
     pub fn request_window_redraw(&self) {
         let wm = self.wgpu_manager.borrow();
@@ -186,6 +198,19 @@ impl State {
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
         if new_size.width > 0 && new_size.height > 0 {
             self.wgpu_manager.borrow_mut().set_size(new_size);
+            self.pipeline_manager.update_depth_textures();
+            self.camera_manager
+                .borrow_mut()
+                .update_aspect_ratio(new_size.width as f32 / new_size.height as f32);
+            let smaa_target = SmaaTarget::new(
+                &self.wgpu_manager.borrow().device().borrow(),
+                self.wgpu_manager.borrow().queue(),
+                self.wgpu_manager.borrow().window().inner_size().width,
+                self.wgpu_manager.borrow().window().inner_size().height,
+                self.wgpu_manager.borrow().config().format,
+                SmaaMode::Smaa1X,
+            );
+            self.smaa_target = smaa_target;
         }
     }
 
@@ -217,7 +242,7 @@ impl State {
                     self.cursor_position.y as u32,
                     is_shift_pressed,
                 );
-                true 
+                true
             }
             MouseEvent::MouseScroll => true,
             MouseEvent::Handled => false,
@@ -241,18 +266,19 @@ impl State {
         &self.selected_glyphs
     }
 
-    pub fn hit_detection(
-        &mut self,
-        x_pos: u32,
-        y_pos: u32,
-        is_shift_pressed: bool,
-    ) -> &Vec<SelectedGlyph> {
+    //TODO: For now we are going to use the internal coordinates that we are tracking in state,
+    //there seems to be a diconect between the internal winit window and the external browser.
+    pub fn hit_detection(&mut self, x_pos: u32, y_pos: u32, is_shift_pressed: bool) {
         let device = self.wgpu_manager.borrow().device();
         let device = device.borrow();
 
         //TODO: we should really react to an error here.
-        let _ = self.run_hit_detection_pipeline(&device, x_pos, y_pos, is_shift_pressed);
-        &self.selected_glyphs
+        let _ = self.run_hit_detection_pipeline(
+            &device,
+            self.cursor_position.x as u32,
+            self.cursor_position.y as u32,
+            is_shift_pressed,
+        );
     }
 
     pub fn move_camera(&mut self, direction: &str, amount: f32) {
@@ -386,6 +412,8 @@ impl State {
 
     pub fn update_model_filter(&mut self, model_filter: Query) {
         self.model_filter = model_filter;
+        //Required so that the vertexes can be updated with the new filter.
+        self.update_config();
     }
 
     pub fn update_config(&mut self) {
@@ -397,6 +425,7 @@ impl State {
         //buffer manager and referencing it instead of borrowing mut every time.  The reason
         //is that run compute pipeline also borrows the buffer manager mutably.  And it can
         //be called from several different places.  So for now we will just borrow mut every time.
+
         self.buffer_manager
             .borrow_mut()
             .update_glyph_uniform_buffer(
@@ -407,9 +436,8 @@ impl State {
         self.pipeline_manager
             .upate_glyph_data_verticies(&self.model_filter);
 
-        self.run_compute_pipeline();
-
-        let config = self.model_configuration.borrow();
+        let config = self.model_configuration.clone();
+        let config = config.borrow();
         self.buffer_manager.borrow_mut().update_color_table(
             config.x_axis_color,
             config.y_axis_color,
@@ -444,13 +472,36 @@ impl State {
         self.buffer_manager
             .borrow_mut()
             .update_glyph_uniform_y_offset(config.min_glyph_height);
+
+        self.run_compute_pipeline();
     }
 
-    pub fn render(&mut self) -> Result<(), SurfaceError> {
-        if self.first_render {
-            self.run_compute_pipeline();
-            self.first_render = false;
+    pub fn resolve_picking_textures(&mut self) {
+        let window_size = self.get_windows_size();
+        let config_size = self.wgpu_manager.as_ref().borrow().get_config_size();
+        if window_size.0.width != config_size.width || window_size.0.height != config_size.height {
+            self.wgpu_manager.borrow_mut().set_size(window_size.0);
+            self.pipeline_manager.update_depth_textures();
         }
+    }
+    pub fn render(&mut self) -> Result<(), SurfaceError> {
+        if self.render_count == 0 {
+            self.render_count += 1;
+            self.run_compute_pipeline();
+            //This will get run again once the compute pipeline is finished
+            return Ok(());
+        }
+
+        let output = self.wgpu_manager.borrow().surface().get_current_texture()?;
+        let view = output.texture.create_view(&TextureViewDescriptor {
+            ..Default::default()
+        });
+        self.render_scene(&view)?;
+        output.present();
+        Ok(())
+    }
+
+    fn render_scene(&mut self, view: &wgpu::TextureView) -> Result<(), SurfaceError> {
         let buffer_manager = self.buffer_manager.borrow();
         let wgpu_manager = self.wgpu_manager.borrow();
         let queue = wgpu_manager.queue();
@@ -487,22 +538,18 @@ impl State {
             0,
             bytemuck::cast_slice(&[*buffer_manager.glyph_uniform_data()]),
         );
+        let size = wgpu_manager.size().clone();
 
-        let output = wgpu_manager.surface().get_current_texture()?;
-        let view = output
-            .texture
-            .create_view(&TextureViewDescriptor{ 
-                ..Default::default()});
 
         let smaa_frame = self.smaa_target.start_frame(&device, queue, &view);
-
         let mut commands = Vec::new();
 
         self.pipeline_manager
             .clear_screen(background_color, &*smaa_frame, &mut commands);
 
-          // self.pipeline_manager
-          //     .run_charms_pipeline(&*smaa_frame, &mut commands);
+        //// self.pipeline_manager
+        ////     .run_charms_pipeline(&*smaa_frame, &mut commands);
+
         let string_order = self.orientation_manager.z_order();
 
         for name in string_order {
@@ -527,44 +574,181 @@ impl State {
                     .run_axis_pipeline(pipeline, &*smaa_frame, &mut commands);
             }
         }
-
+        // Copy the texture to the buffer
         queue.submit(commands);
 
         smaa_frame.resolve();
-        output.present();
 
         Ok(())
     }
 
+    pub fn take_screenshot(&mut self) -> Result<(), SurfaceError> {
+        let size = self.wgpu_manager.borrow().size().clone();
+
+        let output = self.wgpu_manager.borrow().device().borrow().create_texture(&wgpu::TextureDescriptor {
+            label: Some("screenshot_texture"),
+            size: wgpu::Extent3d {
+                width: size.width,
+                height: size.height,
+                depth_or_array_layers: 1,
+            },
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: wgpu::TextureFormat::Bgra8Unorm,
+            // Choose your desired format
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_SRC,
+            view_formats: &[],
+        });
+
+        let view = output.create_view(&TextureViewDescriptor {
+            ..Default::default()
+        });
+
+        self.render_scene(&view)?;
+
+        let align = wgpu::COPY_BYTES_PER_ROW_ALIGNMENT;
+        let padded_bytes_per_row = ((4 * size.width + align - 1) / align) * align;
+        let buffer_size = (padded_bytes_per_row * size.height) as wgpu::BufferAddress;
+
+        let screenshot_buffer = self.wgpu_manager.borrow().device().borrow().create_buffer(&wgpu::BufferDescriptor {
+            label: Some("screenshot_buffer"),
+            size: buffer_size,
+            usage: wgpu::BufferUsages::MAP_READ | wgpu::BufferUsages::COPY_DST,
+            mapped_at_creation: false,
+        });
+
+        let mut encoder = self.wgpu_manager.borrow().device().borrow().create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("screenshot_encoder"),
+        });
+
+        encoder.copy_texture_to_buffer(
+            wgpu::ImageCopyTexture {
+                texture: &output,
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+                aspect: wgpu::TextureAspect::All,
+            },
+            wgpu::ImageCopyBuffer {
+                buffer: &screenshot_buffer,
+
+                layout: wgpu::ImageDataLayout {
+                    offset: 0,
+                    bytes_per_row: Some(padded_bytes_per_row),
+                    rows_per_image: None,
+                },
+            },
+            output.size(),
+        );
+        self.wgpu_manager.borrow().queue().submit([encoder.finish()]);
+
+        let screenshot_buffer = std::sync::Arc::new(screenshot_buffer);
+        let capturable = screenshot_buffer.clone();
+        screenshot_buffer
+            .slice(..)
+            .map_async(MapMode::Read, move |result| {
+                if result.is_ok() {
+                    let view = capturable.slice(..).get_mapped_range();
+                    let data = view.to_vec();
+                    let mut output_vector =
+                        Vec::<u8>::with_capacity(size.width as usize * size.height as usize * 4);
+                    for y in 0..size.height {
+                        let offset = (y * padded_bytes_per_row) as usize;
+                        let row_start = offset;
+                        let row_end = offset + (size.width * 4) as usize;
+                        output_vector.extend_from_slice(&data[row_start..row_end]);
+                    }
+                    unsafe {
+                        let _ = crate::EVENT_LOOP_PROXY
+                            .as_ref()
+                            .unwrap()
+                            .send_event(crate::ModelEvent::ScreenshotTaken(Screenshot {
+                                width: size.width,
+                                height: size.height,
+                                pixels: output_vector,
+                            }));
+                    }
+                    drop(view);
+                }
+                capturable.unmap();
+            });
+        Ok(())
+    }
     pub fn run_compute_pipeline(&mut self) {
         let output_buffer = self.pipeline_manager.run_glyph_data_pipeline();
-        let buffer_slice = output_buffer.slice(..);
-        buffer_slice.map_async(MapMode::Read, |_| {});
+        let output_buffer = std::sync::Arc::new(output_buffer);
+        let capturable = output_buffer.clone();
 
-        let d = self.wgpu_manager.borrow().device();
-        let d = d.borrow();
+        output_buffer
+            .slice(..)
+            .map_async(MapMode::Read, move |result| {
+                if result.is_ok() {
+                    let view = capturable.slice(..).get_mapped_range();
+                    //our data is already in the correct order so we can
+                    //just push the verticies into a traingle list and attach
+                    //the normals
+                    let output_data: Vec<InstanceOutput> = bytemuck::cast_slice(&view).to_vec();
 
-        d.poll(Maintain::Wait);
+                    let data: Vec<GlyphVertexData> = output_data
+                        .iter()
+                        .map(|x| GlyphVertexData::from(x))
+                        .collect();
+                    unsafe {
+                        let _ = crate::EVENT_LOOP_PROXY
+                            .as_ref()
+                            .unwrap()
+                            .send_event(crate::ModelEvent::GlyphsUpdated(data));
+                    }
+                    drop(view);
+                }
 
-        let view = buffer_slice.get_mapped_range();
-        //our data is already in the correct order so we can
-        //just push the verticies into a traingle list and attach
-        //the normals
-        let output_data: Vec<InstanceOutput> = bytemuck::cast_slice(&view).to_vec();
-
-        let dm = &mut self.data_manager.borrow_mut();
-        dm.clear_glyphs();
-
-        for glyph_instance in output_data.iter() {
-            let _ = dm.add_ranked_glyph(GlyphVertexData::from(glyph_instance));
+                capturable.unmap();
+            });
+    }
+    pub fn process_hit(&mut self, hit: Hit) -> &Vec<SelectedGlyph> {
+        let mut reprocess = false;
+        if hit.glyph_id != 16777215 {
+            let glyph_desc = self
+                .data_manager
+                .borrow()
+                .get_glyph_description(hit.glyph_id)
+                .unwrap();
+            if !self
+                .selected_glyphs
+                .iter()
+                .any(|sg| sg.glyph_id == hit.glyph_id)
+            {
+                if !hit.shift_pressed {
+                    self.selected_glyphs.clear();
+                }
+                self.selected_glyphs.push(glyph_desc);
+                reprocess = true;
+            } else {
+                let index = self
+                    .selected_glyphs
+                    .iter()
+                    .position(|r| r.glyph_id == hit.glyph_id);
+                if let Some(index) = index {
+                    self.selected_glyphs.remove(index);
+                    reprocess = true;
+                }
+            }
+        } else if !hit.shift_pressed {
+            if self.selected_glyphs.len() > 0 {
+                reprocess = true;
+                self.selected_glyphs.clear();
+            }
         }
-        drop(view);
-        output_buffer.unmap();
+        if reprocess == true {
+            self.run_compute_pipeline();
+        }
+
+        &self.selected_glyphs
     }
 
     fn run_hit_detection_pipeline(
         &mut self,
-        device: &Device,
+        _device: &Device,
         x_pos: u32,
         y_pos: u32,
         is_shift_pressed: bool,
@@ -573,45 +757,36 @@ impl State {
             self.orientation_manager.rank(),
             self.orientation_manager.rank_direction(),
         );
-        let buffer_slice = output_buffer.slice(..);
-        buffer_slice.map_async(MapMode::Read, |_| {});
-        device.poll(Maintain::Wait);
+        let output_buffer = std::sync::Arc::new(output_buffer);
+        let captuable = output_buffer.clone();
 
-        let view = buffer_slice.get_mapped_range();
-        let pixel_pos = (y_pos as u32 * bytes_per_row + x_pos as u32 * 4) as usize;
-        let val = &view[pixel_pos..pixel_pos + 4];
+        output_buffer
+            .slice(..)
+            .map_async(MapMode::Read, move |result| {
+                let mut glyph_id = 0;
+                let mut send_event = false;
+                if result.is_ok() {
+                    let view = captuable.slice(..).get_mapped_range();
+                    let pixel_pos = (y_pos as u32 * bytes_per_row + x_pos as u32 * 4) as usize;
+                    let val = &view[pixel_pos..pixel_pos + 4];
 
-        let glyph_id = decode_glyph_id([val[0], val[1], val[2], val[3]]);
-        if glyph_id != 16777215 {
-            let glyph_desc = self
-                .data_manager
-                .borrow()
-                .get_glyph_description(glyph_id)
-                .unwrap();
-            if !self
-                .selected_glyphs
-                .iter()
-                .any(|sg| sg.glyph_id == glyph_id)
-            {
-                if !is_shift_pressed {
-                    self.selected_glyphs.clear();
+                    glyph_id = decode_glyph_id([val[0], val[1], val[2], val[3]]);
+                    drop(view);
+                    send_event = true;
                 }
-                self.selected_glyphs.push(glyph_desc);
-            } else {
-                let index = self
-                    .selected_glyphs
-                    .iter()
-                    .position(|r| r.glyph_id == glyph_id);
-                if let Some(index) = index {
-                    self.selected_glyphs.remove(index);
-                }
-            }
-        } else if !is_shift_pressed {
-            self.selected_glyphs.clear();
-        }
-        drop(view);
-        output_buffer.unmap();
 
+                captuable.unmap();
+                if send_event {
+                    unsafe {
+                        let _ = crate::EVENT_LOOP_PROXY.as_ref().unwrap().send_event(
+                            crate::ModelEvent::HitDetection(Hit {
+                                glyph_id,
+                                shift_pressed: is_shift_pressed,
+                            }),
+                        );
+                    }
+                }
+            });
         Ok(())
     }
 

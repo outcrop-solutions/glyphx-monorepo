@@ -16,7 +16,6 @@ export const BackBtn = () => {
   const backPressed = () => {
     router.push(`/workspace/${project?.workspace.id}` as Route);
     setDrawer(false);
-    window?.core?.ToggleDrawer(false);
     setProject(null);
     setImageHash({
       imageHash: false,

@@ -18,7 +18,6 @@ export * from './filters/iStringFilter';
 // models
 export * from './payloads/iCreateModelPayload';
 export * from './payloads/iOpenModelPayload';
-export * from './payloads/iViewerPosition';
 // modals
 export * from './modals/iDeleteProjectData';
 export * from './modals/iModalsAtom';

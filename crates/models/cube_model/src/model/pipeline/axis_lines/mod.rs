@@ -85,7 +85,7 @@ impl AxisLines {
             color_table_uniform.configure_color_table_uniform(color_table_buffer, &d);
 
         let (depth_texture, depth_view, depth_sampler) =
-            wgpu_manager.create_depth_texture("Charms depth texture");
+            wgpu_manager.create_depth_texture("Axis lines depth texture");
 
         let render_pipeline = Self::configure_render_pipeline(
             &d,
@@ -270,6 +270,7 @@ impl AxisLines {
     }
 
     pub fn run_pipeline(&self, encoder: &mut CommandEncoder, view: &wgpu::TextureView) {
+
         let mut render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
             label: Some("Axis Render Pass"),
             color_attachments: &[Some(RenderPassColorAttachment {
@@ -298,5 +299,13 @@ impl AxisLines {
         render_pass.set_bind_group(2, &self.light_bind_group, &[]);
         render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
         render_pass.draw(0..self.vertex_data.len() as u32, 0..1);
+    }
+
+    pub fn update_depth_texture(&mut self, wgpu_manager: &WgpuManager) {
+        let (depth_texture, depth_view, depth_sampler) =
+            wgpu_manager.create_depth_texture("glyphs depth texture");
+        self._depth_texture = depth_texture;
+        self.depth_view = depth_view;
+        self._depth_sampler = depth_sampler;
     }
 }

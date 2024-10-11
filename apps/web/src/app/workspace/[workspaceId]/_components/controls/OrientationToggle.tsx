@@ -1,10 +1,10 @@
 'use client';
 import React, {useCallback} from 'react';
-import {useRecoilState, useSetRecoilState} from 'recoil';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {webTypes} from 'types';
-import {drawerOpenAtom, orientationAtom, splitPaneSizeAtom, windowSizeAtom} from 'state';
+import {canvasSizeAtom, drawerOpenAtom, modelRunnerAtom, orientationAtom, splitPaneSizeAtom} from 'state';
 import HorizontalIcon from 'svg/horizontal-layout.svg';
 import VerticalIcon from 'svg/vertical-layout.svg';
 
@@ -12,14 +12,16 @@ const btnClass =
   'h-8 p-1 flex items-center justify-center bg-transparent border border-transparent hover:border-white transition duration-150 rounded-[2px] ml-0';
 
 export const OrientationToggle = () => {
+  const [modelRunnerState, setModelRunnerState] = useRecoilState(modelRunnerAtom);
+  const size = useRecoilValue(canvasSizeAtom);
   const [orientation, setOrientation] = useRecoilState(orientationAtom);
   const setPaneSize = useSetRecoilState(splitPaneSizeAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
 
   const handleOrientation = useCallback(() => {
+    // if (modelRunnerState?.initialized) {
     if (orientation === 'horizontal') {
       setDrawer(true);
-      window?.core?.ToggleDrawer(true);
       setPaneSize(400);
     }
     setOrientation(
@@ -31,6 +33,7 @@ export const OrientationToggle = () => {
         }
       })
     );
+    // }
   }, [orientation, setOrientation, setDrawer, setPaneSize]);
 
   return (

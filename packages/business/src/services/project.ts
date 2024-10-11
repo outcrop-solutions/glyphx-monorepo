@@ -216,18 +216,21 @@ export class ProjectService {
     projectId: string,
     state: Omit<
       databaseTypes.IState,
-      | 'project'
-      | '_id'
+      | 'name'
       | 'createdAt'
       | 'updatedAt'
-      | 'description'
-      | 'fileSystem'
       | 'fileSystemHash'
       | 'payloadHash'
+      | 'fileSystem'
+      | 'description'
       | 'version'
       | 'static'
       | 'camera'
+      | 'aspectRatio'
+      | 'project'
+      | 'workspace'
       | 'createdBy'
+      | '_id'
     >
   ): Promise<databaseTypes.IProject> {
     try {

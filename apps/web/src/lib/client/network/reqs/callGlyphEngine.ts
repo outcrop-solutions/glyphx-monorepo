@@ -1,0 +1,73 @@
+'use client';
+import produce from 'immer';
+import {databaseTypes} from 'types';
+import {WritableDraft} from 'immer/dist/internal';
+import {glyphEngine} from 'actions';
+import {isNullCamera} from 'lib/utils/isNullCamera';
+
+export const callGlyphEngine = async ({
+  project,
+  setLoading,
+  setImageHash,
+  setCamera,
+  setDrawer,
+  setResize,
+  stateId,
+  rowIds = [],
+  camera = {},
+}: {
+  project: databaseTypes.IProject;
+  setLoading: any;
+  setImageHash: any;
+  setCamera: any;
+  setDrawer: any;
+  setResize: any;
+  stateId?: string;
+  rowIds?: any[];
+  camera?: any;
+}) => {
+  try {
+    // set initial loading state
+    setLoading(
+      produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
+        draft.processName = 'Loading Model...';
+        draft.processStatus = databaseTypes.constants.PROCESS_STATUS.IN_PROGRESS;
+        draft.processStartTime = new Date();
+      })
+    );
+    const cleanProject = {
+      ...project,
+      stateHistory: [],
+    };
+    // create model
+    const retval = await glyphEngine(cleanProject, stateId);
+    // open the project
+    // @ts-ignore
+    if (!retval?.error) {
+      setLoading({});
+      setResize(150);
+      setDrawer(true);
+      const isNullCam = isNullCamera(camera);
+    } else {
+      console.log('failed to generate model');
+      setLoading(
+        produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
+          draft.processName = 'Failed to Generate Model';
+          draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
+          draft.processEndTime = new Date();
+        })
+      );
+      setImageHash({
+        imageHash: false,
+      });
+      setCamera({});
+    }
+  } catch (error) {
+    setLoading({});
+    setImageHash({
+      imageHash: false,
+    });
+    setCamera({});
+    console.log({error});
+  }
+};

@@ -13,18 +13,18 @@ export const GrowthbookWrapper = ({children}) => {
     if (gb) {
       try {
         // Load features asynchronously when the app renders
-        gb.loadFeatures();
+        // gb.loadFeatures();
 
-        gb.setAttributes({
-          id: session?.data?.user?.id,
-          userCode: session?.data?.user?.userCode,
-          username: session?.data?.user?.username,
-          email: session?.data?.user?.email,
-          status: session?.status,
-          isVerified: session?.data?.user?.emailVerified,
-          browser: navigator.userAgent,
-          url: pathname,
-        });
+        // gb.setAttributes({
+        //   id: session?.data?.user?.id,
+        //   userCode: session?.data?.user?.userCode,
+        //   username: session?.data?.user?.username,
+        //   email: session?.data?.user?.email,
+        //   status: session?.status,
+        //   isVerified: session?.data?.user?.emailVerified,
+        //   browser: navigator.userAgent,
+        //   url: pathname,
+        // });
       } catch (error) {}
     }
   }, [pathname, session]);

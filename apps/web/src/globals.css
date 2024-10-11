@@ -38,9 +38,10 @@ div[class='react-grid-Viewport'] {
 
 div[class='react-grid-Canvas'] {
   @apply bg-primary-dark-blue h-full text-white rounded w-full p-0 text-center;
+  /* @apply bg-primary-dark-blue h-full text-white rounded w-full p-0 text-center; */
 }
 canvas {
-  background-color: black;
+  /* background-color: black; */
 }
 
 div[class='react-grid-Grid'] {
@@ -80,13 +81,13 @@ div[class='rdg-last--frozen'] {
 }
 
 div[data-type='number'] {
-  @apply bg-cyan text-white rounded text-center;
+  @apply bg-cyan text-white rounded text-center !important;
 }
 div[data-type='string'] {
-  @apply bg-blue text-white rounded text-center;
+  @apply bg-blue text-white rounded text-center !important;
 }
 div[data-type='date'] {
-  @apply bg-primary-yellow text-white rounded text-center;
+  @apply bg-primary-yellow text-white rounded text-center !important;
 }
 div[data-type='0'] {
   @apply bg-cyan text-white rounded text-center;
@@ -103,7 +104,11 @@ div div[role='columnheader'] {
 }
 
 div[role='grid'] {
-  @apply bg-primary-dark-blue overflow-scroll flex-col flex-grow scrollbar-thin scrollbar-thumb-yellow scrollbar-thumb-rounded-full;
+  @apply bg-primary-dark-blue h-full w-full overflow-scroll flex-col flex-grow scrollbar-thin scrollbar-thumb-yellow scrollbar-thumb-rounded-full;
+}
+
+canvas {
+  /* @apply w-full h-full; */
 }
 
 ::-webkit-scrollbar {

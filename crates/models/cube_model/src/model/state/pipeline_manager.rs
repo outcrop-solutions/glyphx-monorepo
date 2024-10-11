@@ -1,6 +1,7 @@
 use super::{
-    AxisLineDirection, AxisLines, BufferManager, Charms,  DataManager, GlyphData, GlyphVertexData, Glyphs,
-    HitDetection, ModelConfiguration, Query, Rank, RankDirection, SelectedGlyph, WgpuManager,
+    AxisLineDirection, AxisLines, BufferManager, Charms, DataManager, GlyphData, GlyphVertexData,
+    Glyphs, HitDetection, ModelConfiguration, Query, Rank, RankDirection, SelectedGlyph,
+    WgpuManager,
 };
 
 use bytemuck::cast_slice;
@@ -10,9 +11,9 @@ use wgpu::{
     util::{BufferInitDescriptor, DeviceExt},
     Buffer, BufferAddress, BufferDescriptor, BufferUsages, Color, CommandBuffer,
     CommandEncoderDescriptor, Device, Extent3d, ImageCopyBuffer, ImageCopyTexture, ImageDataLayout,
-    LoadOp, Operations, Origin3d, RenderPassColorAttachment, RenderPassDescriptor, StoreOp,  SurfaceConfiguration, Texture,
-    TextureAspect, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages, TextureView,
-    TextureViewDescriptor, COPY_BYTES_PER_ROW_ALIGNMENT,
+    LoadOp, Operations, Origin3d, RenderPassColorAttachment, RenderPassDescriptor, StoreOp,
+    SurfaceConfiguration, Texture, TextureAspect, TextureDescriptor, TextureDimension,
+    TextureFormat, TextureUsages, TextureView, TextureViewDescriptor, COPY_BYTES_PER_ROW_ALIGNMENT,
 };
 
 pub struct PipelineManager {
@@ -24,7 +25,7 @@ pub struct PipelineManager {
     y_axis_line: AxisLines,
     z_axis_line: AxisLines,
     glyphs: Glyphs,
-    charms: Charms,
+    // charms: Charms,
     glyph_data: GlyphData,
     hit_detection: HitDetection,
 }
@@ -110,18 +111,18 @@ impl PipelineManager {
             &wm,
         );
 
-        let charms = Charms::new(
-            wm.device(),
-            wm.config(),
-            bm.camera_buffer(),
-            &bm.camera_uniform(),
-            bm.color_table_buffer(),
-            bm.color_table_uniform(),
-            bm.light_buffer(),
-            bm.light_uniform(),
-            model_configuration.clone(),
-            &wm
-        );
+        // let charms = Charms::new(
+        //     wm.device(),
+        //     wm.config(),
+        //     bm.camera_buffer(),
+        //     &bm.camera_uniform(),
+        //     bm.color_table_buffer(),
+        //     bm.color_table_uniform(),
+        //     bm.light_buffer(),
+        //     bm.light_uniform(),
+        //     model_configuration.clone(),
+        //     &wm
+        // );
 
         let glyph_data = GlyphData::new(
             bm.glyph_uniform_buffer(),
@@ -130,21 +131,18 @@ impl PipelineManager {
             data_manager.clone(),
         );
 
-        let hit_detection = HitDetection::new(
-            wm.device(),
-            bm.camera_buffer(),
-            &bm.camera_uniform(),
-        );
+        let hit_detection =
+            HitDetection::new(wm.device(), bm.camera_buffer(), &bm.camera_uniform());
         Self {
             wgpu_manager,
             buffer_manager,
-            _model_configuration : model_configuration,
+            _model_configuration: model_configuration,
             data_manager,
             x_axis_line,
             y_axis_line,
             z_axis_line,
             glyphs,
-            charms,
+            // charms,
             glyph_data,
             hit_detection,
         }
@@ -277,7 +275,9 @@ impl PipelineManager {
         let device = device.borrow();
 
         let dm = self.data_manager.borrow();
-        let ranked_glyph_data = dm.get_glyphs().unwrap();
+        let ranked_glyph_data = dm.get_glyphs();
+        if ranked_glyph_data.is_none() { return;} 
+        let ranked_glyph_data = ranked_glyph_data.unwrap();
         let iter = ranked_glyph_data.iter(rank, rank_direction);
 
         for rank in iter {
@@ -316,23 +316,22 @@ impl PipelineManager {
         commands.push(encoder.finish());
     }
 
-    pub fn run_charms_pipeline(
-        &self,
-        view: &wgpu::TextureView,
-        commands: &mut Vec<CommandBuffer>,
-    ) {
-        let wm = self.wgpu_manager.borrow();
-        let device = wm.device();
-        let device = device.borrow();
+    // pub fn run_charms_pipeline(
+    //     &self,
+    //     view: &wgpu::TextureView,
+    //     commands: &mut Vec<CommandBuffer>,
+    // ) {
+    //     let wm = self.wgpu_manager.borrow();
+    //     let device = wm.device();
+    //     let device = device.borrow();
 
+    //     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+    //         label: Some("charm_encoder"),
+    //     });
+    //     self.charms.run_pipeline(&mut encoder, view);
 
-        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("charm_encoder"),
-        });
-        self.charms.run_pipeline(&mut encoder, view);
-
-        commands.push(encoder.finish());
-    }
+    //     commands.push(encoder.finish());
+    // }
 
     pub fn run_glyph_data_pipeline(&self) -> Buffer {
         let wm = self.wgpu_manager.borrow();
@@ -364,9 +363,9 @@ impl PipelineManager {
         let config = wm.config();
         let queue = wm.queue();
 
-        let (texture, texture_view) = Self::get_hit_detection_texture(config, &d);
+        let (texture, texture_view) = Self::get_hit_detection_texture(config, &d, (wm.window().inner_size().width, wm.window().inner_size().height));
 
-        let (output_buffer, bytes_per_row) = Self::get_hit_detection_output_buffer(config, &d);
+        let (output_buffer, bytes_per_row) = Self::get_hit_detection_output_buffer(config, &d, (wm.window().inner_size().width, wm.window().inner_size().height));
 
         queue.write_buffer(&bm.camera_buffer(), 0, cast_slice(&[bm.camera_uniform()]));
 
@@ -465,13 +464,14 @@ impl PipelineManager {
     fn get_hit_detection_texture(
         config: &SurfaceConfiguration,
         device: &Device,
+        window_size: (u32, u32),
     ) -> (Texture, TextureView) {
         let picking_texture_desc = TextureDescriptor {
-            label: Some("Picking Texture"),
+            label: Some("Hit Detection Picking Texture"),
             size: Extent3d {
-                width: config.width,
-                height: config.height,
-                depth_or_array_layers: 1,
+               width: window_size.0, //config.width,
+               height: window_size.1, //config.height,
+               depth_or_array_layers: 1,
             },
             mip_level_count: 1,
             sample_count: 1,
@@ -489,11 +489,14 @@ impl PipelineManager {
     fn get_hit_detection_output_buffer(
         config: &SurfaceConfiguration,
         device: &Device,
+        window_size: (u32, u32),
     ) -> (Buffer, u32) {
         let align = COPY_BYTES_PER_ROW_ALIGNMENT;
-        let padded_bytes_per_row = ((4 * config.width + align - 1) / align) * align;
+        let padded_bytes_per_row = ((4 *  window_size.0 + align - 1) / align) * align;
+        //let padded_bytes_per_row = ((4 * config.width + align - 1) / align) * align;
         // Round up to nearest multiple of align
-        let buffer_size = (config.height * padded_bytes_per_row) as BufferAddress;
+        //let buffer_size = (config.height * padded_bytes_per_row) as BufferAddress;
+        let buffer_size = (window_size.1 * padded_bytes_per_row) as BufferAddress;
         // Assuming Rgba8Unorm format
         let output_buffer = device.create_buffer(&BufferDescriptor {
             label: Some("Output Buffer"),
@@ -502,5 +505,13 @@ impl PipelineManager {
             mapped_at_creation: false,
         });
         (output_buffer, padded_bytes_per_row)
+    }
+    pub fn update_depth_textures(&mut self) {
+        let wm = self.wgpu_manager.clone();
+        let wm = wm.borrow();
+        self.glyphs.update_depth_texture(&wm);
+        self.x_axis_line.update_depth_texture(&wm);
+        self.y_axis_line.update_depth_texture(&wm);
+        self.z_axis_line.update_depth_texture(&wm);
     }
 }

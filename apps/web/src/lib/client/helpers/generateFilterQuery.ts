@@ -1,7 +1,13 @@
 import {BasicColumnNameCleaner} from 'fileingestion';
 import {webTypes, fileIngestionTypes, databaseTypes} from 'types';
 
-const generateSegment = (name: string, prop: webTypes.Property) => {
+/**
+ * Generates a query segment from a column name and state property
+ * @param name
+ * @param prop
+ * @returns
+ */
+export const generateSegment = (name: string, prop: webTypes.Property) => {
   switch (prop.dataType) {
     case fileIngestionTypes.constants.FIELD_TYPE.NUMBER:
       const {min, max} = prop.filter as unknown as webTypes.INumbericFilter;
@@ -37,20 +43,24 @@ const generateSegment = (name: string, prop: webTypes.Property) => {
   }
 };
 
-const genFilter = (prop: webTypes.Property, axis: webTypes.constants.AXIS) => {
+/**
+ * Generatesthe filter segment of a Query
+ * @param prop
+ * @returns
+ */
+export const generateFilter = (prop: webTypes.Property) => {
   const cleaner = new BasicColumnNameCleaner();
   const name = cleaner.cleanColumnName(prop.key);
   return generateSegment(name, prop);
 };
 
-export const generateFilterQuery = (project: databaseTypes.IProject) => {
-  const properties = project.state.properties;
+export const generateFilterQuery = (properties: databaseTypes.IProject['state']['properties']) => {
   const axes = Object.values(webTypes.constants.AXIS);
 
   const segments: string[] = [];
 
   for (const axis of axes) {
-    const segment = genFilter(properties[axis], axis);
+    const segment = generateFilter(properties[axis]);
     segments.push(segment);
   }
 

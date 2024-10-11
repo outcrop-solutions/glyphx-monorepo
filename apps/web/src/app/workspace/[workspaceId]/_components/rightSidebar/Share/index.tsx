@@ -26,8 +26,6 @@ export const Share = () => {
   const {data: ownership, isLoading: isOwnershipLoading} = useIsTeamOwner();
   const workspaceId = params?.workspaceId ?? project.workspace.id;
   const setDrawer = useSetRecoilState(drawerOpenAtom);
-  const setCamera = useSetRecoilState(cameraAtom);
-  const setImageHash = useSetRecoilState(imageHashAtom);
 
   const handleClose = () => {
     setRightSidebarControl(
@@ -87,18 +85,8 @@ export const Share = () => {
               )}
             </p>
           </div>
-          <div
-            onClick={() => {
-              if (window?.core) {
-                window?.core?.ToggleDrawer(false);
-                setImageHash({
-                  imageHash: false,
-                });
-                setCamera({});
-              }
-            }}
-          >
-            <Link href={`/${workspaceId}/settings/team` as Route}>
+          <div>
+            <Link href={`/workspace/${workspaceId}/settings/team` as Route}>
               <button className="text-secondary-space-blue font-roboto font-medium text-[14px] leading-[16px] rounded-xl border bg-primary-yellow hover:bg-primary-yellow-hover py-1 px-2">
                 Send Invite
               </button>

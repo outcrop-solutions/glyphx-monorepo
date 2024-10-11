@@ -2,7 +2,6 @@
 import React, {useTransition, useState} from 'react';
 import Button from 'app/_components/Button';
 import {webTypes} from 'types';
-import {useRouter} from 'next/navigation';
 import {useSetRecoilState} from 'recoil';
 import {modalsAtom} from 'state';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';

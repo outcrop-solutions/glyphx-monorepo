@@ -17,7 +17,6 @@ import LoadingBar from './LoadingBar';
 
 export const Loading = () => {
   const showLoading = useRecoilValue(showLoadingAtom);
-  console.log({showLoading});
 
   const loading =
     Object.keys(showLoading).length > 0

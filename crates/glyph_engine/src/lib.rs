@@ -519,6 +519,8 @@ impl GlyphEngine {
             z_field_name
         );
 
+        println!("Starting Athena query with query: {}", query);
+
         let query_id = operations
             .start_athena_query(athena_connection, &query)
             .await?;
@@ -567,8 +569,18 @@ impl GlyphEngine {
             return Err(GlyphEngineProcessError::DataProcessingError(error_data));
         }
 
+        // debugging here
+        println!(
+            "Searching for value {:?} in the vector table for field {}",
+            orig_value, field_name
+        );
+
         let mut vector = vector_processor.get_vector(&orig_value);
         if vector.is_none() {
+            println!(
+                "Original value {:?} not found, trying backup value {:?}",
+                orig_value, backup_value
+            );
             vector = vector_processor.get_vector(&backup_value);
             if vector.is_none() {
                 let message = format!(
@@ -702,14 +714,20 @@ impl GlyphEngine {
                 x_vector_processer,
                 y_vector_processer,
             )?;
+
+            println!("Built glyph: {:?}", glyph);
+
             let z_value = VectorOrigionalValue::F64(glyph.z_value.clone());
             if !unique_values.contains(&z_value) {
                 unique_values.insert(z_value);
             }
             let ser_glyph = Self::serialize_glyph(&glyph);
             handle_error!(let _result = operations.write_to_upload_stream(&mut upload_stream, Some(ser_glyph)).await; GlyphEngineProcessError::from_upload_stream_write_error(file_name), error);
+            println!("Wrote glyph to upload stream: {:?}", glyph);
         }
         handle_error!(let _result = operations.finish_upload_stream(&mut upload_stream).await; GlyphEngineProcessError::from_upload_stream_finish_error(file_name), error);
+
+        println!("Finished upload stream for file: {}", file_name);
 
         let vector_for_statistics = unique_values
             .iter()
@@ -718,6 +736,12 @@ impl GlyphEngine {
                 _ => 0.0,
             })
             .collect();
+
+        println!(
+            "Generated vector for statistics: {:?}",
+            vector_for_statistics
+        );
+
         Ok(vector_for_statistics)
     }
 

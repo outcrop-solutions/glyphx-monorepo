@@ -23,7 +23,6 @@ export interface IModelConfiguration {
   z_height_ratio: number;
   //Gives a minium height for the glyphs
   min_glyph_height: number;
-
   light_location: Location;
   light_color: Color;
   light_intensity: number;
