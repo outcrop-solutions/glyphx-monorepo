@@ -64,7 +64,7 @@ impl Application {
     fn configure_canvas(&self, window: &Window) {
         // Winit prevents sizing with CSS, so we have to set
         // the size manually when on web.
-        let _ = window.request_inner_size(winit::dpi::PhysicalSize::new(self.width, self.height));
+        let _ = window.request_inner_size(winit::dpi::LogicalSize::new(self.width, self.height));
         use winit::platform::web::WindowExtWebSys;
         use super::WEB_ELEMENT_NAME;
       //  use winit::platform::web::WindowExtWebSys;
@@ -87,7 +87,7 @@ impl Application {
 
 impl ApplicationHandler<ModelEvent> for Application {
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
-        let l_s = winit::dpi::PhysicalSize::new(self.width, self.height);
+        let l_s = winit::dpi::LogicalSize::new(self.width, self.height);
         let window = event_loop
             .create_window(
                 Window::default_attributes()

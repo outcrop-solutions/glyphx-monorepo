@@ -140,7 +140,7 @@ export const useRust = () => {
       setModelRunnerState({initialized: true, modelRunner, lastPayloadHash: payloadHash});
       console.log('call modeRunner.run()');
       // const h = height - 44;
-      await modelRunner.run(width, height);
+      await modelRunner.run(width / 2, height / 2);
     },
     [handleStream, payloadHash, processData, setDrawer, setModelRunnerState]
   );

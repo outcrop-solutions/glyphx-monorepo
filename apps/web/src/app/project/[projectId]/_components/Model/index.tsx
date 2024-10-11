@@ -27,10 +27,11 @@ export const Model = () => {
 
   // pass resize events on each render
   useEffect(() => {
-    if (width && height && modelRunnerState.initialized) {
-      console.log(`Resize event - width: ${width}, height: ${height}`);
-      modelRunnerState.modelRunner.resize_window(width, height);
-    }
+    console.log({width, height});
+    // if (width && height && modelRunnerState.initialized) {
+    //   console.log(`Resize event - width: ${width}, height: ${height}`);
+    //   modelRunnerState.modelRunner.resize_window(width, height);
+    // }
   }, [width, height, modelRunnerState]);
 
   useEffect(() => {
@@ -158,13 +159,12 @@ export const Model = () => {
     }
   }, [modelRunnerState, setModelRunnerState]);
 
+  // ensure canvas takes focus if it exists
   useEffect(() => {
-    if (modelRunnerState.initialized) {
-      const canvas = document.getElementById('cube-model') as HTMLCanvasElement;
+    const canvas = document.getElementById('cube-model') as HTMLCanvasElement;
+    if (canvas && modelRunnerState.initialized) {
       canvas?.focus();
     }
-
-    return () => {};
   }, [modelRunnerState.initialized]);
 
   return (

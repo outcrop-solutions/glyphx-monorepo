@@ -5,16 +5,12 @@ import {WritableDraft} from 'immer/dist/internal';
 import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
 import {useRecoilState, useSetRecoilState} from 'recoil';
 import {
-  activeStateAtom,
   cameraAtom,
-  drawerOpenAtom,
   hasDrawerBeenShownAtom,
   imageHashAtom,
   projectAtom,
   rightSidebarControlAtom,
   rowIdsAtom,
-  showLoadingAtom,
-  splitPaneSizeAtom,
   templatesAtom,
   workspaceAtom,
 } from 'state';
@@ -25,9 +21,6 @@ import {LiveMap} from '@liveblocks/client';
 import {InitialDocumentProvider} from 'collab/lib/client';
 import {RoomProvider} from 'liveblocks.config';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
-import {useSession} from 'next-auth/react';
-import {useUrl} from 'lib/client/hooks';
-import {callGlyphEngine} from 'lib/client/network/reqs/callGlyphEngine';
 import useApplyState from 'services/useApplyState';
 
 export const ProjectProvider = ({

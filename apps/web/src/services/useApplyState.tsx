@@ -1,7 +1,7 @@
 'use client';
 import {useCallback} from 'react';
 import {useSession} from 'next-auth/react';
-import {activeStateAtom, drawerOpenAtom, modelRunnerAtom, projectAtom, showLoadingAtom, splitPaneSizeAtom} from 'state';
+import {activeStateAtom, drawerOpenAtom, modelRunnerAtom, projectAtom, showLoadingAtom} from 'state';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
@@ -21,7 +21,6 @@ const useApplyState = () => {
   const [activeState, setActiveState] = useRecoilState(activeStateAtom);
 
   const setDrawer = useSetRecoilState(drawerOpenAtom);
-  const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setLoading = useSetRecoilState(showLoadingAtom);
 
   const applyState = useCallback(
@@ -75,7 +74,7 @@ const useApplyState = () => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [loading, project, session, setActiveState, setDrawer, setLoading, setResize, url, activeState]
+    [loading, project, session, setActiveState, setDrawer, setLoading, url, activeState]
   );
 
   return {applyState};

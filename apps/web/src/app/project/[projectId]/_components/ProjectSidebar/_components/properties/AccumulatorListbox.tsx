@@ -32,7 +32,7 @@ const AccumulatorType = ({axis}) => {
         changeAccumulator(newValue as glyphEngineTypes.constants.ACCUMULATOR_TYPE);
       }}
     >
-      <div className="relative -mt-1">
+      <div className="relative mt-1 -ml-2 mr-1">
         <Listbox.Button className="relative w-full cursor-default bg-secondary-dark-blue rounded px-4 text-center shadow-md focus:outline-none focus-visible:border-blue-500 focus-visible:ring-1 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-blue-300">
           <span className="block truncate text-xs">{accumulator}</span>
         </Listbox.Button>

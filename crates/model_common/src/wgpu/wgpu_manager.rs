@@ -41,7 +41,7 @@ impl WgpuManager {
     pub fn window(&self) -> &Window {
         &self.window
     }
-   
+
     pub fn size(&self) -> &PhysicalSize<u32> {
         &self.size
     }
@@ -73,7 +73,9 @@ impl WgpuManager {
     }
 
     pub fn resize_window(&mut self, width: u32, height: u32) {
-        let _ = self.window.request_inner_size(winit::dpi::PhysicalSize::new(width, height));
+        let _ = self
+            .window
+            .request_inner_size(winit::dpi::LogicalSize::new(width, height));
     }
 
     pub fn reconfigure_surface(&mut self) {

@@ -4,14 +4,7 @@ import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
 import {webTypes} from 'types';
-import {
-  canvasSizeAtom,
-  drawerOpenAtom,
-  modelRunnerAtom,
-  orientationAtom,
-  splitPaneSizeAtom,
-  windowSizeAtom,
-} from 'state';
+import {canvasSizeAtom, drawerOpenAtom, modelRunnerAtom, orientationAtom, splitPaneSizeAtom} from 'state';
 import HorizontalIcon from 'svg/horizontal-layout.svg';
 import VerticalIcon from 'svg/vertical-layout.svg';
 
@@ -26,24 +19,22 @@ export const OrientationToggle = () => {
   const setDrawer = useSetRecoilState(drawerOpenAtom);
 
   const handleOrientation = useCallback(() => {
-    if (modelRunnerState?.initialized) {
-      if (orientation === 'horizontal') {
-        setDrawer(true);
-        setPaneSize(400);
-      } else {
-        modelRunnerState.modelRunner.resize_window(size.width, 400);
-      }
-      setOrientation(
-        produce((draft: WritableDraft<webTypes.SplitPaneOrientation>) => {
-          if (draft === 'horizontal') {
-            return 'vertical';
-          } else {
-            return 'horizontal';
-          }
-        })
-      );
+    // if (modelRunnerState?.initialized) {
+    if (orientation === 'horizontal') {
+      setDrawer(true);
+      setPaneSize(400);
     }
-  }, [orientation, setOrientation, setDrawer, setPaneSize, modelRunnerState, size]);
+    setOrientation(
+      produce((draft: WritableDraft<webTypes.SplitPaneOrientation>) => {
+        if (draft === 'horizontal') {
+          return 'vertical';
+        } else {
+          return 'horizontal';
+        }
+      })
+    );
+    // }
+  }, [orientation, setOrientation, setDrawer, setPaneSize]);
 
   return (
     <button onClick={() => handleOrientation()} className={`${btnClass}`}>
