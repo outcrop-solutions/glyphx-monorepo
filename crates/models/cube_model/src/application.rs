@@ -559,6 +559,16 @@ impl ApplicationHandler<ModelEvent> for Application {
                 ModelEvent::ConfigurationUpdated => {
                     let state = self.state.as_mut().unwrap();
                     state.update_config();
+                    redraw = false;
+                }
+                ModelEvent::TakeScreenshot => {
+                    let state = self.state.as_mut().unwrap();
+                    let _ = state.take_screenshot();
+                }
+                ModelEvent::ScreenshotTaken(screenshot) => {
+
+                   emit_event(&ModelEvent::ScreenshotTaken(screenshot)); 
+                   redraw = false;
                 }
 
                 _ => {}

@@ -2,6 +2,7 @@ mod add_glyphs;
 mod add_statistics;
 mod add_vector;
 mod model_move_direction;
+mod screenshot;
 
 use crate::model::{
     filtering::Query,
@@ -13,6 +14,7 @@ pub(crate) use add_glyphs::AddGlyphData;
 pub(crate) use add_statistics::AddStatisticData;
 pub(crate) use add_vector::AddVectorData;
 pub(crate) use model_move_direction::ModelMoveDirection;
+pub(crate) use screenshot::Screenshot;
 
 use serde::Serialize;
 use serde_json::Value;
@@ -35,6 +37,7 @@ pub enum ModelEvent {
     GlyphsUpdated(Vec<GlyphVertexData>),
     HitDetection(Hit),
     TakeScreenshot,
+    ScreenshotTaken(Screenshot),
     ResizeWindow {
         width: u32,
         height: u32,
@@ -72,6 +75,7 @@ impl std::fmt::Debug for ModelEvent {
             ModelEvent::GlyphsUpdated(_glyphs) => write!(f, "GlyphsUpdated"),
             ModelEvent::HitDetection(hit) => write!(f, "HitDetection({:?})", hit),
             ModelEvent::TakeScreenshot=> write!(f, "TakeScreenshot"),
+            ModelEvent::ScreenshotTaken(screenshot) => write!(f, "ScreenShotTaken({:?})", screenshot),
             ModelEvent::ResizeWindow { width, height } => {
                 write!(f, "ResizeWindow(width: {}, height: {})", width, height)
             }
@@ -103,6 +107,7 @@ pub enum JsSafeModelEvent {
     UpdateModelFilter(Query),
     HitDetection(Hit),
     TakeScreenshot,
+    ScreenShotTaken(Screenshot),
     Other(String),
     ResizeWindow {
         width: u32,
@@ -140,6 +145,7 @@ impl From<&ModelEvent> for JsSafeModelEvent {
             ModelEvent::GlyphsUpdated(_glyphs) => Self::Other("GlyphsUpdated".to_string()),
             ModelEvent::HitDetection(hit) => Self::HitDetection(hit.clone()),
             ModelEvent::TakeScreenshot => Self::TakeScreenshot,
+            ModelEvent::ScreenshotTaken(screenshot) => Self::ScreenShotTaken(screenshot.clone()),
             ModelEvent::ResizeWindow { width, height } => {
                 Self::ResizeWindow {
                     width: *width,

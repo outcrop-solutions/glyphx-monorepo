@@ -39,6 +39,7 @@ use crate::{
             hit_detection::{decode_glyph_id, Hit, HitDetection},
         },
     },
+    model_event::Screenshot,
     Order,
 };
 
@@ -142,8 +143,8 @@ impl State {
         let smaa_target = SmaaTarget::new(
             &d,
             wm.queue(),
-            wm.window().inner_size().width,
-            wm.window().inner_size().height,
+            wm.size().width,
+            wm.size().height,
             wm.config().format,
             SmaaMode::Smaa1X,
         );
@@ -472,7 +473,6 @@ impl State {
             .borrow_mut()
             .update_glyph_uniform_y_offset(config.min_glyph_height);
 
-        log::info!("running compute pipeline from update_config");
         self.run_compute_pipeline();
     }
 
@@ -492,6 +492,16 @@ impl State {
             return Ok(());
         }
 
+        let output = self.wgpu_manager.borrow().surface().get_current_texture()?;
+        let view = output.texture.create_view(&TextureViewDescriptor {
+            ..Default::default()
+        });
+        self.render_scene(&view)?;
+        output.present();
+        Ok(())
+    }
+
+    fn render_scene(&mut self, view: &wgpu::TextureView) -> Result<(), SurfaceError> {
         let buffer_manager = self.buffer_manager.borrow();
         let wgpu_manager = self.wgpu_manager.borrow();
         let queue = wgpu_manager.queue();
@@ -528,14 +538,10 @@ impl State {
             0,
             bytemuck::cast_slice(&[*buffer_manager.glyph_uniform_data()]),
         );
+        let size = wgpu_manager.size().clone();
 
-        let output = wgpu_manager.surface().get_current_texture()?;
-        let view = output.texture.create_view(&TextureViewDescriptor {
-            ..Default::default()
-        });
 
         let smaa_frame = self.smaa_target.start_frame(&device, queue, &view);
-
         let mut commands = Vec::new();
 
         self.pipeline_manager
@@ -568,14 +574,106 @@ impl State {
                     .run_axis_pipeline(pipeline, &*smaa_frame, &mut commands);
             }
         }
-
+        // Copy the texture to the buffer
         queue.submit(commands);
 
         smaa_frame.resolve();
-        output.present();
+
         Ok(())
     }
 
+    pub fn take_screenshot(&mut self) -> Result<(), SurfaceError> {
+        let size = self.wgpu_manager.borrow().size().clone();
+
+        let output = self.wgpu_manager.borrow().device().borrow().create_texture(&wgpu::TextureDescriptor {
+            label: Some("screenshot_texture"),
+            size: wgpu::Extent3d {
+                width: size.width,
+                height: size.height,
+                depth_or_array_layers: 1,
+            },
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: wgpu::TextureFormat::Bgra8Unorm,
+            // Choose your desired format
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_SRC,
+            view_formats: &[],
+        });
+
+        let view = output.create_view(&TextureViewDescriptor {
+            ..Default::default()
+        });
+
+        self.render_scene(&view)?;
+
+        let align = wgpu::COPY_BYTES_PER_ROW_ALIGNMENT;
+        let padded_bytes_per_row = ((4 * size.width + align - 1) / align) * align;
+        let buffer_size = (padded_bytes_per_row * size.height) as wgpu::BufferAddress;
+
+        let screenshot_buffer = self.wgpu_manager.borrow().device().borrow().create_buffer(&wgpu::BufferDescriptor {
+            label: Some("screenshot_buffer"),
+            size: buffer_size,
+            usage: wgpu::BufferUsages::MAP_READ | wgpu::BufferUsages::COPY_DST,
+            mapped_at_creation: false,
+        });
+
+        let mut encoder = self.wgpu_manager.borrow().device().borrow().create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("screenshot_encoder"),
+        });
+
+        encoder.copy_texture_to_buffer(
+            wgpu::ImageCopyTexture {
+                texture: &output,
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+                aspect: wgpu::TextureAspect::All,
+            },
+            wgpu::ImageCopyBuffer {
+                buffer: &screenshot_buffer,
+
+                layout: wgpu::ImageDataLayout {
+                    offset: 0,
+                    bytes_per_row: Some(padded_bytes_per_row),
+                    rows_per_image: None,
+                },
+            },
+            output.size(),
+        );
+        self.wgpu_manager.borrow().queue().submit([encoder.finish()]);
+
+        let screenshot_buffer = std::sync::Arc::new(screenshot_buffer);
+        let capturable = screenshot_buffer.clone();
+        screenshot_buffer
+            .slice(..)
+            .map_async(MapMode::Read, move |result| {
+                if result.is_ok() {
+                    let view = capturable.slice(..).get_mapped_range();
+                    let data = view.to_vec();
+                    let mut output_vector =
+                        Vec::<u8>::with_capacity(size.width as usize * size.height as usize * 4);
+                    for y in 0..size.height {
+                        let offset = (y * padded_bytes_per_row) as usize;
+                        let row_start = offset;
+                        let row_end = offset + (size.width * 4) as usize;
+                        output_vector.extend_from_slice(&data[row_start..row_end]);
+                    }
+                    unsafe {
+                        let _ = crate::EVENT_LOOP_PROXY
+                            .as_ref()
+                            .unwrap()
+                            .send_event(crate::ModelEvent::ScreenshotTaken(Screenshot {
+                                width: size.width,
+                                height: size.height,
+                                pixels: output_vector,
+                            }));
+                    }
+                    drop(view);
+                }
+                capturable.unmap();
+            });
+        Ok(())
+    }
     pub fn run_compute_pipeline(&mut self) {
         let output_buffer = self.pipeline_manager.run_glyph_data_pipeline();
         let output_buffer = std::sync::Arc::new(output_buffer);
@@ -650,7 +748,7 @@ impl State {
 
     fn run_hit_detection_pipeline(
         &mut self,
-        device: &Device,
+        _device: &Device,
         x_pos: u32,
         y_pos: u32,
         is_shift_pressed: bool,
