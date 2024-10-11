@@ -1,18 +1,19 @@
 'use client';
 import React, {useCallback, useEffect, useState} from 'react';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {MainDropzone} from '../ProjectSidebar/_components/files';
 import {Datagrid} from './DataGrid';
 import {GridHeader} from './GridHeader';
 import {ModelFooter} from './ModelFooter';
 import {filesOpenSelector} from 'state/files';
-import {orientationAtom, splitPaneSizeAtom, windowSizeAtom} from 'state';
+import {modelRunnerAtom, orientationAtom, splitPaneSizeAtom, windowSizeAtom} from 'state';
 import SplitPane from 'react-split-pane';
 import {Model} from '../Model';
-import {debounce} from 'lodash';
 import {ModelControls} from './ModelControls';
+import {useDebounceCallback} from 'usehooks-ts';
 
 export const GridContainer = () => {
+  const [modelRunnerState, setModelRunnerState] = useRecoilState(modelRunnerAtom);
   // ensures we don't pre-render the server
   const [isClient, setIsClient] = useState(false);
   useEffect(() => {
@@ -24,16 +25,22 @@ export const GridContainer = () => {
   const {height} = useRecoilValue(windowSizeAtom);
   const setResize = useSetRecoilState(splitPaneSizeAtom);
 
-  const debouncedOnChange = debounce((data) => {
-    setResize(data);
+  const handlePaneResize = useDebounceCallback((size) => {
+    // resize event based on drag
+    const pane = document.getElementsByClassName('SplitPane');
+    if (modelRunnerState.initialized) {
+      if (orientation === 'horizontal') {
+        const width = pane[0].clientWidth;
+        const height = pane[0].clientHeight - size - 4;
+        modelRunnerState.modelRunner.resize_window(width, height);
+      } else {
+        const width = pane[0].clientWidth - size - 5;
+        const height = pane[0].clientHeight;
+        modelRunnerState.modelRunner.resize_window(width, height);
+      }
+    }
+    setResize(size);
   }, 50);
-
-  const handlePaneResize = useCallback(
-    (size) => {
-      debouncedOnChange(size);
-    },
-    [debouncedOnChange]
-  );
 
   const getPaneHeight = () => {
     if (height) {
@@ -69,7 +76,7 @@ export const GridContainer = () => {
               <MainDropzone />
             )}
           </div>
-          <div className="h-full w-full relative">
+          <div className="relative h-full w-full">
             <ModelFooter />
             <div className="h-full w-full relative">
               <ModelControls />
