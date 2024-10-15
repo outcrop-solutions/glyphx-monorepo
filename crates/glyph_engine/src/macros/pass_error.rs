@@ -13,7 +13,7 @@ macro_rules! pass_error {
     (let $var_name:ident = $express : expr; ) => {
         let $var_name = $express;
         if $var_name.is_err() {
-            let error = $var_name.unwrap_err();
+            let error = $var_name.err().unwrap();
             return Err(error);
         }
         let $var_name = $var_name.unwrap();
@@ -21,7 +21,7 @@ macro_rules! pass_error {
     (let $var_name:ident = $express : expr; $log_level: ident) => {
         let $var_name = $express;
         if $var_name.is_err() {
-            let error = $var_name.unwrap_err();
+            let error = $var_name.err().unwrap();
             error.$log_level();
             return Err(error);
         }

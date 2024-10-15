@@ -38,6 +38,16 @@ impl ProcessTrackingModelOperations for ProcessTrackingModelOperationsImpl {
     }
 }
 
+#[async_trait]
+#[automock]
+pub trait IHeartbeat : Send + Sync {
+    fn get_process_id(&self) -> String;
+    fn get_process_name(&self) -> String;
+    fn get_interval(&self) -> usize;
+    async fn start(&mut self) -> Result<(), HeartbeatError>;
+    fn stop(&mut self) -> ();
+}
+
 use std::sync::Arc;
 #[derive(Debug, Clone)]
 pub struct Heartbeat {
@@ -46,6 +56,35 @@ pub struct Heartbeat {
     interval: usize,
     in_error: bool,
     join_handle: Arc<Option<JoinHandle<()>>>,
+}
+#[async_trait]
+impl IHeartbeat for Heartbeat {
+
+    fn get_process_id(&self) -> String {
+        self.process_id.clone()
+    }
+
+    fn get_process_name(&self) -> String {
+        self.process_name.clone()
+    }
+
+    fn get_interval(&self) -> usize {
+        self.interval
+    }
+    async fn start(&mut self) -> Result<(), HeartbeatError> {
+        self.start_impl(ProcessTrackingModelOperationsImpl).await
+    }
+
+    fn stop(&mut self) {
+        let handle = self.join_handle.as_ref();
+        if handle.is_some() {
+            let handle = handle.as_ref().unwrap();
+            if !handle.is_finished() {
+                handle.abort();
+            }
+        }
+        self.join_handle = Arc::new(None);
+    }
 }
 
 impl Heartbeat {
@@ -59,22 +98,9 @@ impl Heartbeat {
             join_handle: Arc::new(None),
         }
     }
-
     fn get_new_process_id() -> String {
         let process_id = ObjectId::new();
         process_id.to_string()
-    }
-
-    pub fn get_process_id(&self) -> String {
-        self.process_id.clone()
-    }
-
-    pub fn get_process_name(&self) -> String {
-        self.process_name.clone()
-    }
-
-    pub fn get_interval(&self) -> usize {
-        self.interval
     }
 
     async fn create_process_tracking_record_impl<T: ProcessTrackingModelOperations>(
@@ -131,21 +157,6 @@ impl Heartbeat {
         });
         self.join_handle = Arc::new(Some(handle));
         Ok(())
-    }
-
-    pub async fn start(&mut self) -> Result<(), HeartbeatError> {
-        self.start_impl(ProcessTrackingModelOperationsImpl).await
-    }
-
-    pub fn stop(&mut self) {
-        let handle = self.join_handle.as_ref();
-        if handle.is_some() {
-            let handle = handle.as_ref().unwrap();
-            if !handle.is_finished() {
-                handle.abort();
-            }
-        }
-        self.join_handle = Arc::new(None);
     }
 }
 

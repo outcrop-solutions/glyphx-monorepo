@@ -11,6 +11,7 @@ test = true
 async-trait = "0.1.68"
 bson = "2.11.0"
 cool_asserts = "2.0.3"
+derive_builder = "0.20.1"
 glyphx_core = { path = "../core", features = ["aws", "macros"] }
 glyphx_database = { path = "../database" }
 log = "0.4.17"

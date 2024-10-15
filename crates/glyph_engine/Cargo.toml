@@ -7,18 +7,22 @@ edition = "2021"
 [lib]
 test = true
 
+[[bin]]
+name = "glyph_engine_local_tester"
+path = "src/bin/local_tester/main.rs"
+
 [dependencies]
 aws-smithy-async = "1.2.1"
 aws-smithy-runtime-api = "1.6.3"
 async-trait = "0.1.68"
 bincode = "1.3.3"
 bson = "2.11.0"
+derive_builder = "0.20.1"
 futures-core = "0.3"
 glyphx_core = { path = "../core" }
 glyphx_common = { path = "../common" }
 glyphx_database = { path = "../database" }
 http = "0.2.9"
-im = "15.1.0"
 lazy_static = "1.4.0"
 log = "0.4.17"
 mockall = "0.11.4"
