@@ -40,7 +40,7 @@ impl ProcessTrackingModelOperations for ProcessTrackingModelOperationsImpl {
 
 #[async_trait]
 #[automock]
-pub trait IHeartbeat {
+pub trait IHeartbeat : Send + Sync {
     fn get_process_id(&self) -> String;
     fn get_process_name(&self) -> String;
     fn get_interval(&self) -> usize;

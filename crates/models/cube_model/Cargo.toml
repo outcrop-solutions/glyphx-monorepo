@@ -21,7 +21,6 @@ chrono = "0.4.38"
 env_logger = "0.10"
 glam = "0.24.1"
 glyphx_core_error = { path = "../../error" }
-im = "15.1.0"
 log = "0.4"
 model_common = { path = "../../model_common" }
 nalgebra = "0.32.3"

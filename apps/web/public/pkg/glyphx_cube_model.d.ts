@@ -1,227 +1,209 @@
 /* tslint:disable */
 /* eslint-disable */
-/**
-*/
 export class ModelRunner {
   free(): void;
-/**
-*/
   constructor();
-/**
-*/
   take_screenshot(): void;
-/**
-* @param {number} width
-* @param {number} height
-*/
+  /**
+   * @param {number} width
+   * @param {number} height
+   */
   resize_window(width: number, height: number): void;
-/**
-* @param {string} filter
-*/
+  /**
+   * @param {string} filter
+   */
   update_model_filter(filter: string): void;
-/**
-*Will force a redraw of the model, if the model is running.
-* @param {string} config
-* @param {boolean} is_running
-*/
+  /**
+   *Will force a redraw of the model, if the model is running.
+   * @param {string} config
+   * @param {boolean} is_running
+   */
   update_configuration(config: string, is_running: boolean): void;
-/**
-*/
   toggle_axis_lines(): void;
-/**
-* @param {number} x_pos
-* @param {number} y_pos
-* @param {boolean} multi_select
-*/
+  /**
+   * @param {number} x_pos
+   * @param {number} y_pos
+   * @param {boolean} multi_select
+   */
   select_glyph(x_pos: number, y_pos: number, multi_select: boolean): void;
-/**
-* @param {number} amount
-*/
+  /**
+   * @param {number} amount
+   */
   add_yaw(amount: number): void;
-/**
-* @param {number} amount
-*/
+  /**
+   * @param {number} amount
+   */
   raise_model(amount: number): void;
-/**
-*/
   reset_camera(): void;
-/**
-*These are user facing axis not internal
-*/
+  /**
+   *These are user facing axis not internal
+   */
   focus_on_x_axis(): void;
-/**
-*These are user facing axis not internal
-*/
+  /**
+   *These are user facing axis not internal
+   */
   focus_on_y_axis(): void;
-/**
-*These are user facing axis not internal
-*/
+  /**
+   *These are user facing axis not internal
+   */
   focus_on_z_axis(): void;
-/**
-* @param {number} amount
-*/
+  /**
+   * @param {number} amount
+   */
   shift_model(amount: number): void;
-/**
-* @param {number} amount
-*/
+  /**
+   * @param {number} amount
+   */
   add_pitch(amount: number): void;
-/**
-* @param {number} amount
-*/
+  /**
+   * @param {number} amount
+   */
   add_distance(amount: number): void;
-/**
-*Adding a vector will update internal state but it
-*will not emit any redraw events.
-* @param {string} axis
-* @param {Uint8Array} data
-*/
+  /**
+   *Adding a vector will update internal state but it
+   *will not emit any redraw events.
+   * @param {string} axis
+   * @param {Uint8Array} data
+   */
   add_vector(axis: string, data: Uint8Array): void;
-/**
-* @param {Uint8Array} data
-* @returns {string}
-*/
+  /**
+   * @param {Uint8Array} data
+   * @returns {string}
+   */
   add_statistics(data: Uint8Array): string;
-/**
-* @param {string} axis
-* @returns {string}
-*/
+  /**
+   * @param {string} axis
+   * @returns {string}
+   */
   get_statistics(axis: string): string;
-/**
-*Adding a glyph will update internal state but it
-*will not emit any redraw events.
-* @param {Uint8Array} data
-* @returns {string}
-*/
+  /**
+   *Adding a glyph will update internal state but it
+   *will not emit any redraw events.
+   * @param {Uint8Array} data
+   * @returns {string}
+   */
   add_glyph(data: Uint8Array): string;
-/**
-* @returns {number}
-*/
+  /**
+   * @returns {number}
+   */
   get_glyph_count(): number;
-/**
-* @returns {number}
-*/
+  /**
+   * @returns {number}
+   */
   get_stats_count(): number;
-/**
-* @returns {number}
-*/
+  /**
+   * @returns {number}
+   */
   get_x_vector_count(): number;
-/**
-* @returns {number}
-*/
+  /**
+   * @returns {number}
+   */
   get_y_vector_count(): number;
-/**
-* @returns {string}
-*/
+  /**
+   * @returns {string}
+   */
   get_camera_data(): string;
-/**
-* @param {string} camera_data
-* @param {number} aspect_ratio
-*/
+  /**
+   * @param {string} camera_data
+   * @param {number} aspect_ratio
+   */
   set_camera_data(camera_data: string, aspect_ratio: number): void;
-/**
-* @param {Uint32Array} selected_glyphs
-*/
+  /**
+   * @param {Uint32Array} selected_glyphs
+   */
   set_selected_glyphs(selected_glyphs: Uint32Array): void;
-/**
-* @param {number} width
-* @param {number} height
-* @returns {Promise<void>}
-*/
+  /**
+   * @param {number} width
+   * @param {number} height
+   * @returns {Promise<void>}
+   */
   run(width: number, height: number): Promise<void>;
 }
 /**
-* An [OrbitCamera] only permits rotation of the eye on a spherical shell around a target.
-*/
+ * An [OrbitCamera] only permits rotation of the eye on a spherical shell around a target.
+ */
 export class OrbitCamera {
   free(): void;
 /**
-* The aspect ratio of the camera.
-*/
+ * The aspect ratio of the camera.
+ */
   aspect: number;
 /**
-* The bounds within which the camera can be moved.
-*/
+ * The bounds within which the camera can be moved.
+ */
   bounds: OrbitCameraBounds;
 /**
-* The distance of the eye from the target.
-*/
+ * The distance of the eye from the target.
+ */
   distance: number;
 /**
-* The field of view of the camera.
-*/
+ * The field of view of the camera.
+ */
   fovy: number;
 /**
-* The pitch angle in radians.
-*/
+ * The pitch angle in radians.
+ */
   pitch: number;
 /**
-* The target of the orbit camera.
-*/
+ * The target of the orbit camera.
+ */
   target: Vector3;
 /**
-* The cameras' up vector.
-*/
+ * The cameras' up vector.
+ */
   up: Vector3;
 /**
-* The yaw angle in radians.
-*/
+ * The yaw angle in radians.
+ */
   yaw: number;
 /**
-* The far clipping plane of the camera.
-*/
+ * The far clipping plane of the camera.
+ */
   zfar: number;
 /**
-* The near clipping plane of the camera.
-*/
+ * The near clipping plane of the camera.
+ */
   znear: number;
 }
 /**
-* The boundaries for how an [OrbitCamera] can be rotated.
-*/
+ * The boundaries for how an [OrbitCamera] can be rotated.
+ */
 export class OrbitCameraBounds {
   free(): void;
 /**
-* If set it is not possible to move the camera further from the target
-* than the specified amount.
-*/
+ * If set it is not possible to move the camera further from the target
+ * than the specified amount.
+ */
   max_distance?: number;
 /**
-* The `min_pitch` can only be between `]0, PI / 2]` due to mathematical reasons.
-*/
+ * The `min_pitch` can only be between `]0, PI / 2]` due to mathematical reasons.
+ */
   max_pitch: number;
 /**
-* If set the yaw angle will be constrained. The constrain should be in the
-* interval `[0, PI]`.
-*/
+ * If set the yaw angle will be constrained. The constrain should be in the
+ * interval `[0, PI]`.
+ */
   max_yaw?: number;
 /**
-* The minimum distance between the eye and the target.
-* This should not be negative. In order to ensure this the minimum distance
-* should never be smaller than [f32::EPSILON].
-*/
+ * The minimum distance between the eye and the target.
+ * This should not be negative. In order to ensure this the minimum distance
+ * should never be smaller than [f32::EPSILON].
+ */
   min_distance?: number;
 /**
-* The `min_pitch` can only be between `]-PI / 2, 0]` due to mathematical reasons.
-*/
+ * The `min_pitch` can only be between `]-PI / 2, 0]` due to mathematical reasons.
+ */
   min_pitch: number;
 /**
-* If set the yaw angle will be constrained. The constrain should be in the
-* interval `[-PI, 0]`.
-*/
+ * If set the yaw angle will be constrained. The constrain should be in the
+ * interval `[-PI, 0]`.
+ */
   min_yaw?: number;
 }
-/**
-*/
 export class Vector3 {
   free(): void;
-/**
-*/
   x: number;
-/**
-*/
   y: number;
-/**
-*/
   z: number;
 }
 

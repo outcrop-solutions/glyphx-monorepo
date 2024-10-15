@@ -6,7 +6,7 @@ use glyphx_core_error::GlyphxErrorData;
 use model_common::{vectors::Vector, VectorOrigionalValue};
 
 use bincode::deserialize;
-use im::OrdMap;
+use std::collections::BTreeMap;
 use ordered_float::OrderedFloat;
 use serde_json::json;
 
@@ -14,13 +14,13 @@ use serde_json::json;
 ///provides a reverse lookup converting the vector to an origional value.
 #[derive(Debug, Clone)]
 pub struct ModelVectors {
-    vectors: OrdMap<OrderedFloat<f64>, Vector>,
+    vectors: BTreeMap<OrderedFloat<f64>, Vector>,
 }
 
 impl ModelVectors {
     pub fn new() -> Self {
         ModelVectors {
-            vectors: OrdMap::new(),
+            vectors: BTreeMap::new(),
         }
     }
 

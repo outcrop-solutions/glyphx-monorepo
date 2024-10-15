@@ -191,7 +191,6 @@ impl OrbitCamera {
             self.yaw,
             self.distance,
         ));
-        //eprintln!("camera: {:?}", self);
     }
 
     pub fn update_aspect(&mut self, aspect: f32) {

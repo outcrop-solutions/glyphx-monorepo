@@ -128,6 +128,7 @@
     "tailwindcss-scoped-groups": "^2.0.0",
     "tippy.js": "^6.3.7",
     "use-debounce": "^10.0.0",
+    "usehooks-ts": "^3.1.0",
     "useragent": "^2.3.0",
     "utf-8-validate": "^5.0.10",
     "uuid": "^8.3.2",

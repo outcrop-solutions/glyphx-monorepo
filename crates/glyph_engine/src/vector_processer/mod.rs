@@ -12,17 +12,19 @@ use glyphx_core::{
         s3_manager::{GetUploadStreamError, UploadStreamFinishError, UploadStreamWriteError},
         upload_stream::UploadStream,
     },
-    ErrorTypeParser, GlyphxErrorData, Singleton,
+    ErrorTypeParser, GlyphxErrorData, IUploadStream, Singleton,
 };
 use model_common::vectors::{Vector, VectorOrigionalValue};
 
 use async_trait::async_trait;
 use bincode::serialize;
-use im::OrdMap;
 use log::error;
 use mockall::automock;
 use serde_json::{json, to_value, Value};
-use std::sync::mpsc::{channel, Receiver, TryRecvError};
+use std::{
+    collections::BTreeMap,
+    sync::mpsc::{channel, Receiver, TryRecvError},
+};
 use tokio::task::{spawn, JoinHandle};
 
 /// This macro is used to handle functions that return Result<T, E>  in a consistent way in our
@@ -131,7 +133,7 @@ pub struct VectorProcesser {
     s3_file_name: String,
     field_definition: FieldDefinition,
     receiver: Option<Receiver<Result<Vector, VectorCalculationError>>>,
-    vectors: OrdMap<VectorOrigionalValue, Vector>,
+    vectors: BTreeMap<VectorOrigionalValue, Vector>,
     join_handle: Option<JoinHandle<()>>,
     task_status: TaskStatus,
     max_rank: usize,
@@ -247,7 +249,18 @@ impl VectorValueProcesser for VectorProcesser {
     fn get_vector(&self, key: &VectorOrigionalValue) -> Option<Vector> {
         let vector = self.vectors.get(key);
         if vector.is_none() {
-            None
+            let mut vector = Vector::new(VectorOrigionalValue::Empty, f64::MAX, u64::MAX);
+            for (k, value) in self.vectors.iter() {
+                if k == key {
+                    vector = value.clone();
+                    break;
+                }
+            }
+            if vector.orig_value == VectorOrigionalValue::Empty {
+                None
+            } else {
+                Some(vector)
+            }
         } else {
             Some(vector.unwrap().clone())
         }
@@ -258,7 +271,7 @@ impl VectorValueProcesser for VectorProcesser {
     }
 
     fn get_max_vector(&self) -> Option<Vector> {
-        let vec = self.vectors.get_max();
+        let vec = self.vectors.last_key_value();
         if vec.is_none() {
             None
         } else {
@@ -279,12 +292,13 @@ impl VectorProcesser {
         s3_file_name: &str,
         field_definition: FieldDefinition,
     ) -> Self {
+        let mut vectors = BTreeMap::new();
         Self {
             axis_name: axis_name.to_string(),
             table_name: table_name.to_string(),
             field_definition,
             receiver: None,
-            vectors: OrdMap::new(),
+            vectors,
             join_handle: None,
             task_status: TaskStatus::Pending,
             s3_file_name: s3_file_name.to_string(),

@@ -20,7 +20,7 @@ use glyphx_core::{
     utility_functions::file_functions::{
         get_glyph_file_name, get_stats_file_name, get_vector_file_name,
     },
-    ErrorTypeParser, GlyphxErrorData, Singleton,
+    ErrorTypeParser, GlyphxErrorData, Singleton,IUploadStream
 };
 use glyphx_database::{
     GlyphxDataModel, MongoDbConnection, ProcessStatus, ProcessTrackingModel, UpdateDocumentError,
@@ -31,12 +31,11 @@ use async_trait::async_trait;
 use bincode::serialize;
 use bson::{doc, DateTime};
 use derive_builder::Builder;
-use im::OrdSet;
 use mockall::automock;
 use model_common::vectors::{Vector, VectorOrigionalValue};
 use serde_json::{to_value, Value};
 use statrs::statistics::*;
-
+use std::collections::BTreeSet;
 pub use errors::*;
 use types::vectorizer_parameters::{FieldDefinition, VectorizerParameters};
 pub use types::*;
@@ -73,7 +72,7 @@ macro_rules! process_error {
 
 #[automock]
 #[async_trait]
-pub trait GlyphEngineOperations {
+pub trait GlyphEngineOperations : Send + Sync {
     async fn build_s3_connection(&self) -> Result<&'static S3Connection, GlyphEngineInitError>;
     async fn build_athena_connection(
         &self,
@@ -183,7 +182,7 @@ impl GlyphEngineOperations for GlyphEngineOperationsImpl {
         athena_connection: &AthenaConnection,
         query: &str,
     ) -> Result<String, GlyphEngineProcessError> {
-        handle_error!(let query_id = athena_connection .get_athena_manager() .start_query(&query, None) .await; GlyphEngineProcessError::from_start_query_error(&query), error);
+        handle_error!(let query_id = athena_connection .get_athena_manager().start_query(&query, None).await; GlyphEngineProcessError::from_start_query_error(&query), error);
 
         Ok(query_id)
     }
@@ -519,7 +518,6 @@ impl GlyphEngine {
             z_field_name
         );
 
-        println!("Starting Athena query with query: {}", query);
 
         let query_id = operations
             .start_athena_query(athena_connection, &query)
@@ -569,23 +567,15 @@ impl GlyphEngine {
             return Err(GlyphEngineProcessError::DataProcessingError(error_data));
         }
 
-        // debugging here
-        println!(
-            "Searching for value {:?} in the vector table for field {}",
-            orig_value, field_name
-        );
 
         let mut vector = vector_processor.get_vector(&orig_value);
         if vector.is_none() {
-            println!(
-                "Original value {:?} not found, trying backup value {:?}",
-                orig_value, backup_value
-            );
             vector = vector_processor.get_vector(&backup_value);
+             
             if vector.is_none() {
                 let message = format!(
-                    "The value {:?} was not found in the vector table for the field {}",
-                    orig_value, field_name
+                    "The value {:?} was not found in the vector table for the field {}.",
+                    orig_value, field_name,  
                 );
 
                 let data = serde_json::json!({ field_name: field_name });
@@ -696,7 +686,7 @@ impl GlyphEngine {
         //Ok this is a bit of a hack, but I needed something which could hold our value that has to
         //the Ord trait -- f64 does not hold this.  To keep things moving, I am just going
         //to resuse VectorOrigionalValue, it is alread setup for OrdSet.
-        let mut unique_values = OrdSet::<VectorOrigionalValue>::new();
+        let mut unique_values = BTreeSet::<VectorOrigionalValue>::new();
         handle_error!(let upload_stream = operations.get_upload_stream(file_name, s3_connection).await; GlyphEngineProcessError::from_get_upload_stream_error(file_name), error);
         //our handle_error macro will not let us create a mutable reference
         let mut upload_stream = upload_stream;
@@ -715,7 +705,6 @@ impl GlyphEngine {
                 y_vector_processer,
             )?;
 
-            println!("Built glyph: {:?}", glyph);
 
             let z_value = VectorOrigionalValue::F64(glyph.z_value.clone());
             if !unique_values.contains(&z_value) {
@@ -723,11 +712,9 @@ impl GlyphEngine {
             }
             let ser_glyph = Self::serialize_glyph(&glyph);
             handle_error!(let _result = operations.write_to_upload_stream(&mut upload_stream, Some(ser_glyph)).await; GlyphEngineProcessError::from_upload_stream_write_error(file_name), error);
-            println!("Wrote glyph to upload stream: {:?}", glyph);
         }
         handle_error!(let _result = operations.finish_upload_stream(&mut upload_stream).await; GlyphEngineProcessError::from_upload_stream_finish_error(file_name), error);
 
-        println!("Finished upload stream for file: {}", file_name);
 
         let vector_for_statistics = unique_values
             .iter()
@@ -737,10 +724,6 @@ impl GlyphEngine {
             })
             .collect();
 
-        println!(
-            "Generated vector for statistics: {:?}",
-            vector_for_statistics
-        );
 
         Ok(vector_for_statistics)
     }
