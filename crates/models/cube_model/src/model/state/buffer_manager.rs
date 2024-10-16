@@ -238,7 +238,7 @@ impl BufferManager {
             max_y: max_y as f32,
             //TODO: Why is this tied to model origin but the other axis are not?
             min_interp_y: model_origin, // * y_half as f32,
-            max_interp_y: model_origin + y_size as f32,
+            max_interp_y: model_origin + y_size.clamp(0.0, 2.0),
             min_z: min_z as f32,
             max_z: max_z as f32,
             min_interp_z: -1.0 * x_z_half as f32,

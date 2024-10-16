@@ -490,7 +490,8 @@ impl State {
             //This will get run again once the compute pipeline is finished
             return Ok(());
         }
-
+        let dm = self.data_manager.clone();
+        let dm = dm.borrow();
         let output = self.wgpu_manager.borrow().surface().get_current_texture()?;
         let view = output.texture.create_view(&TextureViewDescriptor {
             ..Default::default()
