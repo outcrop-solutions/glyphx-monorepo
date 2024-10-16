@@ -533,18 +533,24 @@ impl Default for ModelConfiguration {
             //A -- done
             grid_cylinder_length: 10.80,
             //R -- done
-            grid_cylinder_radius: 0.010,
+            //grid_cylinder_radius: 0.010,
+            grid_cylinder_radius: 0.15,
             //grid_cylinder_radius: 0.005,
             //C -- done
             //grid_cone_length: 0.02,
-            grid_cone_length: 0.04,
+            //grid_cone_length: 0.04,
+            grid_cone_length: 0.36,
             //K -- done
             //grid_cone_radius: 0.010,
-            grid_cone_radius: 0.020,
+            //grid_cone_radius: 0.020,
+            grid_cone_radius: 0.2,
             //H -- done
-            z_height_ratio: 1.0,
+            //z_height_ratio: 1.0,
+            //z_height_ratio: 0.25,
+            z_height_ratio: 0.03,
             //O -- done
-            glyph_offset: 0.015,
+            //glyph_offset: 0.015,
+            glyph_offset: 0.170,
             //E -- Done
             min_glyph_height: 0.0002,
             //W -- Done
@@ -561,7 +567,8 @@ impl Default for ModelConfiguration {
             light_intensity: 0.4,
             //S -- Done
             //glyph_size: 0.015,
-            glyph_size: 0.045,
+            //glyph_size: 0.045,
+            glyph_size: 0.75,
             //G
             model_origin: [-5.0, -5.0, -5.0],
             x_interpolation: InterpolationType::Linear,
