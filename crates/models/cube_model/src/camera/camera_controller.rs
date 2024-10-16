@@ -20,15 +20,20 @@ pub struct CameraController {
     pub zoom_speed: f32,
     is_drag_rotate: bool,
     is_click: bool,
+    pitch_swallow: f32,
+    yaw_swallow: f32,
 }
 
 impl CameraController {
+    const SWALLOWDELTA: f32 = 10.0;
     pub fn new(rotate_speed: f32, zoom_speed: f32) -> Self {
         Self {
             rotate_speed,
             zoom_speed,
             is_drag_rotate: false,
             is_click: false,
+            pitch_swallow: 0.0,
+            yaw_swallow: 0.0,
         }
     }
 
@@ -52,6 +57,14 @@ impl CameraController {
                 if !is_pressed && self.is_click {
                     self.is_click = false;
                     MouseEvent::MouseClick
+                } else if !is_pressed && (self.yaw_swallow != 0.0 || self.pitch_swallow != 0.0) {
+                    camera_manager.add_yaw(-self.yaw_swallow * self.rotate_speed);
+                    camera_manager.add_pitch(self.pitch_swallow * self.rotate_speed);
+                    self.pitch_swallow = 0.0;
+                    self.yaw_swallow = 0.0;
+
+                    camera_manager.update();
+                    MouseEvent::MouseMotion
                 } else if is_pressed {
                     self.is_click = true;
                     MouseEvent::MouseDown
@@ -74,12 +87,21 @@ impl CameraController {
             DeviceEvent::MouseMotion { delta } => {
                 if self.is_drag_rotate {
                     self.is_click = false;
-                    camera_manager.add_yaw(-delta.0 as f32 * self.rotate_speed);
-                    camera_manager.add_pitch(delta.1 as f32 * self.rotate_speed);
+                    self.pitch_swallow += delta.1 as f32;
+                    self.yaw_swallow += delta.0 as f32;
+                    if self.pitch_swallow.abs() < Self::SWALLOWDELTA
+                        && self.yaw_swallow.abs() < Self::SWALLOWDELTA
+                    {
+                        return MouseEvent::Handled;
+                    }
+                    camera_manager.add_yaw(-self.yaw_swallow * self.rotate_speed);
+                    camera_manager.add_pitch(self.pitch_swallow * self.rotate_speed);
+                    self.pitch_swallow = 0.0;
+                    self.yaw_swallow = 0.0;
+
                     camera_manager.update();
                     MouseEvent::MouseMotion
-                }
-                else {
+                } else {
                     MouseEvent::Unhandled
                 }
             }
