@@ -44,6 +44,31 @@ pub enum ModelEvent {
     },
     ConfigurationUpdated,
 }
+impl ModelEvent {
+    pub fn event_type(&self) -> &str {
+        match self {
+            Self::StateReady(_) => "StateReady",
+            Self::ModelMove(_) => "ModelMove",
+            Self::AddVector(_) => "AddVector",
+            Self::AddStatistic(_) => "AddStatistic",
+            Self::AddGlyph(_) => "AddGlyph",
+            Self::Redraw => "Redraw",
+            Self::ToggleAxisLines => "ToggleAxisLines",
+            Self::SelectGlyph { .. } => "SelectGlyph",
+            Self::SelectedGlyphs(_) => "SelectedGlyphs",
+            Self::SelectGlyphs(_) => "SelectGlyphs",
+            Self::UpdateModelFilter(_) => "UpdateModelFilter",
+            Self::GlyphsUpdated(_) => "GlyphsUpdated",
+            Self::HitDetection(_) => "HitDetection",
+            Self::TakeScreenshot => "TakeScreenshot",
+            Self::ScreenshotTaken(_) => "ScreenshotTaken",
+            Self::ResizeWindow { .. } => "ResizeWindow",
+            Self::ConfigurationUpdated => "ConfigurationUpdated",
+
+        }
+    
+    }
+}
 impl std::fmt::Debug for ModelEvent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
