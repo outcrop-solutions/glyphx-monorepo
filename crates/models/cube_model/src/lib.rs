@@ -87,8 +87,8 @@ impl ModelRunner {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
-    pub fn take_screenshot(&self) -> Result<(), String> {
-         let event = ModelEvent::TakeScreenshot;
+    pub fn take_screenshot(&self, is_state_creation: bool) -> Result<(), String> {
+         let event = ModelEvent::TakeScreenshot(is_state_creation);
         send_event(event);
         Ok(())
     }

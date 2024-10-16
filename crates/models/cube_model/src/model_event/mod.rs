@@ -36,8 +36,8 @@ pub enum ModelEvent {
     UpdateModelFilter(Query),
     GlyphsUpdated(Vec<GlyphVertexData>),
     HitDetection(Hit),
-    TakeScreenshot,
-    ScreenshotTaken(Screenshot),
+    TakeScreenshot(bool),
+    ScreenshotTaken(Screenshot, bool),
     ResizeWindow {
         width: u32,
         height: u32,
@@ -60,8 +60,14 @@ impl ModelEvent {
             Self::UpdateModelFilter(_) => "UpdateModelFilter",
             Self::GlyphsUpdated(_) => "GlyphsUpdated",
             Self::HitDetection(_) => "HitDetection",
-            Self::TakeScreenshot => "TakeScreenshot",
-            Self::ScreenshotTaken(_) => "ScreenshotTaken",
+            Self::TakeScreenshot(_) => "TakeScreenshot",
+            Self::ScreenshotTaken(_, is_state_creation) => {
+                if *is_state_creation {
+                    "StateScreenshotTaken"
+                } else {
+                    "ScreenshotTaken"
+                }
+            },
             Self::ResizeWindow { .. } => "ResizeWindow",
             Self::ConfigurationUpdated => "ConfigurationUpdated",
 
@@ -99,8 +105,8 @@ impl std::fmt::Debug for ModelEvent {
             ModelEvent::UpdateModelFilter(query) => write!(f, "UpdateModelFilter({:?})", query),
             ModelEvent::GlyphsUpdated(_glyphs) => write!(f, "GlyphsUpdated"),
             ModelEvent::HitDetection(hit) => write!(f, "HitDetection({:?})", hit),
-            ModelEvent::TakeScreenshot=> write!(f, "TakeScreenshot"),
-            ModelEvent::ScreenshotTaken(screenshot) => write!(f, "ScreenShotTaken({:?})", screenshot),
+            ModelEvent::TakeScreenshot(_)=> write!(f, "TakeScreenshot"),
+            ModelEvent::ScreenshotTaken(screenshot, _) => write!(f, "ScreenShotTaken({:?})", screenshot),
             ModelEvent::ResizeWindow { width, height } => {
                 write!(f, "ResizeWindow(width: {}, height: {})", width, height)
             }
@@ -169,8 +175,8 @@ impl From<&ModelEvent> for JsSafeModelEvent {
             ModelEvent::UpdateModelFilter(query) => Self::UpdateModelFilter(query.clone()),
             ModelEvent::GlyphsUpdated(_glyphs) => Self::Other("GlyphsUpdated".to_string()),
             ModelEvent::HitDetection(hit) => Self::HitDetection(hit.clone()),
-            ModelEvent::TakeScreenshot => Self::TakeScreenshot,
-            ModelEvent::ScreenshotTaken(screenshot) => Self::ScreenShotTaken(screenshot.clone()),
+            ModelEvent::TakeScreenshot(_) => Self::TakeScreenshot,
+            ModelEvent::ScreenshotTaken(screenshot, _) => Self::ScreenShotTaken(screenshot.clone()),
             ModelEvent::ResizeWindow { width, height } => {
                 Self::ResizeWindow {
                     width: *width,

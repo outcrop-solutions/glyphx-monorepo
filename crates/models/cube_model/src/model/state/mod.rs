@@ -580,7 +580,7 @@ impl State {
         Ok(())
     }
 
-    pub fn take_screenshot(&mut self) -> Result<(), SurfaceError> {
+    pub fn take_screenshot(&mut self, is_state_creation: bool) -> Result<(), SurfaceError> {
         let size = self.wgpu_manager.borrow().size().clone();
 
         let output = self.wgpu_manager.borrow().device().borrow().create_texture(&wgpu::TextureDescriptor {
@@ -669,7 +669,7 @@ impl State {
                                 width: size.width,
                                 height: size.height,
                                 pixels: output_vector,
-                            }));
+                            }, is_state_creation));
                     }
                     drop(view);
                 }

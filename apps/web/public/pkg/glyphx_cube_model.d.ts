@@ -3,7 +3,10 @@
 export class ModelRunner {
   free(): void;
   constructor();
-  take_screenshot(): void;
+  /**
+   * @param {boolean} is_state_creation
+   */
+  take_screenshot(is_state_creation: boolean): void;
   /**
    * @param {number} width
    * @param {number} height
@@ -253,7 +256,7 @@ export interface InitOutput {
   readonly __wbg_get_orbitcamerabounds_max_yaw: (a: number, b: number) => void;
   readonly __wbg_set_orbitcamerabounds_max_yaw: (a: number, b: number, c: number) => void;
   readonly modelrunner_new: () => number;
-  readonly modelrunner_take_screenshot: (a: number, b: number) => void;
+  readonly modelrunner_take_screenshot: (a: number, b: number, c: number) => void;
   readonly modelrunner_resize_window: (a: number, b: number, c: number, d: number) => void;
   readonly modelrunner_update_model_filter: (a: number, b: number, c: number, d: number) => void;
   readonly modelrunner_update_configuration: (a: number, b: number, c: number, d: number, e: number) => void;

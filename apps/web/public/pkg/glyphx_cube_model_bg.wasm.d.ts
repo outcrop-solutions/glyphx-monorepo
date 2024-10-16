@@ -43,7 +43,7 @@ export function __wbg_set_orbitcamerabounds_min_yaw(a: number, b: number, c: num
 export function __wbg_get_orbitcamerabounds_max_yaw(a: number, b: number): void;
 export function __wbg_set_orbitcamerabounds_max_yaw(a: number, b: number, c: number): void;
 export function modelrunner_new(): number;
-export function modelrunner_take_screenshot(a: number, b: number): void;
+export function modelrunner_take_screenshot(a: number, b: number, c: number): void;
 export function modelrunner_resize_window(a: number, b: number, c: number, d: number): void;
 export function modelrunner_update_model_filter(a: number, b: number, c: number, d: number): void;
 export function modelrunner_update_configuration(a: number, b: number, c: number, d: number, e: number): void;
