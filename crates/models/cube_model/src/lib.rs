@@ -87,13 +87,13 @@ impl ModelRunner {
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn take_screenshot(&self) -> Result<(), String> {
-         let event = ModelEvent::TakeScreenshot;
+        let event = ModelEvent::TakeScreenshot;
         send_event(event);
         Ok(())
     }
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn resize_window(&self, width: u32, height: u32) -> Result<(), String> {
-         let event = ModelEvent::ResizeWindow { width, height };
+        let event = ModelEvent::ResizeWindow { width, height };
         send_event(event);
         Ok(())
     }
@@ -181,13 +181,13 @@ impl ModelRunner {
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn raise_model(&self, amount: f32) {
-        // let event = if amount > 0.0 {
-        //     ModelEvent::ModelMove(ModelMoveDirection::Up(amount))
-        // } else {
-        //     ModelEvent::ModelMove(ModelMoveDirection::Down(amount * -1.0))
-        // };
-        // emit_event(&event);
-        // send_event(event);
+        let event = if amount > 0.0 {
+            ModelEvent::ModelMove(ModelMoveDirection::Up(amount))
+        } else {
+            ModelEvent::ModelMove(ModelMoveDirection::Down(amount * -1.0))
+        };
+        emit_event(&event);
+        send_event(event);
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]

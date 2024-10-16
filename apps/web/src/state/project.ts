@@ -229,7 +229,12 @@ export const singlePropertySelectorFamily = selectorFamily<webTypes.Property, we
     },
 });
 
-export const rowIdsAtom = atom<string[] | false>({
+export const rowIdsAtom = atom<number[] | false>({
   key: 'rowIdsAtom',
   default: false,
+});
+
+export const selectedGlyphsAtom = atom<{desc?: Map<string, any>; glyphId?: number}>({
+  key: 'lastSelectedGlyphAtom',
+  default: {},
 });

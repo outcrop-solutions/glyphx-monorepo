@@ -25,7 +25,6 @@ export const Model = () => {
     onResize,
   });
 
-  // pass resize events on each render
   useEffect(() => {
     console.log({width, height});
     // if (width && height && modelRunnerState.initialized) {
