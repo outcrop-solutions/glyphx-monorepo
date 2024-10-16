@@ -1,5 +1,26 @@
 /* tslint:disable */
 /* eslint-disable */
+/**
+ * Chroma subsampling format
+ */
+export enum ChromaSampling {
+  /**
+   * Both vertically and horizontally subsampled.
+   */
+  Cs420 = 0,
+  /**
+   * Horizontally subsampled.
+   */
+  Cs422 = 1,
+  /**
+   * Not subsampled.
+   */
+  Cs444 = 2,
+  /**
+   * Monochrome.
+   */
+  Cs400 = 3,
+}
 export class ModelRunner {
   free(): void;
   constructor();
@@ -214,6 +235,35 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly modelrunner_new: () => number;
+  readonly modelrunner_take_screenshot: (a: number, b: number, c: number) => void;
+  readonly modelrunner_resize_window: (a: number, b: number, c: number, d: number) => void;
+  readonly modelrunner_update_model_filter: (a: number, b: number, c: number, d: number) => void;
+  readonly modelrunner_update_configuration: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly modelrunner_toggle_axis_lines: (a: number) => void;
+  readonly modelrunner_select_glyph: (a: number, b: number, c: number, d: number) => void;
+  readonly modelrunner_reset_camera: (a: number) => void;
+  readonly modelrunner_focus_on_x_axis: (a: number) => void;
+  readonly modelrunner_focus_on_y_axis: (a: number) => void;
+  readonly modelrunner_focus_on_z_axis: (a: number) => void;
+  readonly modelrunner_shift_model: (a: number, b: number) => void;
+  readonly modelrunner_add_distance: (a: number, b: number) => void;
+  readonly modelrunner_add_vector: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+  readonly modelrunner_add_statistics: (a: number, b: number, c: number, d: number) => void;
+  readonly modelrunner_get_statistics: (a: number, b: number, c: number, d: number) => void;
+  readonly modelrunner_add_glyph: (a: number, b: number, c: number, d: number) => void;
+  readonly modelrunner_get_glyph_count: (a: number) => number;
+  readonly modelrunner_get_stats_count: (a: number) => number;
+  readonly modelrunner_get_x_vector_count: (a: number) => number;
+  readonly modelrunner_get_y_vector_count: (a: number) => number;
+  readonly modelrunner_get_camera_data: (a: number, b: number) => void;
+  readonly modelrunner_set_camera_data: (a: number, b: number, c: number, d: number) => void;
+  readonly modelrunner_set_selected_glyphs: (a: number, b: number, c: number) => void;
+  readonly modelrunner_run: (a: number, b: number, c: number) => number;
+  readonly __wbg_modelrunner_free: (a: number, b: number) => void;
+  readonly modelrunner_raise_model: (a: number, b: number) => void;
+  readonly modelrunner_add_yaw: (a: number, b: number) => void;
+  readonly modelrunner_add_pitch: (a: number, b: number) => void;
   readonly __wbg_vector3_free: (a: number, b: number) => void;
   readonly __wbg_get_vector3_x: (a: number) => number;
   readonly __wbg_set_vector3_x: (a: number, b: number) => void;
@@ -255,35 +305,6 @@ export interface InitOutput {
   readonly __wbg_set_orbitcamerabounds_min_yaw: (a: number, b: number, c: number) => void;
   readonly __wbg_get_orbitcamerabounds_max_yaw: (a: number, b: number) => void;
   readonly __wbg_set_orbitcamerabounds_max_yaw: (a: number, b: number, c: number) => void;
-  readonly modelrunner_new: () => number;
-  readonly modelrunner_take_screenshot: (a: number, b: number, c: number) => void;
-  readonly modelrunner_resize_window: (a: number, b: number, c: number, d: number) => void;
-  readonly modelrunner_update_model_filter: (a: number, b: number, c: number, d: number) => void;
-  readonly modelrunner_update_configuration: (a: number, b: number, c: number, d: number, e: number) => void;
-  readonly modelrunner_toggle_axis_lines: (a: number) => void;
-  readonly modelrunner_select_glyph: (a: number, b: number, c: number, d: number) => void;
-  readonly modelrunner_reset_camera: (a: number) => void;
-  readonly modelrunner_focus_on_x_axis: (a: number) => void;
-  readonly modelrunner_focus_on_y_axis: (a: number) => void;
-  readonly modelrunner_focus_on_z_axis: (a: number) => void;
-  readonly modelrunner_shift_model: (a: number, b: number) => void;
-  readonly modelrunner_add_distance: (a: number, b: number) => void;
-  readonly modelrunner_add_vector: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
-  readonly modelrunner_add_statistics: (a: number, b: number, c: number, d: number) => void;
-  readonly modelrunner_get_statistics: (a: number, b: number, c: number, d: number) => void;
-  readonly modelrunner_add_glyph: (a: number, b: number, c: number, d: number) => void;
-  readonly modelrunner_get_glyph_count: (a: number) => number;
-  readonly modelrunner_get_stats_count: (a: number) => number;
-  readonly modelrunner_get_x_vector_count: (a: number) => number;
-  readonly modelrunner_get_y_vector_count: (a: number) => number;
-  readonly modelrunner_get_camera_data: (a: number, b: number) => void;
-  readonly modelrunner_set_camera_data: (a: number, b: number, c: number, d: number) => void;
-  readonly modelrunner_set_selected_glyphs: (a: number, b: number, c: number) => void;
-  readonly modelrunner_run: (a: number, b: number, c: number) => number;
-  readonly __wbg_modelrunner_free: (a: number, b: number) => void;
-  readonly modelrunner_raise_model: (a: number, b: number) => void;
-  readonly modelrunner_add_yaw: (a: number, b: number) => void;
-  readonly modelrunner_add_pitch: (a: number, b: number) => void;
   readonly wgpu_render_bundle_set_pipeline: (a: number, b: number) => void;
   readonly wgpu_render_bundle_set_bind_group: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly wgpu_render_bundle_set_vertex_buffer: (a: number, b: number, c: number, d: number, e: number) => void;

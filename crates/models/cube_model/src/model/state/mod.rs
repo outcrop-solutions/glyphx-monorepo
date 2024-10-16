@@ -47,6 +47,7 @@ use crate::{
 use buffer_manager::BufferManager;
 pub use data_manager::{CameraManager, DataManager};
 pub use errors::*;
+use image::{codecs::png::PngEncoder, ExtendedColorType, ImageEncoder};
 use orientation_manager::{Face, OrientationManager};
 use pipeline_manager::PipelineManager;
 pub use selected_glyph::{GlyphDescription, SelectedGlyph};
@@ -538,7 +539,6 @@ impl State {
         );
         let size = wgpu_manager.size().clone();
 
-
         let smaa_frame = self.smaa_target.start_frame(&device, queue, &view);
         let mut commands = Vec::new();
 
@@ -583,21 +583,26 @@ impl State {
     pub fn take_screenshot(&mut self, is_state_creation: bool) -> Result<(), SurfaceError> {
         let size = self.wgpu_manager.borrow().size().clone();
 
-        let output = self.wgpu_manager.borrow().device().borrow().create_texture(&wgpu::TextureDescriptor {
-            label: Some("screenshot_texture"),
-            size: wgpu::Extent3d {
-                width: size.width,
-                height: size.height,
-                depth_or_array_layers: 1,
-            },
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: wgpu::TextureDimension::D2,
-            format: wgpu::TextureFormat::Bgra8Unorm,
-            // Choose your desired format
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_SRC,
-            view_formats: &[],
-        });
+        let output =
+            self.wgpu_manager
+                .borrow()
+                .device()
+                .borrow()
+                .create_texture(&wgpu::TextureDescriptor {
+                    label: Some("screenshot_texture"),
+                    size: wgpu::Extent3d {
+                        width: size.width,
+                        height: size.height,
+                        depth_or_array_layers: 1,
+                    },
+                    mip_level_count: 1,
+                    sample_count: 1,
+                    dimension: wgpu::TextureDimension::D2,
+                    format: wgpu::TextureFormat::Bgra8Unorm,
+                    // Choose your desired format
+                    usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_SRC,
+                    view_formats: &[],
+                });
 
         let view = output.create_view(&TextureViewDescriptor {
             ..Default::default()
@@ -609,16 +614,26 @@ impl State {
         let padded_bytes_per_row = ((4 * size.width + align - 1) / align) * align;
         let buffer_size = (padded_bytes_per_row * size.height) as wgpu::BufferAddress;
 
-        let screenshot_buffer = self.wgpu_manager.borrow().device().borrow().create_buffer(&wgpu::BufferDescriptor {
-            label: Some("screenshot_buffer"),
-            size: buffer_size,
-            usage: wgpu::BufferUsages::MAP_READ | wgpu::BufferUsages::COPY_DST,
-            mapped_at_creation: false,
-        });
+        let screenshot_buffer =
+            self.wgpu_manager
+                .borrow()
+                .device()
+                .borrow()
+                .create_buffer(&wgpu::BufferDescriptor {
+                    label: Some("screenshot_buffer"),
+                    size: buffer_size,
+                    usage: wgpu::BufferUsages::MAP_READ | wgpu::BufferUsages::COPY_DST,
+                    mapped_at_creation: false,
+                });
 
-        let mut encoder = self.wgpu_manager.borrow().device().borrow().create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("screenshot_encoder"),
-        });
+        let mut encoder = self
+            .wgpu_manager
+            .borrow()
+            .device()
+            .borrow()
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("screenshot_encoder"),
+            });
 
         encoder.copy_texture_to_buffer(
             wgpu::ImageCopyTexture {
@@ -638,7 +653,10 @@ impl State {
             },
             output.size(),
         );
-        self.wgpu_manager.borrow().queue().submit([encoder.finish()]);
+        self.wgpu_manager
+            .borrow()
+            .queue()
+            .submit([encoder.finish()]);
 
         let screenshot_buffer = std::sync::Arc::new(screenshot_buffer);
         let capturable = screenshot_buffer.clone();
@@ -657,19 +675,30 @@ impl State {
                         let mut raw_row = data[row_start..row_end].to_vec();
                         for x in 0..raw_row.len() / 4 {
                             let start = x * 4;
-                            raw_row.swap(start, start+2);
+                            raw_row.swap(start, start + 2);
                         }
                         output_vector.extend_from_slice(raw_row.as_slice());
                     }
+                    let mut png_data = Vec::new();
+                    let encoder = PngEncoder::new(&mut png_data);
+                    let result = encoder.write_image(
+                        &output_vector,
+                        size.width,
+                        size.height,
+                        ExtendedColorType::Rgba8,
+                    );
+
                     unsafe {
-                        let _ = crate::EVENT_LOOP_PROXY
-                            .as_ref()
-                            .unwrap()
-                            .send_event(crate::ModelEvent::ScreenshotTaken(Screenshot {
-                                width: size.width,
-                                height: size.height,
-                                pixels: output_vector,
-                            }, is_state_creation));
+                        let _ = crate::EVENT_LOOP_PROXY.as_ref().unwrap().send_event(
+                            crate::ModelEvent::ScreenshotTaken(
+                                Screenshot {
+                                    width: size.width,
+                                    height: size.height,
+                                    pixels: png_data,
+                                },
+                                is_state_creation,
+                            ),
+                        );
                     }
                     drop(view);
                 }
