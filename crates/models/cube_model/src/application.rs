@@ -215,7 +215,7 @@ impl ApplicationHandler<ModelEvent> for Application {
                         ..
                     }  //Take a ScreenShot Shift + S 
                        if self.shift_pressed => {
-                            let event = ModelEvent::TakeScreenshot;
+                            let event = ModelEvent::TakeScreenshot(false);
                             send_event(event);
                             redraw = false;
                     },
@@ -561,14 +561,15 @@ impl ApplicationHandler<ModelEvent> for Application {
                     state.update_config();
                     redraw = false;
                 }
-                ModelEvent::TakeScreenshot => {
+                ModelEvent::TakeScreenshot(is_state_creation) => {
                     let state = self.state.as_mut().unwrap();
-                    let _ = state.take_screenshot();
-                }
-                ModelEvent::ScreenshotTaken(screenshot) => {
+                    let _ = state.take_screenshot(is_state_creation);
 
-                   emit_event(&ModelEvent::ScreenshotTaken(screenshot)); 
-                   redraw = false;
+                }
+                ModelEvent::ScreenshotTaken(screenshot, is_state_creation) => {
+
+                   emit_event(&ModelEvent::ScreenshotTaken(screenshot, is_state_creation));
+                    redraw = false;
                 }
 
                 _ => {}

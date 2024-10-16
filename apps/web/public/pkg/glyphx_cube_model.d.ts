@@ -1,9 +1,33 @@
 /* tslint:disable */
 /* eslint-disable */
+/**
+ * Chroma subsampling format
+ */
+export enum ChromaSampling {
+  /**
+   * Both vertically and horizontally subsampled.
+   */
+  Cs420 = 0,
+  /**
+   * Horizontally subsampled.
+   */
+  Cs422 = 1,
+  /**
+   * Not subsampled.
+   */
+  Cs444 = 2,
+  /**
+   * Monochrome.
+   */
+  Cs400 = 3,
+}
 export class ModelRunner {
   free(): void;
   constructor();
-  take_screenshot(): void;
+  /**
+   * @param {boolean} is_state_creation
+   */
+  take_screenshot(is_state_creation: boolean): void;
   /**
    * @param {number} width
    * @param {number} height
@@ -212,7 +236,7 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly modelrunner_new: () => number;
-  readonly modelrunner_take_screenshot: (a: number, b: number) => void;
+  readonly modelrunner_take_screenshot: (a: number, b: number, c: number) => void;
   readonly modelrunner_resize_window: (a: number, b: number, c: number, d: number) => void;
   readonly modelrunner_update_model_filter: (a: number, b: number, c: number, d: number) => void;
   readonly modelrunner_update_configuration: (a: number, b: number, c: number, d: number, e: number) => void;
