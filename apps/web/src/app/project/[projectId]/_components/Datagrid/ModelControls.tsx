@@ -76,8 +76,14 @@ export const ModelControls = () => {
             onClick={
               modelRunnerState.initialized
                 ? toggle
-                  ? () => modelRunnerState.modelRunner.raise_model(2)
-                  : () => modelRunnerState.modelRunner.add_yaw(2)
+                  ? () => {
+                      console.log('raise_model', 2);
+                      modelRunnerState.modelRunner.raise_model(2);
+                    }
+                  : () => {
+                      console.log('add_yaw', 2);
+                      modelRunnerState.modelRunner.add_pitch(2);
+                    }
                 : () => {}
             }
             className="hover:bg-gray bg-secondary-blue rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
@@ -88,8 +94,14 @@ export const ModelControls = () => {
             onClick={
               modelRunnerState.initialized
                 ? toggle
-                  ? () => modelRunnerState.modelRunner.shift_model(-2)
-                  : modelRunnerState.modelRunner.add_yaw(2)
+                  ? () => {
+                      console.log('shift_model', -2);
+                      modelRunnerState.modelRunner.shift_model(-2);
+                    }
+                  : () => {
+                      console.log('add_pitch', -2);
+                      modelRunnerState.modelRunner.add_yaw(-2);
+                    }
                 : () => {}
             }
             className="hover:bg-gray bg-secondary-blue rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
@@ -100,8 +112,14 @@ export const ModelControls = () => {
             onClick={
               modelRunnerState.initialized
                 ? toggle
-                  ? () => modelRunnerState.modelRunner.shift_model(2)
-                  : modelRunnerState.modelRunner.add_pitch(2)
+                  ? () => {
+                      console.log('shift_model', 2);
+                      modelRunnerState.modelRunner.shift_model(2);
+                    }
+                  : () => {
+                      console.log('add_pitch', 2);
+                      modelRunnerState.modelRunner.add_yaw(2);
+                    }
                 : () => {}
             }
             className="hover:bg-gray bg-secondary-blue rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
@@ -112,8 +130,14 @@ export const ModelControls = () => {
             onClick={
               modelRunnerState.initialized
                 ? toggle
-                  ? () => modelRunnerState.modelRunner.raise_model(-2)
-                  : modelRunnerState.modelRunner.add_pitch(-2)
+                  ? () => {
+                      console.log('raise_model', -2);
+                      modelRunnerState.modelRunner.raise_model(-2);
+                    }
+                  : () => {
+                      console.log('add_yaw', -2);
+                      modelRunnerState.modelRunner.add_pitch(-2);
+                    }
                 : () => {}
             }
             className="hover:bg-gray bg-secondary-blue rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
