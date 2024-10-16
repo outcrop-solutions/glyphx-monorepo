@@ -266,8 +266,6 @@ impl State {
         &self.selected_glyphs
     }
 
-    //TODO: For now we are going to use the internal coordinates that we are tracking in state,
-    //there seems to be a diconect between the internal winit window and the external browser.
     pub fn hit_detection(&mut self, x_pos: u32, y_pos: u32, is_shift_pressed: bool) {
         let device = self.wgpu_manager.borrow().device();
         let device = device.borrow();
@@ -656,7 +654,12 @@ impl State {
                         let offset = (y * padded_bytes_per_row) as usize;
                         let row_start = offset;
                         let row_end = offset + (size.width * 4) as usize;
-                        output_vector.extend_from_slice(&data[row_start..row_end]);
+                        let mut raw_row = data[row_start..row_end].to_vec();
+                        for x in 0..raw_row.len() / 4 {
+                            let start = x * 4;
+                            raw_row.swap(start, start+2);
+                        }
+                        output_vector.extend_from_slice(raw_row.as_slice());
                     }
                     unsafe {
                         let _ = crate::EVENT_LOOP_PROXY
