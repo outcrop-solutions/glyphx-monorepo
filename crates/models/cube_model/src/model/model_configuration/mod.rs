@@ -517,59 +517,24 @@ impl ModelConfiguration {
 
 impl Default for ModelConfiguration {
     fn default() -> Self {
-        ModelConfiguration {
-            //M -- Done
+      ModelConfiguration {
             max_color: [255.0, 0.0, 0.0, 1.0],
-            //N -- Done
             min_color: [0.0, 255.0, 255.0, 1.0],
-            //B -- Done
             background_color: [13.0, 19.0, 33.0, 1.0],
-            //X -- done
             x_axis_color: [255.0, 0.0, 0.0, 1.0],
-            //Y -- done
             y_axis_color: [0.0, 255.0, 0.0, 1.0],
-            //Z -- done
             z_axis_color: [0.0, 0.0, 255.0, 1.0],
-            //A -- done
             grid_cylinder_length: 10.80,
-            //R -- done
-            //grid_cylinder_radius: 0.010,
-            grid_cylinder_radius: 0.15,
-            //grid_cylinder_radius: 0.005,
-            //C -- done
-            //grid_cone_length: 0.02,
-            //grid_cone_length: 0.04,
-            grid_cone_length: 0.36,
-            //K -- done
-            //grid_cone_radius: 0.010,
-            //grid_cone_radius: 0.020,
-            grid_cone_radius: 0.2,
-            //H -- done
-            //z_height_ratio: 1.0,
-            //z_height_ratio: 0.25,
-            z_height_ratio: 0.03,
-            //O -- done
-            //glyph_offset: 0.015,
-            glyph_offset: 0.170,
-            //E -- Done
+            grid_cylinder_radius: 0.010,
+            grid_cone_length: 0.04,
+            grid_cone_radius: 0.020,
+            z_height_ratio: 1.0,
+            glyph_offset: 0.015,
             min_glyph_height: 0.0002,
-            //W -- Done
-            //White
-            //light_color: [255.0, 255.0, 255.0, 1.0],
-            //light_color: [255.0, 255.0, 155.0, 1.0],
-            //Warm White
             light_color: [240.0, 224.0, 192.0, 1.0],
-            //pale yellow
-            //light_color: [255.0, 240.0, 200.0, 1.0],
-            //L -- Done
             light_location: [-500.0, 500.0, -500.0],
-            //I -- Done
             light_intensity: 0.4,
-            //S -- Done
-            //glyph_size: 0.015,
-            //glyph_size: 0.045,
-            glyph_size: 0.75,
-            //G
+            glyph_size: 0.045,
             model_origin: [-5.0, -5.0, -5.0],
             x_interpolation: InterpolationType::Linear,
             x_order: Order::Ascending,
@@ -578,8 +543,7 @@ impl Default for ModelConfiguration {
             z_interpolation: InterpolationType::Linear,
             z_order: Order::Ascending,
             color_flip: false,
-        }
-    }
+        }}
 }
 
 #[cfg(test)]

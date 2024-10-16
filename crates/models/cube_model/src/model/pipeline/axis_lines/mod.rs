@@ -139,8 +139,8 @@ impl AxisLines {
         //To the outside world z is up.  To us y is up
         let (height, color, order) = match direction {
             AxisLineDirection::X => (cylinder_height, 60, [1, 2, 0]),
-            AxisLineDirection::Y => (cylinder_height, 62, [0, 1, 2]),
-            AxisLineDirection::Z => (cylinder_height + cone_height, 61, [2, 0, 1]),
+            AxisLineDirection::Y => (cylinder_height + cone_height, 62, [0, 1, 2]),
+            AxisLineDirection::Z => (cylinder_height, 61, [2, 0, 1]),
         };
 
         let vertices = create_axis_line(cylinder_radius, height, cone_height, cone_radius);

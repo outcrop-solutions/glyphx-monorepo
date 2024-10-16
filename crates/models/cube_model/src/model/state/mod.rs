@@ -493,8 +493,6 @@ impl State {
         }
         let dm = self.data_manager.clone();
         let dm = dm.borrow();
-        log::info!("Vectors for the model: {}X{}", dm.get_vector_len("x"), dm.get_vector_len("z"));
-        log::info!("Configuration: {:?}", self.model_configuration.borrow());
         let output = self.wgpu_manager.borrow().surface().get_current_texture()?;
         let view = output.texture.create_view(&TextureViewDescriptor {
             ..Default::default()
