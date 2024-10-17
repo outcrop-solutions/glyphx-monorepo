@@ -29,7 +29,9 @@ export const ModelControls = () => {
             <Move3D className="h-5 w-5" />
           </div>
           <div
-            onClick={modelRunnerState.initialized ? () => modelRunnerState.modelRunner.take_screenshot() : () => {}}
+            onClick={
+              modelRunnerState.initialized ? () => modelRunnerState.modelRunner.take_screenshot(false) : () => {}
+            }
             className="hover:bg-gray bg-secondary-blue rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
           >
             <CameraIcon className="h-5 w-5" />

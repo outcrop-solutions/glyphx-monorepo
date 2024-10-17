@@ -1,36 +1,38 @@
 'use client';
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import StateIcon from 'svg/state.svg';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {CameraIcon} from '@heroicons/react/outline';
 import {useRecoilState} from 'recoil';
-import {modelRunnerAtom} from 'state';
+import {activeStateNameAtom, isSubmittingAtom, modelRunnerAtom} from 'state';
 
 export const maxDuration = 300;
 
-export const CreateStateInput = ({name, setName, setAddState}) => {
+export const CreateStateInput = () => {
+  const [name, setName] = useRecoilState(activeStateNameAtom);
+  const [isSubmitting, setIsSubmitting] = useRecoilState(isSubmittingAtom);
   const validName = name?.length > 0 && name?.length <= 75;
   const [modelRunnerState, setModelRunnerState] = useRecoilState(modelRunnerAtom);
 
   // local state
-  const handleNameChange = (event) => setName(event.target.value);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const handleNameChange = useCallback((event) => setName(event.target.value), [setName]);
 
   // mutations
-  const createStateHandler = async (event) => {
-    event.preventDefault();
-    try {
-      setIsSubmitting(true);
-      modelRunnerState.modelRunner.take_screenshot();
-      // cleanup
-      setName('Initial State');
-      setIsSubmitting(false);
-      setAddState(false);
-    } catch (error) {
-      console.log(error);
-    }
-    // TODO: add state creation logic here now that we don't need the useSocket loop of death
-  };
+  const createStateHandler = useCallback(
+    async (event) => {
+      event.preventDefault();
+      try {
+        if (modelRunnerState.initialized) {
+          // this is flipped back to false in provider.tsx on line 170
+          setIsSubmitting(true);
+          modelRunnerState.modelRunner.take_screenshot(true);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    [modelRunnerState.initialized, modelRunnerState.modelRunner, setIsSubmitting]
+  );
 
   return (
     <div className="flex justify-between items-center bg-secondary-midnight rounded-md text-white p-2">

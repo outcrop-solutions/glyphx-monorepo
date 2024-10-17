@@ -19,6 +19,16 @@ intercept(interceptStdout);
 
 /** @type {import('next').NextConfig} */
 module.exports = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'aqhswtcebhzai9us.public.blob.vercel-storage.com',
+        // aqhswtcebhzai9us.public.blob.vercel-storage.com
+        port: '',
+      },
+    ],
+  },
   typescript: {
     ignoreBuildErrors: true,
   },

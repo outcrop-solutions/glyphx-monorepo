@@ -7,7 +7,6 @@ import {CreateStateInput} from './CreateStateInput';
 export const States = () => {
   const [isCollapsed, setCollapsed] = useState(false);
   const [addState, setAddState] = useState(false);
-  const [name, setName] = useState('Initial State');
 
   return (
     <div className="group flex flex-col grow">
@@ -46,7 +45,7 @@ export const States = () => {
         />
       </summary>
       {!isCollapsed && <StateList />}
-      {addState && <CreateStateInput name={name} setName={setName} setAddState={setAddState} />}
+      {addState && <CreateStateInput />}
     </div>
   );
 };

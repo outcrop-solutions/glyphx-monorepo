@@ -24,6 +24,36 @@ export const getState = async (stateId: string) => {
 };
 
 /**
+ * Separate function from createState
+ * This is to be able to directly pass the binary data using FormData
+ * It also allows us to stream it directly instead of incurring the 33% overhead of base64
+ * @param formData
+ */
+export async function uploadFileAction(formData: FormData) {
+  try {
+    const file = formData.get('file') as Blob | null;
+    const stateId = formData.get('stateId') as string;
+
+    console.log({file, stateId});
+    if (!file) {
+      throw new Error('File is required');
+    }
+
+    // stream file to storage
+    const blob = await put(`state/${stateId}`, file.stream(), {
+      access: 'public', // Make the uploaded file publicly accessible
+      addRandomSuffix: false,
+      token: getToken(),
+    });
+    // Return the URL of the uploaded file
+    return blob.url;
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    throw error;
+  }
+}
+
+/**
  * Creates a new state
  * @param name
  * @param camera
@@ -36,7 +66,7 @@ export const createState = async (
   name: string,
   camera: rustGlyphEngineTypes.ICameraData,
   projectId: databaseTypes.IProject['id'],
-  imageHash: string,
+  imageUrl: string,
   aspectRatio: webTypes.Aspect,
   rowIds: number[]
 ) => {
@@ -53,23 +83,14 @@ export const createState = async (
           session?.user?.id,
           aspectRatio,
           rowIds as unknown as string[],
-          imageHash
+          imageUrl
         );
-
-        const buffer = Buffer.from(imageHash, 'base64');
-        const blob = new Blob([buffer], {type: 'image/png'});
-        // upload state imageHash to Blob store
-        const imageRetval = await put(`state/${state?.id}`, blob, {
-          access: 'public',
-          addRandomSuffix: false,
-          token: getToken(),
-        });
 
         if (project?.members) {
           const emailData = {
             type: emailTypes.EmailTypes.STATE_CREATED,
             stateName: name,
-            stateImage: imageRetval.url,
+            stateImage: imageUrl,
             emails: project.members?.map((mem) => mem.email),
             projectId: project.id as string,
           } satisfies emailTypes.EmailData;

@@ -15,6 +15,8 @@ import {
   templatesAtom,
   workspaceAtom,
   modelRunnerAtom,
+  activeStateNameAtom,
+  isSubmittingAtom,
 } from 'state';
 import {useWindowSize} from 'services';
 import useTemplates from 'lib/client/hooks/useTemplates';
@@ -25,7 +27,7 @@ import {RoomProvider} from 'liveblocks.config';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
 import useApplyState from 'services/useApplyState';
 import useWasm from '../../../lib/client/hooks/useWasm';
-import {createState} from 'actions';
+import {createState, uploadFileAction} from 'actions';
 
 export enum EVENTS {
   SELECTED_GLYPHS = 'SELECTED_GLYPHS',
@@ -42,6 +44,7 @@ export const ProjectProvider = ({
   project: databaseTypes.IProject;
 }) => {
   const projectViewRef = useRef(null);
+  const [name, setName] = useRecoilState(activeStateNameAtom);
   const {data: templateData, isLoading: templateLoading} = useTemplates();
   const rowIds = useRecoilValue(rowIdsAtom);
   const [modelRunnerState, setModelRunnerState] = useRecoilState(modelRunnerAtom);
@@ -64,6 +67,7 @@ export const ProjectProvider = ({
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
   const setCamera = useSetRecoilState(cameraAtom);
   const setImageHash = useSetRecoilState(imageHashAtom);
+  const setIsSubmitting = useSetRecoilState(isSubmittingAtom);
 
   // hydrate recoil state
   useEffect(() => {
@@ -141,8 +145,90 @@ export const ProjectProvider = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSelectedGlyphs = useCallback(
-    (selectedGlyphs) => {
+  // create a state
+  useEffect(() => {
+    const handleNewState = async (event) => {
+      try {
+        const {width, height, pixels} = event.detail['ScreenShotTaken'];
+        // get aspect ratio
+        const aspect = {
+          width,
+          height,
+        };
+        // get camera data
+        const camera = JSON.parse(modelRunnerState.modelRunner.get_camera_data());
+        // Create a Blob from the pixel data
+        const blob = new Blob([new Uint8Array(pixels)], {type: 'image/png'});
+        // Create FormData and append the blob
+        const formData = new FormData();
+        formData.append('file', blob, 'screenshot.png');
+        formData.append('stateId', 'stateId');
+        // Call the server action with FormData
+        const imageUrl = await uploadFileAction(formData);
+        const rows = (rowIds ? rowIds : []) as unknown as number[];
+        // create the state
+        const retval = await createState(name, camera, project.id, imageUrl, aspect, rows);
+        if (retval?.state) {
+          applyState(retval?.state);
+        }
+        setIsSubmitting(false);
+        // setName('Initial State');
+      } catch (error) {
+        console.log({error});
+      }
+    };
+
+    // Register the event listener
+    window.addEventListener('StateScreenshotTaken', handleNewState);
+
+    // Cleanup the event listener on component unmount
+    return () => {
+      window.removeEventListener('StateScreenshotTaken', handleNewState);
+    };
+  }, [applyState, modelRunnerState.modelRunner, project.id, rowIds]);
+
+  // screenshot
+  useEffect(() => {
+    const handleScreenshotTaken = async (event) => {
+      try {
+        const {pixels} = event.detail['ScreenShotTaken'];
+        // Create a Blob from the pixel data
+        const blob = new Blob([new Uint8Array(pixels)], {type: 'image/png'});
+
+        // Use createImageBitmap to decode the image data into a bitmap
+        const bitmap = await createImageBitmap(blob);
+
+        // Create a canvas and draw the bitmap onto it
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = bitmap.width;
+        tempCanvas.height = bitmap.height;
+        const tempContext = tempCanvas.getContext('2d');
+        tempContext?.drawImage(bitmap, 0, 0);
+
+        const dataUrl = tempCanvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        console.log({link, dataUrl});
+        link.href = dataUrl;
+        link.download = 'canvas-screenshot.png';
+        link.click();
+      } catch (error) {
+        console.log({error});
+      }
+    };
+
+    // Register the event listener
+    window.addEventListener('ScreenshotTaken', handleScreenshotTaken);
+
+    // Cleanup the event listener on component unmount
+    return () => {
+      window.removeEventListener('ScreenshotTaken', handleScreenshotTaken);
+    };
+  }, []);
+
+  // selected glyphs
+  useEffect(() => {
+    const handleSelectedGlyphs = (event) => {
+      const selectedGlyphs = event.detail['SelectedGlyphs'];
       // if empty, reset state
       if (!selectedGlyphs || selectedGlyphs?.length === 0) {
         setRowIds([]);
@@ -159,58 +245,21 @@ export const ProjectProvider = ({
       const desc: Map<string, any> = last.get('desc');
       const glyphId: number = last.get('glyph_id');
       setLastSelectedGlyph({desc, glyphId});
-    },
-    [setLastSelectedGlyph, setRowIds]
-  );
+    };
 
-  const handleScreenshotTaken = useCallback(
-    async (screenshot) => {
-      console.log('Screenshot taken:', screenshot);
-      const {width, height, pixels} = screenshot;
-      // get aspect ratio
-      const aspect = {
-        width,
-        height,
-      };
-      // get camera data
-      const camera = JSON.parse(modelRunnerState.modelRunner.get_camera_data());
-      // setup canvas scratch space
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = width;
-      tempCanvas.height = height;
-      const tempContext = tempCanvas.getContext('2d');
-      // format image
-      const image = new Uint8ClampedArray(pixels);
-      const imageData = new ImageData(image, width, height);
-      tempContext?.putImageData(imageData, 0, 0);
-      // Download the image data
-      const dataUrl = tempCanvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = 'canvas-screenshot.png';
-      link.click();
+    // Register the event listener
+    window.addEventListener('SelectedGlyphs', handleSelectedGlyphs);
 
-      // create the state
-      if (image) {
-        const rows = (rowIds ? rowIds : []) as unknown as number[];
-        // TODO: the image needs to be uploaded to s3
-        const retval = await createState('', camera, project.id, image, aspect, rows);
-        if (retval?.state) {
-          applyState(retval?.state);
-        }
-      }
-    },
-    [applyState, modelRunnerState.modelRunner, project.id, rowIds]
-  );
-
-  // Create a map of event types to their respective callbacks
-  const callbacks = new Map([
-    [EVENTS.SELECTED_GLYPHS, handleSelectedGlyphs],
-    [EVENTS.SCREENSHOT_TAKEN, handleScreenshotTaken],
-  ]);
+    // Cleanup the event listener on component unmount
+    return () => {
+      window.removeEventListener('SelectedGlyphs', handleSelectedGlyphs);
+    };
+  }, [setLastSelectedGlyph, setRowIds]);
 
   // Use the hook with the map of callbacks
-  useWasm(callbacks);
+  // useWasm('SelectedGlyphs', handleSelectedGlyphs);
+  // useWasm('ScreenshotTaken', handleScreenshotTaken);
+  // useWasm('StateScreenshotTaken', handleNewState);
 
   return enabled && project?.docId ? (
     <RoomProvider

@@ -51,6 +51,7 @@ pub fn emit_event(event: &ModelEvent) {
         if #[cfg(target_arch="wasm32")] {
             use crate::model_event::JsSafeModelEvent;
             let event_name = event.event_type();
+            log::info!("event type {:?}", event_name);
             let event = JsSafeModelEvent::from(event);
             let window = web_sys::window().unwrap();
             let js_value = serde_wasm_bindgen::to_value(&event).unwrap();
