@@ -1,6 +1,6 @@
 use crate::{
-    camera::uniform_buffer::CameraUniform,
-    model::data::GlyphVertexData,
+    
+    model::{data::GlyphVertexData, uniforms::CameraUniform},
 };
 
 use crate::model::data::Hit;

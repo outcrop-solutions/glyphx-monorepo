@@ -1,6 +1,7 @@
 use crate::{
-    camera::orbit_camera::Vector3,
-    camera::{orbit_camera::OrbitCamera, uniform_buffer::CameraUniform},
+    camera::orbit_camera::{Vector3,OrbitCamera},
+    model::uniforms::CameraUniform,
+
 };
 use glam::Vec3;
 use serde::{Deserialize, Serialize};

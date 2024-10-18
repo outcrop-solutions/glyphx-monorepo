@@ -1,8 +1,10 @@
 use crate::{
     assets::{axis_line::create_axis_line, shape_vertex::ShapeVertex},
-    camera::uniform_buffer::CameraUniform,
     light::light_uniform::LightUniform,
-    model::{uniforms::ColorTableUniform, model_configuration::ModelConfiguration},
+    model::{
+        model_configuration::ModelConfiguration,
+        uniforms::{CameraUniform, ColorTableUniform},
+    },
 };
 use model_common::WgpuManager;
 
@@ -270,7 +272,6 @@ impl AxisLines {
     }
 
     pub fn run_pipeline(&self, encoder: &mut CommandEncoder, view: &wgpu::TextureView) {
-
         let mut render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
             label: Some("Axis Render Pass"),
             color_attachments: &[Some(RenderPassColorAttachment {

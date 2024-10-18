@@ -1,5 +1,5 @@
 use super::CameraManager;
-use crate::camera::CameraUniform;
+use crate::model::uniforms::CameraUniform;
 use crate::model::ColorTableUniform;
 use crate::light::LightUniform;
 use crate::model::data::GlyphUniformData;

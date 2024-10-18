@@ -2,9 +2,8 @@ use crate::{
     assets::{
         charm::create_charm, rectangular_prism::create_rectangular_prism, shape_vertex::ShapeVertex,
     },
-    camera::uniform_buffer::CameraUniform,
     light::light_uniform::LightUniform,
-    model::{uniforms::ColorTableUniform, model_configuration::ModelConfiguration},
+    model::{uniforms::{ColorTableUniform, CameraUniform}, model_configuration::ModelConfiguration},
 };
 
 use model_common::WgpuManager;

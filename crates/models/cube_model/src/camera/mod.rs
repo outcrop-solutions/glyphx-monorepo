@@ -1,8 +1,6 @@
-pub mod uniform_buffer;
 pub mod camera_controller;
 pub mod orbit_camera;
 
-pub use uniform_buffer::*;
 pub use camera_controller::*;
 pub use orbit_camera::*;
 

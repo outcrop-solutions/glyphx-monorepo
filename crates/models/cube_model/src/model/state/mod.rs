@@ -16,11 +16,10 @@ use crate::model::managers::BufferManager;
 use crate::{
     camera::{
         camera_controller::{CameraController, MouseEvent},
-        uniform_buffer::CameraUniform,
     },
     light::light_uniform::LightUniform,
     model::{
-        uniforms::ColorTableUniform,
+        uniforms::{ColorTableUniform, CameraUniform},
         data::{GlyphInstanceData, GlyphUniformData, GlyphUniformFlags, RankedGlyphData, Hit, DeserializeVectorError, ModelVectors},
         filtering::Query,
         managers::{CameraManager, DataManager, PipelineManager, OrientationManager, Face},
