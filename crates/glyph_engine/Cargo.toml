@@ -26,7 +26,7 @@ http = "0.2.9"
 lazy_static = "1.4.0"
 log = "0.4.17"
 mockall = "0.11.4"
-model_common = { path = "../model_common" }
+model_common = { path = "../models/model_common" }
 once_cell = "1.19.0"
 rand = "0.8.5"
 serde = "1.0.163"
