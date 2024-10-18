@@ -2040,7 +2040,6 @@ dependencies = [
  "log",
  "model_common",
  "nalgebra 0.32.6",
- "num-traits",
  "once_cell",
  "ordered-float 4.3.0",
  "pollster",
@@ -3072,8 +3071,10 @@ name = "model_common"
 version = "0.1.0"
 dependencies = [
  "bincode",
+ "bytemuck",
  "glam",
  "log",
+ "num-traits",
  "serde",
  "serde_json",
  "wgpu",
