@@ -4,7 +4,7 @@ use super::{
         filtering::Query,
         model_configuration::{ColorWheel, ModelConfiguration},
         pipeline::glyphs::glyph_uniform_data::{InterpolationType, Order},
-        state::{CameraManager, DataManager, State},
+        state::{State, data_manager::{CameraManager, DataManager}},
     },
     model_event::{ModelEvent, ModelMoveDirection},
     send_event,

@@ -1,6 +1,6 @@
 use crate::{
     assets::{rectangular_prism::create_rectangular_prism, shape_vertex::ShapeVertex},
-    model::{filtering::Query, model_configuration::ModelConfiguration, state::DataManager},
+    model::{filtering::Query, model_configuration::ModelConfiguration, state::data_manager::DataManager},
 };
 
 use bytemuck::{Pod, Zeroable};

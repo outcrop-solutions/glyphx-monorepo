@@ -3,7 +3,7 @@ use winit::{
     event::{DeviceEvent, ElementState, MouseScrollDelta},
 };
 
-use crate::model::state::CameraManager;
+use crate::model::state::data_manager::CameraManager;
 
 #[derive(Debug)]
 pub enum MouseEvent {

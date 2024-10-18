@@ -7,11 +7,11 @@
 //aspect of the style.
 //1. Define any submodules
 mod buffer_manager;
-pub(crate) mod data_manager;
+pub mod data_manager;
 mod errors;
 mod orientation_manager;
 mod pipeline_manager;
-pub(crate) mod selected_glyph;
+mod selected_glyph;
 
 //2. Define any imports from the current crate.
 use crate::{
@@ -45,12 +45,12 @@ use crate::{
 
 //3. Define any imports from submodules.
 use buffer_manager::BufferManager;
-pub use data_manager::{CameraManager, DataManager};
-pub use errors::*;
+use data_manager::{CameraManager, DataManager};
+use errors::*;
 use image::{codecs::png::PngEncoder, ExtendedColorType, ImageEncoder};
 use orientation_manager::{Face, OrientationManager};
 use pipeline_manager::PipelineManager;
-pub use selected_glyph::{GlyphDescription, SelectedGlyph};
+use selected_glyph::{GlyphDescription, SelectedGlyph};
 
 //4. Define any imports from external Glyphx Crates.
 use model_common::{Stats, WgpuManager};
