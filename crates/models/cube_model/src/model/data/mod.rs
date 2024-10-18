@@ -9,6 +9,7 @@ mod glyph_description;
 mod instance_output;
 mod hit;
 mod shape_vertex;
+mod vertex_data;
 
 pub use glyph_instance_data::*;
 pub use glyph_id_data::*;
@@ -21,3 +22,4 @@ pub use glyph_description::*;
 pub use instance_output::*;
 pub use hit::*;
 pub use shape_vertex::*;
+pub use vertex_data::*;

@@ -1,6 +1,6 @@
 use crate::{
     assets::create_rectangular_prism,
-    model::{filtering::Query, model_configuration::ModelConfiguration, managers::DataManager, data::ShapeVertex},
+    model::{filtering::Query, model_configuration::ModelConfiguration, managers::DataManager, data::{InstanceOutput, ShapeVertex, VertexData}},
 };
 
 use bytemuck::{Pod, Zeroable};
@@ -13,21 +13,6 @@ use wgpu::{
     PipelineCompilationOptions, ShaderModule,
 };
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug, Pod, Zeroable)]
-pub struct InstanceOutput {
-    pub glyph_id: u32,
-    pub vertex_data: ShapeVertex,
-    pub x_rank: u32,
-    pub z_rank: u32,
-    pub x_id: u32,
-    pub z_id: u32,
-    pub flags: u32,
-}
-
-pub struct VertexData {
-    pub vertices: Vec<ShapeVertex>,
-}
 
 pub struct GlyphData {
     device: Rc<RefCell<Device>>,
