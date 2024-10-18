@@ -1,6 +1,6 @@
 use crate::assets::cone::create_cone;
 use crate::assets::cylinder::create_cylinder;
-use crate::assets::shape_vertex::ShapeVertex;
+use crate::model::data::ShapeVertex;
 pub fn create_axis_line(radius: f32, cylinder_height: f32, cone_height: f32, cone_radius: f32) -> Vec<ShapeVertex> {
     //get our cylinder
     let mut vertices = create_cylinder(cylinder_height, radius);

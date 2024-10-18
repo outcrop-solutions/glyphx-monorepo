@@ -1,8 +1,6 @@
 use crate::{
-    assets::{
-        charm::create_charm, rectangular_prism::create_rectangular_prism, shape_vertex::ShapeVertex,
-    },
-    model::model_configuration::ModelConfiguration,
+    assets::{create_charm,create_rectangular_prism}, 
+    model::{data::ShapeVertex, model_configuration::ModelConfiguration},
 };
 
 use model_common::CameraUniform;

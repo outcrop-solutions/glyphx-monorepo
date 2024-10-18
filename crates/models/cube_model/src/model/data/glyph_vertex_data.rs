@@ -1,4 +1,4 @@
-use crate::{assets::shape_vertex::ShapeVertex, model::data::InstanceOutput};
+use crate::model::data::{InstanceOutput, ShapeVertex};
 
 use bytemuck::{Pod, Zeroable};
 use std::mem::size_of;

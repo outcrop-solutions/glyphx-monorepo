@@ -1,4 +1,4 @@
-use crate::assets::shape_vertex::ShapeVertex;
+use crate::model::data::ShapeVertex;
 /// This function will create our cone verticies.  
 /// I have chosen to include the model by hand into this function
 /// instead of loading the mesh from a .obj file.  The reason I am
