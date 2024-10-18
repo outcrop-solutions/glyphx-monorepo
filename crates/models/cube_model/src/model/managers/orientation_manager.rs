@@ -1,4 +1,4 @@
-use super::{Rank, RankDirection};
+use crate::model::data::{Rank, RankDirection};
 
 const Z_ORDERS: [[&str; 4]; 4] = [
     ["x-axis-line", "z-axis-line", "y-axis-line", "glyphs"],

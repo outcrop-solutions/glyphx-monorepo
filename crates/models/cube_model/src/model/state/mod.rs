@@ -6,7 +6,6 @@
 //and imports.  This is a work in progress, and will be updated/changed as I figure out this
 //aspect of the style.
 //1. Define any submodules
-mod orientation_manager;
 mod selected_glyph;
 
 //2. Define any imports from the current crate.
@@ -24,7 +23,7 @@ use crate::{
         color_table_uniform::ColorTableUniform,
         data::{GlyphInstanceData, GlyphUniformData, GlyphUniformFlags, RankedGlyphData, Hit, DeserializeVectorError, ModelVectors},
         filtering::Query,
-        managers::{CameraManager, DataManager, PipelineManager},
+        managers::{CameraManager, DataManager, PipelineManager, OrientationManager, Face},
         model_configuration::ModelConfiguration,
         pipeline::{
             axis_lines::{AxisLineDirection, AxisLines},
@@ -40,7 +39,6 @@ use crate::{
 
 //3. Define any imports from submodules.
 use image::{codecs::png::PngEncoder, ExtendedColorType, ImageEncoder};
-use orientation_manager::{Face, OrientationManager};
 
 //4. Define any imports from external Glyphx Crates.
 use model_common::{Stats, WgpuManager};
