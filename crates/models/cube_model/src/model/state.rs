@@ -6,7 +6,6 @@
 //and imports.  This is a work in progress, and will be updated/changed as I figure out this
 //aspect of the style.
 //1. Define any submodules
-mod selected_glyph;
 
 //2. Define any imports from the current crate.
 use crate::model::data::{
