@@ -1,20 +1,16 @@
-use super::AddGlyphError;
-use super::GlyphIdManager;
-use crate::model::GlyphVertexData;
-use crate::model::data::RankedGlyphDataError;
-use super::StatsManager;
-use crate::model::data::GlyphInstanceData;
-use crate::model::data::RankedGlyphData;
-use crate::model::data::SelectedGlyph;
-use crate::model::data::GlyphDescription;
-
-use crate::model::data::ModelVectors;
+use super::{AddGlyphError, GlyphIdManager, StatsManager};
+use crate::model::{
+    data::{
+        GlyphDescription, GlyphInstanceData, ModelVectors, RankedGlyphData, RankedGlyphDataError,
+        SelectedGlyph,
+    },
+    GlyphVertexData,
+};
 
 use model_common::Glyph;
 
 use bincode::deserialize;
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 
 #[derive(Debug, Clone)]
 pub struct GlyphManager {

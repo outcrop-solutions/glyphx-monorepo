@@ -1,4 +1,5 @@
 use super::FromJsonValueError;
+
 use model_common::VectorOrigionalValue;
 
 use serde::{Deserialize, Serialize};

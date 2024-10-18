@@ -1,16 +1,18 @@
-use crate::ModelConfiguration;
-use crate::model::managers::DataManager;
-use crate::model::pipeline::axis_lines::{AxisLineDirection, AxisLines};
-use crate::model::pipeline::glyphs::Glyphs;
-use crate::model::pipeline::GlyphData;
-use crate::model::pipeline::HitDetection;
-use crate::model::filtering::Query;
-use crate::model::data::GlyphVertexData;
-use crate::model::data::SelectedGlyph;
-use crate::model::data::Rank;
-use crate::model::data::RankDirection;
-
 use super::BufferManager;
+use crate::{
+    model::{
+        data::{GlyphVertexData, Rank, RankDirection, SelectedGlyph},
+        filtering::Query,
+        managers::DataManager,
+        pipeline::{
+            AxisLineDirection, AxisLines,
+            Glyphs,
+            GlyphData, HitDetection,
+        },
+    },
+    ModelConfiguration,
+};
+
 use model_common::WgpuManager;
 
 use bytemuck::cast_slice;
@@ -25,6 +27,7 @@ use wgpu::{
 
 use std::cell::RefCell;
 use std::rc::Rc;
+
 pub struct PipelineManager {
     wgpu_manager: Rc<RefCell<WgpuManager>>,
     buffer_manager: Rc<RefCell<BufferManager>>,
@@ -285,7 +288,9 @@ impl PipelineManager {
 
         let dm = self.data_manager.borrow();
         let ranked_glyph_data = dm.get_glyphs();
-        if ranked_glyph_data.is_none() { return;} 
+        if ranked_glyph_data.is_none() {
+            return;
+        }
         let ranked_glyph_data = ranked_glyph_data.unwrap();
         let iter = ranked_glyph_data.iter(rank, rank_direction);
 
@@ -372,9 +377,23 @@ impl PipelineManager {
         let config = wm.config();
         let queue = wm.queue();
 
-        let (texture, texture_view) = Self::get_hit_detection_texture(config, &d, (wm.window().inner_size().width, wm.window().inner_size().height));
+        let (texture, texture_view) = Self::get_hit_detection_texture(
+            config,
+            &d,
+            (
+                wm.window().inner_size().width,
+                wm.window().inner_size().height,
+            ),
+        );
 
-        let (output_buffer, bytes_per_row) = Self::get_hit_detection_output_buffer(config, &d, (wm.window().inner_size().width, wm.window().inner_size().height));
+        let (output_buffer, bytes_per_row) = Self::get_hit_detection_output_buffer(
+            config,
+            &d,
+            (
+                wm.window().inner_size().width,
+                wm.window().inner_size().height,
+            ),
+        );
 
         queue.write_buffer(&bm.camera_buffer(), 0, cast_slice(&[bm.camera_uniform()]));
 
@@ -478,9 +497,9 @@ impl PipelineManager {
         let picking_texture_desc = TextureDescriptor {
             label: Some("Hit Detection Picking Texture"),
             size: Extent3d {
-               width: window_size.0, //config.width,
-               height: window_size.1, //config.height,
-               depth_or_array_layers: 1,
+                width: window_size.0,  //config.width,
+                height: window_size.1, //config.height,
+                depth_or_array_layers: 1,
             },
             mip_level_count: 1,
             sample_count: 1,
@@ -501,7 +520,7 @@ impl PipelineManager {
         window_size: (u32, u32),
     ) -> (Buffer, u32) {
         let align = COPY_BYTES_PER_ROW_ALIGNMENT;
-        let padded_bytes_per_row = ((4 *  window_size.0 + align - 1) / align) * align;
+        let padded_bytes_per_row = ((4 * window_size.0 + align - 1) / align) * align;
         //let padded_bytes_per_row = ((4 * config.width + align - 1) / align) * align;
         // Round up to nearest multiple of align
         //let buffer_size = (config.height * padded_bytes_per_row) as BufferAddress;

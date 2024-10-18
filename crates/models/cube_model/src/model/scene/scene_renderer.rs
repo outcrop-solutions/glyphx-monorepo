@@ -4,8 +4,7 @@ use crate::model::CameraManager;
 use model_common::WgpuManager;
 
 use smaa::*;
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 use wgpu::SurfaceError;
 
 pub struct SceneRenderer {

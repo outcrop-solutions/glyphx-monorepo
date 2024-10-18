@@ -16,7 +16,15 @@ pub struct GlyphInstanceData {
 }
 
 impl GlyphInstanceData {
-    pub fn new(glyph_id: u32, x_value: f32, x_rank: u32, y_value: f32, z_value: f32, z_rank: u32, glyph_selected: u32) -> Self {
+    pub fn new(
+        glyph_id: u32,
+        x_value: f32,
+        x_rank: u32,
+        y_value: f32,
+        z_value: f32,
+        z_rank: u32,
+        glyph_selected: u32,
+    ) -> Self {
         Self {
             glyph_id,
             x_value,

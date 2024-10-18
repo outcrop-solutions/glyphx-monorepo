@@ -1,7 +1,7 @@
 use super::GlyphVertexData;
 
 use serde::{Deserialize, Serialize};
-use std::{ cell::RefCell, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum RankedGlyphDataError {
@@ -163,7 +163,6 @@ impl RankedGlyphData {
     pub fn get_number_of_glyphs(&self) -> usize {
         self.core_data.len()
     }
-
 }
 
 #[cfg(test)]

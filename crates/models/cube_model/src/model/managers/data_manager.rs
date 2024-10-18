@@ -1,20 +1,13 @@
-use super::StatsManager;
-use super::GlyphManager;
-use crate::model::ModelVectors;
-use crate::model::DeserializeVectorError;
-use crate::model::AddStatsError;
-use crate::model::GetStatsError;
-use crate::model::AddGlyphError;
-use crate::model::GlyphVertexData;
-use crate::model::data::RankedGlyphData;
-use crate::model::data::GlyphInstanceData;
-use crate::model::data::SelectedGlyph;
+use super::{GlyphManager, StatsManager};
+use crate::model::{
+    data::{GlyphInstanceData, RankedGlyphData, SelectedGlyph},
+    AddGlyphError, AddStatsError, DeserializeVectorError, GetStatsError, GlyphVertexData,
+    ModelVectors,
+};
 
-use model_common::Stats;
-use model_common::Glyph;
-use std::cell::RefCell;
-use std::rc::Rc;
+use model_common::{Glyph, Stats};
 
+use std::{cell::RefCell, rc::Rc};
 
 pub struct DataManager {
     x_vectors: Rc<RefCell<ModelVectors>>,

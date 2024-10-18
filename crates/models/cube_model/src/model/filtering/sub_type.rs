@@ -1,4 +1,3 @@
-
 use super::{ComparisonValue, FromJsonValueError};
 
 use serde::{Deserialize, Serialize};
@@ -10,31 +9,10 @@ pub enum SubType {
     Statistic(String),
 }
 const VALID_STATISTICS: [&str; 25] = [
-   "mean",
-   "median",
-   "pct_0",
-   "pct_5",
-   "pct_10",
-   "pct_15",
-   "pct_20",
-   "pct_25",
-   "pct_30",
-   "pct_33",
-   "pct_35",
-   "pct_40",
-   "pct_45",
-   "pct_50",
-   "pct_55",
-   "pct_60",
-   "pct_65",
-   "pct_67",
-   "pct_70",
-   "pct_75",
-   "pct_80",
-   "pct_85",
-   "pct_90",
-   "pct_95",
-   "pct_99"];
+    "mean", "median", "pct_0", "pct_5", "pct_10", "pct_15", "pct_20", "pct_25", "pct_30", "pct_33",
+    "pct_35", "pct_40", "pct_45", "pct_50", "pct_55", "pct_60", "pct_65", "pct_67", "pct_70",
+    "pct_75", "pct_80", "pct_85", "pct_90", "pct_95", "pct_99",
+];
 impl SubType {
     fn deserialze_value_sub_type(json_value: &Value) -> Result<SubType, FromJsonValueError> {
         let comparison_value = ComparisonValue::from_json_value(json_value)?;
@@ -133,7 +111,9 @@ mod unit_tests {
             assert!(sub_type.is_ok());
             let sub_type = sub_type.unwrap();
             match sub_type {
-                SubType::Statistic(stat) => {assert_eq!(stat, "mean");}
+                SubType::Statistic(stat) => {
+                    assert_eq!(stat, "mean");
+                }
                 _ => panic!("Unexpected SubType"),
             }
         }
@@ -147,7 +127,7 @@ mod unit_tests {
             assert!(sub_type.is_err());
             let sub_type = sub_type.err().unwrap();
             match sub_type {
-                FromJsonValueError::JsonFormatError(_) => {} 
+                FromJsonValueError::JsonFormatError(_) => {}
                 _ => panic!("Unexpected FromJsonValueError type"),
             }
         }
@@ -162,7 +142,7 @@ mod unit_tests {
             assert!(sub_type.is_err());
             let sub_type = sub_type.err().unwrap();
             match sub_type {
-                FromJsonValueError::JsonValueError(_) => {} 
+                FromJsonValueError::JsonValueError(_) => {}
                 _ => panic!("Unexpected FromJsonValueError type"),
             }
         }
@@ -177,7 +157,7 @@ mod unit_tests {
             assert!(sub_type.is_err());
             let sub_type = sub_type.err().unwrap();
             match sub_type {
-                FromJsonValueError::JsonValueError(_) => {} 
+                FromJsonValueError::JsonValueError(_) => {}
                 _ => panic!("Unexpected FromJsonValueError type"),
             }
         }

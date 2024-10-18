@@ -1,17 +1,16 @@
 use super::CameraManager;
-use model_common::CameraUniform;
-use model_common::ColorTableUniform;
-use model_common::LightUniform;
-use crate::model::data::GlyphUniformData;
-use crate::ModelConfiguration;
-use crate::DataManager;
-use crate::model::data::GlyphUniformFlags;
-use model_common::WgpuManager;
+use crate::{
+    model::data::{GlyphUniformData, GlyphUniformFlags},
+    DataManager, ModelConfiguration,
+};
+
+use model_common::{CameraUniform, ColorTableUniform, LightUniform, WgpuManager};
 
 use std::{cell::RefCell, rc::Rc};
 use wgpu::{util::DeviceExt, Buffer, Device, SurfaceConfiguration};
 
 type Color = [f32; 4];
+
 pub struct BufferManager {
     wgpu_manager: Rc<RefCell<WgpuManager>>,
     camera_manager: Rc<RefCell<CameraManager>>,
@@ -303,7 +302,7 @@ impl BufferManager {
     }
 
     //You may be wondering why this is not returning a borrow of the camera uniform.
-    //it is because the camera uniform is owned by the camera manager and doing 
+    //it is because the camera uniform is owned by the camera manager and doing
     //so will choke on the fact that cm goes out of scope when this function returns.
     pub fn camera_uniform(&self) -> CameraUniform {
         let cm = self.camera_manager.borrow();

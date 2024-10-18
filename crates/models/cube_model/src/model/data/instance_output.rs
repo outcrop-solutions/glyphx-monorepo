@@ -1,5 +1,6 @@
-use bytemuck::{Pod, Zeroable};
 use crate::model::data::ShapeVertex;
+
+use bytemuck::{Pod, Zeroable};
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Pod, Zeroable)]

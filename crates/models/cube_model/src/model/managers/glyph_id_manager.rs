@@ -1,5 +1,7 @@
 use crate::model::data::GlyphIdData;
+
 use serde::{Deserialize, Serialize};
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GlyphIdManager {
     glyph_id_data: Vec<GlyphIdData>,

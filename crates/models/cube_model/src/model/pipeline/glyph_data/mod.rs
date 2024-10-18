@@ -1,18 +1,21 @@
 use crate::{
     assets::create_rectangular_prism,
-    model::{filtering::Query, model_configuration::ModelConfiguration, managers::DataManager, data::{InstanceOutput, ShapeVertex, VertexData}},
+    model::{
+        data::{InstanceOutput, ShapeVertex, VertexData},
+        filtering::Query,
+        managers::DataManager,
+        model_configuration::ModelConfiguration,
+    },
 };
 
 use bytemuck::{Pod, Zeroable};
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 use wgpu::{
     util::{BufferInitDescriptor, DeviceExt},
     BindGroup, BindGroupDescriptor, BindGroupEntry, Buffer, BufferDescriptor, BufferUsages,
     CommandEncoder, ComputePassDescriptor, ComputePipeline, ComputePipelineDescriptor, Device,
     PipelineCompilationOptions, ShaderModule,
 };
-
 
 pub struct GlyphData {
     device: Rc<RefCell<Device>>,

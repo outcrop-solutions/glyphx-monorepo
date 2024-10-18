@@ -1,7 +1,8 @@
 use crate::{
-    assets::create_axis_line, 
-    model::{data::ShapeVertex,  model_configuration::ModelConfiguration},
+    assets::create_axis_line,
+    model::{data::ShapeVertex, model_configuration::ModelConfiguration},
 };
+
 use model_common::{CameraUniform, ColorTableUniform, LightUniform, WgpuManager};
 
 use bytemuck;

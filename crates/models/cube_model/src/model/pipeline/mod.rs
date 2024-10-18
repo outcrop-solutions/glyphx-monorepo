@@ -1,8 +1,8 @@
-pub mod axis_lines;
-pub mod glyphs;
-pub mod glyph_data;
-pub mod hit_detection;
-pub mod charms;
+mod axis_lines;
+mod glyphs;
+mod glyph_data;
+mod hit_detection;
+mod charms;
 
 pub use axis_lines::*;
 pub use glyphs::*;

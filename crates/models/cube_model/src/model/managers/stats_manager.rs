@@ -1,5 +1,4 @@
-use super::GetStatsError;
-use super::AddStatsError;
+use super::{AddStatsError, GetStatsError};
 
 use model_common::Stats;
 

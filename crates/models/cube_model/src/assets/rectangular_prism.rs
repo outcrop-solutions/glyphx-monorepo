@@ -1,4 +1,5 @@
 use crate::model::data::ShapeVertex;
+
 use cgmath::{Matrix4, Vector4};
 
 fn create_normal_vertices() -> Vec<[f32; 3]> {

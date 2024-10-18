@@ -3,10 +3,7 @@ use crate::{
     model::{data::ShapeVertex, model_configuration::ModelConfiguration},
 };
 
-use model_common::CameraUniform;
-use model_common::ColorTableUniform;
-use model_common::LightUniform;
-use model_common::WgpuManager;
+use model_common::{CameraUniform, ColorTableUniform, LightUniform, WgpuManager};
 
 use bytemuck;
 use smaa::SmaaFrame;

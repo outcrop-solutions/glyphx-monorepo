@@ -1,4 +1,3 @@
-
 use bytemuck;
 use serde::{Deserialize, Serialize};
 use wgpu::{BindGroup, BindGroupLayout, Buffer, Device};
@@ -28,7 +27,7 @@ pub enum Order {
 impl From<String> for Order {
     fn from(s: String) -> Self {
         match s.to_lowercase().as_str() {
-            "asc"   => Order::Ascending,
+            "asc" => Order::Ascending,
             "desc" => Order::Descending,
             _ => Order::Ascending,
         }
@@ -44,10 +43,10 @@ pub struct GlyphUniformFlags {
     pub z_interp_type: InterpolationType,
     pub z_order: Order,
     pub color_flip: bool,
-    //TODO: I added this because I thougth I would use it to track whether or not 
-    //glyphs were selected.  For some reason, I was not getting this data to feed 
+    //TODO: I added this because I thougth I would use it to track whether or not
+    //glyphs were selected.  For some reason, I was not getting this data to feed
     //into the glpyh shader.  So, since I am already enumerating the glyph data,
-    //to push them to the pipeline, I can set a flag there.  I will leave this 
+    //to push them to the pipeline, I can set a flag there.  I will leave this
     //here so that we can explore using it in the future.
     pub glyph_selected: bool,
 }
@@ -78,8 +77,8 @@ impl GlyphUniformFlags {
         flags |= (self.y_order as u32) << 22;
         flags |= (self.z_interp_type as u32) << 15;
         flags |= (self.z_order as u32) << 14;
-        flags |= (if self.color_flip == true {1} else {0}) << 7;
-        flags |= (if self.glyph_selected == true {1} else {0}) << 6;
+        flags |= (if self.color_flip == true { 1 } else { 0 }) << 7;
+        flags |= (if self.glyph_selected == true { 1 } else { 0 }) << 6;
 
         flags
     }

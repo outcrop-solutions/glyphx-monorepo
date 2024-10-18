@@ -1,6 +1,6 @@
-use model_common::CameraUniform;
+use model_common::{CameraUniform, ICameraManager, OrbitCamera, Vector3};
+
 use glam::Vec3;
-use model_common::{ICameraManager, OrbitCamera, Vector3};
 use serde::{Deserialize, Serialize};
 use serde_json::{from_str, to_string};
 
@@ -224,7 +224,7 @@ impl ICameraManager for CameraManager {
         let camera = &mut self.camera.as_mut().unwrap();
         camera.add_yaw(yaw);
     }
-    
+
     fn add_pitch(&mut self, pitch: f32) {
         if self.camera.is_none() {
             return;

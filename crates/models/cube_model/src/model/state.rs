@@ -22,11 +22,7 @@ use crate::{
         managers::{CameraManager, DataManager, Face, OrientationManager, PipelineManager},
         model_configuration::ModelConfiguration,
         pipeline::{
-            axis_lines::{AxisLineDirection, AxisLines},
-            charms::Charms,
-            glyph_data::GlyphData,
-            glyphs::Glyphs,
-            hit_detection::{decode_glyph_id, HitDetection},
+            decode_glyph_id, AxisLineDirection, AxisLines, Charms, GlyphData, Glyphs, HitDetection,
         },
     },
     model_event::Screenshot,
@@ -36,12 +32,11 @@ use crate::{
 //3. Define any imports from submodules.
 
 //4. Define any imports from external Glyphx Crates.
-use model_common::{CameraController, MouseEvent, ICameraManager};
-use model_common::{Stats, WgpuManager};
+use model_common::{
+    CameraController, CameraUniform, ColorTableUniform, ICameraManager, LightUniform, MouseEvent,
+    Stats, WgpuManager,
+};
 
-use model_common::CameraUniform;
-use model_common::ColorTableUniform;
-use model_common::LightUniform;
 //5. Define any imports from external 3rd party crates.
 use glam::Vec3;
 use image::{codecs::png::PngEncoder, ExtendedColorType, ImageEncoder};

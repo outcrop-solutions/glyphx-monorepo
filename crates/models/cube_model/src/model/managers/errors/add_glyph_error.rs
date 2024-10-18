@@ -1,11 +1,12 @@
 use super::GetStatsError;
+use crate::{model::data::GetVectorError, model::data::RankedGlyphDataError};
 
 use glyphx_core_error::{GlyphxCoreError, GlyphxErrorData};
 
 use bincode::{Error, ErrorKind};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, to_value};
-use crate::{model::data::GetVectorError, model::data::RankedGlyphDataError};
+
 #[derive(Debug, Clone,Deserialize, Serialize, GlyphxCoreError)]
 #[error_definition("StatsError")]
 pub enum AddGlyphError {

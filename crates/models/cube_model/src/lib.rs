@@ -12,9 +12,9 @@ use model::{
     model_configuration::ModelConfiguration,
 };
 use model_event::{ModelEvent, ModelMoveDirection};
+
 use serde_json::{from_str, Value};
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 use winit::event_loop::{EventLoop, EventLoopProxy};
 
 cfg_if::cfg_if! {

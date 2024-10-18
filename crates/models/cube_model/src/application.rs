@@ -13,8 +13,7 @@ use super::{
 
 use pollster::FutureExt;
 use serde_json::{json, Value};
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 use winit::{
     application::ApplicationHandler,
     dpi::PhysicalSize,

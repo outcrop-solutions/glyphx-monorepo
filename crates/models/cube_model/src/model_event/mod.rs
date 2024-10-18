@@ -10,14 +10,15 @@ use crate::model::{
     state::State,
 };
 
-pub(crate) use add_glyphs::AddGlyphData;
-pub(crate) use add_statistics::AddStatisticData;
-pub(crate) use add_vector::AddVectorData;
-pub(crate) use model_move_direction::ModelMoveDirection;
-pub(crate) use screenshot::Screenshot;
+pub use add_glyphs::*;
+pub use add_statistics::*;
+pub use add_vector::*;
+pub use model_move_direction::*;
+pub use screenshot::*;
 
 use serde::Serialize;
 use serde_json::Value;
+
 pub enum ModelEvent {
     StateReady(State),
     ModelMove(ModelMoveDirection),

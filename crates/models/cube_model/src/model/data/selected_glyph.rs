@@ -1,6 +1,6 @@
 use super::GlyphDescription;
 
-use serde_json::{Value, json};
+use serde_json::{json, Value};
 
 pub struct SelectedGlyph {
     pub glyph_id: u32,
@@ -26,4 +26,3 @@ impl SelectedGlyph {
         json!({"glyph_id": self.glyph_id, "row_ids": row_ids, "desc": desc} )
     }
 }
-

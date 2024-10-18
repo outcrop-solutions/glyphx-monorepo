@@ -1,7 +1,9 @@
-use glyphx_core_error::{GlyphxCoreError, GlyphxErrorData};
 use super::InsertVectorError;
-use serde::{Deserialize, Serialize};
+
+use glyphx_core_error::{GlyphxCoreError, GlyphxErrorData};
+
 use bincode::{Error, ErrorKind};
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 #[derive(Debug, Serialize, Deserialize, GlyphxCoreError)]

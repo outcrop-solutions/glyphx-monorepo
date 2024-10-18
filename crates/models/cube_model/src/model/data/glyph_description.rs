@@ -10,6 +10,7 @@ pub struct GlyphDescription {
     pub y: VectorOrigionalValue,
     pub z: f64,
 }
+
 impl GlyphDescription {
     pub fn new(x: VectorOrigionalValue, y: VectorOrigionalValue, z: f64) -> Self {
         Self { x, y, z }
