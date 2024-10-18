@@ -9,10 +9,10 @@ mod model_event;
 
 use application::Application;
 use model::{
+    data::Order,
     filtering::Query,
-    model_configuration::ModelConfiguration,
-   data::Order,
     managers::{CameraManager, DataManager},
+    model_configuration::ModelConfiguration,
 };
 use model_event::{ModelEvent, ModelMoveDirection};
 use serde_json::{from_str, Value};

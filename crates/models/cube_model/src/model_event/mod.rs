@@ -5,10 +5,9 @@ mod model_move_direction;
 mod screenshot;
 
 use crate::model::{
+    data::{GlyphVertexData, Hit},
     filtering::Query,
-    pipeline::hit_detection::Hit,
     state::State,
-    data::GlyphVertexData,
 };
 
 pub(crate) use add_glyphs::AddGlyphData;
@@ -68,12 +67,10 @@ impl ModelEvent {
                 } else {
                     "ScreenshotTaken"
                 }
-            },
+            }
             Self::ResizeWindow { .. } => "ResizeWindow",
             Self::ConfigurationUpdated => "ConfigurationUpdated",
-
         }
-    
     }
 }
 impl std::fmt::Debug for ModelEvent {
@@ -106,8 +103,10 @@ impl std::fmt::Debug for ModelEvent {
             ModelEvent::UpdateModelFilter(query) => write!(f, "UpdateModelFilter({:?})", query),
             ModelEvent::GlyphsUpdated(_glyphs) => write!(f, "GlyphsUpdated"),
             ModelEvent::HitDetection(hit) => write!(f, "HitDetection({:?})", hit),
-            ModelEvent::TakeScreenshot(_)=> write!(f, "TakeScreenshot"),
-            ModelEvent::ScreenshotTaken(screenshot, _) => write!(f, "ScreenShotTaken({:?})", screenshot),
+            ModelEvent::TakeScreenshot(_) => write!(f, "TakeScreenshot"),
+            ModelEvent::ScreenshotTaken(screenshot, _) => {
+                write!(f, "ScreenShotTaken({:?})", screenshot)
+            }
             ModelEvent::ResizeWindow { width, height } => {
                 write!(f, "ResizeWindow(width: {}, height: {})", width, height)
             }
@@ -178,12 +177,10 @@ impl From<&ModelEvent> for JsSafeModelEvent {
             ModelEvent::HitDetection(hit) => Self::HitDetection(hit.clone()),
             ModelEvent::TakeScreenshot(_) => Self::TakeScreenshot,
             ModelEvent::ScreenshotTaken(screenshot, _) => Self::ScreenShotTaken(screenshot.clone()),
-            ModelEvent::ResizeWindow { width, height } => {
-                Self::ResizeWindow {
-                    width: *width,
-                    height: *height,
-                }
-            }
+            ModelEvent::ResizeWindow { width, height } => Self::ResizeWindow {
+                width: *width,
+                height: *height,
+            },
             ModelEvent::ConfigurationUpdated => Self::ConfigurationUpdated,
         }
     }

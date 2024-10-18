@@ -1,10 +1,9 @@
-mod  hit;
 use crate::{
     camera::uniform_buffer::CameraUniform,
     model::data::GlyphVertexData,
 };
 
-pub use hit::Hit;
+use crate::model::data::Hit;
 
 use std::cell::RefCell;
 use std::rc::Rc;

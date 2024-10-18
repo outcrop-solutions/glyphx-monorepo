@@ -24,7 +24,7 @@ use crate::{
     light::light_uniform::LightUniform,
     model::{
         color_table_uniform::ColorTableUniform,
-        data::{GlyphInstanceData, GlyphUniformData, GlyphUniformFlags, RankedGlyphData},
+        data::{GlyphInstanceData, GlyphUniformData, GlyphUniformFlags, RankedGlyphData, Hit},
         filtering::Query,
         managers::{CameraManager, DataManager},
         model_configuration::ModelConfiguration,
@@ -33,7 +33,7 @@ use crate::{
             charms::Charms,
             glyph_data::GlyphData,
             glyphs::Glyphs,
-            hit_detection::{decode_glyph_id, Hit, HitDetection},
+            hit_detection::{decode_glyph_id, HitDetection},
         },
     },
     model_event::Screenshot,

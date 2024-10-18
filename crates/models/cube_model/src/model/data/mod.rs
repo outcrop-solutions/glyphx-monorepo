@@ -7,6 +7,7 @@ mod ranked_glyph_data;
 mod selected_glyph;
 mod glyph_description;
 mod instance_output;
+mod hit;
 
 pub use glyph_instance_data::*;
 pub use glyph_id_data::*;
@@ -17,3 +18,4 @@ pub use ranked_glyph_data::*;
 pub use selected_glyph::*;
 pub use glyph_description::*;
 pub use instance_output::*;
+pub use hit::*;
