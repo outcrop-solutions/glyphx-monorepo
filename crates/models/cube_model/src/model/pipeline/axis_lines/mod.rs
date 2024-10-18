@@ -1,9 +1,8 @@
 use crate::{
     assets::{axis_line::create_axis_line, shape_vertex::ShapeVertex},
-    light::light_uniform::LightUniform,
     model::{
         model_configuration::ModelConfiguration,
-        uniforms::{CameraUniform, ColorTableUniform},
+        uniforms::{CameraUniform, ColorTableUniform, LightUniform},
     },
 };
 use model_common::WgpuManager;

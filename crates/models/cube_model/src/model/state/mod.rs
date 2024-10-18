@@ -17,9 +17,8 @@ use crate::{
     camera::{
         camera_controller::{CameraController, MouseEvent},
     },
-    light::light_uniform::LightUniform,
     model::{
-        uniforms::{ColorTableUniform, CameraUniform},
+        uniforms::{ColorTableUniform, CameraUniform, LightUniform},
         data::{GlyphInstanceData, GlyphUniformData, GlyphUniformFlags, RankedGlyphData, Hit, DeserializeVectorError, ModelVectors},
         filtering::Query,
         managers::{CameraManager, DataManager, PipelineManager, OrientationManager, Face},

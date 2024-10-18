@@ -1,6 +1,5 @@
 use crate::{
-    light::light_uniform::LightUniform,
-    model::{uniforms::{ColorTableUniform, CameraUniform}, pipeline::glyph_data::InstanceOutput},
+    model::{uniforms::{ColorTableUniform, CameraUniform, LightUniform}, pipeline::glyph_data::InstanceOutput},
 };
 
 use crate::model::data::GlyphUniformData;
