@@ -3,7 +3,7 @@ use super::{
     model::{
         filtering::Query,
         model_configuration::{ColorWheel, ModelConfiguration},
-        pipeline::glyphs::glyph_uniform_data::{InterpolationType, Order},
+        data::{InterpolationType, Order},
         state::State,
         managers::{DataManager, CameraManager},
     },

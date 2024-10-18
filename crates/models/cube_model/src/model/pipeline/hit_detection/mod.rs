@@ -1,7 +1,7 @@
 mod  hit;
 use crate::{
     camera::uniform_buffer::CameraUniform,
-    model::pipeline::glyphs::glyph_vertex_data::GlyphVertexData,
+    model::data::GlyphVertexData,
 };
 
 pub use hit::Hit;

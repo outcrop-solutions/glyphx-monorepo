@@ -2,10 +2,10 @@ use super::CameraManager;
 use crate::camera::CameraUniform;
 use crate::model::ColorTableUniform;
 use crate::light::LightUniform;
-use crate::model::glyph_uniform_data::GlyphUniformData;
+use crate::model::data::GlyphUniformData;
 use crate::ModelConfiguration;
 use crate::DataManager;
-use crate::model::glyph_uniform_data::GlyphUniformFlags;
+use crate::model::data::GlyphUniformFlags;
 use model_common::WgpuManager;
 
 use std::{cell::RefCell, rc::Rc};

@@ -2,7 +2,7 @@ mod color_wheel;
 mod errors;
 
 use crate::assets::color::Color;
-use crate::model::pipeline::glyphs::glyph_uniform_data::{InterpolationType, Order};
+use crate::model::data::{InterpolationType, Order};
 pub use color_wheel::ColorWheel;
 pub use errors::*;
 use glyphx_core_error::GlyphxErrorData;

@@ -11,7 +11,7 @@ use application::Application;
 use model::{
     filtering::Query,
     model_configuration::ModelConfiguration,
-    pipeline::glyphs::glyph_uniform_data::Order,
+   data::Order,
     managers::{CameraManager, DataManager},
 };
 use model_event::{ModelEvent, ModelMoveDirection};

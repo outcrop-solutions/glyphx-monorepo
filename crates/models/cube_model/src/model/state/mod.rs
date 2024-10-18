@@ -6,12 +6,15 @@
 //and imports.  This is a work in progress, and will be updated/changed as I figure out this
 //aspect of the style.
 //1. Define any submodules
-mod errors;
 mod orientation_manager;
 mod pipeline_manager;
 mod selected_glyph;
 
 //2. Define any imports from the current crate.
+use crate::model::data::{
+    GlyphDescription, GlyphVertexData, InstanceOutput, Rank, RankDirection, SelectedGlyph,
+};
+use crate::model::managers::BufferManager;
 use crate::{
     camera::{
         camera_controller::{CameraController, MouseEvent},
@@ -21,30 +24,23 @@ use crate::{
     light::light_uniform::LightUniform,
     model::{
         color_table_uniform::ColorTableUniform,
+        data::{GlyphInstanceData, GlyphUniformData, GlyphUniformFlags, RankedGlyphData},
         filtering::Query,
+        managers::{CameraManager, DataManager},
         model_configuration::ModelConfiguration,
         pipeline::{
             axis_lines::{AxisLineDirection, AxisLines},
             charms::Charms,
             glyph_data::GlyphData,
-            glyphs::{
-                glyph_instance_data::GlyphInstanceData,
-                glyph_uniform_data::{GlyphUniformData, GlyphUniformFlags},
-                ranked_glyph_data::RankedGlyphData,
-                Glyphs,
-            },
+            glyphs::Glyphs,
             hit_detection::{decode_glyph_id, Hit, HitDetection},
         },
-        managers::{CameraManager, DataManager}
     },
     model_event::Screenshot,
     Order,
 };
-use crate::model::data::{GlyphDescription, SelectedGlyph, Rank, RankDirection, GlyphVertexData, InstanceOutput};
-use crate::model::managers::BufferManager;
 
 //3. Define any imports from submodules.
-use errors::*;
 use image::{codecs::png::PngEncoder, ExtendedColorType, ImageEncoder};
 use orientation_manager::{Face, OrientationManager};
 use pipeline_manager::PipelineManager;

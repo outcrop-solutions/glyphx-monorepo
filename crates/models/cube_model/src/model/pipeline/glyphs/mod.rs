@@ -1,23 +1,12 @@
-pub mod glyph_id_data;
-pub mod glyph_instance_data;
-pub mod glyph_uniform_data;
-pub mod glyph_vertex_data;
-pub mod ranked_glyph_data;
-
-pub use glyph_id_data::*;
-pub use glyph_instance_data::*;
-pub use glyph_uniform_data::*;
-pub use glyph_vertex_data::*;
-pub use ranked_glyph_data::*;
-
 use crate::{
     camera::uniform_buffer::CameraUniform,
     light::light_uniform::LightUniform,
     model::{color_table_uniform::ColorTableUniform, pipeline::glyph_data::InstanceOutput},
 };
 
-use glyph_uniform_data::GlyphUniformData;
-use glyph_vertex_data::GlyphVertexData;
+use crate::model::data::GlyphUniformData;
+
+use crate::model::data::GlyphVertexData;
 
 use model_common::WgpuManager;
 
