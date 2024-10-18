@@ -1,4 +1,4 @@
-use crate::assets::color::{build_color_table, Color};
+use model_common::{build_color_table, Color};
 use wgpu::{BindGroup, BindGroupLayout, Buffer, Device};
 
 #[repr(C)]

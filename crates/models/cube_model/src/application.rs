@@ -2,7 +2,7 @@ use super::{
     emit_event,
     model::{
         filtering::Query,
-        model_configuration::{ColorWheel, ModelConfiguration},
+        model_configuration::ModelConfiguration,
         data::{InterpolationType, Order},
         state::State,
         managers::{DataManager, CameraManager},

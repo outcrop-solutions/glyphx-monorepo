@@ -1,9 +1,7 @@
-mod color_wheel;
 mod errors;
 
-use crate::assets::color::Color;
+use model_common::Color;
 use crate::model::data::{InterpolationType, Order};
-pub use color_wheel::ColorWheel;
 pub use errors::*;
 use glyphx_core_error::GlyphxErrorData;
 use serde::{Deserialize, Serialize};
