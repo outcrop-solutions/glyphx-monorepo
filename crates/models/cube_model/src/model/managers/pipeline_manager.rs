@@ -342,22 +342,21 @@ impl PipelineManager {
     //     commands.push(encoder.finish());
     // }
 
-    // TODO: uncomment this once we have the refactor cleaned up
-    // pub fn run_glyph_data_pipeline(&self) -> Buffer {
-    //     let wm = self.wgpu_manager.borrow();
-    //     let device = wm.device();
-    //     let device = device.borrow();
+    pub fn run_glyph_data_pipeline(&self) -> Buffer {
+        let wm = self.wgpu_manager.borrow();
+        let device = wm.device();
+        let device = device.borrow();
 
-    //     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-    //         label: Some("Glyph Data Pipeline"),
-    //     });
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("Glyph Data Pipeline"),
+        });
 
-    //     let output_buffer = self.glyph_data.run_pipeline(&mut encoder);
+        let output_buffer = self.glyph_data.run_pipeline(&mut encoder);
 
-    //     wm.queue().submit([encoder.finish()]);
+        wm.queue().submit([encoder.finish()]);
 
-    //     output_buffer
-    // }
+        output_buffer
+    }
 
     pub fn run_hit_detection_pipeline(
         &self,
