@@ -35,8 +35,7 @@ pub struct PipelineManager {
     z_axis_line: AxisLines,
     glyphs: Glyphs,
     // charms: Charms,
-    //TODO: uncomment this once we have the refactor cleaned up
-    //glyph_data: GlyphData,
+    glyph_data: GlyphData,
     hit_detection: HitDetection,
 }
 
@@ -134,13 +133,12 @@ impl PipelineManager {
         //     &wm
         // );
 
-        //TODO: uncomment this once we have the refactor cleaned up
-        // let glyph_data = GlyphData::new(
-        //     bm.glyph_uniform_buffer(),
-        //     wm.device(),
-        //     model_configuration.clone(),
-        //     data_manager.clone(),
-        // );
+        let glyph_data = GlyphData::new(
+            bm.glyph_uniform_buffer(),
+            wm.device(),
+            model_configuration.clone(),
+            data_manager.clone(),
+        );
 
         let hit_detection =
             HitDetection::new(wm.device(), bm.camera_buffer(), &bm.camera_uniform());
@@ -154,18 +152,16 @@ impl PipelineManager {
             z_axis_line,
             glyphs,
             // charms,
-            //TODO: uncomment this once we have the refactor cleaned up
-            //glyph_data,
+            glyph_data,
             hit_detection,
         }
     }
 
     pub fn upate_glyph_data_verticies(&mut self, model_filter: &Query) {
-        // TODO: uncomment this once we have the refactor cleaned up
-        // self.glyph_data.update_vertices(
-        //     self.buffer_manager.borrow().glyph_uniform_buffer(),
-        //     model_filter,
-        // )
+        self.glyph_data.update_vertices(
+            self.buffer_manager.borrow().glyph_uniform_buffer(),
+            model_filter,
+        )
     }
 
     pub fn set_axis_start(&mut self, axis_direction: AxisLineDirection, origin: f32) {
