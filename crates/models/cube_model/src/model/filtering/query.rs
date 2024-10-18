@@ -1,6 +1,6 @@
 use super::{ComparisonValue, FromJsonValueError, Operator, QueryType, SubType};
-use crate::{data::ModelVectors, model::pipeline::glyphs::glyph_instance_data::GlyphInstanceData};
-
+use crate::model::data::ModelVectors;
+use crate::model::data::GlyphInstanceData;
 use model_common::Stats;
 
 use serde::{Deserialize, Serialize};

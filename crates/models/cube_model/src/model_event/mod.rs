@@ -6,8 +6,9 @@ mod screenshot;
 
 use crate::model::{
     filtering::Query,
-    pipeline::{glyphs::glyph_vertex_data::GlyphVertexData, hit_detection::Hit},
+    pipeline::hit_detection::Hit,
     state::State,
+    data::GlyphVertexData,
 };
 
 pub(crate) use add_glyphs::AddGlyphData;

@@ -1,8 +1,9 @@
 use super::{
-    AxisLineDirection, AxisLines, BufferManager, Charms, DataManager, GlyphData, GlyphVertexData,
-    Glyphs, HitDetection, ModelConfiguration, Query, Rank, RankDirection, SelectedGlyph,
+    AxisLineDirection, AxisLines, BufferManager, Charms, DataManager, GlyphData, 
+    Glyphs, HitDetection, ModelConfiguration, Query,
     WgpuManager,
 };
+use crate::model::data::{Rank, RankDirection, GlyphVertexData, SelectedGlyph};
 
 use bytemuck::cast_slice;
 use smaa::*;

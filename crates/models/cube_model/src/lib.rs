@@ -12,7 +12,7 @@ use model::{
     filtering::Query,
     model_configuration::ModelConfiguration,
     pipeline::glyphs::glyph_uniform_data::Order,
-    state::data_manager::{CameraManager, DataManager},
+    managers::{CameraManager, DataManager},
 };
 use model_event::{ModelEvent, ModelMoveDirection};
 use serde_json::{from_str, Value};

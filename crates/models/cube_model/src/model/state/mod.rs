@@ -7,7 +7,6 @@
 //aspect of the style.
 //1. Define any submodules
 mod buffer_manager;
-pub mod data_manager;
 mod errors;
 mod orientation_manager;
 mod pipeline_manager;
@@ -28,29 +27,28 @@ use crate::{
         pipeline::{
             axis_lines::{AxisLineDirection, AxisLines},
             charms::Charms,
-            glyph_data::{GlyphData, InstanceOutput},
+            glyph_data::GlyphData,
             glyphs::{
                 glyph_instance_data::GlyphInstanceData,
                 glyph_uniform_data::{GlyphUniformData, GlyphUniformFlags},
-                glyph_vertex_data::GlyphVertexData,
-                ranked_glyph_data::{Rank, RankDirection, RankedGlyphData},
+                ranked_glyph_data::RankedGlyphData,
                 Glyphs,
             },
             hit_detection::{decode_glyph_id, Hit, HitDetection},
         },
+        managers::{CameraManager, DataManager}
     },
     model_event::Screenshot,
     Order,
 };
+use crate::model::data::{GlyphDescription, SelectedGlyph, Rank, RankDirection, GlyphVertexData, InstanceOutput};
 
 //3. Define any imports from submodules.
 use buffer_manager::BufferManager;
-use data_manager::{CameraManager, DataManager};
 use errors::*;
 use image::{codecs::png::PngEncoder, ExtendedColorType, ImageEncoder};
 use orientation_manager::{Face, OrientationManager};
 use pipeline_manager::PipelineManager;
-use selected_glyph::{GlyphDescription, SelectedGlyph};
 
 //4. Define any imports from external Glyphx Crates.
 use model_common::{Stats, WgpuManager};
