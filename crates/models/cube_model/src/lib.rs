@@ -1,7 +1,6 @@
 #![allow(warnings)]
 mod application;
 mod assets;
-mod camera;
 mod model;
 mod model_event;
 

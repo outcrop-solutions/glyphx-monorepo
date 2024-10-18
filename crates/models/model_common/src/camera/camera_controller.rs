@@ -38,10 +38,10 @@ impl CameraController {
         }
     }
 
-    pub fn process_events<T:ICameraManager>(
+    pub fn process_events(
         &mut self,
         event: &DeviceEvent,
-        camera_manager: &mut T 
+        camera_manager: &mut dyn ICameraManager,
     ) -> MouseEvent {
         match event {
             DeviceEvent::Button {

@@ -1,6 +1,6 @@
 ///https://github.com/FrankenApps/wgpu_cube/blob/master/src/render/camera.rs
-use crate::camera::orbit_camera::OrbitCamera;
-use crate::camera::Camera;
+use model_common::OrbitCamera;
+use model_common::Camera;
 use wgpu::{BindGroup, BindGroupLayout, Buffer, Device};
 use glam::Mat4;
 /// The camera uniform contains the data linked to the camera that is passed to the shader.

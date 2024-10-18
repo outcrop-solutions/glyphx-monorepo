@@ -1,11 +1,8 @@
-use crate::{
-    camera::orbit_camera::{Vector3,OrbitCamera},
-    model::uniforms::CameraUniform,
-
-};
+use crate::model::uniforms::CameraUniform;
 use glam::Vec3;
+use model_common::{ICameraManager, OrbitCamera, Vector3};
 use serde::{Deserialize, Serialize};
-use serde_json::{to_string, from_str};
+use serde_json::{from_str, to_string};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CameraData {
@@ -132,14 +129,6 @@ impl CameraManager {
         self.camera.as_ref().unwrap().yaw
     }
 
-    pub fn add_yaw(&mut self, yaw: f32) {
-        if self.camera.is_none() {
-            return;
-        }
-        let camera = &mut self.camera.as_mut().unwrap();
-        camera.add_yaw(yaw);
-    }
-
     pub fn set_yaw(&mut self, yaw: f32) {
         if self.camera.is_none() {
             return;
@@ -155,24 +144,11 @@ impl CameraManager {
         self.camera.as_ref().unwrap().pitch
     }
 
-    pub fn add_pitch(&mut self, pitch: f32) {
-        if self.camera.is_none() {
-            return;
-        }
-        self.camera.as_mut().unwrap().add_pitch(pitch);
-    }
-
     pub fn set_pitch(&mut self, pitch: f32) {
         if self.camera.is_none() {
             return;
         }
         self.camera.as_mut().unwrap().set_pitch(pitch);
-    }
-    pub fn add_distance(&mut self, distance: f32) {
-        if self.camera.is_none() {
-            return;
-        }
-        self.camera.as_mut().unwrap().add_distance(distance);
     }
     pub fn get_distance(&self) -> f32 {
         if self.camera.is_none() {
@@ -235,7 +211,35 @@ impl CameraManager {
             .update_z_offset(z_offset);
     }
 
-    pub fn update(&mut self) {
+    pub fn get_camera_uniform(&self) -> CameraUniform {
+        let cm = self.camera_uniform.clone().unwrap();
+        cm
+    }
+}
+impl ICameraManager for CameraManager {
+    fn add_yaw(&mut self, yaw: f32) {
+        if self.camera.is_none() {
+            return;
+        }
+        let camera = &mut self.camera.as_mut().unwrap();
+        camera.add_yaw(yaw);
+    }
+    
+    fn add_pitch(&mut self, pitch: f32) {
+        if self.camera.is_none() {
+            return;
+        }
+        self.camera.as_mut().unwrap().add_pitch(pitch);
+    }
+
+    fn add_distance(&mut self, distance: f32) {
+        if self.camera.is_none() {
+            return;
+        }
+        self.camera.as_mut().unwrap().add_distance(distance);
+    }
+
+    fn update(&mut self) {
         if self.camera.is_none() {
             return;
         }
@@ -243,10 +247,5 @@ impl CameraManager {
         let camera = self.camera.as_ref().unwrap();
         let camera_uniform = &mut self.camera_uniform.as_mut().unwrap();
         camera_uniform.update_view_proj(camera);
-    }
-
-    pub fn get_camera_uniform(&self) -> CameraUniform {
-        let cm = self.camera_uniform.clone().unwrap();
-        cm
     }
 }

@@ -57,7 +57,7 @@ pub struct OrbitCamera {
     pub yaw: f32,
 
     /// The eye of the camera in cartesian coordinates.
-    pub(crate) eye: Vector3,
+    pub eye: Vector3,
 
     /// The target of the orbit camera.
     pub target: Vector3,

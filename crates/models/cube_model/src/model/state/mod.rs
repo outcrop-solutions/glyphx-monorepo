@@ -14,14 +14,13 @@ use crate::model::data::{
 };
 use crate::model::managers::BufferManager;
 use crate::{
-    camera::{
-        camera_controller::{CameraController, MouseEvent},
-    },
     model::{
-        uniforms::{ColorTableUniform, CameraUniform, LightUniform},
-        data::{GlyphInstanceData, GlyphUniformData, GlyphUniformFlags, RankedGlyphData, Hit, DeserializeVectorError, ModelVectors},
+        data::{
+            DeserializeVectorError, GlyphInstanceData, GlyphUniformData, GlyphUniformFlags, Hit,
+            ModelVectors, RankedGlyphData,
+        },
         filtering::Query,
-        managers::{CameraManager, DataManager, PipelineManager, OrientationManager, Face},
+        managers::{CameraManager, DataManager, Face, OrientationManager, PipelineManager},
         model_configuration::ModelConfiguration,
         pipeline::{
             axis_lines::{AxisLineDirection, AxisLines},
@@ -30,6 +29,7 @@ use crate::{
             glyphs::Glyphs,
             hit_detection::{decode_glyph_id, HitDetection},
         },
+        uniforms::{CameraUniform, ColorTableUniform, LightUniform},
     },
     model_event::Screenshot,
     Order,
@@ -39,6 +39,7 @@ use crate::{
 use image::{codecs::png::PngEncoder, ExtendedColorType, ImageEncoder};
 
 //4. Define any imports from external Glyphx Crates.
+use model_common::{CameraController, MouseEvent, ICameraManager};
 use model_common::{Stats, WgpuManager};
 
 //5. Define any imports from external 3rd party crates.
@@ -212,7 +213,7 @@ impl State {
         //no already borrowed as mutable errors.
         let camera_result = self
             .camera_controller
-            .process_events(event, &mut self.camera_manager.borrow_mut());
+            .process_events(event, (&mut *self.camera_manager.borrow_mut()));
 
         let handled = match camera_result {
             MouseEvent::MouseMotion => {
