@@ -6,7 +6,6 @@
 //and imports.  This is a work in progress, and will be updated/changed as I figure out this
 //aspect of the style.
 //1. Define any submodules
-mod buffer_manager;
 mod errors;
 mod orientation_manager;
 mod pipeline_manager;
@@ -42,9 +41,9 @@ use crate::{
     Order,
 };
 use crate::model::data::{GlyphDescription, SelectedGlyph, Rank, RankDirection, GlyphVertexData, InstanceOutput};
+use crate::model::managers::BufferManager;
 
 //3. Define any imports from submodules.
-use buffer_manager::BufferManager;
 use errors::*;
 use image::{codecs::png::PngEncoder, ExtendedColorType, ImageEncoder};
 use orientation_manager::{Face, OrientationManager};
