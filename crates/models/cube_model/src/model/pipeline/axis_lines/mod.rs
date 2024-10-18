@@ -2,7 +2,7 @@ use crate::{
     assets::{axis_line::create_axis_line, shape_vertex::ShapeVertex},
     camera::uniform_buffer::CameraUniform,
     light::light_uniform::LightUniform,
-    model::{color_table_uniform::ColorTableUniform, model_configuration::ModelConfiguration},
+    model::{uniforms::ColorTableUniform, model_configuration::ModelConfiguration},
 };
 use model_common::WgpuManager;
 

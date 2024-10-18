@@ -4,7 +4,7 @@ use crate::{
     },
     camera::uniform_buffer::CameraUniform,
     light::light_uniform::LightUniform,
-    model::{color_table_uniform::ColorTableUniform, model_configuration::ModelConfiguration},
+    model::{uniforms::ColorTableUniform, model_configuration::ModelConfiguration},
 };
 
 use model_common::WgpuManager;

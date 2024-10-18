@@ -20,7 +20,7 @@ use crate::{
     },
     light::light_uniform::LightUniform,
     model::{
-        color_table_uniform::ColorTableUniform,
+        uniforms::ColorTableUniform,
         data::{GlyphInstanceData, GlyphUniformData, GlyphUniformFlags, RankedGlyphData, Hit, DeserializeVectorError, ModelVectors},
         filtering::Query,
         managers::{CameraManager, DataManager, PipelineManager, OrientationManager, Face},
