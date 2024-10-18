@@ -2,9 +2,12 @@ use crate::{
     assets::{
         charm::create_charm, rectangular_prism::create_rectangular_prism, shape_vertex::ShapeVertex,
     },
-    model::{uniforms::{ColorTableUniform, CameraUniform, LightUniform}, model_configuration::ModelConfiguration},
+    model::model_configuration::ModelConfiguration,
 };
 
+use model_common::CameraUniform;
+use model_common::ColorTableUniform;
+use model_common::LightUniform;
 use model_common::WgpuManager;
 
 use bytemuck;

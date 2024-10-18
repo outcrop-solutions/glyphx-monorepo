@@ -1,9 +1,8 @@
-use crate::{
-    
-    model::{data::GlyphVertexData, uniforms::CameraUniform},
-};
+use crate:: model::data::GlyphVertexData;
 
 use crate::model::data::Hit;
+
+use model_common::CameraUniform;
 
 use std::cell::RefCell;
 use std::rc::Rc;

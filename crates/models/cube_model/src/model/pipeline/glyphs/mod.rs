@@ -1,11 +1,12 @@
-use crate::{
-    model::{uniforms::{ColorTableUniform, CameraUniform, LightUniform}, pipeline::glyph_data::InstanceOutput},
-};
+use crate::model::data::InstanceOutput;
 
 use crate::model::data::GlyphUniformData;
 
 use crate::model::data::GlyphVertexData;
 
+use model_common::CameraUniform;
+use model_common::ColorTableUniform;
+use model_common::LightUniform;
 use model_common::WgpuManager;
 
 use smaa::*;

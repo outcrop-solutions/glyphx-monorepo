@@ -1,11 +1,8 @@
 use crate::{
     assets::{axis_line::create_axis_line, shape_vertex::ShapeVertex},
-    model::{
-        model_configuration::ModelConfiguration,
-        uniforms::{CameraUniform, ColorTableUniform, LightUniform},
-    },
+    model:: model_configuration::ModelConfiguration,
 };
-use model_common::WgpuManager;
+use model_common::{CameraUniform, ColorTableUniform, LightUniform, WgpuManager};
 
 use bytemuck;
 use std::cell::RefCell;

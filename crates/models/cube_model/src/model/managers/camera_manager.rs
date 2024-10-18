@@ -1,4 +1,4 @@
-use crate::model::uniforms::CameraUniform;
+use model_common::CameraUniform;
 use glam::Vec3;
 use model_common::{ICameraManager, OrbitCamera, Vector3};
 use serde::{Deserialize, Serialize};

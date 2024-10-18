@@ -5,7 +5,6 @@ pub mod model_configuration;
 pub mod pipeline;
 pub mod scene;
 pub mod state;
-pub mod uniforms;
 
 pub use data::*;
 pub use filtering::*;
@@ -14,4 +13,3 @@ pub use model_configuration::*;
 pub use pipeline::*;
 pub use scene::*;
 pub use state::*;
-pub use uniforms::*;

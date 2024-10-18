@@ -28,21 +28,23 @@ use crate::{
             glyphs::Glyphs,
             hit_detection::{decode_glyph_id, HitDetection},
         },
-        uniforms::{CameraUniform, ColorTableUniform, LightUniform},
     },
     model_event::Screenshot,
     Order,
 };
 
 //3. Define any imports from submodules.
-use image::{codecs::png::PngEncoder, ExtendedColorType, ImageEncoder};
 
 //4. Define any imports from external Glyphx Crates.
 use model_common::{CameraController, MouseEvent, ICameraManager};
 use model_common::{Stats, WgpuManager};
 
+use model_common::CameraUniform;
+use model_common::ColorTableUniform;
+use model_common::LightUniform;
 //5. Define any imports from external 3rd party crates.
 use glam::Vec3;
+use image::{codecs::png::PngEncoder, ExtendedColorType, ImageEncoder};
 use smaa::*;
 use std::{cell::RefCell, rc::Rc};
 use wgpu::{Device, Maintain, MapMode, SurfaceError, TextureViewDescriptor};

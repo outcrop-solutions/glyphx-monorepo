@@ -1,7 +1,7 @@
 use super::CameraManager;
-use crate::model::uniforms::CameraUniform;
-use crate::model::ColorTableUniform;
-use crate::model:: uniforms::LightUniform;
+use model_common::CameraUniform;
+use model_common::ColorTableUniform;
+use model_common::LightUniform;
 use crate::model::data::GlyphUniformData;
 use crate::ModelConfiguration;
 use crate::DataManager;
