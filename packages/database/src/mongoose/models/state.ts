@@ -2,7 +2,7 @@ import {IQueryResult, databaseTypes} from 'types';
 import mongoose, {Types as mongooseTypes, Schema, model, Model} from 'mongoose';
 import {IStateMethods, IStateStaticMethods, IStateDocument, IStateCreateInput} from '../interfaces';
 import {error} from 'core';
-import {cameraSchema, fileStatsSchema, propertySchema} from '../schemas';
+import {aspectSchema, cameraSchema, fileStatsSchema, propertySchema} from '../schemas';
 import {ProjectModel} from './project';
 import {UserModel} from './user';
 import {WorkspaceModel} from './workspace';
@@ -29,7 +29,7 @@ const SCHEMA = new Schema<IStateDocument, IStateStaticMethods, IStateMethods>({
   version: {type: Number, required: true, default: 0, min: 0},
   imageHash: {type: String, required: false},
   camera: {type: cameraSchema, required: true},
-  aspectRatio: {type: cameraSchema, required: false},
+  aspectRatio: {type: aspectSchema, required: false},
   static: {type: Boolean, required: true, default: false},
   fileSystemHash: {type: String, required: true},
   payloadHash: {type: String, required: true},

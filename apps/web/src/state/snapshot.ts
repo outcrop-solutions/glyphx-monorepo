@@ -13,6 +13,12 @@ export const isSubmittingAtom = atom<boolean>({
   key: 'isSubmittingAtom',
   default: false,
 });
+
+export const showStateInputAtom = atom<boolean>({
+  key: 'showStateInputAtom',
+  default: false,
+});
+
 export const activeStateNameAtom = atom<string>({
   key: 'activeStateNameAtom',
   default: '',

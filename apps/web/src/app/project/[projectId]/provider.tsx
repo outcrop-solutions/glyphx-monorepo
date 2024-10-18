@@ -17,6 +17,7 @@ import {
   modelRunnerAtom,
   activeStateNameAtom,
   isSubmittingAtom,
+  showStateInputAtom,
 } from 'state';
 import {useWindowSize} from 'services';
 import useTemplates from 'lib/client/hooks/useTemplates';
@@ -26,8 +27,7 @@ import {InitialDocumentProvider} from 'collab/lib/client';
 import {RoomProvider} from 'liveblocks.config';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
 import useApplyState from 'services/useApplyState';
-import useWasm from '../../../lib/client/hooks/useWasm';
-import {createState, uploadFileAction} from 'actions';
+import {createState} from 'actions';
 
 export enum EVENTS {
   SELECTED_GLYPHS = 'SELECTED_GLYPHS',
@@ -68,6 +68,7 @@ export const ProjectProvider = ({
   const setCamera = useSetRecoilState(cameraAtom);
   const setImageHash = useSetRecoilState(imageHashAtom);
   const setIsSubmitting = useSetRecoilState(isSubmittingAtom);
+  const setAddState = useSetRecoilState(showStateInputAtom);
 
   // hydrate recoil state
   useEffect(() => {
@@ -157,22 +158,23 @@ export const ProjectProvider = ({
         };
         // get camera data
         const camera = JSON.parse(modelRunnerState.modelRunner.get_camera_data());
+        console.log({camera, aspect});
+        // Call the server action with FormData
+        const rows = (rowIds ? rowIds : []) as unknown as number[];
+        // create the state
         // Create a Blob from the pixel data
         const blob = new Blob([new Uint8Array(pixels)], {type: 'image/png'});
         // Create FormData and append the blob
         const formData = new FormData();
         formData.append('file', blob, 'screenshot.png');
-        formData.append('stateId', 'stateId');
-        // Call the server action with FormData
-        const imageUrl = await uploadFileAction(formData);
-        const rows = (rowIds ? rowIds : []) as unknown as number[];
-        // create the state
-        const retval = await createState(name, camera, project.id, imageUrl, aspect, rows);
+
+        const retval = await createState(formData, name, camera, project.id, aspect, rows);
+
         if (retval?.state) {
           applyState(retval?.state);
         }
         setIsSubmitting(false);
-        // setName('Initial State');
+        setAddState(false);
       } catch (error) {
         console.log({error});
       }
@@ -185,7 +187,7 @@ export const ProjectProvider = ({
     return () => {
       window.removeEventListener('StateScreenshotTaken', handleNewState);
     };
-  }, [applyState, modelRunnerState.modelRunner, project.id, rowIds]);
+  }, [applyState, modelRunnerState.modelRunner, name, project.id, rowIds, setAddState, setIsSubmitting]);
 
   // screenshot
   useEffect(() => {
@@ -238,7 +240,7 @@ export const ProjectProvider = ({
 
       // accumulate rowIds
       const rowIds = selectedGlyphs.flatMap((g) => g?.get('row_ids'));
-      setRowIds(rowIds);
+      setRowIds(rowIds.length > 0 ? rowIds : false);
 
       // display latest
       const last = selectedGlyphs[selectedGlyphs.length - 1];

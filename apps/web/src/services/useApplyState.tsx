@@ -33,25 +33,34 @@ const useApplyState = () => {
       setActiveState(stateId);
       setDrawer(true);
 
+      const isLoading = Object.keys(loading).length > 0;
       // only apply state if not loading
-      if (!(Object.keys(loading).length > 0 && project && modelRunnerState.initialized)) {
+      if (!isLoading && project && modelRunnerState.initialized) {
         // extract values
-        const filteredStates = project?.stateHistory?.filter((state) => !state.deletedAt);
-        const state = filteredStates?.find((s) => s.id === stateId);
+        const states = project?.stateHistory;
+        const activeStates = states?.filter((state) => !state.deletedAt);
+        const state = states?.find((s) => s.id === stateId);
 
+        console.log({state}); // TODO: this is undefined
         if (state) {
           // get the data files
           await downloadState(stateId);
-
+          console.log('download state called');
           // pass values to rust side of the house
           const camera = state.camera;
+          console.log({camera});
           const aspect = state.aspectRatio.width / state.aspectRatio.height;
+          console.log({aspect});
+          console.log({runnerState: modelRunnerState});
+
           modelRunnerState.modelRunner?.set_camera_data(camera, aspect);
+          console.log('set camera data');
 
           // format rowIds from string in mongo to Uint32Array for modelRunner
           const ids = (state.rowIds as any[])?.map((id) => Number(id)) as number[];
           const selectedIds = new Uint32Array(ids) ?? new Uint32Array();
-          modelRunnerState.modelRunner?.set_selected_glyphs(selectedIds);
+          console.log({ids, selectedIds});
+          modelRunnerState.modelRunner.set_selected_glyphs(selectedIds);
 
           // update local react state
           const properties = state.properties;
@@ -60,7 +69,7 @@ const useApplyState = () => {
             produce((draft: any) => {
               // set axes and filters
               draft.state.properties = properties;
-              draft.stateHistory = filteredStates;
+              draft.stateHistory = activeStates;
             })
           );
         }

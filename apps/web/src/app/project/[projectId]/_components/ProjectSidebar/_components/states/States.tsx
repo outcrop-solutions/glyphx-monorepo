@@ -3,10 +3,12 @@ import React, {useState} from 'react';
 import {StateList} from './StateList';
 import {PlusIcon} from '@heroicons/react/outline';
 import {CreateStateInput} from './CreateStateInput';
+import {showStateInputAtom} from 'state';
+import {useRecoilState} from 'recoil';
 
 export const States = () => {
   const [isCollapsed, setCollapsed] = useState(false);
-  const [addState, setAddState] = useState(false);
+  const [addState, setAddState] = useRecoilState(showStateInputAtom);
 
   return (
     <div className="group flex flex-col grow">

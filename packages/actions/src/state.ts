@@ -63,14 +63,15 @@ export async function uploadFileAction(formData: FormData) {
  * @param rowIds
  */
 export const createState = async (
+  formData: FormData,
   name: string,
   camera: rustGlyphEngineTypes.ICameraData,
   projectId: databaseTypes.IProject['id'],
-  imageUrl: string,
   aspectRatio: webTypes.Aspect,
   rowIds: number[]
 ) => {
   try {
+    console.log({aspectRatio});
     const session = await getServerSession(authOptions);
     if (session?.user) {
       const project = await projectService.getProject(projectId as string);
@@ -82,15 +83,32 @@ export const createState = async (
           project,
           session?.user?.id,
           aspectRatio,
-          rowIds as unknown as string[],
-          imageUrl
+          rowIds as unknown as string[]
         );
+
+        if (!state?.id) {
+          throw new ActionError('State was not created', 'createState', {state});
+        }
+
+        const file = formData.get('file') as Blob | null;
+        if (!file) {
+          throw new Error('File is required');
+        }
+
+        // stream file to storage
+        const {url} = await put(`state/${state.id}`, file.stream(), {
+          access: 'public', // Make the uploaded file publicly accessible
+          addRandomSuffix: false,
+          token: getToken(),
+        });
+
+        await stateService.updateState(state.id, name, url);
 
         if (project?.members) {
           const emailData = {
             type: emailTypes.EmailTypes.STATE_CREATED,
             stateName: name,
-            stateImage: imageUrl,
+            stateImage: url,
             emails: project.members?.map((mem) => mem.email),
             projectId: project.id as string,
           } satisfies emailTypes.EmailData;

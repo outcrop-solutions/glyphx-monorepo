@@ -1,5 +1,5 @@
 'use client';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback} from 'react';
 import StateIcon from 'svg/state.svg';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {CameraIcon} from '@heroicons/react/outline';
@@ -11,6 +11,7 @@ export const maxDuration = 300;
 export const CreateStateInput = () => {
   const [name, setName] = useRecoilState(activeStateNameAtom);
   const [isSubmitting, setIsSubmitting] = useRecoilState(isSubmittingAtom);
+
   const validName = name?.length > 0 && name?.length <= 75;
   const [modelRunnerState, setModelRunnerState] = useRecoilState(modelRunnerAtom);
 
@@ -25,7 +26,9 @@ export const CreateStateInput = () => {
         if (modelRunnerState.initialized) {
           // this is flipped back to false in provider.tsx on line 170
           setIsSubmitting(true);
+          console.log('is submitting');
           modelRunnerState.modelRunner.take_screenshot(true);
+          console.log('took state screenshot');
         }
       } catch (error) {
         console.log(error);
