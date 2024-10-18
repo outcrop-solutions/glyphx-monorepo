@@ -2,7 +2,6 @@
 mod application;
 mod assets;
 mod camera;
-mod data;
 mod light;
 mod model;
 mod model_event;

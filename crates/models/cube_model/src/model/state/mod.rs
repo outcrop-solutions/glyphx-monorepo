@@ -20,11 +20,10 @@ use crate::{
         camera_controller::{CameraController, MouseEvent},
         uniform_buffer::CameraUniform,
     },
-    data::{DeserializeVectorError, ModelVectors},
     light::light_uniform::LightUniform,
     model::{
         color_table_uniform::ColorTableUniform,
-        data::{GlyphInstanceData, GlyphUniformData, GlyphUniformFlags, RankedGlyphData, Hit},
+        data::{GlyphInstanceData, GlyphUniformData, GlyphUniformFlags, RankedGlyphData, Hit, DeserializeVectorError, ModelVectors},
         filtering::Query,
         managers::{CameraManager, DataManager},
         model_configuration::ModelConfiguration,
