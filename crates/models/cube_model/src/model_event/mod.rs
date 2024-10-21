@@ -3,6 +3,7 @@ mod add_statistics;
 mod add_vector;
 mod model_move_direction;
 mod screenshot;
+mod camera_type_changed;
 
 use crate::model::{
     filtering::Query,
@@ -10,11 +11,12 @@ use crate::model::{
     state::State,
 };
 
-pub(crate) use add_glyphs::AddGlyphData;
-pub(crate) use add_statistics::AddStatisticData;
-pub(crate) use add_vector::AddVectorData;
-pub(crate) use model_move_direction::ModelMoveDirection;
-pub(crate) use screenshot::Screenshot;
+pub use add_glyphs::AddGlyphData;
+pub use add_statistics::AddStatisticData;
+pub use add_vector::AddVectorData;
+pub use model_move_direction::ModelMoveDirection;
+pub use screenshot::Screenshot;
+pub use camera_type_changed::CameraTypeChanged;
 
 use serde::Serialize;
 use serde_json::Value;
@@ -43,6 +45,7 @@ pub enum ModelEvent {
         height: u32,
     },
     ConfigurationUpdated,
+    CameraTypeChanged(CameraTypeChanged),
 }
 impl ModelEvent {
     pub fn event_type(&self) -> &str {
@@ -70,6 +73,7 @@ impl ModelEvent {
             },
             Self::ResizeWindow { .. } => "ResizeWindow",
             Self::ConfigurationUpdated => "ConfigurationUpdated",
+            Self::CameraTypeChanged(_) => "CameraTypeChanged",
 
         }
     
@@ -111,6 +115,7 @@ impl std::fmt::Debug for ModelEvent {
                 write!(f, "ResizeWindow(width: {}, height: {})", width, height)
             }
             ModelEvent::ConfigurationUpdated => write!(f, "ConfigurationUpdated"),
+            ModelEvent::CameraTypeChanged(camera_type) => write!(f, "CameraTypeChanged({:?})", camera_type.to_string()),
         }
     }
 }
@@ -145,6 +150,7 @@ pub enum JsSafeModelEvent {
         height: u32,
     },
     ConfigurationUpdated,
+    CameraTypeChanged(String),
 }
 
 impl From<&ModelEvent> for JsSafeModelEvent {
@@ -184,6 +190,9 @@ impl From<&ModelEvent> for JsSafeModelEvent {
                 }
             }
             ModelEvent::ConfigurationUpdated => Self::ConfigurationUpdated,
+            ModelEvent::CameraTypeChanged(camera_type) => {
+                Self::CameraTypeChanged(camera_type.to_string())
+            }
         }
     }
 }

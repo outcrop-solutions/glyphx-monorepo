@@ -2,11 +2,11 @@ use super::{
     emit_event,
     model::{
         filtering::Query,
-        model_configuration::{ColorWheel, ModelConfiguration},
+        model_configuration::ModelConfiguration,
         pipeline::glyphs::glyph_uniform_data::{InterpolationType, Order},
         state::{CameraManager, DataManager, State},
     },
-    model_event::{ModelEvent, ModelMoveDirection},
+    model_event::{ModelEvent, ModelMoveDirection, CameraTypeChanged},
     send_event,
 };
 
@@ -35,6 +35,7 @@ pub struct Application {
     width: u32,
     window_sized: bool,
     glyphs_updated: bool,
+    camera_is_orbit: bool,
 }
 
 impl Application {
@@ -57,6 +58,7 @@ impl Application {
             width,
             window_sized: false,
             glyphs_updated: false,
+            camera_is_orbit: false,
         }
     }
 
@@ -265,6 +267,27 @@ impl ApplicationHandler<ModelEvent> for Application {
                             redraw = false;
                     },
 
+                    //Toggle Orbit CameraKeyCode::KeyO
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::KeyO),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+                    } //Toggle Orbit Camera Shift + O
+                       if self.shift_pressed => {
+                            self.camera_is_orbit = !self.camera_is_orbit;
+                            let camera_type = if self.camera_is_orbit {
+                                CameraTypeChanged::Ortbital
+                            } else {
+                                CameraTypeChanged::Perspective
+                            };
+                            let event = ModelEvent::CameraTypeChanged(camera_type);
+                            emit_event(&event);
+                            redraw = false;
+                    },
                     //KeyCode::KeyArrowUp
                     WindowEvent::KeyboardInput {
                         event:
@@ -276,8 +299,23 @@ impl ApplicationHandler<ModelEvent> for Application {
                         ..
 
                     } //Move Model Up  Shift + ArrowUp
-                       if self.shift_pressed => {
+                       if self.shift_pressed && !self.camera_is_orbit => {
                             send_event(ModelEvent::ModelMove(ModelMoveDirection::Up(1.0)));
+                            redraw = false;
+                    },
+
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::ArrowUp),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+
+                    } //Add Pitch Shift + ArrowUp
+                       if self.shift_pressed && self.camera_is_orbit => {
+                            send_event(ModelEvent::ModelMove(ModelMoveDirection::Pitch(-10.0)));
                             redraw = false;
                     }
 
@@ -292,11 +330,26 @@ impl ApplicationHandler<ModelEvent> for Application {
                         ..
 
                     } //Move Model Down  Shift + ArrowDown
-                       if self.shift_pressed => {
+                       if self.shift_pressed  && !self.camera_is_orbit => {
                             send_event(ModelEvent::ModelMove(ModelMoveDirection::Down(1.0)));
                             redraw = false;
                     }
 
+                    //KeyCode::KeyArrowDown
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::ArrowDown),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+
+                    } //remoze pitch Shift + ArrowDown
+                       if self.shift_pressed  && self.camera_is_orbit => {
+                            send_event(ModelEvent::ModelMove(ModelMoveDirection::Pitch(10.0)));
+                            redraw = false;
+                    }
                     //KeyCode::KeyArrowLeft
                     WindowEvent::KeyboardInput {
                         event:
@@ -308,11 +361,26 @@ impl ApplicationHandler<ModelEvent> for Application {
                         ..
 
                     } //Move Model Left  Shift + ArrowLeft
-                       if self.shift_pressed => {
+                       if self.shift_pressed && !self.camera_is_orbit => {
                             send_event(ModelEvent::ModelMove(ModelMoveDirection::Left(1.0)));
                             redraw = false;
                     }
                        
+                    //KeyCode::KeyArrowLeft
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::ArrowLeft),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+
+                    } //Move Model Left  Shift + ArrowLeft
+                       if self.shift_pressed && self.camera_is_orbit => {
+                            send_event(ModelEvent::ModelMove(ModelMoveDirection::Yaw(10.0)));
+                            redraw = false;
+                    }
                     //KeyCode::KeyArrowRight
                     WindowEvent::KeyboardInput {
                         event:
@@ -324,8 +392,24 @@ impl ApplicationHandler<ModelEvent> for Application {
                         ..
 
                     } //Move Model Right  Shift + ArrowRight
-                       if self.shift_pressed => {
+                       if self.shift_pressed && !self.camera_is_orbit=> {
                             send_event(ModelEvent::ModelMove(ModelMoveDirection::Right(1.0)));
+                            redraw = false;
+                    }
+                       //
+                    //KeyCode::KeyArrowRight
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::ArrowRight),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+
+                    } //Move Model Right  Shift + ArrowRight
+                       if self.shift_pressed && self.camera_is_orbit=> {
+                            send_event(ModelEvent::ModelMove(ModelMoveDirection::Yaw(-10.0)));
                             redraw = false;
                     }
 
@@ -570,7 +654,14 @@ impl ApplicationHandler<ModelEvent> for Application {
 
                    emit_event(&ModelEvent::ScreenshotTaken(screenshot, is_state_creation));
                     redraw = false;
-                }
+                },
+
+                ModelEvent::CameraTypeChanged(camera_type) => {
+                    self.camera_is_orbit = match camera_type {
+                        CameraTypeChanged::Ortbital => true,
+                        CameraTypeChanged::Perspective => false,
+                    };
+                },
 
                 _ => {}
             }
