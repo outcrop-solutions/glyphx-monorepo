@@ -396,7 +396,7 @@ impl ApplicationHandler<ModelEvent> for Application {
                             send_event(ModelEvent::ModelMove(ModelMoveDirection::Right(1.0)));
                             redraw = false;
                     }
-                       //
+                      
                     //KeyCode::KeyArrowRight
                     WindowEvent::KeyboardInput {
                         event:
@@ -413,6 +413,38 @@ impl ApplicationHandler<ModelEvent> for Application {
                             redraw = false;
                     }
 
+                    //KeyCode::Plus
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::Equal | KeyCode::NumpadAdd),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+
+                    } //Move the model closer (Decrease Distance)  Shift + = (the plus key)
+                       if self.shift_pressed => {
+                            send_event(ModelEvent::ModelMove(ModelMoveDirection::Distance(-10.0)));
+                            redraw = false;
+                    },
+
+
+                    //KeyCode::Minus
+                    WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                physical_key: PhysicalKey::Code(KeyCode::Minus | KeyCode::NumpadSubtract),
+                                state: ElementState::Pressed,
+                                ..
+                            },
+                        ..
+
+                    } //Move the model farther away (Add Distance) shift + -  (the plus key)
+                       if self.shift_pressed => {
+                            send_event(ModelEvent::ModelMove(ModelMoveDirection::Distance(10.0)));
+                            redraw = false;
+                    }
                     WindowEvent::Resized(physical_size) => {
                         let new_size = PhysicalSize::new(physical_size.width, physical_size.height);
                         state.resize(physical_size);
