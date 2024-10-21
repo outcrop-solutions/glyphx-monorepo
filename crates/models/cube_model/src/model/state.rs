@@ -12,6 +12,7 @@ use crate::model::data::{
     GlyphDescription, GlyphVertexData, InstanceOutput, Rank, RankDirection, SelectedGlyph,
 };
 use crate::model::managers::BufferManager;
+use crate::model::scene::SceneRenderer;
 use crate::{
     model::{
         data::{
@@ -51,10 +52,10 @@ use winit::{
 
 pub struct State {
     wgpu_manager: Rc<RefCell<WgpuManager>>,
-    orientation_manager: OrientationManager,
+    orientation_manager: Rc<RefCell<OrientationManager>>,
     buffer_manager: Rc<RefCell<BufferManager>>,
     camera_manager: Rc<RefCell<CameraManager>>,
-    pipeline_manager: PipelineManager,
+    pipeline_manager: Rc<RefCell<PipelineManager>>,
     data_manager: Rc<RefCell<DataManager>>,
     camera_controller: CameraController,
     model_configuration: Rc<RefCell<ModelConfiguration>>,
@@ -63,6 +64,7 @@ pub struct State {
     render_count: u32,
     cursor_position: PhysicalPosition<f64>,
     model_filter: Query,
+    scene_renderer: SceneRenderer,
 }
 
 impl State {
@@ -87,7 +89,7 @@ impl State {
         let wm = wgpu_manager.clone();
         let wm = wm.borrow();
 
-        let orientation_manager = OrientationManager::new();
+        let orientation_manager = Rc::new(RefCell::new(OrientationManager::new()));
 
         let dm = data_manager.clone();
         let dm = dm.borrow();
@@ -116,12 +118,12 @@ impl State {
         let device = wm.device();
         let d = device.borrow();
 
-        let pipeline_manager = PipelineManager::new(
+        let pipeline_manager = Rc::new(RefCell::new(PipelineManager::new(
             wgpu_manager.clone(),
             buffer_manager.clone(),
             model_configuration.clone(),
             data_manager.clone(),
-        );
+        )));
 
         let smaa_target = SmaaTarget::new(
             &d,
@@ -130,6 +132,15 @@ impl State {
             wm.size().height,
             wm.config().format,
             SmaaMode::Smaa1X,
+        );
+
+        let scene_renderer = SceneRenderer::new(
+            buffer_manager.clone(),
+            wgpu_manager.clone(),
+            camera_manager.clone(),
+            data_manager.clone(),
+            pipeline_manager.clone(),
+            orientation_manager.clone(),
         );
 
         let mut model = Self {
@@ -148,6 +159,7 @@ impl State {
             cursor_position: PhysicalPosition { x: 0.0, y: 0.0 },
 
             model_filter: Query::default(),
+            scene_renderer,
         };
         //This allows us to initialize our camera with a pitch and yaw that is not 0
         let cm_clone = model.camera_manager.clone();
@@ -180,7 +192,7 @@ impl State {
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
         if new_size.width > 0 && new_size.height > 0 {
             self.wgpu_manager.borrow_mut().set_size(new_size);
-            self.pipeline_manager.update_depth_textures();
+            self.pipeline_manager.borrow_mut().update_depth_textures();
             self.camera_manager
                 .borrow_mut()
                 .update_aspect_ratio(new_size.width as f32 / new_size.height as f32);
@@ -290,7 +302,7 @@ impl State {
                 cm.add_y_offset(-1.0 * amount);
                 self.update(&mut cm);
             }
-            "left" => match self.orientation_manager.forward_face() {
+            "left" => match self.orientation_manager.clone().borrow().forward_face() {
                 Face::Front => {
                     let mut cm = cm.as_ref().borrow_mut();
                     cm.add_x_offset(-1.0 * amount);
@@ -313,7 +325,7 @@ impl State {
                 }
             },
 
-            "right" => match self.orientation_manager.forward_face() {
+            "right" => match &self.orientation_manager.clone().borrow().forward_face() {
                 Face::Front => {
                     let mut cm = cm.as_ref().borrow_mut();
                     cm.add_x_offset(amount);
@@ -412,7 +424,9 @@ impl State {
                 self.data_manager.as_ref().borrow().get_selected_glyphs_len() > 0,
             );
 
-        self.pipeline_manager
+        let pipeline_manager = self.pipeline_manager.clone();
+        let pipeline_manager = &mut pipeline_manager.borrow_mut();
+        pipeline_manager
             .upate_glyph_data_verticies(&self.model_filter);
 
         let config = self.model_configuration.clone();
@@ -426,17 +440,17 @@ impl State {
             config.max_color,
         );
 
-        self.pipeline_manager
+        pipeline_manager
             .set_axis_start(AxisLineDirection::X, config.model_origin[0]);
-        self.pipeline_manager
+        pipeline_manager
             .update_vertex_buffer(AxisLineDirection::X);
-        self.pipeline_manager
+        pipeline_manager
             .set_axis_start(AxisLineDirection::Y, config.model_origin[1]);
-        self.pipeline_manager
+        pipeline_manager
             .update_vertex_buffer(AxisLineDirection::Y);
-        self.pipeline_manager
+        pipeline_manager
             .set_axis_start(AxisLineDirection::Z, config.model_origin[2]);
-        self.pipeline_manager
+        pipeline_manager
             .update_vertex_buffer(AxisLineDirection::Z);
 
         self.buffer_manager.borrow_mut().update_light_uniform(
@@ -460,7 +474,7 @@ impl State {
         let config_size = self.wgpu_manager.as_ref().borrow().get_config_size();
         if window_size.0.width != config_size.width || window_size.0.height != config_size.height {
             self.wgpu_manager.borrow_mut().set_size(window_size.0);
-            self.pipeline_manager.update_depth_textures();
+            self.pipeline_manager.borrow_mut().update_depth_textures();
         }
     }
     pub fn render(&mut self) -> Result<(), SurfaceError> {
@@ -482,83 +496,8 @@ impl State {
     }
 
     fn render_scene(&mut self, view: &wgpu::TextureView) -> Result<(), SurfaceError> {
-        let buffer_manager = self.buffer_manager.borrow();
-        let wgpu_manager = self.wgpu_manager.borrow();
-        let queue = wgpu_manager.queue();
-        let device = wgpu_manager.device();
-        let device = device.borrow();
+        self.scene_renderer.render_scene(view, self.axis_visible)
 
-        let background_color = buffer_manager.color_table_uniform().background_color();
-
-        //This is yet another way to skin this mutible borrow cat.  Here, we can borrow the
-        //camera_manager and we don't have to worry about the immutable borrow of self since
-        //it is wrapped in () and is dropped after the borrow is executed.
-        let cm = (&mut self.camera_manager).borrow();
-
-        queue.write_buffer(
-            &buffer_manager.camera_buffer(),
-            0,
-            bytemuck::cast_slice(&[cm.get_camera_uniform()]),
-        );
-
-        queue.write_buffer(
-            &buffer_manager.color_table_buffer(),
-            0,
-            bytemuck::cast_slice(&[*buffer_manager.color_table_uniform()]),
-        );
-
-        queue.write_buffer(
-            buffer_manager.light_buffer(),
-            0,
-            bytemuck::cast_slice(&[*buffer_manager.light_uniform()]),
-        );
-
-        queue.write_buffer(
-            buffer_manager.glyph_uniform_buffer(),
-            0,
-            bytemuck::cast_slice(&[*buffer_manager.glyph_uniform_data()]),
-        );
-        let size = wgpu_manager.size().clone();
-
-        let smaa_frame = self.smaa_target.start_frame(&device, queue, &view);
-        let mut commands = Vec::new();
-
-        self.pipeline_manager
-            .clear_screen(background_color, &*smaa_frame, &mut commands);
-
-        //// self.pipeline_manager
-        ////     .run_charms_pipeline(&*smaa_frame, &mut commands);
-
-        let string_order = self.orientation_manager.z_order();
-
-        for name in string_order {
-            //Glyphs has it's own logic to render in rank order so we can't really use the pipeline
-            //manager trait to render it.  So, we will handle it directly.
-            if name == "glyphs" {
-                self.pipeline_manager.run_glyph_pipeline(
-                    &self.data_manager.borrow().get_selected_glyphs(),
-                    self.orientation_manager.rank(),
-                    self.orientation_manager.rank_direction(),
-                    &*smaa_frame,
-                    &mut commands,
-                );
-            } else if self.axis_visible {
-                let pipeline = match name {
-                    "x-axis-line" => AxisLineDirection::X,
-                    "y-axis-line" => AxisLineDirection::Y,
-                    "z-axis-line" => AxisLineDirection::Z,
-                    _ => panic!("Unknown pipeline name"),
-                };
-                self.pipeline_manager
-                    .run_axis_pipeline(pipeline, &*smaa_frame, &mut commands);
-            }
-        }
-        // Copy the texture to the buffer
-        queue.submit(commands);
-
-        smaa_frame.resolve();
-
-        Ok(())
     }
 
     pub fn take_screenshot(&mut self, is_state_creation: bool) -> Result<(), SurfaceError> {
@@ -688,7 +627,7 @@ impl State {
         Ok(())
     }
     pub fn run_compute_pipeline(&mut self) {
-        let output_buffer = self.pipeline_manager.run_glyph_data_pipeline();
+        let output_buffer = self.pipeline_manager.borrow_mut().run_glyph_data_pipeline();
         let output_buffer = std::sync::Arc::new(output_buffer);
         let capturable = output_buffer.clone();
 
@@ -760,9 +699,9 @@ impl State {
         y_pos: u32,
         is_shift_pressed: bool,
     ) -> Result<(), SurfaceError> {
-        let (output_buffer, bytes_per_row) = self.pipeline_manager.run_hit_detection_pipeline(
-            self.orientation_manager.rank(),
-            self.orientation_manager.rank_direction(),
+        let (output_buffer, bytes_per_row) = self.pipeline_manager.borrow().run_hit_detection_pipeline(
+            self.orientation_manager.borrow().rank(),
+            self.orientation_manager.borrow().rank_direction(),
         );
         let output_buffer = std::sync::Arc::new(output_buffer);
         let captuable = output_buffer.clone();
@@ -805,7 +744,7 @@ impl State {
         let flags = GlyphUniformFlags::decode(glyph_uniform_data.flags).unwrap();
         let is_x_desc = flags.x_order == Order::Descending;
         let is_z_desc = flags.z_order == Order::Descending;
-        self.orientation_manager.update_z_order_and_rank(
+        self.orientation_manager.borrow_mut().update_z_order_and_rank(
             camera_manager.get_yaw(),
             camera_manager.get_distance(),
             is_x_desc,
