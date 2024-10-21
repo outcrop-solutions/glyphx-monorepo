@@ -3,6 +3,7 @@ use model_common::vectors::VectorOrigionalValue;
 
 use serde_json::{json, Value};
 
+#[derive(Debug, Clone)]
 pub struct GlyphDescription {
     pub x: VectorOrigionalValue,
     //These are in application order and not flipped.  It is because the data is not flipped when

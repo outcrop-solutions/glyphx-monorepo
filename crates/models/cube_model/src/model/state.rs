@@ -62,7 +62,6 @@ pub struct State {
     axis_visible: bool,
     render_count: u32,
     cursor_position: PhysicalPosition<f64>,
-    selected_glyphs: Vec<SelectedGlyph>,
     model_filter: Query,
 }
 
@@ -147,7 +146,6 @@ impl State {
             render_count: 0,
             //This should be updated pretty quickly after the model loads.
             cursor_position: PhysicalPosition { x: 0.0, y: 0.0 },
-            selected_glyphs: Vec::new(),
 
             model_filter: Query::default(),
         };
@@ -236,18 +234,17 @@ impl State {
         handled
     }
 
-    pub fn update_selected_glyphs(&mut self, selected_glyphs: Vec<u32>) -> &Vec<SelectedGlyph> {
+    pub fn update_selected_glyphs(&mut self, selected_glyphs: Vec<u32>) -> Vec<SelectedGlyph> {
         let mut selected: Vec<SelectedGlyph> = Vec::new();
-        let dm = self.data_manager.borrow();
+        let dm = &mut self.data_manager.borrow_mut();
         for sg in selected_glyphs {
             let glyph_desc = dm.get_glyph_description(sg);
             if glyph_desc.is_some() {
                 let glyph_desc = glyph_desc.unwrap();
-                selected.push(glyph_desc);
+                dm.add_selected_glyph(glyph_desc);
             }
         }
-        self.selected_glyphs = selected;
-        &self.selected_glyphs
+        dm.get_selected_glyphs()
     }
 
     pub fn hit_detection(&mut self, x_pos: u32, y_pos: u32, is_shift_pressed: bool) {
@@ -412,7 +409,7 @@ impl State {
             .borrow_mut()
             .update_glyph_uniform_buffer(
                 &self.model_configuration.borrow(),
-                self.selected_glyphs.len() > 0,
+                self.data_manager.as_ref().borrow().get_selected_glyphs_len() > 0,
             );
 
         self.pipeline_manager
@@ -539,7 +536,7 @@ impl State {
             //manager trait to render it.  So, we will handle it directly.
             if name == "glyphs" {
                 self.pipeline_manager.run_glyph_pipeline(
-                    &self.selected_glyphs,
+                    &self.data_manager.borrow().get_selected_glyphs(),
                     self.orientation_manager.rank(),
                     self.orientation_manager.rank_direction(),
                     &*smaa_frame,
@@ -721,45 +718,39 @@ impl State {
                 capturable.unmap();
             });
     }
-    pub fn process_hit(&mut self, hit: Hit) -> &Vec<SelectedGlyph> {
+    pub fn process_hit(&mut self, hit: Hit) -> Vec<SelectedGlyph> {
         let mut reprocess = false;
+        let data_manager = self.data_manager.clone();
+        let data_manager = &mut data_manager.borrow_mut();
         if hit.glyph_id != 16777215 {
-            let glyph_desc = self
-                .data_manager
-                .borrow()
+            let glyph_desc = 
+                data_manager
                 .get_glyph_description(hit.glyph_id)
                 .unwrap();
-            if !self
-                .selected_glyphs
-                .iter()
-                .any(|sg| sg.glyph_id == hit.glyph_id)
-            {
+            if !data_manager.glyph_is_selected(hit.glyph_id) {
+            
                 if !hit.shift_pressed {
-                    self.selected_glyphs.clear();
+                    data_manager.clear_selected_glyphs();
                 }
-                self.selected_glyphs.push(glyph_desc);
+                data_manager.add_selected_glyph(glyph_desc);
                 reprocess = true;
             } else {
-                let index = self
-                    .selected_glyphs
-                    .iter()
-                    .position(|r| r.glyph_id == hit.glyph_id);
-                if let Some(index) = index {
-                    self.selected_glyphs.remove(index);
+                if data_manager.glyph_is_selected(hit.glyph_id) {
+                    data_manager.remove_selected_glyph(hit.glyph_id); 
                     reprocess = true;
                 }
             }
         } else if !hit.shift_pressed {
-            if self.selected_glyphs.len() > 0 {
+            if data_manager.get_selected_glyphs_len() > 0 {
                 reprocess = true;
-                self.selected_glyphs.clear();
+                data_manager.clear_selected_glyphs();
             }
         }
         if reprocess == true {
             self.run_compute_pipeline();
         }
 
-        &self.selected_glyphs
+       data_manager.get_selected_glyphs() 
     }
 
     fn run_hit_detection_pipeline(

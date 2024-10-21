@@ -182,273 +182,11 @@ mod constructor {
 }
 
 #[cfg(test)]
-mod add {
+mod unit_tests {
     use super::*;
-    use crate::assets::shape_vertex::ShapeVertex;
-    #[test]
-    fn is_ok() {
-        let x_rank_size = 10;
-        let z_rank_size = 10;
-        let mut ranked_glyph_data = RankedGlyphData::new(x_rank_size, z_rank_size);
-        let first_glyph = GlyphVertexData::new(
-            0,
-            ShapeVertex {
-                position_vertex: [1.0, 2.0, 3.0],
-                normal: [4.0, 5.0, 6.0],
-                color: 7,
-            },
-            0,
-            0,
-            15,
-        );
-
-        let second_glyph = GlyphVertexData::new(
-            1,
-            ShapeVertex {
-                position_vertex: [8.0, 9.0, 10.0],
-                normal: [11.0, 12.0, 13.0],
-                color: 14,
-            },
-            7,
-            4,
-            16,
-        );
-
-        assert!(ranked_glyph_data.add(first_glyph).is_ok());
-        assert!(ranked_glyph_data.add(second_glyph).is_ok());
-
-        assert_eq!(ranked_glyph_data.core_data.len(), 2);
-
-        assert_eq!(ranked_glyph_data.x_rank[0].len(), 1);
-        assert_eq!(ranked_glyph_data.z_rank[0].len(), 1);
-
-        let glyph = &ranked_glyph_data.x_rank[0][0];
-        let glyph = glyph.clone();
-        let glyph = glyph.as_ref().borrow();
-        assert_eq!(glyph.glyph_id, first_glyph.glyph_id);
-        assert_eq!(glyph.position[0], first_glyph.position[0]);
-        assert_eq!(glyph.position[1], first_glyph.position[1]);
-        assert_eq!(glyph.position[2], first_glyph.position[2]);
-        assert_eq!(glyph.normal[0], first_glyph.normal[0]);
-        assert_eq!(glyph.normal[1], first_glyph.normal[1]);
-        assert_eq!(glyph.normal[2], first_glyph.normal[2]);
-
-        assert_eq!(glyph.color, first_glyph.color);
-        assert_eq!(glyph.x_rank, first_glyph.x_rank);
-        assert_eq!(glyph.z_rank, first_glyph.z_rank);
-        assert_eq!(glyph.flags, first_glyph.flags);
-
-        let glyph = &ranked_glyph_data.z_rank[0][0];
-        let glyph = glyph.clone();
-        let glyph = glyph.as_ref().borrow();
-        assert_eq!(glyph.glyph_id, first_glyph.glyph_id);
-        assert_eq!(glyph.position[0], first_glyph.position[0]);
-        assert_eq!(glyph.position[1], first_glyph.position[1]);
-        assert_eq!(glyph.position[2], first_glyph.position[2]);
-        assert_eq!(glyph.position[0], first_glyph.position[0]);
-        assert_eq!(glyph.normal[1], first_glyph.normal[1]);
-        assert_eq!(glyph.normal[2], first_glyph.normal[2]);
-        assert_eq!(glyph.color, first_glyph.color);
-        assert_eq!(glyph.x_rank, first_glyph.x_rank);
-        assert_eq!(glyph.z_rank, first_glyph.z_rank);
-        assert_eq!(glyph.flags, first_glyph.flags);
-
-        let glyph = &ranked_glyph_data.x_rank[7][0];
-        let glyph = glyph.clone();
-        let glyph = glyph.as_ref().borrow();
-        assert_eq!(glyph.glyph_id, second_glyph.glyph_id);
-        assert_eq!(glyph.position[0], second_glyph.position[0]);
-        assert_eq!(glyph.position[1], second_glyph.position[1]);
-        assert_eq!(glyph.position[2], second_glyph.position[2]);
-        assert_eq!(glyph.normal[0], second_glyph.normal[0]);
-        assert_eq!(glyph.normal[1], second_glyph.normal[1]);
-        assert_eq!(glyph.normal[2], second_glyph.normal[2]);
-        assert_eq!(glyph.color, second_glyph.color);
-        assert_eq!(glyph.x_rank, second_glyph.x_rank);
-        assert_eq!(glyph.z_rank, second_glyph.z_rank);
-        assert_eq!(glyph.flags, second_glyph.flags);
-
-        let glyph = &ranked_glyph_data.z_rank[4][0];
-        let glyph = glyph.clone();
-        let glyph = glyph.as_ref().borrow();
-        assert_eq!(glyph.glyph_id, second_glyph.glyph_id);
-        assert_eq!(glyph.position[0], second_glyph.position[0]);
-        assert_eq!(glyph.position[1], second_glyph.position[1]);
-        assert_eq!(glyph.position[2], second_glyph.position[2]);
-        assert_eq!(glyph.normal[0], second_glyph.normal[0]);
-        assert_eq!(glyph.normal[1], second_glyph.normal[1]);
-        assert_eq!(glyph.normal[2], second_glyph.normal[2]);
-        assert_eq!(glyph.color, second_glyph.color);
-        assert_eq!(glyph.x_rank, second_glyph.x_rank);
-        assert_eq!(glyph.z_rank, second_glyph.z_rank);
-        assert_eq!(glyph.flags, second_glyph.flags);
-    }
-
-    #[test]
-    fn invalid_x_rank() {
-        let x_rank_size = 10;
-        let z_rank_size = 10;
-        let mut ranked_glyph_data = RankedGlyphData::new(x_rank_size, z_rank_size);
-        let glyph = GlyphVertexData::new(
-            0,
-            ShapeVertex {
-                position_vertex: [1.0, 2.0, 3.0],
-                normal: [4.0, 5.0, 6.0],
-                color: 7,
-            },
-            11,
-            0,
-            15,
-        );
-
-        let result = ranked_glyph_data.add(glyph);
-        assert!(result.is_err());
-        let err_value = match result.unwrap_err() {
-            RankedGlyphDataError::InvalidXRank(value) => value,
-            _ => 999999,
-        };
-        assert_eq!(err_value, 11);
-        assert_eq!(ranked_glyph_data.core_data.len(), 0);
-    }
-
-    #[test]
-    fn invalid_z_rank() {
-        let x_rank_size = 10;
-        let z_rank_size = 10;
-        let mut ranked_glyph_data = RankedGlyphData::new(x_rank_size, z_rank_size);
-        let glyph = GlyphVertexData::new(
-            0,
-            ShapeVertex {
-                position_vertex: [1.0, 2.0, 3.0],
-                normal: [4.0, 5.0, 6.0],
-                color: 7,
-            },
-            0,
-            11,
-            15,
-        );
-        let result = ranked_glyph_data.add(glyph);
-        assert!(result.is_err());
-        let err_value = match result.unwrap_err() {
-            RankedGlyphDataError::InvalidZRank(value) => value,
-            _ => 999999,
-        };
-        assert_eq!(err_value, 11);
-        assert_eq!(ranked_glyph_data.core_data.len(), 0);
-    }
-}
-
-#[cfg(test)]
-mod iter {
-    use super::*;
-    use crate::assets::shape_vertex::ShapeVertex;
-    fn build_test_set() -> RankedGlyphData {
-        let mut ranked_glyph_data = RankedGlyphData::new(10, 10);
-        let mut x = 0;
-        let mut z = 0;
-        while x < 10 {
-            while z < 10 {
-                let id = (x * 10 + z) as f32;
-                let glyph = GlyphVertexData::new(
-                    id as u32,
-                    ShapeVertex {
-                        position_vertex: [id + 1.0, id + 2.0, id + 3.0],
-                        normal: [id + 4.0, id + 5.0, id + 6.0],
-                        color: id as u32 + 7,
-                    },
-                    x,
-                    z,
-                    id as u32 + 15,
-                );
-
-                ranked_glyph_data.add(glyph).unwrap();
-                z += 1;
-            }
-            z = 0;
-            x += 1;
-        }
-
-        ranked_glyph_data
-    }
-    #[test]
-    fn x_rank_ascending() {
-        let ranked_glyph_data = build_test_set();
-        let mut iter = ranked_glyph_data.iter(Rank::X, RankDirection::Ascending);
-        let mut x = 0;
-        let mut z = 0;
-        while let Some(glyphs) = iter.next() {
-            for glyph in glyphs {
-                let expected_id = (x * 10 + z) as u32;
-                let glyph = glyph.clone();
-                let glyph = glyph.as_ref().borrow();
-                assert_eq!(glyph.glyph_id, expected_id);
-                z += 1;
-            }
-            z = 0;
-            x += 1;
-        }
-    }
-
-    #[test]
-    fn x_rank_descending() {
-        let ranked_glyph_data = build_test_set();
-        let mut iter = ranked_glyph_data.iter(Rank::X, RankDirection::Descending);
-        let mut x = 10;
-        let mut z = 0;
-        while let Some(glyphs) = iter.next() {
-            for glyph in glyphs {
-                let expected_id = (x * 10 + z) as u32;
-                let glyph = glyph.clone();
-                let glyph = glyph.as_ref().borrow();
-                assert_eq!(glyph.glyph_id, expected_id);
-                z += 1;
-            }
-            z = 0;
-            x -= 1;
-        }
-    }
-
-    #[test]
-    fn z_rank_ascending() {
-        let ranked_glyph_data = build_test_set();
-        let mut iter = ranked_glyph_data.iter(Rank::Z, RankDirection::Ascending);
-        let mut x = 0;
-        let mut z = 0;
-        while let Some(glyphs) = iter.next() {
-            for glyph in glyphs {
-                let expected_id = (x * 10 + z) as u32;
-                let glyph = glyph.clone();
-                let glyph = glyph.as_ref().borrow();
-                assert_eq!(glyph.glyph_id, expected_id);
-                x += 1;
-            }
-            x = 0;
-            z += 1;
-        }
-    }
-
-    #[test]
-    fn z_rank_descending() {
-        let ranked_glyph_data = build_test_set();
-        let mut iter = ranked_glyph_data.iter(Rank::Z, RankDirection::Descending);
-        let mut x = 0;
-        let mut z = 10;
-        while let Some(glyphs) = iter.next() {
-            for glyph in glyphs {
-                let expected_id = (x * 10 + z) as u32;
-                let glyph = glyph.clone();
-                let glyph = glyph.as_ref().borrow();
-                assert_eq!(glyph.glyph_id, expected_id);
-                x += 1;
-            }
-            x = 0;
-            z -= 1;
-        }
-    }
-
-    mod get_glyphs_vector {
+    use crate::model::data::ShapeVertex;
+    mod add {
         use super::*;
-        use crate::assets::shape_vertex::ShapeVertex;
 
         #[test]
         fn is_ok() {
@@ -484,22 +222,58 @@ mod iter {
 
             assert_eq!(ranked_glyph_data.core_data.len(), 2);
 
-            let glyphs_vector = ranked_glyph_data.get_glyphs_vector();
-            assert_eq!(glyphs_vector.len(), 2);
-            let glyph = &glyphs_vector[0];
+            assert_eq!(ranked_glyph_data.x_rank[0].len(), 1);
+            assert_eq!(ranked_glyph_data.z_rank[0].len(), 1);
+
+            let glyph = &ranked_glyph_data.x_rank[0][0];
+            let glyph = glyph.clone();
+            let glyph = glyph.as_ref().borrow();
+            assert_eq!(glyph.glyph_id, first_glyph.glyph_id);
+            assert_eq!(glyph.position[0], first_glyph.position[0]);
+            assert_eq!(glyph.position[1], first_glyph.position[1]);
+            assert_eq!(glyph.position[2], first_glyph.position[2]);
+            assert_eq!(glyph.normal[0], first_glyph.normal[0]);
+            assert_eq!(glyph.normal[1], first_glyph.normal[1]);
+            assert_eq!(glyph.normal[2], first_glyph.normal[2]);
+
+            assert_eq!(glyph.color, first_glyph.color);
+            assert_eq!(glyph.x_rank, first_glyph.x_rank);
+            assert_eq!(glyph.z_rank, first_glyph.z_rank);
+            assert_eq!(glyph.flags, first_glyph.flags);
+
+            let glyph = &ranked_glyph_data.z_rank[0][0];
+            let glyph = glyph.clone();
+            let glyph = glyph.as_ref().borrow();
             assert_eq!(glyph.glyph_id, first_glyph.glyph_id);
             assert_eq!(glyph.position[0], first_glyph.position[0]);
             assert_eq!(glyph.position[1], first_glyph.position[1]);
             assert_eq!(glyph.position[2], first_glyph.position[2]);
             assert_eq!(glyph.position[0], first_glyph.position[0]);
-            assert_eq!(glyph.position[1], first_glyph.position[1]);
+            assert_eq!(glyph.normal[1], first_glyph.normal[1]);
             assert_eq!(glyph.normal[2], first_glyph.normal[2]);
             assert_eq!(glyph.color, first_glyph.color);
             assert_eq!(glyph.x_rank, first_glyph.x_rank);
             assert_eq!(glyph.z_rank, first_glyph.z_rank);
             assert_eq!(glyph.flags, first_glyph.flags);
 
-            let glyph = &glyphs_vector[1];
+            let glyph = &ranked_glyph_data.x_rank[7][0];
+            let glyph = glyph.clone();
+            let glyph = glyph.as_ref().borrow();
+            assert_eq!(glyph.glyph_id, second_glyph.glyph_id);
+            assert_eq!(glyph.position[0], second_glyph.position[0]);
+            assert_eq!(glyph.position[1], second_glyph.position[1]);
+            assert_eq!(glyph.position[2], second_glyph.position[2]);
+            assert_eq!(glyph.normal[0], second_glyph.normal[0]);
+            assert_eq!(glyph.normal[1], second_glyph.normal[1]);
+            assert_eq!(glyph.normal[2], second_glyph.normal[2]);
+            assert_eq!(glyph.color, second_glyph.color);
+            assert_eq!(glyph.x_rank, second_glyph.x_rank);
+            assert_eq!(glyph.z_rank, second_glyph.z_rank);
+            assert_eq!(glyph.flags, second_glyph.flags);
+
+            let glyph = &ranked_glyph_data.z_rank[4][0];
+            let glyph = glyph.clone();
+            let glyph = glyph.as_ref().borrow();
             assert_eq!(glyph.glyph_id, second_glyph.glyph_id);
             assert_eq!(glyph.position[0], second_glyph.position[0]);
             assert_eq!(glyph.position[1], second_glyph.position[1]);
@@ -512,46 +286,275 @@ mod iter {
             assert_eq!(glyph.z_rank, second_glyph.z_rank);
             assert_eq!(glyph.flags, second_glyph.flags);
         }
+
+        #[test]
+        fn invalid_x_rank() {
+            let x_rank_size = 10;
+            let z_rank_size = 10;
+            let mut ranked_glyph_data = RankedGlyphData::new(x_rank_size, z_rank_size);
+            let glyph = GlyphVertexData::new(
+                0,
+                ShapeVertex {
+                    position_vertex: [1.0, 2.0, 3.0],
+                    normal: [4.0, 5.0, 6.0],
+                    color: 7,
+                },
+                11,
+                0,
+                15,
+            );
+
+            let result = ranked_glyph_data.add(glyph);
+            assert!(result.is_err());
+            let err_value = match result.unwrap_err() {
+                RankedGlyphDataError::InvalidXRank(value) => value,
+                _ => 999999,
+            };
+            assert_eq!(err_value, 11);
+            assert_eq!(ranked_glyph_data.core_data.len(), 0);
+        }
+
+        #[test]
+        fn invalid_z_rank() {
+            let x_rank_size = 10;
+            let z_rank_size = 10;
+            let mut ranked_glyph_data = RankedGlyphData::new(x_rank_size, z_rank_size);
+            let glyph = GlyphVertexData::new(
+                0,
+                ShapeVertex {
+                    position_vertex: [1.0, 2.0, 3.0],
+                    normal: [4.0, 5.0, 6.0],
+                    color: 7,
+                },
+                0,
+                11,
+                15,
+            );
+            let result = ranked_glyph_data.add(glyph);
+            assert!(result.is_err());
+            let err_value = match result.unwrap_err() {
+                RankedGlyphDataError::InvalidZRank(value) => value,
+                _ => 999999,
+            };
+            assert_eq!(err_value, 11);
+            assert_eq!(ranked_glyph_data.core_data.len(), 0);
+        }
     }
-}
 
-#[cfg(test)]
-mod get_number_of_glyphs {
-    use super::*;
-    use crate::assets::shape_vertex::ShapeVertex;
-    #[test]
-    fn is_ok() {
-        let x_rank_size = 10;
-        let z_rank_size = 10;
-        let mut ranked_glyph_data = RankedGlyphData::new(x_rank_size, z_rank_size);
-        let first_glyph = GlyphVertexData::new(
-            0,
-            ShapeVertex {
-                position_vertex: [1.0, 2.0, 3.0],
-                normal: [4.0, 5.0, 6.0],
-                color: 7,
-            },
-            0,
-            0,
-            15,
-        );
+    mod iter {
+        use super::*;
 
-        let second_glyph = GlyphVertexData::new(
-            1,
-            ShapeVertex {
-                position_vertex: [8.0, 9.0, 10.0],
-                normal: [11.0, 12.0, 13.0],
-                color: 14,
-            },
-            7,
-            4,
-            16,
-        );
+        fn build_test_set() -> RankedGlyphData {
+            let mut ranked_glyph_data = RankedGlyphData::new(10, 10);
+            let mut x = 0;
+            let mut z = 0;
+            while x < 10 {
+                while z < 10 {
+                    let id = (x * 10 + z) as f32;
+                    let glyph = GlyphVertexData::new(
+                        id as u32,
+                        ShapeVertex {
+                            position_vertex: [id + 1.0, id + 2.0, id + 3.0],
+                            normal: [id + 4.0, id + 5.0, id + 6.0],
+                            color: id as u32 + 7,
+                        },
+                        x,
+                        z,
+                        id as u32 + 15,
+                    );
 
-        assert_eq!(ranked_glyph_data.get_number_of_glyphs(), 0);
-        assert!(ranked_glyph_data.add(first_glyph).is_ok());
-        assert_eq!(ranked_glyph_data.get_number_of_glyphs(), 1);
-        assert!(ranked_glyph_data.add(second_glyph).is_ok());
-        assert_eq!(ranked_glyph_data.get_number_of_glyphs(), 2);
+                    ranked_glyph_data.add(glyph).unwrap();
+                    z += 1;
+                }
+                z = 0;
+                x += 1;
+            }
+
+            ranked_glyph_data
+        }
+
+        #[test]
+        fn x_rank_ascending() {
+            let ranked_glyph_data = build_test_set();
+            let mut iter = ranked_glyph_data.iter(Rank::X, RankDirection::Ascending);
+            let mut x = 0;
+            let mut z = 0;
+            while let Some(glyphs) = iter.next() {
+                for glyph in glyphs {
+                    let expected_id = (x * 10 + z) as u32;
+                    let glyph = glyph.clone();
+                    let glyph = glyph.as_ref().borrow();
+                    assert_eq!(glyph.glyph_id, expected_id);
+                    z += 1;
+                }
+                z = 0;
+                x += 1;
+            }
+        }
+
+        #[test]
+        fn x_rank_descending() {
+            let ranked_glyph_data = build_test_set();
+            let mut iter = ranked_glyph_data.iter(Rank::X, RankDirection::Descending);
+            let mut x = 10;
+            let mut z = 0;
+            while let Some(glyphs) = iter.next() {
+                for glyph in glyphs {
+                    let expected_id = (x * 10 + z) as u32;
+                    let glyph = glyph.clone();
+                    let glyph = glyph.as_ref().borrow();
+                    assert_eq!(glyph.glyph_id, expected_id);
+                    z += 1;
+                }
+                z = 0;
+                x -= 1;
+            }
+        }
+
+        #[test]
+        fn z_rank_ascending() {
+            let ranked_glyph_data = build_test_set();
+            let mut iter = ranked_glyph_data.iter(Rank::Z, RankDirection::Ascending);
+            let mut x = 0;
+            let mut z = 0;
+            while let Some(glyphs) = iter.next() {
+                for glyph in glyphs {
+                    let expected_id = (x * 10 + z) as u32;
+                    let glyph = glyph.clone();
+                    let glyph = glyph.as_ref().borrow();
+                    assert_eq!(glyph.glyph_id, expected_id);
+                    x += 1;
+                }
+                x = 0;
+                z += 1;
+            }
+        }
+
+        #[test]
+        fn z_rank_descending() {
+            let ranked_glyph_data = build_test_set();
+            let mut iter = ranked_glyph_data.iter(Rank::Z, RankDirection::Descending);
+            let mut x = 0;
+            let mut z = 10;
+            while let Some(glyphs) = iter.next() {
+                for glyph in glyphs {
+                    let expected_id = (x * 10 + z) as u32;
+                    let glyph = glyph.clone();
+                    let glyph = glyph.as_ref().borrow();
+                    assert_eq!(glyph.glyph_id, expected_id);
+                    x += 1;
+                }
+                x = 0;
+                z -= 1;
+            }
+        }
+
+        mod get_glyphs_vector {
+            use super::*;
+
+            #[test]
+            fn is_ok() {
+                let x_rank_size = 10;
+                let z_rank_size = 10;
+                let mut ranked_glyph_data = RankedGlyphData::new(x_rank_size, z_rank_size);
+                let first_glyph = GlyphVertexData::new(
+                    0,
+                    ShapeVertex {
+                        position_vertex: [1.0, 2.0, 3.0],
+                        normal: [4.0, 5.0, 6.0],
+                        color: 7,
+                    },
+                    0,
+                    0,
+                    15,
+                );
+
+                let second_glyph = GlyphVertexData::new(
+                    1,
+                    ShapeVertex {
+                        position_vertex: [8.0, 9.0, 10.0],
+                        normal: [11.0, 12.0, 13.0],
+                        color: 14,
+                    },
+                    7,
+                    4,
+                    16,
+                );
+
+                assert!(ranked_glyph_data.add(first_glyph).is_ok());
+                assert!(ranked_glyph_data.add(second_glyph).is_ok());
+
+                assert_eq!(ranked_glyph_data.core_data.len(), 2);
+
+                let glyphs_vector = ranked_glyph_data.get_glyphs_vector();
+                assert_eq!(glyphs_vector.len(), 2);
+                let glyph = &glyphs_vector[0];
+                assert_eq!(glyph.glyph_id, first_glyph.glyph_id);
+                assert_eq!(glyph.position[0], first_glyph.position[0]);
+                assert_eq!(glyph.position[1], first_glyph.position[1]);
+                assert_eq!(glyph.position[2], first_glyph.position[2]);
+                assert_eq!(glyph.position[0], first_glyph.position[0]);
+                assert_eq!(glyph.position[1], first_glyph.position[1]);
+                assert_eq!(glyph.normal[2], first_glyph.normal[2]);
+                assert_eq!(glyph.color, first_glyph.color);
+                assert_eq!(glyph.x_rank, first_glyph.x_rank);
+                assert_eq!(glyph.z_rank, first_glyph.z_rank);
+                assert_eq!(glyph.flags, first_glyph.flags);
+
+                let glyph = &glyphs_vector[1];
+                assert_eq!(glyph.glyph_id, second_glyph.glyph_id);
+                assert_eq!(glyph.position[0], second_glyph.position[0]);
+                assert_eq!(glyph.position[1], second_glyph.position[1]);
+                assert_eq!(glyph.position[2], second_glyph.position[2]);
+                assert_eq!(glyph.normal[0], second_glyph.normal[0]);
+                assert_eq!(glyph.normal[1], second_glyph.normal[1]);
+                assert_eq!(glyph.normal[2], second_glyph.normal[2]);
+                assert_eq!(glyph.color, second_glyph.color);
+                assert_eq!(glyph.x_rank, second_glyph.x_rank);
+                assert_eq!(glyph.z_rank, second_glyph.z_rank);
+                assert_eq!(glyph.flags, second_glyph.flags);
+            }
+        }
+    }
+
+    #[cfg(test)]
+    mod get_number_of_glyphs {
+        use super::*;
+
+        #[test]
+        fn is_ok() {
+            let x_rank_size = 10;
+            let z_rank_size = 10;
+            let mut ranked_glyph_data = RankedGlyphData::new(x_rank_size, z_rank_size);
+            let first_glyph = GlyphVertexData::new(
+                0,
+                ShapeVertex {
+                    position_vertex: [1.0, 2.0, 3.0],
+                    normal: [4.0, 5.0, 6.0],
+                    color: 7,
+                },
+                0,
+                0,
+                15,
+            );
+
+            let second_glyph = GlyphVertexData::new(
+                1,
+                ShapeVertex {
+                    position_vertex: [8.0, 9.0, 10.0],
+                    normal: [11.0, 12.0, 13.0],
+                    color: 14,
+                },
+                7,
+                4,
+                16,
+            );
+
+            assert_eq!(ranked_glyph_data.get_number_of_glyphs(), 0);
+            assert!(ranked_glyph_data.add(first_glyph).is_ok());
+            assert_eq!(ranked_glyph_data.get_number_of_glyphs(), 1);
+            assert!(ranked_glyph_data.add(second_glyph).is_ok());
+            assert_eq!(ranked_glyph_data.get_number_of_glyphs(), 2);
+        }
     }
 }

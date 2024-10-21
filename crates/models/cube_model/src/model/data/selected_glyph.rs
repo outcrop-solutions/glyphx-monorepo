@@ -2,6 +2,7 @@ use super::GlyphDescription;
 
 use serde_json::{json, Value};
 
+#[derive(Debug, Clone)]
 pub struct SelectedGlyph {
     pub glyph_id: u32,
     pub row_ids: Vec<usize>,

@@ -489,7 +489,7 @@ mod unit_tests {
         use super::*;
         use helper_methods::get_glyph_manager;
 
-        use crate::assets::shape_vertex::ShapeVertex;
+        use crate::model::data::ShapeVertex;
         #[test]
         fn is_ok() {
             let mut gm = get_glyph_manager();
@@ -575,7 +575,7 @@ mod unit_tests {
 
     mod clear {
         use super::*;
-        use crate::assets::shape_vertex::ShapeVertex;
+        use crate::model::data::ShapeVertex;
 
         use bincode::serialize;
         use helper_methods::get_glyph_manager;

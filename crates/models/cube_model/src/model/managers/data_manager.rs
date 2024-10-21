@@ -1,4 +1,4 @@
-use super::{GlyphManager, StatsManager};
+use super::{GlyphManager, StatsManager, SelectedGlyphsManager};
 use crate::model::{
     data::{GlyphInstanceData, RankedGlyphData, SelectedGlyph},
     AddGlyphError, AddStatsError, DeserializeVectorError, GetStatsError, GlyphVertexData,
@@ -14,6 +14,7 @@ pub struct DataManager {
     z_vectors: Rc<RefCell<ModelVectors>>,
     stats_manager: Rc<RefCell<StatsManager>>,
     glyph_manager: GlyphManager,
+    selected_glyphs_manager: SelectedGlyphsManager,
 }
 
 impl DataManager {
@@ -27,12 +28,14 @@ impl DataManager {
             rc_y_vectors.clone(),
             rc_stats_manager.clone(),
         );
+        let selected_glyphs_manager = SelectedGlyphsManager::new();
 
         DataManager {
             x_vectors: rc_x_vectors,
             z_vectors: rc_y_vectors,
             stats_manager: rc_stats_manager,
             glyph_manager,
+            selected_glyphs_manager,
         }
     }
 
@@ -61,6 +64,10 @@ impl DataManager {
         Ok(())
     }
 
+    pub fn add_selected_glyph(&mut self, selected_glyph: SelectedGlyph) {
+        self.selected_glyphs_manager.add_selected_glyph(selected_glyph);
+    }
+
     pub fn get_glyphs(&self) -> Option<&RankedGlyphData> {
         self.glyph_manager.new_get_glyphs()
     }
@@ -85,9 +92,21 @@ impl DataManager {
         self.glyph_manager.len()
     }
 
+    pub fn get_selected_glyphs_len(&self) -> usize {
+        self.selected_glyphs_manager.len()
+    }
+
+    pub fn get_selected_glyphs(&self) -> Vec<SelectedGlyph> {
+        self.selected_glyphs_manager.get_selected_glyphs()
+    }
+
     pub fn clear_glyphs(&mut self) {
         self.glyph_manager.clear();
         //If we are clearning glyphs then we must also clear the hit detection data
+    }
+
+    pub fn clear_selected_glyphs(&mut self) {
+        self.selected_glyphs_manager.clear_selected_glyphs();
     }
 
     pub fn get_glyph_description(&self, glyph_id: u32) -> Option<SelectedGlyph> {
@@ -100,6 +119,14 @@ impl DataManager {
 
     pub fn get_z_vectors(&self) -> Rc<RefCell<ModelVectors>> {
         self.z_vectors.clone()
+    }
+
+    pub fn remove_selected_glyph(&mut self, glyph_id: u32) {
+        self.selected_glyphs_manager.remove_selected_glyph(glyph_id);
+    }
+
+    pub fn glyph_is_selected(&self, glyph_id: u32) -> bool {
+        self.selected_glyphs_manager.selected_glyph_exists(glyph_id)
     }
 }
 
@@ -122,6 +149,7 @@ mod unit_tests {
             assert_eq!(data_manager.get_vector_len("z"), 0);
             assert_eq!(data_manager.get_stats_len(), 0);
             assert_eq!(data_manager.get_glyph_len(), 0);
+            assert_eq!(data_manager.get_selected_glyphs().len(), 0);
         }
     }
     mod add_x_vector {
@@ -290,6 +318,82 @@ mod unit_tests {
         }
     }
 
+    mod add_selected_glyph {
+        use super::*;
+        use crate::model::data::{GlyphDescription, SelectedGlyph};
+        use model_common::vectors::VectorOrigionalValue;
+            
+        
+
+        #[test]
+        fn is_ok() {
+            let mut data_manager = DataManager::new();
+            let selected_glyph = SelectedGlyph::new(
+                1,
+                vec![1, 2],
+                GlyphDescription ::new(
+                    VectorOrigionalValue::F64(0.0),
+                    VectorOrigionalValue::F64(1.0),
+                    2.0,
+                ),
+            );
+
+            data_manager.add_selected_glyph(selected_glyph.clone());
+            let selected_glyphs = data_manager.selected_glyphs_manager.get_selected_glyphs();
+            assert_eq!(selected_glyphs.len(), 1);
+            assert_eq!(selected_glyphs[0].glyph_id, selected_glyph.glyph_id);
+        }
+    }
+
+    mod get_selected_glyphs {
+        use super::*;
+        use crate::model::data::{GlyphDescription, SelectedGlyph};
+        use model_common::vectors::VectorOrigionalValue;
+
+        #[test]
+        fn is_ok() {
+            let mut data_manager = DataManager::new();
+            let selected_glyph = SelectedGlyph::new(
+                1,
+                vec![1, 2],
+                GlyphDescription::new(
+                    VectorOrigionalValue::F64(0.0),
+                    VectorOrigionalValue::F64(1.0),
+                    2.0,
+                ),
+            );
+
+            data_manager.add_selected_glyph(selected_glyph.clone());
+            let selected_glyphs = data_manager.get_selected_glyphs();
+            assert_eq!(selected_glyphs.len(), 1);
+            assert_eq!(selected_glyphs[0].glyph_id, selected_glyph.glyph_id);
+        }
+    }
+    
+    mod clear_selected_glyphs {
+        use super::*;
+        use crate::model::data::{GlyphDescription, SelectedGlyph};
+        use model_common::vectors::VectorOrigionalValue;
+
+        #[test]
+        fn is_ok() {
+            let mut data_manager = DataManager::new();
+            let selected_glyph = SelectedGlyph::new(
+                1,
+                vec![1, 2],
+                GlyphDescription::new(
+                    VectorOrigionalValue::F64(0.0),
+                    VectorOrigionalValue::F64(1.0),
+                    2.0,
+                ),
+            );
+
+            data_manager.add_selected_glyph(selected_glyph.clone());
+            data_manager.clear_selected_glyphs();
+            let selected_glyphs = data_manager.get_selected_glyphs();
+            assert_eq!(selected_glyphs.len(), 0);
+        }
+    }
     mod clear {
         use super::*;
 
@@ -329,6 +433,78 @@ mod unit_tests {
 
             let gm = data_manager.get_glyphs();
             assert!(gm.is_none());
+        }
+    }
+    mod remove_selected_glyph {
+        use super::*;
+        use crate::model::data::{GlyphDescription, SelectedGlyph};
+        use model_common::vectors::VectorOrigionalValue;
+
+        #[test]
+        fn is_ok() {
+            let mut data_manager = DataManager::new();
+            let selected_glyph = SelectedGlyph::new(
+                1,
+                vec![1, 2],
+                GlyphDescription::new(
+                    VectorOrigionalValue::F64(0.0),
+                    VectorOrigionalValue::F64(1.0),
+                    2.0,
+                ),
+            );
+
+            data_manager.add_selected_glyph(selected_glyph.clone());
+            data_manager.remove_selected_glyph(1);
+            let selected_glyphs = data_manager.get_selected_glyphs();
+            assert_eq!(selected_glyphs.len(), 0);
+        }
+    }
+
+    mod get_selected_glyphs_len {
+        use super::*;
+        use crate::model::data::{GlyphDescription, SelectedGlyph};
+        use model_common::vectors::VectorOrigionalValue;
+
+        #[test]
+        fn is_ok() {
+            let mut data_manager = DataManager::new();
+            let selected_glyph = SelectedGlyph::new(
+                1,
+                vec![1, 2],
+                GlyphDescription::new(
+                    VectorOrigionalValue::F64(0.0),
+                    VectorOrigionalValue::F64(1.0),
+                    2.0,
+                ),
+            );
+
+            data_manager.add_selected_glyph(selected_glyph.clone());
+            let len = data_manager.get_selected_glyphs_len();
+            assert_eq!(len, 1);
+        }
+    }
+
+    mod glyph_is_selected {
+        use super::*;
+        use crate::model::data::{GlyphDescription, SelectedGlyph};
+        use model_common::vectors::VectorOrigionalValue;
+
+        #[test]
+        fn is_ok() {
+            let mut data_manager = DataManager::new();
+            let selected_glyph = SelectedGlyph::new(
+                1,
+                vec![1, 2],
+                GlyphDescription::new(
+                    VectorOrigionalValue::F64(0.0),
+                    VectorOrigionalValue::F64(1.0),
+                    2.0,
+                ),
+            );
+
+            data_manager.add_selected_glyph(selected_glyph.clone());
+            let is_selected = data_manager.glyph_is_selected(1);
+            assert!(is_selected);
         }
     }
 }

@@ -7,6 +7,7 @@ mod glyph_manager;
 mod orientation_manager;
 mod pipeline_manager;
 mod stats_manager;
+mod selected_glyphs_manager;
 
 pub use buffer_manager::*;
 pub use camera_manager::*;
@@ -17,3 +18,4 @@ pub use glyph_manager::*;
 pub use orientation_manager::*;
 pub use pipeline_manager::*;
 pub use stats_manager::*;
+pub use selected_glyphs_manager::*;

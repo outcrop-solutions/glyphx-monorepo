@@ -4,11 +4,7 @@ use crate::{
         data::{GlyphVertexData, Rank, RankDirection, SelectedGlyph},
         filtering::Query,
         managers::DataManager,
-        pipeline::{
-            AxisLineDirection, AxisLines,
-            Glyphs,
-            GlyphData, HitDetection,
-        },
+        pipeline::{AxisLineDirection, AxisLines, GlyphData, Glyphs, HitDetection},
     },
     ModelConfiguration,
 };
