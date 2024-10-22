@@ -8,23 +8,22 @@
 //1. Define any submodules
 
 //2. Define any imports from the current crate.
-use crate::model::data::{
-    GlyphDescription, GlyphVertexData, InstanceOutput, Rank, RankDirection, SelectedGlyph,
-};
-use crate::model::managers::BufferManager;
-use crate::model::scene::SceneRenderer;
 use crate::{
     model::{
         data::{
-            DeserializeVectorError, GlyphInstanceData, GlyphUniformData, GlyphUniformFlags, Hit,
-            ModelVectors, RankedGlyphData,
+            DeserializeVectorError, GlyphDescription, GlyphInstanceData, GlyphUniformData,
+            GlyphUniformFlags, GlyphVertexData, Hit, InstanceOutput, ModelVectors, Rank,
+            RankDirection, RankedGlyphData, SelectedGlyph,
         },
         filtering::Query,
-        managers::{CameraManager, DataManager, Face, OrientationManager, PipelineManager},
+        managers::{
+            BufferManager, CameraManager, DataManager, Face, OrientationManager, PipelineManager,
+        },
         model_configuration::ModelConfiguration,
         pipeline::{
             decode_glyph_id, AxisLineDirection, AxisLines, Charms, GlyphData, Glyphs, HitDetection,
         },
+        scene::SceneRenderer,
     },
     model_event::Screenshot,
     Order,
@@ -421,13 +420,16 @@ impl State {
             .borrow_mut()
             .update_glyph_uniform_buffer(
                 &self.model_configuration.borrow(),
-                self.data_manager.as_ref().borrow().get_selected_glyphs_len() > 0,
+                self.data_manager
+                    .as_ref()
+                    .borrow()
+                    .get_selected_glyphs_len()
+                    > 0,
             );
 
         let pipeline_manager = self.pipeline_manager.clone();
         let pipeline_manager = &mut pipeline_manager.borrow_mut();
-        pipeline_manager
-            .upate_glyph_data_verticies(&self.model_filter);
+        pipeline_manager.upate_glyph_data_verticies(&self.model_filter);
 
         let config = self.model_configuration.clone();
         let config = config.borrow();
@@ -440,18 +442,12 @@ impl State {
             config.max_color,
         );
 
-        pipeline_manager
-            .set_axis_start(AxisLineDirection::X, config.model_origin[0]);
-        pipeline_manager
-            .update_vertex_buffer(AxisLineDirection::X);
-        pipeline_manager
-            .set_axis_start(AxisLineDirection::Y, config.model_origin[1]);
-        pipeline_manager
-            .update_vertex_buffer(AxisLineDirection::Y);
-        pipeline_manager
-            .set_axis_start(AxisLineDirection::Z, config.model_origin[2]);
-        pipeline_manager
-            .update_vertex_buffer(AxisLineDirection::Z);
+        pipeline_manager.set_axis_start(AxisLineDirection::X, config.model_origin[0]);
+        pipeline_manager.update_vertex_buffer(AxisLineDirection::X);
+        pipeline_manager.set_axis_start(AxisLineDirection::Y, config.model_origin[1]);
+        pipeline_manager.update_vertex_buffer(AxisLineDirection::Y);
+        pipeline_manager.set_axis_start(AxisLineDirection::Z, config.model_origin[2]);
+        pipeline_manager.update_vertex_buffer(AxisLineDirection::Z);
 
         self.buffer_manager.borrow_mut().update_light_uniform(
             config.light_location,
@@ -497,7 +493,6 @@ impl State {
 
     fn render_scene(&mut self, view: &wgpu::TextureView) -> Result<(), SurfaceError> {
         self.scene_renderer.render_scene(view, self.axis_visible)
-
     }
 
     pub fn take_screenshot(&mut self, is_state_creation: bool) -> Result<(), SurfaceError> {
@@ -662,12 +657,8 @@ impl State {
         let data_manager = self.data_manager.clone();
         let data_manager = &mut data_manager.borrow_mut();
         if hit.glyph_id != 16777215 {
-            let glyph_desc = 
-                data_manager
-                .get_glyph_description(hit.glyph_id)
-                .unwrap();
+            let glyph_desc = data_manager.get_glyph_description(hit.glyph_id).unwrap();
             if !data_manager.glyph_is_selected(hit.glyph_id) {
-            
                 if !hit.shift_pressed {
                     data_manager.clear_selected_glyphs();
                 }
@@ -675,7 +666,7 @@ impl State {
                 reprocess = true;
             } else {
                 if data_manager.glyph_is_selected(hit.glyph_id) {
-                    data_manager.remove_selected_glyph(hit.glyph_id); 
+                    data_manager.remove_selected_glyph(hit.glyph_id);
                     reprocess = true;
                 }
             }
@@ -689,7 +680,7 @@ impl State {
             self.run_compute_pipeline();
         }
 
-       data_manager.get_selected_glyphs() 
+        data_manager.get_selected_glyphs()
     }
 
     fn run_hit_detection_pipeline(
@@ -699,10 +690,11 @@ impl State {
         y_pos: u32,
         is_shift_pressed: bool,
     ) -> Result<(), SurfaceError> {
-        let (output_buffer, bytes_per_row) = self.pipeline_manager.borrow().run_hit_detection_pipeline(
-            self.orientation_manager.borrow().rank(),
-            self.orientation_manager.borrow().rank_direction(),
-        );
+        let (output_buffer, bytes_per_row) =
+            self.pipeline_manager.borrow().run_hit_detection_pipeline(
+                self.orientation_manager.borrow().rank(),
+                self.orientation_manager.borrow().rank_direction(),
+            );
         let output_buffer = std::sync::Arc::new(output_buffer);
         let captuable = output_buffer.clone();
 
@@ -744,12 +736,14 @@ impl State {
         let flags = GlyphUniformFlags::decode(glyph_uniform_data.flags).unwrap();
         let is_x_desc = flags.x_order == Order::Descending;
         let is_z_desc = flags.z_order == Order::Descending;
-        self.orientation_manager.borrow_mut().update_z_order_and_rank(
-            camera_manager.get_yaw(),
-            camera_manager.get_distance(),
-            is_x_desc,
-            is_z_desc,
-            cube_size,
-        );
+        self.orientation_manager
+            .borrow_mut()
+            .update_z_order_and_rank(
+                camera_manager.get_yaw(),
+                camera_manager.get_distance(),
+                is_x_desc,
+                is_z_desc,
+                cube_size,
+            );
     }
 }
