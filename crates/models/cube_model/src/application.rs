@@ -694,6 +694,19 @@ impl ApplicationHandler<ModelEvent> for Application {
                         CameraTypeChanged::Perspective => false,
                     };
                 },
+                ModelEvent::ClearData => {
+                    let dm = &mut self.data_manager.borrow_mut();
+                    dm.clear_all_data();
+                    
+                    redraw = false;
+                    emit_event(&ModelEvent::ClearData);
+                },
+                ModelEvent::ResetState => {
+                    let state = self.state.as_mut().unwrap();
+                    state.reset_data();
+                    redraw = true;
+                    emit_event(&ModelEvent::ResetState);
+                },
 
                 _ => {}
             }

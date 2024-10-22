@@ -46,6 +46,8 @@ pub enum ModelEvent {
     },
     ConfigurationUpdated,
     CameraTypeChanged(CameraTypeChanged),
+    ClearData,
+    ResetState,
 }
 impl ModelEvent {
     pub fn event_type(&self) -> &str {
@@ -74,6 +76,8 @@ impl ModelEvent {
             Self::ResizeWindow { .. } => "ResizeWindow",
             Self::ConfigurationUpdated => "ConfigurationUpdated",
             Self::CameraTypeChanged(_) => "CameraTypeChanged",
+            Self::ClearData => "ClearData",
+            Self::ResetState => "ResetState",
 
         }
     
@@ -116,6 +120,8 @@ impl std::fmt::Debug for ModelEvent {
             }
             ModelEvent::ConfigurationUpdated => write!(f, "ConfigurationUpdated"),
             ModelEvent::CameraTypeChanged(camera_type) => write!(f, "CameraTypeChanged({:?})", camera_type.to_string()),
+            ModelEvent::ClearData => write!(f, "ClearData"),
+            ModelEvent::ResetState => write!(f, "ResetState"),
         }
     }
 }
@@ -151,6 +157,9 @@ pub enum JsSafeModelEvent {
     },
     ConfigurationUpdated,
     CameraTypeChanged(String),
+    ClearData,
+    ResetState,
+
 }
 
 impl From<&ModelEvent> for JsSafeModelEvent {
@@ -192,7 +201,9 @@ impl From<&ModelEvent> for JsSafeModelEvent {
             ModelEvent::ConfigurationUpdated => Self::ConfigurationUpdated,
             ModelEvent::CameraTypeChanged(camera_type) => {
                 Self::CameraTypeChanged(camera_type.to_string())
-            }
+            },
+            ModelEvent::ClearData => Self::ClearData,
+            ModelEvent::ResetState => Self::ResetState,
         }
     }
 }

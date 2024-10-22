@@ -38,4 +38,8 @@ impl GlyphIdManager {
         }
         Some(self.glyph_id_data[glyph_id as usize].clone())
     }
+
+    pub fn clear(&mut self) {
+        self.glyph_id_data.clear();
+    }
 }

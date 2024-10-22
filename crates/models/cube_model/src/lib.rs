@@ -88,6 +88,20 @@ impl ModelRunner {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn clear_data(&self) -> Result<(), String> {
+        let event = ModelEvent::ClearData;
+        send_event(event);
+        Ok(())
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn reset_state(&self) -> Result<(), String> {
+        let event = ModelEvent::ResetState;
+        send_event(event);
+        Ok(())
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn take_screenshot(&self, is_state_creation: bool) -> Result<(), String> {
         let event = ModelEvent::TakeScreenshot(is_state_creation);
         send_event(event);
@@ -377,7 +391,10 @@ impl ModelRunner {
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub async fn run(&self, width: u32, height: u32) {
-        let el = EventLoop::<ModelEvent>::with_user_event().build().unwrap();
+        log::info!("Running model");
+        let el = EventLoop::<ModelEvent>::with_user_event().build();
+        log::info!("el : {:?}", el);
+        let el = el.unwrap();
 
         let mut application = Application::new(
             self.configuration.clone(),

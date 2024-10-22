@@ -2,6 +2,8 @@
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
 export function modelrunner_new(): number;
+export function modelrunner_clear_data(a: number, b: number): void;
+export function modelrunner_reset_state(a: number, b: number): void;
 export function modelrunner_take_screenshot(a: number, b: number, c: number): void;
 export function modelrunner_resize_window(a: number, b: number, c: number, d: number): void;
 export function modelrunner_set_camera_type(a: number, b: number, c: number, d: number): void;
