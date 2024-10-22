@@ -9,6 +9,21 @@ export const activeStateAtom = atom<string>({
   default: '',
 });
 
+export const isSubmittingAtom = atom<boolean>({
+  key: 'isSubmittingAtom',
+  default: false,
+});
+
+export const showStateInputAtom = atom<boolean>({
+  key: 'showStateInputAtom',
+  default: false,
+});
+
+export const activeStateNameAtom = atom<string>({
+  key: 'activeStateNameAtom',
+  default: '',
+});
+
 export const imageHashAtom = atom<webTypes.ImageHash>({
   key: 'imageHashAtom',
   default: {

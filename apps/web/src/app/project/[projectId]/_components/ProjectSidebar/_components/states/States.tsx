@@ -3,11 +3,12 @@ import React, {useState} from 'react';
 import {StateList} from './StateList';
 import {PlusIcon} from '@heroicons/react/outline';
 import {CreateStateInput} from './CreateStateInput';
+import {showStateInputAtom} from 'state';
+import {useRecoilState} from 'recoil';
 
 export const States = () => {
   const [isCollapsed, setCollapsed] = useState(false);
-  const [addState, setAddState] = useState(false);
-  const [name, setName] = useState('Initial State');
+  const [addState, setAddState] = useRecoilState(showStateInputAtom);
 
   return (
     <div className="group flex flex-col grow">
@@ -46,7 +47,7 @@ export const States = () => {
         />
       </summary>
       {!isCollapsed && <StateList />}
-      {addState && <CreateStateInput name={name} setName={setName} setAddState={setAddState} />}
+      {addState && <CreateStateInput />}
     </div>
   );
 };

@@ -49,8 +49,7 @@ export const ModelFooter = () => {
   }, [drawer, project, session, setDrawer, setLoading, setOrientation, url, windowSize.height]);
 
   return (
-    isClient &&
-    !(Object.keys(loading).length > 0) && (
+    isClient && (
       <div
         className={`absolute z-60 w-full h-[44px] ${
           orientation === 'vertical' ? 'border-b-none border-r-none border-b border-gray' : 'border border-gray'

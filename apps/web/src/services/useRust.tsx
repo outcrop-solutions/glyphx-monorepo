@@ -153,14 +153,16 @@ export const useRust = () => {
     async (event) => {
       event?.stopPropagation();
       try {
-        await updateProjectState(project.id, project.state);
-        // console.log('updated project state');
-        const retval = await runGlyphEngineAction(project);
-        // console.log('ran glyph engine');
-        // @ts-ignore
-        if (retval && !retval?.error) {
+        if (project) {
+          await updateProjectState(project.id, project.state);
+          // console.log('updated project state');
+          const retval = await runGlyphEngineAction(project);
+          // console.log('ran glyph engine');
           // @ts-ignore
-          await downloadModel(retval);
+          if (retval && !retval?.error) {
+            // @ts-ignore
+            await downloadModel(retval);
+          }
         }
       } catch (error) {
         console.log({error});
@@ -172,12 +174,14 @@ export const useRust = () => {
   const downloadState = useCallback(
     async (stateId: string) => {
       try {
-        await updateProjectState(project.id, project.state);
-        const retval = await runGlyphEngineAction(project, stateId);
-        // @ts-ignore
-        if (retval && !retval?.error) {
+        if (project) {
+          await updateProjectState(project.id, project.state);
+          const retval = await runGlyphEngineAction(project, stateId);
           // @ts-ignore
-          await downloadModel(retval);
+          if (retval && !retval?.error) {
+            // @ts-ignore
+            await downloadModel(retval);
+          }
         }
       } catch (error) {
         console.log({error});

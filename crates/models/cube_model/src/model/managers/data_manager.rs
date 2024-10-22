@@ -104,6 +104,12 @@ impl DataManager {
         self.glyph_manager.clear();
         //If we are clearning glyphs then we must also clear the hit detection data
     }
+     pub fn clear_all_data(&mut self) {
+        self.glyph_manager.clear();
+        self.x_vectors.borrow_mut().clear();
+        self.z_vectors.borrow_mut().clear();
+        self.stats_manager.borrow_mut().clear();
+     }
 
     pub fn clear_selected_glyphs(&mut self) {
         self.selected_glyphs_manager.clear_selected_glyphs();

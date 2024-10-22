@@ -24,6 +24,8 @@ export enum ChromaSampling {
 export class ModelRunner {
   free(): void;
   constructor();
+  clear_data(): void;
+  reset_state(): void;
   /**
    * @param {boolean} is_state_creation
    */
@@ -33,6 +35,10 @@ export class ModelRunner {
    * @param {number} height
    */
   resize_window(width: number, height: number): void;
+  /**
+   * @param {string} camera_type
+   */
+  set_camera_type(camera_type: string): void;
   /**
    * @param {string} filter
    */
@@ -240,8 +246,11 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly modelrunner_new: () => number;
+  readonly modelrunner_clear_data: (a: number, b: number) => void;
+  readonly modelrunner_reset_state: (a: number, b: number) => void;
   readonly modelrunner_take_screenshot: (a: number, b: number, c: number) => void;
   readonly modelrunner_resize_window: (a: number, b: number, c: number, d: number) => void;
+  readonly modelrunner_set_camera_type: (a: number, b: number, c: number, d: number) => void;
   readonly modelrunner_update_model_filter: (a: number, b: number, c: number, d: number) => void;
   readonly modelrunner_update_configuration: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly modelrunner_toggle_axis_lines: (a: number) => void;

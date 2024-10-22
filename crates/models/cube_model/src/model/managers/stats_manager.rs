@@ -79,6 +79,7 @@ impl StatsManager {
             }
         };
         Ok(stats)
+
     }
 
     #[allow(dead_code)]
@@ -116,6 +117,11 @@ impl StatsManager {
             count += 1;
         }
         count
+    }
+    pub fn clear(&mut self) {
+        self.x_axis_stats = None;
+        self.y_axis_stats = None;
+        self.z_axis_stats = None;
     }
 }
 

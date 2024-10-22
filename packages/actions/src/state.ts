@@ -24,6 +24,36 @@ export const getState = async (stateId: string) => {
 };
 
 /**
+ * Separate function from createState
+ * This is to be able to directly pass the binary data using FormData
+ * It also allows us to stream it directly instead of incurring the 33% overhead of base64
+ * @param formData
+ */
+export async function uploadFileAction(formData: FormData) {
+  try {
+    const file = formData.get('file') as Blob | null;
+    const stateId = formData.get('stateId') as string;
+
+    console.log({file, stateId});
+    if (!file) {
+      throw new Error('File is required');
+    }
+
+    // stream file to storage
+    const blob = await put(`state/${stateId}`, file.stream(), {
+      access: 'public', // Make the uploaded file publicly accessible
+      addRandomSuffix: false,
+      token: getToken(),
+    });
+    // Return the URL of the uploaded file
+    return blob.url;
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    throw error;
+  }
+}
+
+/**
  * Creates a new state
  * @param name
  * @param camera
@@ -33,14 +63,15 @@ export const getState = async (stateId: string) => {
  * @param rowIds
  */
 export const createState = async (
+  formData: FormData,
   name: string,
   camera: rustGlyphEngineTypes.ICameraData,
   projectId: databaseTypes.IProject['id'],
-  imageHash: string,
   aspectRatio: webTypes.Aspect,
   rowIds: number[]
 ) => {
   try {
+    console.log({aspectRatio});
     const session = await getServerSession(authOptions);
     if (session?.user) {
       const project = await projectService.getProject(projectId as string);
@@ -52,24 +83,32 @@ export const createState = async (
           project,
           session?.user?.id,
           aspectRatio,
-          rowIds as unknown as string[],
-          imageHash
+          rowIds as unknown as string[]
         );
 
-        const buffer = Buffer.from(imageHash, 'base64');
-        const blob = new Blob([buffer], {type: 'image/png'});
-        // upload state imageHash to Blob store
-        const imageRetval = await put(`state/${state?.id}`, blob, {
-          access: 'public',
+        if (!state?.id) {
+          throw new ActionError('State was not created', 'createState', {state});
+        }
+
+        const file = formData.get('file') as Blob | null;
+        if (!file) {
+          throw new Error('File is required');
+        }
+
+        // stream file to storage
+        const {url} = await put(`state/${state.id}`, file.stream(), {
+          access: 'public', // Make the uploaded file publicly accessible
           addRandomSuffix: false,
           token: getToken(),
         });
+
+        await stateService.updateState(state.id, name, url);
 
         if (project?.members) {
           const emailData = {
             type: emailTypes.EmailTypes.STATE_CREATED,
             stateName: name,
-            stateImage: imageRetval.url,
+            stateImage: url,
             emails: project.members?.map((mem) => mem.email),
             projectId: project.id as string,
           } satisfies emailTypes.EmailData;

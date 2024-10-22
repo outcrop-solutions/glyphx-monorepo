@@ -59,9 +59,7 @@ export const State = ({item, activeState}) => {
           isThreads ? 'top-10' : 'bottom-16'
         } z-60`}
       >
-        {item.imageHash && (
-          <Image alt="state" width={300} height={200} src={`data:image/png;base64,${item.imageHash}`} />
-        )}
+        {item.imageHash && <Image alt="state" width={300} height={200} src={`${item.imageHash}`} />}
         <div className="absolute text-[10px] top-0 left-0 invisible group-states-hover:visible px-2 py-1 bg-gray">
           {item.name}
         </div>
@@ -74,7 +72,9 @@ export const State = ({item, activeState}) => {
         className="block group-states-hover:text-white transition duration-150 truncate grow ml-2"
       >
         <span
-          className={`w-full text-left text-gray text-sm ${activeState === item.id ? 'text-white' : ''} font-medium z-0`}
+          className={`w-full text-left text-gray text-sm ${
+            activeState === item.id ? 'text-white' : ''
+          } font-medium z-0`}
         >
           {item.name}
         </span>

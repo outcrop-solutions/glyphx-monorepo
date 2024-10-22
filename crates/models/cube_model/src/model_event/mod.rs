@@ -3,6 +3,7 @@ mod add_statistics;
 mod add_vector;
 mod model_move_direction;
 mod screenshot;
+mod camera_type_changed;
 
 use crate::model::{
     data::{GlyphVertexData, Hit},
@@ -15,6 +16,7 @@ pub use add_statistics::*;
 pub use add_vector::*;
 pub use model_move_direction::*;
 pub use screenshot::*;
+pub use camera_type_changed::*;
 
 use serde::Serialize;
 use serde_json::Value;
@@ -44,6 +46,9 @@ pub enum ModelEvent {
         height: u32,
     },
     ConfigurationUpdated,
+    CameraTypeChanged(CameraTypeChanged),
+    ClearData,
+    ResetState,
 }
 impl ModelEvent {
     pub fn event_type(&self) -> &str {
@@ -71,6 +76,10 @@ impl ModelEvent {
             }
             Self::ResizeWindow { .. } => "ResizeWindow",
             Self::ConfigurationUpdated => "ConfigurationUpdated",
+            Self::CameraTypeChanged(_) => "CameraTypeChanged",
+            Self::ClearData => "ClearData",
+            Self::ResetState => "ResetState",
+
         }
     }
 }
@@ -112,6 +121,9 @@ impl std::fmt::Debug for ModelEvent {
                 write!(f, "ResizeWindow(width: {}, height: {})", width, height)
             }
             ModelEvent::ConfigurationUpdated => write!(f, "ConfigurationUpdated"),
+            ModelEvent::CameraTypeChanged(camera_type) => write!(f, "CameraTypeChanged({:?})", camera_type.to_string()),
+            ModelEvent::ClearData => write!(f, "ClearData"),
+            ModelEvent::ResetState => write!(f, "ResetState"),
         }
     }
 }
@@ -146,6 +158,10 @@ pub enum JsSafeModelEvent {
         height: u32,
     },
     ConfigurationUpdated,
+    CameraTypeChanged(String),
+    ClearData,
+    ResetState,
+
 }
 
 impl From<&ModelEvent> for JsSafeModelEvent {
@@ -183,6 +199,11 @@ impl From<&ModelEvent> for JsSafeModelEvent {
                 height: *height,
             },
             ModelEvent::ConfigurationUpdated => Self::ConfigurationUpdated,
+            ModelEvent::CameraTypeChanged(camera_type) => {
+                Self::CameraTypeChanged(camera_type.to_string())
+            },
+            ModelEvent::ClearData => Self::ClearData,
+            ModelEvent::ResetState => Self::ResetState,
         }
     }
 }

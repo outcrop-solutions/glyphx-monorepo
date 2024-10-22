@@ -157,6 +157,13 @@ impl State {
 
         model
     }
+    pub fn reset_data(&mut self) {
+        self.render_count = 0;
+        self.data_manager.borrow_mut().clear_selected_glyphs();
+        self.buffer_manager.borrow_mut().reset_glyph_uniform(&self.model_configuration.clone().borrow(), self.data_manager.clone());
+        self.reset_camera();
+        self.update_z_order_and_rank(&self.camera_manager.clone().borrow());
+    }
 
     pub fn get_window_id(&self) -> winit::window::WindowId {
         let id = self.wgpu_manager.as_ref().borrow().window().id();
