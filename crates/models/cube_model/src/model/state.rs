@@ -58,7 +58,6 @@ pub struct State {
     data_manager: Rc<RefCell<DataManager>>,
     camera_controller: CameraController,
     model_configuration: Rc<RefCell<ModelConfiguration>>,
-    smaa_target: SmaaTarget,
     axis_visible: bool,
     render_count: u32,
     cursor_position: PhysicalPosition<f64>,
@@ -124,14 +123,6 @@ impl State {
             data_manager.clone(),
         )));
 
-        let smaa_target = SmaaTarget::new(
-            &d,
-            wm.queue(),
-            wm.size().width,
-            wm.size().height,
-            wm.config().format,
-            SmaaMode::Smaa1X,
-        );
 
         let scene_renderer = SceneRenderer::new(
             buffer_manager.clone(),
@@ -150,7 +141,6 @@ impl State {
             pipeline_manager,
             camera_controller,
             model_configuration,
-            smaa_target,
             data_manager,
             axis_visible: true,
             render_count: 0,
@@ -195,15 +185,7 @@ impl State {
             self.camera_manager
                 .borrow_mut()
                 .update_aspect_ratio(new_size.width as f32 / new_size.height as f32);
-            let smaa_target = SmaaTarget::new(
-                &self.wgpu_manager.borrow().device().borrow(),
-                self.wgpu_manager.borrow().queue(),
-                self.wgpu_manager.borrow().window().inner_size().width,
-                self.wgpu_manager.borrow().window().inner_size().height,
-                self.wgpu_manager.borrow().config().format,
-                SmaaMode::Smaa1X,
-            );
-            self.smaa_target = smaa_target;
+            self.scene_renderer.resize();
         }
     }
 

@@ -53,6 +53,18 @@ impl SceneRenderer {
         }
     }
 
+    pub fn resize(&mut self) {
+            let smaa_target = SmaaTarget::new(
+                &self.wgpu_manager.borrow().device().borrow(),
+                self.wgpu_manager.borrow().queue(),
+                self.wgpu_manager.borrow().window().inner_size().width,
+                self.wgpu_manager.borrow().window().inner_size().height,
+                self.wgpu_manager.borrow().config().format,
+                SmaaMode::Smaa1X,
+            );
+            self.smaa_target = smaa_target;
+    }
+
     pub fn render_scene(&mut self, view: &wgpu::TextureView, include_axis_lines: bool) -> Result<(), SurfaceError> {
         let buffer_manager = self.buffer_manager.borrow();
         let wgpu_manager = self.wgpu_manager.borrow();
