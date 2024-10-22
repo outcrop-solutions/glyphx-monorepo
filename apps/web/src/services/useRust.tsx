@@ -102,45 +102,54 @@ export const useRust = () => {
 
   const downloadModel = useCallback(
     async (modelData: {GLY_URL: string; STS_URL: string; X_VEC: string; Y_VEC: string}) => {
-      // Load the WASM module and create a new ModelRunner instance.
-      // We can't re-use the model runner because there is no way to clear the stats and glyphs and reuse the event loop
-      await init();
-      console.log('WASM Loaded');
-      const modelRunner = new ModelRunner();
-      console.log('ModelRunner created');
-      const {GLY_URL, STS_URL, X_VEC, Y_VEC} = modelData;
-      // First, handle statistics and vectors concurrently
-      urlRef.current = GLY_URL;
-      // @ts-ignore
-      await handleStream(STS_URL, processData(undefined, 'stats', modelRunner));
-      // @ts-ignore
-      await handleStream(X_VEC, processData('x', 'vector', modelRunner));
-      // @ts-ignore
-      await handleStream(Y_VEC, processData('y', 'vector', modelRunner));
-      // @ts-ignore
-      await handleStream(GLY_URL, processData(undefined, 'glyph', modelRunner));
+      try {
+        // Load the WASM module and create a new ModelRunner instance.
+        // We can't re-use the model runner because there is no way to clear the stats and glyphs and reuse the event loop
+        await init().catch((error) => {
+          console.log('catching error', {error});
+          // if (!error.message.startsWith('Using exceptions for control flow,')) {
+          //   throw error;
+          // }
+        });
+        console.log('WASM Loaded');
+        const modelRunner = new ModelRunner();
+        console.log('ModelRunner created');
+        const {GLY_URL, STS_URL, X_VEC, Y_VEC} = modelData;
+        // First, handle statistics and vectors concurrently
+        urlRef.current = GLY_URL;
+        // @ts-ignore
+        await handleStream(STS_URL, processData(undefined, 'stats', modelRunner));
+        // @ts-ignore
+        await handleStream(X_VEC, processData('x', 'vector', modelRunner));
+        // @ts-ignore
+        await handleStream(Y_VEC, processData('y', 'vector', modelRunner));
+        // @ts-ignore
+        await handleStream(GLY_URL, processData(undefined, 'glyph', modelRunner));
 
-      // creates a new state inside the model
-      // run can only instantiate one event loop per thread
-      console.log('set lastPayloadHash');
-      console.log('set resize');
-      console.log('set drawer');
-      setDrawer(true);
+        // creates a new state inside the model
+        // run can only instantiate one event loop per thread
+        console.log('set lastPayloadHash');
+        console.log('set resize');
+        console.log('set drawer');
+        setDrawer(true);
 
-      const canvas = document.getElementById('glyphx-cube-model');
-      if (!canvas) {
-        console.log('Canvas not found');
-        return;
+        const canvas = document.getElementById('glyphx-cube-model');
+        if (!canvas) {
+          console.log('Canvas not found');
+          return;
+        }
+        const width = canvas!.clientWidth;
+        const height = canvas!.clientHeight;
+        console.log('Canvas obtained in useRust', {canvas, width, height});
+
+        console.log('set modeRunner state');
+        setModelRunnerState({initialized: true, modelRunner, lastPayloadHash: payloadHash});
+        console.log('call modeRunner.run()');
+        // const h = height - 44;
+        await modelRunner.run(width / 2, height / 2);
+      } catch (error) {
+        console.log('swallowedError', {error});
       }
-      const width = canvas!.clientWidth;
-      const height = canvas!.clientHeight;
-      console.log('Canvas obtained in useRust', {canvas, width, height});
-
-      console.log('set modeRunner state');
-      setModelRunnerState({initialized: true, modelRunner, lastPayloadHash: payloadHash});
-      console.log('call modeRunner.run()');
-      // const h = height - 44;
-      await modelRunner.run(width / 2, height / 2);
     },
     [handleStream, payloadHash, processData, setDrawer, setModelRunnerState]
   );

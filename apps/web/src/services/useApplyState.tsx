@@ -41,7 +41,6 @@ const useApplyState = () => {
         const activeStates = states?.filter((state) => !state.deletedAt);
         const state = states?.find((s) => s.id === stateId);
 
-        console.log({state}); // TODO: this is undefined
         if (state) {
           // get the data files
           await downloadState(stateId);

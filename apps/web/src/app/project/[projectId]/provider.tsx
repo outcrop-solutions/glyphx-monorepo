@@ -8,7 +8,7 @@ import {
   cameraAtom,
   hasDrawerBeenShownAtom,
   imageHashAtom,
-  selectedGlyphsAtom,
+  lastSelectedGlyphAtom,
   projectAtom,
   rightSidebarControlAtom,
   rowIdsAtom,
@@ -61,7 +61,7 @@ export const ProjectProvider = ({
 
   const setWorkspace = useSetRecoilState(workspaceAtom);
   const setRowIds = useSetRecoilState(rowIdsAtom);
-  const setLastSelectedGlyph = useSetRecoilState(selectedGlyphsAtom);
+  const setLastSelectedGlyph = useSetRecoilState(lastSelectedGlyphAtom);
   const setProject = useSetRecoilState(projectAtom);
   const setTemplates = useSetRecoilState(templatesAtom);
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);

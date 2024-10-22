@@ -234,7 +234,35 @@ export const rowIdsAtom = atom<number[] | false>({
   default: false,
 });
 
-export const selectedGlyphsAtom = atom<{desc?: Map<string, any>; glyphId?: number}>({
+export const lastSelectedGlyphAtom = atom<{desc?: Map<string, any>; glyphId?: number}>({
   key: 'lastSelectedGlyphAtom',
   default: {},
+});
+
+export const descSelector = selector({
+  key: 'descSelector',
+  get: ({get}) => {
+    const x = get(singlePropertySelectorFamily(webTypes.constants.AXIS.X));
+    const y = get(singlePropertySelectorFamily(webTypes.constants.AXIS.Y));
+    const z = get(singlePropertySelectorFamily(webTypes.constants.AXIS.Z));
+    const {desc} = get(lastSelectedGlyphAtom);
+
+    const defaultDateGrouping = 'qualified_day_of_year';
+
+    const xValue =
+      x.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE
+        ? `${x.dateGrouping ?? defaultDateGrouping}(${desc?.get('x')})`
+        : desc?.get('x');
+
+    const yValue =
+      x.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE
+        ? `${y.dateGrouping ?? defaultDateGrouping}(${desc?.get('y')})`
+        : desc?.get('y');
+
+    return {
+      xValue,
+      yValue,
+      zValue: `${z.accumulatorType ?? 'SUM'}(${desc?.get('z')})`,
+    };
+  },
 });

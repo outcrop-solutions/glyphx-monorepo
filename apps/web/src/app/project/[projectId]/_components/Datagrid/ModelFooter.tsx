@@ -8,7 +8,7 @@ import {useUrl} from 'lib/client/hooks';
 export const ModelFooter = () => {
   // ensures we don't pre-render the server
   const [isClient, setIsClient] = useState(false);
-  const {modelRunner} = useRecoilValue(modelRunnerAtom);
+  const modelRunnerState = useRecoilValue(modelRunnerAtom);
 
   // const setCamera = useSetRecoilState(cameraAtom);
   // const setImageHash = useSetRecoilState(imageHashAtom);
@@ -49,7 +49,8 @@ export const ModelFooter = () => {
   }, [drawer, project, session, setDrawer, setLoading, setOrientation, url, windowSize.height]);
 
   return (
-    isClient && (
+    isClient &&
+    modelRunnerState.initialized && (
       <div
         className={`absolute z-60 w-full h-[44px] ${
           orientation === 'vertical' ? 'border-b-none border-r-none border-b border-gray' : 'border border-gray'

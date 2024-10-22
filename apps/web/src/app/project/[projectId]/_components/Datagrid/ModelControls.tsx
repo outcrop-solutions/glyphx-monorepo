@@ -1,7 +1,7 @@
 'use client';
 import React, {useState} from 'react';
 import {useRecoilValue} from 'recoil';
-import {modelRunnerAtom, selectedGlyphsAtom} from 'state';
+import {modelRunnerAtom, rowIdsAtom, lastSelectedGlyphAtom, descSelector} from 'state';
 import {CameraIcon, HomeIcon, RefreshIcon} from '@heroicons/react/outline';
 // @ts-ignore
 import {ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon, Move3D, OrbitIcon} from 'lucide-react';
@@ -9,8 +9,11 @@ import {ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon, Move3D, Orbit
 
 export const ModelControls = () => {
   const modelRunnerState = useRecoilValue(modelRunnerAtom);
-  const {desc, glyphId} = useRecoilValue(selectedGlyphsAtom);
+  const rowIds = useRecoilValue(rowIdsAtom);
+  const {xValue, yValue, zValue} = useRecoilValue(descSelector);
+  const {desc} = useRecoilValue(lastSelectedGlyphAtom);
   const [toggle, setToggle] = useState(true);
+
   return (
     modelRunnerState.initialized && (
       <>
@@ -150,15 +153,12 @@ export const ModelControls = () => {
         {/* display description */}
         {desc && desc.size > 0 && (
           <div className="absolute left-1/2 bottom-11 transform -translate-x-1/2 flex items-center space-x-2 z-[9999]">
-            <div className="flex items-center justify-center cursor-pointer text-xs text-light-gray">
-              X: {desc?.get('x')}
-            </div>
-            <div className="flex items-center justify-center cursor-pointer text-xs text-light-gray">
-              Y: {desc?.get('y')}
-            </div>
-            <div className="flex items-center justify-center cursor-pointer text-xs text-light-gray">
-              Z: {desc?.get('z')}
-            </div>
+            {rowIds && rowIds?.length > 1 && (
+              <div className="flex items-center text-xs text-light-gray">Last Selected Glyph:</div>
+            )}
+            <div className="flex items-center justify-center cursor-pointer text-xs text-light-gray">X: {xValue}</div>
+            <div className="flex items-center justify-center cursor-pointer text-xs text-light-gray">Y: {yValue}</div>
+            <div className="flex items-center justify-center cursor-pointer text-xs text-light-gray">Z: {zValue}</div>
           </div>
         )}
       </>
