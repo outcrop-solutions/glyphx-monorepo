@@ -95,6 +95,12 @@ impl DataManager {
         self.glyph_manager.clear();
         //If we are clearning glyphs then we must also clear the hit detection data
     }
+     pub fn clear_all_data(&mut self) {
+        self.glyph_manager.clear();
+        self.x_vectors.borrow_mut().clear();
+        self.z_vectors.borrow_mut().clear();
+        self.stats_manager.borrow_mut().clear();
+     }
 
     pub fn get_glyph_description(&self, glyph_id: u32) -> Option<SelectedGlyph> {
         self.glyph_manager.get_glyph_description(glyph_id)

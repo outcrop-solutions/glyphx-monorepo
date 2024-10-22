@@ -58,8 +58,9 @@ const General = () => {
                 className="bg-primary-yellow"
                 disabled={!validName || isSubmitting}
                 onClick={() =>
-                  startTransition(() => {
-                    updateWorkspaceName(workspace.id as string, name);
+                  // @ts-ignore
+                  startTransition(async () => {
+                    await updateWorkspaceName(workspace.id as string, name);
                   })
                 }
               >

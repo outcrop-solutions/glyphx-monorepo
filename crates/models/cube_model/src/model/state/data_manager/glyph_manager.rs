@@ -128,6 +128,12 @@ impl GlyphManager {
         self.new_ranked_glyph_data = None;
         //self.total_glyphs = 0;
     }
+    pub fn clear_all_data(&mut self) {
+        self.clear();
+        self.raw_glyphs.clear();
+        self.glyph_id_manager.clear();
+        self.total_glyphs = 0;
+    }
 
     pub fn get_glyph_description(&self, glyph_id: u32) -> Option<SelectedGlyph> {
         let glyph = self.raw_glyphs.get(glyph_id as usize)?;

@@ -17,7 +17,7 @@ export const orientationAtom = atom<webTypes.SplitPaneOrientation>({
 // corresponds to the size of the pane containing the data grid
 export const splitPaneSizeAtom = atom<number>({
   key: 'splitPaneSizeAtom',
-  default: 100,
+  default: 5,
 });
 
 export const drawerOpenAtom = atom<boolean>({

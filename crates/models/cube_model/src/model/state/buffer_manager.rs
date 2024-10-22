@@ -173,6 +173,18 @@ impl BufferManager {
         self.light_uniform.upate_color(color);
         self.light_uniform.upate_intensity(intensity);
     }
+    pub fn reset_glyph_uniform(&mut self, model_configuration: &ModelConfiguration, data_manager: Rc<RefCell<DataManager>>) {
+        let wm = self.wgpu_manager.as_ref().borrow();
+        let (glyph_uniform_data, model_origin, glyph_uniform_buffer) =
+            Self::build_glyph_uniform_data(
+                model_configuration,
+                &data_manager.borrow(),
+                &wm.device().borrow(),
+            );
+        self.glyph_uniform_data = glyph_uniform_data;
+        self.model_origin = model_origin;
+        self.glyph_uniform_buffer = glyph_uniform_buffer;
+    }
 
     fn build_glyph_uniform_data(
         mc: &ModelConfiguration,

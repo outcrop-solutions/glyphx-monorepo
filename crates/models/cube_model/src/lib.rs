@@ -13,7 +13,7 @@ use model::{
     pipeline::glyphs::glyph_uniform_data::Order,
     state::{CameraManager, DataManager},
 };
-use model_event::{ModelEvent, ModelMoveDirection};
+use model_event::{ModelEvent, ModelMoveDirection, CameraTypeChanged};
 use serde_json::{from_str, Value};
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -51,7 +51,6 @@ pub fn emit_event(event: &ModelEvent) {
         if #[cfg(target_arch="wasm32")] {
             use crate::model_event::JsSafeModelEvent;
             let event_name = event.event_type();
-            log::info!("event type {:?}", event_name);
             let event = JsSafeModelEvent::from(event);
             let window = web_sys::window().unwrap();
             let js_value = serde_wasm_bindgen::to_value(&event).unwrap();
@@ -60,6 +59,7 @@ pub fn emit_event(event: &ModelEvent) {
             let event = web_sys::CustomEvent::new_with_event_init_dict(
                 event_name,
                 &mut event_init,
+
             ).unwrap();
             window
                 .dispatch_event(&event)
@@ -88,6 +88,20 @@ impl ModelRunner {
     }
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn clear_data(&self) -> Result<(), String> {
+        let event = ModelEvent::ClearData;
+        send_event(event);
+        Ok(())
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn reset_state(&self) -> Result<(), String> {
+        let event = ModelEvent::ResetState;
+        send_event(event);
+        Ok(())
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn take_screenshot(&self, is_state_creation: bool) -> Result<(), String> {
         let event = ModelEvent::TakeScreenshot(is_state_creation);
         send_event(event);
@@ -97,6 +111,18 @@ impl ModelRunner {
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn resize_window(&self, width: u32, height: u32) -> Result<(), String> {
         let event = ModelEvent::ResizeWindow { width, height };
+        send_event(event);
+        Ok(())
+    }
+
+    #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+    pub fn set_camera_type(&self, camera_type: &str) -> Result<(), String> {
+        let camera_type = match camera_type {
+            "Ortbital" => CameraTypeChanged::Ortbital,
+            "Perspective" => CameraTypeChanged::Perspective,
+            _ => return Err(format!("Invalid camera type: {}", camera_type).to_string()),
+        };    
+        let event = ModelEvent::CameraTypeChanged(camera_type);
         send_event(event);
         Ok(())
     }
@@ -365,7 +391,10 @@ impl ModelRunner {
 
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub async fn run(&self, width: u32, height: u32) {
-        let el = EventLoop::<ModelEvent>::with_user_event().build().unwrap();
+        log::info!("Running model");
+        let el = EventLoop::<ModelEvent>::with_user_event().build();
+        log::info!("el : {:?}", el);
+        let el = el.unwrap();
 
         let mut application = Application::new(
             self.configuration.clone(),

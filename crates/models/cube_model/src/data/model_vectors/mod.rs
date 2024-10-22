@@ -106,6 +106,10 @@ impl ModelVectors {
     pub fn len(&self) -> usize {
         self.vectors.len()
     }
+     
+    pub fn clear(&mut self) {
+        self.vectors.clear();
+    }
 }
 
 #[cfg(test)]

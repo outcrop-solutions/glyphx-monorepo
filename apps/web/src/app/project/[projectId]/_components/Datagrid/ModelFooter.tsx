@@ -33,24 +33,13 @@ export const ModelFooter = () => {
     } else {
       // if closed, open the model
       setDrawer(true);
-      // await callGlyphEngine({
-      //     project,
-      //     setLoading,
-      //     setDrawer,
-      //     setResize,
-      //     setImageHash,
-      //     setCamera,
-      //     stateId: id,
-      //     camera,
-      //     rowIds,
-      //   });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drawer, project, session, setDrawer, setLoading, setOrientation, url, windowSize.height]);
 
   return (
     isClient &&
-    modelRunnerState.initialized && (
+    modelRunnerState.lastPayloadHash && (
       <div
         className={`absolute z-60 w-full h-[44px] ${
           orientation === 'vertical' ? 'border-b-none border-r-none border-b border-gray' : 'border border-gray'

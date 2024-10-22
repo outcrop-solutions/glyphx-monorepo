@@ -255,7 +255,7 @@ export const descSelector = selector({
         : desc?.get('x');
 
     const yValue =
-      x.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE
+      y.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE
         ? `${y.dateGrouping ?? defaultDateGrouping}(${desc?.get('y')})`
         : desc?.get('y');
 

@@ -1,5 +1,5 @@
 'use client';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {MainDropzone} from '../ProjectSidebar/_components/files';
 import {Datagrid} from './DataGrid';
@@ -60,7 +60,7 @@ export const GridContainer = () => {
           style={{overflow: 'scroll', height: `${getPaneHeight()}px`}}
           split={orientation}
           allowResize={true}
-          defaultSize={500}
+          defaultSize={getPaneHeight()}
           maxSize={7000}
           minSize={70}
           onChange={handlePaneResize}

@@ -25,14 +25,22 @@ export const GridHeader = () => {
       0,
       0
     );
+    console.log({retval});
 
     if (retval?.data) {
-      const csv = toCSV(
-        retval.data?.rows,
-        retval.data?.columns?.map(({key}) => key),
-        ',',
-        '"'
-      );
+      const csv = toCSV(retval.data?.rows, retval.data?.columns?.map(({key}) => key), ',', '"');
+      // Create a Blob from the CSV data
+      const blob = new Blob([csv], {type: 'text/csv'});
+
+      // Create a download link
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob); // Create a URL from the Blob
+      link.href = url;
+      link.download = 'data-export.csv'; // Specify the file name
+      link.click();
+
+      // Clean up by removing the link after the download starts
+      URL.revokeObjectURL(url); // Free up memory by revoking the object URL
     }
   }, [gridPayload.tableName, project.id, project.workspace.id, rowIds]);
 

@@ -25,6 +25,7 @@ const useDataGrid = (ref) => {
 
   const fetchDataWithRowIds = async (pageNumber: number) => {
     setIsLoadingRowIds(true);
+    console.log('fetchDataWithRowIds', {workspaceId, projectId, tableName, rowIds, arg: true, pageSize, pageNumber});
     const retval = await getDataByRowId(
       workspaceId,
       projectId,
@@ -35,6 +36,7 @@ const useDataGrid = (ref) => {
       pageNumber
     );
 
+    console.log('fetchDataWithRowIds', {retval});
     if (retval?.data) {
       setGridData(
         produce((draft: WritableDraft<webTypes.IRenderableDataGrid>) => {
@@ -57,6 +59,7 @@ const useDataGrid = (ref) => {
   const fetchDataWithoutRowIds = async (pageNumber: number) => {
     setIsLoadingDataGrid(true);
     const retval = await getDataByTableName(workspaceId, projectId, tableName, pageSize, pageNumber);
+    console.log('fetchDataWithoutRowIds', {retval});
     if (retval?.data) {
       setGridData(
         produce((draft: WritableDraft<webTypes.IRenderableDataGrid>) => {

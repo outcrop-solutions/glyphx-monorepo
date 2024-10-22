@@ -233,7 +233,7 @@ export const ProjectProvider = ({
       const selectedGlyphs = event.detail['SelectedGlyphs'];
       // if empty, reset state
       if (!selectedGlyphs || selectedGlyphs?.length === 0) {
-        setRowIds([]);
+        setRowIds(false);
         setLastSelectedGlyph({});
         return;
       }

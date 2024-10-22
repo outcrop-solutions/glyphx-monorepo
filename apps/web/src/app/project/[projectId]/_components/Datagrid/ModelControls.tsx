@@ -15,7 +15,7 @@ export const ModelControls = () => {
   const [toggle, setToggle] = useState(true);
 
   return (
-    modelRunnerState.initialized && (
+    modelRunnerState.lastPayloadHash && (
       <>
         {/* home, axis, and snapshot controls */}
         <div className="absolute left-2 top-11 flex-col items-center space-y-2 z-[89] pt-2">
@@ -154,11 +154,17 @@ export const ModelControls = () => {
         {desc && desc.size > 0 && (
           <div className="absolute left-1/2 bottom-11 transform -translate-x-1/2 flex items-center space-x-2 z-[9999]">
             {rowIds && rowIds?.length > 1 && (
-              <div className="flex items-center text-xs text-light-gray">Last Selected Glyph:</div>
+              <div className="flex items-center text-xs text-light-gray whitespace-nowrap">Last Selected Glyph:</div>
             )}
-            <div className="flex items-center justify-center cursor-pointer text-xs text-light-gray">X: {xValue}</div>
-            <div className="flex items-center justify-center cursor-pointer text-xs text-light-gray">Y: {yValue}</div>
-            <div className="flex items-center justify-center cursor-pointer text-xs text-light-gray">Z: {zValue}</div>
+            <div className="flex items-center justify-center cursor-pointer text-xs text-light-gray whitespace-nowrap">
+              X: {xValue}
+            </div>
+            <div className="flex items-center justify-center cursor-pointer text-xs text-light-gray whitespace-nowrap">
+              Y: {yValue}
+            </div>
+            <div className="flex items-center justify-center cursor-pointer text-xs text-light-gray whitespace-nowrap">
+              Z: {zValue}
+            </div>
           </div>
         )}
       </>
