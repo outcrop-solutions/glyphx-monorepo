@@ -1,5 +1,5 @@
 use super::{ComparisonValue, FromJsonValueError, Operator, QueryType, SubType};
-use crate::{data::ModelVectors, model::pipeline::glyphs::glyph_instance_data::GlyphInstanceData};
+use crate::model::data::{GlyphInstanceData, ModelVectors};
 
 use model_common::Stats;
 
@@ -762,7 +762,7 @@ mod unit_tests {
             let mut z_less_than_filter = false;
             results.iter().for_each(|g| {
                 assert!(g.x_value < 5.0 || g.x_value > 7.0);
-                if g.z_value >= 5.0 && g.z_value <= 7.0{
+                if g.z_value >= 5.0 && g.z_value <= 7.0 {
                     z_less_than_filter = true;
                 }
             });
@@ -1301,7 +1301,7 @@ mod unit_tests {
                "include" : {
                   "sub_type": {
                       "name": "Statistic",
-                      "value": "pct_65" 
+                      "value": "pct_65"
                   },
                   "operator": {
                       "name": "GreaterThan"

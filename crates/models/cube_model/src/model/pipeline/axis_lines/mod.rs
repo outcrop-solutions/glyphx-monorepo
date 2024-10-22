@@ -1,10 +1,9 @@
 use crate::{
-    assets::{axis_line::create_axis_line, shape_vertex::ShapeVertex},
-    camera::uniform_buffer::CameraUniform,
-    light::light_uniform::LightUniform,
-    model::{color_table_uniform::ColorTableUniform, model_configuration::ModelConfiguration},
+    assets::create_axis_line,
+    model::{data::ShapeVertex, model_configuration::ModelConfiguration},
 };
-use model_common::WgpuManager;
+
+use model_common::{CameraUniform, ColorTableUniform, LightUniform, WgpuManager};
 
 use bytemuck;
 use std::cell::RefCell;
@@ -270,7 +269,6 @@ impl AxisLines {
     }
 
     pub fn run_pipeline(&self, encoder: &mut CommandEncoder, view: &wgpu::TextureView) {
-
         let mut render_pass = encoder.begin_render_pass(&RenderPassDescriptor {
             label: Some("Axis Render Pass"),
             color_attachments: &[Some(RenderPassColorAttachment {

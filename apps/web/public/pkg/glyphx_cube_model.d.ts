@@ -167,6 +167,10 @@ export class OrbitCamera {
  */
   distance: number;
 /**
+ * The eye of the camera in cartesian coordinates.
+ */
+  eye: Vector3;
+/**
  * The field of view of the camera.
  */
   fovy: number;
@@ -287,6 +291,8 @@ export interface InitOutput {
   readonly __wbg_set_orbitcamera_pitch: (a: number, b: number) => void;
   readonly __wbg_get_orbitcamera_yaw: (a: number) => number;
   readonly __wbg_set_orbitcamera_yaw: (a: number, b: number) => void;
+  readonly __wbg_get_orbitcamera_eye: (a: number) => number;
+  readonly __wbg_set_orbitcamera_eye: (a: number, b: number) => void;
   readonly __wbg_get_orbitcamera_target: (a: number) => number;
   readonly __wbg_set_orbitcamera_target: (a: number, b: number) => void;
   readonly __wbg_get_orbitcamera_up: (a: number) => number;

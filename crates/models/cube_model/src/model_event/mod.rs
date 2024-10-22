@@ -6,20 +6,21 @@ mod screenshot;
 mod camera_type_changed;
 
 use crate::model::{
+    data::{GlyphVertexData, Hit},
     filtering::Query,
-    pipeline::{glyphs::glyph_vertex_data::GlyphVertexData, hit_detection::Hit},
     state::State,
 };
 
-pub use add_glyphs::AddGlyphData;
-pub use add_statistics::AddStatisticData;
-pub use add_vector::AddVectorData;
-pub use model_move_direction::ModelMoveDirection;
-pub use screenshot::Screenshot;
-pub use camera_type_changed::CameraTypeChanged;
+pub use add_glyphs::*;
+pub use add_statistics::*;
+pub use add_vector::*;
+pub use model_move_direction::*;
+pub use screenshot::*;
+pub use camera_type_changed::*;
 
 use serde::Serialize;
 use serde_json::Value;
+
 pub enum ModelEvent {
     StateReady(State),
     ModelMove(ModelMoveDirection),
@@ -72,7 +73,7 @@ impl ModelEvent {
                 } else {
                     "ScreenshotTaken"
                 }
-            },
+            }
             Self::ResizeWindow { .. } => "ResizeWindow",
             Self::ConfigurationUpdated => "ConfigurationUpdated",
             Self::CameraTypeChanged(_) => "CameraTypeChanged",
@@ -80,7 +81,6 @@ impl ModelEvent {
             Self::ResetState => "ResetState",
 
         }
-    
     }
 }
 impl std::fmt::Debug for ModelEvent {
@@ -113,8 +113,10 @@ impl std::fmt::Debug for ModelEvent {
             ModelEvent::UpdateModelFilter(query) => write!(f, "UpdateModelFilter({:?})", query),
             ModelEvent::GlyphsUpdated(_glyphs) => write!(f, "GlyphsUpdated"),
             ModelEvent::HitDetection(hit) => write!(f, "HitDetection({:?})", hit),
-            ModelEvent::TakeScreenshot(_)=> write!(f, "TakeScreenshot"),
-            ModelEvent::ScreenshotTaken(screenshot, _) => write!(f, "ScreenShotTaken({:?})", screenshot),
+            ModelEvent::TakeScreenshot(_) => write!(f, "TakeScreenshot"),
+            ModelEvent::ScreenshotTaken(screenshot, _) => {
+                write!(f, "ScreenShotTaken({:?})", screenshot)
+            }
             ModelEvent::ResizeWindow { width, height } => {
                 write!(f, "ResizeWindow(width: {}, height: {})", width, height)
             }
@@ -192,12 +194,10 @@ impl From<&ModelEvent> for JsSafeModelEvent {
             ModelEvent::HitDetection(hit) => Self::HitDetection(hit.clone()),
             ModelEvent::TakeScreenshot(_) => Self::TakeScreenshot,
             ModelEvent::ScreenshotTaken(screenshot, _) => Self::ScreenShotTaken(screenshot.clone()),
-            ModelEvent::ResizeWindow { width, height } => {
-                Self::ResizeWindow {
-                    width: *width,
-                    height: *height,
-                }
-            }
+            ModelEvent::ResizeWindow { width, height } => Self::ResizeWindow {
+                width: *width,
+                height: *height,
+            },
             ModelEvent::ConfigurationUpdated => Self::ConfigurationUpdated,
             ModelEvent::CameraTypeChanged(camera_type) => {
                 Self::CameraTypeChanged(camera_type.to_string())

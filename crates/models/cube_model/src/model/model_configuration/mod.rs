@@ -1,15 +1,17 @@
-mod color_wheel;
 mod errors;
 
-use crate::assets::color::Color;
-use crate::model::pipeline::glyphs::glyph_uniform_data::{InterpolationType, Order};
-pub use color_wheel::ColorWheel;
+use crate::model::data::{InterpolationType, Order};
+
 pub use errors::*;
+
 use glyphx_core_error::GlyphxErrorData;
+use model_common::Color;
+
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
 type Location = [f32; 3];
+
 macro_rules! parse_json {
     (let $var_name: ident = &$json: ident [$field_name: literal] as Array ) => {
         let $var_name = &$json[$field_name];
@@ -517,7 +519,7 @@ impl ModelConfiguration {
 
 impl Default for ModelConfiguration {
     fn default() -> Self {
-      ModelConfiguration {
+        ModelConfiguration {
             max_color: [255.0, 0.0, 0.0, 1.0],
             min_color: [0.0, 255.0, 255.0, 1.0],
             background_color: [13.0, 19.0, 33.0, 1.0],
@@ -543,7 +545,8 @@ impl Default for ModelConfiguration {
             z_interpolation: InterpolationType::Linear,
             z_order: Order::Ascending,
             color_flip: false,
-        }}
+        }
+    }
 }
 
 #[cfg(test)]

@@ -1,8 +1,12 @@
-pub(crate) mod axis_line;
-pub(crate) mod color;
-pub(crate) mod cone;
-pub(crate) mod rectangular_prism;
-pub(crate) mod cylinder;
-pub(crate) mod interpolation;
-pub(crate) mod shape_vertex;
-pub(crate) mod charm;
+ mod axis_line;
+ mod cone;
+ mod rectangular_prism;
+ mod cylinder;
+ mod charm;
+
+pub use axis_line::*;
+pub use cone::*;
+pub use rectangular_prism::*;
+pub use cylinder::*;
+pub use charm::*;
+

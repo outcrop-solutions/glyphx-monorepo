@@ -1,4 +1,4 @@
-use crate::assets::shape_vertex::ShapeVertex;
+use crate::model::data::ShapeVertex;
 
 fn create_normal_vertices() -> Vec<[f32; 3]> {
     vec![

@@ -1,33 +1,21 @@
 use crate::{
-    assets::{rectangular_prism::create_rectangular_prism, shape_vertex::ShapeVertex},
-    model::{filtering::Query, model_configuration::ModelConfiguration, state::DataManager},
+    assets::create_rectangular_prism,
+    model::{
+        data::{InstanceOutput, ShapeVertex, VertexData},
+        filtering::Query,
+        managers::DataManager,
+        model_configuration::ModelConfiguration,
+    },
 };
 
 use bytemuck::{Pod, Zeroable};
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 use wgpu::{
     util::{BufferInitDescriptor, DeviceExt},
     BindGroup, BindGroupDescriptor, BindGroupEntry, Buffer, BufferDescriptor, BufferUsages,
     CommandEncoder, ComputePassDescriptor, ComputePipeline, ComputePipelineDescriptor, Device,
     PipelineCompilationOptions, ShaderModule,
 };
-
-#[repr(C)]
-#[derive(Copy, Clone, Debug, Pod, Zeroable)]
-pub struct InstanceOutput {
-    pub glyph_id: u32,
-    pub vertex_data: ShapeVertex,
-    pub x_rank: u32,
-    pub z_rank: u32,
-    pub x_id: u32,
-    pub z_id: u32,
-    pub flags: u32,
-}
-
-pub struct VertexData {
-    pub vertices: Vec<ShapeVertex>,
-}
 
 pub struct GlyphData {
     device: Rc<RefCell<Device>>,

@@ -47,6 +47,8 @@ export function __wbg_get_orbitcamera_pitch(a: number): number;
 export function __wbg_set_orbitcamera_pitch(a: number, b: number): void;
 export function __wbg_get_orbitcamera_yaw(a: number): number;
 export function __wbg_set_orbitcamera_yaw(a: number, b: number): void;
+export function __wbg_get_orbitcamera_eye(a: number): number;
+export function __wbg_set_orbitcamera_eye(a: number, b: number): void;
 export function __wbg_get_orbitcamera_target(a: number): number;
 export function __wbg_set_orbitcamera_target(a: number, b: number): void;
 export function __wbg_get_orbitcamera_up(a: number): number;

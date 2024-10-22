@@ -3,8 +3,9 @@ use super::{
     model::{
         filtering::Query,
         model_configuration::ModelConfiguration,
-        pipeline::glyphs::glyph_uniform_data::{InterpolationType, Order},
-        state::{CameraManager, DataManager, State},
+        data::{InterpolationType, Order},
+        state::State,
+        managers::{DataManager, CameraManager},
     },
     model_event::{ModelEvent, ModelMoveDirection, CameraTypeChanged},
     send_event,
@@ -12,8 +13,7 @@ use super::{
 
 use pollster::FutureExt;
 use serde_json::{json, Value};
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 use winit::{
     application::ApplicationHandler,
     dpi::PhysicalSize,

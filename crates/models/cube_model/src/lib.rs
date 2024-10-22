@@ -1,22 +1,19 @@
+#![allow(warnings)]
 mod application;
 mod assets;
-mod camera;
-mod data;
-mod light;
 mod model;
 mod model_event;
 
 use application::Application;
 use model::{
+    data::Order,
     filtering::Query,
+    managers::{CameraManager, DataManager},
     model_configuration::ModelConfiguration,
-    pipeline::glyphs::glyph_uniform_data::Order,
-    state::{CameraManager, DataManager},
 };
 use model_event::{ModelEvent, ModelMoveDirection, CameraTypeChanged};
 use serde_json::{from_str, Value};
-use std::cell::RefCell;
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 use winit::event_loop::{EventLoop, EventLoopProxy};
 
 cfg_if::cfg_if! {
@@ -267,9 +264,9 @@ impl ModelRunner {
     }
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn add_distance(&self, amount: f32) {
-        // let event = ModelEvent::ModelMove(ModelMoveDirection::Distance(amount));
-        // emit_event(&event);
-        // send_event(event);
+        let event = ModelEvent::ModelMove(ModelMoveDirection::Distance(amount));
+        emit_event(&event);
+        send_event(event);
     }
 
     ///Adding a vector will update internal state but it

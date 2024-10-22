@@ -1,19 +1,6 @@
-pub(crate) mod glyph_id_data;
-pub(crate) mod glyph_instance_data;
-pub(crate) mod glyph_uniform_data;
-pub(crate) mod glyph_vertex_data;
-pub(crate) mod ranked_glyph_data;
+use crate::model::data::{GlyphUniformData, GlyphVertexData, InstanceOutput};
 
-use crate::{
-    camera::uniform_buffer::CameraUniform,
-    light::light_uniform::LightUniform,
-    model::{color_table_uniform::ColorTableUniform, pipeline::glyph_data::InstanceOutput},
-};
-
-use glyph_uniform_data::GlyphUniformData;
-use glyph_vertex_data::GlyphVertexData;
-
-use model_common::WgpuManager;
+use model_common::{CameraUniform, ColorTableUniform, LightUniform, WgpuManager};
 
 use smaa::*;
 use std::cell::RefCell;

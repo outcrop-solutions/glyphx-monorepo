@@ -1,13 +1,9 @@
 use crate::{
-    assets::{
-        charm::create_charm, rectangular_prism::create_rectangular_prism, shape_vertex::ShapeVertex,
-    },
-    camera::uniform_buffer::CameraUniform,
-    light::light_uniform::LightUniform,
-    model::{color_table_uniform::ColorTableUniform, model_configuration::ModelConfiguration},
+    assets::{create_charm,create_rectangular_prism}, 
+    model::{data::ShapeVertex, model_configuration::ModelConfiguration},
 };
 
-use model_common::WgpuManager;
+use model_common::{CameraUniform, ColorTableUniform, LightUniform, WgpuManager};
 
 use bytemuck;
 use smaa::SmaaFrame;

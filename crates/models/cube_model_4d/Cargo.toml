@@ -23,7 +23,7 @@ glam = "0.24.1"
 glyphx_core_error = { path = "../../error" }
 im = "15.1.0"
 log = "0.4"
-model_common = { path = "../../model_common" }
+model_common = { path = "../model_common" }
 nalgebra = "0.32.3"
 num-traits = "0.2.16"
 once_cell = "1.19.0"

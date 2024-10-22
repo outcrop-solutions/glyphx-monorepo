@@ -1,10 +1,11 @@
-use crate::assets::shape_vertex::ShapeVertex;
+use crate::model::data::ShapeVertex;
 /// This function will create our cone verticies.  
 /// I have chosen to include the model by hand into this function
 /// instead of loading the mesh from a .obj file.  The reason I am
 /// doing this is to reduce the complexity of having to load the
 /// mesh in wasm.  If it is already in the code then we do have nothing
 /// to load and the number of vertexes is not that large
+
 fn create_cone_normal_vertices() -> Vec<[f32; 3]> {
     let base_normals = vec![
         [0.0, 0.0, 0.0],
