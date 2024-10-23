@@ -141,6 +141,9 @@ export async function runGlyphEngineAction(project: databaseTypes.IProject, stat
         files: state.fileSystem,
         properties: state.properties,
       });
+
+      console.log({state, projectId, retval});
+
       console.log(`state resolution: ${JSON.stringify(retval)}`);
       if (!retval) {
         return {error: 'No file found for state'};

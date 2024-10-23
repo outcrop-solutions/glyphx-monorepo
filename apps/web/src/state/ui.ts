@@ -57,3 +57,8 @@ export const projectSegmentAtom = atom({
   key: 'innerSidebarSegmentAtom',
   default: 'FILES', // 'FILES' | 'MODEL' | 'COLLAB' | 'AI'
 });
+
+export const geLoadingAtom = atom<boolean>({
+  key: 'geLoadingAtom',
+  default: false,
+});

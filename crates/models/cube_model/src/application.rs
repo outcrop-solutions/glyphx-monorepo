@@ -280,7 +280,7 @@ impl ApplicationHandler<ModelEvent> for Application {
                        if self.shift_pressed => {
                             self.camera_is_orbit = !self.camera_is_orbit;
                             let camera_type = if self.camera_is_orbit {
-                                CameraTypeChanged::Ortbital
+                                CameraTypeChanged::Orbital
                             } else {
                                 CameraTypeChanged::Perspective
                             };
@@ -690,7 +690,7 @@ impl ApplicationHandler<ModelEvent> for Application {
 
                 ModelEvent::CameraTypeChanged(camera_type) => {
                     self.camera_is_orbit = match camera_type {
-                        CameraTypeChanged::Ortbital => true,
+                        CameraTypeChanged::Orbital => true,
                         CameraTypeChanged::Perspective => false,
                     };
                 },

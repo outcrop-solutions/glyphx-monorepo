@@ -3,10 +3,8 @@ import {useCallback} from 'react';
 import {useSession} from 'next-auth/react';
 import {activeStateAtom, drawerOpenAtom, modelRunnerAtom, projectAtom, showLoadingAtom} from 'state';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
 import {useUrl} from 'lib/client/hooks';
-import {databaseTypes} from 'types';
 import {useRust} from './useRust';
 
 const useApplyState = () => {
@@ -14,7 +12,7 @@ const useApplyState = () => {
   const url = useUrl();
   const {downloadState} = useRust();
 
-  const modelRunnerState = useRecoilValue(modelRunnerAtom);
+  const {initialized, modelRunner} = useRecoilValue(modelRunnerAtom);
   const loading = useRecoilValue(showLoadingAtom);
 
   const [project, setProject] = useRecoilState(projectAtom);
@@ -32,34 +30,25 @@ const useApplyState = () => {
       }
       setActiveState(stateId);
       setDrawer(true);
-
       const isLoading = Object.keys(loading).length > 0;
       // only apply state if not loading
-      if (!isLoading && project && modelRunnerState.initialized) {
+      if (!isLoading && project && initialized) {
         // extract values
         const states = project?.stateHistory;
         const activeStates = states?.filter((state) => !state.deletedAt);
-        const state = states?.find((s) => s.id === stateId);
-
-        if (state) {
+        const stateValue = states?.find((s) => s.id === stateId);
+        if (stateValue) {
           // get the data files
           await downloadState(stateId);
-          console.log('download state called');
           // pass values to rust side of the house
           const camera = state.camera;
-          console.log({camera});
           const aspect = state.aspectRatio.width / state.aspectRatio.height;
-          console.log({aspect});
-          console.log({runnerState: modelRunnerState});
-
-          modelRunnerState.modelRunner?.set_camera_data(camera, aspect);
-          console.log('set camera data');
+          modelRunner?.set_camera_data(JSON.stringify(camera), aspect);
 
           // format rowIds from string in mongo to Uint32Array for modelRunner
           const ids = (state.rowIds as any[])?.map((id) => Number(id)) as number[];
           const selectedIds = new Uint32Array(ids) ?? new Uint32Array();
-          console.log({ids, selectedIds});
-          modelRunnerState.modelRunner.set_selected_glyphs(selectedIds);
+          modelRunner.set_selected_glyphs(selectedIds);
 
           // update local react state
           const properties = state.properties;
@@ -73,13 +62,6 @@ const useApplyState = () => {
           );
         }
       } else {
-        setLoading(
-          produce((draft: WritableDraft<Partial<Omit<databaseTypes.IProcessTracking, '_id'>>>) => {
-            draft.processName = 'Failed to Open State Snapshot';
-            draft.processStatus = databaseTypes.constants.PROCESS_STATUS.FAILED;
-            draft.processEndTime = new Date();
-          })
-        );
         setActiveState('');
       }
     },

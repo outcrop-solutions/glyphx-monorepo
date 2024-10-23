@@ -103,6 +103,7 @@ export const getDataByTableName = async (
       }
     }
   } catch (err) {
+    console.log({err});
     const e = new error.ActionError(
       'An unexpected error occurred getting the data by table name',
       'data',

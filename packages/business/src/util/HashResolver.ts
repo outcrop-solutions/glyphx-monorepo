@@ -69,6 +69,8 @@ export class HashResolver {
           return {exists, path};
         })
       );
+
+      console.log({presence});
       /**
        *  At least one of the full sets of extensions needs to be present
        *  We check for 3 because it covers us in both the ts and rust based versions of glyphengine

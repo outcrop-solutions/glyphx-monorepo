@@ -6,14 +6,16 @@ import {Datagrid} from './DataGrid';
 import {GridHeader} from './GridHeader';
 import {ModelFooter} from './ModelFooter';
 import {filesOpenSelector} from 'state/files';
-import {modelRunnerAtom, orientationAtom, splitPaneSizeAtom, windowSizeAtom} from 'state';
+import {geLoadingAtom, modelRunnerAtom, orientationAtom, splitPaneSizeAtom, windowSizeAtom} from 'state';
 import SplitPane from 'react-split-pane';
 import {Model} from '../Model';
 import {ModelControls} from './ModelControls';
 import {useDebounceCallback} from 'usehooks-ts';
+import LoadingBar from 'app/_components/Loaders/LoadingBar';
 
 export const GridContainer = () => {
-  const [modelRunnerState, setModelRunnerState] = useRecoilState(modelRunnerAtom);
+  const modelRunnerState = useRecoilValue(modelRunnerAtom);
+  const isGERunning = useRecoilValue(geLoadingAtom);
   // ensures we don't pre-render the server
   const [isClient, setIsClient] = useState(false);
   useEffect(() => {
@@ -77,6 +79,12 @@ export const GridContainer = () => {
             )}
           </div>
           <div className="relative h-full w-full">
+            {isGERunning && (
+              <div className="absolute h-full w-full flex flex-col justify-center items-center bg-secondary-midnight z-[90]">
+                <div className="mb-5">Building Model</div>
+                <LoadingBar />
+              </div>
+            )}
             <ModelFooter />
             <div className="h-full w-full relative">
               <ModelControls />

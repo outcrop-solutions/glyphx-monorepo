@@ -1,47 +1,77 @@
 'use client';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useRecoilValue} from 'recoil';
 import {modelRunnerAtom, rowIdsAtom, lastSelectedGlyphAtom, descSelector} from 'state';
-import {CameraIcon, HomeIcon, RefreshIcon} from '@heroicons/react/outline';
+import {CameraIcon, HomeIcon} from '@heroicons/react/outline';
 // @ts-ignore
-import {ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon, Move3D, OrbitIcon} from 'lucide-react';
+import {
+  ArrowDownIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ArrowUpIcon,
+  MinusIcon,
+  Move3D,
+  OrbitIcon,
+  PlusIcon,
+} from 'lucide-react';
 // import {screenshotModel} from '../Model/utils';
 
 export const ModelControls = () => {
-  const modelRunnerState = useRecoilValue(modelRunnerAtom);
+  const {initialized, modelRunner, lastPayloadHash} = useRecoilValue(modelRunnerAtom);
   const rowIds = useRecoilValue(rowIdsAtom);
   const {xValue, yValue, zValue} = useRecoilValue(descSelector);
   const {desc} = useRecoilValue(lastSelectedGlyphAtom);
-  const [toggle, setToggle] = useState(true);
+  const [toggle, setToggle] = useState(true); // true
+
+  const handleCamera = () => {
+    if (initialized) {
+      const cameraType = toggle ? 'Orbital' : 'Perspective';
+      modelRunner.set_camera_type(cameraType);
+    }
+    setToggle((prev) => !prev);
+  };
+
+  useEffect(() => {
+    const toggleCamera = (event) => {
+      /**
+       * THIS IS NOT FIRING
+       */
+      console.log({event});
+    };
+    // Register the event listener
+    window.addEventListener('CameraTypeChanged', toggleCamera);
+    // Cleanup the event listener on component unmount
+    return () => {
+      window.removeEventListener('CameraTypeChanged', toggleCamera);
+    };
+  }, []);
 
   return (
-    modelRunnerState.lastPayloadHash && (
+    lastPayloadHash && (
       <>
         {/* home, axis, and snapshot controls */}
         <div className="absolute left-2 top-11 flex-col items-center space-y-2 z-[89] pt-2">
           <div
-            onClick={modelRunnerState.initialized ? () => modelRunnerState.modelRunner.reset_camera() : () => {}}
-            className="hover:bg-gray bg-secondary-blue rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
+            onClick={initialized ? () => modelRunner.reset_camera() : () => {}}
+            className="hover:bg-gray transparent border border-gray rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
           >
             <HomeIcon className="h-5 w-5" />
           </div>
           <div
-            onClick={modelRunnerState.initialized ? () => modelRunnerState.modelRunner.toggle_axis_lines() : () => {}}
-            className="hover:bg-gray bg-secondary-blue rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
+            onClick={initialized ? () => modelRunner.toggle_axis_lines() : () => {}}
+            className="hover:bg-gray transparent border border-gray rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
           >
             <Move3D className="h-5 w-5" />
           </div>
           <div
-            onClick={
-              modelRunnerState.initialized ? () => modelRunnerState.modelRunner.take_screenshot(false) : () => {}
-            }
-            className="hover:bg-gray bg-secondary-blue rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
+            onClick={initialized ? () => modelRunner.take_screenshot(false) : () => {}}
+            className="hover:bg-gray transparent border border-gray rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
           >
             <CameraIcon className="h-5 w-5" />
           </div>
           {/* <div
-            onClick={() => modelRunnerState.modelRunner.run()}
-            className="hover:bg-gray bg-secondary-blue rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
+            onClick={() => modelRunner.run()}
+            className="hover:bg-gray transparent border border-gray rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
           >
             <RefreshIcon className="h-5 w-5" />
           </div> */}
@@ -49,105 +79,121 @@ export const ModelControls = () => {
         {/* snap to perpective controls */}
         <div className="absolute left-1/2 top-11 transform -translate-x-1/2 flex items-center justify-between space-x-2 z-[9999] pt-2">
           <div
-            onClick={modelRunnerState.initialized ? () => modelRunnerState.modelRunner.focus_on_x_axis() : () => {}}
-            className="hover:bg-gray bg-secondary-blue rounded-full cursor-pointer p-1 h-8 w-8"
+            onClick={initialized ? () => modelRunner.focus_on_x_axis() : () => {}}
+            className="hover:bg-gray transparent border border-gray rounded-full cursor-pointer p-1 h-8 w-8"
           >
             <div className="text-center text-sm">X</div>
           </div>
           <div
-            onClick={modelRunnerState.initialized ? () => modelRunnerState.modelRunner.focus_on_z_axis() : () => {}}
-            className="hover:bg-gray bg-secondary-blue cursor-pointer rounded-full p-1 h-8 w-8"
+            onClick={initialized ? () => modelRunner.focus_on_z_axis() : () => {}}
+            className="hover:bg-gray transparent border border-gray cursor-pointer rounded-full p-1 h-8 w-8"
           >
             <div className="text-center text-sm">T</div>
           </div>
           <div
-            onClick={modelRunnerState.initialized ? () => modelRunnerState.modelRunner.focus_on_y_axis() : () => {}}
-            className="hover:bg-gray bg-secondary-blue cursor-pointer rounded-full p-1 h-8 w-8"
+            onClick={initialized ? () => modelRunner.focus_on_y_axis() : () => {}}
+            className="hover:bg-gray transparent border border-gray cursor-pointer rounded-full p-1 h-8 w-8"
           >
             <div className="text-center text-sm">Y</div>
           </div>
         </div>
         {/* translation controls */}
         <div className="absolute right-2 top-11 flex-col items-center space-y-2 z-[9999] pt-2">
-          <div
-            onClick={() => setToggle((prev) => !prev)}
-            className={`hover:bg-gray ${
-              toggle ? 'bg-secondary-blue' : 'bg-gray'
-            } rounded-full h-8 w-8 flex items-center justify-center cursor-pointer`}
-          >
-            <OrbitIcon className="h-5 w-5" />
+          <div className="relative flex items-center gap-x-2">
+            <div
+              onClick={initialized ? () => modelRunner.add_distance(-10) : () => {}}
+              className="active:bg-gray border border-gray rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
+            >
+              <PlusIcon className="h-5 w-5" />
+            </div>
+            <div
+              onClick={initialized ? () => modelRunner.add_distance(10) : () => {}}
+              className="active:bg-gray border border-gray rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
+            >
+              <MinusIcon className="h-5 w-5" />
+            </div>
+            <div
+              onClick={handleCamera}
+              className={`hover:bg-gray ${
+                toggle ? 'transparent border border-gray' : 'bg-gray'
+              } rounded-full h-8 w-8 flex items-center justify-center cursor-pointer`}
+            >
+              <OrbitIcon className="h-5 w-5" />
+            </div>
           </div>
-          <div
-            onClick={
-              modelRunnerState.initialized
-                ? toggle
-                  ? () => {
-                      console.log('raise_model', 2);
-                      modelRunnerState.modelRunner.raise_model(2);
-                    }
-                  : () => {
-                      console.log('add_yaw', 2);
-                      modelRunnerState.modelRunner.add_pitch(2);
-                    }
-                : () => {}
-            }
-            className="hover:bg-gray bg-secondary-blue rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
-          >
-            <ArrowUpIcon className="h-5 w-5" />
-          </div>
-          <div
-            onClick={
-              modelRunnerState.initialized
-                ? toggle
-                  ? () => {
-                      console.log('shift_model', -2);
-                      modelRunnerState.modelRunner.shift_model(-2);
-                    }
-                  : () => {
-                      console.log('add_pitch', -2);
-                      modelRunnerState.modelRunner.add_yaw(-2);
-                    }
-                : () => {}
-            }
-            className="hover:bg-gray bg-secondary-blue rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
-          >
-            <ArrowLeftIcon className="h-5 w-5" />
-          </div>
-          <div
-            onClick={
-              modelRunnerState.initialized
-                ? toggle
-                  ? () => {
-                      console.log('shift_model', 2);
-                      modelRunnerState.modelRunner.shift_model(2);
-                    }
-                  : () => {
-                      console.log('add_pitch', 2);
-                      modelRunnerState.modelRunner.add_yaw(2);
-                    }
-                : () => {}
-            }
-            className="hover:bg-gray bg-secondary-blue rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
-          >
-            <ArrowRightIcon className="h-5 w-5" />
-          </div>
-          <div
-            onClick={
-              modelRunnerState.initialized
-                ? toggle
-                  ? () => {
-                      console.log('raise_model', -2);
-                      modelRunnerState.modelRunner.raise_model(-2);
-                    }
-                  : () => {
-                      console.log('add_yaw', -2);
-                      modelRunnerState.modelRunner.add_pitch(-2);
-                    }
-                : () => {}
-            }
-            className="hover:bg-gray bg-secondary-blue rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
-          >
-            <ArrowDownIcon className="h-5 w-5" />
+          <div className="flex flex-col items-end gap-y-2">
+            <div
+              onClick={
+                initialized
+                  ? toggle
+                    ? () => {
+                        console.log('raise_model', 2);
+                        modelRunner.raise_model(2);
+                      }
+                    : () => {
+                        console.log('add_yaw', 2);
+                        modelRunner.add_pitch(2);
+                      }
+                  : () => {}
+              }
+              className="active:bg-gray transparent border border-gray rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
+            >
+              <ArrowUpIcon className="h-5 w-5" />
+            </div>
+            <div
+              onClick={
+                initialized
+                  ? toggle
+                    ? () => {
+                        console.log('shift_model', -2);
+                        modelRunner.shift_model(-2);
+                      }
+                    : () => {
+                        console.log('add_pitch', -2);
+                        modelRunner.add_yaw(-2);
+                      }
+                  : () => {}
+              }
+              className="active:bg-gray transparent border border-gray rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
+            >
+              <ArrowLeftIcon className="h-5 w-5" />
+            </div>
+            <div
+              onClick={
+                initialized
+                  ? toggle
+                    ? () => {
+                        console.log('shift_model', 2);
+                        modelRunner.shift_model(2);
+                      }
+                    : () => {
+                        console.log('add_pitch', 2);
+                        modelRunner.add_yaw(2);
+                      }
+                  : () => {}
+              }
+              className="active:bg-gray transparent border border-gray rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
+            >
+              <ArrowRightIcon className="h-5 w-5" />
+            </div>
+            <div
+              onClick={
+                initialized
+                  ? toggle
+                    ? () => {
+                        console.log('raise_model', -2);
+                        modelRunner.raise_model(-2);
+                      }
+                    : () => {
+                        console.log('add_yaw', -2);
+                        modelRunner.add_pitch(-2);
+                      }
+                  : () => {}
+              }
+              className="active:bg-gray transparent border border-gray rounded-full h-8 w-8 flex items-center justify-center cursor-pointer"
+            >
+              <ArrowDownIcon className="h-5 w-5" />
+            </div>
           </div>
         </div>
         {/* display description */}

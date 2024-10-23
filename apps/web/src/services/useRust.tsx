@@ -1,12 +1,15 @@
 import {useCallback, useEffect, useRef} from 'react';
-import {webTypes} from 'types';
+import {databaseTypes, webTypes} from 'types';
 import init, {ModelRunner} from '../../public/pkg/glyphx_cube_model';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {drawerOpenAtom, modelRunnerAtom, payloadHashSelector, projectAtom} from 'state';
+import {drawerOpenAtom, geLoadingAtom, modelRunnerAtom, payloadHashSelector, projectAtom, showLoadingAtom} from 'state';
 import {runGlyphEngineAction, updateProjectState} from 'actions';
+import produce from 'immer';
+import {WritableDraft} from 'immer/dist/internal';
 
 export const useRust = () => {
-  const [{initialized, modelRunner}, setModelRunnerState] = useRecoilState(modelRunnerAtom);
+  const [{initialized, modelRunner, lastPayloadHash}, setModelRunnerState] = useRecoilState(modelRunnerAtom);
+  const setGELoading = useSetRecoilState(geLoadingAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const project = useRecoilValue(projectAtom);
   const payloadHash = useRecoilValue(payloadHashSelector);
@@ -27,6 +30,7 @@ export const useRust = () => {
     initModel();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   /**
    * Generic stream handler.
    * Provides continuity across chunks for data processData
@@ -64,7 +68,6 @@ export const useRust = () => {
    * @param buffer
    * @returns
    */
-
   const processData = useCallback(
     (axis: webTypes.constants.AXIS, processor: string) => async (buffer: Buffer) => {
       let offset = 0;
@@ -113,15 +116,18 @@ export const useRust = () => {
         return buffer.subarray(offset); // Return the unprocessed remainder
       }
     },
-    []
+    [modelRunner]
   );
 
+  /**
+   * Sets up the streams and processes the data
+   * Runs the modelRunner.run() call
+   */
   const downloadModel = useCallback(
     async (modelData: {GLY_URL: string; STS_URL: string; X_VEC: string; Y_VEC: string}) => {
       try {
         // Load the WASM module and create a new ModelRunner instance.
         // We can't re-use the model runner because there is no way to clear the stats and glyphs and reuse the event loop
-
         const {GLY_URL, STS_URL, X_VEC, Y_VEC} = modelData;
         // First, handle statistics and vectors concurrently
         urlRef.current = GLY_URL;
@@ -134,13 +140,12 @@ export const useRust = () => {
         // @ts-ignore
         await handleStream(GLY_URL, processData(undefined, 'glyph'));
 
-        // creates a new state inside the model
-        // run can only instantiate one event loop per thread
-        console.log('set lastPayloadHash');
-        console.log('set resize');
-        console.log('set drawer');
-        setDrawer(true);
+        if (initialized && lastPayloadHash) {
+          modelRunner.reset_state();
+          return;
+        }
 
+        setDrawer(true);
         const canvas = document.getElementById('glyphx-cube-model');
         if (!canvas) {
           console.log('Canvas not found');
@@ -148,16 +153,24 @@ export const useRust = () => {
         }
         const width = canvas!.clientWidth;
         const height = canvas!.clientHeight;
-        console.log('Canvas obtained in useRust', {canvas, width, height});
-        setModelRunnerState({lastPayloadHash: payloadHash});
-        console.log('call modeRunner.run()');
-        // const h = height - 44;
+        /**
+         *  This affects this
+         * if (initialized && lastPayloadHash) {
+         *    modelRunner.clear_data();
+         * }
+         */
+        setModelRunnerState(
+          produce((draft: WritableDraft<any>) => {
+            draft.lastPayloadHash = payloadHash;
+          })
+        );
+        console.log('model run()');
         await modelRunner.run(width, height);
       } catch (error) {
         console.log('swallowedError', {error});
       }
     },
-    [handleStream, modelRunner, payloadHash, processData, setDrawer, setModelRunnerState]
+    [handleStream, initialized, lastPayloadHash, modelRunner, payloadHash, processData, setDrawer, setModelRunnerState]
   );
 
   /* Initializes and manages the WebGL model on the canvas.
@@ -168,8 +181,17 @@ export const useRust = () => {
     async (event) => {
       event?.stopPropagation();
       try {
+        // set loading
+        setGELoading(true);
+        // if model is already loaded
+        if (initialized && lastPayloadHash) {
+          modelRunner.clear_data();
+        }
+        // run the action
         if (project) {
+          // update DB
           await updateProjectState(project.id, project.state);
+          // run GE
           const retval = await runGlyphEngineAction(project);
           // @ts-ignore
           if (retval && !retval?.error) {
@@ -177,16 +199,24 @@ export const useRust = () => {
             await downloadModel(retval);
           }
         }
+        setGELoading(false);
       } catch (error) {
+        setGELoading(false);
         console.log({error});
       }
     },
-    [downloadModel, project]
+    [downloadModel, initialized, lastPayloadHash, modelRunner, project, setGELoading]
   );
 
   const downloadState = useCallback(
     async (stateId: string) => {
       try {
+        // set loading
+        setGELoading(true);
+        // if model is already loaded
+        if (initialized && lastPayloadHash) {
+          modelRunner.clear_data();
+        }
         if (project) {
           await updateProjectState(project.id, project.state);
           const retval = await runGlyphEngineAction(project, stateId);
@@ -196,11 +226,13 @@ export const useRust = () => {
             await downloadModel(retval);
           }
         }
+        setGELoading(false);
       } catch (error) {
+        setGELoading(false);
         console.log({error});
       }
     },
-    [downloadModel, project]
+    [downloadModel, initialized, lastPayloadHash, modelRunner, project, setGELoading]
   );
 
   return {

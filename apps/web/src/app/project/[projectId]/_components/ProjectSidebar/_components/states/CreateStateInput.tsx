@@ -23,18 +23,17 @@ export const CreateStateInput = () => {
     async (event) => {
       event.preventDefault();
       try {
-        if (modelRunnerState.initialized) {
+        console.log({modelRunnerState});
+        if (modelRunnerState.lastPayloadHash) {
           // this is flipped back to false in provider.tsx on line 170
           setIsSubmitting(true);
-          console.log('is submitting');
           modelRunnerState.modelRunner.take_screenshot(true);
-          console.log('took state screenshot');
         }
       } catch (error) {
         console.log(error);
       }
     },
-    [modelRunnerState.initialized, modelRunnerState.modelRunner, setIsSubmitting]
+    [modelRunnerState, setIsSubmitting]
   );
 
   return (

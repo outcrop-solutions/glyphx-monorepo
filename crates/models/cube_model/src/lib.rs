@@ -13,7 +13,7 @@ use model::{
     pipeline::glyphs::glyph_uniform_data::Order,
     state::{CameraManager, DataManager},
 };
-use model_event::{ModelEvent, ModelMoveDirection, CameraTypeChanged};
+use model_event::{CameraTypeChanged, ModelEvent, ModelMoveDirection};
 use serde_json::{from_str, Value};
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -118,10 +118,10 @@ impl ModelRunner {
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn set_camera_type(&self, camera_type: &str) -> Result<(), String> {
         let camera_type = match camera_type {
-            "Ortbital" => CameraTypeChanged::Ortbital,
+            "Orbital" => CameraTypeChanged::Orbital,
             "Perspective" => CameraTypeChanged::Perspective,
             _ => return Err(format!("Invalid camera type: {}", camera_type).to_string()),
-        };    
+        };
         let event = ModelEvent::CameraTypeChanged(camera_type);
         send_event(event);
         Ok(())
@@ -267,9 +267,9 @@ impl ModelRunner {
     }
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn add_distance(&self, amount: f32) {
-        // let event = ModelEvent::ModelMove(ModelMoveDirection::Distance(amount));
-        // emit_event(&event);
-        // send_event(event);
+        let event = ModelEvent::ModelMove(ModelMoveDirection::Distance(amount));
+        emit_event(&event);
+        send_event(event);
     }
 
     ///Adding a vector will update internal state but it
