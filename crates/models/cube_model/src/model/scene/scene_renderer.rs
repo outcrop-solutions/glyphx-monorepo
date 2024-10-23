@@ -57,8 +57,10 @@ impl SceneRenderer {
             let smaa_target = SmaaTarget::new(
                 &self.wgpu_manager.borrow().device().borrow(),
                 self.wgpu_manager.borrow().queue(),
-                self.wgpu_manager.borrow().window().inner_size().width,
-                self.wgpu_manager.borrow().window().inner_size().height,
+                self.wgpu_manager.borrow().size().width,
+                self.wgpu_manager.borrow().size().height,
+                // self.wgpu_manager.borrow().window().inner_size().width,
+                // self.wgpu_manager.borrow().window().inner_size().height,
                 self.wgpu_manager.borrow().config().format,
                 SmaaMode::Smaa1X,
             );

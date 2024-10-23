@@ -373,12 +373,16 @@ impl PipelineManager {
         let config = wm.config();
         let queue = wm.queue();
 
+        
+
         let (texture, texture_view) = Self::get_hit_detection_texture(
             config,
             &d,
             (
-                wm.window().inner_size().width,
-                wm.window().inner_size().height,
+                config.width,
+                config.height,
+                // wm.window().inner_size().width,
+                // wm.window().inner_size().height,
             ),
         );
 
@@ -386,8 +390,10 @@ impl PipelineManager {
             config,
             &d,
             (
-                wm.window().inner_size().width,
-                wm.window().inner_size().height,
+                config.width,
+                config.height,
+                // wm.window().inner_size().width,
+                // wm.window().inner_size().height,
             ),
         );
 

@@ -68,8 +68,8 @@ pub struct State {
 impl State {
     pub fn get_windows_size(&self) -> (PhysicalSize<u32>, PhysicalSize<u32>) {
         let wm = self.wgpu_manager.borrow();
-        let inner_size = wm.window().inner_size();
-        let outer_size = wm.window().outer_size();
+        let inner_size = wm.window().unwrap().inner_size();
+        let outer_size = wm.window().unwrap().outer_size();
         (inner_size, outer_size)
     }
     pub async fn new(
@@ -80,7 +80,7 @@ impl State {
         width: u32,
         height: u32,
     ) -> State {
-        let wgpu_manager = Rc::new(RefCell::new(WgpuManager::new(window, width, height).await));
+        let wgpu_manager = Rc::new(RefCell::new(WgpuManager::new(Some(window), width, height).await));
         //Make a local version that we can use to pass to our configuration functions
         //Anytime we clone, we need to assign the clone to a local variable so that it does not
         //get dropped.
@@ -166,7 +166,7 @@ impl State {
     }
 
     pub fn get_window_id(&self) -> winit::window::WindowId {
-        let id = self.wgpu_manager.as_ref().borrow().window().id();
+        let id = self.wgpu_manager.as_ref().borrow().window().unwrap().id();
         id
     }
     pub fn set_window_size(&mut self, width: u32, height: u32) {
@@ -176,7 +176,7 @@ impl State {
     pub fn request_window_redraw(&self) {
         let wm = self.wgpu_manager.borrow();
         let window = wm.window();
-        window.request_redraw()
+        window.unwrap().request_redraw()
     }
 
     pub fn size(&self) -> PhysicalSize<u32> {
