@@ -1,14 +1,10 @@
-use crate::{
-    assets::create_rectangular_prism,
-    model::{
-        data::{InstanceOutput, ShapeVertex, VertexData},
-        filtering::Query,
-        managers::DataManager,
-        model_configuration::ModelConfiguration,
-    },
+use crate::model::{
+    data::InstanceOutput,   filtering::Query, managers::DataManager, model_configuration::ModelConfiguration,
+
 };
 
 use bytemuck::{Pod, Zeroable};
+use model_common::{create_rectangular_prism, ShapeVertex, VertexData};
 use std::{cell::RefCell, rc::Rc};
 use wgpu::{
     util::{BufferInitDescriptor, DeviceExt},

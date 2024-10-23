@@ -1,9 +1,9 @@
-use crate::{
-    assets::{create_charm,create_rectangular_prism}, 
-    model::{data::ShapeVertex, model_configuration::ModelConfiguration},
-};
+use crate::model::model_configuration::ModelConfiguration;
 
-use model_common::{CameraUniform, ColorTableUniform, LightUniform, WgpuManager};
+use model_common::{
+    create_charm, create_rectangular_prism, CameraUniform, ColorTableUniform, LightUniform,
+    ShapeVertex, WgpuManager,
+};
 
 use bytemuck;
 use smaa::SmaaFrame;
@@ -91,7 +91,6 @@ impl Charms {
             depth_sampler,
         }
     }
-
 
     pub fn build_verticies(model_configuration: &ModelConfiguration) -> Vec<ShapeVertex> {
         let length = (model_configuration.grid_cylinder_length

@@ -1,6 +1,5 @@
 #![allow(warnings)]
 mod application;
-mod assets;
 mod model;
 mod model_event;
 
