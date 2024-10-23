@@ -25,10 +25,10 @@ use crate::{
         },
         scene::SceneRenderer,
     },
-    model_event::Screenshot,
     Order,
 };
 
+use super::model_event::{Screenshot, ModelEvent};
 //3. Define any imports from submodules.
 
 //4. Define any imports from external Glyphx Crates.
@@ -593,8 +593,8 @@ impl State {
                     );
 
                     unsafe {
-                        let _ = crate::EVENT_LOOP_PROXY.as_ref().unwrap().send_event(
-                            crate::ModelEvent::ScreenshotTaken(
+                        let _ = super::EVENT_LOOP_PROXY.as_ref().unwrap().send_event(
+                            ModelEvent::ScreenshotTaken(
                                 Screenshot {
                                     width: size.width,
                                     height: size.height,
@@ -633,7 +633,7 @@ impl State {
                         let _ = crate::EVENT_LOOP_PROXY
                             .as_ref()
                             .unwrap()
-                            .send_event(crate::ModelEvent::GlyphsUpdated(data));
+                            .send_event(ModelEvent::GlyphsUpdated(data));
                     }
                     drop(view);
                 }
@@ -706,7 +706,7 @@ impl State {
                 if send_event {
                     unsafe {
                         let _ = crate::EVENT_LOOP_PROXY.as_ref().unwrap().send_event(
-                            crate::ModelEvent::HitDetection(Hit {
+                            ModelEvent::HitDetection(Hit {
                                 glyph_id,
                                 shift_pressed: is_shift_pressed,
                             }),

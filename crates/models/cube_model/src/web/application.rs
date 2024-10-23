@@ -1,16 +1,15 @@
 use super::{
     emit_event,
-    model::{
+    model_event::{ModelEvent, ModelMoveDirection, CameraTypeChanged},
+    send_event,
+        State,
+};
+use crate::model::{
         filtering::Query,
         model_configuration::ModelConfiguration,
         data::{InterpolationType, Order},
-        state::State,
         managers::{DataManager, CameraManager},
-    },
-    model_event::{ModelEvent, ModelMoveDirection, CameraTypeChanged},
-    send_event,
-};
-
+    };
 use pollster::FutureExt;
 use serde_json::{json, Value};
 use std::{cell::RefCell, rc::Rc};
