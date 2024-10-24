@@ -101,6 +101,11 @@ export const projectAtom = atom<any>({
   default: null,
 });
 
+export const templatesAtom = atom({
+  key: 'templatesAtom',
+  default: null,
+});
+
 // DATE GROUPINGs
 export const dayAtom = atom<boolean>({
   key: 'dayAtom',

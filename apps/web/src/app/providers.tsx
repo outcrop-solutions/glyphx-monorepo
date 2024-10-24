@@ -9,7 +9,6 @@ import TopBarProgress from 'react-topbar-progress-indicator';
 import {SWRConfig} from 'swr';
 import {DndProvider} from 'react-dnd';
 import {HTML5Backend} from 'react-dnd-html5-backend';
-import {RecoilRoot} from 'recoil';
 import progressBarConfig from '../config/progress-bar';
 import swrConfig from '../config/swr';
 import {Toaster} from 'react-hot-toast';
@@ -57,29 +56,25 @@ export const Providers = ({children, session}: {children: React.ReactNode; sessi
     <SessionProvider session={sesh}>
       {/* @ts-ignore */}
       <SWRConfig value={swrOptions}>
-        <RecoilRoot initializeState={({set}) => {}}>
-          <PostHogProvider client={posthog}>
-            <AuthProviders>
-              {/*
-               * Growthbook requires user info for attributes, must remain inside the AuthProvider
-               */}
-              <GrowthbookWrapper>
-                <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
-                  <TooltipProvider>
-                    {/* @ts-ignore */}
-                    <DndProvider backend={HTML5Backend}>
-                      <Toaster position="bottom-left" toastOptions={{duration: 2000}} />
-                      {progress && <TopBarProgress />}
-                      <Modals />
-                      <Loading />
-                      <ActionProvider>{children}</ActionProvider>
-                    </DndProvider>
-                  </TooltipProvider>
-                </NextThemesProvider>
-              </GrowthbookWrapper>
-            </AuthProviders>
-          </PostHogProvider>
-        </RecoilRoot>
+        <PostHogProvider client={posthog}>
+          {/*
+           * Growthbook requires user info for attributes, must remain inside the AuthProvider
+           */}
+          <GrowthbookWrapper>
+            <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
+              <TooltipProvider>
+                {/* @ts-ignore */}
+                <DndProvider backend={HTML5Backend}>
+                  <Toaster position="bottom-left" toastOptions={{duration: 2000}} />
+                  {progress && <TopBarProgress />}
+                  <Modals />
+                  <Loading />
+                  <ActionProvider>{children}</ActionProvider>
+                </DndProvider>
+              </TooltipProvider>
+            </NextThemesProvider>
+          </GrowthbookWrapper>
+        </PostHogProvider>
       </SWRConfig>
     </SessionProvider>
   );

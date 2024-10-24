@@ -1,33 +1,25 @@
 'use client';
 import React, {useCallback, useEffect, useRef} from 'react';
-import produce from 'immer';
-import {WritableDraft} from 'immer/dist/internal';
-import {databaseTypes, fileIngestionTypes, webTypes} from 'types';
+import {databaseTypes} from 'types';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {
-  cameraAtom,
   hasDrawerBeenShownAtom,
-  imageHashAtom,
   lastSelectedGlyphAtom,
-  projectAtom,
-  rightSidebarControlAtom,
   rowIdsAtom,
-  templatesAtom,
-  workspaceAtom,
   activeStateNameAtom,
   isSubmittingAtom,
   showStateInputAtom,
   modelRunnerSelector,
+  lastStateSelector,
 } from 'state';
 import {useWindowSize} from 'services';
-import useTemplates from 'lib/client/hooks/useTemplates';
 // Live Page Structure
 import {LiveMap} from '@liveblocks/client';
 import {InitialDocumentProvider} from 'collab/lib/client';
 import {RoomProvider} from 'liveblocks.config';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
 import {createState} from 'actions';
-import {useActionContext} from './_components/ActionProvider';
+import useApplyState from 'services/useApplyState';
 
 export enum EVENTS {
   SELECTED_GLYPHS = 'SELECTED_GLYPHS',
@@ -44,65 +36,29 @@ export const ProjectProvider = ({
   project: databaseTypes.IProject;
 }) => {
   const projectViewRef = useRef(null);
-  const [name, setName] = useRecoilState(activeStateNameAtom);
-  const {data: templateData, isLoading: templateLoading} = useTemplates();
+  const name = useRecoilValue(activeStateNameAtom);
   const rowIds = useRecoilValue(rowIdsAtom);
   const modelRunner = useRecoilValue(modelRunnerSelector);
-  const {applyState} = useActionContext();
-
+  const {applyState} = useApplyState();
   // keeps track of whether we have opened the first state
   const [hasDrawerBeenShown, setHasDrawerBeenShown] = useRecoilState(hasDrawerBeenShownAtom);
+  const setIsSubmitting = useSetRecoilState(isSubmittingAtom);
 
   // check if collab is enabled from growthbook endpoint
   const enabled = useFeatureIsOn('collaboration');
 
   // resize setup
   useWindowSize();
-
-  const setWorkspace = useSetRecoilState(workspaceAtom);
   const setRowIds = useSetRecoilState(rowIdsAtom);
   const setLastSelectedGlyph = useSetRecoilState(lastSelectedGlyphAtom);
-  const setTemplates = useSetRecoilState(templatesAtom);
-  const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
-  const setCamera = useSetRecoilState(cameraAtom);
-  const setImageHash = useSetRecoilState(imageHashAtom);
-  const setIsSubmitting = useSetRecoilState(isSubmittingAtom);
   const setAddState = useSetRecoilState(showStateInputAtom);
-
-  // hydrate recoil state
-  useEffect(() => {
-    if (!templateLoading) {
-      setRowIds(false);
-      setTemplates(templateData);
-      setRightSidebarControl(
-        produce((draft: WritableDraft<webTypes.IRightSidebarAtom>) => {
-          draft.data = project;
-        })
-      );
-    }
-  }, [
-    templateLoading,
-    setRightSidebarControl,
-    setWorkspace,
-    setTemplates,
-    templateData,
-    project,
-    setRowIds,
-    setCamera,
-    setImageHash,
-  ]);
+  const lastState = useRecoilValue(lastStateSelector);
 
   const openLastState = useCallback(async () => {
-    const filtered = project.stateHistory.filter((s) => !s.deletedAt);
-    if (Array.isArray(filtered) && filtered?.length > 0) {
-      const idx = filtered.length - 1;
-      const state = filtered[idx];
-      if (state) {
-        console.log('openlaststate', {state});
-        applyState(state);
-      }
+    if (lastState) {
+      console.log('openlaststate', {lastState});
+      applyState(lastState);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applyState]);
 
   useEffect(() => {
@@ -114,10 +70,9 @@ export const ProjectProvider = ({
     return () => {
       setHasDrawerBeenShown(false);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // create a state
+  // handle create state
   useEffect(() => {
     const handleNewState = async (event) => {
       try {
@@ -158,7 +113,7 @@ export const ProjectProvider = ({
     };
   }, [applyState, modelRunner, name, project.id, rowIds, setAddState, setIsSubmitting]);
 
-  // screenshot
+  // handle screenshot
   useEffect(() => {
     const handleScreenshotTaken = async (event) => {
       try {

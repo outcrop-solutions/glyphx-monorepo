@@ -1,3 +1,4 @@
+#![allow(warnings)]
 //use bincode::serialize;
 use glyphx_cube_model::ModelRunner;
 // use model_common::{

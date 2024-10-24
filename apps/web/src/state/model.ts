@@ -1,19 +1,17 @@
 import {atom, selector, selectorFamily} from 'recoil';
 import {projectAtom} from './project';
 import {LatestHashStrategy} from 'business/src/util/HashResolver';
-import init, {ModelRunner} from '../../public/pkg/glyphx_cube_model';
+import {ModelRunner} from '../../public/pkg/glyphx_cube_model';
+import {rustGlyphEngineTypes} from 'types';
 
 const s = new LatestHashStrategy();
 /**
  * Globally available modelRunner init because recoil allows async initializers for selectors
  */
 // const wasmUrl = '/pkg/glyphx_cube_model_bg.wasm';
-export const modelRunnerSelector = selector({
-  key: 'initializeModelRunnerSelector',
-  get: async () => {
-    await init();
-    return new ModelRunner();
-  },
+export const modelRunnerSelector = atom<ModelRunner>({
+  key: 'modelRunnerSelector',
+  default: new ModelRunner(),
 });
 
 /**
@@ -92,10 +90,11 @@ export const currentModelAtom = atom<string>({
 /**
  * Current camera data
  */
-export const cameraSelector = selector({
+export const cameraSelector = selector<rustGlyphEngineTypes.ICameraData | null>({
   key: 'cameraSelector',
   get: ({get}) => {
     const modelRunner = get(modelRunnerSelector);
+    if (!modelRunner) return null;
     return JSON.parse(modelRunner.get_camera_data());
   },
 });
@@ -103,34 +102,38 @@ export const cameraSelector = selector({
 /**
  * Stats & Counts
  */
-export const statsCountSelector = selector<number>({
+export const statsCountSelector = selector<number | null>({
   key: 'statsCountSelector',
   get: ({get}) => {
     const modelRunner = get(modelRunnerSelector);
+    if (!modelRunner) return null;
     return modelRunner.get_stats_count();
   },
 });
 
-export const glyphCountSelector = selector<number>({
+export const glyphCountSelector = selector<number | null>({
   key: 'glyphCountSelector',
   get: ({get}) => {
     const modelRunner = get(modelRunnerSelector);
+    if (!modelRunner) return null;
     return modelRunner.get_glyph_count();
   },
 });
 
-export const xVecCountSelector = selector<number>({
+export const xVecCountSelector = selector<number | null>({
   key: 'xVecCountSelector',
   get: ({get}) => {
     const modelRunner = get(modelRunnerSelector);
+    if (!modelRunner) return null;
     return modelRunner.get_x_vector_count();
   },
 });
 
-export const yVecCountSelector = selector<number>({
+export const yVecCountSelector = selector<number | null>({
   key: 'yVecCountSelector',
   get: ({get}) => {
     const modelRunner = get(modelRunnerSelector);
+    if (!modelRunner) return null;
     return modelRunner.get_y_vector_count();
   },
 });
@@ -143,6 +146,7 @@ export const statsSelectorFamily = selectorFamily<string, any>({
     (axis: string) =>
     ({get}) => {
       const modelRunner = get(modelRunnerSelector);
+      if (!modelRunner) return null;
       return JSON.parse(modelRunner.get_statistics(axis));
     },
 });
