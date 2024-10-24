@@ -118,7 +118,9 @@ impl WgpuManager {
             .request_adapter(&RequestAdapterOptions {
                 power_preference: PowerPreference::default(),
                 compatible_surface,
-                force_fallback_adapter: false,
+                //If a window is not provided then we are running in a headless environment and
+                //only need a software adapter
+                force_fallback_adapter: if arc_window.is_none() { true } else {false},
             })
             .await
             .unwrap();
