@@ -8,8 +8,6 @@ mod instance_output;
 mod model_vectors;
 mod ranked_glyph_data;
 mod selected_glyph;
-mod shape_vertex;
-mod vertex_data;
 
 pub use glyph_description::*;
 pub use glyph_id_data::*;
@@ -21,5 +19,3 @@ pub use instance_output::*;
 pub use model_vectors::*;
 pub use ranked_glyph_data::*;
 pub use selected_glyph::*;
-pub use shape_vertex::*;
-pub use vertex_data::*;

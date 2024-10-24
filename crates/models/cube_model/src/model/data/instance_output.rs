@@ -1,4 +1,4 @@
-use crate::model::data::ShapeVertex;
+use model_common::ShapeVertex;
 
 use bytemuck::{Pod, Zeroable};
 

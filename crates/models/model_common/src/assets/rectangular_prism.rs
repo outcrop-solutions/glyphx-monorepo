@@ -1,4 +1,4 @@
-use crate::model::data::ShapeVertex;
+use crate::ShapeVertex;
 
 use cgmath::{Matrix4, Vector4};
 

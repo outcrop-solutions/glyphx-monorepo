@@ -1,4 +1,6 @@
-use crate::model::data::{InstanceOutput, ShapeVertex};
+use crate::model::data::InstanceOutput;
+
+use model_common::ShapeVertex;
 
 use bytemuck::{Pod, Zeroable};
 use std::mem::size_of;

@@ -7,9 +7,9 @@ use wgpu::{
 use winit::{dpi::PhysicalSize, window::Window};
 
 pub struct WgpuManager {
-    window: Arc<Window>,
+    window: Option<Arc<Window>>,
     size: PhysicalSize<u32>,
-    surface: Surface<'static>,
+    surface: Option<Surface<'static>>,
     device: Rc<RefCell<Device>>,
     queue: Queue,
     config: SurfaceConfiguration,
@@ -17,10 +17,14 @@ pub struct WgpuManager {
 
 impl WgpuManager {
     pub const DEPTH_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Depth32Float;
-    pub async fn new(window: Window, width: u32, height: u32) -> Self {
+    pub async fn new(window: Option<Window>, width: u32, height: u32) -> Self {
         let size = winit::dpi::PhysicalSize::new(width, height);
-        let window_arc = Arc::new(window);
-        let (surface, adapter) = Self::init_wgpu(&window_arc).await;
+        let window_arc = if window.is_some() {
+            Some(Arc::new(window.unwrap()))
+        } else {
+            None
+        };
+        let (surface, adapter) = Self::init_wgpu(window_arc.clone()).await;
         let (device, queue) = Self::init_device(&adapter).await;
 
         let config = Self::configure_surface(&surface, adapter, size, &device);
@@ -38,8 +42,8 @@ impl WgpuManager {
         }
     }
 
-    pub fn window(&self) -> &Window {
-        &self.window
+    pub fn window(&self) -> Option<Arc<Window>> {
+        self.window.clone()
     }
 
     pub fn size(&self) -> &PhysicalSize<u32> {
@@ -47,7 +51,7 @@ impl WgpuManager {
     }
 
     pub fn surface(&self) -> &Surface {
-        &self.surface
+        &self.surface.as_ref().unwrap()
     }
 
     pub fn device(&self) -> Rc<RefCell<Device>> {
@@ -74,17 +78,17 @@ impl WgpuManager {
 
     pub fn resize_window(&mut self, width: u32, height: u32) {
         let _ = self
-            .window
+            .window.as_ref().unwrap()
             .request_inner_size(winit::dpi::LogicalSize::new(width, height));
     }
 
     pub fn reconfigure_surface(&mut self) {
         let d = self.device();
         let d = d.borrow();
-        self.surface.configure(&d, self.config());
+        self.surface.as_ref().unwrap().configure(&d, self.config());
     }
 
-    async fn init_wgpu(arc_window: &Arc<Window>) -> (Surface<'static>, Adapter) {
+    async fn init_wgpu(arc_window: Option<Arc<Window>>) -> (Option<Surface<'static>>, Adapter) {
         // The instance is a handle to our GPU api (WGPU)
         // Backends::all => Vulkan + Metal + DX12 + Browser WebGPU
         let instance = Instance::new(InstanceDescriptor {
@@ -96,13 +100,24 @@ impl WgpuManager {
         //
         // The surface needs to live as long as the window that created it.
         // State owns the window so this should be safe.
-        let surface = instance.create_surface(arc_window.clone()).unwrap();
+        let surface = if arc_window.is_some() {
+            let window = arc_window.as_ref().unwrap();
+            let window = window.clone();
+            Some(instance.create_surface(window).unwrap())
+        } else {
+            None
+        };
 
+        let compatible_surface = if surface.is_some() {
+            Some(surface.as_ref().unwrap())
+        } else {
+            None
+        };
         // The adapter is a handle to a physical GPU device.
         let adapter = instance
             .request_adapter(&RequestAdapterOptions {
                 power_preference: PowerPreference::default(),
-                compatible_surface: Some(&surface),
+                compatible_surface,
                 force_fallback_adapter: false,
             })
             .await
@@ -136,39 +151,55 @@ impl WgpuManager {
     }
 
     fn configure_surface(
-        surface: &Surface,
+        surface: &Option<Surface<'static>>,
         adapter: Adapter,
         size: PhysicalSize<u32>,
         device: &Device,
     ) -> SurfaceConfiguration {
         // Get the capabilities of our surface
 
-        let surface_caps = surface.get_capabilities(&adapter);
-        // Shader code in this crate assumes an sRGB surface texture. Using a different
-        // one will result all the colors coming out darker.
+        if surface.is_some() {
+            let surface = surface.as_ref().unwrap();
+            let surface_caps = surface.get_capabilities(&adapter);
+            // Shader code in this crate assumes an sRGB surface texture. Using a different
+            // one will result all the colors coming out darker.
 
-        let surface_format = surface_caps
-            .formats
-            .iter()
-            .copied()
-            .find(|f| f.is_srgb())
-            .unwrap_or(surface_caps.formats[0]);
+            let surface_format = surface_caps
+                .formats
+                .iter()
+                .copied()
+                .find(|f| f.is_srgb())
+                .unwrap_or(surface_caps.formats[0]);
 
-        let config = SurfaceConfiguration {
-            usage: TextureUsages::RENDER_ATTACHMENT
-                | TextureUsages::COPY_SRC
-                | TextureUsages::COPY_DST,
-            format: surface_format,
-            width: size.width,
-            height: size.height,
-            present_mode: surface_caps.present_modes[0],
-            alpha_mode: surface_caps.alpha_modes[0],
-            view_formats: vec![],
-            desired_maximum_frame_latency: 2,
-        };
-        //and apply it to our surface
-        surface.configure(device, &config);
-        config
+            let config = SurfaceConfiguration {
+                usage: TextureUsages::RENDER_ATTACHMENT
+                    | TextureUsages::COPY_SRC
+                    | TextureUsages::COPY_DST,
+                format: surface_format,
+                width: size.width,
+                height: size.height,
+                present_mode: surface_caps.present_modes[0],
+                alpha_mode: surface_caps.alpha_modes[0],
+                view_formats: vec![],
+                desired_maximum_frame_latency: 2,
+            };
+            //and apply it to our surface
+            surface.configure(device, &config);
+            config
+        } else {
+            SurfaceConfiguration {
+                usage: TextureUsages::RENDER_ATTACHMENT
+                    | TextureUsages::COPY_SRC
+                    | TextureUsages::COPY_DST,
+                format: wgpu::TextureFormat::Rgba8Unorm,
+                width: size.width,
+                height: size.height,
+                present_mode: wgpu::PresentMode::Fifo,
+                alpha_mode: wgpu::CompositeAlphaMode::Auto,
+                view_formats: vec![],
+                desired_maximum_frame_latency: 2,
+            }
+        }
     }
 
     pub fn create_depth_texture(&self, texture_name: &str) -> (Texture, TextureView, Sampler) {

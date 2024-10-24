@@ -1,4 +1,4 @@
-use crate::model::data::ShapeVertex;
+use crate::ShapeVertex;
 
 fn create_cylinder_normals() -> Vec<[f32; 3]> {
     vec![

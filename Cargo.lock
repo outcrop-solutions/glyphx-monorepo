@@ -3072,6 +3072,7 @@ version = "0.1.0"
 dependencies = [
  "bincode",
  "bytemuck",
+ "cgmath",
  "glam",
  "log",
  "num-traits",

@@ -5,10 +5,10 @@ mod model_move_direction;
 mod screenshot;
 mod camera_type_changed;
 
+use super::state::State;
 use crate::model::{
     data::{GlyphVertexData, Hit},
     filtering::Query,
-    state::State,
 };
 
 pub use add_glyphs::*;

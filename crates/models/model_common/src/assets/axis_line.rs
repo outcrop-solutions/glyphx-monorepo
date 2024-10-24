@@ -1,5 +1,5 @@
 use super::{create_cone, create_cylinder};
-use crate::model::data::ShapeVertex;
+use crate::ShapeVertex;
 
 pub fn create_axis_line(
     radius: f32,
