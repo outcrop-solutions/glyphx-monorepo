@@ -71,7 +71,6 @@ export const createState = async (
   rowIds: number[]
 ) => {
   try {
-    console.log({aspectRatio});
     const session = await getServerSession(authOptions);
     if (session?.user) {
       const project = await projectService.getProject(projectId as string);

@@ -4,13 +4,13 @@ import {produce} from 'immer';
 import SearchIcon from 'svg/search-icon.svg';
 import ShowIcon from 'svg/show-visibility.svg';
 import HideIcon from 'svg/hide-visibility.svg';
-import {isFilterWritableSelector, projectAtom} from 'state';
-import {useRecoilState, useRecoilValue} from 'recoil';
+import {projectAtom} from 'state';
+import {useSetRecoilState} from 'recoil';
 import {WritableDraft} from 'immer/dist/internal';
 import {webTypes} from 'types';
 
 export const SearchFilter = ({prop}) => {
-  const [project, setProject] = useRecoilState(projectAtom);
+  const setProject = useSetRecoilState(projectAtom);
   const [visibility, setVisibility] = useState(true);
   const [keyword, setKeyword] = useState('');
   const [keywords, setKeywords] = useState(prop.filter.keywords || []);

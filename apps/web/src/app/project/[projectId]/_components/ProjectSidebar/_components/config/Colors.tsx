@@ -1,9 +1,7 @@
-import produce from 'immer';
 import React, {startTransition, useCallback, useState} from 'react';
-import {SketchPicker} from 'react-color';
-
+import produce from 'immer';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {configSelector, configsAtom, currentConfigAtom, colorsConfigDirtyAtom, modelRunnerAtom} from 'state';
+import {configSelector, configsAtom, currentConfigAtom, colorsConfigDirtyAtom, modelRunnerSelector} from 'state';
 import {databaseTypes} from 'types';
 import {CheckIcon} from '@heroicons/react/outline';
 import {Color} from './Color';
@@ -11,7 +9,7 @@ const fields = ['Max Color', 'Min Color', 'Background Color', 'X Axis Color', 'Y
 
 export const Colors = () => {
   const config = useRecoilValue(configSelector);
-  const {initialized, modelRunner} = useRecoilValue(modelRunnerAtom);
+  const modelRunner = useRecoilValue(modelRunnerSelector);
   const setConfigs = useSetRecoilState(configsAtom);
   const currentConfig = useRecoilValue(currentConfigAtom);
   const [isCollapsed, setCollapsed] = useState(true);
@@ -30,8 +28,7 @@ export const Colors = () => {
   );
 
   return (
-    config &&
-    initialized && (
+    config && (
       <div className="group flex flex-col grow">
         <summary className="flex h-8 items-center cursor-pointer justify-between w-full text-gray hover:text-white hover:border-b-white hover:bg-secondary-midnight truncate border-b border-gray z-10">
           <div

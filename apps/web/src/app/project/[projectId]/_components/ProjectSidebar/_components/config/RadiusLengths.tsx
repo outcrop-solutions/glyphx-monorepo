@@ -1,7 +1,7 @@
 import produce from 'immer';
 import React, {startTransition, useCallback, useState} from 'react';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {configSelector, configsAtom, currentConfigAtom, modelRunnerAtom, radiusConfigDirtyAtom} from 'state';
+import {configSelector, configsAtom, currentConfigAtom, modelRunnerSelector, radiusConfigDirtyAtom} from 'state';
 import {databaseTypes} from 'types';
 import {toSnakeCase} from './toSnakeCase';
 import {CheckIcon} from '@heroicons/react/outline';
@@ -20,7 +20,7 @@ const fields = [
 export const RadiusLengths = () => {
   const config = useRecoilValue(configSelector);
   const setConfigs = useSetRecoilState(configsAtom);
-  const {initialized, modelRunner} = useRecoilValue(modelRunnerAtom);
+  const modelRunner = useRecoilValue(modelRunnerSelector);
   const [isCollapsed, setCollapsed] = useState(true);
   const [configDirty, setConfigDirty] = useRecoilState(radiusConfigDirtyAtom);
   const currentConfig = useRecoilValue(currentConfigAtom);
@@ -38,8 +38,7 @@ export const RadiusLengths = () => {
   );
 
   return (
-    config &&
-    initialized && (
+    config && (
       <div className="group flex flex-col grow">
         <summary className="flex h-8 items-center cursor-pointer justify-between w-full text-gray hover:text-white hover:border-b-white hover:bg-secondary-midnight truncate border-b border-gray z-10">
           <div

@@ -14,10 +14,10 @@ import {
   rowIdsAtom,
   templatesAtom,
   workspaceAtom,
-  modelRunnerAtom,
   activeStateNameAtom,
   isSubmittingAtom,
   showStateInputAtom,
+  modelRunnerSelector,
 } from 'state';
 import {useWindowSize} from 'services';
 import useTemplates from 'lib/client/hooks/useTemplates';
@@ -26,8 +26,8 @@ import {LiveMap} from '@liveblocks/client';
 import {InitialDocumentProvider} from 'collab/lib/client';
 import {RoomProvider} from 'liveblocks.config';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
-import useApplyState from 'services/useApplyState';
 import {createState} from 'actions';
+import {useActionContext} from './_components/ActionProvider';
 
 export enum EVENTS {
   SELECTED_GLYPHS = 'SELECTED_GLYPHS',
@@ -47,8 +47,8 @@ export const ProjectProvider = ({
   const [name, setName] = useRecoilState(activeStateNameAtom);
   const {data: templateData, isLoading: templateLoading} = useTemplates();
   const rowIds = useRecoilValue(rowIdsAtom);
-  const [modelRunnerState, setModelRunnerState] = useRecoilState(modelRunnerAtom);
-  const {applyState} = useApplyState();
+  const modelRunner = useRecoilValue(modelRunnerSelector);
+  const {applyState} = useActionContext();
 
   // keeps track of whether we have opened the first state
   const [hasDrawerBeenShown, setHasDrawerBeenShown] = useRecoilState(hasDrawerBeenShownAtom);
@@ -62,7 +62,6 @@ export const ProjectProvider = ({
   const setWorkspace = useSetRecoilState(workspaceAtom);
   const setRowIds = useSetRecoilState(rowIdsAtom);
   const setLastSelectedGlyph = useSetRecoilState(lastSelectedGlyphAtom);
-  const setProject = useSetRecoilState(projectAtom);
   const setTemplates = useSetRecoilState(templatesAtom);
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
   const setCamera = useSetRecoilState(cameraAtom);
@@ -73,34 +72,6 @@ export const ProjectProvider = ({
   // hydrate recoil state
   useEffect(() => {
     if (!templateLoading) {
-      // rectify mongo scalar array
-      const newFormattedProject = produce(project, (draft) => {
-        draft.files = draft.files.map((file, idx) => (idx === 0 ? {...file, selected: true, open: true} : file));
-
-        Object.values(draft.state.properties).forEach((prop: webTypes.Property) => {
-          if (
-            prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING ||
-            prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE
-          ) {
-            const {keywords} = prop.filter as unknown as webTypes.IStringFilter;
-            if (keywords && keywords.length > 0) {
-              draft.state.properties[prop.axis] = {
-                ...draft.state.properties[prop.axis],
-                filter: {
-                  ...draft.state.properties[prop.axis].filter,
-                  keywords: [
-                    ...keywords.map((word) => {
-                      return Object.values(word).join('');
-                    }),
-                  ],
-                },
-              };
-            }
-          }
-        });
-      });
-
-      setProject(newFormattedProject);
       setRowIds(false);
       setTemplates(templateData);
       setRightSidebarControl(
@@ -111,7 +82,6 @@ export const ProjectProvider = ({
     }
   }, [
     templateLoading,
-    setProject,
     setRightSidebarControl,
     setWorkspace,
     setTemplates,
@@ -128,11 +98,12 @@ export const ProjectProvider = ({
       const idx = filtered.length - 1;
       const state = filtered[idx];
       if (state) {
+        console.log('openlaststate', {state});
         applyState(state);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [applyState]);
 
   useEffect(() => {
     if (!hasDrawerBeenShown) {
@@ -157,8 +128,7 @@ export const ProjectProvider = ({
           height,
         };
         // get camera data
-        const camera = JSON.parse(modelRunnerState.modelRunner.get_camera_data());
-        console.log({camera, aspect});
+        const camera = JSON.parse(modelRunner.get_camera_data());
         // Call the server action with FormData
         const rows = (rowIds ? rowIds : []) as unknown as number[];
         // create the state
@@ -167,9 +137,9 @@ export const ProjectProvider = ({
         // Create FormData and append the blob
         const formData = new FormData();
         formData.append('file', blob, 'screenshot.png');
-
+        // create the state
         const retval = await createState(formData, name, camera, project.id, aspect, rows);
-
+        // apply it
         if (retval?.state) {
           applyState(retval?.state);
         }
@@ -179,7 +149,6 @@ export const ProjectProvider = ({
         console.log({error});
       }
     };
-
     // Register the event listener
     window.addEventListener('StateScreenshotTaken', handleNewState);
 
@@ -187,7 +156,7 @@ export const ProjectProvider = ({
     return () => {
       window.removeEventListener('StateScreenshotTaken', handleNewState);
     };
-  }, [applyState, modelRunnerState.modelRunner, name, project.id, rowIds, setAddState, setIsSubmitting]);
+  }, [applyState, modelRunner, name, project.id, rowIds, setAddState, setIsSubmitting]);
 
   // screenshot
   useEffect(() => {
@@ -196,20 +165,17 @@ export const ProjectProvider = ({
         const {pixels} = event.detail['ScreenShotTaken'];
         // Create a Blob from the pixel data
         const blob = new Blob([new Uint8Array(pixels)], {type: 'image/png'});
-
         // Use createImageBitmap to decode the image data into a bitmap
         const bitmap = await createImageBitmap(blob);
-
         // Create a canvas and draw the bitmap onto it
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = bitmap.width;
         tempCanvas.height = bitmap.height;
         const tempContext = tempCanvas.getContext('2d');
         tempContext?.drawImage(bitmap, 0, 0);
-
+        // download the screenshot
         const dataUrl = tempCanvas.toDataURL('image/png');
         const link = document.createElement('a');
-        console.log({link, dataUrl});
         link.href = dataUrl;
         link.download = 'canvas-screenshot.png';
         link.click();
@@ -257,11 +223,6 @@ export const ProjectProvider = ({
       window.removeEventListener('SelectedGlyphs', handleSelectedGlyphs);
     };
   }, [setLastSelectedGlyph, setRowIds]);
-
-  // Use the hook with the map of callbacks
-  // useWasm('SelectedGlyphs', handleSelectedGlyphs);
-  // useWasm('ScreenshotTaken', handleScreenshotTaken);
-  // useWasm('StateScreenshotTaken', handleNewState);
 
   return enabled && project?.docId ? (
     <RoomProvider

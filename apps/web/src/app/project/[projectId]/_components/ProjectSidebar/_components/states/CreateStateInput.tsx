@@ -3,8 +3,8 @@ import React, {useCallback} from 'react';
 import StateIcon from 'svg/state.svg';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {CameraIcon} from '@heroicons/react/outline';
-import {useRecoilState} from 'recoil';
-import {activeStateNameAtom, isSubmittingAtom, modelRunnerAtom} from 'state';
+import {useRecoilState, useRecoilValue} from 'recoil';
+import {activeStateNameAtom, isSubmittingAtom, modelRunnerSelector} from 'state';
 
 export const maxDuration = 300;
 
@@ -13,7 +13,7 @@ export const CreateStateInput = () => {
   const [isSubmitting, setIsSubmitting] = useRecoilState(isSubmittingAtom);
 
   const validName = name?.length > 0 && name?.length <= 75;
-  const [modelRunnerState, setModelRunnerState] = useRecoilState(modelRunnerAtom);
+  const modelRunner = useRecoilValue(modelRunnerSelector);
 
   // local state
   const handleNameChange = useCallback((event) => setName(event.target.value), [setName]);
@@ -23,17 +23,16 @@ export const CreateStateInput = () => {
     async (event) => {
       event.preventDefault();
       try {
-        console.log({modelRunnerState});
-        if (modelRunnerState.lastPayloadHash) {
-          // this is flipped back to false in provider.tsx on line 170
-          setIsSubmitting(true);
-          modelRunnerState.modelRunner.take_screenshot(true);
-        }
+        // if (lastPayloadHash) {
+        // this is flipped back to false in provider.tsx on line 170
+        setIsSubmitting(true);
+        modelRunner.take_screenshot(true);
+        // }
       } catch (error) {
         console.log(error);
       }
     },
-    [modelRunnerState, setIsSubmitting]
+    [modelRunner, setIsSubmitting]
   );
 
   return (

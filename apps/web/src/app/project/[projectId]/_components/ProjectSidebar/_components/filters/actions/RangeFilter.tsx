@@ -1,9 +1,9 @@
 'use client';
 import React, {useCallback, useState} from 'react';
-import {useRecoilState, useRecoilValue} from 'recoil';
+import {useRecoilState, useSetRecoilState} from 'recoil';
 import produce from 'immer';
 
-import {isFilterWritableSelector, projectAtom} from 'state';
+import {projectAtom} from 'state';
 
 import FilterTypeIcon from 'svg/filter-type-icon.svg';
 import ShowIcon from 'svg/show-visibility.svg';
@@ -12,7 +12,7 @@ import {WritableDraft} from 'immer/dist/internal';
 import {webTypes} from 'types';
 
 export const RangeFilter = ({prop}) => {
-  const [project, setProject] = useRecoilState(projectAtom);
+  const setProject = useSetRecoilState(projectAtom);
   const [visibility, setVisibility] = useState(true);
   const [min, setMin] = useState(prop.filter.min);
   const [max, setMax] = useState(prop.filter.max);

@@ -16,13 +16,13 @@ import SwapLeftIcon from 'svg/swap-left-icon.svg';
 import SwapRightIcon from 'svg/swap-right-icon.svg';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
-import {modelRunnerAtom, showLoadingAtom} from 'state';
+import {modelRunnerSelector, showLoadingAtom} from 'state';
 import AccumulatorType from './AccumulatorListbox';
 import DateGroupingListbox from './DateGroupListbox';
 
 export const Property = ({axis}) => {
   const [project, setProject] = useRecoilState(projectAtom);
-  const {initialized, modelRunner} = useRecoilValue(modelRunnerAtom);
+  const modelRunner = useRecoilValue(modelRunnerSelector);
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
   const {handleDrop} = useProject();
 
@@ -66,18 +66,16 @@ export const Property = ({axis}) => {
             : webTypes.constants.INTERPOLATION_TYPE.LIN;
       })
     );
-    if (initialized) {
-      // NOTE: rust has integer values instead of the ts enum values
-      const config = {
-        [`${axis.toLowerCase()}_interpolation`]:
-          prop.interpolation === webTypes.constants.INTERPOLATION_TYPE.LIN
-            ? webTypes.constants.INTERPOLATION_TYPE.LOG
-            : webTypes.constants.INTERPOLATION_TYPE.LIN,
-      };
-      console.log({...config});
-      modelRunner.update_configuration(JSON.stringify(config), true);
-    }
-  }, [setProject, initialized, axis, prop.interpolation, modelRunner]);
+
+    // NOTE: rust has integer values instead of the ts enum values
+    const config = {
+      [`${axis.toLowerCase()}_interpolation`]:
+        prop.interpolation === webTypes.constants.INTERPOLATION_TYPE.LIN
+          ? webTypes.constants.INTERPOLATION_TYPE.LOG
+          : webTypes.constants.INTERPOLATION_TYPE.LIN,
+    };
+    modelRunner.update_configuration(JSON.stringify(config), true);
+  }, [setProject, axis, prop.interpolation, modelRunner]);
 
   const ascDesc = useCallback(() => {
     setProject(
@@ -88,18 +86,16 @@ export const Property = ({axis}) => {
             : webTypes.constants.DIRECTION_TYPE.ASC;
       })
     );
-    if (initialized) {
-      // NOTE: rust has integer values instead of the ts enum values
-      const config = {
-        [`${axis.toLowerCase()}_order`]:
-          prop.direction === webTypes.constants.DIRECTION_TYPE.ASC
-            ? webTypes.constants.DIRECTION_TYPE.DESC
-            : webTypes.constants.DIRECTION_TYPE.ASC,
-      };
-      console.log({...config});
-      modelRunner.update_configuration(JSON.stringify(config), true);
-    }
-  }, [axis, initialized, modelRunner, prop.direction, setProject]);
+
+    // NOTE: rust has integer values instead of the ts enum values
+    const config = {
+      [`${axis.toLowerCase()}_order`]:
+        prop.direction === webTypes.constants.DIRECTION_TYPE.ASC
+          ? webTypes.constants.DIRECTION_TYPE.DESC
+          : webTypes.constants.DIRECTION_TYPE.ASC,
+    };
+    modelRunner.update_configuration(JSON.stringify(config), true);
+  }, [axis, modelRunner, prop.direction, setProject]);
 
   return (
     <li

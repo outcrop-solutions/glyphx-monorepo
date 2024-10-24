@@ -20,6 +20,7 @@ import {AuthProviders} from 'app/_components/AuthProviders';
 import {ThemeProvider as NextThemesProvider} from 'next-themes';
 import {TooltipProvider} from './chat/[id]/_components/ui/tooltip';
 import {GrowthbookWrapper} from './_components/GrowthbookWrapper';
+import {ActionProvider} from './project/[projectId]/_components/ActionProvider';
 
 if (typeof window !== 'undefined') {
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY as string, {
@@ -56,7 +57,7 @@ export const Providers = ({children, session}: {children: React.ReactNode; sessi
     <SessionProvider session={sesh}>
       {/* @ts-ignore */}
       <SWRConfig value={swrOptions}>
-        <RecoilRoot>
+        <RecoilRoot initializeState={({set}) => {}}>
           <PostHogProvider client={posthog}>
             <AuthProviders>
               {/*
@@ -71,7 +72,7 @@ export const Providers = ({children, session}: {children: React.ReactNode; sessi
                       {progress && <TopBarProgress />}
                       <Modals />
                       <Loading />
-                      {children}
+                      <ActionProvider>{children}</ActionProvider>
                     </DndProvider>
                   </TooltipProvider>
                 </NextThemesProvider>

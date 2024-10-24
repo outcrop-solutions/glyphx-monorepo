@@ -1,12 +1,12 @@
 'use client';
 import React, {useEffect, useState} from 'react';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {MainDropzone} from '../ProjectSidebar/_components/files';
 import {Datagrid} from './DataGrid';
 import {GridHeader} from './GridHeader';
 import {ModelFooter} from './ModelFooter';
 import {filesOpenSelector} from 'state/files';
-import {geLoadingAtom, modelRunnerAtom, orientationAtom, splitPaneSizeAtom, windowSizeAtom} from 'state';
+import {geLoadingAtom, modelRunnerSelector, orientationAtom, splitPaneSizeAtom, windowSizeAtom} from 'state';
 import SplitPane from 'react-split-pane';
 import {Model} from '../Model';
 import {ModelControls} from './ModelControls';
@@ -14,7 +14,7 @@ import {useDebounceCallback} from 'usehooks-ts';
 import LoadingBar from 'app/_components/Loaders/LoadingBar';
 
 export const GridContainer = () => {
-  const modelRunnerState = useRecoilValue(modelRunnerAtom);
+  const modelRunner = useRecoilValue(modelRunnerSelector);
   const isGERunning = useRecoilValue(geLoadingAtom);
   // ensures we don't pre-render the server
   const [isClient, setIsClient] = useState(false);
@@ -30,16 +30,14 @@ export const GridContainer = () => {
   const handlePaneResize = useDebounceCallback((size) => {
     // resize event based on drag
     const pane = document.getElementsByClassName('SplitPane');
-    if (modelRunnerState.initialized) {
-      if (orientation === 'horizontal') {
-        const width = pane[0].clientWidth;
-        const height = pane[0].clientHeight - size - 4;
-        modelRunnerState.modelRunner.resize_window(width, height);
-      } else {
-        const width = pane[0].clientWidth - size - 5;
-        const height = pane[0].clientHeight;
-        modelRunnerState.modelRunner.resize_window(width, height);
-      }
+    if (orientation === 'horizontal') {
+      const width = pane[0].clientWidth;
+      const height = pane[0].clientHeight - size - 4;
+      modelRunner.resize_window(width, height);
+    } else {
+      const width = pane[0].clientWidth - size - 5;
+      const height = pane[0].clientHeight;
+      modelRunner.resize_window(width, height);
     }
     setResize(size);
   }, 50);

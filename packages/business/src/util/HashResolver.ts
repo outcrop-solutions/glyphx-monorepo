@@ -178,6 +178,7 @@ export class LatestHashStrategy implements hashTypes.IHashStrategy {
     }
     const stateHash = MD5(propRetvals.join('')).toString();
     const payloadHash = MD5(`${fileHash}${stateHash}`).toString();
+    console.log('latest', {payloadHash});
     return payloadHash;
   }
   // Safe stringification function

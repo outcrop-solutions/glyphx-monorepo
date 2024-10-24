@@ -2,6 +2,7 @@ import {atom, selector} from 'recoil';
 import {projectAtom} from './project';
 import {databaseTypes, webTypes} from 'types';
 import {hashPayload, hashFiles} from 'business/src/util/hashFunctions';
+import {payloadHashSelector} from './model';
 
 // controls styling of state list items
 export const activeStateAtom = atom<string>({
@@ -54,15 +55,15 @@ export const stateSelector = selector({
   },
 });
 
-// does current project's payload hash exist in it's stateHistory
+/**
+ * does current project's payload hash exist in it's stateHistory
+ */
 export const doesStateExistSelector = selector<boolean>({
   key: 'doesStateExistSelector',
   get: ({get}) => {
-    const project = get(projectAtom);
-    if (!project?.files) return false;
-    const currentPayloadHash = hashPayload(hashFiles(project.files), project);
-    const exists = project?.stateHistory?.filter((state) => state?.payloadHash === currentPayloadHash);
-    return exists.length > 0;
+    const ph = get(payloadHashSelector);
+    const states = get(stateSnapshotsSelector);
+    return states.filter((state) => state?.payloadHash === ph).length > 0;
   },
 });
 

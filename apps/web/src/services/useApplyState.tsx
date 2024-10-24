@@ -1,25 +1,20 @@
 'use client';
 import {useCallback} from 'react';
-import {useSession} from 'next-auth/react';
-import {activeStateAtom, drawerOpenAtom, modelRunnerAtom, projectAtom, showLoadingAtom} from 'state';
+import {activeStateAtom, drawerOpenAtom, modelRunnerSelector, projectAtom, showLoadingAtom} from 'state';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import produce from 'immer';
-import {useUrl} from 'lib/client/hooks';
 import {useRust} from './useRust';
 
 const useApplyState = () => {
-  const session = useSession();
-  const url = useUrl();
   const {downloadState} = useRust();
 
-  const {initialized, modelRunner} = useRecoilValue(modelRunnerAtom);
+  const modelRunner = useRecoilValue(modelRunnerSelector);
   const loading = useRecoilValue(showLoadingAtom);
 
   const [project, setProject] = useRecoilState(projectAtom);
   const [activeState, setActiveState] = useRecoilState(activeStateAtom);
 
   const setDrawer = useSetRecoilState(drawerOpenAtom);
-  const setLoading = useSetRecoilState(showLoadingAtom);
 
   const applyState = useCallback(
     async (state) => {
@@ -32,7 +27,7 @@ const useApplyState = () => {
       setDrawer(true);
       const isLoading = Object.keys(loading).length > 0;
       // only apply state if not loading
-      if (!isLoading && project && initialized) {
+      if (!isLoading && project) {
         // extract values
         const states = project?.stateHistory;
         const activeStates = states?.filter((state) => !state.deletedAt);
@@ -65,8 +60,7 @@ const useApplyState = () => {
         setActiveState('');
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [loading, project, session, setActiveState, setDrawer, setLoading, url, activeState]
+    [activeState, setActiveState, setDrawer, loading, project, downloadState, modelRunner, setProject]
   );
 
   return {applyState};

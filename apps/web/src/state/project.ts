@@ -1,4 +1,4 @@
-import {atom, selector, selectorFamily} from 'recoil';
+import {atom, atomFamily, selector, selectorFamily} from 'recoil';
 import {databaseTypes, webTypes, fileIngestionTypes} from 'types';
 // import { generateFilterQuery } from 'lib/client/helpers';
 
@@ -100,13 +100,6 @@ export const projectAtom = atom<any>({
   key: 'projectAtom',
   default: null,
 });
-
-// const [doy, setDoy] = useState(true);
-// const [month, setMonth] = useState(true);
-// const [dom, setDom] = useState({year: true, month: true});
-// const [dow, setDow] = useState(true);
-// const [woy, setWoy] = useState(true);
-// const [quarter, setQuarter] = useState(true);
 
 // DATE GROUPINGs
 export const dayAtom = atom<boolean>({

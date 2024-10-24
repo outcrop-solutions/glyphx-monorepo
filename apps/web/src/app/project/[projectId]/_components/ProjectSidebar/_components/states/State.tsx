@@ -9,13 +9,13 @@ import StateIcon from 'svg/state.svg';
 import ActiveStateIcon from '../../../../../../../svg/active-state.svg';
 import Image from 'next/image';
 import {webTypes} from 'types';
-import useApplyState from 'services/useApplyState';
+import {useActionContext} from '../../../ActionProvider';
 
 export const State = ({item, activeState}) => {
   const segment = useRecoilValue(projectSegmentAtom);
   const setModals = useSetRecoilState(modalsAtom);
 
-  const {applyState} = useApplyState();
+  const {applyState} = useActionContext();
 
   const deleteState = useCallback(() => {
     setModals(
