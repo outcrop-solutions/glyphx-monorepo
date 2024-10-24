@@ -379,7 +379,6 @@ impl AthenaManager {
     }
 }
 
-
 impl Default for AthenaManager {
     fn default() -> Self {
         let config = aws_config::SdkConfig::builder().build();
@@ -550,29 +549,46 @@ impl IDatabase for AthenaManager {
         query_id: &str,
         results_include_header_row: Option<bool>,
     ) -> Result<Value, GlyphxGetQueryResultsError> {
-        let res = self
-            .operations
-            .get_query_results(&self.client, query_id)
-            .await;
-        if res.is_err() {
-            let service_error = res.err().unwrap().into_service_error();
-            return Err(GlyphxGetQueryResultsError::from_aws_get_query_result_error(
-                service_error,
-                &self.catalog,
-                &self.database,
-                query_id,
-            ));
+        let mut results: Vec<Value> = Vec::new();
+        let mut include_header_row = if results_include_header_row.is_some() {
+            results_include_header_row.unwrap()
+        } else {
+            false
+        };
+        let mut next_token: Option<String> = None;
+        loop {
+            let res = self
+                .operations
+                .get_query_results(&self.client, query_id, next_token)
+                .await;
+            if res.is_err() {
+                let service_error = res.err().unwrap().into_service_error();
+                return Err(GlyphxGetQueryResultsError::from_aws_get_query_result_error(
+                    service_error,
+                    &self.catalog,
+                    &self.database,
+                    query_id,
+                ));
+            }
+            let res = res.unwrap();
+            let result_set = res.result_set;
+            if result_set.is_none() {
+                return Ok(json!([]));
+            }
+            let result_set = result_set.unwrap();
+            if result_set.rows.is_none() {
+                return Ok(Value::Null);
+            }
+            let converted_results = convert_to_json(&result_set, Some(include_header_row));
+            include_header_row = false;
+            results.extend(converted_results);
+            if res.next_token.is_none() {
+                break;
+            }
+            next_token = res.next_token;
         }
-        let res = res.unwrap();
-        let result_set = res.result_set;
-        if result_set.is_none() {
-            return Ok(json!([]));
-        }
-        let result_set = result_set.unwrap();
-        if result_set.rows.is_none() {
-            return Ok(Value::Null);
-        }
-        Ok(convert_to_json(&result_set, results_include_header_row))
+
+        Ok(json!(results))
     }
 
     ///This method effectivly wraps the call to start_query, get_query_status and
@@ -1812,7 +1828,7 @@ mod unit_tests {
             mocks
                 .expect_get_query_results()
                 .times(1)
-                .returning(move |_, _| {
+                .returning(move |_, _, _| {
                     let output = GetQueryResultsOutput::builder()
                         .result_set(get_result_set())
                         .build();
@@ -1874,7 +1890,7 @@ mod unit_tests {
             mocks
                 .expect_get_query_results()
                 .times(1)
-                .returning(move |_, _| {
+                .returning(move |_, _, _| {
                     let output = GetQueryResultsOutput::builder()
                         .result_set(get_result_set())
                         .build();
@@ -1927,7 +1943,7 @@ mod unit_tests {
             mocks
                 .expect_get_query_results()
                 .times(1)
-                .returning(move |_, _| {
+                .returning(move |_, _, _| {
                     let output = GetQueryResultsOutput::builder().build();
                     Ok(output)
                 });
@@ -1969,7 +1985,7 @@ mod unit_tests {
             mocks
                 .expect_get_query_results()
                 .times(1)
-                .returning(move |_, _| {
+                .returning(move |_, _, _| {
                     let metadata = get_result_set_metadata();
                     let result_set = ResultSet::builder().result_set_metadata(metadata).build();
                     let output = GetQueryResultsOutput::builder()
@@ -2009,7 +2025,7 @@ mod unit_tests {
             mocks
                 .expect_get_query_results()
                 .times(1)
-                .returning(move |_, _| {
+                .returning(move |_, _, _| {
                     let meta = ErrorMetadata::builder()
                         .message("an error has occurred")
                         .code("500")
@@ -2064,7 +2080,7 @@ mod unit_tests {
             mocks
                 .expect_get_query_results()
                 .times(1)
-                .returning(move |_, _| {
+                .returning(move |_, _, _| {
                     let meta = ErrorMetadata::builder()
                         .message("an error has occurred")
                         .code("500")
@@ -2119,7 +2135,7 @@ mod unit_tests {
             mocks
                 .expect_get_query_results()
                 .times(1)
-                .returning(move |_, _| {
+                .returning(move |_, _, _| {
                     let meta = ErrorMetadata::builder()
                         .message("an error has occurred")
                         .code("500")
@@ -2174,7 +2190,7 @@ mod unit_tests {
             mocks
                 .expect_get_query_results()
                 .times(1)
-                .returning(move |_, _| {
+                .returning(move |_, _, _| {
                     let meta = ErrorMetadata::builder()
                         .message("an error has occurred")
                         .code("500")
@@ -2676,7 +2692,7 @@ mod unit_tests {
             mocks
                 .expect_get_query_results()
                 .times(1)
-                .returning(move |_, _| {
+                .returning(move |_, _, _| {
                     let output = GetQueryResultsOutput::builder()
                         .result_set(get_result_set())
                         .build();
@@ -2767,7 +2783,7 @@ mod unit_tests {
             mocks
                 .expect_get_query_results()
                 .times(1)
-                .returning(move |_, _| {
+                .returning(move |_, _, _| {
                     let output = GetQueryResultsOutput::builder()
                         .result_set(get_result_set())
                         .build();
@@ -2832,7 +2848,7 @@ mod unit_tests {
             mocks
                 .expect_get_query_results()
                 .times(0)
-                .returning(move |_, _| {
+                .returning(move |_, _, _| {
                     let output = GetQueryResultsOutput::builder()
                         .result_set(get_result_set())
                         .build();
@@ -3199,7 +3215,7 @@ mod unit_tests {
                     Ok(output)
                 });
 
-            mocks.expect_get_query_results().times(1).returning(|_, _| {
+            mocks.expect_get_query_results().times(1).returning(|_, _, _| {
                 let meta = ErrorMetadata::builder()
                     .message("an error has occurred")
                     .code("500")
@@ -3716,7 +3732,7 @@ mod unit_tests {
             mocks
                 .expect_get_query_results()
                 .times(1)
-                .returning(move |_, _| {
+                .returning(move |_, _, _| {
                     let meta_data = ResultSetMetadata::builder()
                         .set_column_info(Some(vec![ColumnInfo::builder()
                             .name("".to_string())
@@ -3804,7 +3820,7 @@ mod unit_tests {
             mocks
                 .expect_get_query_results()
                 .times(1)
-                .returning(move |_, _| {
+                .returning(move |_, _, _| {
                     let meta_data = ResultSetMetadata::builder()
                         .set_column_info(Some(vec![ColumnInfo::builder()
                             .name("".to_string())
@@ -3948,7 +3964,7 @@ mod unit_tests {
             mocks
                 .expect_get_query_results()
                 .times(1)
-                .returning(move |_, _| {
+                .returning(move |_, _, _| {
                     let meta_data = ResultSetMetadata::builder()
                         .set_column_info(Some(vec![ColumnInfo::builder()
                             .name("".to_string())
@@ -4035,7 +4051,7 @@ mod unit_tests {
             mocks
                 .expect_get_query_results()
                 .times(1)
-                .returning(move |_, _| {
+                .returning(move |_, _, _| {
                     let meta_data = ResultSetMetadata::builder()
                         .set_column_info(Some(vec![ColumnInfo::builder()
                             .name("".to_string())
@@ -4180,7 +4196,7 @@ mod unit_tests {
             mocks
                 .expect_get_query_results()
                 .times(1)
-                .returning(move |_, _| {
+                .returning(move |_, _, _| {
                     let meta_data = ResultSetMetadata::builder()
                         .set_column_info(Some(vec![ColumnInfo::builder()
                             .name("".to_string())
@@ -4331,7 +4347,7 @@ mod unit_tests {
             mocks
                 .expect_get_query_results()
                 .times(1)
-                .returning(move |_, _| {
+                .returning(move |_, _, _| {
                     let meta_data = ResultSetMetadata::builder()
                         .set_column_info(Some(vec![ColumnInfo::builder()
                             .name("".to_string())
@@ -4813,7 +4829,7 @@ mod unit_tests {
             mocks
                 .expect_get_query_results()
                 .times(1)
-                .returning(move |_, _| {
+                .returning(move |_, _, _| {
                     let meta_data = ResultSetMetadata::builder()
                         .set_column_info(Some(vec![ColumnInfo::builder()
                             .name("col_name".to_string())
