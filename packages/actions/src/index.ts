@@ -3,6 +3,7 @@ export * from './etl/fileIngestion';
 export * from './etl/signDataUrls';
 export * from './etl/signUploadUrls';
 export * from './etl/rustGlyphEngine';
+export {hello as offlineDataIngestionHello} from './etl/offlineDataIngestion';
 export * from './state';
 export * from './project';
 export * from './team';

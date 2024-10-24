@@ -1,0 +1,11 @@
+[package]
+name = "offline_data_ingestion"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+test = true
+
+[dependencies]
+glyph_engine = { path = "../glyph_engine" }

@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/common", "crates/core", "crates/models/cube_model","crates/models/cube_model_4d",  "crates/database", "crates/error",  "crates/services/glyph_engine", "crates/macro_tests", "crates/macros/*", "crates/models/model_common", "bindings/node/*" ]
+members = ["crates/common", "crates/core", "crates/models/cube_model","crates/models/cube_model_4d",  "crates/database", "crates/error",  "crates/services/glyph_engine", "crates/macro_tests", "crates/macros/*", "crates/models/model_common", "bindings/node/*", "crates/services/offline_data_ingestion" ]
 resolver = "2"
 
 [profile.test]
