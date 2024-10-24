@@ -142,14 +142,15 @@ export async function runGlyphEngineAction(project: databaseTypes.IProject, stat
         properties: state.properties,
       });
 
-      console.log({state, projectId, retval});
+      // console.log({state, projectId, retval});
 
-      console.log(`state resolution: ${JSON.stringify(retval)}`);
+      // console.log(`state resolution: ${JSON.stringify(retval)}`);
       if (!retval) {
         return {error: 'No file found for state'};
       }
-      const {payloadHash} = retval;
-      return await signRustFiles(workspaceId, projectId, payloadHash);
+      // const {payloadHash} = retval;
+
+      return await signRustFiles(workspaceId, projectId, retval.payloadHash);
     }
 
     // CASE 2: project state exists in its stateHistory and can be resolved

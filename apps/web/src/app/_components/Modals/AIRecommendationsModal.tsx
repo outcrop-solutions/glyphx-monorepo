@@ -12,10 +12,7 @@ import {createProjectFromTemplate} from 'actions';
 
 export const AIRecommendationsModal = ({modalContent: any}) => {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
-  const params = useParams();
-  const {workspaceId} = params as {workspaceId: string};
-  const {templates} = useRecoilValue(templatesAtom);
+  const templates = useRecoilValue(templatesAtom);
   const setModals = useSetRecoilState(modalsAtom);
   const {id} = useRecoilValue(workspaceAtom);
 
@@ -24,6 +21,7 @@ export const AIRecommendationsModal = ({modalContent: any}) => {
       <div className="text-white text-xl py-4">AI Recommendations</div>
       <div>
         {templates &&
+          // @ts-ignore
           templates?.map((template, idx) => (
             <>
               {idx % 2 === 0 && idx < 4 && (
@@ -62,6 +60,7 @@ export const AIRecommendationsModal = ({modalContent: any}) => {
         <p className="font-rubik font-light text-[18px] text-white text-xl">Templates</p>
         <ul role="list" className="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {templates &&
+            // @ts-ignore
             templates?.map((template) => (
               <li
                 key={template.name}

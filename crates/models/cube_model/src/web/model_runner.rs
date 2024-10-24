@@ -111,7 +111,7 @@ impl ModelRunner {
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
     pub fn set_camera_type(&self, camera_type: &str) -> Result<(), String> {
         let camera_type = match camera_type {
-            "Ortbital" => CameraTypeChanged::Ortbital,
+            "Orbital" => CameraTypeChanged::Orbital,
             "Perspective" => CameraTypeChanged::Perspective,
             _ => return Err(format!("Invalid camera type: {}", camera_type).to_string()),
         };

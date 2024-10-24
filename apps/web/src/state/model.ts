@@ -1,7 +1,6 @@
 import {atom, selector, selectorFamily} from 'recoil';
 import {projectAtom} from './project';
 import {LatestHashStrategy} from 'business/src/util/HashResolver';
-import {ModelRunner} from '../../public/pkg/glyphx_cube_model';
 import {rustGlyphEngineTypes} from 'types';
 
 const s = new LatestHashStrategy();
@@ -9,15 +8,15 @@ const s = new LatestHashStrategy();
  * Globally available modelRunner init because recoil allows async initializers for selectors
  */
 // const wasmUrl = '/pkg/glyphx_cube_model_bg.wasm';
-export const modelRunnerSelector = atom<ModelRunner>({
+export const modelRunnerSelector = atom<any>({
   key: 'modelRunnerSelector',
-  default: new ModelRunner(),
+  default: null,
 });
 
 /**
  * The latest state object in crono order
  */
-export const lastState = selector({
+export const lastStateSelector = selector({
   key: 'lastStateSelector',
   get: ({get}) => {
     const project = get(projectAtom);
@@ -57,11 +56,23 @@ export const payloadHashSelector = selector<string | null>({
       files: project.files,
       properties: project.state.properties,
     };
+
     if (fh) {
-      return s.hashPayload(fh, payload);
+      const ph = s.hashPayload(fh, payload);
+      console.log('selectorHash', {ph});
+      return ph;
     } else {
       return null;
     }
+  },
+});
+
+export const shouldClearSelector = selector<boolean>({
+  key: 'shouldClearSelector',
+  get: ({get}) => {
+    const lastState = get(lastStateSelector);
+    const currentlyLoaded = get(currentModelAtom);
+    return !!(lastState || currentlyLoaded);
   },
 });
 
@@ -82,9 +93,9 @@ export const modelDataAtom = atom<{GLY_URL: string; STS_URL: string; X_VEC: stri
  * The payload hash of the currently loaded state
  * Changes to the curent model triggers calculation of new camera, glyph count, stats values
  */
-export const currentModelAtom = atom<string>({
+export const currentModelAtom = atom<boolean>({
   key: 'currentModelAtom',
-  default: '',
+  default: false,
 });
 
 /**

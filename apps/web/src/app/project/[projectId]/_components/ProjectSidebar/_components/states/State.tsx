@@ -9,13 +9,12 @@ import StateIcon from 'svg/state.svg';
 import ActiveStateIcon from '../../../../../../../svg/active-state.svg';
 import Image from 'next/image';
 import {webTypes} from 'types';
-import {useActionContext} from '../../../ActionProvider';
+import {useRust} from 'services/useRust';
 
 export const State = ({item, activeState}) => {
   const segment = useRecoilValue(projectSegmentAtom);
   const setModals = useSetRecoilState(modalsAtom);
-
-  const {applyState} = useActionContext();
+  const {applyState} = useRust();
 
   const deleteState = useCallback(() => {
     setModals(

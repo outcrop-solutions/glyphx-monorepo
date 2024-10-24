@@ -1,16 +1,31 @@
 import {useCallback, useRef} from 'react';
-import {webTypes} from 'types';
-import {useRecoilValue, useSetRecoilState} from 'recoil';
-import {drawerOpenAtom, geLoadingAtom, modelRunnerSelector, payloadHashSelector, projectAtom} from 'state';
+import {fileIngestionTypes, webTypes} from 'types';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+import {
+  drawerOpenAtom,
+  geLoadingAtom,
+  modelRunnerSelector,
+  projectAtom,
+  activeStateAtom,
+  showLoadingAtom,
+  stateSnapshotsSelector,
+  shouldClearSelector,
+  currentModelAtom,
+} from 'state';
 import {runGlyphEngineAction, updateProjectState} from 'actions';
+import produce, {current} from 'immer';
 
 export const useRust = () => {
   const modelRunner = useRecoilValue(modelRunnerSelector);
   const setGELoading = useSetRecoilState(geLoadingAtom);
-  const setDrawer = useSetRecoilState(drawerOpenAtom);
-  const project = useRecoilValue(projectAtom);
-  const payloadHash = useRecoilValue(payloadHashSelector);
   const urlRef = useRef('');
+  const loading = useRecoilValue(showLoadingAtom);
+
+  const [project, setProject] = useRecoilState(projectAtom);
+  const [activeState, setActiveState] = useRecoilState(activeStateAtom);
+  const activeStates = useRecoilValue(stateSnapshotsSelector);
+  const [modelLoaded, setModelLoaded] = useRecoilState(currentModelAtom);
+  const setDrawer = useSetRecoilState(drawerOpenAtom);
 
   /**
    * Generic stream handler.
@@ -18,7 +33,7 @@ export const useRust = () => {
    * @param url
    * @param processData
    */
-  const handleStream = useCallback(async (url: string, processData) => {
+  const handleStream = useCallback(async (url: string, processData: (arg: any) => Promise<Buffer>) => {
     const response = await fetch(url);
     if (response.body) {
       const reader = response.body.getReader();
@@ -30,7 +45,7 @@ export const useRust = () => {
           buffer = new Uint8Array([...buffer, ...value]);
         }
         // Call processData which is expected to process and modify buffer
-        buffer = await processData(buffer);
+        buffer = (await processData(buffer)) as any;
       }
       // Handle any remaining buffer data
       if (buffer.length > 0) {
@@ -65,19 +80,22 @@ export const useRust = () => {
         switch (processor) {
           case 'vector':
             console.log(`Processing ${axis} vector data`, {dataToProcess});
-            // @ts-ignore
-            modelRunner.add_vector(axis.toLowerCase(), dataToProcess);
+            if (modelRunner) {
+              modelRunner.add_vector(axis.toLowerCase(), dataToProcess);
+            }
             break;
           case 'stats':
             console.log('Processing stats data', {dataToProcess});
-            // @ts-ignore
-            const retval = modelRunner.add_statistics(dataToProcess);
-            console.log('stats', retval);
+            if (modelRunner) {
+              const retval = modelRunner.add_statistics(dataToProcess);
+              console.log('stats', retval);
+            }
             break;
           case 'glyph':
             console.log('Processing glyph data', {dataToProcess});
-            // @ts-ignore
-            modelRunner.add_glyph(dataToProcess);
+            if (modelRunner) {
+              modelRunner.add_glyph(dataToProcess);
+            }
             break;
           default:
             console.error('Unknown data type');
@@ -112,7 +130,8 @@ export const useRust = () => {
         // @ts-ignore
         await handleStream(GLY_URL, processData(undefined, 'glyph'));
 
-        // if (lastPayloadHash) {
+        // if (modelLoaded) {
+        //   console.log('resetting state');
         //   modelRunner.reset_state();
         //   return;
         // }
@@ -125,18 +144,12 @@ export const useRust = () => {
         }
         const width = canvas!.clientWidth;
         const height = canvas!.clientHeight;
-        /**
-         *  This affects this
-         * if (initialized && lastPayloadHash) {
-         *    modelRunner.clear_data();
-         * }
-         */
-        // setModelRunnerState(
-        //   produce((draft: WritableDraft<any>) => {
-        //     draft.lastPayloadHash = payloadHash;
-        //   })
-        // );
-        await modelRunner.run(width, height);
+        setGELoading(false);
+        if (modelRunner) {
+          console.log('called modelRunner.run()');
+          setModelLoaded(true);
+          await modelRunner.run(width, height);
+        }
       } catch (error) {
         console.log('swallowedError', {error});
       }
@@ -156,7 +169,7 @@ export const useRust = () => {
         setGELoading(true);
         // if model is already loaded
         // if (lastPayloadHash) {
-        modelRunner.clear_data();
+        // modelRunner.clear_data();
         // }
         // run the action
         if (project) {
@@ -188,8 +201,9 @@ export const useRust = () => {
         // set loading
         setGELoading(true);
         // if model is already loaded
-        // if (initialized && lastPayloadHash) {
-        modelRunner.clear_data();
+        // if (modelLoaded) {
+        //   console.log('clearing data', {modelRunner});
+        //   modelRunner.clear_data();
         // }
         if (project) {
           await updateProjectState(project.id, project.state);
@@ -209,7 +223,83 @@ export const useRust = () => {
     [downloadModel, modelRunner, project, setGELoading]
   );
 
+  const applyState = useCallback(
+    async (state) => {
+      const stateId = state.id;
+      if (activeState === stateId) {
+        setActiveState('');
+        return;
+      }
+      setActiveState(stateId);
+      setDrawer(true);
+      const isLoading = Object.keys(loading).length > 0;
+      // only apply state if not loading
+      if (!isLoading && project) {
+        // extract values
+        const stateValue = activeStates?.find((s) => s.id === stateId);
+        if (stateValue) {
+          // get the data files
+          await downloadState(stateId);
+          // pass values to rust side of the house
+          const camera = state.camera;
+          const aspect = state.aspectRatio.width / state.aspectRatio.height;
+          modelRunner?.set_camera_data(JSON.stringify(camera), aspect);
+
+          // format rowIds from string in mongo to Uint32Array for modelRunner
+          const ids = (state.rowIds as any[])?.map((id) => Number(id)) as number[];
+          const selectedIds = new Uint32Array(ids) ?? new Uint32Array();
+          modelRunner?.set_selected_glyphs(selectedIds);
+
+          /**
+           * replace project state
+           * rectify mongo scalar array
+           */
+          setProject(
+            produce((draft: any) => {
+              Object.entries(draft.state.properties).forEach(
+                ([type, prop]: [webTypes.Property['axis'], webTypes.Property]) => {
+                  const filter = prop.filter;
+                  // Remove the 'id' property inside 'filter' if it exists.
+                  if (filter && filter.id) {
+                    delete filter.id;
+                  }
+                  if (
+                    prop.dataType &&
+                    (prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING ||
+                      prop.dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE) &&
+                    prop.filter &&
+                    (prop.filter as webTypes.IStringFilter)?.keywords &&
+                    (prop.filter as webTypes.IStringFilter)?.keywords?.length > 0
+                  ) {
+                    const keywords =
+                      (prop.filter as webTypes.IStringFilter).keywords ?? ([] as unknown as webTypes.IStringFilter);
+                    if (keywords && keywords.length > 0) {
+                      draft.properties[prop.axis] = {
+                        ...draft.properties[prop.axis],
+                        filter: {
+                          keywords: [
+                            ...keywords.map((word) => {
+                              return Object.values(word).join('');
+                            }),
+                          ],
+                        },
+                      };
+                    }
+                  }
+                }
+              );
+            })
+          );
+        }
+      } else {
+        setActiveState('');
+      }
+    },
+    [activeState, setActiveState, setDrawer, loading, project, downloadState, modelRunner, setProject]
+  );
+
   return {
+    applyState,
     downloadState,
     runRustGlyphEngine,
   };

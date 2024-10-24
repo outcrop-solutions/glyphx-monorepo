@@ -2,8 +2,8 @@ import React from 'react';
 import {Metadata} from 'next';
 import LeftSidebar from './_components/LeftSidebar';
 import ProjectHeader from './_components/ProjectHeader';
-import RecoilProvider from './project-provider';
-import {ProjectProvider} from './provider';
+import ProjectProvider from './project-provider';
+import {CollabProvider} from './provider';
 import {InnerSidebar} from './_components/InnerSidebar';
 import {RightSidebar} from 'app/workspace/[workspaceId]/_components/rightSidebar';
 import {ServerDocumentManager} from 'collab/lib/server/ServerDocumentManager';
@@ -33,8 +33,8 @@ export default async function ProjectLayout({children, params}) {
 
   return (
     <div className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
-      <RecoilProvider project={project} templates={templates}>
-        <ProjectProvider project={project} doc={data}>
+      <ProjectProvider project={project} templates={templates}>
+        <CollabProvider project={project} doc={data}>
           <LeftSidebar />
           <CursorProvider>
             <ProjectHeader />
@@ -44,8 +44,8 @@ export default async function ProjectLayout({children, params}) {
             </div>
           </CursorProvider>
           <RightSidebar />
-        </ProjectProvider>
-      </RecoilProvider>
+        </CollabProvider>
+      </ProjectProvider>
     </div>
   );
 }

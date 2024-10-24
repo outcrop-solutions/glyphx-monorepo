@@ -19,14 +19,14 @@ import {InitialDocumentProvider} from 'collab/lib/client';
 import {RoomProvider} from 'liveblocks.config';
 import {useFeatureIsOn} from '@growthbook/growthbook-react';
 import {createState} from 'actions';
-import useApplyState from 'services/useApplyState';
+import {useRust} from 'services/useRust';
 
 export enum EVENTS {
   SELECTED_GLYPHS = 'SELECTED_GLYPHS',
   SCREENSHOT_TAKEN = 'SCREENSHOT_TAKEN',
 }
 
-export const ProjectProvider = ({
+export const CollabProvider = ({
   children,
   doc,
   project,
@@ -39,9 +39,10 @@ export const ProjectProvider = ({
   const name = useRecoilValue(activeStateNameAtom);
   const rowIds = useRecoilValue(rowIdsAtom);
   const modelRunner = useRecoilValue(modelRunnerSelector);
-  const {applyState} = useApplyState();
+  const lastState = useRecoilValue(lastStateSelector);
+  const {applyState} = useRust();
   // keeps track of whether we have opened the first state
-  const [hasDrawerBeenShown, setHasDrawerBeenShown] = useRecoilState(hasDrawerBeenShownAtom);
+  // const [hasDrawerBeenShown, setHasDrawerBeenShown] = useRecoilState(hasDrawerBeenShownAtom);
   const setIsSubmitting = useSetRecoilState(isSubmittingAtom);
 
   // check if collab is enabled from growthbook endpoint
@@ -52,24 +53,16 @@ export const ProjectProvider = ({
   const setRowIds = useSetRecoilState(rowIdsAtom);
   const setLastSelectedGlyph = useSetRecoilState(lastSelectedGlyphAtom);
   const setAddState = useSetRecoilState(showStateInputAtom);
-  const lastState = useRecoilValue(lastStateSelector);
 
   const openLastState = useCallback(async () => {
     if (lastState) {
-      console.log('openlaststate', {lastState});
       applyState(lastState);
     }
-  }, [applyState]);
+  }, []);
 
   useEffect(() => {
-    if (!hasDrawerBeenShown) {
-      // Logic to show the drawer
-      openLastState();
-      setHasDrawerBeenShown(true);
-    }
-    return () => {
-      setHasDrawerBeenShown(false);
-    };
+    // Logic to show the drawer
+    openLastState();
   }, []);
 
   // handle create state
@@ -77,13 +70,14 @@ export const ProjectProvider = ({
     const handleNewState = async (event) => {
       try {
         const {width, height, pixels} = event.detail['ScreenShotTaken'];
+        console.log({width, height, pixels});
         // get aspect ratio
         const aspect = {
           width,
           height,
         };
         // get camera data
-        const camera = JSON.parse(modelRunner.get_camera_data());
+        const camera = JSON.parse(modelRunner?.get_camera_data());
         // Call the server action with FormData
         const rows = (rowIds ? rowIds : []) as unknown as number[];
         // create the state
@@ -96,6 +90,7 @@ export const ProjectProvider = ({
         const retval = await createState(formData, name, camera, project.id, aspect, rows);
         // apply it
         if (retval?.state) {
+          console.log('applying state retval', {retval});
           applyState(retval?.state);
         }
         setIsSubmitting(false);

@@ -40,6 +40,7 @@ export class HashResolver {
     // register hash strategies
     this.register(new LatestHashStrategy());
     // registered in reverse version number order
+    this.register(new HashStrategy_safeStringify());
     this.register(new HashStrategy_0dc9da4()); // 5
     this.register(new HashStrategy_47bcf33()); // 4
     this.register(new HashStrategy_4a8005c()); // 3
@@ -69,8 +70,6 @@ export class HashResolver {
           return {exists, path};
         })
       );
-
-      console.log({presence});
       /**
        *  At least one of the full sets of extensions needs to be present
        *  We check for 3 because it covers us in both the ts and rust based versions of glyphengine
@@ -112,8 +111,8 @@ export class HashResolver {
 }
 
 /**
- * Version 6 [LATEST]
- * Note: adds safeStringify
+ * Version 7 [LATEST]
+ * Note: adds handling for data fields
  */
 
 export class LatestHashStrategy implements hashTypes.IHashStrategy {
@@ -136,50 +135,156 @@ export class LatestHashStrategy implements hashTypes.IHashStrategy {
   }
   hashPayload(fileHash: string, payload: hashTypes.IHashPayload): string {
     console.log({fileHash, payload});
-    const relevantProps = ['X', 'Y', 'Z', 'A', 'B', 'C'];
-    const relevantKeys = ['key', 'dataType', 'interpolation', 'direction', 'filter', 'accumulatorType', 'dateGrouping'];
-    const propRetvals = [] as string[];
+    try {
+      const relevantProps = ['X', 'Y', 'Z', 'A', 'B', 'C'];
+      const relevantKeys = [
+        'key',
+        'dataType',
+        'interpolation',
+        'direction',
+        'filter',
+        'accumulatorType',
+        'dateGrouping',
+      ];
+      const propRetvals = [] as string[];
 
-    for (const propKey of relevantProps) {
-      const prop = payload.properties[propKey];
+      for (const propKey of relevantProps) {
+        const prop = payload.properties[propKey];
 
-      const sortedProp = Object.keys(prop)
-        .sort()
-        .reduce((acc, key) => {
-          acc[key] = prop[key];
-          return acc;
-        }, {} as any);
+        const sortedProp = Object.keys(prop)
+          .sort()
+          .reduce((acc, key) => {
+            acc[key] = prop[key];
+            return acc;
+          }, {} as any);
 
-      const keyRetvals = [] as string[];
-      const dataType = sortedProp.dataType;
+        const keyRetvals = [] as string[];
+        const dataType = sortedProp.dataType;
 
-      for (const key of relevantKeys) {
-        if (key === 'filter' && dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER) {
-          keyRetvals.push(this.safeStringify((sortedProp[key] as webTypes.INumbericFilter)?.min ?? ''));
-          keyRetvals.push(this.safeStringify((sortedProp[key] as webTypes.INumbericFilter)?.max ?? ''));
-        } else if (
-          key === 'filter' &&
-          dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING &&
-          sortedProp[key] &&
-          (sortedProp[key] as webTypes.IStringFilter)?.keywords?.length > 0
-        ) {
-          for (const word of (sortedProp.filter as webTypes.IStringFilter)?.keywords) {
-            keyRetvals.push(this.safeStringify(word));
+        for (const key of relevantKeys) {
+          if (key === 'filter' && dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER) {
+            keyRetvals.push(this.safeStringify((sortedProp[key] as webTypes.INumbericFilter)?.min ?? ''));
+            keyRetvals.push(this.safeStringify((sortedProp[key] as webTypes.INumbericFilter)?.max ?? ''));
+          } else if (
+            key === 'filter' &&
+            (dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING ||
+              dataType === fileIngestionTypes.constants.FIELD_TYPE.DATE) &&
+            sortedProp[key] &&
+            (sortedProp[key] as webTypes.IStringFilter)?.keywords?.length > 0
+          ) {
+            for (const word of (sortedProp.filter as webTypes.IStringFilter)?.keywords) {
+              keyRetvals.push(this.safeStringify(word));
+            }
+          } else {
+            keyRetvals.push(this.safeStringify(sortedProp[key]));
           }
-        } else {
-          keyRetvals.push(this.safeStringify(sortedProp[key]));
         }
+        propRetvals.push(keyRetvals.join(''));
       }
-      propRetvals.push(keyRetvals.join(''));
-    }
 
-    if (payload.projectId) {
-      propRetvals.push(payload.projectId);
+      if (payload.projectId) {
+        propRetvals.push(payload.projectId);
+      }
+      const stateHash = MD5(propRetvals.join('')).toString();
+      const payloadHash = MD5(`${fileHash}${stateHash}`).toString();
+      console.log('latest', {payloadHash});
+      return payloadHash;
+    } catch (error) {
+      console.log('latestError', {error});
     }
-    const stateHash = MD5(propRetvals.join('')).toString();
-    const payloadHash = MD5(`${fileHash}${stateHash}`).toString();
-    console.log('latest', {payloadHash});
-    return payloadHash;
+  }
+  // Safe stringification function
+  private safeStringify(value: any): string {
+    if (value === undefined) return '';
+    if (typeof value === 'object') {
+      if (value instanceof Date) return value.toISOString();
+      if (Array.isArray(value)) return value.map(this.safeStringify).join(',');
+      return JSON.stringify(value);
+    }
+    return String(value);
+  }
+}
+
+/**
+ * Version 6
+ * Note: adds safeStringify
+ */
+
+export class HashStrategy_safeStringify implements hashTypes.IHashStrategy {
+  version = 'safe-stringify';
+  hashFiles(fileStats: fileIngestionTypes.IFileStats[]): string {
+    // moved here from createState action in order to avoid discrepancy
+    const fileHashes = fileStats.map(
+      ({fileName, columns}: {fileName: string; columns: fileIngestionTypes.IColumn[]}) => {
+        const columnHashes = columns
+          .filter((c) => c.name !== 'glyphx_id__')
+          .map(({name, fieldType}) => `${name}${fieldType}`)
+          .join('');
+        const formattedColHashInput = columnHashes;
+        return MD5(`${fileName}${formattedColHashInput}`).toString();
+      }
+    );
+    // Combine all the individual file hashes into a single hash
+    const combinedHash = MD5(fileHashes.join('')).toString();
+    return combinedHash;
+  }
+  hashPayload(fileHash: string, payload: hashTypes.IHashPayload): string {
+    console.log({fileHash, payload});
+    try {
+      const relevantProps = ['X', 'Y', 'Z', 'A', 'B', 'C'];
+      const relevantKeys = [
+        'key',
+        'dataType',
+        'interpolation',
+        'direction',
+        'filter',
+        'accumulatorType',
+        'dateGrouping',
+      ];
+      const propRetvals = [] as string[];
+
+      for (const propKey of relevantProps) {
+        const prop = payload.properties[propKey];
+
+        const sortedProp = Object.keys(prop)
+          .sort()
+          .reduce((acc, key) => {
+            acc[key] = prop[key];
+            return acc;
+          }, {} as any);
+
+        const keyRetvals = [] as string[];
+        const dataType = sortedProp.dataType;
+        for (const key of relevantKeys) {
+          if (key === 'filter' && dataType === fileIngestionTypes.constants.FIELD_TYPE.NUMBER) {
+            keyRetvals.push(this.safeStringify((sortedProp[key] as webTypes.INumbericFilter)?.min ?? ''));
+            keyRetvals.push(this.safeStringify((sortedProp[key] as webTypes.INumbericFilter)?.max ?? ''));
+          } else if (
+            key === 'filter' &&
+            dataType === fileIngestionTypes.constants.FIELD_TYPE.STRING &&
+            sortedProp[key] &&
+            (sortedProp[key] as webTypes.IStringFilter)?.keywords?.length > 0
+          ) {
+            for (const word of (sortedProp.filter as webTypes.IStringFilter)?.keywords) {
+              keyRetvals.push(this.safeStringify(word));
+            }
+          } else {
+            keyRetvals.push(this.safeStringify(sortedProp[key]));
+          }
+        }
+        propRetvals.push(keyRetvals.join(''));
+      }
+
+      if (payload.projectId) {
+        propRetvals.push(payload.projectId);
+      }
+      const stateHash = MD5(propRetvals.join('')).toString();
+      const payloadHash = MD5(`${fileHash}${stateHash}`).toString();
+      console.log('safestringify', {payloadHash});
+      return payloadHash;
+    } catch (error) {
+      console.log({error});
+    }
   }
   // Safe stringification function
   private safeStringify(value: any): string {
@@ -236,32 +341,36 @@ export class HashStrategy_c540f1f implements hashTypes.IHashStrategy {
     return combinedHash;
   }
   hashPayload(fileHash, payload: hashTypes.IHashPayload): string {
-    let req = {id: payload.projectId, ...payload};
-    // clean ids
-    delete req.properties['X'].id;
-    delete req.properties['Y'].id;
-    delete req.properties['Z'].id;
-    delete req.properties['A'].id;
-    delete req.properties['B'].id;
-    delete req.properties['C'].id;
-    // clean filter ids
-    delete req.properties['X'].filter.id;
-    delete req.properties['Y'].filter.id;
-    delete req.properties['Z'].filter.id;
-    delete req.properties['A'].filter.id;
-    delete req.properties['B'].filter.id;
-    delete req.properties['C'].filter.id;
+    try {
+      let req = {id: payload.projectId, ...payload};
+      // clean ids
+      delete req.properties['X'].id;
+      delete req.properties['Y'].id;
+      delete req.properties['Z'].id;
+      delete req.properties['A'].id;
+      delete req.properties['B'].id;
+      delete req.properties['C'].id;
+      // clean filter ids
+      delete req.properties['X'].filter.id;
+      delete req.properties['Y'].filter.id;
+      delete req.properties['Z'].filter.id;
+      delete req.properties['A'].filter.id;
+      delete req.properties['B'].filter.id;
+      delete req.properties['C'].filter.id;
 
-    for (const key of Object.keys(req.properties)) {
-      const keywords = req.properties[key].keywords;
-      if (keywords && keywords.length === 0) {
-        delete req.properties[key].filter.keywords;
+      for (const key of Object.keys(req.properties)) {
+        const keywords = req.properties[key].keywords;
+        if (keywords && keywords.length === 0) {
+          delete req.properties[key].filter.keywords;
+        }
       }
-    }
-    const projectStateProperties = JSON.stringify(req.properties);
-    const retval = `${fileHash}${projectStateProperties}`;
+      const projectStateProperties = JSON.stringify(req.properties);
+      const retval = `${fileHash}${projectStateProperties}`;
 
-    return MD5(retval).toString();
+      return MD5(retval).toString();
+    } catch (error) {
+      return '';
+    }
   }
 }
 

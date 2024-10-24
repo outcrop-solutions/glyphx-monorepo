@@ -12,14 +12,10 @@ import {HTML5Backend} from 'react-dnd-html5-backend';
 import progressBarConfig from '../config/progress-bar';
 import swrConfig from '../config/swr';
 import {Toaster} from 'react-hot-toast';
-import {Modals} from 'app/_components/Modals';
-import {Loading} from 'app/_components/Loaders/Loading';
 import {Session} from 'next-auth';
-import {AuthProviders} from 'app/_components/AuthProviders';
 import {ThemeProvider as NextThemesProvider} from 'next-themes';
 import {TooltipProvider} from './chat/[id]/_components/ui/tooltip';
 import {GrowthbookWrapper} from './_components/GrowthbookWrapper';
-import {ActionProvider} from './project/[projectId]/_components/ActionProvider';
 
 if (typeof window !== 'undefined') {
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY as string, {
@@ -67,9 +63,7 @@ export const Providers = ({children, session}: {children: React.ReactNode; sessi
                 <DndProvider backend={HTML5Backend}>
                   <Toaster position="bottom-left" toastOptions={{duration: 2000}} />
                   {progress && <TopBarProgress />}
-                  <Modals />
-                  <Loading />
-                  <ActionProvider>{children}</ActionProvider>
+                  {children}
                 </DndProvider>
               </TooltipProvider>
             </NextThemesProvider>

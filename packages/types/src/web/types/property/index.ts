@@ -14,4 +14,5 @@ export type Property = {
   accumulatorType?: ACCUMULATOR_TYPE;
   dateGrouping?: DATE_GROUPING;
   description?: string;
+  id?: string;
 };

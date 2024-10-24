@@ -1,5 +1,5 @@
 'use client';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {MainDropzone} from '../ProjectSidebar/_components/files';
 import {Datagrid} from './DataGrid';
@@ -27,20 +27,29 @@ export const GridContainer = () => {
   const {height} = useRecoilValue(windowSizeAtom);
   const setResize = useSetRecoilState(splitPaneSizeAtom);
 
-  const handlePaneResize = useDebounceCallback((size) => {
-    // resize event based on drag
-    const pane = document.getElementsByClassName('SplitPane');
-    if (orientation === 'horizontal') {
-      const width = pane[0].clientWidth;
-      const height = pane[0].clientHeight - size - 4;
-      modelRunner.resize_window(width, height);
-    } else {
-      const width = pane[0].clientWidth - size - 5;
-      const height = pane[0].clientHeight;
-      modelRunner.resize_window(width, height);
-    }
-    setResize(size);
-  }, 50);
+  const paneSizeCallback = useCallback(
+    (size) => {
+      // resize event based on drag
+      const pane = document.getElementsByClassName('SplitPane');
+      if (orientation === 'horizontal') {
+        const width = pane[0].clientWidth;
+        const height = pane[0].clientHeight - size - 4;
+        if (modelRunner) {
+          modelRunner.resize_window(width, height);
+        }
+      } else {
+        const width = pane[0].clientWidth - size - 5;
+        const height = pane[0].clientHeight;
+        if (modelRunner) {
+          modelRunner?.resize_window(width, height);
+        }
+      }
+      setResize(size);
+    },
+    [orientation, modelRunner]
+  );
+
+  const handlePaneResize = useDebounceCallback(paneSizeCallback, 50);
 
   const getPaneHeight = () => {
     if (height) {
