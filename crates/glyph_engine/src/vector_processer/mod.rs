@@ -152,12 +152,18 @@ pub trait VectorValueProcesser: Send + Sync {
     fn get_statistics_vector(&self) -> Vec<f64>;
     fn get_max_vector(&self) -> Option<Vector>;
     fn get_max_rank(&self) -> usize;
+    fn dump_vectors(&self);
 }
 
 unsafe impl Sync for VectorProcesser {}
 
 #[async_trait]
 impl VectorValueProcesser for VectorProcesser {
+    fn dump_vectors(&self) {
+        for (k, v) in self.vectors.iter() {
+            println!("Key: {:?} Value: {:?}", k, v);
+        }
+    }
     fn get_axis_name(&self) -> &str {
         &self.axis_name
     }

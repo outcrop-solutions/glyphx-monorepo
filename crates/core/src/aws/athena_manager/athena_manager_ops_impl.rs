@@ -112,10 +112,12 @@ impl AthenaManagerOps for AthenaManagerOpsImpl {
         &self,
         client: &AthenaClient,
         query_id: &str,
+        next_token: Option<String>,
     ) -> Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>> {
         client
             .get_query_results()
             .query_execution_id(query_id)
+            .set_next_token(next_token)
             .send()
             .await
     }

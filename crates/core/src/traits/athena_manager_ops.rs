@@ -59,6 +59,7 @@ pub trait AthenaManagerOps :Send + Sync{
         &self,
         client: &AthenaClient,
         query_id: &str,
+        next_token: Option<String>,
     ) -> Result<GetQueryResultsOutput, SdkError<GetQueryResultsError>>;
 
     fn get_query_results_paginator(

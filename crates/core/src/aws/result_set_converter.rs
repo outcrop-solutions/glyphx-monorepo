@@ -172,14 +172,14 @@ fn convert_string_field(input: &Option<&str>, nullable: bool) -> Value {
 ///# Arguments
 ///`result_set` - A ResultSet from the athena client.
 ///`includes_header_row` - An optional boolean that indicates if the first row should be skipped.
-pub fn convert_to_json(result_set: &ResultSet, includes_header_row: Option<bool>) -> Value {
+pub fn convert_to_json(result_set: &ResultSet, includes_header_row: Option<bool>) -> Vec<Value> {
     let includes_header_row = includes_header_row.unwrap_or(false);
     let metadata = result_set.result_set_metadata().unwrap();
     let column_information = get_column_info(&metadata);
     let mut rows: Vec<Value> = Vec::new();
     let mut first = true;
     if result_set.rows().is_empty() {
-        return Value::Null;
+        return rows;
     }
     for row in result_set.rows() {
         if first && includes_header_row {
@@ -208,7 +208,7 @@ pub fn convert_to_json(result_set: &ResultSet, includes_header_row: Option<bool>
 
         first = false;
     }
-    json!(rows)
+    rows
 }
 
 #[cfg(test)]
@@ -658,12 +658,7 @@ mod convert_to_json{
             let result_set = result_set.build();
 
             let result = convert_to_json(&result_set, None);
-            assert!(result.is_array());
 
-            let result = result.as_array();
-            assert!(result.is_some());
-
-            let result = result.unwrap();
             assert_eq!(result.len(), 2);
 
             let row1 = &result[0];
@@ -721,12 +716,6 @@ mod convert_to_json{
             let result_set = result_set.build();
 
             let result = convert_to_json(&result_set, Some(true));
-            assert!(result.is_array());
-
-            let result = result.as_array();
-            assert!(result.is_some());
-
-            let result = result.unwrap();
             assert_eq!(result.len(), 1);
 
             let row = &result[0];
@@ -762,6 +751,6 @@ mod convert_to_json{
             let result_set = result_set.build();
 
             let result = convert_to_json(&result_set, None);
-            assert!(result.is_null());
+            assert!(result.len() == 0);
   }
 }

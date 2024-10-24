@@ -63,13 +63,10 @@ impl AthenaStreamIterator {
     async fn reload(&mut self) -> Result<Option<()>, GlyphxGetQueryResultsError> {
         self.current_row = 0;
         //Get the next page of results from the stream.
-        println!("Getting next page of results for query_id: {}", self.query_id);
         let next_result = self.results.next().await;
-        println!("Got next page of results for query_id: {:?}", next_result);
 
         if next_result.is_none() {
             //The stream has ended, we have exhausted the results.
-            println!("Stream has ended for query_id: {}", self.query_id);
             self.exhausted = true;
             return Ok(None);
         }
@@ -87,29 +84,21 @@ impl AthenaStreamIterator {
         }
         let query_output_results = next_result.unwrap();
         //There is always a result set in the output, so we should never get a None.
-        println!(
-            "Unwrapped the next page of results: {:?}",
-            query_output_results
-        );
         let result_set = query_output_results.result_set.as_ref().unwrap();
         //there are always rows, but they will be emptry if we have exhausted the result set.
         //this is the only to reliably check that we are at the end of the results.
         if result_set.rows.is_none() {
-            println!("No rows in the result set, we have exhausted the results");
             self.exhausted = true;
             return Ok(None);
         }
         let rows = result_set.rows.as_ref().unwrap();
         if rows.is_empty() {
-            println!("The rows are empty, we have exhausted the results");
             self.exhausted = true;
             return Ok(None);
         }
 
-        let converted_result_set = convert_to_json(result_set, Some(false));
-        let mut converted_result_set = converted_result_set.as_array().unwrap().to_vec();
+        let mut converted_result_set = convert_to_json(result_set, Some(false));
         //If this is the first page, we need to remove the first row, as it is the header row.
-        println!("Here are my converted results: {:?}", converted_result_set);
         if self.first_page {
             self.first_page = false;
             converted_result_set.remove(0);
@@ -124,13 +113,11 @@ impl AthenaStreamIterator {
     pub async fn next(&mut self) -> Result<Option<Value>, AthenaStreamIteratorError> {
         if self.exhausted {
             //You have hit the end of the result set, there is no more data to return,
-            println!("next is exhausted ");
             return Ok(None);
         }
         if self.query_output_results.is_none() {
             let reloaded = self.reload().await?;
             if reloaded.is_none() {
-                println!("reload returned None, we are exhausted for query_id");
                 return Ok(None);
             }
         }
