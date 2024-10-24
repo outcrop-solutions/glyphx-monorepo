@@ -14,7 +14,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 bson = "2.8.1"
-glyph_engine = { path = "../../../crates/glyph_engine" }
+glyph_engine = { path = "../../../crates/services/glyph_engine" }
 glyphx_common = { path = "../../../crates/common" }
 glyphx_core = { path = "../../../crates/core", features = ["macros"] }
 neon = {version="1.0.0", default-features = false, features = ["napi-6" ]}
