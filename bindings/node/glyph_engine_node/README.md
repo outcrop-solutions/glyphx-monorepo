@@ -1,12 +1,12 @@
-# offline_data_ingestion_node
+# glyph_engine_node
 
-**offline_data_ingestion_node:** Binds our offline_data_ingestion crate to node using neon.
+**glyph_engine_node:** Binds our offline_data_ingestion crate to node using neon.
 
 This project was bootstrapped by [create-neon](https://www.npmjs.com/package/create-neon).
 
-## Installing offline_data_ingestion_node
+## Installing glyph_engine_node
 
-Installing offline_data_ingestion_node requires a [supported version of Node and Rust](https://github.com/neon-bindings/neon#platform-support).
+Installing glyph_engine_node requires a [supported version of Node and Rust](https://github.com/neon-bindings/neon#platform-support).
 
 You can install the project with npm. In the project directory, run:
 
@@ -16,7 +16,7 @@ $ npm install
 
 This fully installs the project, including installing any dependencies and running the build.
 
-## Building offline_data_ingestion_node
+## Building glyph_engine_node
 
 If you have already installed the project and only want to run the build, run:
 
@@ -24,9 +24,9 @@ If you have already installed the project and only want to run the build, run:
 $ npm run build
 ```
 
-This command uses the [cargo-cp-artifact](https://github.com/neon-bindings/cargo-cp-artifact) utility to run the Rust build and copy the built library into `./offline_data_ingestion.node`.
+This command uses the [cargo-cp-artifact](https://github.com/neon-bindings/cargo-cp-artifact) utility to run the Rust build and copy the built library into `./index.node`.
 
-## Exploring offline_data_ingestion_node
+## Exploring glyph_engine_node
 
 After building glyph_engine_node, you can explore its exports at the Node REPL:
 
@@ -34,7 +34,7 @@ After building glyph_engine_node, you can explore its exports at the Node REPL:
 $ npm install
 $ node
 > require('.').hello()
-"hello offline_data_ingestion_node"
+"hello from node"
 ```
 
 ## Available Scripts
@@ -72,7 +72,7 @@ Runs the unit tests by calling `cargo test`. You can learn more about [adding te
 The directory structure of this project is:
 
 ```
-offline_data_ingestion_node/
+glyph_engine_node/
 ├── Cargo.toml
 ├── README.md
 ├── index.node
