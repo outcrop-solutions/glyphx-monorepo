@@ -6,7 +6,7 @@ import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {WritableDraft} from 'immer/dist/internal';
 import produce from 'immer';
 import StateIcon from 'svg/state.svg';
-import ActiveStateIcon from '../../../../../../../svg/active-state.svg';
+import ActiveStateIcon from 'svg/active-state.svg';
 import Image from 'next/image';
 import {webTypes} from 'types';
 import {useRust} from 'services/useRust';

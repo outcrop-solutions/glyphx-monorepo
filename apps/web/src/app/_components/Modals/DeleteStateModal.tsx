@@ -1,5 +1,5 @@
 'use client';
-import React, {startTransition, useState} from 'react';
+import React, {useState, useTransition} from 'react';
 import Button from 'app/_components/Button';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
@@ -13,11 +13,15 @@ import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {deleteState} from 'actions';
 
 export const DeleteStateModal = ({modalContent}: webTypes.DeleteStateModalProps) => {
+  const [isPending, startTransition] = useTransition();
   const setModals = useSetRecoilState(modalsAtom);
   const [name, setName] = useState('');
   const validName = name === modalContent.data.name;
 
-  const copyToClipboard = () => toast.success('Copied to clipboard!');
+  const copyToClipboard = (e) => {
+    // e.preventDefault();
+    toast.success('Copied to clipboard!');
+  };
   // local state
   const handleNameChange = (event) => setName(event.target.value);
 
@@ -43,7 +47,7 @@ export const DeleteStateModal = ({modalContent}: webTypes.DeleteStateModalProps)
         </div>
         <input
           className="px-3 py-2 border rounded bg-transparent"
-          disabled={modalContent.isSubmitting}
+          disabled={isPending}
           onChange={handleNameChange}
           type="text"
           value={name}
@@ -52,10 +56,10 @@ export const DeleteStateModal = ({modalContent}: webTypes.DeleteStateModalProps)
       <div className="flex flex-col items-stretch">
         <Button
           className="text-white bg-red-600 hover:bg-red-500"
-          disabled={!validName || modalContent.isSubmitting}
-          onClick={() =>
-            startTransition(() => {
-              deleteState(modalContent.data.id.toString());
+          disabled={!validName || isPending}
+          onClick={async () =>
+            startTransition(async () => {
+              await deleteState(modalContent.data.id.toString());
               setModals(
                 produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
                   draft.modals.splice(0, 1);
@@ -64,7 +68,7 @@ export const DeleteStateModal = ({modalContent}: webTypes.DeleteStateModalProps)
             })
           }
         >
-          {modalContent.isSubmitting ? <LoadingDots /> : <span>Delete State</span>}
+          {isPending ? <LoadingDots /> : <span>Delete State</span>}
         </Button>
       </div>
     </div>

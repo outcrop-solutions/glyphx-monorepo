@@ -1,5 +1,5 @@
 'use client';
-import React, {startTransition, useState} from 'react';
+import React, {useTransition, useState} from 'react';
 import Button from '../Button';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
@@ -14,6 +14,7 @@ import {createProjectTemplate} from 'actions';
 
 export const CreateProjectTemplateModal = ({modalContent}: webTypes.CreateProjectTemplateModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);
+  const [isPending, startTransition] = useTransition();
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
   const [properties, setProperties] = useState(modalContent.data.state.properties);
@@ -119,9 +120,9 @@ export const CreateProjectTemplateModal = ({modalContent}: webTypes.CreateProjec
         <Button
           className=""
           disabled={!validName || modalContent.isSubmitting}
-          onClick={() =>
-            startTransition(() => {
-              createProjectTemplate(modalContent.data.id!, name, desc, properties);
+          onClick={async () =>
+            startTransition(async () => {
+              await createProjectTemplate(modalContent.data.id!, name, desc, properties);
               setModals(
                 produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
                   draft.modals.splice(0, 1);

@@ -1,5 +1,5 @@
 import produce from 'immer';
-import React, {startTransition, useCallback, useRef, useState} from 'react';
+import React, {useTransition, useCallback, useState} from 'react';
 import ClickAwayListener from 'react-click-away-listener';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {configNameDirtyFamily, configsAtom, currentConfigAtom} from 'state';
@@ -14,6 +14,7 @@ function classNames(...classes) {
 export const ConfigName = ({config, idx}) => {
   const [selected, setSelected] = useState(false);
   const setConfigs = useSetRecoilState(configsAtom);
+  const [isPending, startTransition] = useTransition();
   const [configDirty, setConfigDirty] = useRecoilState(configNameDirtyFamily(idx));
   const currentConfig = useRecoilValue(currentConfigAtom);
 
@@ -79,10 +80,11 @@ export const ConfigName = ({config, idx}) => {
           </span>
           <div className="grow flex items-center justify-end">
             <TrashIcon
-              onClick={() =>
-                startTransition(() =>
-                  // @ts-ignore
-                  deleteConfig(config?.id)
+              onClick={async () =>
+                startTransition(
+                  async () =>
+                    // @ts-ignore
+                    await deleteConfig(config?.id)
                 )
               }
               className="w-4 h-4 text-white cursor-pointer"

@@ -1,5 +1,5 @@
 'use client';
-import React, {startTransition, useState} from 'react';
+import React, {useTransition, useState} from 'react';
 import Link from 'next/link';
 import {useSession} from 'next-auth/react';
 import Card from 'app/_components/Card';
@@ -11,8 +11,8 @@ import {workspaceAtom} from 'state';
 
 export default function Invite() {
   const {data} = useSession();
-  const [isSubmitting, setSubmittingState] = useState(false);
   const workspace = useRecoilValue(workspaceAtom);
+  const [isPending, startTransition] = useTransition();
 
   return (
     <div className="flex flex-col items-center justify-center mx-auto h-full w-full">
@@ -22,10 +22,10 @@ export default function Invite() {
           {data ? (
             <Button
               className=""
-              disabled={isSubmitting}
-              onClick={() =>
-                startTransition(() => {
-                  joinWorkspace(workspace?.inviteCode);
+              disabled={isPending}
+              onClick={async () =>
+                startTransition(async () => {
+                  await joinWorkspace(workspace?.inviteCode);
                 })
               }
             >

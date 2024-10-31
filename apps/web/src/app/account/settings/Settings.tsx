@@ -1,5 +1,5 @@
 'use client';
-import {useState, Fragment, useEffect, SetStateAction, startTransition} from 'react';
+import {useState, Fragment, useEffect, SetStateAction, useTransition} from 'react';
 import {DocumentDuplicateIcon} from '@heroicons/react/outline';
 import {useSession} from 'next-auth/react';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
@@ -16,8 +16,8 @@ import {updateUserEmail, updateUserName} from 'actions';
 
 export default function Settings() {
   const {data} = useSession();
+  const [isPending, startTransition] = useTransition();
   const [email, setEmail] = useState(' ');
-  const [isSubmitting, setSubmittingState] = useState(false);
   const [name, setName] = useState('');
   const [userCode, setUserCode] = useState('');
   const setModals = useSetRecoilState(modalsAtom);
@@ -34,7 +34,7 @@ export default function Settings() {
       produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
         draft.modals.push({
           type: webTypes.constants.MODAL_CONTENT_TYPE.DELETE_ACCOUNT,
-          isSubmitting: false,
+          isPending: false,
           data: {},
         });
       })
@@ -62,7 +62,7 @@ export default function Settings() {
             >
               <input
                 className="px-3 py-2 border border-gray rounded md:w-1/2 bg-transparent"
-                disabled={isSubmitting}
+                disabled={isPending}
                 onChange={handleNameChange}
                 type="text"
                 value={name}
@@ -72,10 +72,10 @@ export default function Settings() {
               <small>Please use 32 characters at maximum</small>
               <Button
                 className=""
-                disabled={!validName || isSubmitting}
-                onClick={() =>
-                  startTransition(() => {
-                    updateUserName(name);
+                disabled={!validName || isPending}
+                onClick={async () =>
+                  startTransition(async () => {
+                    await updateUserName(name);
                   })
                 }
               >
@@ -93,7 +93,7 @@ export default function Settings() {
             >
               <input
                 className="px-3 py-2 border border-gray rounded md:w-1/2 bg-transparent"
-                disabled={isSubmitting}
+                disabled={isPending}
                 onChange={handleEmailChange}
                 type="email"
                 value={email}
@@ -103,7 +103,7 @@ export default function Settings() {
               <small>We will email you to verify the change</small>
               <Button
                 className=""
-                disabled={isSubmitting}
+                disabled={isPending}
                 onClick={() =>
                   startTransition(() => {
                     updateUserEmail(email);

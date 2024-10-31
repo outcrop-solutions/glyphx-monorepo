@@ -1,11 +1,11 @@
 'use client';
 import React, {useState} from 'react';
 import {useRecoilValue} from 'recoil';
-import {modelRunnerSelector} from 'state';
+import {modelRunnerAtom} from 'state';
 
 export const Controls = () => {
   const [isCollapsed, setCollapsed] = useState(false);
-  const modelRunner = useRecoilValue(modelRunnerSelector);
+  const modelRunner = useRecoilValue(modelRunnerAtom);
 
   return (
     <div className="group flex flex-col grow">

@@ -1,7 +1,7 @@
 import produce from 'immer';
-import React, {startTransition, useCallback, useState} from 'react';
+import React, {useTransition, useCallback, useState} from 'react';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {configSelector, configsAtom, currentConfigAtom, modelRunnerSelector, radiusConfigDirtyAtom} from 'state';
+import {configSelector, configsAtom, currentConfigAtom, modelRunnerAtom, radiusConfigDirtyAtom} from 'state';
 import {databaseTypes} from 'types';
 import {toSnakeCase} from './toSnakeCase';
 import {CheckIcon} from '@heroicons/react/outline';
@@ -20,10 +20,11 @@ const fields = [
 export const RadiusLengths = () => {
   const config = useRecoilValue(configSelector);
   const setConfigs = useSetRecoilState(configsAtom);
-  const modelRunner = useRecoilValue(modelRunnerSelector);
+  const modelRunner = useRecoilValue(modelRunnerAtom);
   const [isCollapsed, setCollapsed] = useState(true);
   const [configDirty, setConfigDirty] = useRecoilState(radiusConfigDirtyAtom);
   const currentConfig = useRecoilValue(currentConfigAtom);
+  const [isPending, startTransition] = useTransition();
 
   const handleChange = useCallback(
     (idx: number, prop: string, value) => {
@@ -72,12 +73,11 @@ export const RadiusLengths = () => {
             <CheckIcon
               color="#CECECE"
               className="w-5 h-5 opacity-100 mr-2 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white"
-              onClick={() =>
-                startTransition(() => {
-                  console.log({config});
+              onClick={async () =>
+                startTransition(async () => {
                   modelRunner.update_configuration(JSON.stringify(config), true);
                   // @ts-ignore
-                  updateConfig(config?.id, config as databaseTypes.IModelConfig);
+                  await updateConfig(config?.id, config as databaseTypes.IModelConfig);
                 })
               }
             />

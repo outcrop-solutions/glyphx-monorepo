@@ -1,7 +1,7 @@
 'use client';
 import React, {useEffect, useRef} from 'react';
 import {useRecoilState, useRecoilValue} from 'recoil';
-import {canvasSizeAtom, modelRunnerSelector} from 'state';
+import {canvasSizeAtom, modelRunnerAtom} from 'state';
 import {useHotkeys} from 'react-hotkeys-hook';
 import {useDebounceCallback, useResizeObserver} from 'usehooks-ts';
 
@@ -11,7 +11,7 @@ type Size = {
 };
 
 export const Model = () => {
-  const modelRunner = useRecoilValue(modelRunnerSelector);
+  const modelRunner = useRecoilValue(modelRunnerAtom);
   // get debounced size changes
   const ref = useRef<HTMLDivElement>(null);
   const [_, setSize] = useRecoilState<Size>(canvasSizeAtom);

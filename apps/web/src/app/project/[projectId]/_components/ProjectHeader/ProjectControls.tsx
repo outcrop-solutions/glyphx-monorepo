@@ -1,19 +1,20 @@
 'use client';
-import React, { startTransition, useState } from 'react';
-import { BackBtn } from './BackBtn';
-import { projectAtom } from 'state';
-import { useRecoilValue } from 'recoil';
-import { updateProjectName } from 'actions';
+import React, {useTransition, useState} from 'react';
+import {BackBtn} from './BackBtn';
+import {projectAtom} from 'state';
+import {useRecoilValue} from 'recoil';
+import {updateProjectName} from 'actions';
 
 export const ProjectControls = () => {
   const project = useRecoilValue(projectAtom);
+  const [isPending, startTransition] = useTransition();
   const [name, setName] = useState(project?.name);
   return (
     <div
-      onKeyDown={(ev) => {
+      onKeyDown={async (ev) => {
         if (ev.key === 'Enter') {
-          startTransition(() => {
-            updateProjectName(project.id, name);
+          startTransition(async () => {
+            await updateProjectName(project.id, name);
           });
         }
       }}

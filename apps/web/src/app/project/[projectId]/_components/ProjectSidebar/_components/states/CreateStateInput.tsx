@@ -4,7 +4,7 @@ import StateIcon from 'svg/state.svg';
 import {LoadingDots} from 'app/_components/Loaders/LoadingDots';
 import {CameraIcon} from '@heroicons/react/outline';
 import {useRecoilState, useRecoilValue} from 'recoil';
-import {activeStateNameAtom, isSubmittingAtom, modelRunnerSelector} from 'state';
+import {activeStateNameAtom, isSubmittingAtom, modelRunnerAtom} from 'state';
 
 export const maxDuration = 300;
 
@@ -13,7 +13,7 @@ export const CreateStateInput = () => {
   const [isSubmitting, setIsSubmitting] = useRecoilState(isSubmittingAtom);
 
   const validName = name?.length > 0 && name?.length <= 75;
-  const modelRunner = useRecoilValue(modelRunnerSelector);
+  const modelRunner = useRecoilValue(modelRunnerAtom);
 
   // local state
   const handleNameChange = useCallback((event) => setName(event.target.value), [setName]);

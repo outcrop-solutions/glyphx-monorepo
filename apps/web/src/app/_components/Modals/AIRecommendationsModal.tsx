@@ -1,5 +1,5 @@
 'use client';
-import React, {startTransition, useState} from 'react';
+import React, {useTransition, useState} from 'react';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {modalsAtom, templatesAtom, workspaceAtom} from 'state';
 import {useRouter, useParams} from 'next/navigation';
@@ -11,6 +11,7 @@ import {webTypes} from 'types';
 import {createProjectFromTemplate} from 'actions';
 
 export const AIRecommendationsModal = ({modalContent: any}) => {
+  const [isPending, startTransition] = useTransition();
   const [loading, setLoading] = useState(false);
   const templates = useRecoilValue(templatesAtom);
   const setModals = useSetRecoilState(modalsAtom);
@@ -37,9 +38,9 @@ export const AIRecommendationsModal = ({modalContent: any}) => {
                     <Button
                       className=""
                       disabled={loading}
-                      onClick={() =>
-                        startTransition(() => {
-                          createProjectFromTemplate(id!, template);
+                      onClick={async () =>
+                        startTransition(async () => {
+                          await createProjectFromTemplate(id!, template);
                           setModals(
                             produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
                               draft.modals.splice(0, 1);

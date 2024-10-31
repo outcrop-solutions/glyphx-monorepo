@@ -4,23 +4,21 @@ import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import {
   drawerOpenAtom,
   geLoadingAtom,
-  modelRunnerSelector,
+  modelRunnerAtom,
   projectAtom,
   activeStateAtom,
   showLoadingAtom,
   stateSnapshotsSelector,
-  shouldClearSelector,
-  currentModelAtom,
   statsCountSelector,
   glyphCountSelector,
   xVecCountSelector,
   yVecCountSelector,
 } from 'state';
 import {runGlyphEngineAction, updateProjectState} from 'actions';
-import produce, {current} from 'immer';
+import produce from 'immer';
 
 export const useRust = () => {
-  const modelRunner = useRecoilValue(modelRunnerSelector);
+  const modelRunner = useRecoilValue(modelRunnerAtom);
   const setGELoading = useSetRecoilState(geLoadingAtom);
   const glyphCount = useRecoilValue(glyphCountSelector);
   const statsCount = useRecoilValue(statsCountSelector);
@@ -156,12 +154,6 @@ export const useRust = () => {
         // @ts-ignore
         await handleStream(GLY_URL, processData(undefined, 'glyph'));
 
-        // if (modelRunner.get_glyph_count() > 0) {
-        //   console.log('resetting state');
-        //   modelRunner.reset_state();
-        //   return;
-        // }
-
         setDrawer(true);
         const canvas = document.getElementById('glyphx-cube-model');
         if (!canvas) {
@@ -193,8 +185,6 @@ export const useRust = () => {
       try {
         // set loading
         setGELoading(true);
-        const retval = modelRunner.get_glyph_count();
-        console.log({glyphCount: retval});
         // if model is already loaded
         if (shouldReset()) {
           console.log('clearing data');

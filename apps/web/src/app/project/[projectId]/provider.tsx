@@ -9,7 +9,7 @@ import {
   activeStateNameAtom,
   isSubmittingAtom,
   showStateInputAtom,
-  modelRunnerSelector,
+  modelRunnerAtom,
   lastStateSelector,
 } from 'state';
 import {useWindowSize} from 'services';
@@ -38,7 +38,7 @@ export const CollabProvider = ({
   const projectViewRef = useRef(null);
   const name = useRecoilValue(activeStateNameAtom);
   const rowIds = useRecoilValue(rowIdsAtom);
-  const modelRunner = useRecoilValue(modelRunnerSelector);
+  const modelRunner = useRecoilValue(modelRunnerAtom);
   const lastState = useRecoilValue(lastStateSelector);
   const {applyState} = useRust();
   // keeps track of whether we have opened the first state
@@ -55,10 +55,11 @@ export const CollabProvider = ({
   const setAddState = useSetRecoilState(showStateInputAtom);
 
   const openLastState = useCallback(async () => {
+    console.log('opening last state', {lastState});
     if (lastState) {
-      applyState(lastState);
+      await applyState(lastState);
     }
-  }, []);
+  }, [lastState]);
 
   useEffect(() => {
     // Logic to show the drawer

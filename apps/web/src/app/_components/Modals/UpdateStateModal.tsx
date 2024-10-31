@@ -1,5 +1,5 @@
 'use client';
-import React, {startTransition, useState} from 'react';
+import React, {useTransition, useState} from 'react';
 import Button from 'app/_components/Button';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
@@ -11,6 +11,7 @@ import {updateState} from 'actions';
 
 export const UpdateStateModal = ({modalContent}: webTypes.UpdateStateModalProps) => {
   const setModals = useSetRecoilState(modalsAtom);
+  const [isPending, startTransition] = useTransition();
   const [name, setName] = useState('');
   const validName = name.length > 0 && name.length <= 75;
 
@@ -27,7 +28,7 @@ export const UpdateStateModal = ({modalContent}: webTypes.UpdateStateModalProps)
         <p className="text-sm text-gray-400">Name your state. Keep it short and sweet (under 16 characters)</p>
         <input
           className="w-full px-3 py-2 border rounded bg-transparent"
-          disabled={modalContent.isSubmitting}
+          disabled={isPending}
           onChange={handleNameChange}
           type="text"
           value={name}
@@ -36,10 +37,10 @@ export const UpdateStateModal = ({modalContent}: webTypes.UpdateStateModalProps)
       <div className="flex flex-col items-stretch">
         <Button
           className=""
-          disabled={!validName || modalContent.isSubmitting}
-          onClick={() =>
-            startTransition(() => {
-              updateState(modalContent.data.id.toString(), name);
+          disabled={!validName || isPending}
+          onClick={async () =>
+            startTransition(async () => {
+              await updateState(modalContent.data.id.toString(), name);
               setModals(
                 produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
                   draft.modals.splice(0, 1);
@@ -48,7 +49,7 @@ export const UpdateStateModal = ({modalContent}: webTypes.UpdateStateModalProps)
             })
           }
         >
-          {modalContent.isSubmitting ? <LoadingDots /> : <span>Rename State Snapshot</span>}
+          {isPending ? <LoadingDots /> : <span>Rename State Snapshot</span>}
         </Button>
       </div>
     </div>

@@ -55,9 +55,9 @@ export const DeleteProjectModal = ({modalContent}: webTypes.DeleteProjectModalPr
         <Button
           className="text-white bg-red-600 hover:bg-red-500"
           disabled={!verifiedProject || isPending}
-          onClick={() => {
-            startTransition(() => {
-              deactivateProject(modalContent?.data?.projectId);
+          onClick={async () => {
+            startTransition(async () => {
+              await deactivateProject(modalContent?.data?.projectId);
               setModals(
                 produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
                   draft.modals.splice(0, 1);
@@ -66,7 +66,7 @@ export const DeleteProjectModal = ({modalContent}: webTypes.DeleteProjectModalPr
             });
           }}
         >
-          {modalContent.isSubmitting ? <LoadingDots /> : <span>Delete Project</span>}
+          {isPending ? <LoadingDots /> : <span>Delete Project</span>}
         </Button>
       </div>
     </div>

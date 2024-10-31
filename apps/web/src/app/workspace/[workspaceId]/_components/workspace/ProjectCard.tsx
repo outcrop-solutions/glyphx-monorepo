@@ -60,8 +60,6 @@ export const ProjectCard = ({project}) => {
     return '/images/project.png';
   };
 
-  console.log({imageHash});
-
   return (
     <div className="group aspect-w-4 min-w-44 min-h-[200px] border border-gray aspect-h-4 relative col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-md bg-primary-dark-blue hover:cursor-pointer">
       <div className="absolute top-0 right-0 bg-primary-dark-blue p-2 rounded-md z-50 w-10 h-24">

@@ -193,7 +193,7 @@ export async function runGlyphEngineAction(project: databaseTypes.IProject, stat
  * @param project
  * @param properties
  */
-export const buildRustPayload = (
+const buildRustPayload = (
   project: databaseTypes.IProject,
   payloadHash: string
 ): rustGlyphEngineTypes.IGlyphEngineArgs => {
@@ -303,10 +303,7 @@ export const buildRustPayload = (
  * Maps old fieldtype definition to string based version in rust types
  * only needed for X and Y for now
  */
-export const getFieldType = (
-  axis: webTypes.constants.AXIS,
-  properties: databaseTypes.IProject['state']['properties']
-) => {
+const getFieldType = (axis: webTypes.constants.AXIS, properties: databaseTypes.IProject['state']['properties']) => {
   if (properties[axis]['dataType'] === fileIngestionTypes.constants.FIELD_TYPE.DATE) {
     return 'date';
   } else {
@@ -320,7 +317,7 @@ export const getFieldType = (
  * @param ogType
  * @returns
  */
-export const getModelDataType = (ogType: fileIngestionTypes.constants.FIELD_TYPE) => {
+const getModelDataType = (ogType: fileIngestionTypes.constants.FIELD_TYPE) => {
   if (ogType === fileIngestionTypes.constants.FIELD_TYPE.DATE) {
     return 0;
   } else {
@@ -334,7 +331,7 @@ export const getModelDataType = (ogType: fileIngestionTypes.constants.FIELD_TYPE
  * @param payload
  * @returns
  */
-export const checkRustGlyphEnginePayload = (payload: rustGlyphEngineTypes.IGlyphEngineArgs) => {
+const checkRustGlyphEnginePayload = (payload: rustGlyphEngineTypes.IGlyphEngineArgs) => {
   try {
     let retval = true;
 
@@ -413,7 +410,7 @@ export const checkRustGlyphEnginePayload = (payload: rustGlyphEngineTypes.IGlyph
  * @param payloadHash
  * @returns
  */
-export const signRustFiles = async (
+const signRustFiles = async (
   workspaceId: string,
   projectId: string,
   payloadHash: string

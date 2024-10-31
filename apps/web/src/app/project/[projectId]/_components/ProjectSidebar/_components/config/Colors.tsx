@@ -1,7 +1,7 @@
-import React, {startTransition, useCallback, useState} from 'react';
+import React, {useTransition, useCallback, useState} from 'react';
 import produce from 'immer';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
-import {configSelector, configsAtom, currentConfigAtom, colorsConfigDirtyAtom, modelRunnerSelector} from 'state';
+import {configSelector, configsAtom, currentConfigAtom, colorsConfigDirtyAtom, modelRunnerAtom} from 'state';
 import {databaseTypes} from 'types';
 import {CheckIcon} from '@heroicons/react/outline';
 import {Color} from './Color';
@@ -9,7 +9,8 @@ const fields = ['Max Color', 'Min Color', 'Background Color', 'X Axis Color', 'Y
 
 export const Colors = () => {
   const config = useRecoilValue(configSelector);
-  const modelRunner = useRecoilValue(modelRunnerSelector);
+  const [isPending, startTransition] = useTransition();
+  const modelRunner = useRecoilValue(modelRunnerAtom);
   const setConfigs = useSetRecoilState(configsAtom);
   const currentConfig = useRecoilValue(currentConfigAtom);
   const [isCollapsed, setCollapsed] = useState(true);
@@ -62,11 +63,11 @@ export const Colors = () => {
             <CheckIcon
               color="#CECECE"
               className="w-5 h-5 opacity-100 mr-2 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white"
-              onClick={() =>
-                startTransition(() => {
+              onClick={async () =>
+                startTransition(async () => {
                   modelRunner.update_configuration(JSON.stringify(config), true);
                   // @ts-ignore
-                  updateConfig(config?.id, config as databaseTypes.IModelConfig);
+                  await updateConfig(config?.id, config as databaseTypes.IModelConfig);
                 })
               }
             />

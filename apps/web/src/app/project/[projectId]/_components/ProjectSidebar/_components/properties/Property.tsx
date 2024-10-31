@@ -16,13 +16,13 @@ import SwapLeftIcon from 'svg/swap-left-icon.svg';
 import SwapRightIcon from 'svg/swap-right-icon.svg';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
-import {modelRunnerSelector, showLoadingAtom} from 'state';
+import {modelRunnerAtom, showLoadingAtom} from 'state';
 import AccumulatorType from './AccumulatorListbox';
 import DateGroupingListbox from './DateGroupListbox';
 
 export const Property = ({axis}) => {
   const [project, setProject] = useRecoilState(projectAtom);
-  const modelRunner = useRecoilValue(modelRunnerSelector);
+  const modelRunner = useRecoilValue(modelRunnerAtom);
   const prop = useRecoilValue(singlePropertySelectorFamily(axis));
   const {handleDrop} = useProject();
 

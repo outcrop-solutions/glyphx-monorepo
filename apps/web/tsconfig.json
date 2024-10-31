@@ -3,9 +3,7 @@
     "target": "ES2015",
     "lib": ["dom", "dom.iterable", "esnext"],
     "baseUrl": "./src",
-    "types": [
-      "@webgpu/types"
-    ],
+    "types": ["@webgpu/types"],
     "paths": {
       "@/email/*": ["src/email/*"],
       "@/app/*": ["src/app/*"],
@@ -20,6 +18,7 @@
       "@/providers/*": ["src/providers/*"],
       "@/state/*": ["./src/state/*"],
       "@/services/*": ["src/services/*"],
+      "@/svg/*": ["src/svg/*"],
       "@/utils/*": ["src/utils/*"]
     },
     "allowJs": true,
@@ -44,6 +43,7 @@
     "strictNullChecks": true
   },
   "include": [
+    // "svgr.d.ts",
     "next-env.d.ts",
     "pkg/*.node",
     "src/**/*.ts",

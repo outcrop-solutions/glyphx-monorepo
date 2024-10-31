@@ -1,5 +1,5 @@
 'use client';
-import {startTransition, useState} from 'react';
+import {useTransition, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Button from 'app/_components/Button';
 import Card from 'app/_components/Card';
@@ -10,9 +10,9 @@ import {acceptInvitation, declineInvitation} from 'actions';
 
 export default function Welcome() {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const {data: invitations, isLoading: isFetchingInvitations} = useInvitations();
   const {data: workspaces, isLoading: isFetchingWorkspaces} = useWorkspaces();
-  const [isSubmitting, setSubmittingState] = useState(false);
   const navigate = (workspace) => {
     router.replace(`/${workspace.id}` as Route);
   };
@@ -69,10 +69,10 @@ export default function Welcome() {
                   <Card.Footer>
                     <Button
                       className=""
-                      disabled={isSubmitting}
-                      onClick={() =>
-                        startTransition(() => {
-                          acceptInvitation(invitation.id as string);
+                      disabled={isPending}
+                      onClick={async () =>
+                        startTransition(async () => {
+                          await acceptInvitation(invitation.id as string);
                         })
                       }
                     >
@@ -80,10 +80,10 @@ export default function Welcome() {
                     </Button>
                     <Button
                       className="text-red-600 border border-red-600 hover:bg-red-600 hover:text-white"
-                      disabled={isSubmitting}
-                      onClick={() =>
-                        startTransition(() => {
-                          declineInvitation(invitation.id as string);
+                      disabled={isPending}
+                      onClick={async () =>
+                        startTransition(async () => {
+                          await declineInvitation(invitation.id as string);
                         })
                       }
                     >

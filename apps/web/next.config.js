@@ -19,6 +19,13 @@ intercept(interceptStdout);
 
 /** @type {import('next').NextConfig} */
 module.exports = {
+  // typescript: {
+  //   // !! WARN !!
+  //   // Dangerously allow production builds to successfully complete even if
+  //   // your project has type errors.
+  //   // !! WARN !!
+  //   ignoreBuildErrors: true,
+  // },
   images: {
     remotePatterns: [
       {
@@ -57,6 +64,7 @@ module.exports = {
   },
   experimental: {
     serverComponentsExternalPackages: ['csv'],
+    // serverComponentsExternalPackages: ['csv', 'mongodb'],
     serverActions: {
       bodySizeLimit: '3mb',
     },
@@ -133,6 +141,26 @@ module.exports = {
 
     // Grab the existing rule that handles SVG imports
     // @ts-ignore - this is a private property that is not typed
+    // const fileLoaderRule = config.module.rules.find((rule) => rule.test?.test?.('.svg'));
+
+    // config.module.rules.push(
+    //   // Reapply the existing rule, but only for svg imports ending in ?url
+    //   {
+    //     ...fileLoaderRule,
+    //     test: /\.svg$/i,
+    //     resourceQuery: /url/, // *.svg?url
+    //   },
+    //   // Convert all other *.svg imports to React components
+    //   {
+    //     test: /\.svg$/i,
+    //     issuer: fileLoaderRule.issuer,
+    //     resourceQuery: {not: [...fileLoaderRule.resourceQuery.not, /url/]}, // exclude if *.svg?url
+    //     use: ['@svgr/webpack'],
+    //   }
+    // );
+    // Modify the file loader rule to ignore *.svg, since we have it handled now.
+    // fileLoaderRule.exclude = /\.svg$/i;
+    // Grab the existing rule that handles SVG imports
     const fileLoaderRule = config.module.rules.find((rule) => rule.test?.test?.('.svg'));
 
     config.module.rules.push(
@@ -150,14 +178,26 @@ module.exports = {
         use: ['@svgr/webpack'],
       }
     );
+
+    // Modify the file loader rule to ignore *.svg, since we have it handled now.
+    fileLoaderRule.exclude = /\.svg$/i;
+    // config.module.rules.push({
+    //   test: /\.svg$/,
+    //   use: [
+    //     {
+    //       loader: '@svgr/webpack',
+    //       options: {
+    //         babel: false, // disable Babel here if you have a separate configuration
+    //       },
+    //     },
+    //   ],
+    // });
+
     config.plugins.push(
       new CopyPlugin({
         patterns: [{from: 'pkg/index.node', to: 'server/pkg/index.node'}],
       })
     );
-
-    // Modify the file loader rule to ignore *.svg, since we have it handled now.
-    fileLoaderRule.exclude = /\.svg$/i;
 
     return config;
   },

@@ -1,9 +1,9 @@
 'use client';
 import {Route} from 'next';
-import {useParams, useRouter} from 'next/navigation';
+import {useRouter} from 'next/navigation';
 import React from 'react';
 import {useRecoilState, useSetRecoilState} from 'recoil';
-import {cameraAtom, drawerOpenAtom, imageHashAtom, projectAtom} from 'state';
+import {cameraAtom, drawerOpenAtom, imageHashAtom, modelRunnerAtom, projectAtom} from 'state';
 import BackBtnIcon from 'svg/back-button-icon.svg';
 
 export const BackBtn = () => {
@@ -12,6 +12,7 @@ export const BackBtn = () => {
   const setDrawer = useSetRecoilState(drawerOpenAtom);
   const setCamera = useSetRecoilState(cameraAtom);
   const setImageHash = useSetRecoilState(imageHashAtom);
+  // const setModelRunner = useSetRecoilState(modelRunnerAtom);
 
   const backPressed = () => {
     router.push(`/workspace/${project?.workspace.id}` as Route);
@@ -21,6 +22,7 @@ export const BackBtn = () => {
       imageHash: false,
     });
     setCamera({});
+    // setModelRunner(null);
   };
 
   return (

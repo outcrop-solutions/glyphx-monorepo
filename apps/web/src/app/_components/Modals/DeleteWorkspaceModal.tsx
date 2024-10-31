@@ -1,8 +1,7 @@
 'use client';
 import React, {startTransition, useState} from 'react';
-import {useRouter, useParams} from 'next/navigation';
+import {useParams} from 'next/navigation';
 import {webTypes} from 'types';
-import {useSWRConfig} from 'swr';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
 import {DocumentDuplicateIcon} from '@heroicons/react/outline';

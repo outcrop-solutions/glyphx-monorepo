@@ -1,4 +1,4 @@
-import React, {startTransition, useCallback, useState} from 'react';
+import React, {useTransition, useState} from 'react';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {togglesConfigDirtyAtom, configSelector, currentConfigAtom} from 'state';
 import {databaseTypes} from 'types';
@@ -13,7 +13,7 @@ export const Toggles = () => {
   const currentConfig = useRecoilValue(currentConfigAtom);
   const [configDirty] = useRecoilState(togglesConfigDirtyAtom);
   const [isCollapsed, setCollapsed] = useState(true);
-
+  const [isPending, startTransition] = useTransition();
   return (
     config && (
       <div className="group flex flex-col grow">
@@ -49,10 +49,11 @@ export const Toggles = () => {
             <CheckIcon
               color="#CECECE"
               className="w-5 h-5 opacity-100 mr-2 bg-secondary-space-blue border-2 border-transparent rounded-full hover:border-white"
-              onClick={() =>
-                startTransition(() =>
-                  // @ts-ignore
-                  updateConfig(config?.id, config as databaseTypes.IModelConfig)
+              onClick={async () =>
+                startTransition(
+                  async () =>
+                    // @ts-ignore
+                    await updateConfig(config?.id, config as databaseTypes.IModelConfig)
                 )
               }
             />

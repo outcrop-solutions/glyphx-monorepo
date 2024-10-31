@@ -34,7 +34,6 @@ export async function uploadFileAction(formData: FormData) {
     const file = formData.get('file') as Blob | null;
     const stateId = formData.get('stateId') as string;
 
-    console.log({file, stateId});
     if (!file) {
       throw new Error('File is required');
     }
@@ -128,7 +127,7 @@ export const createState = async (
             onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
             action: databaseTypes.constants.ACTION_TYPE.CREATED,
           });
-          revalidatePath(`/project/${project.id}`, 'layout');
+          revalidatePath('/');
           return {state: state};
         } else {
           throw new ActionError('State was not created', 'createState', {state});
@@ -162,7 +161,7 @@ export const updateState = async (stateId: string, name: string) => {
         onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
         action: databaseTypes.constants.ACTION_TYPE.UPDATED,
       });
-      revalidatePath(`/project/${state.project.id}`, 'layout');
+      revalidatePath('/');
     }
   } catch (err) {
     const e = new ActionError('An unexpected error occurred updating the state', 'stateId', stateId, err);
@@ -190,7 +189,7 @@ export const deleteState = async (stateId: string) => {
         onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
         action: databaseTypes.constants.ACTION_TYPE.DELETED,
       });
-      revalidatePath(`/project/${state.project.id}`, 'layout');
+      revalidatePath('/');
     }
   } catch (err) {
     const e = new ActionError('An unexpected error occurred deleting the state', 'stateId', stateId, err);

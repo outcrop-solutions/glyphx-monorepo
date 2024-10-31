@@ -1,5 +1,5 @@
 'use client';
-import {startTransition, useEffect, useState} from 'react';
+import {useEffect, useState, useTransition} from 'react';
 import {DocumentDuplicateIcon} from '@heroicons/react/outline';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import toast from 'react-hot-toast';
@@ -15,6 +15,7 @@ import {useRecoilValue} from 'recoil';
 
 const General = () => {
   const workspace = useRecoilValue(workspaceAtom);
+  const [isPending, startTransition] = useTransition();
   const {data: ownership} = useIsTeamOwner();
   const [isSubmitting, setSubmittingState] = useState(false);
   const [name, setName] = useState(workspace?.name || '');
@@ -88,9 +89,9 @@ const General = () => {
               <Button
                 className=""
                 disabled={!validSlug || isSubmitting}
-                onClick={() =>
-                  startTransition(() => {
-                    updateWorkspaceSlug(workspace.id as string, slug);
+                onClick={async () =>
+                  startTransition(async () => {
+                    await updateWorkspaceSlug(workspace.id as string, slug);
                   })
                 }
               >

@@ -1,7 +1,7 @@
 'use client';
 import React, {useEffect, useState} from 'react';
 import {useRecoilValue} from 'recoil';
-import {rowIdsAtom, lastSelectedGlyphAtom, descSelector, modelRunnerSelector} from 'state';
+import {rowIdsAtom, lastSelectedGlyphAtom, descSelector, modelRunnerAtom} from 'state';
 import {CameraIcon, HomeIcon} from '@heroicons/react/outline';
 // @ts-ignore
 import {
@@ -17,7 +17,7 @@ import {
 // import {screenshotModel} from '../Model/utils';
 
 export const ModelControls = () => {
-  const modelRunner = useRecoilValue(modelRunnerSelector);
+  const modelRunner = useRecoilValue(modelRunnerAtom);
   const rowIds = useRecoilValue(rowIdsAtom);
   const {xValue, yValue, zValue} = useRecoilValue(descSelector);
   const {desc} = useRecoilValue(lastSelectedGlyphAtom);
