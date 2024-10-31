@@ -52,8 +52,9 @@ const ProjectProvider = ({project, templates, children}) => {
           set(rowIdsAtom, false);
           set(templatesAtom, templates);
           await init();
+          const mr = new ModelRunner();
           setIsInited(true);
-          set(modelRunnerSelector, new ModelRunner());
+          set(modelRunnerSelector, mr);
           set(rightSidebarControlAtom, {
             type: webTypes.constants.RIGHT_SIDEBAR_CONTROL.CLOSED,
             isSubmitting: false,

@@ -46,7 +46,7 @@ export const GridContainer = () => {
       }
       setResize(size);
     },
-    [orientation, modelRunner]
+    [orientation, setResize, modelRunner]
   );
 
   const handlePaneResize = useDebounceCallback(paneSizeCallback, 50);

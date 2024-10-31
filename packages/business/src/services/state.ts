@@ -96,8 +96,6 @@ export class StateService {
 
       const state = await mongoDbConnection.models.StateModel.createState(input);
 
-      console.log({state});
-
       await mongoDbConnection.models.ProjectModel.updateProjectById(project.id as string, {
         imageHash: imageHash,
         aspectRatio: aspectRatio,

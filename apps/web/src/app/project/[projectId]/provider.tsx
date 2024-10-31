@@ -70,7 +70,6 @@ export const CollabProvider = ({
     const handleNewState = async (event) => {
       try {
         const {width, height, pixels} = event.detail['ScreenShotTaken'];
-        console.log({width, height, pixels});
         // get aspect ratio
         const aspect = {
           width,

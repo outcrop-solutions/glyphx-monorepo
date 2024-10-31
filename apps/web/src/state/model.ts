@@ -20,7 +20,7 @@ export const lastStateSelector = selector({
   key: 'lastStateSelector',
   get: ({get}) => {
     const project = get(projectAtom);
-    const filtered = project.stateHistory.filter((s) => !s.deletedAt) ?? [];
+    const filtered = project?.stateHistory.filter((state) => !state.deletedAt) ?? [];
     if (filtered?.length > 0) {
       const idx = filtered.length - 1;
       return filtered[idx];

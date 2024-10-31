@@ -50,15 +50,24 @@ export const ProjectCard = ({project}) => {
     );
   };
 
+  const imageHash = () => {
+    if (project.imageHash.includes('https://')) {
+      return project.imageHash;
+    }
+    if (project.imageHash) {
+      return `data:image/png;base64,${project.imageHash}`;
+    }
+    return '/images/project.png';
+  };
+
+  console.log({imageHash});
+
   return (
     <div className="group aspect-w-4 min-w-44 min-h-[200px] border border-gray aspect-h-4 relative col-span-full sm:col-span-4 xl:col-span-3 shadow-lg rounded-md bg-primary-dark-blue hover:cursor-pointer">
       <div className="absolute top-0 right-0 bg-primary-dark-blue p-2 rounded-md z-50 w-10 h-24">
         <div className="flex flex-col items-center justify-between">
-          {/* add member */}
           <AddMemberIcon onClick={() => handleControl(webTypes.constants.RIGHT_SIDEBAR_CONTROL.SHARE, project)} />
-          {/* info button */}
           <ProjectInfoIcon onClick={() => handleControl(webTypes.constants.RIGHT_SIDEBAR_CONTROL.INFO, project)} />
-          {/* delete button */}
           <DeleteProjectIcon onClick={deleteProject} />
         </div>
       </div>
@@ -68,7 +77,7 @@ export const ProjectCard = ({project}) => {
             width={project?.aspectRatio?.width || 300}
             height={project?.aspectRatio?.height || 200}
             className="object-cover h-full w-full rounded-md"
-            src={project.imageHash ? `data:image/png;base64,${project.imageHash}` : '/images/project.png'}
+            src={imageHash()}
             alt=""
           />
         </div>

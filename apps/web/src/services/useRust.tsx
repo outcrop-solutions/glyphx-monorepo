@@ -11,6 +11,10 @@ import {
   stateSnapshotsSelector,
   shouldClearSelector,
   currentModelAtom,
+  statsCountSelector,
+  glyphCountSelector,
+  xVecCountSelector,
+  yVecCountSelector,
 } from 'state';
 import {runGlyphEngineAction, updateProjectState} from 'actions';
 import produce, {current} from 'immer';
@@ -18,14 +22,36 @@ import produce, {current} from 'immer';
 export const useRust = () => {
   const modelRunner = useRecoilValue(modelRunnerSelector);
   const setGELoading = useSetRecoilState(geLoadingAtom);
+  const glyphCount = useRecoilValue(glyphCountSelector);
+  const statsCount = useRecoilValue(statsCountSelector);
+  const xVecCount = useRecoilValue(xVecCountSelector);
+  const yVecCount = useRecoilValue(yVecCountSelector);
   const urlRef = useRef('');
   const loading = useRecoilValue(showLoadingAtom);
 
   const [project, setProject] = useRecoilState(projectAtom);
   const [activeState, setActiveState] = useRecoilState(activeStateAtom);
   const activeStates = useRecoilValue(stateSnapshotsSelector);
-  const [modelLoaded, setModelLoaded] = useRecoilState(currentModelAtom);
+  // const [modelLoaded, setModelLoaded] = useRecoilState(currentModelAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
+
+  const shouldReset = useCallback(() => {
+    console.log({glyphCount, statsCount, xVecCount, yVecCount});
+    if (
+      glyphCount &&
+      glyphCount > 0 &&
+      statsCount &&
+      statsCount > 0 &&
+      xVecCount &&
+      xVecCount > 0 &&
+      yVecCount &&
+      yVecCount > 0
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }, [glyphCount, statsCount, xVecCount, yVecCount]);
 
   /**
    * Generic stream handler.
@@ -130,7 +156,7 @@ export const useRust = () => {
         // @ts-ignore
         await handleStream(GLY_URL, processData(undefined, 'glyph'));
 
-        // if (modelLoaded) {
+        // if (modelRunner.get_glyph_count() > 0) {
         //   console.log('resetting state');
         //   modelRunner.reset_state();
         //   return;
@@ -147,14 +173,13 @@ export const useRust = () => {
         setGELoading(false);
         if (modelRunner) {
           console.log('called modelRunner.run()');
-          setModelLoaded(true);
           await modelRunner.run(width, height);
         }
       } catch (error) {
         console.log('swallowedError', {error});
       }
     },
-    [handleStream, modelRunner, processData, setDrawer]
+    [handleStream, modelRunner, processData, setDrawer, setGELoading]
   );
 
   /* Initializes and manages the WebGL model on the canvas.
@@ -164,13 +189,18 @@ export const useRust = () => {
   const runRustGlyphEngine = useCallback(
     async (event) => {
       event?.stopPropagation();
+      console.log('calling rust glyph engine');
       try {
         // set loading
         setGELoading(true);
+        const retval = modelRunner.get_glyph_count();
+        console.log({glyphCount: retval});
         // if model is already loaded
-        // if (lastPayloadHash) {
-        // modelRunner.clear_data();
-        // }
+        if (shouldReset()) {
+          console.log('clearing data');
+          modelRunner.clear_data();
+          return;
+        }
         // run the action
         if (project) {
           // update DB
@@ -189,7 +219,7 @@ export const useRust = () => {
         console.log({error});
       }
     },
-    [downloadModel, modelRunner, project, setGELoading]
+    [downloadModel, modelRunner, project, setGELoading, shouldReset]
   );
 
   /**
@@ -197,14 +227,15 @@ export const useRust = () => {
    */
   const downloadState = useCallback(
     async (stateId: string) => {
+      console.log('calling download state');
       try {
         // set loading
         setGELoading(true);
-        // if model is already loaded
-        // if (modelLoaded) {
-        //   console.log('clearing data', {modelRunner});
-        //   modelRunner.clear_data();
-        // }
+        if (shouldReset()) {
+          console.log('clearing data');
+          modelRunner.clear_data();
+          return;
+        }
         if (project) {
           await updateProjectState(project.id, project.state);
           const retval = await runGlyphEngineAction(project, stateId);
@@ -220,7 +251,7 @@ export const useRust = () => {
         console.log({error});
       }
     },
-    [downloadModel, modelRunner, project, setGELoading]
+    [downloadModel, modelRunner, project, setGELoading, shouldReset]
   );
 
   const applyState = useCallback(
@@ -295,7 +326,7 @@ export const useRust = () => {
         setActiveState('');
       }
     },
-    [activeState, setActiveState, setDrawer, loading, project, downloadState, modelRunner, setProject]
+    [activeState, setActiveState, setDrawer, loading, project, activeStates, downloadState, modelRunner, setProject]
   );
 
   return {

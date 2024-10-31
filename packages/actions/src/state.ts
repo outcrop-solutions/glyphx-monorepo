@@ -75,7 +75,7 @@ export const createState = async (
     if (session?.user) {
       const project = await projectService.getProject(projectId as string);
 
-      if (project) {
+      if (project?.id) {
         const state = await stateService.createState(
           name,
           camera,
@@ -102,6 +102,9 @@ export const createState = async (
         });
 
         await stateService.updateState(state.id, name, url);
+        await projectService.updateProject(project.id, {
+          imageHash: url,
+        });
 
         if (project?.members) {
           const emailData = {

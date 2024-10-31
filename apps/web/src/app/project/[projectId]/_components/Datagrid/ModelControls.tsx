@@ -71,7 +71,7 @@ export const ModelControls = () => {
           </div> */}
       </div>
       {/* snap to perpective controls */}
-      <div className="absolute left-1/2 top-11 transform -translate-x-1/2 flex items-center justify-between space-x-2 z-[9999] pt-2">
+      <div className="absolute left-1/2 top-11 transform -translate-x-1/2 flex items-center justify-between space-x-2 z-[89] pt-2">
         <div
           onClick={() => modelRunner.focus_on_x_axis()}
           className="hover:bg-gray transparent border border-gray rounded-full cursor-pointer p-1 h-8 w-8"
@@ -92,7 +92,7 @@ export const ModelControls = () => {
         </div>
       </div>
       {/* translation controls */}
-      <div className="absolute right-2 top-11 flex-col items-center space-y-2 z-[9999] pt-2">
+      <div className="absolute right-2 top-11 flex-col items-center space-y-2 z-[89] pt-2">
         <div className="relative flex items-center gap-x-2">
           <div
             onClick={() => modelRunner.add_distance(-10)}
@@ -184,7 +184,7 @@ export const ModelControls = () => {
       </div>
       {/* display description */}
       {desc && desc.size > 0 && (
-        <div className="absolute left-1/2 bottom-11 transform -translate-x-1/2 flex items-center space-x-2 z-[9999]">
+        <div className="absolute left-1/2 bottom-11 transform -translate-x-1/2 flex items-center space-x-2 z-[89]">
           {rowIds && rowIds?.length > 1 && (
             <div className="flex items-center text-xs text-light-gray whitespace-nowrap">Last Selected Glyph:</div>
           )}
