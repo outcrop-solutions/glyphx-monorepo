@@ -29,6 +29,7 @@ export const GridContainer = () => {
 
   const paneSizeCallback = useCallback(
     (size) => {
+      console.log({size});
       // resize event based on drag
       const pane = document.getElementsByClassName('SplitPane');
       if (orientation === 'horizontal') {
@@ -69,7 +70,8 @@ export const GridContainer = () => {
           style={{overflow: 'scroll', height: `${getPaneHeight()}px`}}
           split={orientation}
           allowResize={true}
-          defaultSize={getPaneHeight()}
+          defaultSize={400}
+          // defaultSize={getPaneHeight()}
           maxSize={7000}
           minSize={70}
           onChange={handlePaneResize}

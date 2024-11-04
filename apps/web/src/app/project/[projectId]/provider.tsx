@@ -59,11 +59,12 @@ export const CollabProvider = ({
     if (lastState) {
       await applyState(lastState);
     }
-  }, [lastState]);
+  }, [applyState, lastState]);
 
   useEffect(() => {
     // Logic to show the drawer
     openLastState();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // handle create state

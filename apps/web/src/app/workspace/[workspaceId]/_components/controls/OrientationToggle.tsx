@@ -1,5 +1,5 @@
 'use client';
-import React, {useCallback} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import produce from 'immer';
 import {WritableDraft} from 'immer/dist/internal';
@@ -13,16 +13,11 @@ const btnClass =
 
 export const OrientationToggle = () => {
   const modelRunner = useRecoilValue(modelRunnerAtom);
-  const size = useRecoilValue(canvasSizeAtom);
   const [orientation, setOrientation] = useRecoilState(orientationAtom);
-  const setPaneSize = useSetRecoilState(splitPaneSizeAtom);
+  const setResize = useSetRecoilState(splitPaneSizeAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
 
   const handleOrientation = useCallback(() => {
-    if (orientation === 'horizontal') {
-      setDrawer(true);
-      setPaneSize(400);
-    }
     setOrientation(
       produce((draft: WritableDraft<webTypes.SplitPaneOrientation>) => {
         if (draft === 'horizontal') {
@@ -32,7 +27,35 @@ export const OrientationToggle = () => {
         }
       })
     );
-  }, [orientation, setOrientation, setDrawer, setPaneSize]);
+  }, [setOrientation]);
+
+  useEffect(() => {
+    // resize event based on drag
+    const pane = document.getElementsByClassName('SplitPane')[0] as HTMLElement;
+    // this lets us resize dynamically after the model has resized
+    const pane1 = document.getElementsByClassName('Pane1')[0] as HTMLElement;
+    if (pane && pane1) {
+      // from vertical to horizontal
+      if (orientation === 'horizontal') {
+        const width = pane.clientWidth;
+        const height = 400;
+        if (modelRunner) {
+          modelRunner.resize_window(width, height);
+        }
+        // dynamically resize pane 1
+        pane1.style.height = `${height}px`;
+      } else {
+        // from horizontal to vertical
+        const width = 400;
+        const height = pane.clientHeight;
+        if (modelRunner) {
+          modelRunner.resize_window(width, height);
+        }
+        // dynamically resize pane 1
+        pane1.style.width = `${width}px`;
+      }
+    }
+  }, [modelRunner, orientation]);
 
   return (
     <button onClick={() => handleOrientation()} className={`${btnClass}`}>
