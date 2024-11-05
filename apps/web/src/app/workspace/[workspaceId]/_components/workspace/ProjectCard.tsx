@@ -51,7 +51,7 @@ export const ProjectCard = ({project}) => {
   };
 
   const imageHash = () => {
-    if (project.imageHash.includes('https://')) {
+    if (project?.imageHash?.includes('https://')) {
       return project.imageHash;
     }
     if (project.imageHash) {
