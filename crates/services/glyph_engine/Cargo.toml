@@ -19,14 +19,14 @@ bincode = "1.3.3"
 bson = "2.11.0"
 derive_builder = "0.20.1"
 futures-core = "0.3"
-glyphx_core = { path = "../core" }
-glyphx_common = { path = "../common" }
-glyphx_database = { path = "../database" }
+glyphx_core = { path = "../../core" }
+glyphx_common = { path = "../../common" }
+glyphx_database = { path = "../../database" }
 http = "0.2.9"
 lazy_static = "1.4.0"
 log = "0.4.17"
 mockall = "0.11.4"
-model_common = { path = "../models/model_common" }
+model_common = { path = "../../models/model_common" }
 once_cell = "1.19.0"
 rand = "0.8.5"
 serde = "1.0.163"

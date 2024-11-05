@@ -195,7 +195,10 @@ module.exports = {
 
     config.plugins.push(
       new CopyPlugin({
-        patterns: [{from: 'pkg/index.node', to: 'server/pkg/index.node'}],
+        patterns: [
+          {from: 'pkg/index.node', to: 'server/pkg/index.node'},
+          {from: 'pkg/offline_data_ingestion.node', to: 'server/pkg/offline_data_ingestion.node'},
+        ],
       })
     );
 
