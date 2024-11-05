@@ -9,7 +9,7 @@ import {Loading} from 'app/_components/Loaders/Loading';
 import ProjectInit from './projectSetter';
 import init, {ModelRunner} from '../../../../public/pkg/glyphx_cube_model';
 
-const ProjectProvider = ({project, templates, children}) => {
+const ProjectProvider = ({project, templates, permissions, children}) => {
   const [isClient, setIsClient] = useState(false);
   const [isInited, setIsInited] = useState(false);
 
@@ -34,7 +34,7 @@ const ProjectProvider = ({project, templates, children}) => {
           });
         }}
       >
-        <AuthProviders>
+        <AuthProviders permissions={permissions}>
           <ProjectInit project={project}>
             <Modals />
             <Loading />

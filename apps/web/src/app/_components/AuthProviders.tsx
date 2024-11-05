@@ -2,10 +2,11 @@
 import React, {useEffect} from 'react';
 import {ClientSafeProvider, getProviders} from 'next-auth/react';
 import {useSetRecoilState} from 'recoil';
-import {authProvidersAtom} from 'state';
+import {authProvidersAtom, permissionsAtom} from 'state';
 
-export const AuthProviders = ({children}) => {
+export const AuthProviders = ({permissions, children}) => {
   const setSocialProviders = useSetRecoilState(authProvidersAtom);
+  const setPermissions = useSetRecoilState(permissionsAtom);
 
   useEffect(() => {
     (async () => {
@@ -21,6 +22,10 @@ export const AuthProviders = ({children}) => {
       }
     })();
   }, [setSocialProviders]);
+
+  useEffect(() => {
+    setPermissions(permissions);
+  }, [permissions, setPermissions]);
 
   return <>{children}</>;
 };

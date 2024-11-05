@@ -23,24 +23,6 @@ export const Model = () => {
     onResize,
   });
 
-  // setup our keybindings
-  useHotkeys('up', () => {
-    console.log('move model up');
-    modelRunner.raise_model(10);
-  });
-  useHotkeys('down', () => {
-    console.log('move model up');
-    modelRunner.raise_model(-10);
-  });
-  useHotkeys('left', () => {
-    console.log('move model left');
-    modelRunner.shift_model(-10);
-  });
-  useHotkeys('right', () => {
-    console.log('move model right');
-    modelRunner.raise_model(10);
-  });
-
   // ensure canvas takes focus if it exists
   useEffect(() => {
     const canvas = document.getElementById('cube-model') as HTMLCanvasElement;

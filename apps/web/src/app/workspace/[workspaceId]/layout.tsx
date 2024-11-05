@@ -3,7 +3,7 @@ import {authOptions} from 'app/api/auth/[...nextauth]/route';
 import {Initializer, workspaceService} from 'business';
 import {Metadata} from 'next';
 import {getServerSession} from 'next-auth/next';
-import {redirect} from 'next/navigation';
+import {notFound, redirect} from 'next/navigation';
 import {RightSidebar} from './_components/rightSidebar';
 import LeftSidebar from 'app/workspace/[workspaceId]/_components/LeftSidebar';
 import WorkspaceProvider from './workspace-provider';
@@ -20,13 +20,22 @@ declare global {
 }
 
 export default async function WorkspaceLayout({children, params}: {children: React.ReactNode; params: any}) {
+  const workspaceId = params?.workspaceId;
+  await Initializer.init();
   const session = await getServerSession(authOptions);
-
   if (!session?.user) {
     redirect('/login');
   }
-  const workspaceId = params?.workspaceId;
-  await Initializer.init();
+
+  const role = session?.user.teamRoles[workspaceId];
+  if (!role) {
+    notFound();
+  }
+  const permissions = {
+    isOwner: role === 'owner',
+    isMember: role === 'member',
+  };
+
   let workspace;
   if (workspaceId) {
     workspace = await workspaceService.getSiteWorkspace(workspaceId);
@@ -35,7 +44,7 @@ export default async function WorkspaceLayout({children, params}: {children: Rea
 
   return (
     <div className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
-      <WorkspaceProvider workspace={workspace}>
+      <WorkspaceProvider workspace={workspace} permissions={permissions}>
         <LeftSidebar workspaces={workspaces} />
         <div className="flex flex-col h-full w-full overflow-y-auto bg-transparent">
           <WorkspaceHeader />

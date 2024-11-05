@@ -67,7 +67,7 @@ export const GridContainer = () => {
       <div className="relative h-full w-full border-r border-gray">
         {/* @ts-ignore */}
         <SplitPane
-          style={{overflow: 'scroll', height: `${getPaneHeight()}px`}}
+          // style={{overflow: 'scroll', height: `${getPaneHeight()}px`}}
           split={orientation}
           allowResize={true}
           defaultSize={400}
