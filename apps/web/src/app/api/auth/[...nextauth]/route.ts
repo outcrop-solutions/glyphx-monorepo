@@ -23,6 +23,7 @@ export const authOptions: NextAuthOptions = {
       if (!userInfo) {
         throw new Error('User not found');
       } else {
+        const {MEMBER, OWNER: TEAM_OWNER} = databaseTypes.constants.ROLE;
         const {READ_ONLY, CAN_EDIT, OWNER} = databaseTypes.constants.PROJECT_ROLE;
         // get valid memberships
         const pms = userInfo.membership?.filter(
@@ -31,7 +32,15 @@ export const authOptions: NextAuthOptions = {
             m.status === databaseTypes.constants.INVITATION_STATUS.ACCEPTED &&
             !m.deletedAt
         );
-        // Build a map of project roles
+
+        // get valid memberships
+        const wms = userInfo.membership?.filter(
+          (m) =>
+            m.type === databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE &&
+            m.status === databaseTypes.constants.INVITATION_STATUS.ACCEPTED &&
+            !m.deletedAt
+        );
+
         const projectRoles = pms.reduce(
           (roles, membership) => {
             const projectId = membership.project as unknown as string;
@@ -48,46 +57,35 @@ export const authOptions: NextAuthOptions = {
           {} as Record<string, 'readOnly' | 'editable' | 'owner'>
         );
 
+        const teamRoles = wms.reduce(
+          (roles, membership) => {
+            const workspaceId = membership.workspace as unknown as string;
+            if (workspaceId) {
+              let role = roles[workspaceId];
+              // Assign the highest role privilege
+              if (membership.teamRole === TEAM_OWNER) role = 'owner';
+              else if (membership.teamRole === MEMBER && role !== 'owner') role = 'member';
+              roles[workspaceId] = role;
+            }
+            return roles;
+          },
+          {} as Record<string, 'member' | 'owner'>
+        );
+
+        console.log({projectRoles, teamRoles});
+
         session.user = {
           id: userInfo.id as string,
           name: userInfo.name as string,
           email: userInfo.email as string,
           username: userInfo.email?.split('@')[0],
           projectRoles,
+          teamRoles,
         };
-
-        // console.log({user: session.user});
 
         return session;
       }
     },
-    // const userInfo = await userService.getUser(user.id);
-
-    // if (!userInfo) {
-    //   throw new Error('User not found');
-    // } else {
-    //   const readOnly = databaseTypes.constants.PROJECT_ROLE.READ_ONLY;
-    //   const canEdit = databaseTypes.constants.PROJECT_ROLE.CAN_EDIT;
-    //   const owner = databaseTypes.constants.PROJECT_ROLE.OWNER;
-    //   const pms = userInfo.membership?.filter((m) => m.type === databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT);
-
-    //   const newUser = {
-    //     ...userInfo,
-    //     id: userInfo.id as string,
-    //     username: userInfo.email?.split('@')[0],
-    //     readOnly: pms.filter((m) => m.projectRole === readOnly).map((m) => m.project?.id) ?? [],
-    //     editable: pms.filter((m) => m.projectRole === canEdit).map((m) => m.project?.id) ?? [],
-    //     owned: pms.filter((m) => m.projectRole === owner).map((m) => m.project?.id) ?? [],
-    //   };
-
-    //   console.log({newUser});
-
-    //   // @ts-ignore
-    //   session.user = newUser;
-    // }
-
-    // return session;
-    // },
   },
   pages: {
     signIn: '/login',

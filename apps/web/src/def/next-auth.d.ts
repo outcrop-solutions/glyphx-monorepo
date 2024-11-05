@@ -11,6 +11,7 @@ declare module 'next-auth' {
 }
 
 export type User = {
+  teamRoles: Record<string, 'owner' | 'member'>;
   projectRoles: Record<string, 'owner' | 'editable' | 'readOnly'>;
   id: string;
   name?: string;

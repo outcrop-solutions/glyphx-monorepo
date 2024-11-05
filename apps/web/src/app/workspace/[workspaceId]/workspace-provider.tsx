@@ -6,14 +6,14 @@ import {workspaceAtom} from 'state';
 import {Modals} from 'app/_components/Modals';
 import {Loading} from 'app/_components/Loaders/Loading';
 
-const WorkspaceProvider = ({workspace, children}) => {
+const WorkspaceProvider = ({workspace, permissions, children}) => {
   return (
     <RecoilRoot
       initializeState={({set}) => {
         set(workspaceAtom, workspace);
       }}
     >
-      <AuthProviders>
+      <AuthProviders permissions={permissions}>
         <Modals />
         <Loading />
         {children}

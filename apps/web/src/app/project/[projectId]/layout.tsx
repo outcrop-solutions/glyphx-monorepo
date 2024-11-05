@@ -26,7 +26,7 @@ export default async function ProjectLayout({children, params}) {
   await Initializer.init();
   const session = await getServerSession(authOptions);
   const role = session?.user.projectRoles[projectId];
-  console.log({role});
+
   if (!role) {
     notFound();
   }
