@@ -11,31 +11,17 @@ declare module 'next-auth' {
 }
 
 export type User = {
+  projectRoles: Record<string, 'owner' | 'editable' | 'readOnly'>;
   id: string;
-  userCode: string;
-  name: string;
-  username: string;
-  gh_username?: string;
-  email: string;
+  name?: string;
+  email?: string;
+  username?: string;
   emailVerified?: Date;
-  isVerified: boolean;
   image?: string;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt?: Date;
-  accounts: IAccount[];
-  sessions: ISession[];
-  membership: IMember[];
-  invitedMembers: IMember[];
-  createdWorkspaces: IWorkspace[];
-  projects: IProject[];
-  customerPayment?: ICustomerPayment;
-  webhooks: IWebhook[];
-  apiKey?: string;
   // custom via next-auth session callback
   subscription?: FREE | STANDARD | PREMIUM;
   color?: string; // for cursor
-  projectIds?: string[]; // for authorization
+  // permissions
 };
 
 // an artifact of liveblocks

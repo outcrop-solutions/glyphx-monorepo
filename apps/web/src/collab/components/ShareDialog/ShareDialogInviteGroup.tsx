@@ -52,7 +52,7 @@ export function ShareDialogInviteGroup({
     onSetGroups();
   }
 
-  const invitableGroupIds = (session?.user?.projectIds ?? []).filter((projectId) =>
+  const invitableGroupIds = (Object.keys(session?.user?.projectRoles) ?? []).filter((projectId) =>
     currentGroups.every((group) => group.id !== projectId)
   );
 

@@ -34,7 +34,7 @@ export default function Settings() {
       produce((draft: WritableDraft<webTypes.IModalsAtom>) => {
         draft.modals.push({
           type: webTypes.constants.MODAL_CONTENT_TYPE.DELETE_ACCOUNT,
-          isPending: false,
+          isSubmitting: false,
           data: {},
         });
       })

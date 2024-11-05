@@ -264,3 +264,11 @@ export const descSelector = selector({
     };
   },
 });
+
+/**
+ * Holds the permissions map
+ */
+export const permissionsAtom = atom<Record<string, 'owner' | 'editable' | 'readOnly'>>({
+  key: 'permissionsAtom',
+  default: {},
+});
