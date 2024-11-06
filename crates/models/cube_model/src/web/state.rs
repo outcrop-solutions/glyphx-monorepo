@@ -477,6 +477,7 @@ impl State {
         });
         self.render_scene(&view)?;
         output.present();
+        crate::send_event(ModelEvent::SceneRendered);
         Ok(())
     }
 
