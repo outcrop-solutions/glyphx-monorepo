@@ -12,6 +12,7 @@ import init, {ModelRunner} from '../../../../public/pkg/glyphx_cube_model';
 const ProjectProvider = ({project, templates, permissions, children}) => {
   const [isClient, setIsClient] = useState(false);
   const [isInited, setIsInited] = useState(false);
+
   useEffect(() => {
     setIsClient(true);
 
