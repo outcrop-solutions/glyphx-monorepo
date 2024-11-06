@@ -13,6 +13,11 @@ export const modelRunnerAtom = atom<any>({
   default: null,
 });
 
+export const isInitedAtom = atom<boolean>({
+  key: 'isInitedKey',
+  default: false,
+});
+
 /**
  * The latest state object in crono order
  */

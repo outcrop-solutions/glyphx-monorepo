@@ -1,6 +1,9 @@
-import type {DefaultSession} from 'next-auth';
-import {databaseTypes} from 'types';
+import NextAuth, {type DefaultSession} from 'next-auth';
 
+/**
+ * This is a duplicate of apps/web/src/def/next-auth.d.ts
+ * It is necessary to get the right types for server actions
+ */
 declare module 'next-auth' {
   /**
    * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
@@ -12,31 +15,18 @@ declare module 'next-auth' {
 }
 
 export type User = {
+  teamRoles: Record<string, 'owner' | 'member'>;
+  projectRoles: Record<string, 'owner' | 'editable' | 'readOnly'>;
   id: string;
-  userCode: string;
-  name: string;
-  username: string;
-  gh_username?: string;
-  email: string;
+  name?: string;
+  email?: string;
+  username?: string;
   emailVerified?: Date;
-  isVerified: boolean;
   image?: string;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt?: Date;
-  accounts: databaseTypes.IAccount[];
-  sessions: databaseTypes.ISession[];
-  membership: databaseTypes.IMember[];
-  invitedMembers: databaseTypes.IMember[];
-  createdWorkspaces: databaseTypes.IWorkspace[];
-  projects: databaseTypes.IProject[];
-  customerPayment?: databaseTypes.ICustomerPayment;
-  webhooks: databaseTypes.IWebhook[];
-  apiKey?: string;
   // custom via next-auth session callback
-  subscription?: databaseTypes.constants.SUBSCRIPTION_TYPE;
+  subscription?: FREE | STANDARD | PREMIUM;
   color?: string; // for cursor
-  projectIds?: string[]; // for authorization
+  // permissions
 };
 
 // an artifact of liveblocks

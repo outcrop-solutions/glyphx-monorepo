@@ -1,11 +1,14 @@
 import React, {useEffect} from 'react';
-import {projectAtom} from 'state';
-import {useSetRecoilState} from 'recoil';
+import {isInitedAtom, modelRunnerAtom, projectAtom} from 'state';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
 import produce from 'immer';
 import {fileIngestionTypes, webTypes} from 'types';
+// import {ModelRunner} from '../../../../public/pkg/glyphx_cube_model';
 
 const ProjectInit = ({project, children}) => {
   const setProject = useSetRecoilState(projectAtom);
+  // const [modelRunner, setModelRunner] = useRecoilState(modelRunnerAtom);
+  // const isInited = useRecoilValue(isInitedAtom);
 
   useEffect(() => {
     // rectify mongo scalar array
@@ -36,8 +39,20 @@ const ProjectInit = ({project, children}) => {
         }
       });
     });
+    // refresh();
     setProject(proj);
+    return () => {
+      setProject(null);
+    };
   }, [project, setProject]);
+
+  // // // this is set when initializing recoil root, but we need to make sure if react gets out of sync with wasm
+  // useEffect(() => {
+  //   if (!modelRunner && isInited) {
+  //     const mr = new ModelRunner();
+  //     setModelRunner(mr);
+  //   }
+  // }, [modelRunner, isInited]);
 
   return <>{children}</>;
 };

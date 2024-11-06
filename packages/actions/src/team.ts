@@ -6,6 +6,7 @@ import {databaseTypes} from 'types';
 import {workspaceService, membershipService, activityLogService} from '../../business/src/services';
 import {revalidatePath} from 'next/cache';
 import {redirect} from 'next/navigation';
+import Gateway from './auth/Gateway';
 
 /**
  * Update team role
@@ -19,20 +20,23 @@ export const updateRole = async (
 ) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session) {
-      const member = await membershipService.getMember(memberId);
-      await membershipService.updateRole(member?.id!, role);
+    const member = await membershipService.getMember(memberId);
+    if (member?.workspace?.id) {
+      const isAuth = await Gateway.checkWorkspaceAuth(session, member.workspace.id, true); // only owners can update member roles
+      if (isAuth) {
+        await membershipService.updateRole(member?.id!, role);
 
-      await activityLogService.createLog({
-        actorId: session?.user?.id,
-        resourceId: member?.id!,
-        workspaceId: member?.workspace.id,
-        location: '',
-        userAgent: {},
-        onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
-        action: databaseTypes.constants.ACTION_TYPE.ROLE_UPDATED,
-      });
-      revalidatePath('/[workspaceId]');
+        await activityLogService.createLog({
+          actorId: session!.user?.id, // session guaranteed to exist because of gateway
+          resourceId: member?.id!,
+          workspaceId: member?.workspace.id,
+          location: '',
+          userAgent: {},
+          onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
+          action: databaseTypes.constants.ACTION_TYPE.ROLE_UPDATED,
+        });
+        revalidatePath('/[workspaceId]');
+      }
     }
   } catch (err) {
     const e = new error.ActionError('An unexpected error occurred updating the team role', 'memberId', memberId, err);
@@ -49,18 +53,22 @@ export const updateRole = async (
 export const removeMember = async (memberId: string) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session) {
-      const member = await membershipService.remove(memberId);
-      await activityLogService.createLog({
-        actorId: session?.user?.id,
-        resourceId: member?.id!,
-        workspaceId: member?.workspace.id,
-        location: '',
-        userAgent: {},
-        onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
-        action: databaseTypes.constants.ACTION_TYPE.DELETED,
-      });
-      revalidatePath('/[workspaceId]');
+    const member = await membershipService.getMember(memberId);
+    if (member?.workspace?.id) {
+      const isAuth = await Gateway.checkWorkspaceAuth(session, member.workspace.id, true); // only owners can remove members roles
+      if (isAuth) {
+        const member = await membershipService.remove(memberId);
+        await activityLogService.createLog({
+          actorId: session!.user?.id, // session guaranteed to exist due to Gateway
+          resourceId: member?.id!,
+          workspaceId: member?.workspace.id,
+          location: '',
+          userAgent: {},
+          onModel: databaseTypes.constants.RESOURCE_MODEL.MEMBER,
+          action: databaseTypes.constants.ACTION_TYPE.DELETED,
+        });
+        revalidatePath('/[workspaceId]');
+      }
     }
   } catch (err) {
     const e = new error.ActionError('An unexpected error removing the member', 'memberId', memberId, err);

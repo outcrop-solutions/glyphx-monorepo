@@ -9,6 +9,7 @@ import {authOptions} from '../auth';
 import {HashResolver, LatestHashStrategy} from 'business/src/util/HashResolver';
 import {projectService, stateService} from 'business';
 import {generateFilterQuery, isValidPayload} from '../utils';
+import Gateway from '../auth/Gateway';
 
 // WASM BINDINGS SETUP
 interface IBindings {
@@ -106,78 +107,82 @@ export async function runGlyphEngineAction(project: databaseTypes.IProject, stat
   try {
     // validate session
     const session = await getServerSession(authOptions);
-    if (!session) {
-      return {error: 'Not Authorized'};
-    }
-    // validate input
-    const workspaceId = project?.workspace.id;
-    const projectId = project?.id;
-    if (!workspaceId || !projectId) {
-      return {error: `Invalid project. projectId: ${projectId}, workspaceId: ${workspaceId}`};
-    }
-
-    // init S3 client
-    await s3Connection.init();
-    const s3 = s3Connection.s3Manager;
-
-    if (project.files.length === 0) {
-      throw new error.InvalidArgumentError(
-        'No files present, upload a file and drop columns before running glyph engine',
-        'project',
-        project
-      );
-    }
-
-    // CASE 1: download existing state
-    if (stateId) {
-      console.log('CASE 1: state download');
-      const state = await stateService.getState(stateId);
-      if (!state) {
-        return {error: 'No state found for stateId'};
+    // console.log({project, user: session?.user});
+    if (project.id) {
+      const isAuth = await Gateway.checkProjectAuth(session, project.id, !stateId); // if stateId is present, we are downloading so we don't exclude read-only users
+      if (!isAuth) {
+        return {error: 'Not Authorized'};
       }
-      return await signRustFiles(workspaceId, projectId, state.payloadHash);
-    }
+      // validate input
+      const workspaceId = project?.workspace.id;
+      const projectId = project?.id;
+      if (!workspaceId || !projectId) {
+        return {error: `Invalid project. projectId: ${projectId}, workspaceId: ${workspaceId}`};
+      }
 
-    // CASE 2: project state exists in its stateHistory and can be resolved
-    // validate payload
-    if (!isValidPayload(project.state.properties)) {
-      return {error: 'Invalid Payload'};
-    }
+      // init S3 client
+      await s3Connection.init();
+      const s3 = s3Connection.s3Manager;
 
-    const updatedProject = await projectService.updateProjectState(projectId, project.state);
-    const properties = updatedProject.state.properties;
-    const resolver = new HashResolver(workspaceId, projectId, s3);
-    const retval = await resolver.resolve({
-      projectId,
-      files: updatedProject.files,
-      properties: properties,
-    });
+      if (project.files.length === 0) {
+        throw new error.InvalidArgumentError(
+          'No files present, upload a file and drop columns before running glyph engine',
+          'project',
+          project
+        );
+      }
 
-    console.log(`project resolution: ${JSON.stringify(retval)}`);
-    // project state is already generated, download it
-    if (retval) {
-      const {payloadHash} = retval;
-      return await signRustFiles(workspaceId, projectId, payloadHash);
-    }
+      // CASE 1: download existing state
+      if (stateId) {
+        console.log('CASE 1: state download');
+        const state = await stateService.getState(stateId);
+        if (!state) {
+          return {error: 'No state found for stateId'};
+        }
+        return await signRustFiles(workspaceId, projectId, state.payloadHash);
+      }
 
-    // CASE 3: GlyphEngine needs to be run
-    // We can't use the resolver as we have not created the assets yet at this point in the generation cycle
-    const s = new LatestHashStrategy();
-    const hashPayload = {
-      projectId: updatedProject.id!,
-      files: updatedProject.files,
-      properties: updatedProject.state.properties,
-    };
-    const payloadHash = s.hashPayload(s.hashFiles(updatedProject.files), hashPayload);
-    const payload = buildRustPayload(updatedProject, payloadHash);
-    console.log('built rust payload');
-    console.log(payload);
-    console.log(payload.zAxis.fieldDefinition);
-    const result = await runGlyphEngine(payload);
-    console.log('ran rustGlyphEngine', result);
-    if (result) {
-      // TODO: handle error here
-      return await signRustFiles(workspaceId, projectId, payloadHash);
+      // CASE 2: project state exists in its stateHistory and can be resolved
+      // validate payload
+      if (!isValidPayload(project.state.properties)) {
+        return {error: 'Invalid Payload'};
+      }
+
+      const updatedProject = await projectService.updateProjectState(projectId, project.state);
+      const properties = updatedProject.state.properties;
+      const resolver = new HashResolver(workspaceId, projectId, s3);
+      const retval = await resolver.resolve({
+        projectId,
+        files: updatedProject.files,
+        properties: properties,
+      });
+
+      console.log(`project resolution: ${JSON.stringify(retval)}`);
+      // project state is already generated, download it
+      if (retval) {
+        const {payloadHash} = retval;
+        return await signRustFiles(workspaceId, projectId, payloadHash);
+      }
+
+      // CASE 3: GlyphEngine needs to be run
+      // We can't use the resolver as we have not created the assets yet at this point in the generation cycle
+      const s = new LatestHashStrategy();
+      const hashPayload = {
+        projectId: updatedProject.id!,
+        files: updatedProject.files,
+        properties: updatedProject.state.properties,
+      };
+      const payloadHash = s.hashPayload(s.hashFiles(updatedProject.files), hashPayload);
+      const payload = buildRustPayload(updatedProject, payloadHash);
+      console.log('built rust payload');
+      console.log(payload);
+      console.log(payload.zAxis.fieldDefinition);
+      const result = await runGlyphEngine(payload);
+      console.log('ran rustGlyphEngine', result);
+      if (result) {
+        // TODO: handle error here
+        return await signRustFiles(workspaceId, projectId, payloadHash);
+      }
     }
   } catch (err) {
     console.log(err);

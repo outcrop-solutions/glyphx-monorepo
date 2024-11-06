@@ -9,6 +9,7 @@ import {revalidatePath} from 'next/cache';
 import emailClient from './email';
 import {getToken} from './utils/blobStore';
 import {ActionError} from 'core/src/error';
+import Gateway from './auth/Gateway';
 /**
  * Gets a state by id
  * @param stateId
@@ -71,15 +72,15 @@ export const createState = async (
 ) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session?.user) {
+    const isAuth = await Gateway.checkProjectAuth(session, projectId as string, true);
+    if (isAuth) {
       const project = await projectService.getProject(projectId as string);
-
       if (project?.id) {
         const state = await stateService.createState(
           name,
           camera,
           project,
-          session?.user?.id,
+          session!.user?.id,
           aspectRatio,
           rowIds as unknown as string[]
         );
@@ -119,7 +120,7 @@ export const createState = async (
 
         if (state) {
           await activityLogService.createLog({
-            actorId: session?.user?.id,
+            actorId: session!.user?.id, // session guaranteed to exist given Gateway check
             resourceId: state?.id!,
             workspaceId: state.workspace.id,
             location: '',
@@ -149,19 +150,23 @@ export const createState = async (
 export const updateState = async (stateId: string, name: string) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session?.user) {
-      const state = await stateService.updateState(stateId, name);
-      await activityLogService.createLog({
-        actorId: session?.user?.id,
-        resourceId: state.id!,
-        workspaceId: state.project?.workspace?.toString(),
-        projectId: state.project.id,
-        location: '',
-        userAgent: {},
-        onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
-        action: databaseTypes.constants.ACTION_TYPE.UPDATED,
-      });
-      revalidatePath('/');
+    const state = await stateService.getState(stateId);
+    if (state?.project?.id) {
+      const isAuth = await Gateway.checkProjectAuth(session, state.project.id, true);
+      if (isAuth) {
+        const state = await stateService.updateState(stateId, name);
+        await activityLogService.createLog({
+          actorId: session!.user?.id, // session guaranteed to exist given Gateway check
+          resourceId: state.id!,
+          workspaceId: state.project?.workspace?.toString(),
+          projectId: state.project.id,
+          location: '',
+          userAgent: {},
+          onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
+          action: databaseTypes.constants.ACTION_TYPE.UPDATED,
+        });
+        revalidatePath('/');
+      }
     }
   } catch (err) {
     const e = new ActionError('An unexpected error occurred updating the state', 'stateId', stateId, err);
@@ -177,19 +182,23 @@ export const updateState = async (stateId: string, name: string) => {
 export const deleteState = async (stateId: string) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session?.user) {
-      const state = await stateService.deleteState(stateId);
-      await activityLogService.createLog({
-        actorId: session?.user?.id,
-        resourceId: state.id!,
-        workspaceId: state.project?.workspace?.toString(),
-        projectId: state.project.id,
-        location: '',
-        userAgent: {},
-        onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
-        action: databaseTypes.constants.ACTION_TYPE.DELETED,
-      });
-      revalidatePath('/');
+    const state = await stateService.getState(stateId);
+    if (state?.project?.id) {
+      const isAuth = await Gateway.checkProjectAuth(session, state.project.id, true);
+      if (isAuth) {
+        const state = await stateService.deleteState(stateId);
+        await activityLogService.createLog({
+          actorId: session!.user?.id, // session guaranteed to exist given Gateway check
+          resourceId: state.id!,
+          workspaceId: state.project?.workspace?.toString(),
+          projectId: state.project.id,
+          location: '',
+          userAgent: {},
+          onModel: databaseTypes.constants.RESOURCE_MODEL.STATE,
+          action: databaseTypes.constants.ACTION_TYPE.DELETED,
+        });
+        revalidatePath('/');
+      }
     }
   } catch (err) {
     const e = new ActionError('An unexpected error occurred deleting the state', 'stateId', stateId, err);

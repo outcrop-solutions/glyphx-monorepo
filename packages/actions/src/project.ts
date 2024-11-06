@@ -6,7 +6,7 @@ import {databaseTypes} from 'types';
 import {revalidatePath} from 'next/cache';
 import {authOptions} from './auth';
 import {redirect} from 'next/navigation';
-
+import Gateway from './auth/Gateway';
 /**
  * Create Default Project
  * @param name
@@ -18,19 +18,20 @@ export const createProject = async (name: string, workspaceId: string, descripti
   let projectId = '';
   try {
     const session = await getServerSession(authOptions);
-    if (session?.user) {
+    const isAuth = await Gateway.checkWorkspaceAuth(session, workspaceId);
+    if (isAuth) {
       const project = await projectService.createProject(
         name,
         workspaceId,
-        session.user.id,
-        session.user.email,
+        session!.user.id, // session guaranteed to exist given Gateway check
+        session!.user.email!,
         undefined,
         description ?? '',
         docId
       );
 
       await activityLogService.createLog({
-        actorId: session?.user?.id,
+        actorId: session!.user?.id,
         resourceId: project?.id!,
         projectId: project.id,
         workspaceId: project?.workspace.id,
@@ -65,8 +66,9 @@ export const createProject = async (name: string, workspaceId: string, descripti
 export const updateProjectName = async (projectId: string, name: string) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session?.user) {
-      const retval = await projectService.updateProject(projectId, {
+    const isAuth = await Gateway.checkProjectAuth(session, projectId, true);
+    if (isAuth) {
+      await projectService.updateProject(projectId, {
         name,
       });
       revalidatePath(`/project/${projectId}`, 'layout');
@@ -85,7 +87,8 @@ export const updateProjectName = async (projectId: string, name: string) => {
 export const getProject = async (projectId: string) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session) {
+    const isAuth = await Gateway.checkProjectAuth(session, projectId);
+    if (isAuth) {
       return await projectService.getProject(projectId as string);
     }
   } catch (err) {
@@ -109,11 +112,11 @@ export const getProject = async (projectId: string) => {
 export const updateProjectState = async (projectId: string, state: databaseTypes.IState) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session) {
+    const isAuth = await Gateway.checkProjectAuth(session, projectId, true);
+    if (isAuth) {
       const project = await projectService.updateProjectState(projectId as string, state);
-
       await activityLogService.createLog({
-        actorId: session?.user?.id!,
+        actorId: session!.user?.id, // session guaranteed to exist given Gateway check
         resourceId: project?.id!,
         projectId: project.id,
         workspaceId: project?.workspace.id,
@@ -144,10 +147,11 @@ export const updateProjectState = async (projectId: string, state: databaseTypes
 export const deactivateProject = async (projectId: string) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session) {
+    const isAuth = await Gateway.checkProjectAuth(session, projectId, true);
+    if (isAuth) {
       const project = await projectService.deactivate(projectId as string);
       await activityLogService.createLog({
-        actorId: session?.user?.id ?? '',
+        actorId: session!.user?.id, // session guaranteed to exist given Gateway check
         resourceId: project?.id!,
         workspaceId: project?.workspace.id,
         projectId: project.id,

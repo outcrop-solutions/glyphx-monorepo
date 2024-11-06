@@ -7,6 +7,7 @@ import {databaseTypes, emailTypes} from 'types';
 import dbConnection from 'business/src/lib/databaseConnection';
 import {userService, Initializer} from 'business';
 import emailClient from '../email';
+import Gateway from './Gateway';
 
 const getConnectionPromise = (async () => {
   // initialize the business layer
@@ -17,24 +18,27 @@ const getConnectionPromise = (async () => {
 })();
 
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(getConnectionPromise as Promise<any>),
+  adapter: MongoDBAdapter(getConnectionPromise),
   callbacks: {
     session: async ({session, user}) => {
       const userInfo = await userService.getUser(user.id);
-
       if (!userInfo) {
         throw new Error('User not found');
       } else {
-        const newUser = {
-          ...userInfo,
+        const projectRoles = Gateway.projectRoleMap(userInfo);
+        const teamRoles = Gateway.workspaceRoleMap(userInfo);
+
+        session.user = {
           id: userInfo.id as string,
+          name: userInfo.name as string,
+          email: userInfo.email as string,
           username: userInfo.email?.split('@')[0],
-        } as databaseTypes.IUser & {id: string; email: string};
+          projectRoles,
+          teamRoles,
+        };
 
-        session.user = newUser;
+        return session;
       }
-
-      return session;
     },
   },
   pages: {
@@ -49,13 +53,14 @@ export const authOptions: NextAuthOptions = {
         const {host} = new URL(url);
         const emailData = {
           type: emailTypes.EmailTypes.EMAIL_VERFICATION,
-          url: host,
+          url: url,
           identifier,
           provider: {
             from: 'jp@glyphx.co',
           },
           theme: 'light',
-        } satisfies emailTypes.EmailData;
+        } satisfies emailTypes.iEmailVerificationData;
+
         await emailClient.init();
         await emailClient.sendEmail(emailData);
       },

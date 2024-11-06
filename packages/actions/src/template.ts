@@ -6,6 +6,7 @@ import {projectTemplateService, activityLogService, projectService} from '../../
 import {databaseTypes} from 'types';
 import {authOptions} from './auth';
 import {redirect} from 'next/navigation';
+import Gateway from './auth/Gateway';
 
 /**
  * Create Default ProjectTemplate
@@ -23,7 +24,8 @@ export const createProjectTemplate = async (
 ) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session) {
+    const isAuth = await Gateway.checkProjectAuth(session, projectId, true);
+    if (isAuth) {
       await projectTemplateService.createProjectTemplate(projectId, projectName, projectDesc, properties);
       revalidatePath('/[workspaceId]', 'page');
     }
@@ -54,11 +56,12 @@ export const createProjectFromTemplate = async (workspaceId: string, template: d
   let projectId = '';
   try {
     const session = await getServerSession(authOptions);
-    if (session) {
+    const isAuth = await Gateway.checkWorkspaceAuth(session, workspaceId);
+    if (isAuth) {
       const project = await projectService.createProject(
         `${template.name}`,
         workspaceId,
-        session?.user?.id,
+        session!.user?.id,
         session?.user?.email as string,
         template,
         template.description

@@ -1,15 +1,22 @@
 /* eslint-disable turbo/no-undeclared-env-vars */
 'use server';
 import {error, constants} from 'core';
-import {membershipService, projectService, annotationService, stateService} from '../../business/src/services';
+import {
+  membershipService,
+  projectService,
+  annotationService,
+  stateService,
+  userService,
+} from '../../business/src/services';
 import {list, put} from '@vercel/blob';
 import {getServerSession} from 'next-auth';
-import {databaseTypes, emailTypes} from 'types';
+import {emailTypes} from 'types';
 import {authOptions} from './auth';
 import {revalidatePath} from 'next/cache';
 import emailClient from './email';
 import Fuse from 'fuse.js';
 import {buildStateUrl, getToken} from './utils/blobStore';
+import Gateway from './auth/Gateway';
 
 /**
  * Gets suggested members for combobox
@@ -19,7 +26,8 @@ import {buildStateUrl, getToken} from './utils/blobStore';
 export const getSuggestedMembers = async (projectId: string, query: string) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session && projectId) {
+    const isAuth = await Gateway.checkProjectAuth(session, projectId);
+    if (isAuth) {
       const project = await projectService.getProject(projectId as string);
       if (project) {
         const members = await membershipService.getMembers({project: project.id});
@@ -74,7 +82,8 @@ export const getSuggestedMembers = async (projectId: string, query: string) => {
 export const getProjectAnnotations = async (projectId: string) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session) {
+    const isAuth = await Gateway.checkProjectAuth(session, projectId);
+    if (isAuth) {
       return await annotationService.getProjectAnnotations(projectId as string);
     }
   } catch (err) {
@@ -97,8 +106,12 @@ export const getProjectAnnotations = async (projectId: string) => {
 export const getStateAnnotations = async (stateId: string) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session) {
-      return await annotationService.getStateAnnotations(stateId as string);
+    const state = await stateService.getState(stateId);
+    if (state?.project?.id) {
+      const isAuth = await Gateway.checkProjectAuth(session, state.project.id, true);
+      if (isAuth) {
+        return await annotationService.getStateAnnotations(stateId as string);
+      }
     }
   } catch (err) {
     const e = new error.ActionError(
@@ -120,9 +133,11 @@ export const getStateAnnotations = async (stateId: string) => {
 export const createProjectAnnotation = async (projectId: string, value: string) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session?.user) {
+    const isAuth = await Gateway.checkProjectAuth(session, projectId, true);
+    if (isAuth) {
+      const user = await userService.getUser(session!.user.id); // session guaranteed to exist due to Gateway
       await annotationService.createProjectAnnotation({
-        author: {...session.user} as databaseTypes.IUser,
+        author: user!, // user guaranteed to exist due to Gateway
         projectId: projectId as string,
         value,
       });
@@ -183,51 +198,56 @@ export const createProjectAnnotation = async (projectId: string, value: string) 
 export const createStateAnnotation = async (stateId: string, value: string) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session?.user) {
-      const annotation = await annotationService.createStateAnnotation({
-        author: {...session.user} as databaseTypes.IUser,
-        stateId: stateId as string,
-        value: value as string,
-      });
+    const state = await stateService.getState(stateId);
+    if (state?.project?.id) {
+      const isAuth = await Gateway.checkProjectAuth(session, state.project.id, true);
+      if (isAuth) {
+        const user = await userService.getUser(session!.user.id); // session guaranteed to exist due to Gateway
+        const annotation = await annotationService.createStateAnnotation({
+          author: user!,
+          stateId: stateId as string,
+          value: value as string,
+        });
 
-      if (stateId) {
-        const state = await stateService.getState(stateId);
+        if (stateId) {
+          const state = await stateService.getState(stateId);
 
-        // check if the image exists in the blob store
-        const retval = await list({prefix: `state/${state?.id}`, token: getToken()});
-        const imageHash = state?.imageHash;
+          // check if the image exists in the blob store
+          const retval = await list({prefix: `state/${state?.id}`, token: getToken()});
+          const imageHash = state?.imageHash;
 
-        if (imageHash && retval.blobs.length === 0) {
-          // for backwards compatiblity, we need to put the state imageHash into the store if it does not already exist
-          const buffer = Buffer.from(imageHash, 'base64');
-          const blob = new Blob([buffer], {type: 'image/png'});
+          if (imageHash && retval.blobs.length === 0) {
+            // for backwards compatiblity, we need to put the state imageHash into the store if it does not already exist
+            const buffer = Buffer.from(imageHash, 'base64');
+            const blob = new Blob([buffer], {type: 'image/png'});
 
-          // upload imageHash to Blob store
-          await put(`state/${state?.id}`, blob, {
-            access: 'public',
-            addRandomSuffix: false,
-            token: getToken(),
-          });
-        }
-
-        if (state?.imageHash && annotation?.value) {
-          const members = await membershipService.getMembers({project: state.project.id});
-          if (members) {
-            const emailData = {
-              type: emailTypes.EmailTypes.ANNOTATION_CREATED,
-              stateName: state.name,
-              stateImage: buildStateUrl(state?.id as string),
-              annotation: annotation.value,
-              emails: [...members.map((mem) => mem.email)],
-              projectId: state.project.id as string,
-            } satisfies emailTypes.EmailData;
-            console.dir({emailData}, {depth: null});
-            await emailClient.init();
-            await emailClient.sendEmail(emailData);
+            // upload imageHash to Blob store
+            await put(`state/${state?.id}`, blob, {
+              access: 'public',
+              addRandomSuffix: false,
+              token: getToken(),
+            });
           }
-        }
 
-        revalidatePath(`/project/${state?.project.id}`, 'layout');
+          if (state?.imageHash && annotation?.value) {
+            const members = await membershipService.getMembers({project: state.project.id});
+            if (members) {
+              const emailData = {
+                type: emailTypes.EmailTypes.ANNOTATION_CREATED,
+                stateName: state.name,
+                stateImage: buildStateUrl(state?.id as string),
+                annotation: annotation.value,
+                emails: [...members.map((mem) => mem.email)],
+                projectId: state.project.id as string,
+              } satisfies emailTypes.EmailData;
+              console.dir({emailData}, {depth: null});
+              await emailClient.init();
+              await emailClient.sendEmail(emailData);
+            }
+          }
+
+          revalidatePath(`/project/${state?.project.id}`, 'layout');
+        }
       }
     }
   } catch (err) {

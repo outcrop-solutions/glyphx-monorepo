@@ -9,6 +9,7 @@ import {revalidatePath} from 'next/cache';
 import {redirect} from 'next/navigation';
 import {databaseTypes, emailTypes} from 'types';
 import emailClient from './email';
+import Gateway from './auth/Gateway';
 
 /**
  * Get or Create Default Workspace
@@ -50,7 +51,8 @@ export const getOrCreateWorkspace = async () => {
 export const getWorkspace = async (workspaceId: string) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session) {
+    const isAuth = await Gateway.checkWorkspaceAuth(session, workspaceId);
+    if (isAuth) {
       return await workspaceService.getSiteWorkspace(workspaceId as string);
     }
   } catch (err) {
@@ -89,7 +91,7 @@ export const createWorkspace = async (name: string) => {
           type: emailTypes.EmailTypes.WORKSPACE_CREATED,
           workspaceName: workspace!.name,
           workspaceId: workspace!.id as string,
-          email: session?.user?.email,
+          email: session?.user?.email!,
           workspaceCode: workspace!.workspaceCode,
         } satisfies emailTypes.EmailData;
 
@@ -123,10 +125,11 @@ export const createWorkspace = async (name: string) => {
 export const updateWorkspaceSlug = async (workspaceId: string, slug: string) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session) {
+    const isAuth = await Gateway.checkWorkspaceAuth(session, workspaceId);
+    if (isAuth) {
       await workspaceService.updateWorkspaceSlug(workspaceId as string, slug);
       await activityLogService.createLog({
-        actorId: session?.user?.id,
+        actorId: session!.user?.id, // session guranteed bu Gateway
         resourceId: workspaceId!,
         workspaceId: workspaceId,
         location: '',
@@ -157,10 +160,11 @@ export const updateWorkspaceSlug = async (workspaceId: string, slug: string) => 
 export const updateWorkspaceName = async (workspaceId: string, name: string) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session) {
-      await workspaceService.updateWorkspaceName(session?.user?.id, session?.user?.email as string, name, workspaceId!);
+    const isAuth = await Gateway.checkWorkspaceAuth(session, workspaceId);
+    if (isAuth) {
+      await workspaceService.updateWorkspaceName(session!.user?.id, session?.user?.email as string, name, workspaceId!);
       await activityLogService.createLog({
-        actorId: session?.user?.id,
+        actorId: session!.user?.id,
         resourceId: workspaceId as string,
         workspaceId: workspaceId as string,
         location: '',
@@ -264,11 +268,12 @@ export const inviteUsers = async (workspaceId: string, members: any[]) => {
 export const deleteWorkspace = async (workspaceId: string) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session?.user) {
-      await workspaceService.deleteWorkspace(session.user.id, session.user.email as string, workspaceId as string);
+    const isAuth = await Gateway.checkWorkspaceAuth(session, workspaceId, true);
+    if (isAuth) {
+      await workspaceService.deleteWorkspace(session!.user.id, session!.user.email as string, workspaceId as string);
 
       await activityLogService.createLog({
-        actorId: session?.user?.id,
+        actorId: session!.user?.id,
         resourceId: workspaceId as string,
         workspaceId: workspaceId,
         location: '',

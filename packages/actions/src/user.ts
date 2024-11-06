@@ -41,13 +41,11 @@ export const updateUserName = async (name: string) => {
 export const updateUserEmail = async (email: string) => {
   try {
     const session = await getServerSession(authOptions);
-
     if (session) {
       const user = await userService.updateEmail(session?.user?.id, email, session?.user?.email as string);
-
       const emailData = {
         type: emailTypes.EmailTypes.EMAIL_UPDATED,
-        oldEmail: session?.user?.email,
+        oldEmail: session.user?.email!,
         newEmail: email,
       } satisfies emailTypes.EmailData;
 

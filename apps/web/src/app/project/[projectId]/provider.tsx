@@ -179,6 +179,7 @@ export const CollabProvider = ({
     <RoomProvider
       id={project?.docId as string}
       initialPresence={{cursor: null}}
+      // @ts-ignore
       initialStorage={{notes: new LiveMap()}}
     >
       <InitialDocumentProvider initialDocument={doc}>

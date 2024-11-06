@@ -16,9 +16,10 @@ import {
 } from 'state';
 import {runGlyphEngineAction, updateProjectState} from 'actions';
 import produce from 'immer';
+import init, {ModelRunner} from '../../public/pkg/glyphx_cube_model';
 
 export const useRust = () => {
-  const modelRunner = useRecoilValue(modelRunnerAtom);
+  const [modelRunner, setModelRunner] = useRecoilState(modelRunnerAtom);
   const setGELoading = useSetRecoilState(geLoadingAtom);
   const glyphCount = useRecoilValue(glyphCountSelector);
   const statsCount = useRecoilValue(statsCountSelector);
@@ -35,16 +36,7 @@ export const useRust = () => {
 
   const shouldReset = useCallback(() => {
     console.log({glyphCount, statsCount, xVecCount, yVecCount});
-    if (
-      glyphCount &&
-      glyphCount > 0 &&
-      statsCount &&
-      statsCount > 0 &&
-      xVecCount &&
-      xVecCount > 0 &&
-      yVecCount &&
-      yVecCount > 0
-    ) {
+    if (glyphCount && statsCount && xVecCount && yVecCount) {
       return true;
     } else {
       return false;
@@ -85,49 +77,53 @@ export const useRust = () => {
    */
   const processData = useCallback(
     (axis: webTypes.constants.AXIS, processor: string) => async (buffer: Buffer) => {
-      let offset = 0;
-      while (offset < buffer.length) {
-        // Ensure the buffer is long enough to read the initial length value
-        if (buffer.length < 8) {
-          return buffer; // Return the original buffer if it's too short
+      try {
+        let offset = 0;
+        while (offset < buffer.length) {
+          // Ensure the buffer is long enough to read the initial length value
+          if (buffer.length < 8) {
+            return buffer; // Return the original buffer if it's too short
+          }
+          // Read the total length of the data from the first 8 bytes
+          const totalDataLength = new DataView(buffer.buffer, buffer.byteOffset + offset, 8).getBigUint64(0, true);
+          offset += 8;
+          // Check if the full data specified by totalDataLength is available in the buffer
+          if (offset + Number(totalDataLength) > buffer.length) {
+            // using subarray to avoid copying the buffer
+            return buffer.subarray(offset); // Return the buffer starting from the length value for reprocessing
+          }
+          // Extract the relevant data for processing
+          const dataToProcess = buffer.subarray(offset, offset + Number(totalDataLength));
+          switch (processor) {
+            case 'vector':
+              console.log(`Processing ${axis} vector data`, {dataToProcess});
+              if (modelRunner) {
+                modelRunner.add_vector(axis.toLowerCase(), dataToProcess);
+              }
+              break;
+            case 'stats':
+              console.log('Processing stats data', {dataToProcess});
+              if (modelRunner) {
+                const retval = modelRunner.add_statistics(dataToProcess);
+                console.log('stats', retval);
+              }
+              break;
+            case 'glyph':
+              console.log('Processing glyph data', {dataToProcess});
+              if (modelRunner) {
+                modelRunner.add_glyph(dataToProcess);
+              }
+              break;
+            default:
+              console.error('Unknown data type');
+              break;
+          }
+          // Update the offset to move past the processed data
+          offset += Number(totalDataLength);
+          return buffer.subarray(offset); // Return the unprocessed remainder
         }
-        // Read the total length of the data from the first 8 bytes
-        const totalDataLength = new DataView(buffer.buffer, buffer.byteOffset + offset, 8).getBigUint64(0, true);
-        offset += 8;
-        // Check if the full data specified by totalDataLength is available in the buffer
-        if (offset + Number(totalDataLength) > buffer.length) {
-          // using subarray to avoid copying the buffer
-          return buffer.subarray(offset); // Return the buffer starting from the length value for reprocessing
-        }
-        // Extract the relevant data for processing
-        const dataToProcess = buffer.subarray(offset, offset + Number(totalDataLength));
-        switch (processor) {
-          case 'vector':
-            console.log(`Processing ${axis} vector data`, {dataToProcess});
-            if (modelRunner) {
-              modelRunner.add_vector(axis.toLowerCase(), dataToProcess);
-            }
-            break;
-          case 'stats':
-            console.log('Processing stats data', {dataToProcess});
-            if (modelRunner) {
-              const retval = modelRunner.add_statistics(dataToProcess);
-              console.log('stats', retval);
-            }
-            break;
-          case 'glyph':
-            console.log('Processing glyph data', {dataToProcess});
-            if (modelRunner) {
-              modelRunner.add_glyph(dataToProcess);
-            }
-            break;
-          default:
-            console.error('Unknown data type');
-            break;
-        }
-        // Update the offset to move past the processed data
-        offset += Number(totalDataLength);
-        return buffer.subarray(offset); // Return the unprocessed remainder
+      } catch (error) {
+        console.log({error});
       }
     },
     [modelRunner]
@@ -140,6 +136,13 @@ export const useRust = () => {
   const downloadModel = useCallback(
     async (modelData: {GLY_URL: string; STS_URL: string; X_VEC: string; Y_VEC: string}) => {
       try {
+        if (!modelRunner) {
+          await init();
+          const mr = new ModelRunner();
+          setModelRunner(mr);
+          return;
+        }
+        console.log('downloading model');
         // Load the WASM module and create a new ModelRunner instance.
         // We can't re-use the model runner because there is no way to clear the stats and glyphs and reuse the event loop
         const {GLY_URL, STS_URL, X_VEC, Y_VEC} = modelData;
@@ -163,9 +166,14 @@ export const useRust = () => {
         const width = canvas!.clientWidth;
         const height = canvas!.clientHeight;
         setGELoading(false);
+        console.log({modelRunner});
         if (modelRunner) {
-          console.log('called modelRunner.run()');
-          await modelRunner.run(width, height);
+          if (shouldReset()) {
+            await modelRunner.reset_state();
+          } else {
+            console.log('called modelRunner.run()');
+            await modelRunner.run(width, height);
+          }
         }
       } catch (error) {
         console.log('swallowedError', {error});
@@ -229,6 +237,7 @@ export const useRust = () => {
         if (project) {
           await updateProjectState(project.id, project.state);
           const retval = await runGlyphEngineAction(project, stateId);
+          console.log({retval});
           // @ts-ignore
           if (retval && !retval?.error) {
             // @ts-ignore

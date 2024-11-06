@@ -5,7 +5,8 @@ import {MongoDBAdapter} from '@next-auth/mongodb-adapter';
 import GoogleProvider from 'next-auth/providers/google';
 import EmailProvider from 'next-auth/providers/email';
 import emailClient from 'actions/src/email';
-import {databaseTypes, emailTypes} from 'types';
+import {emailTypes} from 'types';
+import Gateway from 'actions/src/auth/Gateway';
 
 const getConnectionPromise = (async () => {
   // initialize the business layer
@@ -23,56 +24,8 @@ export const authOptions: NextAuthOptions = {
       if (!userInfo) {
         throw new Error('User not found');
       } else {
-        const {MEMBER, OWNER: TEAM_OWNER} = databaseTypes.constants.ROLE;
-        const {READ_ONLY, CAN_EDIT, OWNER} = databaseTypes.constants.PROJECT_ROLE;
-        // get valid memberships
-        const pms = userInfo.membership?.filter(
-          (m) =>
-            m.type === databaseTypes.constants.MEMBERSHIP_TYPE.PROJECT &&
-            m.status === databaseTypes.constants.INVITATION_STATUS.ACCEPTED &&
-            !m.deletedAt
-        );
-
-        // get valid memberships
-        const wms = userInfo.membership?.filter(
-          (m) =>
-            m.type === databaseTypes.constants.MEMBERSHIP_TYPE.WORKSPACE &&
-            m.status === databaseTypes.constants.INVITATION_STATUS.ACCEPTED &&
-            !m.deletedAt
-        );
-
-        const projectRoles = pms.reduce(
-          (roles, membership) => {
-            const projectId = membership.project as unknown as string;
-            if (projectId) {
-              let role = roles[projectId];
-              // Assign the highest role privilege
-              if (membership.projectRole === OWNER) role = 'owner';
-              else if (membership.projectRole === CAN_EDIT && role !== 'owner') role = 'editable';
-              else if (membership.projectRole === READ_ONLY && !role) role = 'readOnly';
-              roles[projectId] = role;
-            }
-            return roles;
-          },
-          {} as Record<string, 'readOnly' | 'editable' | 'owner'>
-        );
-
-        const teamRoles = wms.reduce(
-          (roles, membership) => {
-            const workspaceId = membership.workspace as unknown as string;
-            if (workspaceId) {
-              let role = roles[workspaceId];
-              // Assign the highest role privilege
-              if (membership.teamRole === TEAM_OWNER) role = 'owner';
-              else if (membership.teamRole === MEMBER && role !== 'owner') role = 'member';
-              roles[workspaceId] = role;
-            }
-            return roles;
-          },
-          {} as Record<string, 'member' | 'owner'>
-        );
-
-        console.log({projectRoles, teamRoles});
+        const projectRoles = Gateway.projectRoleMap(userInfo);
+        const teamRoles = Gateway.workspaceRoleMap(userInfo);
 
         session.user = {
           id: userInfo.id as string,
@@ -83,6 +36,7 @@ export const authOptions: NextAuthOptions = {
           teamRoles,
         };
 
+        // console.log({user: session.user});
         return session;
       }
     },

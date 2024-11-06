@@ -5,6 +5,7 @@ import {generalPurposeFunctions as sharedFunctions} from 'core';
 import {formatGridData} from './utils/formatGridData';
 import {getServerSession} from 'next-auth';
 import {authOptions} from './auth';
+import Gateway from './auth/Gateway';
 
 /**
  * Get Data by Row Id
@@ -27,7 +28,8 @@ export const getDataByRowId = async (
 ) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session) {
+    const isAuth = await Gateway.checkProjectAuth(session, projectId);
+    if (isAuth) {
       const fullTableName = sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName);
       const data = await dataService.getDataByGlyphxIds(projectId, fullTableName, rowIds, undefined, undefined, true);
       const project = await projectService.getProject(projectId);
@@ -81,7 +83,8 @@ export const getDataByTableName = async (
 ) => {
   try {
     const session = await getServerSession(authOptions);
-    if (session) {
+    const isAuth = await Gateway.checkProjectAuth(session, projectId);
+    if (isAuth) {
       const table = sharedFunctions.fileIngestion.getFullTableName(workspaceId, projectId, tableName);
 
       const data = await dataService.getDataByTableName(table, pageSize, pageNumber);
