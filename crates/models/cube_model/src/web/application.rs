@@ -706,6 +706,10 @@ impl ApplicationHandler<ModelEvent> for Application {
                     redraw = true;
                     emit_event(&ModelEvent::ResetState);
                 },
+                ModelEvent::SceneRendered => {
+                    redraw = false;
+                    emit_event(&ModelEvent::SceneRendered);
+                }
 
                 _ => {}
             }
