@@ -24,8 +24,9 @@ export const ProjectCard = ({project}) => {
   const setRightSidebarControl = useSetRecoilState(rightSidebarControlAtom);
   const setModals = useSetRecoilState(modalsAtom);
 
-  const navigate = () => {
-    router.push(`/project/${project.id}` as Route);
+  const navigateToProject = () => {
+    // @ts-ignore
+    navigation.navigate(`/project/${project.id}`);
     setTab('FILES');
   };
 
@@ -69,7 +70,7 @@ export const ProjectCard = ({project}) => {
           <DeleteProjectIcon onClick={deleteProject} />
         </div>
       </div>
-      <div onClick={() => navigate()} className="flex flex-col h-full justify-between rounded-md">
+      <div onClick={() => navigateToProject()} className="flex flex-col h-full justify-between rounded-md">
         <div className="rounded-t-md overflow-hidden h-5/6">
           <Image
             width={project?.aspectRatio?.width || 300}
