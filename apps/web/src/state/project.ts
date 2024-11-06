@@ -1,5 +1,6 @@
 import {atom, atomFamily, selector, selectorFamily} from 'recoil';
 import {databaseTypes, webTypes, fileIngestionTypes} from 'types';
+import {stateSnapshotsSelector} from './snapshot';
 // import { generateFilterQuery } from 'lib/client/helpers';
 
 /**
@@ -271,4 +272,17 @@ export const descSelector = selector({
 export const permissionsAtom = atom<Record<string, 'owner' | 'editable' | 'readOnly'>>({
   key: 'permissionsAtom',
   default: {},
+});
+
+export const shouldOpenSelector = selector<boolean>({
+  key: 'shouldOpenSelector',
+  get: ({get}) => {
+    // const props = get(droppedPropertiesSelector);
+    const states = get(stateSnapshotsSelector);
+    if (states?.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  },
 });

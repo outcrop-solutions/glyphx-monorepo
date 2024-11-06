@@ -15,7 +15,6 @@ import AddMemberIcon from 'svg/add-member-icon.svg';
 import ProjectInfoIcon from 'svg/project-info-icon.svg';
 import DeleteProjectIcon from 'svg/delete-project-icon.svg';
 import {WritableDraft} from 'immer/dist/internal';
-import Link from 'next/link';
 
 export const ProjectCard = ({project}) => {
   dayjs.extend(relativeTime);
@@ -26,7 +25,7 @@ export const ProjectCard = ({project}) => {
   const setModals = useSetRecoilState(modalsAtom);
 
   const navigate = () => {
-    router.replace(`/project/${project.id}` as Route);
+    router.push(`/project/${project.id}` as Route);
     setTab('FILES');
   };
 
@@ -70,7 +69,7 @@ export const ProjectCard = ({project}) => {
           <DeleteProjectIcon onClick={deleteProject} />
         </div>
       </div>
-      <Link href={`/project/${project.id}`} className="flex flex-col h-full justify-between rounded-md">
+      <div onClick={() => navigate()} className="flex flex-col h-full justify-between rounded-md">
         <div className="rounded-t-md overflow-hidden h-5/6">
           <Image
             width={project?.aspectRatio?.width || 300}
@@ -100,7 +99,7 @@ export const ProjectCard = ({project}) => {
             </div>
           </div>
         </footer>
-      </Link>
+      </div>
     </div>
   );
 };

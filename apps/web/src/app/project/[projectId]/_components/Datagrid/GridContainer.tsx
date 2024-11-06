@@ -6,7 +6,14 @@ import {Datagrid} from './DataGrid';
 import {GridHeader} from './GridHeader';
 import {ModelFooter} from './ModelFooter';
 import {filesOpenSelector} from 'state/files';
-import {geLoadingAtom, modelRunnerAtom, orientationAtom, splitPaneSizeAtom, windowSizeAtom} from 'state';
+import {
+  geLoadingAtom,
+  modelRunnerAtom,
+  orientationAtom,
+  shouldOpenSelector,
+  splitPaneSizeAtom,
+  windowSizeAtom,
+} from 'state';
 import SplitPane from 'react-split-pane';
 import {Model} from '../Model';
 import {ModelControls} from './ModelControls';
@@ -16,6 +23,7 @@ import LoadingBar from 'app/_components/Loaders/LoadingBar';
 export const GridContainer = () => {
   const modelRunner = useRecoilValue(modelRunnerAtom);
   const isGERunning = useRecoilValue(geLoadingAtom);
+  const shouldOpen = useRecoilValue(shouldOpenSelector);
   // ensures we don't pre-render the server
   const [isClient, setIsClient] = useState(false);
   useEffect(() => {
@@ -52,26 +60,28 @@ export const GridContainer = () => {
 
   const handlePaneResize = useDebounceCallback(paneSizeCallback, 50);
 
-  const getPaneHeight = () => {
+  const getPaneHeight = useCallback(() => {
+    console.log({height, shouldOpen});
     if (height) {
-      if (orientation === 'vertical') {
-        return height - 60;
+      if (shouldOpen) {
+        return 400;
       } else {
-        return height - 70;
+        return height - 105;
       }
     }
-  };
+  }, [shouldOpen, height]);
 
   return (
-    isClient && (
+    isClient &&
+    height && (
       <div className="relative h-full w-full border-r border-gray">
         {/* @ts-ignore */}
         <SplitPane
           // style={{overflow: 'scroll', height: `${getPaneHeight()}px`}}
           split={orientation}
           allowResize={true}
-          defaultSize={400}
-          // defaultSize={getPaneHeight()}
+          // defaultSize={400}
+          defaultSize={getPaneHeight()}
           maxSize={7000}
           minSize={70}
           onChange={handlePaneResize}
