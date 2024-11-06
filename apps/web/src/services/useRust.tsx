@@ -136,12 +136,6 @@ export const useRust = () => {
   const downloadModel = useCallback(
     async (modelData: {GLY_URL: string; STS_URL: string; X_VEC: string; Y_VEC: string}) => {
       try {
-        if (!modelRunner) {
-          await init();
-          const mr = new ModelRunner();
-          setModelRunner(mr);
-          return;
-        }
         console.log('downloading model');
         // Load the WASM module and create a new ModelRunner instance.
         // We can't re-use the model runner because there is no way to clear the stats and glyphs and reuse the event loop
@@ -166,7 +160,6 @@ export const useRust = () => {
         const width = canvas!.clientWidth;
         const height = canvas!.clientHeight;
         setGELoading(false);
-        console.log({modelRunner});
         if (modelRunner) {
           if (shouldReset()) {
             await modelRunner.reset_state();
@@ -211,7 +204,6 @@ export const useRust = () => {
             await downloadModel(retval);
           }
         }
-        setGELoading(false);
       } catch (error) {
         setGELoading(false);
         console.log({error});

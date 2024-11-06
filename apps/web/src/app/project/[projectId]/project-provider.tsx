@@ -15,17 +15,11 @@ const ProjectProvider = ({project, templates, permissions, children}) => {
 
   useEffect(() => {
     setIsClient(true);
-
-    // return () => {
-    //   setIsClient(false);
-    //   setIsInited(false);
-    // };
   }, []);
 
   return (
     isClient && (
       <RecoilRoot
-        // key={`recoil-key-${project.id}`}
         initializeState={async ({set}) => {
           set(rowIdsAtom, false);
           set(templatesAtom, templates);
