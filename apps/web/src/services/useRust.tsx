@@ -13,14 +13,15 @@ import {
   glyphCountSelector,
   xVecCountSelector,
   yVecCountSelector,
+  sceneRenderedAtom,
 } from 'state';
 import {runGlyphEngineAction, updateProjectState} from 'actions';
 import produce from 'immer';
-import init, {ModelRunner} from '../../public/pkg/glyphx_cube_model';
 
 export const useRust = () => {
   const [modelRunner, setModelRunner] = useRecoilState(modelRunnerAtom);
   const setGELoading = useSetRecoilState(geLoadingAtom);
+  const setSceneRendered = useSetRecoilState(sceneRenderedAtom);
   const glyphCount = useRecoilValue(glyphCountSelector);
   const statsCount = useRecoilValue(statsCountSelector);
   const xVecCount = useRecoilValue(xVecCountSelector);
@@ -31,7 +32,6 @@ export const useRust = () => {
   const [project, setProject] = useRecoilState(projectAtom);
   const [activeState, setActiveState] = useRecoilState(activeStateAtom);
   const activeStates = useRecoilValue(stateSnapshotsSelector);
-  // const [modelLoaded, setModelLoaded] = useRecoilState(currentModelAtom);
   const setDrawer = useSetRecoilState(drawerOpenAtom);
 
   const shouldReset = useCallback(() => {
@@ -160,6 +160,7 @@ export const useRust = () => {
         const width = canvas!.clientWidth;
         const height = canvas!.clientHeight;
         setGELoading(false);
+        setSceneRendered(true);
         if (modelRunner) {
           if (shouldReset()) {
             await modelRunner.reset_state();

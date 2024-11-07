@@ -23,11 +23,9 @@ export const CreateStateInput = () => {
     async (event) => {
       event.preventDefault();
       try {
-        // if (lastPayloadHash) {
         // this is flipped back to false in provider.tsx on line 170
         setIsSubmitting(true);
         modelRunner.take_screenshot(true);
-        // }
       } catch (error) {
         console.log(error);
       }

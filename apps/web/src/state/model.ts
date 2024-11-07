@@ -13,6 +13,16 @@ export const modelRunnerAtom = atom<any>({
   default: null,
 });
 
+export const docAtom = atom({
+  key: 'docAtom',
+  default: null,
+});
+
+export const sceneRenderedAtom = atom<boolean>({
+  key: 'sceneRenderedAtom',
+  default: false,
+});
+
 export const isInitedAtom = atom<boolean>({
   key: 'isInitedKey',
   default: false,

@@ -44,9 +44,11 @@ export default async function ProjectLayout({children, params}) {
   const templates = await projectTemplateService.getProjectTemplates({});
   const {data} = await serverDoc.getDocument({documentId: project.docId!});
 
+  // console.log('rendering project layout', {params, projectId, session, role, project, templates, data});
+
   return (
     <div className="relative flex flex-col w-screen h-screen space-x-0 text-white md:flex-row bg-secondary-midnight">
-      <ProjectProvider project={project} templates={templates} permissions={permissions}>
+      <ProjectProvider project={project} doc={data} templates={templates} permissions={permissions}>
         <CollabProvider project={project} doc={data}>
           <LeftSidebar />
           <CursorProvider>

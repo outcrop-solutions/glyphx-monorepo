@@ -76,8 +76,10 @@ export const createState = async (
     if (isAuth) {
       const project = await projectService.getProject(projectId as string);
       if (project?.id) {
+        // logs
+        const coallescedName = name || 'Initial State';
         const state = await stateService.createState(
-          name,
+          coallescedName,
           camera,
           project,
           session!.user?.id,
@@ -136,6 +138,8 @@ export const createState = async (
       }
     }
   } catch (err) {
+    // @ts-ignore
+    console.log({err: err?.innerError?.innerError});
     const e = new ActionError('An unexpected error occurred creating the state', 'project', {projectId}, err);
     e.publish('state', constants.ERROR_SEVERITY.ERROR);
     return {error: e.message};

@@ -7,7 +7,6 @@ import {useRust} from 'services/useRust';
 
 export const Properties = () => {
   const {runRustGlyphEngine} = useRust();
-  const modelRunner = useRecoilValue(modelRunnerAtom);
   const properties = useRecoilValue(propertiesSelector);
   const [isCollapsed, setCollapsed] = useState(false);
   return (
@@ -42,9 +41,7 @@ export const Properties = () => {
               </span>
             </div>
             <button
-              onClick={async (e) => {
-                await runRustGlyphEngine(e);
-              }}
+              onClick={runRustGlyphEngine}
               className={`flex items-center bg-gray hover:bg-yellow justify-around px-3 text-xs mr-2 my-2 text-center rounded disabled:opacity-75 text-white`}
             >
               <span>Apply</span>

@@ -17,10 +17,12 @@ export default async function RootLayout({children, params}: {children: React.Re
   } catch (error) {}
 
   return (
-    <html lang="en">
-      <body className="relative flex flex-col">
-        <Providers session={session}>{children}</Providers>
-      </body>
-    </html>
+    session && (
+      <html lang="en">
+        <body className="relative flex flex-col">
+          <Providers session={session}>{children}</Providers>
+        </body>
+      </html>
+    )
   );
 }
